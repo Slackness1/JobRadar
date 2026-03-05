@@ -1,0 +1,29 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+
+# Local editor/agent state
+.claude/
+
+# Test/build caches
+.pytest_cache/
+.mypy_cache/
+
+# Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Local database/data files
+backend/data/*.db
+
+# OS/editor
+.DS_Store
+Thumbs.db
