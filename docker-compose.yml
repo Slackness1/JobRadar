@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app/backend
+      - db-data:/app/backend/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_PROXY_TARGET=http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
+    name: ${DB_VOLUME_NAME:-jobscraper_db-data}
+  frontend-node-modules:

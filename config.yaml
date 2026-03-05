@@ -1,0 +1,628 @@
+# ============================================================
+# 岗位筛选配置文件
+# 说明：所有规则变化只需修改此文件，无需改代码
+# ============================================================
+
+# ==================== 赛道定义 (Tracks) ====================
+# 每个赛道有独立的关键词、权重和阈值
+tracks:
+  data_analysis:
+    name: "数据分析/挖掘"
+    weight: 1.0  # 赛道权重（用于综合排序）
+    min_score: 15  # 低于此分数不进入该赛道榜单
+    keywords:
+      # 核心关键词（权重高）
+      core:
+        - "数据分析"
+        - "数据挖掘"
+        - "数据科学"
+        - "Data Science"
+        - "Data Scientist"
+        - "DS"
+        - "DA"
+        - "DE"
+      # 数据工程
+      data_engineering:
+        - "数据工程师"
+        - "数据开发"
+        - "ETL"
+        - "数据仓库"
+        - "数仓"
+        - "Data Warehouse"
+        - "大数据开发"
+        - "大数据工程师"
+        - "Hadoop"
+        - "Spark"
+        - "Flink"
+        - "Hive"
+        - "Kafka"
+        - "ClickHouse"
+        - "数据湖"
+        - "Data Lake"
+      # BI/商业分析
+      bi_analysis:
+        - "BI工程师"
+        - "BI分析师"
+        - "商业分析"
+        - "Business Analyst"
+        - "BA"
+        - "经营分析"
+        - "业务分析"
+        - "运营分析"
+        - "策略分析"
+        - "数据运营"
+      # 算法/ML
+      algorithm_ml:
+        - "算法工程师"
+        - "算法"
+        - "机器学习"
+        - "Machine Learning"
+        - "ML"
+        - "深度学习"
+        - "Deep Learning"
+        - "DL"
+        - "AI工程师"
+        - "人工智能"
+        - "数据建模"
+        - "模型"
+        - "预测模型"
+        - "NLP"
+        - "自然语言"
+        - "CV"
+        - "计算机视觉"
+      # 量化/风控
+      quant_risk:
+        - "量化分析"
+        - "量化"
+        - "Quant"
+        - "风控模型"
+        - "风控"
+        - "信用分析"
+        - "评分卡"
+        - "反欺诈"
+        - "风险模型"
+        - "征信"
+      # 统计
+      statistics:
+        - "统计"
+        - "统计学"
+        - "统计分析"
+        - "精算"
+        - "Actuary"
+        - "SPSS"
+        - "Stata"
+        - "SAS"
+      # 其他
+      other:
+        - "数据产品"
+        - "数据治理"
+        - "数据中台"
+        - "数据平台"
+
+  tech_consulting:
+    name: "科技/数字化咨询"
+    weight: 0.9
+    min_score: 12
+    keywords:
+      core:
+        - "咨询"
+        - "Consultant"
+        - "Consulting"
+        - "顾问"
+        - "Advisory"
+      management:
+        - "管理咨询"
+        - "战略咨询"
+        - "Strategy"
+        - "战略"
+        - "企业管理咨询"
+        - "BCG"
+        - "麦肯锡"
+        - "McKinsey"
+        - "贝恩"
+        - "Bain"
+        - "MBB"
+        - "四大"
+      digital:
+        - "IT咨询"
+        - "数字化咨询"
+        - "技术咨询"
+        - "数字化转型"
+        - "信息化"
+        - "ERP"
+        - "SAP"
+        - "Oracle"
+      implementation:
+        - "实施顾问"
+        - "解决方案"
+        - "售前"
+        - "Pre-sales"
+        - "解决方案顾问"
+        - "Technical Consultant"
+      specialized:
+        - "人力资源咨询"
+        - "财务咨询"
+        - "风险咨询"
+        - "税务咨询"
+        - "交易咨询"
+        - "并购咨询"
+        - "M&A"
+      roles:
+        - "PTA"
+        - "咨询实习"
+        - "助理顾问"
+        - "咨询分析师"
+        - "分析员"
+        - "Associate"
+        - "Analyst"
+      strategy:
+        - "战略规划"
+        - "战略分析"
+        - "商业规划"
+        - "业务规划"
+
+  ai_pm:
+    name: "AI产品经理"
+    weight: 1.0
+    min_score: 12
+    keywords:
+      core:
+        - "产品经理"
+        - "产品助理"
+        - "产品专员"
+        - "PM"
+        - "Product Manager"
+        - "产品"
+        - "Product"
+        - "产品策划"
+        - "产品规划"
+      ai_specific:
+        - "AI产品"
+        - "人工智能产品"
+        - "AI PM"
+        - "AI产品经理"
+        - "算法产品"
+        - "智能产品"
+        - "智慧"
+        - "大模型产品"
+        - "LLM产品"
+        - "AIGC"
+        - "ChatGPT"
+        - "生成式AI"
+        - "GenAI"
+      tech_direction:
+        - "NLP产品"
+        - "自然语言产品"
+        - "CV产品"
+        - "视觉产品"
+        - "语音产品"
+        - "ASR"
+        - "TTS"
+        - "推荐产品"
+        - "搜索产品"
+        - "知识图谱"
+        - "对话系统"
+        - "Chatbot"
+      platform:
+        - "数据产品经理"
+        - "平台产品"
+        - "ToB产品"
+        - "SaaS产品"
+        - "企业服务"
+        - "B端产品"
+        - "中台产品"
+        - "技术产品"
+      innovation:
+        - "创新产品"
+        - "战略产品"
+        - "增长产品"
+        - "商业化产品"
+
+  investment_research:
+    name: "投研/市场研究"
+    weight: 0.95
+    min_score: 12
+    keywords:
+      core:
+        - "投研"
+        - "投资研究"
+        - "行业研究"
+        - "研报"
+        - "研究"
+        - "Research"
+      equity:
+        - "证券研究"
+        - "股票研究"
+        - "权益研究"
+        - "Equity Research"
+        - "权益分析师"
+      macro_strategy:
+        - "宏观研究"
+        - "宏观经济"
+        - "策略研究"
+        - "固收研究"
+        - "债券研究"
+        - "基金研究"
+        - "信用研究"
+        - "FICC"
+      analyst:
+        - "投资分析"
+        - "投资助理"
+        - "研究员"
+        - "证券分析师"
+        - "行业分析师"
+        - "分析师"
+        - "Analyst"
+        - "信用分析师"
+      quant_fi:
+        - "量化研究"
+        - "量化分析师"
+        - "金融工程"
+        - "Financial Engineering"
+        - "衍生品"
+        - "期权"
+        - "期货"
+        - "资产配置"
+        - "量化交易"
+      investment:
+        - "基金经理"
+        - "投资经理"
+        - "交易员"
+        - "债券交易"
+        - "股票交易"
+        - "资管"
+        - "资产管理"
+        - "投资"
+        - "Portfolio"
+      sector:
+        - "TMT研究"
+        - "消费研究"
+        - "医药研究"
+        - "新能源研究"
+        - "金融研究"
+      esg:
+        - "ESG"
+        - "ESG分析"
+        - "绿色金融"
+        - "碳中和"
+      market:
+        - "市场研究"
+        - "竞争分析"
+        - "消费者研究"
+
+  power_trading:
+    name: "电力市场/交易/算法"
+    weight: 0.85
+    min_score: 10
+    keywords:
+      core:
+        - "电力市场"
+        - "电力交易"
+        - "电力"
+        - "电网"
+        - "发电"
+        - "售电"
+      trading:
+        - "交易员"
+        - "交易算法"
+        - "现货交易"
+        - "中长期交易"
+        - "电力现货"
+        - "电能量交易"
+        - "辅助服务"
+      algorithm:
+        - "调度算法"
+        - "优化算法"
+        - "运筹优化"
+        - "组合优化"
+        - "求解器"
+        - "MILP"
+        - "线性规划"
+        - "整数规划"
+      storage:
+        - "储能"
+        - "光伏"
+        - "风电"
+        - "新能源"
+        - "综合能源"
+        - "虚拟电厂"
+      strategy:
+        - "报价策略"
+        - "交易策略"
+        - "套利策略"
+        - "负荷预测"
+        - "电价预测"
+
+# ==================== 硬性过滤条件 (Hard Filters) ====================
+hard_filters:
+  # 地点过滤（保留这些地点，空列表表示不限制）
+  location:
+    include: []  # 如需限制：["北京", "上海", "深圳", "杭州"]
+    exclude: []  # 排除地点：["海外", "境外"]
+  
+  # 语言要求
+  language:
+    require_english: false  # 是否要求英语
+    require_chinese: true   # 是否要求中文描述
+  
+  # 工作年限
+  experience:
+    min_years: 0     # 最低年限
+    max_years: 3     # 最高年限（应届生/ junior）
+  
+  # 必须包含的关键词（岗位必须包含其一）
+  must_include: []
+    # 示例：["校招", "应届", "实习", "2025", "2026"]
+  
+  # 排除关键词（包含则直接排除）
+  exclude_keywords:
+    # 不相关职能
+    sales:
+      - "销售代表"
+      - "销售经理"
+      - "销售专员"
+      - "客户经理"
+      - "销售总监"
+    support:
+      - "客服"
+      - "行政专员"
+      - "前台"
+      - "保洁"
+      - "保安"
+      - "司机"
+    logistics:
+      - "物流专员"
+      - "仓储"
+      - "配送员"
+    design:
+      - "UI设计师"
+      - "UX设计师"
+      - "视觉设计师"
+      - "交互设计师"
+      - "平面设计"
+      - "美工"
+      - "插画师"
+    ops:
+      - "网络运维"
+      - "IT运维"
+      - "系统运维"
+    game:
+      - "游戏开发"
+      - "游戏策划"
+      - "游戏运营"
+      - "特效师"
+      - "游戏美术"
+    hardware:
+      - "硬件工程师"
+      - "嵌入式开发"
+      - "单片机"
+      - "电子工程师"
+      - "电路设计"
+    construction:
+      - "建筑"
+      - "土木"
+      - "施工"
+      - "工程管理"
+
+# ==================== 技能同义词表 (Skill Ontology) ====================
+skill_synonyms:
+  # 时间序列
+  time_series:
+    canonical: "时间序列"
+    synonyms:
+      - "time-series"
+      - "forecasting"
+      - "预测"
+      - "demand forecasting"
+      - "负荷预测"
+      - "电价预测"
+      - "销量预测"
+  
+  # 机器学习
+  machine_learning:
+    canonical: "机器学习"
+    synonyms:
+      - "ML"
+      - "Machine Learning"
+      - "预测模型"
+      - "supervised learning"
+      - "监督学习"
+  
+  # 深度学习
+  deep_learning:
+    canonical: "深度学习"
+    synonyms:
+      - "DL"
+      - "Deep Learning"
+      - "神经网络"
+      - "neural network"
+      - "DNN"
+      - "CNN"
+      - "RNN"
+  
+  # 大语言模型
+  llm:
+    canonical: "大语言模型"
+    synonyms:
+      - "LLM"
+      - "Large Language Model"
+      - "ChatGPT"
+      - "GPT"
+      - "大模型"
+      - "语言模型"
+  
+  # 自然语言处理
+  nlp:
+    canonical: "自然语言处理"
+    synonyms:
+      - "NLP"
+      - "Natural Language Processing"
+      - "文本分析"
+      - "语义理解"
+  
+  # 计算机视觉
+  cv:
+    canonical: "计算机视觉"
+    synonyms:
+      - "CV"
+      - "Computer Vision"
+      - "图像识别"
+      - "视觉识别"
+  
+  # 数据仓库
+  data_warehouse:
+    canonical: "数据仓库"
+    synonyms:
+      - "数仓"
+      - "Data Warehouse"
+      - "DW"
+      - "EDW"
+  
+  # SQL
+  sql:
+    canonical: "SQL"
+    synonyms:
+      - "MySQL"
+      - "PostgreSQL"
+      - "Hive SQL"
+      - "数据库查询"
+  
+  # Python
+  python:
+    canonical: "Python"
+    synonyms:
+      - "Python开发"
+      - "Py"
+      - "Pandas"
+      - "NumPy"
+  
+  # 产品经理
+  product_manager:
+    canonical: "产品经理"
+    synonyms:
+      - "PM"
+      - "Product Manager"
+      - "产品策划"
+      - "产品专员"
+
+# ==================== 评分权重配置 ====================
+scoring:
+  # 子分数权重（总和应为 1.0）
+  weights:
+    keyword_match: 0.30      # 关键词匹配分数
+    track_fit: 0.25          # 赛道匹配度
+    skill_relevance: 0.20    # 技能相关度
+    location_match: 0.10     # 地点匹配
+    recency: 0.10            # 发布时间新鲜度
+    company_tier: 0.05       # 公司级别
+  
+  # 关键词分数计算
+  keyword_scoring:
+    core_multiplier: 3.0     # 核心关键词权重倍数
+    normal_multiplier: 1.0   # 普通关键词权重倍数
+    max_score: 50            # 关键词部分最高分
+  
+  # 时间新鲜度
+  recency:
+    same_day: 100       # 当天发布
+    within_3_days: 80   # 3天内
+    within_7_days: 60   # 7天内
+    within_14_days: 40  # 14天内
+    older: 20           # 更早
+
+  # 公司级别加分
+  company_tier:
+    tier1:  # 顶级公司
+      bonus: 15
+      companies:
+        - "腾讯"
+        - "阿里巴巴"
+        - "字节跳动"
+        - "美团"
+        - "拼多多"
+        - "华为"
+        - "BCG"
+        - "麦肯锡"
+        - "贝恩"
+        - "德勤"
+        - "普华永道"
+        - "安永"
+        - "毕马威"
+        - "中金"
+        - "中信证券"
+        - "华泰证券"
+        - "英伟达"
+        - "OpenAI"
+    tier2:  # 知名公司
+      bonus: 10
+      companies:
+        - "Shopee"
+        - "小红书"
+        - "快手"
+        - "京东"
+        - "百度"
+        - "网易"
+        - "滴滴"
+        - "小米"
+        - "B站"
+        - "中国电信"
+        - "中国移动"
+        - "中国联通"
+        - "长鑫存储"
+        - "中诚信"
+    tier3:  # 央企国企
+      bonus: 5
+      keywords:
+        - "央企"
+        - "国企"
+        - "集团"
+
+# ==================== 阈值配置 ====================
+thresholds:
+  # 总分阈值
+  total_score_min: 30        # 总分低于此值不展示
+  
+  # 单赛道阈值（低于此值不进入该赛道）
+  track_min_scores:
+    data_analysis: 15
+    tech_consulting: 12
+    ai_pm: 12
+    investment_research: 12
+    power_trading: 10
+  
+  # 热门推荐阈值
+  hot_recommend_min: 60      # 进入"热门推荐"的最低分
+  
+  # 最多展示数量
+  max_display_per_track: 50  # 每个赛道最多展示数量
+  max_hot_recommend: 20      # 热门推荐最多数量
+
+# ==================== 输出配置 ====================
+output:
+  # CSV 输出字段
+  csv_fields:
+    - "job_id"
+    - "company"
+    - "company_type_industry"
+    - "company_tags"
+    - "department"
+    - "job_title"
+    - "location"
+    - "major_req"
+    - "job_req"
+    - "job_duty"
+    - "publish_date"
+    - "deadline"
+    - "detail_url"
+    # 新增评分字段
+    - "matched_tracks"
+    - "total_score"
+    - "track_scores"
+    - "matched_keywords"
+    - "skill_tags"
+  
+  # 报告配置
+  report:
+    show_score_breakdown: true   # 是否显示分数明细
+    show_skill_tags: true        # 是否显示技能标签
+    group_by_track: true         # 是否按赛道分组

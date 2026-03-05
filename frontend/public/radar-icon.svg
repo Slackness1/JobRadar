@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#4A90E2"/>
+  
+  <!-- Radar dish base -->
+  <ellipse cx="32" cy="48" rx="18" ry="6" fill="#2C5F8F"/>
+  
+  <!-- Radar dish dome -->
+  <path d="M 14 48 Q 14 28 32 20 Q 50 28 50 48 Z" fill="#5BA3F5" stroke="#2C5F8F" stroke-width="2"/>
+  
+  <!-- Concentric circles (radar waves) -->
+  <circle cx="32" cy="36" r="8" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="32" cy="36" r="14" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="32" cy="36" r="20" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.2"/>
+  
+  <!-- Scanning line -->
+  <line x1="32" y1="36" x2="32" y2="16" stroke="#FFD700" stroke-width="2.5" stroke-linecap="round">
+    <animateTransform 
+      attributeName="transform" 
+      type="rotate" 
+      from="0 32 36" 
+      to="360 32 36" 
+      dur="3s" 
+      repeatCount="indefinite"/>
+  </line>
+  
+  <!-- Center dot -->
+  <circle cx="32" cy="36" r="3" fill="#FFFFFF"/>
+  
+  <!-- Blip (detected object) -->
+  <circle cx="28" cy="28" r="2.5" fill="#00FF00" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Antenna tip -->
+  <circle cx="32" cy="18" r="2" fill="#FFD700"/>
+</svg>
