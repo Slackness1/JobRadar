@@ -1,0 +1,48 @@
+name: Feature
+description: Propose a new feature
+title: "[Feature] "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem are you trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your expected implementation outcome
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions define done?
+      placeholder: |
+        - [ ] Condition 1
+        - [ ] Condition 2
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: Planned Branch Name
+      description: Use feat/<name> or feat/<issue>-<name>
+      placeholder: feat/12-github-login
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: This issue tracks one feature only
+          required: true

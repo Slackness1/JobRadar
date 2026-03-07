@@ -1,0 +1,40 @@
+name: Task
+description: Track a scoped technical task
+title: "[Task] "
+labels: ["task"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What is the single objective of this task?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is in scope and out of scope?
+    validations:
+      required: true
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Execution Checklist
+      placeholder: |
+        - [ ] Step 1
+        - [ ] Step 2
+        - [ ] Step 3
+    validations:
+      required: true
+
+  - type: input
+    id: branch
+    attributes:
+      label: Planned Branch Name
+      description: Use one of feat/fix/refactor/docs/chore prefixes
+      placeholder: chore/upgrade-eslint
+    validations:
+      required: true
