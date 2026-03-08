@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -59,8 +59,8 @@ def create_recrawl_task(db: Session, company: str, department: str, career_url: 
         fetched_count=0,
         new_count=0,
         last_error="",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
         finished_at=None,
     )
     db.add(task)
@@ -86,7 +86,7 @@ def retry_recrawl_task(db: Session, task_id: int) -> Optional[CompanyRecrawlQueu
     task.status = "pending"
     task.last_error = ""
     task.finished_at = None
-    task.updated_at = datetime.utcnow()
+    task.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(task)
     return task
@@ -106,7 +106,7 @@ def mark_stale_running_tasks_failed(db: Session) -> int:
     if not stale_tasks:
         return 0
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for task in stale_tasks:
         task.status = "failed"
         task.finished_at = now
@@ -134,7 +134,7 @@ def process_company_recrawl_queue(db: Session, existing_jobs: dict[str, Job], li
     for task in pending_tasks:
         task.status = "running"
         task.attempt_count = int(task.attempt_count or 0) + 1
-        task.updated_at = datetime.utcnow()
+        task.updated_at = datetime.now(timezone.utc)
         db.commit()
 
         try:
@@ -160,8 +160,8 @@ def process_company_recrawl_queue(db: Session, existing_jobs: dict[str, Job], li
             task.fetched_count = fetched_count
             task.new_count = new_count
             task.last_error = ""
-            task.finished_at = datetime.utcnow()
-            task.updated_at = datetime.utcnow()
+            task.finished_at = datetime.now(timezone.utc)
+            task.updated_at = datetime.now(timezone.utc)
 
             db.commit()
 
@@ -170,8 +170,8 @@ def process_company_recrawl_queue(db: Session, existing_jobs: dict[str, Job], li
         except Exception as exc:
             task.status = "failed"
             task.last_error = str(exc)[:500]
-            task.finished_at = datetime.utcnow()
-            task.updated_at = datetime.utcnow()
+            task.finished_at = datetime.now(timezone.utc)
+            task.updated_at = datetime.now(timezone.utc)
             db.commit()
             notes.append(f"Company recrawl failed for {task.company}: {task.last_error}")
 
