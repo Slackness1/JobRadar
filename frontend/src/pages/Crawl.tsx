@@ -10,6 +10,7 @@ import {
   retryCompanyRecrawlTask,
   deleteCompanyRecrawlTask,
 } from '../api';
+import api from '../api';
 import { formatBeijingDateTime } from '../utils/time';
 
 interface CrawlLog {
@@ -40,6 +41,7 @@ export default function Crawl() {
   const [isRunning, setIsRunning] = useState(false);
   const [logs, setLogs] = useState<CrawlLog[]>([]);
   const [recrawlTasks, setRecrawlTasks] = useState<CompanyRecrawlTaskItem[]>([]);
+  const [recrawlBatchRunning, setRecrawlBatchRunning] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const loadLogs = async () => {
@@ -103,6 +105,27 @@ export default function Crawl() {
       loadRecrawlTasks();
     } catch {
       message.error('删除失败');
+    }
+  };
+
+  const handleRunPendingRecrawl = async () => {
+    try {
+      setRecrawlBatchRunning(true);
+      const res = await api.post('/recrawl-queue/run-pending', null, { params: { batch_size: 50 } });
+      const summary = res.data;
+      message.success(
+        `补爬完成：处理 ${summary.processed} 条，新增 ${summary.total_new} 条岗位，失败 ${summary.failed} 条`,
+        6,
+      );
+      if (Array.isArray(summary.notes) && summary.notes.length > 0) {
+        message.info(summary.notes.slice(0, 2).join('；'), 6);
+      }
+      await loadRecrawlTasks();
+      await loadLogs();
+    } catch {
+      message.error('一键全量补爬失败');
+    } finally {
+      setRecrawlBatchRunning(false);
     }
   };
 
@@ -199,6 +222,8 @@ export default function Crawl() {
     },
   ];
 
+  const pendingCount = recrawlTasks.filter((item) => item.status === 'pending').length;
+
   return (
     <div>
       <Alert
@@ -252,7 +277,23 @@ export default function Crawl() {
         />
       </Card>
 
-      <Card title="公司官网补爬队列" style={{ marginTop: 16 }} extra={<Button onClick={loadRecrawlTasks}>刷新队列</Button>}>
+      <Card
+        title="公司官网补爬队列"
+        style={{ marginTop: 16 }}
+        extra={(
+          <Space>
+            <Button onClick={loadRecrawlTasks}>刷新队列</Button>
+            <Button
+              type="primary"
+              loading={recrawlBatchRunning}
+              disabled={recrawlBatchRunning || pendingCount === 0}
+              onClick={handleRunPendingRecrawl}
+            >
+              一键全量补爬待爬公司（{pendingCount}）
+            </Button>
+          </Space>
+        )}
+      >
         <Table
           rowKey="id"
           columns={recrawlColumns}
