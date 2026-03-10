@@ -13,8 +13,10 @@ from app.services.company_recrawl_queue import (
     create_recrawl_task,
     delete_recrawl_task,
     list_recrawl_tasks,
+    run_all_pending_recrawls,
     retry_recrawl_task,
 )
+from app.services.scorer import score_all_jobs
 
 
 router = APIRouter(prefix="/api/recrawl-queue", tags=["company-recrawl"])
@@ -40,7 +42,10 @@ def get_company_recrawl_tasks(
     db: Session = Depends(get_db),
 ):
     items, total = list_recrawl_tasks(db, status=status, limit=limit)
-    return CompanyRecrawlQueueListOut(items=items, total=total)
+    return CompanyRecrawlQueueListOut(
+        items=[CompanyRecrawlQueueOut.model_validate(item) for item in items],
+        total=total,
+    )
 
 
 @router.put("/{task_id}/retry", response_model=CompanyRecrawlQueueOut)
@@ -57,3 +62,14 @@ def remove_company_recrawl_task(task_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(404, "Queue task not found")
     return {"ok": True}
+
+
+@router.post("/run-pending")
+def run_pending_company_recrawl(
+    batch_size: int = Query(20, ge=1, le=200),
+    db: Session = Depends(get_db),
+):
+    summary = run_all_pending_recrawls(db, batch_size=batch_size)
+    if int(summary.get("total_new", 0) or 0) > 0:
+        score_all_jobs(db)
+    return summary
