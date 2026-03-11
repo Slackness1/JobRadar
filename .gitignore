@@ -27,3 +27,7 @@ backend/data/*.db
 # OS/editor
 .DS_Store
 Thumbs.db
+
+
+# Git worktrees for isolated branch review
+.worktrees/
