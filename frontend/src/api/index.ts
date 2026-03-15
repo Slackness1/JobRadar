@@ -21,7 +21,6 @@ export const listCompanyRecrawlTasks = (params?: { status?: string; limit?: numb
 export const retryCompanyRecrawlTask = (id: number) => api.put(`/recrawl-queue/${id}/retry`);
 export const deleteCompanyRecrawlTask = (id: number) => api.delete(`/recrawl-queue/${id}`);
 
-
 // Tracks
 export const getTracks = () => api.get('/tracks/');
 export const createTrack = (data: Record<string, unknown>) => api.post('/tracks/', data);
@@ -67,5 +66,30 @@ export const exportExcel = (params: Record<string, unknown>) =>
   api.post('/export/excel', params, { responseType: 'blob' });
 export const exportJson = (params: Record<string, unknown>) =>
   api.post('/export/json', params, { responseType: 'blob' });
+
+// Job Intel
+export const searchJobIntel = (jobId: number, data: { trigger_mode?: string; platforms?: string[]; force?: boolean }) =>
+  api.post(`/job-intel/jobs/${jobId}/search`, data);
+
+export const refreshJobIntel = (jobId: number, data: { force?: boolean } = {}) =>
+  api.post(`/job-intel/jobs/${jobId}/refresh`, data);
+
+export const getJobIntelSummary = (jobId: number) =>
+  api.get(`/job-intel/jobs/${jobId}/summary`);
+
+export const getJobIntelRecords = (jobId: number, params: { platform?: string; page?: number; page_size?: number }) =>
+  api.get(`/job-intel/jobs/${jobId}/records`, { params });
+
+export const getJobIntelTasks = (jobId: number) =>
+  api.get(`/job-intel/jobs/${jobId}/tasks`);
+
+export const getJobIntelTask = (taskId: number) =>
+  api.get(`/job-intel/tasks/${taskId}`);
+
+export const getJobIntelPlatformStatus = () =>
+  api.get('/job-intel/platforms/status');
+
+export const bootstrapJobIntelPlatform = (platform: string) =>
+  api.post(`/job-intel/platforms/${platform}/bootstrap-login`);
 
 export default api;

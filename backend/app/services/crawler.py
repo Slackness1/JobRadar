@@ -1,9 +1,10 @@
 """Playwright login + API pagination, writes to DB. Adapted from auto_login_scraper.py."""
 import asyncio
 import json
+import os
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -23,6 +24,7 @@ from app.config import (
 from app.models import Job, CrawlLog
 from app.services.company_recrawl_queue import process_company_recrawl_queue
 from app.services.haitou_crawler import run_haitou_crawl
+from app.services.job_merge import merge_job_fields
 
 try:
     from playwright.async_api import async_playwright as playwright_async_playwright
@@ -137,7 +139,7 @@ def map_record(record: Dict, job_stage: str, source_config_id: str) -> Dict:
         "publish_date": _parse_dt(publish_str),
         "deadline": _parse_dt(deadline_str),
         "detail_url": record.get("position_web_url") or "",
-        "scraped_at": datetime.utcnow(),
+        "scraped_at": datetime.now(timezone.utc),
     }
 
 
@@ -153,64 +155,80 @@ async def get_token(headless: bool = True) -> Optional[str]:
     if playwright_async_playwright is None:
         raise RuntimeError("Playwright not installed")
 
+    proxy_server = (
+        os.environ.get("HTTPS_PROXY")
+        or os.environ.get("HTTP_PROXY")
+        or os.environ.get("https_proxy")
+        or os.environ.get("http_proxy")
+    )
+
+    launch_kwargs: dict[str, Any] = {"headless": headless}
+    if proxy_server:
+        launch_kwargs["proxy"] = {"server": proxy_server}
+
     async with playwright_async_playwright() as p:
-        browser = await p.chromium.launch(headless=headless)
+        browser = await p.chromium.launch(**launch_kwargs)
         context = await browser.new_context()
         page = await context.new_page()
 
         try:
             await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=30000)
-            try:
-                await page.wait_for_load_state("networkidle", timeout=30000)
-            except Exception:
-                pass
             await page.wait_for_timeout(3000)
 
-            # Find username input
-            username_input = None
-            for sel in ['input[placeholder*="账号"]', 'input[placeholder*="用户名"]',
-                        'input[placeholder*="手机"]', 'input[type="text"]']:
-                try:
-                    username_input = await page.wait_for_selector(sel, timeout=2000)
-                    if username_input:
-                        break
-                except Exception:
-                    continue
-            if not username_input:
+            # Ensure password-login tab is active on current Tata page implementation.
+            try:
+                password_tab = page.locator("text=密码登录").first
+                await password_tab.click(timeout=3000)
+            except Exception:
+                pass
+            await page.wait_for_timeout(1000)
+
+            username_input = page.locator("input[placeholder*='手机号/邮箱地址/账号名称']").first
+            password_input = page.locator("input[placeholder*='登录密码']").first
+
+            if await username_input.count() == 0:
+                for sel in ['input[placeholder*="账号"]', 'input[placeholder*="用户名"]', 'input[placeholder*="手机"]', 'input[type="text"]']:
+                    try:
+                        username_input = page.locator(sel).first
+                        if await username_input.count() > 0:
+                            break
+                    except Exception:
+                        continue
+            if await username_input.count() == 0:
                 raise RuntimeError("Cannot find username input")
 
-            # Find password input
-            password_input = None
-            for sel in ['input[placeholder*="密码"]', 'input[type="password"]']:
-                try:
-                    password_input = await page.wait_for_selector(sel, timeout=2000)
-                    if password_input:
-                        break
-                except Exception:
-                    continue
-            if not password_input:
+            if await password_input.count() == 0:
+                for sel in ['input[placeholder*="密码"]', 'input[type="password"]']:
+                    try:
+                        password_input = page.locator(sel).first
+                        if await password_input.count() > 0:
+                            break
+                    except Exception:
+                        continue
+            if await password_input.count() == 0:
                 raise RuntimeError("Cannot find password input")
-
-            # Agreement checkbox
-            for sel in ['input[type="checkbox"]', '.ant-checkbox-input', '[role="checkbox"]']:
-                try:
-                    cb = await page.wait_for_selector(sel, timeout=1000)
-                    if cb and not await cb.is_checked():
-                        await cb.click()
-                    break
-                except Exception:
-                    continue
 
             await username_input.fill(username)
             await password_input.fill(password)
+
+            try:
+                cb = page.locator('input.ant-checkbox-input').first
+                await cb.check()
+            except Exception:
+                for sel in ['input[type="checkbox"]', '.ant-checkbox-input', '[role="checkbox"]']:
+                    try:
+                        cb = page.locator(sel).first
+                        if await cb.count() > 0:
+                            await cb.check()
+                            break
+                    except Exception:
+                        continue
+
             await page.wait_for_timeout(500)
 
-            # Click login button
             login_btn = None
             try:
-                login_btn = page.locator(
-                    "div[class*='bg-'][class*='rounded-'][class*='cursor-pointer']"
-                ).filter(has_text="登录").first
+                login_btn = page.locator("div.cursor-pointer", has_text="登录").last
                 if await login_btn.count() == 0:
                     login_btn = None
             except Exception:
@@ -220,17 +238,23 @@ async def get_token(headless: bool = True) -> Optional[str]:
                 try:
                     login_btn = page.get_by_role("button", name="登录")
                     if await login_btn.count() == 0:
-                        login_btn = page.locator("button:has-text('登录')")
+                        login_btn = page.locator("button:has-text('登录')").first
                 except Exception:
-                    login_btn = page.locator("button:has-text('登录')")
+                    login_btn = page.locator("button:has-text('登录')").first
 
-            await login_btn.click()
-            await page.wait_for_timeout(3000)
+            if not login_btn:
+                raise RuntimeError("Cannot find login button")
+
+            await login_btn.click(timeout=5000)
+            await page.wait_for_timeout(5000)
 
             try:
-                await page.wait_for_url("**/manage**", timeout=10000)
+                await page.wait_for_url("**/resume**", timeout=10000)
             except Exception:
-                pass
+                try:
+                    await page.wait_for_url("**/manage**", timeout=5000)
+                except Exception:
+                    pass
 
             token = await page.evaluate("() => localStorage.getItem('token')")
             return token
@@ -312,7 +336,11 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
         total_fetched = 0
         notes: List[str] = []
 
-        queue_new_count, queue_total_count, queue_notes = process_company_recrawl_queue(db, existing_jobs=existing_jobs)
+        queue_result = process_company_recrawl_queue(
+            db,
+            existing_jobs=existing_jobs,
+        )
+        queue_new_count, queue_total_count, queue_notes = queue_result[0], queue_result[1], queue_result[2]
         new_count += queue_new_count
         total_fetched += queue_total_count
         notes.extend(queue_notes)
@@ -346,14 +374,13 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
                             new_count += 1
                             continue
 
+                        # Special handling for job_stage (uses _merge_stage logic)
                         old_stage = getattr(existing, "job_stage", "campus") or "campus"
                         merged_stage = _merge_stage(old_stage, stage)
-                        if merged_stage != old_stage:
-                            setattr(existing, "job_stage", merged_stage)
-
-                        existing_source_config = getattr(existing, "source_config_id", "")
-                        if not existing_source_config:
-                            setattr(existing, "source_config_id", current_config_id)
+                        mapped["job_stage"] = merged_stage
+                        
+                        # Use protected merge logic for other fields
+                        merge_job_fields(existing, mapped)
 
                     if len(records) < page_size:
                         break
@@ -374,12 +401,12 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
         setattr(log, "total_count", total_fetched)
         if notes:
             setattr(log, "error_message", "; ".join(notes)[:500])
-        setattr(log, "finished_at", datetime.utcnow())
+        setattr(log, "finished_at", datetime.now(timezone.utc))
 
     except Exception as e:
         setattr(log, "status", "failed")
         setattr(log, "error_message", str(e)[:500])
-        setattr(log, "finished_at", datetime.utcnow())
+        setattr(log, "finished_at", datetime.now(timezone.utc))
 
     db.commit()
     db.refresh(log)

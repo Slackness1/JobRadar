@@ -4,6 +4,88 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
+class JobIntelTask(Base):
+    __tablename__ = "job_intel_tasks"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    trigger_mode = Column(Text, default="manual")
+    search_level = Column(Text, default="strict")
+    platform_scope_json = Column(Text, default="[]")
+    query_bundle_json = Column(Text, default="{}")
+    status = Column(Text, default="queued")
+    result_count = Column(Integer, default=0)
+    error_message = Column(Text, default="")
+    started_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    job = relationship("Job", foreign_keys=[job_id])
+
+
+class JobIntelRecord(Base):
+    __tablename__ = "job_intel_records"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    task_id = Column(Integer, ForeignKey("job_intel_tasks.id", ondelete="SET NULL"))
+    platform = Column(Text, default="")
+    content_type = Column(Text, default="")
+    platform_item_id = Column(Text, default="")
+    title = Column(Text, default="")
+    author_name = Column(Text, default="")
+    author_meta_json = Column(Text, default="{}")
+    url = Column(Text, default="")
+    publish_time = Column(DateTime, nullable=True)
+    raw_text = Column(Text, default="")
+    cleaned_text = Column(Text, default="")
+    summary = Column(Text, default="")
+    keywords_json = Column(Text, default="[]")
+    tags_json = Column(Text, default="[]")
+    metrics_json = Column(Text, default="{}")
+    entities_json = Column(Text, default="{}")
+    relevance_score = Column(Float, default=0)
+    confidence_score = Column(Float, default=0)
+    sentiment = Column(Text, default="")
+    data_version = Column(Text, default="v1")
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+    parsed_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JobIntelComment(Base):
+    __tablename__ = "job_intel_comments"
+
+    id = Column(Integer, primary_key=True)
+    intel_record_id = Column(Integer, ForeignKey("job_intel_records.id", ondelete="CASCADE"), nullable=False, index=True)
+    platform_comment_id = Column(Text, default="")
+    parent_comment_id = Column(Text, default="")
+    author_name = Column(Text, default="")
+    content = Column(Text, default="")
+    like_count = Column(Integer, default=0)
+    publish_time = Column(DateTime, nullable=True)
+    relevance_score = Column(Float, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JobIntelSnapshot(Base):
+    __tablename__ = "job_intel_snapshots"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    snapshot_type = Column(Text, default="")
+    summary_text = Column(Text, default="")
+    evidence_count = Column(Integer, default=0)
+    source_platforms_json = Column(Text, default="[]")
+    confidence_score = Column(Float, default=0)
+    generated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
 class Job(Base):
     __tablename__ = "jobs"
 
