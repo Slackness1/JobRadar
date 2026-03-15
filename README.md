@@ -74,11 +74,6 @@ JobRadar 的出发点是：
 ### 5) 每日报告（Daily Briefing）
 ![每日报告（Daily Briefing）](docs/screenshots/daily_briefing.png)
 
-### Demo（占位）
-```text
-[Demo GIF Placeholder]
-建议路径：docs/demo.gif
-```
 
 ---
 
@@ -177,4 +172,3 @@ Reporting Layer (daily briefing)
 
 ## 📄 License
 
-待补充（建议使用 MIT）。
