@@ -1,81 +1,63 @@
-# JobRadar
+# 🎯 JobRadar
 
-> **From job aggregation to job intelligence**
->
-> 一个围绕「目标公司 + 目标赛道」的求职决策系统，而不是通用岗位搬运器。
+🤖 面向「目标公司 + 目标赛道」的岗位情报与投递决策系统，聚焦岗位发现、公司重爬、岗位评分、外部情报整合与每日报告输出。
 
-**English Version:** [README_EN.md](./README_EN.md)
+[功能特性](#-功能特性) · [核心流程](#-核心流程) · [截图占位](#-截图--demo) · [快速开始](#-快速开始) · [架构设计](#-架构设计) · [路线图](#-路线图)
 
----
-
-## Hero 区
-
-**项目定位（一句话）**  
-JobRadar 把碎片化岗位信息转成可执行的投递策略：先发现、再筛选、再评分、再结合外部情报做决策。
-
-**Tagline**  
-From job aggregation to job intelligence.
-
-**Demo（占位）**
-
-```text
-[Demo GIF Placeholder]
-路径建议：docs/demo.gif
-```
+简体中文 | [English](./README_EN.md)
 
 ---
 
-## Why this exists
+## ✨ 功能特性
 
-传统聚合平台能帮你“看到岗位”，但很难帮你“做决策”。
-
-主要问题：
-- 只给线索，不给完整决策链路（岗位质量、时效、成功率、外部信号）
-- 平台内投递入口不一定是最优入口（很多情况要回到官网/校招官网）
-- 盲抓全网岗位噪声高，目标赛道用户真正关心的是**重点公司的持续跟踪**
-
-所以 JobRadar 的核心思路不是“抓更多”，而是：
-- 围绕重点公司做持续监控
-- 对岗位做优先级评分
-- 将面经/讨论/舆情等外部情报纳入判断
-- 输出每天可执行的投递建议
+- **多源岗位发现**：从多个来源收集岗位与公司线索
+- **字段清洗与去重**：统一字段格式，降低重复与脏数据干扰
+- **公司级重爬队列**：围绕重点公司做定向更新，而不是盲目全量抓取
+- **官网/校招入口补录**：补全真实投递入口，提升投递有效性
+- **岗位加权评分**：结合关键词、赛道匹配、地点、时效等维度排序
+- **外部情报整合**：融合面经、讨论、舆情等信号，辅助投递决策
+- **每日报告输出**：形成「新增岗位 + 变化要点 + 建议动作」日报
 
 ---
 
-## What makes JobRadar different
+## ❓ Why this exists
 
-1. **公司级重爬（Company-level Recrawl）**  
-   不是无差别重跑全站，而是把重点公司加入重爬队列，做定向更新。
+传统聚合平台擅长“展示岗位”，但不擅长“支持决策”。
 
-2. **岗位评分（Job Scoring）**  
-   基于关键词、赛道匹配、地点、时效等维度做加权排序，先投“更值得投”的岗位。
+JobRadar 的出发点是：
+- 目标赛道用户通常关注的是少量重点公司，而不是全网噪声
+- 平台内投递入口不一定是最优路径，很多场景需回到官网/校招官网
+- 真正影响投递决策的，除了 JD，还包括时效、质量、成功率与外部信号
 
-3. **外部情报整合（Intelligence Enrichment）**  
-   把面经、讨论、薪酬/强度等非结构化信息转成可参考信号。
-
-4. **每日报告（Daily Briefing）**  
-   输出「新增岗位 + 重点变化 + 推荐动作」的日报，减少重复筛选成本。
+所以 JobRadar 不追求“抓得最多”，而追求“投得更准”。
 
 ---
 
-## Core workflow
+## 🚀 What makes JobRadar different
+
+1. **公司级重爬**：按公司粒度持续跟踪，聚焦重点目标
+2. **岗位评分**：多维加权优先级，先投更值得投的岗位
+3. **外部情报**：把非结构化讨论转为可行动信号
+4. **每日报告**：每天给出明确的下一步动作建议
+
+---
+
+## 🔄 核心流程
 
 ```text
 发现公司/岗位线索
-   → 字段清洗与去重
-   → 官网/校招入口补录
-   → 岗位评分与优先级排序
-   → 外部情报整合
-   → 每日投递日报
+  → 字段清洗与去重
+  → 官网/校招入口补录
+  → 岗位评分与优先级排序
+  → 外部情报整合
+  → 每日投递日报
 ```
 
-对应闭环：
-
-`discover -> clean -> target -> score -> enrich -> decide -> apply`
+闭环：`discover -> clean -> target -> score -> enrich -> decide -> apply`
 
 ---
 
-## Screenshots / Demo
+## 🖼 截图 / Demo
 
 ### 1) 岗位列表（Dashboard）
 ```text
@@ -83,23 +65,17 @@ From job aggregation to job intelligence.
 建议路径：docs/screenshots/dashboard.png
 ```
 
-用于查看岗位池、快速筛选和定位优先处理岗位。
-
 ### 2) 岗位详情 / 情报页（Job Intel）
 ```text
 [截图占位符]
 建议路径：docs/screenshots/job_intel.png
 ```
 
-用于补充岗位外部信号，辅助“是否投、何时投”的决策。
-
 ### 3) 公司重爬（Company Expand / Recrawl）
 ```text
 [截图占位符]
 建议路径：docs/screenshots/company_expand.png
 ```
-
-用于标记重点公司并纳入后续重爬队列。
 
 ### 4) 岗位评分（Scoring）
 ```text
@@ -113,9 +89,15 @@ From job aggregation to job intelligence.
 建议路径：docs/screenshots/daily_briefing.png
 ```
 
+### Demo（占位）
+```text
+[Demo GIF Placeholder]
+建议路径：docs/demo.gif
+```
+
 ---
 
-## Feature matrix
+## 📊 Feature Matrix
 
 | 能力模块 | 说明 | 当前状态 |
 |---|---|---|
@@ -130,7 +112,7 @@ From job aggregation to job intelligence.
 
 ---
 
-## Quick Start
+## ⚡ 快速开始
 
 ### 方式 1：Docker（推荐）
 ```bash
@@ -160,7 +142,7 @@ npm run dev
 
 ---
 
-## Architecture
+## 🧱 架构设计
 
 ```text
 Frontend (React + TS)
@@ -186,7 +168,7 @@ Reporting Layer (daily briefing)
 
 ---
 
-## Roadmap
+## 🗺 路线图
 
 - [ ] 完善官网/校招入口自动发现能力
 - [ ] 增强公司归并与岗位去重准确率
@@ -198,7 +180,7 @@ Reporting Layer (daily briefing)
 
 ---
 
-## Tech Stack
+## 🧰 技术栈
 
 - Frontend: React + TypeScript + Ant Design + Vite
 - Backend: FastAPI + SQLAlchemy
@@ -208,6 +190,6 @@ Reporting Layer (daily briefing)
 
 ---
 
-## License
+## 📄 License
 
 待补充（建议使用 MIT）。
