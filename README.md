@@ -1,178 +1,174 @@
-# JobRadar - 多源岗位抓取与管理
+# 🎯 岗位雷达
 
-一个可配置“站点节点（source node）”的岗位抓取与管理项目，支持本地 Docker 启动、岗位筛选、前端总览与后端 API 调用。
+🤖 面向「目标公司 + 目标赛道」的岗位情报与投递决策系统，聚焦岗位发现、公司重爬、岗位评分、外部情报整合与每日报告输出。
 
-## 1. 项目目标
+[功能特性](#-功能特性) · [核心流程](#-核心流程) · [截图占位](#-截图--demo) · [快速开始](#-快速开始) · [架构设计](#-架构设计) · [路线图](#-路线图)
 
-- 抓取多个目标站点的岗位数据
-- 统一存储与筛选岗位
-- 在前端页面集中查看与维护投递状态
-- 支持后续按你自己的站点节点持续扩展
+简体中文 | [English](./README_EN.md)
 
-## 2. 快速启动（Docker）
+---
 
+## ✨ 功能特性
+
+- **多源岗位发现**：从多个来源收集岗位与公司线索
+- **字段清洗与去重**：统一字段格式，降低重复与脏数据干扰
+- **公司级重爬队列**：围绕重点公司做定向更新，而不是盲目全量抓取
+- **官网/校招入口补录**：补全真实投递入口，提升投递有效性
+- **岗位加权评分**：结合关键词、赛道匹配、地点、时效等维度排序
+- **外部情报整合**：融合面经、讨论、舆情等信号，辅助投递决策
+- **每日报告输出**：形成「新增岗位 + 变化要点 + 建议动作」日报
+
+---
+
+## ❓ Why this exists
+
+传统聚合平台擅长“展示岗位”，但不擅长“支持决策”。
+
+JobRadar 的出发点是：
+- 目标赛道用户通常关注的是少量重点公司，而不是全网噪声
+- 平台内投递入口不一定是最优路径，很多场景需回到官网/校招官网
+- 真正影响投递决策的，除了 JD，还包括时效、质量、成功率与外部信号
+
+所以 JobRadar 不追求“抓得最多”，而追求“投得更准”。
+
+---
+
+## 🚀 What makes JobRadar different
+
+1. **公司级重爬**：按公司粒度持续跟踪，聚焦重点目标
+2. **岗位评分**：多维加权优先级，先投更值得投的岗位
+3. **外部情报**：把非结构化讨论转为可行动信号
+4. **每日报告**：每天给出明确的下一步动作建议
+
+---
+
+## 🔄 核心流程
+
+```text
+发现公司/岗位线索
+  → 字段清洗与去重
+  → 官网/校招入口补录
+  → 岗位评分与优先级排序
+  → 外部情报整合
+  → 每日投递日报
+```
+
+闭环：`discover -> clean -> target -> score -> enrich -> decide -> apply`
+
+---
+
+## 🖼 截图 / Demo
+
+### 1) 岗位总览（Dashboard）
+![岗位总览（Dashboard）](docs/screenshots/dashboard.png)
+
+### 2) 岗位详情 / 情报页（Job Intel）
+![岗位详情 / 情报页（Job Intel）](docs/screenshots/job_intel.png)
+
+### 3) 公司官网补爬队列（Company Recrawl Queue）
+![公司官网补爬队列（Company Recrawl Queue）](docs/screenshots/company_expand.png)
+
+### 4) 评分详情（Scoring Detail）
+![评分详情（Scoring Detail）](docs/screenshots/scoring_detail.png)
+
+### 5) 每日报告（Daily Briefing）
+![每日报告（Daily Briefing）](docs/screenshots/daily_briefing.png)
+
+
+---
+
+## 📊 Feature Matrix
+
+| 能力模块 | 说明 | 当前状态 |
+|---|---|---|
+| 多源岗位发现 | 从聚合来源获取岗位线索 | ✅ 已支持 |
+| 字段清洗与去重 | 标准化字段，减少重复和脏数据 | ✅ 已支持 |
+| 公司级重爬队列 | 重点公司定向更新 | ✅ 已支持 |
+| 官网/校招入口补录 | 补全真实投递入口 | ✅ 已支持 |
+| 岗位评分引擎 | 多维度加权优先级 | ✅ 已支持 |
+| 外部情报整合 | 面经/讨论/舆情信号补强 | 🟡 进行中 |
+| 每日报告生成 | 输出可执行投递摘要 | 🟡 进行中 |
+| 自动化调度与告警 | 定时 + 异常通知 | 🔜 规划中 |
+
+---
+
+## ⚡ 快速开始
+
+### 方式 1：Docker（推荐）
 ```bash
 docker compose up --build -d
 ```
 
-- 前端：`http://localhost:5173`
-- 后端：`http://localhost:8001`
-- API 文档：`http://localhost:8001/docs`
+启动后访问：
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8001
+- API Docs: http://localhost:8001/docs
 
-停止服务：
+### 方式 2：本地前后端开发
 
+后端（FastAPI）：
 ```bash
-docker compose down
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8001
 ```
 
-## 3. 站点节点配置思路
-
-请把抓取目标抽象成“站点节点”，每个节点定义如下信息：
-
-1. 入口地址（Base URL / Entry URL）
-2. 鉴权方式（无鉴权 / Token / Cookie）
-3. 分页策略（页码参数、下一页链接、滚动加载）
-4. 字段映射（岗位标题、公司、地点、发布日期、详情链接）
-5. 岗位标签（例如 campus / internship / custom）
-
-示例（概念性，不限定具体实现字段名）：
-
-```yaml
-nodes:
-  - key: source_a
-    base_url: https://jobs.example-a.com
-    auth_mode: token
-    entry_path: /campus
-    max_pages: 20
-    enabled: true
-
-  - key: source_b
-    base_url: https://careers.example-b.com
-    auth_mode: none
-    entry_path: /positions
-    max_pages: 30
-    enabled: true
+前端（Vite）：
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-## 4. 本地脚本说明
+---
 
-- `auto_login_scraper.py`：自动登录抓取脚本（适用于需要登录态的节点）
-- 导出抓取脚本：通用参数化抓取并导出 CSV
-- `filter_jobs.py` / `filter_jobs_v2.py`：岗位筛选器
-- `format_csv.py`：CSV 字段整理
+## 🧱 架构设计
 
-说明：脚本文件名属于历史兼容命名，不影响你将目标站点替换成自己的节点。
+```text
+Frontend (React + TS)
+        |
+Backend API (FastAPI)
+        |
+Database (SQLite)
+        |
+Crawler Layer (multi-source)
+        |
+Enrichment Layer (intel / scoring)
+        |
+Reporting Layer (daily briefing)
+```
 
-## 5. 常见使用流程
+模块说明：
+- **Frontend**：岗位工作台、筛选、详情、操作入口
+- **Backend**：数据管理、任务编排、API 输出
+- **DB**：岗位、公司、评分、日志等核心实体
+- **Crawler**：多来源抓取与公司定向重爬
+- **Enrichment**：评分与外部情报融合
+- **Reporting**：日报与摘要输出
 
-1. 启动 Docker 服务
-2. 配置你的站点节点参数
-3. 触发抓取（前端或脚本）
-4. 在岗位总览中筛选与标注申请状态
-5. 导出结果做后续跟踪
+---
 
-## 6. GitHub 个人开发者范式（默认标准）
+## 🗺 路线图
 
-### 6.1 分支命名规范
+- [ ] 完善官网/校招入口自动发现能力
+- [ ] 增强公司归并与岗位去重准确率
+- [ ] 扩展评分特征（技能画像、时效权重、历史反馈）
+- [ ] 补齐岗位评分 / 日报页面截图与说明
+- [ ] 强化外部情报聚合（更多平台、结构化摘要）
+- [ ] 支持更细粒度的投递状态与跟进提醒
+- [ ] 增加调度可观测性（失败告警、任务看板）
 
-- `main`（永远保持可运行、可发布）
-- `feat/<name>`
-- `fix/<name>`
-- `refactor/<name>`
-- `docs/<name>`
-- `chore/<name>`
+---
 
-示例：
+## 🧰 技术栈
 
-- `feat/github-login`
-- `fix/payment-timeout`
-- `refactor/api-client`
-- `docs/readme-install`
-- `chore/upgrade-eslint`
+- Frontend: React + TypeScript + Ant Design + Vite
+- Backend: FastAPI + SQLAlchemy
+- Database: SQLite
+- Crawling: Python + Playwright / requests
+- Deployment: Docker Compose
 
-使用 Issue 编号时，推荐：
+---
 
-- `feat/12-github-login`
-- `fix/27-timeout-retry`
+## 📄 License
 
-### 6.2 Commit 规范
-
-格式：
-
-`type(scope): summary`
-
-常用类型：
-
-- `feat`
-- `fix`
-- `docs`
-- `refactor`
-- `test`
-- `chore`
-- `build`
-- `ci`
-- `style`
-
-示例：
-
-- `feat(auth): add GitHub OAuth login`
-- `fix(api): retry on 504 timeout`
-- `docs(readme): add local setup guide`
-- `refactor(user): split service and controller`
-- `test(auth): add login callback tests`
-- `chore(deps): upgrade vite to latest version`
-
-### 6.3 PR 规范
-
-- PR 标题建议沿用 commit 风格
-- 一个 PR 只做一件事
-- PR 尽量小
-- 做到一半可先开 Draft PR
-- PR 描述必须写清楚测试方式
-- 合并默认使用 Squash merge
-
-### 6.4 Issue 使用规则
-
-Issue 仅保留三类：
-
-1. Bug
-2. Feature
-3. Task
-
-原则：
-
-- 每个可追踪工作尽量有一个 Issue
-- 一个 branch 对应一个 issue
-- PR 描述里写 `Closes #xx`
-
-### 6.5 Changelog 维护规则
-
-仅在合并到 `main` 且值得记录的改动后更新。
-
-记录四类内容：
-
-1. Added
-2. Changed
-3. Fixed
-4. Removed
-
-## 7. 输出字段（示例）
-
-| 字段 | 说明 |
-|------|------|
-| job_id | 岗位 ID |
-| company | 公司 |
-| department | 部门/主体 |
-| job_title | 岗位名称 |
-| location | 地点 |
-| publish_date | 发布时间 |
-| deadline | 截止时间 |
-| detail_url | 详情链接 |
-| job_stage | 岗位阶段标签 |
-| scraped_at | 抓取时间 |
-
-## 8. 维护建议
-
-- 新增站点时，优先复用已有抓取/映射流程
-- 先做小步提交，再做 PR 汇总
-- 不要在 `main` 直接开发
