@@ -1,141 +1,191 @@
 # JobRadar
 
-<p align="center">
-  <a href="#english">English</a> | <a href="#中文">中文</a>
-</p>
-
----
-
-## English
-
-> JobRadar is a focused job-intelligence workflow for targeted career tracks.
-
-JobRadar is not just a generic job scraper. It is designed for people who:
-- focus on specific career tracks,
-- care about a shortlist of target companies,
-- and need better application decisions, not just more listings.
-
-### Demo
+> **From job aggregation to job intelligence**
+>
+> 一个围绕「目标公司 + 目标赛道」的求职决策系统，而不是通用岗位搬运器。
 
 ![JobRadar Demo](./docs/demo.gif)
 
-### Screenshots & walkthrough
+---
 
-<p align="center">
-  <img src="./docs/screenshots/dashboard.png" alt="Job dashboard" width="31%" />
-  <img src="./docs/screenshots/job_intel.png" alt="Job intel" width="31%" />
-  <img src="./docs/screenshots/company_expand.png" alt="Company expand" width="31%" />
-</p>
+## Hero 区
 
-- **Dashboard**: browse discovered jobs, filter by conditions, and decide where to focus first.
-- **Job Intel**: enrich a job with extra signals (discussion/interview-related context) to improve decision quality.
-- **Company Expand**: mark target companies and prepare follow-up recrawls for continuous tracking.
+**项目定位（一句话）**  
+JobRadar 把碎片化岗位信息转成可执行的投递策略：先发现、再筛选、再评分、再结合外部情报做决策。
 
-### What it does
-- Multi-source job discovery
-- Data cleaning and deduplication
-- Company-level recrawl queue
-- Weighted job scoring
-- Job intelligence integration (interview notes / discussion signals)
-- Daily application briefing
+**Tagline**  
+From job aggregation to job intelligence.
 
-### Typical workflow
+---
+
+## Why this exists
+
+传统聚合平台能帮你“看到岗位”，但很难帮你“做决策”。
+
+主要问题：
+- 只给线索，不给完整决策链路（岗位质量、时效、成功率、外部信号）
+- 平台内投递入口不一定是最优入口（很多情况要回到官网/校招官网）
+- 盲抓全网岗位噪声高，目标赛道用户真正关心的是**重点公司的持续跟踪**
+
+所以 JobRadar 的核心思路不是“抓更多”，而是：
+- 围绕重点公司做持续监控
+- 对岗位做优先级评分
+- 将面经/讨论/舆情等外部情报纳入判断
+- 输出每天可执行的投递建议
+
+---
+
+## What makes JobRadar different
+
+1. **公司级重爬（Company-level Recrawl）**  
+   不是无差别重跑全站，而是把重点公司加入重爬队列，做定向更新。
+
+2. **岗位评分（Job Scoring）**  
+   基于关键词、赛道匹配、地点、时效等维度做加权排序，先投“更值得投”的岗位。
+
+3. **外部情报整合（Intelligence Enrichment）**  
+   把面经、讨论、薪酬/强度等非结构化信息转成可参考信号。
+
+4. **每日报告（Daily Briefing）**  
+   输出「新增岗位 + 重点变化 + 推荐动作」的日报，减少重复筛选成本。
+
+---
+
+## Core workflow
+
+```text
+发现公司/岗位线索
+   → 字段清洗与去重
+   → 官网/校招入口补录
+   → 岗位评分与优先级排序
+   → 外部情报整合
+   → 每日投递日报
+```
+
+对应闭环：
+
 `discover -> clean -> target -> score -> enrich -> decide -> apply`
 
-### Tech stack
+---
+
+## Screenshots / Demo
+
+### 1) 岗位列表（Dashboard）
+![Dashboard](./docs/screenshots/dashboard.png)
+
+用于查看岗位池、快速筛选和定位优先处理岗位。
+
+### 2) 岗位详情 / 情报页（Job Intel）
+![Job Intel](./docs/screenshots/job_intel.png)
+
+用于补充岗位外部信号，辅助“是否投、何时投”的决策。
+
+### 3) 公司重爬（Company Expand / Recrawl）
+![Company Expand](./docs/screenshots/company_expand.png)
+
+用于标记重点公司并纳入后续重爬队列。
+
+### 4) 岗位评分（Scoring）
+> 即将补充截图（建议：score detail 面板）
+
+### 5) 每日报告（Daily Briefing）
+> 即将补充截图（建议：日报摘要页）
+
+---
+
+## Feature matrix
+
+| 能力模块 | 说明 | 当前状态 |
+|---|---|---|
+| 多源岗位发现 | 从聚合来源获取岗位线索 | ✅ 已支持 |
+| 字段清洗与去重 | 标准化字段，减少重复和脏数据 | ✅ 已支持 |
+| 公司级重爬队列 | 重点公司定向更新 | ✅ 已支持 |
+| 官网/校招入口补录 | 补全真实投递入口 | ✅ 已支持 |
+| 岗位评分引擎 | 多维度加权优先级 | ✅ 已支持 |
+| 外部情报整合 | 面经/讨论/舆情信号补强 | 🟡 进行中 |
+| 每日报告生成 | 输出可执行投递摘要 | 🟡 进行中 |
+| 自动化调度与告警 | 定时 + 异常通知 | 🔜 规划中 |
+
+---
+
+## Quick Start
+
+### 方式 1：Docker（推荐）
+```bash
+docker compose up --build -d
+```
+
+启动后访问：
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8001
+- API Docs: http://localhost:8001/docs
+
+### 方式 2：本地前后端开发
+
+后端（FastAPI）：
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8001
+```
+
+前端（Vite）：
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Architecture
+
+```text
+Frontend (React + TS)
+        |
+Backend API (FastAPI)
+        |
+Database (SQLite)
+        |
+Crawler Layer (multi-source)
+        |
+Enrichment Layer (intel / scoring)
+        |
+Reporting Layer (daily briefing)
+```
+
+模块说明：
+- **Frontend**：岗位工作台、筛选、详情、操作入口
+- **Backend**：数据管理、任务编排、API 输出
+- **DB**：岗位、公司、评分、日志等核心实体
+- **Crawler**：多来源抓取与公司定向重爬
+- **Enrichment**：评分与外部情报融合
+- **Reporting**：日报与摘要输出
+
+---
+
+## Roadmap
+
+- [ ] 完善官网/校招入口自动发现能力
+- [ ] 增强公司归并与岗位去重准确率
+- [ ] 扩展评分特征（技能画像、时效权重、历史反馈）
+- [ ] 补齐岗位评分 / 日报页面截图与说明
+- [ ] 强化外部情报聚合（更多平台、结构化摘要）
+- [ ] 支持更细粒度的投递状态与跟进提醒
+- [ ] 增加调度可观测性（失败告警、任务看板）
+
+---
+
+## Tech Stack
+
 - Frontend: React + TypeScript + Ant Design + Vite
 - Backend: FastAPI + SQLAlchemy
 - Database: SQLite
 - Crawling: Python + Playwright / requests
 - Deployment: Docker Compose
 
-### Quick start
-```bash
-docker compose up --build -d
-```
-
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8001
-- API Docs: http://localhost:8001/docs
-
-### Project structure
-```text
-JobRadar/
-├── frontend/
-├── backend/
-│   ├── app/
-│   ├── data/
-│   └── reports/
-├── docs/
-├── docker-compose.yml
-└── config.yaml
-```
-
 ---
 
-## 中文
+## License
 
-> JobRadar 是一个面向目标赛道求职的岗位情报与投递决策系统。
-
-JobRadar 不只是“抓岗位”，而是帮助你完成从发现到投递决策的完整闭环。
-
-它主要面向这类场景：
-- 目标赛道明确（如数据分析、风控、AI 产品等）
-- 长期关注少数重点公司
-- 需要基于信息质量做投递优先级判断
-
-### 演示
-
-![JobRadar 演示](./docs/demo.gif)
-
-### 截图与功能讲解
-
-<p align="center">
-  <img src="./docs/screenshots/dashboard.png" alt="岗位总览" width="31%" />
-  <img src="./docs/screenshots/job_intel.png" alt="岗位情报" width="31%" />
-  <img src="./docs/screenshots/company_expand.png" alt="公司展开" width="31%" />
-</p>
-
-- **岗位总览（Dashboard）**：查看岗位池，按条件筛选并快速定位优先投递项。
-- **岗位情报（Job Intel）**：为岗位补充面经/讨论等外部信号，提升决策质量。
-- **公司展开（Company Expand）**：标记重点公司并加入后续重爬队列，持续跟踪新岗位。
-
-### 核心能力
-- 多源岗位发现
-- 字段清洗与去重
-- 公司级重爬队列
-- 岗位加权评分
-- 岗位外部情报整合
-- 每日投递简报
-
-### 典型流程
-`发现岗位 -> 清洗去重 -> 锁定公司 -> 评分排序 -> 情报补强 -> 决策投递`
-
-### 技术栈
-- 前端：React + TypeScript + Ant Design + Vite
-- 后端：FastAPI + SQLAlchemy
-- 数据库：SQLite
-- 爬虫：Python + Playwright / requests
-- 部署：Docker Compose
-
-### 快速启动
-```bash
-docker compose up --build -d
-```
-
-- 前端：http://localhost:5173
-- 后端：http://localhost:8001
-- API 文档：http://localhost:8001/docs
-
-### 目录结构
-```text
-JobRadar/
-├── frontend/
-├── backend/
-│   ├── app/
-│   ├── data/
-│   └── reports/
-├── docs/
-├── docker-compose.yml
-└── config.yaml
-```
+待补充（建议使用 MIT）。
