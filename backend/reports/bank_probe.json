@@ -1,0 +1,1247 @@
+[
+  {
+    "name": "工商银行",
+    "url": "https://job.icbc.com.cn/",
+    "goto_status": 200,
+    "final_url": "https://job.icbc.com.cn/pc/index.html#/main/home",
+    "title": "中国工商银行人才招聘",
+    "body": "本网站支持 招聘首页校园招聘社会招聘专项招聘实习生招聘 新闻消息 退出登录 账号： 已投递数量 预报名数量 已收藏数量 简历进度 欢迎来到 中国工商银行人才招聘平台 登录加入我们 招聘专区 校园招聘 点亮会发光的你 中国工商银行2026年度校园招聘笔试考生须知 中国工商银行博士后科研工作站博士后研究人员招聘启事 中国工商银行2026年度校园招聘启事 中国工商银行总行本部2026年度校园招聘启事 更多>> 社会招聘 汇聚英才不断 中国工商银行广西分行2026年纪检人才专项社会招聘公告 中国工商银行湖北省分行2026年度纪检人才专项社会招聘公告 中国工商银行云南省分行2025年度纪检人才专项社会招聘公告 中国工商银行苏州分行2025年度社会招聘公告 更多>> 乡村振兴专项招聘 兴农助梦一路同行 暂无公告 实习生招聘 提前一步超人一等 暂无公告 专题分区 如何用一天遇上更好的ICB… 如何用时序分明的一天遇见更好的ICBC？变化的是北京时间日月轮回，时辰交替；不变的是全球机构旭日当空，白昼永驻。 分行专区 更多 关注我们 关注工行人才招聘平台，随时接收最新资讯 关于我们招聘公示 ©中国工商银行版权所有 京ICP证 030247号",
+    "anchors": [
+      {
+        "text": "更多",
+        "href": "https://job.icbc.com.cn/pc/index.html#/main/news/branch/list",
+        "cls": ""
+      }
+    ],
+    "interesting_requests": [
+      {
+        "url": "https://job.icbc.com.cn/",
+        "status": 200,
+        "ct": "text/html"
+      },
+      {
+        "url": "https://job.icbc.com.cn/pc/index.html",
+        "status": 200,
+        "ct": "text/html"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/umi.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/umi.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/vendors.chunk.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/layouts.chunk.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/layouts.async.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/vendors.async.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/p__main___layout.chunk.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/p__main__models__resume.js.async.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/oaas/getOaasUrl",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/menu/addClickLog",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/post/qryPostType",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/p__main___layout.async.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/footImg.d013947f.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/p__main__home__models__home.js.async.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/api/message/countNotReadNum",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/recriut-category-img04.620c0cf7.jpg",
+        "status": 200,
+        "ct": "image/jpeg"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/recriut-category-img02.4535a970.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/recriut-category-img03.b2a3b6e6.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/recriut-category-img01.274392ae.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/api/message/list",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/bannerHolder.5f5d1665.jpg",
+        "status": 200,
+        "ct": "image/jpeg"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/news/list",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/slide/list",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/specialTopic/list",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/branchDynamic/list",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/api/v1/chunkserver/TRM-default/_/OPic1583304584877aca0fa30fc034b7b858ff9e3fa3de46b.png",
+        "status": 200,
+        "ct": "application/octet-stream"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://job.icbc.com.cn/icbc/trmo/d/pc/static/Bitmap.09723505.png",
+        "status": 200,
+        "ct": "image/png"
+      }
+    ],
+    "requestfailed": []
+  },
+  {
+    "name": "农业银行",
+    "url": "https://career.abchina.com/",
+    "goto_status": 200,
+    "final_url": "https://career.abchina.com/build/index.html#/",
+    "title": "中国农业银行欢迎您",
+    "body": "| 人才招聘 个人中心 首 页校园招聘社会招聘实习生计划帮 助 重要公告 暂无最新招聘公告 关于农行 | 退役军人接收安置系统 中国农业银行版权所有 | 京ICP备05049539|人才招聘公众号|本网站已支持IPv6",
+    "anchors": [
+      {
+        "text": "关闭",
+        "href": "",
+        "cls": "cursor"
+      }
+    ],
+    "interesting_requests": [
+      {
+        "url": "https://career.abchina.com/",
+        "status": 200,
+        "ct": "text/html;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/index.html",
+        "status": 200,
+        "ct": "text/html;charset=UTF-8"
+      },
+      {
+        "url": "https://career.cdn-static.abchina.com.cn/RMIS/pc/static/css/main.ab54e6eb.css",
+        "status": 200,
+        "ct": "text/css;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/jsencrypt.min.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/sm3/core.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/sm3/cipher-core.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.cdn-static.abchina.com.cn/RMIS/pc/static/js/main.597e5432.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/sm3/jsbn.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/sm3/jsbn2.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/build/sm3/sm3.js",
+        "status": 200,
+        "ct": "application/javascript;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/new/getInfo",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/logonandregister/gettruename",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/menulink/getAllFirstMenuByModuleId",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/pron/getAllHotPron",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/menulink/getAllFirstMenuByModuleId",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/menulink/getAllFirstMenuByModuleId",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      },
+      {
+        "url": "https://career.abchina.com/menulink/getAllFirstMenuByModuleId",
+        "status": 200,
+        "ct": "application/json;charset=UTF-8"
+      }
+    ],
+    "requestfailed": []
+  },
+  {
+    "name": "中国银行",
+    "url": "https://campus.bankofchina.com/",
+    "error": "Page.goto: net::ERR_CONNECTION_CLOSED at https://campus.bankofchina.com/\nCall log:\n  - navigating to \"https://campus.bankofchina.com/\", waiting until \"domcontentloaded\"\n",
+    "final_url": "about:blank",
+    "requestfailed": [
+      {
+        "url": "https://campus.bankofchina.com/",
+        "err": "net::ERR_CONNECTION_CLOSED"
+      }
+    ]
+  },
+  {
+    "name": "建设银行",
+    "url": "https://job.ccb.com/",
+    "goto_status": 200,
+    "final_url": "https://job1.ccb.com/cn/job/index.html",
+    "title": "中国建设银行—招聘",
+    "body": "集团网站 访问CCB.COM | 无障碍 | 大字版 集团 招聘首页 校园招聘 实习生招聘 社会招聘 关于建行 网站 登录 集团网站首页 > 招聘首页 建行人才招聘 所有招聘 搜索 重要公告 更多公告> • 中国建设银行总部2026年度校园招聘公告 2025-09-09 • 中国建设银行总行直属机构2026年度校园招聘公告 2025-09-09 • 中国建设银行境内分支机构2026年度校园招聘公告 2025-09-09 繁体/ENGLISH 本网站支持IPv6 © 版权所有中国建设银行京ICP备13030780号-1京公网安备：110102000450 总行地址：中国北京西城区金融大街25号 邮编：100033 手机网站：m.ccb.com客服与投诉热线：95533",
+    "anchors": [
+      {
+        "text": "集团网站",
+        "href": "https://job1.ccb.com/cn/group/index.html",
+        "cls": ""
+      },
+      {
+        "text": "访问CCB.COM",
+        "href": "http://www.ccb.com/cn/home/indexv3.html",
+        "cls": "header_top_right_a"
+      },
+      {
+        "text": "无障碍",
+        "href": "https://job1.ccb.com/cn/job/index.html#",
+        "cls": "header_top_right_a"
+      },
+      {
+        "text": "大字版",
+        "href": "https://job1.ccb.com/cn/job/index.html#",
+        "cls": "header_top_right_a"
+      },
+      {
+        "text": "",
+        "href": "https://job1.ccb.com/cn/group/index.html",
+        "cls": ""
+      },
+      {
+        "text": "招聘首页",
+        "href": "https://job1.ccb.com/cn/job/index.html",
+        "cls": "nav_b"
+      },
+      {
+        "text": "校园招聘",
+        "href": "https://job1.ccb.com/cn/job/plan_index.html?planType=XY",
+        "cls": "nav_a"
+      },
+      {
+        "text": "实习生招聘",
+        "href": "https://job1.ccb.com/cn/job/plan_index.html?planType=SX",
+        "cls": "nav_a"
+      },
+      {
+        "text": "社会招聘",
+        "href": "https://job1.ccb.com/cn/job/plan_index.html?planType=SH",
+        "cls": "nav_a"
+      },
+      {
+        "text": "专项招聘",
+        "href": "https://job1.ccb.com/cn/job/plan_index.html?planType=DX",
+        "cls": "nav_a"
+      },
+      {
+        "text": "关于建行",
+        "href": "https://job1.ccb.com/cn/group/index.html",
+        "cls": "nav_a"
+      },
+      {
+        "text": "",
+        "href": "javascript:void(0)",
+        "cls": "search_tow_a"
+      },
+      {
+        "text": "",
+        "href": "javascript:void(0);",
+        "cls": "sd_sn"
+      },
+      {
+        "text": "电子银行",
+        "href": "http://www.ccb.com/cn/home/search.html?keyword=%E7%94%B5%E5%AD%90%E9%93%B6%E8%A1%8C",
+        "cls": "h-words"
+      },
+      {
+        "text": "信用卡",
+        "href": "http://www.ccb.com/cn/home/search.html?keyword=%E4%BF%A1%E7%94%A8%E5%8D%A1",
+        "cls": "h-words"
+      },
+      {
+        "text": "悦生活",
+        "href": "http://www.ccb.com/cn/home/search.html?keyword=%E6%82%A6%E7%94%9F%E6%B4%BB",
+        "cls": "h-words"
+      },
+      {
+        "text": "贵金属",
+        "href": "http://www.ccb.com/cn/home/search.html?keyword=%E8%B4%B5%E9%87%91%E5%B1%9E",
+        "cls": "h-words"
+      },
+      {
+        "text": "登录",
+        "href": "",
+        "cls": "Quick_Link_top_button"
+      },
+      {
+        "text": "安全指南",
+        "href": "",
+        "cls": "zhuce"
+      },
+      {
+        "text": "下载中心",
+        "href": "",
+        "cls": "zhuce"
+      },
+      {
+        "text": "功能演示",
+        "href": "",
+        "cls": "zhuce"
+      },
+      {
+        "text": "立即注册",
+        "href": "",
+        "cls": "zhuce"
+      },
+      {
+        "text": "进入我的.com",
+        "href": "http://group.ccb.com/cn/mycom/user_center.html",
+        "cls": ""
+      },
+      {
+        "text": "更多服务",
+        "href": "https://www.ccb.com/",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "href": "https://job1.ccb.com/cn/job/index.html#",
+        "cls": ""
+      },
+      {
+        "text": "安全退出",
+        "href": "",
+        "cls": "close_window"
+      },
+      {
+        "text": "进入我的应聘",
+        "href": "https://job.ccb.com/cn/job/mycenter/index.html",
+        "cls": ""
+      },
+      {
+        "text": "集团网站首页",
+        "href": "http://group.ccb.com/",
+        "cls": "home"
+      },
+      {
+        "text": "",
+        "href": "http://job.ccb.com/cn/job/plan_index.html?planType=XY",
+        "cls": "AcqAdvClass"
+      },
+      {
+        "text": "",
+        "href": "javascript:void(0)",
+        "cls": ""
+      },
+      {
+        "text": "搜索",
+        "href": "javascript:void 0",
+        "cls": ""
+      },
+      {
+        "text": "更多公告>",
+        "href": "",
+        "cls": "btn"
+      },
+      {
+        "text": "• 中国建设银行总部2026年度校园招聘公告",
+        "href": "",
+        "cls": "pointer"
+      },
+      {
+        "text": "• 中国建设银行总行直属机构2026年度校园招聘公告",
+        "href": "",
+        "cls": "pointer"
+      },
+      {
+        "text": "• 中国建设银行境内分支机构2026年度校园招聘公告",
+        "href": "",
+        "cls": "pointer"
+      },
+      {
+        "text": "",
+        "href": "javascript:;",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "href": "https://ss.knet.cn/verifyseal.dll?sn=e17090611010268808kqyr000000&pa=111332",
+        "cls": ""
+      },
+      {
+        "text": "繁体",
+        "href": "https://www.ccb.com/chn/big5/index.html",
+        "cls": "big5"
+      },
+      {
+        "text": "ENGLISH",
+        "href": "http://www.ccb.com/en/home/indexv3.html",
+        "cls": ""
+      },
+      {
+        "text": "京ICP备13030780号-1",
+        "href": "https://beian.miit.gov.cn/",
+        "cls": "yourecord_numb"
+      }
+    ],
+    "interesting_requests": [
+      {
+        "url": "https://job.ccb.com/",
+        "status": 200,
+        "ct": "text/html; charset=UTF-8"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/index.html",
+        "status": 200,
+        "ct": "text/html; charset=UTF-8"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/css/reset.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/css/public.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/css/style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/css/index.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/css/vcc-css.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/group/v3/css/group_style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/css/style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/css/index.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/css/job_list.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/page_mapping.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/check_url_params.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/switch-host.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/jquery.Xslider.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/jquery.scroll.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/center.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/jquery.cookie.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/main.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/city_changer.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/jquery_pc.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/adv.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/header_box.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/switch.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/js/dataacquisition.header.ccb.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/comm.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/koala.min.1.5.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/web_collect.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/mycom/v3/js/judgeLogined.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/bfree/barrier-free.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/js/job_public.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/loadAdv.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/ccb_selector.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/js/ccb_toolkit_v2.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/js/index.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/home/company/v3/images/img/20150828_1440745919/20151201084052927594.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.ccb.com/cn/home/v3/images/gb.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/include/login/login.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.ccb.com/cn/job/v3/images/erweima.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/index.html",
+        "status": 200,
+        "ct": "text/html; charset=UTF-8"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/css/reset.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/group/v3/css/group_style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/css/vcc-css.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/css/public.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/css/index.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/css/style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/css/index.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/css/style.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/css/job_list.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/check_url_params.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/jquery_pc.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/switch-host.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/center.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/jquery.Xslider.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/jquery.scroll.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/jquery.cookie.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/main.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/page_mapping.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/city_changer.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/web_collect.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/koala.min.1.5.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/switch.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/js/dataacquisition.header.ccb.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/header_box.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/bfree/barrier-free.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/comm.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/mycom/v3/js/judgeLogined.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/loadAdv.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/adv.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/js/index.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/city_url_data.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/ccb_selector.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/home/company/v3/images/img/20150828_1440745919/20151201084052927594.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/js/job_public.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/adv_ebda.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/home/v3/images/gb.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/ccb_toolkit_v2.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/include/login/login.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/images/erweima.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/head_content/quest.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/include/empty/foot_html.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/tran/WCCMainPlatV5?CCB_IBSVersion=V5&isAjaxRequest=true&SERVLET_NAME=WCCMainPlatV5&TXCODE=NHR117&codeItemId=3137",
+        "status": 200,
+        "ct": "text/html; charset=UTF-8"
+      },
+      {
+        "url": "https://job1.ccb.com/tran/WCCMainPlatV5?CCB_IBSVersion=V5&isAjaxRequest=true&SERVLET_NAME=WCCMainPlatV5&TXCODE=100119",
+        "status": 200,
+        "ct": "text/html;charset=gb2312"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/home/v3/images/copy_right_img.gif",
+        "status": 200,
+        "ct": "image/gif"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/city_bank_data.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/upload/photo/20150730_1438244410/20151225162619192799.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/images/grjt.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/images/btn/btn_login.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/images/select.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/group/v3/images/shadow_repeat.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/job/v3/images/tit_bg01.jpg",
+        "status": 200,
+        "ct": "image/jpeg"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/group/v3/images/home.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/images/shadow.png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/js/data_collect.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/tran/WCCMainPlatV5?CCB_IBSVersion=V5&SERVLET_NAME=WCCMainPlatV5&TXCODE=NDPD03&Cst_ID=LjmSsj6PPAUes%2Bb5BKsRVXi43b2kVGpq&Chnl_ID=0009&Clmn_ID=15000&Tsk_Ind=Y&SYS_CODE=1000&MP_CODE=00&APP_NAME=COM.NETBANK&SEC_VERSION=1.0.0",
+        "status": 200,
+        "ct": "text/html;charset=utf-8"
+      },
+      {
+        "url": "https://job1.ccb.com/cn/v3/js/data_collect_ask.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job1.ccb.com/tran/WCCMainPlatV5?CCB_IBSVersion=V5&SERVLET_NAME=WCCMainPlatV5&TXCODE=NHY000&jsoncallback=jQuery3110756085825791157_1773211952020",
+        "status": 200,
+        "ct": "text/html;charset=utf-8"
+      },
+      {
+        "url": "https://job1.ccb.com/tran/WCCMainPlatV5?CCB_IBSVersion=V5&isAjaxRequest=true&SERVLET_NAME=WCCMainPlatV5&TXCODE=NHR105&isImpAnno=1&isHomePageDisplay=1",
+        "status": 200,
+        "ct": "text/html; charset=UTF-8"
+      },
+      {
+        "url": "https://touch.ccb.com/po?v=3.1.5&t=h&aid=ccvcag5mqy1f7ie2&eid=ccb_job_scan",
+        "status": 200,
+        "ct": ""
+      }
+    ],
+    "requestfailed": [
+      {
+        "url": "https://job.ccb.com/cn/v3/include/empty/foot_html.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "url": "https://job.ccb.com/cn/v3/head_content/quest.js",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "url": "https://job.ccb.com/cn/home/v3/images/copy_right_img.gif",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "url": "https://image3.ccb.com/cn/home/v3/images/footer_wza.png",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "url": "https://image3.ccb.com/cn/home/v3/images/ss.png",
+        "err": "net::ERR_ABORTED"
+      },
+      {
+        "url": "http://ebank.ccb.com/query2BankCityByIP.gsp?jsoncallback=jsonpCallback&callback=jsonpCallback&_=1773211952019",
+        "err": "mixed-content"
+      }
+    ]
+  },
+  {
+    "name": "交通银行",
+    "url": "https://job.bankcomm.com/",
+    "goto_status": 200,
+    "final_url": "https://job.bankcomm.com/#/",
+    "title": "交通银行人才招聘",
+    "body": "首页 校园招聘 社会招聘 招聘动态 登录 校园招聘 社会招聘 招聘流程 交行简介 发展历程 战略目标 业务概况 本行始建于1908年，是中国历史最悠久的银行之一。 1987年4月1日，本行重新组建后正式对外营业，成为中国第一家全国性的国有股份制商业银行， 总部设在上海。2005年6月本行在香港联交所挂牌上市，2007年5月在上交所挂牌上市。2023年， 按《银行家》杂志（The Banker）公布的一级资本排名，本行居全球银行第九位。 交行文化 拼搏进取 责任立业 创新超越 拼搏进取 交行人保持昂扬向上的斗志、坚韧不拔的毅力、知难而上的勇气，在逆境中奋力拼搏、在顺境中居安思危。为交行的高质量发展努力奋斗。 热门职位 社会招聘 校园招聘 子公司招聘 暂无数据 更多 招聘公告 公告标题 发布时间 交通银行2026年度博士后研究人员招聘简章 2025-09-08 交通银行2026年度博士后申请表 2025-09-08 《应聘登记表》模版（面向2025年上海市转业军官安置人员） 2025-08-26 关于新用户注册问题的说明 2014-09-26 关于教育信息填写方法的说明 2014-09-25 交通银行高层次人才2024年招聘公告 （总行部门专场） 2024-03-20 交通银行高层次人才2024年招聘公告 （分行专场） 2024-03-20 更多 建设具有特色优势的世界一流银行集团 交通银行版权所有 | 未得交行同意，不得转载本网站之所有招聘信息及作品 关注我们：",
+    "anchors": [
+      {
+        "text": "首页",
+        "href": "https://job.bankcomm.com/#/",
+        "cls": ""
+      },
+      {
+        "text": "校园招聘",
+        "href": "https://job.bankcomm.com/#/school",
+        "cls": ""
+      },
+      {
+        "text": "社会招聘",
+        "href": "https://job.bankcomm.com/#/social",
+        "cls": ""
+      },
+      {
+        "text": "招聘动态",
+        "href": "https://job.bankcomm.com/#/about",
+        "cls": ""
+      },
+      {
+        "text": "登录",
+        "href": "https://job.bankcomm.com/#/login",
+        "cls": ""
+      },
+      {
+        "text": "交通银行2026年度博士后研究人员招聘简章\n2025-09-08",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "交通银行2026年度博士后申请表\n2025-09-08",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "《应聘登记表》模版（面向2025年上海市转业军官安置人员）\n2025-08-26",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "关于新用户注册问题的说明\n2014-09-26",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "关于教育信息填写方法的说明\n2014-09-25",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "交通银行高层次人才2024年招聘公告 （总行部门专场）\n2024-03-20",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      },
+      {
+        "text": "交通银行高层次人才2024年招聘公告 （分行专场）\n2024-03-20",
+        "href": "https://job.bankcomm.com/",
+        "cls": ""
+      }
+    ],
+    "interesting_requests": [
+      {
+        "url": "https://job.bankcomm.com/",
+        "status": 200,
+        "ct": "text/html"
+      },
+      {
+        "url": "https://job.bankcomm.com/js/global.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.bankcomm.com/vendors.css",
+        "status": 200,
+        "ct": "text/css"
+      },
+      {
+        "url": "https://job.bankcomm.com/870/870.ef4896.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.bankcomm.com/webview/webview.131652.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.bankcomm.com/vendors/vendors.07a353.js",
+        "status": 200,
+        "ct": "application/javascript"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/%E4%BA%A4%E8%A1%8Clogo_%E7%99%BD%E8%89%B2_u6-f38d25..svg",
+        "status": 200,
+        "ct": "image/svg+xml"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/videoImage-022a76..jpg",
+        "status": 200,
+        "ct": "image/jpeg"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/%E6%8B%9B%E8%81%98%E6%B5%81%E7%A8%8B%20%E5%AE%8C%E7%BE%8E3-817430..png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/%E4%BA%A4%E8%A1%8Clogo_%E6%B7%B1%E8%89%B2_u5-3efec2..svg",
+        "status": 200,
+        "ct": "image/svg+xml"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/%E6%8B%BC%E6%90%8F%E8%BF%9B%E5%8F%96%E5%9B%BE%E7%89%87%E5%8E%8B%E7%BC%A9-c21447..png",
+        "status": 200,
+        "ct": "image/png"
+      },
+      {
+        "url": "https://job.bankcomm.com/imgs/%E9%A6%96%E9%A1%B5%E7%AE%80%E4%BB%8B%E5%9B%BE%E7%89%871_u0-999607..svg",
+        "status": 200,
+        "ct": "image/svg+xml"
+      },
+      {
+        "url": "https://job.bankcomm.com/api/GTMS.GTMS-PORTAL.V-1.0/selectHotPositions.do",
+        "status": 200,
+        "ct": "*/*;charset=UTF-8"
+      },
+      {
+        "url": "https://job.bankcomm.com/api/GTMS.GTMS-PORTAL.V-1.0/queryPublicizeForHomepage.do",
+        "status": 200,
+        "ct": "*/*;charset=UTF-8"
+      },
+      {
+        "url": "https://job.bankcomm.com/api/GTMS.GTMS-PORTAL.V-1.0/getHomepageVideoUrl.do",
+        "status": 200,
+        "ct": "*/*;charset=UTF-8"
+      },
+      {
+        "url": "https://job.bankcomm.com/api/GTMS.GTMS-USER.V-1.0/getSmKey.do",
+        "status": 200,
+        "ct": "*/*;charset=UTF-8"
+      },
+      {
+        "url": "https://job.bankcomm.com/video/video6.mp4",
+        "status": 206,
+        "ct": "video/mp4"
+      },
+      {
+        "url": "https://job.bankcomm.com/video/video6.mp4",
+        "status": 206,
+        "ct": "video/mp4"
+      },
+      {
+        "url": "https://job.bankcomm.com/video/video6.mp4",
+        "status": 206,
+        "ct": "video/mp4"
+      }
+    ],
+    "requestfailed": [
+      {
+        "url": "https://job.bankcomm.com/video/video6.mp4",
+        "err": "net::ERR_ABORTED"
+      }
+    ]
+  },
+  {
+    "name": "广发银行",
+    "url": "https://career.cgbchina.com.cn/",
+    "error": "Page.goto: net::ERR_CONNECTION_CLOSED at https://career.cgbchina.com.cn/\nCall log:\n  - navigating to \"https://career.cgbchina.com.cn/\", waiting until \"domcontentloaded\"\n",
+    "final_url": "about:blank",
+    "requestfailed": [
+      {
+        "url": "https://career.cgbchina.com.cn/",
+        "err": "net::ERR_CONNECTION_CLOSED"
+      }
+    ]
+  },
+  {
+    "name": "渤海银行",
+    "url": "https://career.cbhb.com.cn/",
+    "error": "Page.goto: net::ERR_CONNECTION_CLOSED at https://career.cbhb.com.cn/\nCall log:\n  - navigating to \"https://career.cbhb.com.cn/\", waiting until \"domcontentloaded\"\n",
+    "final_url": "about:blank",
+    "requestfailed": [
+      {
+        "url": "https://career.cbhb.com.cn/",
+        "err": "net::ERR_CONNECTION_CLOSED"
+      }
+    ]
+  },
+  {
+    "name": "邮储银行",
+    "url": "https://psbc.zhaopin.com/",
+    "goto_status": 403,
+    "final_url": "https://psbc.zhaopin.com/",
+    "title": "403 Forbidden",
+    "body": "403 Forbidden nginx",
+    "anchors": [],
+    "interesting_requests": [
+      {
+        "url": "https://psbc.zhaopin.com/",
+        "status": 403,
+        "ct": "text/html; charset=utf-8"
+      }
+    ],
+    "requestfailed": []
+  }
+]

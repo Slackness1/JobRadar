@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 
 import Jobs from './pages/Jobs';
+import JobIntel from './pages/JobIntel';
 import Tracks from './pages/Tracks';
 import Scoring from './pages/Scoring';
 import Exclude from './pages/Exclude';
@@ -98,6 +99,8 @@ function AppLayout() {
           <Routes>
             <Route path="/" element={<Jobs />} />
             <Route path="/company-expand" element={<CompanyExpand />} />
+
+            <Route path="/job-intel/:jobId" element={<JobIntel />} />
 
             <Route path="/tracks" element={<Tracks />} />
             <Route path="/scoring" element={<Scoring />} />

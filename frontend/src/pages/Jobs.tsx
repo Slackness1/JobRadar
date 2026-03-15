@@ -7,7 +7,7 @@ import {
 } from 'antd';
 import {
   DownloadOutlined, SearchOutlined, UploadOutlined, ReloadOutlined,
-  SaveOutlined, DeleteOutlined,
+  SaveOutlined, DeleteOutlined, InfoCircleOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -442,6 +442,22 @@ export default function Jobs() {
     {
       title: '发布', dataIndex: 'publish_date', width: 90,
       render: (v: string | null) => v ? v.slice(0, 10) : '-',
+    },
+    {
+      title: '情报', dataIndex: 'id', width: 70,
+      render: (_: unknown, r: JobItem) => (
+        <Button
+          type="link"
+          size="small"
+          icon={<InfoCircleOutlined />}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/job-intel/${r.id}`);
+          }}
+        >
+          查看情报
+        </Button>
+      ),
     },
     {
       title: '', dataIndex: 'detail_url', width: 50,
