@@ -59,35 +59,20 @@ JobRadar 的出发点是：
 
 ## 🖼 截图 / Demo
 
-### 1) 岗位列表（Dashboard）
-```text
-[截图占位符]
-建议路径：docs/screenshots/dashboard.png
-```
+### 1) 岗位总览（Dashboard）
+![岗位总览（Dashboard）](docs/screenshots/dashboard.png)
 
 ### 2) 岗位详情 / 情报页（Job Intel）
-```text
-[截图占位符]
-建议路径：docs/screenshots/job_intel.png
-```
+![岗位详情 / 情报页（Job Intel）](docs/screenshots/job_intel.png)
 
-### 3) 公司重爬（Company Expand / Recrawl）
-```text
-[截图占位符]
-建议路径：docs/screenshots/company_expand.png
-```
+### 3) 公司官网补爬队列（Company Recrawl Queue）
+![公司官网补爬队列（Company Recrawl Queue）](docs/screenshots/company_expand.png)
 
-### 4) 岗位评分（Scoring）
-```text
-[截图占位符]
-建议路径：docs/screenshots/scoring_detail.png
-```
+### 4) 评分详情（Scoring Detail）
+![评分详情（Scoring Detail）](docs/screenshots/scoring_detail.png)
 
 ### 5) 每日报告（Daily Briefing）
-```text
-[截图占位符]
-建议路径：docs/screenshots/daily_briefing.png
-```
+![每日报告（Daily Briefing）](docs/screenshots/daily_briefing.png)
 
 ### Demo（占位）
 ```text
