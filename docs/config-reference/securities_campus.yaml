@@ -1,0 +1,124 @@
+sites:
+  - name: 中金公司
+    entry_url: https://cicc.zhiye.com/custom/campus?&hideMenu=1
+    ats_family: zhiye
+    category: A档券商
+    categories_filter: ["校园招聘", "暑期实习", "项目实习"]
+    max_pages: 20
+    note: 北森 zhiye；2026-03-22 第三轮重试确认 custom/campus 可访问，当前公开数据以项目实习为主。
+
+  - name: 中信证券
+    entry_url: https://www.citics.com/newcn/joinus/
+    ats_family: other
+    category: A档券商
+    note: 第四轮仅做最小成本复核，旧 joinus 仍未恢复为可抓职位入口；待重新发现真实公开校招列表/API。
+
+  - name: 华泰证券
+    entry_url: https://www.htsc.com.cn/recruitment/
+    ats_family: custom_site
+    category: A档券商
+    note: 官方自研前端站；第四轮复核前端 bundle 暴露 /htsc/apiv2/assetManagementUal/commonRequest，但尚未确认公开职位 listing API。
+
+  - name: 中信建投
+    entry_url: https://www.csc.com.cn/csrc/csrc/joinus/
+    ats_family: other
+    category: A档券商
+    note: 第四轮仅做最小成本复核，旧入口仍返回 400/不可用；待重新发现真实公开校招列表。
+
+  - name: 国泰海通
+    entry_url: https://hr.gtht.com/recruitment/main/recruit2
+    ats_family: other
+    category: A档券商
+    note: 用户新提供真实入口；第四轮经代理+浏览器复核仍返回 ERR_EMPTY_RESPONSE / unsafe legacy renegotiation，当前处于 no-public-campus-data boundary（站点链路可见但不可稳定抓取）。
+
+  - name: 东方证券
+    entry_url: https://app.mokahr.com/campus_apply/dfzq/4928#/jobs?keyword=
+    ats_family: moka_embedded
+    category: B档券商
+    moka_org_id: dfzq
+    moka_site_id: 4928
+    note: 用户新提供 Moka 校招入口；第四轮确认页面 init-data 内嵌 5 条公开岗位，可直接解析并入库。
+
+  - name: 兴业证券
+    entry_url: https://xyzq.hotjob.cn/
+    ats_family: other
+    category: B档券商
+    note: 用户新提供 Hotjob 官网；第四轮复核首页/iframe 与 /wt/xyzq/web/index/campus，当前导航仅见社会招聘+博士后，未见公开 campus 列表，按 no-public-campus-data boundary 处理。
+
+  - name: 光大证券
+    entry_url: https://ebscn.zhiye.com/campus
+    ats_family: zhiye
+    category: B档券商
+    categories_filter: ["校园招聘", "实习生招聘"]
+    max_pages: 20
+    note: 用户新提供 zhiye campus 入口；第四轮直连 API 可用，但当前公开列表仅社会招聘，无 campus/intern 数据，按 boundary 记 0。
+
+  - name: 中泰证券
+    entry_url: https://wecruit.hotjob.cn/SU62bd501c0dcad406d143caea/pb/school.html
+    ats_family: hotjob
+    category: B档券商
+    hotjob_suite: SU62bd501c0dcad406d143caea
+    recruit_types: ["1", "3"]
+    max_pages: 20
+    note: 用户新提供 school 入口；第四轮直连 listPosition 复核，campus/intern 均为 0，仅 social 有数据，按 boundary 记 0。
+
+  - name: 国金证券
+    entry_url: https://gjzq.zhiye.com/campus/jobs
+    ats_family: zhiye
+    category: B档券商
+    categories_filter: ["校园招聘", "实习生招聘"]
+    max_pages: 20
+    note: 用户新提供 zhiye campus/jobs 入口；第四轮确认 API 可用，公开数据含校园招聘+实习生招聘，社招过滤后入库。
+
+  - name: 安信证券
+    entry_url: https://sc.hotjob.cn/wt/Essence/mobweb/v8/position/subscriptionPositionList
+    ats_family: hotjob
+    category: B档券商
+    hotjob_suite: SU625d4a0b2f9d24287db127c8
+    recruit_types: ["1", "3"]
+    max_pages: 20
+    note: 用户新提供移动端入口；第四轮确认移动页可切校园/实习，且沿用 Hotjob listPosition API 可稳定抓取 campus/intern，社招不混入。
+
+  - name: 招商证券
+    entry_url: https://wecruit.hotjob.cn/SU629dbc0c0dcad452299bc0f7/pb/school.html
+    ats_family: hotjob
+    category: A-档券商
+    hotjob_suite: SU629dbc0c0dcad452299bc0f7
+    recruit_types: ["1", "3"]
+    max_pages: 20
+    note: 本轮基于库内公开 detail_url 反查出 Hotjob 校招入口；listPosition 公开可用，当前仅 campus 有数据。
+
+  - name: 申万宏源
+    entry_url: https://app.mokahr.com/campus-recruitment/swhysc-job/140752#/jobs
+    ats_family: moka_embedded
+    category: A-档券商
+    moka_org_id: swhysc-job
+    moka_site_id: 140752
+    moka_url_template: https://app.mokahr.com/campus-recruitment/{org_id}/{site_id}#/job/{job_key}
+    note: 本轮基于库内公开 detail_url 与页面 init-data 反查；Moka 页面直接内嵌 jobs payload，可不依赖额外 API。
+
+  - name: 广发证券
+    entry_url: https://wecruit.hotjob.cn/SU652e4d276202cc264477df09/pb/school.html
+    ats_family: hotjob
+    category: A-档券商
+    hotjob_suite: SU652e4d276202cc264477df09
+    recruit_types: ["1", "3"]
+    max_pages: 20
+    note: 本轮基于库内公开 detail_url 反查出 Hotjob 校招入口；listPosition 可公开分页，当前仅 campus 有数据。
+
+  - name: 中国银河
+    entry_url: https://chinastock.zhiye.com/custom/campus
+    ats_family: zhiye
+    category: A-档券商
+    categories_filter: ["校园招聘", "实习生招聘", "项目实习"]
+    max_pages: 20
+    note: 第六轮从官网 newsite/join-us.html 发现真实入口已跳转至独立 zhiye 站；公开 API 可访问，但当前 146 条列表全部为内部交流/社会招聘，campus/intern 过滤后为 0，按 no-public-campus-data boundary 处理。
+
+  - name: 国信证券
+    entry_url: https://guosen.zhiye.com/custom/campus
+    ats_family: zhiye
+    category: A-档券商
+    categories_filter: ["校园招聘", "实习生招聘"]
+    exclude_title_keywords: ["博士后"]
+    max_pages: 20
+    note: 第六轮发现独立 zhiye 招聘站，公开 GetJobAdPageList API 可稳定访问；当前公开列表含校园招聘 25 + 实习生招聘 30，另有 1 条博士后挂在校园招聘下，需按标题排除后入库。

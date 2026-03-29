@@ -1,0 +1,171 @@
+# 招聘爬虫目标站点 v2
+# 执行模型: zai/glm-4.7-flash（主力）
+# 审核模型: claude-sonnet-4-6
+# 补爬模型: zai/glm-4.7-flashx（失败站点）
+# 车厂暂不爬取
+
+sites:
+
+  # ===== 一线互联网大厂（新增待爬取）=====
+  - name: 蚂蚁集团
+    url: https://talent.antgroup.com/campus
+    category: 一线互联网大厂
+    status: pending
+
+  - name: 快手
+    url: https://campus.kuaishou.cn/
+    category: 一线互联网大厂
+    status: pending
+
+  - name: 网易
+    url: https://campus.163.com/
+    category: 一线互联网大厂
+    status: pending
+
+  - name: 小米
+    url: https://hr.xiaomi.com/campus
+    category: 一线互联网大厂
+    status: pending
+
+  - name: 360
+    url: https://hr.360.cn/campus
+    category: 一线互联网大厂
+    status: pending
+
+  # ===== 二线互联网（新增待爬取）=====
+  - name: 得物
+    url: https://job.poizon.com/campus
+    category: 二线互联网
+    status: pending
+
+  - name: 虎牙
+    url: https://hr.huya.com/
+    category: 二线互联网
+    status: pending
+
+  - name: 斗鱼
+    url: https://www.douyu.com/cms/zhaopin/
+    category: 二线互联网
+    status: pending
+
+  - name: 贝壳找房
+    url: https://careers.ke.com/campus
+    category: 二线互联网
+    status: pending
+
+  - name: 58同城
+    url: https://campus.58.com/
+    category: 二线互联网
+    status: pending
+
+  - name: 去哪儿
+    url: https://career.qunar.com/campus
+    category: 二线互联网
+    status: pending
+
+  - name: 同程旅行
+    url: https://campus.ly.com/
+    category: 二线互联网
+    status: pending
+
+  - name: 微博
+    url: https://job.weibo.com/
+    category: 二线互联网
+    status: pending
+
+  - name: 知乎
+    url: https://app.mokahr.com/campus_apply/zhihu
+    category: 二线互联网
+    status: pending
+
+  - name: 汽车之家
+    url: https://talent.autohome.com.cn/
+    category: 二线互联网
+    status: pending
+
+  # ===== 消费电子 / 硬件科技（新增待爬取）=====
+  - name: 大疆DJI
+    url: https://we.dji.com/zh-CN/campus
+    category: 消费电子
+    status: pending
+
+  - name: Insta360影石
+    url: https://careers.insta360.com/campus
+    category: 消费电子
+    status: pending
+
+  - name: OPPO
+    url: https://career.oppo.com/campus/home
+    category: 消费电子
+    status: pending
+
+  - name: vivo
+    url: https://hr.vivo.com/campus
+    category: 消费电子
+    status: pending
+
+  - name: 荣耀
+    url: https://career.honor.com/SU61ee9cf5247d0229dcb46ad0/pb/index.html
+    category: 消费电子
+    status: pending
+
+  - name: 传音
+    url: https://career.transsion.com/
+    category: 消费电子
+    status: pending
+
+  - name: 石头科技
+    url: https://job.roborock.com/
+    category: 消费电子
+    status: pending
+
+  - name: 大华股份
+    url: https://hr.dahuatech.com/campus
+    category: 消费电子
+    status: pending
+
+  - name: 海康威视
+    url: https://campus.hikvision.com/
+    category: 消费电子
+    status: pending
+
+  # ===== 信贷/金融科技（新增待爬取）=====
+  - name: 招联消费金融
+    url: https://zhaopin.mucfc.com/
+    category: 信贷金融科技
+    status: pending
+
+  - name: 乐信分期乐
+    url: https://lexin.zhiye.com/campus
+    category: 信贷金融科技
+    status: pending
+
+  - name: 360数科奇富科技
+    url: https://360jinrong.zhiye.com/campus
+    category: 信贷金融科技
+    status: pending
+
+  - name: 马上消费金融
+    url: https://campus.msxf.com/
+    category: 信贷金融科技
+    status: pending
+
+  - name: 平安银行
+    url: https://bank.pingan.com/zt/2025campus/index.shtml
+    category: 信贷金融科技
+    status: pending
+
+  - name: 微众银行
+    url: https://webank.zhiye.com/campus
+    category: 信贷金融科技
+    status: pending
+
+  - name: 网商银行
+    url: https://talent.mybank.cn/
+    category: 信贷金融科技
+    status: pending
+
+  - name: 度小满
+    url: https://www.duxiaoman.com/jobs
+    category: 信贷金融科技
+    status: pending
