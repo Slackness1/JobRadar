@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
-  Table, Card, Space, Tag, Button, Descriptions, Select, Empty, Spin, Alert, Modal, Input, message,
+  Table, Card, Space, Tag, Button, Descriptions, Select, Empty, Spin, Alert, Modal, Input, InputNumber, Segmented, message,
 } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { addCompanyRecrawlTask, getCompanyJobs, updateJobApplicationStatus } from '../api';
+import { addCompanyRecrawlTask, getCompanyJobs, getTracks, updateJobApplicationStatus } from '../api';
 
 interface JobScoreItem {
   track_id: number;
@@ -34,6 +34,11 @@ interface JobItem {
   scores: JobScoreItem[];
 }
 
+interface TrackOption {
+  key: string;
+  name: string;
+}
+
 const TRACK_COLORS: Record<string, string> = {
   data_analysis: 'blue',
   tech_consulting: 'purple',
@@ -46,7 +51,9 @@ const APPLICATION_STATUS_OPTIONS = [
   { value: '待申请', label: '待申请' },
   { value: '已申请', label: '已申请' },
   { value: '已网测', label: '已网测' },
-  { value: '已面试', label: '已面试' },
+  { value: '一面', label: '一面' },
+  { value: '二面', label: '二面' },
+  { value: '三面', label: '三面' },
 ];
 
 export default function CompanyExpand() {
@@ -60,13 +67,20 @@ export default function CompanyExpand() {
   const initialTracks = searchParams.get('tracks') || '';
   const initialDays = searchParams.get('days') || '';
   const initialMinScore = searchParams.get('min_score') || '';
-  const initialJobStage = searchParams.get('job_stage') || 'all';
+  const initialJobStage = searchParams.get('job_stage') || 'campus';
 
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [scope, setScope] = useState<string>(initialScope);
+  const [inheritMainFilters, setInheritMainFilters] = useState<boolean>(initialScope === 'current');
+  const [search, setSearch] = useState<string>(initialSearch);
+  const [trackFilter, setTrackFilter] = useState<string | undefined>(initialTracks || undefined);
+  const [days, setDays] = useState<number | undefined>(initialDays ? parseInt(initialDays, 10) : undefined);
+  const [minScore, setMinScore] = useState<number | undefined>(initialMinScore ? parseInt(initialMinScore, 10) : undefined);
+  const [jobStage, setJobStage] = useState<string>(initialJobStage || 'campus');
+  const [trackOptions, setTrackOptions] = useState<TrackOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recrawlModalOpen, setRecrawlModalOpen] = useState(false);
@@ -74,30 +88,34 @@ export default function CompanyExpand() {
   const [recrawlSubmitting, setRecrawlSubmitting] = useState(false);
 
   const fetchJobs = useCallback(async () => {
-    if (!company || !department) {
-      setError('缺少公司或部门参数');
+    if (!company) {
+      setError('缺少公司参数');
       return;
     }
-    
+
+    const effectiveSearch = inheritMainFilters ? initialSearch : search;
+    const effectiveTracks = inheritMainFilters ? initialTracks : (trackFilter || '');
+    const effectiveDays = inheritMainFilters ? (initialDays ? parseInt(initialDays, 10) : undefined) : days;
+    const effectiveMinScore = inheritMainFilters ? (initialMinScore ? parseInt(initialMinScore, 10) : undefined) : minScore;
+    const effectiveJobStage = inheritMainFilters ? initialJobStage : jobStage;
+
     setLoading(true);
     setError(null);
     try {
       const params: Record<string, unknown> = {
         company,
-        department,
         scope,
         page,
         page_size: pageSize,
       };
-      
-      if (scope === 'current') {
-        if (initialSearch) params.search = initialSearch;
-        if (initialTracks) params.tracks = initialTracks;
-        if (initialDays) params.days = parseInt(initialDays, 10);
-        if (initialMinScore) params.min_score = parseInt(initialMinScore, 10);
-        if (initialJobStage) params.job_stage = initialJobStage;
-      }
-      
+      if (department) params.department = department;
+
+      if (effectiveSearch) params.search = effectiveSearch;
+      if (effectiveTracks) params.tracks = effectiveTracks;
+      if (effectiveDays) params.days = effectiveDays;
+      if (effectiveMinScore) params.min_score = effectiveMinScore;
+      if (effectiveJobStage) params.job_stage = effectiveJobStage;
+
       const res = await getCompanyJobs(params);
       setJobs(res.data.items);
       setTotal(res.data.total);
@@ -107,11 +125,40 @@ export default function CompanyExpand() {
     } finally {
       setLoading(false);
     }
-  }, [company, department, scope, page, pageSize, initialSearch, initialTracks, initialDays, initialMinScore, initialJobStage]);
+  }, [
+    company,
+    department,
+    scope,
+    page,
+    pageSize,
+    inheritMainFilters,
+    initialSearch,
+    initialTracks,
+    initialDays,
+    initialMinScore,
+    initialJobStage,
+    search,
+    trackFilter,
+    days,
+    minScore,
+    jobStage,
+  ]);
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
+  useEffect(() => {
+    const loadTracks = async () => {
+      try {
+        const res = await getTracks();
+        setTrackOptions(res.data.map((t: TrackOption) => ({ key: t.key, name: t.name })));
+      } catch {
+        // ignore
+      }
+    };
+    loadTracks();
+  }, []);
 
   const handleScopeChange = (newScope: string) => {
     setScope(newScope);
@@ -164,6 +211,7 @@ export default function CompanyExpand() {
   };
 
   const columns: ColumnsType<JobItem> = [
+    { title: '分行/部门', dataIndex: 'department', width: 180, ellipsis: true, render: (v: string) => v || '-' },
     { title: '岗位', dataIndex: 'job_title', width: 220, ellipsis: true },
     { title: '地点', dataIndex: 'location', width: 100, ellipsis: true },
     {
@@ -228,10 +276,16 @@ export default function CompanyExpand() {
     </Descriptions>
   );
 
-  if (!company || !department) {
+  const effectiveSearch = inheritMainFilters ? initialSearch : search;
+  const effectiveTracks = inheritMainFilters ? initialTracks : (trackFilter || '');
+  const effectiveDays = inheritMainFilters ? initialDays : (days ? String(days) : '');
+  const effectiveMinScore = inheritMainFilters ? initialMinScore : (minScore ? String(minScore) : '');
+  const effectiveJobStage = inheritMainFilters ? initialJobStage : jobStage;
+
+  if (!company) {
     return (
       <Empty
-        description="缺少公司或部门参数"
+        description="缺少公司参数"
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       >
         <Button type="primary" onClick={handleBack}>返回岗位总览</Button>
@@ -251,10 +305,10 @@ export default function CompanyExpand() {
               重新爬取全量岗位
             </Button>
             <span style={{ fontSize: 16, fontWeight: 600 }}>
-              {company} - {department}
+              {company}{department ? ` - ${department}` : ''}
             </span>
           </Space>
-          <Space>
+          <Space wrap>
             <span>数据范围：</span>
             <Select
               value={scope}
@@ -265,15 +319,76 @@ export default function CompanyExpand() {
                 { value: 'all', label: '全部数据' },
               ]}
             />
-            {scope === 'current' && (initialSearch || initialTracks || initialDays || initialMinScore) && (
-              <Space>
-                <Tag color="blue">搜索: {initialSearch || '-'}</Tag>
-                <Tag color="purple">赛道: {initialTracks || '-'}</Tag>
-                <Tag color="green">{initialDays ? `${initialDays}天内` : '不限时间'}</Tag>
-                <Tag color="orange">最低分: {initialMinScore || 0}</Tag>
-                <Tag color="geekblue">类型: {initialJobStage === 'campus' ? '校招' : initialJobStage === 'internship' ? '实习' : '全部'}</Tag>
-              </Space>
-            )}
+            <Button
+              type={inheritMainFilters ? 'primary' : 'default'}
+              onClick={() => {
+                setInheritMainFilters((v) => !v);
+                setPage(1);
+              }}
+            >
+              {inheritMainFilters ? '已继承主页面筛选（点击关闭）' : '未继承主页面筛选（点击开启）'}
+            </Button>
+          </Space>
+
+          <Space wrap>
+            <Segmented
+              value={jobStage}
+              options={[
+                { label: '校招', value: 'campus' },
+                { label: '实习', value: 'internship' },
+                { label: '全部', value: 'all' },
+              ]}
+              onChange={(v) => { setJobStage(String(v)); setPage(1); }}
+              disabled={inheritMainFilters}
+            />
+            <Input
+              placeholder="搜索岗位/地点/要求"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              style={{ width: 220 }}
+              allowClear
+              disabled={inheritMainFilters}
+            />
+            <Select
+              placeholder="赛道筛选"
+              value={trackFilter}
+              onChange={(v) => { setTrackFilter(v); setPage(1); }}
+              style={{ width: 160 }}
+              allowClear
+              disabled={inheritMainFilters}
+              options={trackOptions.map(t => ({ value: t.key, label: t.name }))}
+            />
+            <Select
+              placeholder="时间范围"
+              value={days}
+              onChange={(v) => { setDays(v); setPage(1); }}
+              style={{ width: 120 }}
+              allowClear
+              disabled={inheritMainFilters}
+              options={[
+                { value: 1, label: '1 天' },
+                { value: 3, label: '3 天' },
+                { value: 7, label: '7 天' },
+                { value: 14, label: '14 天' },
+                { value: 30, label: '30 天' },
+              ]}
+            />
+            <InputNumber
+              placeholder="最低分"
+              value={minScore}
+              onChange={(v) => { setMinScore(v ?? undefined); setPage(1); }}
+              style={{ width: 110 }}
+              min={0}
+              disabled={inheritMainFilters}
+            />
+          </Space>
+
+          <Space wrap>
+            <Tag color="blue">搜索: {effectiveSearch || '-'}</Tag>
+            <Tag color="purple">赛道: {effectiveTracks || '-'}</Tag>
+            <Tag color="green">{effectiveDays ? `${effectiveDays}天内` : '不限时间'}</Tag>
+            <Tag color="orange">最低分: {effectiveMinScore || 0}</Tag>
+            <Tag color="geekblue">类型: {effectiveJobStage === 'campus' ? '校招' : effectiveJobStage === 'internship' ? '实习' : '全部'}</Tag>
           </Space>
         </Space>
       </Card>

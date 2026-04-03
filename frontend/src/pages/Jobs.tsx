@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
   Table, Input, Select, InputNumber, Card, Row, Col, Statistic, Button,
@@ -12,13 +12,13 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import {
   getJobs,
+  getJobsByCompany,
   getJobStats,
   getTracks,
   exportCsv,
   exportExcel,
   importCsv,
   updateJobApplicationStatus,
-  addCompanyRecrawlTask,
 } from '../api';
 
 interface JobScoreItem {
@@ -53,6 +53,171 @@ interface TrackOption {
   name: string;
 }
 
+// 赛道分组：互联网、银行、其他
+const TRACK_GROUPS = {
+  internet: {
+    name: '互联网',
+    tracks: ['internet_tier1', 'internet_tier2', 'internet_tier3'],
+  },
+  bank: {
+    name: '银行',
+    tracks: ['bank_tier1', 'bank_tier2', 'bank_tier3'],
+  },
+  other: {
+    name: '其他',
+    tracks: ['other_fintech', 'other_state', 'other_foreign'],
+  },
+};
+
+// ==================== 行业梯队分类 ====================
+
+// 互联网梯队分类
+const INTERNET_TIERS: Record<string, { name: string; companies: string[] }> = {
+  tier1: {
+    name: '一线',
+    companies: [
+      '腾讯', '字节跳动', '阿里巴巴', '蚂蚁集团', '美团', '拼多多',
+    ],
+  },
+  tier2: {
+    name: '二线',
+    companies: [
+      '京东', '百度', '快手', '滴滴', '网易', '携程', '小红书',
+      'BOSS直聘', '小米', '哔哩哔哩', 'B站', '米哈游', '得物',
+    ],
+  },
+  tier3: {
+    name: '三线',
+    companies: [
+      // 内容/社区/媒体
+      '爱奇艺', '知乎', '新浪微博', '微博', '搜狐', '阅文集团', '虎牙', '斗鱼',
+      '欢聚', 'YY', '豆瓣', 'Soul', '喜马拉雅', '蜻蜓FM', '虎扑', '即刻',
+      // 电商/消费/本地生活
+      '唯品会', '盒马', '饿了么', '叮咚买菜', '名创优品', '苏宁', '泡泡玛特', '元气森林',
+      // 出行/旅游/汽车
+      '去哪儿', '同程旅行', '哈啰', '货拉拉', '汽车之家', '途虎养车', '贝壳', '链家', '自如',
+      // 游戏
+      '心动网络', 'TapTap', '莉莉丝', '巨人网络', '完美世界', '三七互娱', '昆仑万维', '西山居', '恺英网络',
+      // 工具/企业服务/招聘/金融科技
+      '360', '金山办公', '金山云', '同花顺', '东方财富', '陆金所',
+      '微盟', '有赞', '七牛云', 'UCloud', 'Moka', '猎聘', '前程无忧', '智联招聘', '收钱吧',
+    ],
+  },
+  tier4: {
+    name: '三线以后',
+    companies: [
+      '雪球', '美图', '当当', '马蜂窝', '咪咕', '唱吧', '微店', '返利网',
+      '宝宝树', '珍爱网', '婚礼纪', '花瓣网', '咕咚', '达达', '兑吧',
+      '百姓网', '洋码头', '探探', 'WiFi万能钥匙', '神州数码', '格瓦拉',
+      '识货', '脉脉',
+    ],
+  },
+};
+
+// 券商梯队分类
+const SECURITIES_TIERS: Record<string, { name: string; companies: string[] }> = {
+  tier1: {
+    name: 'A-头部核心池',
+    companies: [
+      '中金公司', '中金', '中信证券', '中信建投证券', '华泰证券',
+      '国泰海通证券', '国泰君安证券', '海通证券', '申万宏源证券', '申万宏源',
+    ],
+  },
+  tier2: {
+    name: 'B-准头部+上腰部',
+    companies: [
+      '广发证券', '招商证券', '中国银河证券', '银河证券', '东吴证券', '华创证券',
+      '国海证券', '兴业证券', '东方证券', '国信证券', '光大证券', '平安证券',
+      '国金证券', '国投证券', '浙商证券', '长江证券', '东方财富证券',
+    ],
+  },
+  tier3: {
+    name: 'C-标准腰部',
+    companies: [
+      '天风证券', '中泰证券', '国盛证券', '方正证券', '民生证券',
+      '国联证券', '开源证券', '华西证券', '德邦证券', '东北证券',
+      '信达证券', '财通证券', '华福证券', '国元证券', '粤开证券',
+      '东莞证券', '中银证券',
+    ],
+  },
+};
+
+// 银行梯队分类
+const BANK_TIERS: Record<string, { name: string; companies: string[] }> = {
+  tier1: {
+    name: '第一梯队',
+    companies: [
+      '浦发银行', '招商银行', '兴业银行', '上海农商银行', '上海银行', '宁波银行', '浙商银行',
+    ],
+  },
+  tier2: {
+    name: '第二梯队',
+    companies: [
+      '中信银行', '中国邮政储蓄银行', '邮储银行', '交通银行', '北京银行',
+      '建设银行', '农业银行', '工商银行', '中国银行', '平安银行', '民生银行',
+      '光大银行', '华夏银行', '建信金科', '招银网络科技', '浦银金融科技',
+    ],
+  },
+  tier3: {
+    name: '第三梯队',
+    companies: [
+      '杭州银行', '苏州银行', '成都银行', '西安银行', '南洋商业银行', '北京农商',
+    ],
+  },
+};
+
+// 判断公司属于哪个梯队
+function getCompanyTier(company: string): { tier: string; tierName: string; category: string } | null {
+  const trimmedCompany = company.trim();
+
+  // 检查互联网梯队
+  for (const [tierKey, tierInfo] of Object.entries(INTERNET_TIERS)) {
+    if (tierInfo.companies.some(c => trimmedCompany.includes(c))) {
+      return { tier: tierKey, tierName: tierInfo.name, category: '互联网' };
+    }
+  }
+
+  // 检查券商梯队
+  for (const [tierKey, tierInfo] of Object.entries(SECURITIES_TIERS)) {
+    if (tierInfo.companies.some(c => trimmedCompany.includes(c))) {
+      return { tier: tierKey, tierName: tierInfo.name, category: '券商' };
+    }
+  }
+
+  // 检查银行梯队
+  for (const [tierKey, tierInfo] of Object.entries(BANK_TIERS)) {
+    if (tierInfo.companies.some(c => trimmedCompany.includes(c))) {
+      return { tier: tierKey, tierName: tierInfo.name, category: '银行' };
+    }
+  }
+
+  return null;
+}
+
+// 梯队颜色配置
+const TIER_COLORS: Record<string, string> = {
+  tier1: 'gold',
+  tier2: 'blue',
+  tier3: 'default',
+  tier4: 'volcano',
+};
+
+// 梯队排序值：tier1=1, tier2=2, tier3=3, tier4=4, 无梯队=99
+function tierSortValue(company: string): number {
+  const info = getCompanyTier(company);
+  if (!info) return 99;
+  return parseInt(info.tier.replace('tier', '')) || 99;
+}
+
+// 梯队排序比较器：梯队小→优先，同梯队按总分降序，同分按公司名
+function compareByTier(a: JobItem, b: JobItem): number {
+  const ta = tierSortValue(a.company);
+  const tb = tierSortValue(b.company);
+  if (ta !== tb) return ta - tb;                              // 不同梯队：小的排前面
+  if (a.total_score !== b.total_score) return b.total_score - a.total_score; // 同梯队：总分高→排前面
+  return a.company.localeCompare(b.company, 'zh');            // 同分：按公司名
+}
+
 interface StatsData {
   total_jobs: number;
   today_new: number;
@@ -64,7 +229,7 @@ interface SavedFilterPreset {
   id: string;
   name: string;
   search: string;
-  trackFilter?: string;
+  sectorGroup?: string;
   days?: number;
   minScore?: number;
   jobStage?: string;
@@ -73,10 +238,11 @@ interface SavedFilterPreset {
 
 interface LastFilterState {
   search: string;
-  trackFilter?: string;
+  sectorGroup?: string;
   days?: number;
   minScore?: number;
   jobStage?: string;
+  excludeAppliedCompanies?: boolean;
 }
 
 const SAVED_FILTERS_KEY = 'jobradar.savedFilters.v1';
@@ -109,13 +275,14 @@ function loadLastFilterState(): LastFilterState {
     const parsed = JSON.parse(raw);
     return {
       search: typeof parsed.search === 'string' ? parsed.search : '',
-      trackFilter: typeof parsed.trackFilter === 'string' ? parsed.trackFilter : undefined,
+      sectorGroup: typeof parsed.sectorGroup === 'string' ? parsed.sectorGroup : 'all',
       days: typeof parsed.days === 'number' ? parsed.days : undefined,
       minScore: typeof parsed.minScore === 'number' ? parsed.minScore : undefined,
       jobStage: typeof parsed.jobStage === 'string' ? parsed.jobStage : 'campus',
+      excludeAppliedCompanies: Boolean(parsed.excludeAppliedCompanies),
     };
   } catch {
-    return { search: '', jobStage: 'campus' };
+    return { search: '', jobStage: 'campus', excludeAppliedCompanies: false };
   }
 }
 
@@ -127,34 +294,47 @@ function saveLastFilterState(state: LastFilterState) {
   }
 }
 
-const TRACK_COLORS: Record<string, string> = {
-  data_analysis: 'blue',
-  tech_consulting: 'purple',
-  ai_pm: 'cyan',
-  investment_research: 'gold',
-  power_trading: 'green',
+// 根据赛道分组计算应该筛选的赛道
+const getTracksByGroup = (group: string, tracks: TrackOption[]): string[] => {
+  if (group === 'all') {
+    return tracks.map(t => t.key);
+  }
+  const groupTracks = TRACK_GROUPS[group as keyof typeof TRACK_GROUPS]?.tracks || [];
+  const otherTracks = tracks.map(t => t.key).filter(key => !Object.values(TRACK_GROUPS).flatMap(g => g.tracks).includes(key));
+  if (group === 'other') {
+    return otherTracks;
+  }
+  return groupTracks;
 };
 
 const APPLICATION_STATUS_OPTIONS = [
   { value: '待申请', label: '待申请' },
   { value: '已申请', label: '已申请' },
   { value: '已网测', label: '已网测' },
-  { value: '已面试', label: '已面试' },
+  { value: '一面', label: '一面' },
+  { value: '二面', label: '二面' },
+  { value: '三面', label: '三面' },
 ];
+
+const APPLIED_FLOW_STATUSES = ['已申请', '已网测', '一面', '二面', '三面'];
 
 export default function Jobs() {
   const initialFilterState = useMemo(() => loadLastFilterState(), []);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAppliedFlowView = location.pathname === '/applied-flow';
 
+  const [viewMode, setViewMode] = useState<'jobs' | 'companies'>('jobs'); // 视图模式：岗位列表 | 公司聚合
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState(initialFilterState.search);
-  const [trackFilter, setTrackFilter] = useState<string | undefined>(initialFilterState.trackFilter);
+  const [sectorGroup, setSectorGroup] = useState<string>(initialFilterState.sectorGroup || 'all'); // 'all' | 'internet' | 'bank' | 'other'
   const [days, setDays] = useState<number | undefined>(initialFilterState.days);
   const [minScore, setMinScore] = useState<number | undefined>(initialFilterState.minScore);
   const [jobStage, setJobStage] = useState<string>(initialFilterState.jobStage || 'campus');
+  const [excludeAppliedCompanies, setExcludeAppliedCompanies] = useState<boolean>(Boolean(initialFilterState.excludeAppliedCompanies));
   const [stats, setStats] = useState<StatsData>({ total_jobs: 0, today_new: 0, by_track: {}, by_stage: {} });
   const [trackOptions, setTrackOptions] = useState<TrackOption[]>([]);
   const [loading, setLoading] = useState(false);
@@ -162,11 +342,6 @@ export default function Jobs() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>();
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [presetName, setPresetName] = useState('');
-  const [recrawlModalOpen, setRecrawlModalOpen] = useState(false);
-  const [recrawlCompany, setRecrawlCompany] = useState('');
-  const [recrawlDepartment, setRecrawlDepartment] = useState('');
-  const [recrawlUrl, setRecrawlUrl] = useState('');
-  const [recrawlSubmitting, setRecrawlSubmitting] = useState(false);
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -175,25 +350,37 @@ export default function Jobs() {
         page, page_size: pageSize, sort_by: 'total_score', sort_order: 'desc',
       };
       if (search) params.search = search;
-      if (trackFilter) params.tracks = trackFilter;
+      if (sectorGroup !== 'all') {
+        const filteredTracks = getTracksByGroup(sectorGroup, trackOptions);
+        if (filteredTracks.length > 0) {
+          params.tracks = filteredTracks.join(',');
+        }
+      }
       if (days) params.days = days;
       if (minScore) params.min_score = minScore;
       if (jobStage) params.job_stage = jobStage;
-      const res = await getJobs(params);
+      if (excludeAppliedCompanies) params.exclude_applied_companies = true;
+      if (isAppliedFlowView) params.application_statuses = APPLIED_FLOW_STATUSES.join(',');
+
+      // 根据视图模式调用不同的 API
+      const apiCall = viewMode === 'companies' ? getJobsByCompany : getJobs;
+      const res = await apiCall(params);
       setJobs(res.data.items);
       setTotal(res.data.total);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, search, trackFilter, days, minScore, jobStage]);
-  const handleCompanyClick = (company: string, department: string) => {
+  }, [page, pageSize, search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies, isAppliedFlowView, trackOptions, viewMode]);
+  const handleCompanyClick = (company: string) => {
     const params = new URLSearchParams({
       company,
-      department,
       scope: 'current',
     });
     if (search) params.set('search', search);
-    if (trackFilter) params.set('tracks', trackFilter);
+    if (sectorGroup !== 'all' && sectorGroup) {
+      const filteredTracks = getTracksByGroup(sectorGroup, trackOptions);
+      if (filteredTracks.length > 0) params.set('tracks', filteredTracks.join(','));
+    }
     if (days) params.set('days', String(days));
     if (minScore) params.set('min_score', String(minScore));
     if (jobStage) params.set('job_stage', jobStage);
@@ -214,15 +401,15 @@ export default function Jobs() {
   useEffect(() => { fetchTracks(); fetchStats(); }, []);
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
   useEffect(() => {
-    saveLastFilterState({ search, trackFilter, days, minScore, jobStage });
-  }, [search, trackFilter, days, minScore, jobStage]);
+    saveLastFilterState({ search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies });
+  }, [search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies]);
 
   const applyPreset = (presetId: string) => {
     const preset = savedFilters.find((p) => p.id === presetId);
     if (!preset) return;
     setSelectedPresetId(preset.id);
     setSearch(preset.search);
-    setTrackFilter(preset.trackFilter);
+    setSectorGroup(preset.sectorGroup || 'all');
     setDays(preset.days);
     setMinScore(preset.minScore);
     setJobStage(preset.jobStage || 'campus');
@@ -256,7 +443,7 @@ export default function Jobs() {
         id,
         name,
         search,
-        trackFilter,
+        sectorGroup,
         days,
         minScore,
         jobStage,
@@ -293,7 +480,7 @@ export default function Jobs() {
   const handleExport = async (format: string) => {
     const params = {
       search: search || '',
-      tracks: trackFilter ? trackFilter.split(',') : [],
+      tracks: sectorGroup !== 'all' ? getTracksByGroup(sectorGroup, trackOptions) : [],
       min_score: minScore || 0,
       days: days || 0,
       job_stage: jobStage || 'all',
@@ -350,120 +537,110 @@ export default function Jobs() {
     }
   };
 
-  const openRecrawlModal = (company: string, department: string) => {
-    setRecrawlCompany(company || '');
-    setRecrawlDepartment(department || '');
-    setRecrawlUrl('');
-    setRecrawlModalOpen(true);
-  };
-
-  const submitRecrawlTask = async () => {
-    const url = recrawlUrl.trim();
-    if (!url) {
-      message.warning('请填写公司官网招聘链接');
-      return;
-    }
-
-    setRecrawlSubmitting(true);
-    try {
-      await addCompanyRecrawlTask({
-        company: recrawlCompany,
-        department: recrawlDepartment,
-        career_url: url,
-      });
-      message.success('已加入补爬队列，将在下次爬取时执行');
-      setRecrawlModalOpen(false);
-      setRecrawlUrl('');
-    } catch {
-      message.error('加入补爬队列失败，请检查链接后重试');
-    } finally {
-      setRecrawlSubmitting(false);
-    }
-  };
-
-  const columns: ColumnsType<JobItem> = [
-    {
-      title: '公司', dataIndex: 'company', width: 130, ellipsis: true,
-      render: (v: string, r: JobItem) => (
-        <div>
-          <div
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleCompanyClick(v, r.department)}
-          >
-            <div style={{ fontWeight: 500, color: '#1890ff' }}>{v}</div>
+  const columns: ColumnsType<JobItem> = useMemo(() => {
+    const baseColumns: ColumnsType<JobItem> = [
+      {
+        title: '公司', dataIndex: 'company', width: viewMode === 'companies' ? 130 : 180, ellipsis: true,
+        render: (v: string, r: JobItem) => (
+          <div style={{ cursor: 'pointer' }} onClick={() => handleCompanyClick(v)}>
+            <span style={{ fontWeight: 500, color: '#1890ff' }}>{v}</span>
             {r.department && r.department !== v && (
               <div style={{ fontSize: 11, color: '#888' }}>{r.department}</div>
             )}
           </div>
-          <Button
-            type="link"
-            size="small"
-            style={{ padding: 0, height: 20 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              openRecrawlModal(v, r.department);
-            }}
-          >
-            重新爬取全量岗位
-          </Button>
-        </div>
-      ),
-    },
-    { title: '岗位', dataIndex: 'job_title', width: 220, ellipsis: true },
-    { title: '地点', dataIndex: 'location', width: 100, ellipsis: true },
-    {
-      title: '申请状态', dataIndex: 'application_status', width: 110,
-      render: (_v: string, r: JobItem) => (
-        <Select
-          size="small"
-          value={r.application_status || '待申请'}
-          style={{ width: 100 }}
-          options={APPLICATION_STATUS_OPTIONS}
-          onChange={(value) => handleUpdateApplicationStatus(r, value)}
-        />
-      ),
-    },
-    {
-      title: '赛道', key: 'tracks', width: 200,
-      render: (_: unknown, r: JobItem) => (
-        <Space size={[0, 4]} wrap>
-          {r.scores.map(s => (
-            <Tag key={s.track_key} color={TRACK_COLORS[s.track_key] || 'default'}>
-              {s.track_name} {s.score}
-            </Tag>
-          ))}
-        </Space>
-      ),
-    },
-    {
-      title: '总分', dataIndex: 'total_score', width: 75, sorter: true,
-      render: (v: number) => <span style={{ fontWeight: 700, color: v >= 60 ? '#52c41a' : v >= 30 ? '#1890ff' : '#999' }}>{v}</span>,
-    },
-    {
-      title: '发布', dataIndex: 'publish_date', width: 90,
-      render: (v: string | null) => v ? v.slice(0, 10) : '-',
-    },
-    {
-      title: '情报', dataIndex: 'id', width: 70,
-      render: (_: unknown, r: JobItem) => (
-        <Button
-          type="link"
-          size="small"
-          icon={<InfoCircleOutlined />}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/job-intel/${r.id}`);
-          }}
-        >
-          查看情报
-        </Button>
-      ),
-    },
-    {
-      title: '', dataIndex: 'detail_url', width: 50,
-      render: (v: string) => v ? <a href={v} target="_blank" rel="noreferrer">链接</a> : null,
-    },
-  ];
+        ),
+      },
+    ];
+
+    // 在公司聚合模式下，添加"代表岗位"列；否则添加常规列
+    if (viewMode === 'companies') {
+      baseColumns.push(
+        { title: '代表岗位', dataIndex: 'job_title', width: 220, ellipsis: true },
+        { title: '地点', dataIndex: 'location', width: 100, ellipsis: true },
+        {
+          title: '赛道', key: 'tracks', width: 200, sorter: compareByTier,
+          render: (_: unknown, r: JobItem) => {
+            const tierInfo = getCompanyTier(r.company);
+            return tierInfo ? (
+              <Tag color={TIER_COLORS[tierInfo.tier] || 'default'}>
+                {tierInfo.category}-{tierInfo.tierName}
+              </Tag>
+            ) : <span style={{ color: '#999' }}>-</span>;
+          },
+        },
+        {
+          title: '总分', dataIndex: 'total_score', width: 75, sorter: true,
+          render: (v: number) => <span style={{ fontWeight: 700, color: v >= 60 ? '#52c41a' : v >= 30 ? '#1890ff' : '#999' }}>{v}</span>,
+        },
+        {
+          title: '发布', dataIndex: 'publish_date', width: 90,
+          render: (v: string | null) => v ? v.slice(0, 10) : '-',
+        },
+        {
+          title: '', dataIndex: 'detail_url', width: 50,
+          render: (v: string) => v ? <a href={v} target="_blank" rel="noreferrer">链接</a> : null,
+        },
+      );
+    } else {
+      baseColumns.push(
+        { title: '岗位', dataIndex: 'job_title', width: 220, ellipsis: true },
+        { title: '地点', dataIndex: 'location', width: 100, ellipsis: true },
+        {
+          title: '申请状态', dataIndex: 'application_status', width: 110,
+          render: (_v: string, r: JobItem) => (
+            <Select
+              size="small"
+              value={r.application_status || '待申请'}
+              style={{ width: 100 }}
+              options={APPLICATION_STATUS_OPTIONS}
+              onChange={(value) => handleUpdateApplicationStatus(r, value)}
+            />
+          ),
+        },
+        {
+          title: '赛道', key: 'tracks', width: 240, sorter: compareByTier,
+          render: (_: unknown, r: JobItem) => {
+            const tierInfo = getCompanyTier(r.company);
+            return tierInfo ? (
+              <Tag color={TIER_COLORS[tierInfo.tier] || 'default'}>
+                {tierInfo.category}-{tierInfo.tierName}
+              </Tag>
+            ) : <span style={{ color: '#999' }}>-</span>;
+          },
+        },
+        {
+          title: '总分', dataIndex: 'total_score', width: 75, sorter: true,
+          render: (v: number) => <span style={{ fontWeight: 700, color: v >= 60 ? '#52c41a' : v >= 30 ? '#1890ff' : '#999' }}>{v}</span>,
+        },
+        {
+          title: '发布', dataIndex: 'publish_date', width: 90,
+          render: (v: string | null) => v ? v.slice(0, 10) : '-',
+        },
+        {
+          title: '情报', dataIndex: 'id', width: 70,
+          render: (_: unknown, r: JobItem) => (
+            <Button
+              type="link"
+              size="small"
+              icon={<InfoCircleOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/job-intel/${r.id}`);
+              }}
+            >
+              查看情报
+            </Button>
+          ),
+        },
+        {
+          title: '', dataIndex: 'detail_url', width: 50,
+          render: (v: string) => v ? <a href={v} target="_blank" rel="noreferrer">链接</a> : null,
+        },
+      );
+    }
+
+    return baseColumns;
+  }, [viewMode, trackOptions]);
 
   const expandedRowRender = (record: JobItem) => (
     <Descriptions column={2} size="small" bordered>
@@ -512,6 +689,17 @@ export default function Jobs() {
       </Row>
 
       <Space style={{ marginBottom: 12 }} wrap>
+        {isAppliedFlowView && (
+          <Tag color="blue">仅显示：已申请 / 已网测 / 一面 / 二面 / 三面</Tag>
+        )}
+        <Segmented
+          value={viewMode}
+          options={[
+            { label: '岗位列表', value: 'jobs' },
+            { label: '公司聚合', value: 'companies' },
+          ]}
+          onChange={(v) => { setViewMode(v as 'jobs' | 'companies'); setPage(1); }}
+        />
         <Segmented
           value={jobStage}
           options={[
@@ -529,13 +717,15 @@ export default function Jobs() {
           style={{ width: 220 }}
           allowClear
         />
-        <Select
-          placeholder="赛道筛选"
-          value={trackFilter}
-          onChange={v => { setTrackFilter(v); setPage(1); }}
-          style={{ width: 150 }}
-          allowClear
-          options={trackOptions.map(t => ({ value: t.key, label: t.name }))}
+        <Segmented
+          value={sectorGroup}
+          options={[
+            { label: '全量', value: 'all' },
+            { label: '互联网', value: 'internet' },
+            { label: '银行', value: 'bank' },
+            { label: '其他', value: 'other' },
+          ]}
+          onChange={(v) => { setSectorGroup(String(v)); setPage(1); }}
         />
         <Select
           placeholder="时间范围"
@@ -572,6 +762,12 @@ export default function Jobs() {
         </Button>
         <Button icon={<DeleteOutlined />} onClick={handleDeletePreset} disabled={!selectedPresetId}>
           删除筛选
+        </Button>
+        <Button
+          type={excludeAppliedCompanies ? 'primary' : 'default'}
+          onClick={() => { setExcludeAppliedCompanies((v) => !v); setPage(1); }}
+        >
+          {excludeAppliedCompanies ? '已去掉已申请公司（点击关闭）' : '去掉已申请公司'}
         </Button>
         <Button icon={<ReloadOutlined />} onClick={() => { fetchJobs(); fetchStats(); }}>
           刷新
@@ -623,29 +819,6 @@ export default function Jobs() {
           onPressEnter={handleSavePreset}
           maxLength={40}
         />
-      </Modal>
-
-      <Modal
-        title="补爬公司自有官网"
-        open={recrawlModalOpen}
-        onOk={submitRecrawlTask}
-        onCancel={() => setRecrawlModalOpen(false)}
-        okText="加入下次爬取"
-        cancelText="取消"
-        confirmLoading={recrawlSubmitting}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <div>
-            公司：<b>{recrawlCompany || '-'}</b>
-            {recrawlDepartment && recrawlDepartment !== recrawlCompany ? `（${recrawlDepartment}）` : ''}
-          </div>
-          <Input
-            placeholder="请输入公司招聘官网链接，例如 https://careers.example.com/jobs"
-            value={recrawlUrl}
-            onChange={(e) => setRecrawlUrl(e.target.value)}
-            onPressEnter={submitRecrawlTask}
-          />
-        </Space>
       </Modal>
     </div>
   );

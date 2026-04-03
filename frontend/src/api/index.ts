@@ -4,6 +4,7 @@ const api = axios.create({ baseURL: '/api', timeout: 60000 });
 
 // Jobs
 export const getJobs = (params: Record<string, unknown>) => api.get('/jobs/', { params });
+export const getJobsByCompany = (params: Record<string, unknown>) => api.get('/jobs/by-company', { params });
 export const getJobStats = () => api.get('/jobs/stats');
 export const getJob = (id: number) => api.get(`/jobs/${id}`);
 export const updateJobApplicationStatus = (id: number, data: { application_status: string }) =>

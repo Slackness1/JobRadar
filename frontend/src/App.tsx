@@ -9,6 +9,7 @@ import {
   BugOutlined,
   ClockCircleOutlined,
   TeamOutlined,
+  CheckCircleOutlined,
 } from '@ant-design/icons';
 
 import Jobs from './pages/Jobs';
@@ -25,6 +26,7 @@ const { Sider, Content, Header } = Layout;
 
 const menuItems = [
   { key: '/', icon: <UnorderedListOutlined />, label: <Link to="/">岗位总览</Link> },
+  { key: '/applied-flow', icon: <CheckCircleOutlined />, label: <Link to="/applied-flow">申请流程看板</Link> },
   { key: '/company-expand', icon: <TeamOutlined />, label: <Link to="/company-expand">公司展开</Link> },
 
   { key: '/tracks', icon: <SettingOutlined />, label: <Link to="/tracks">赛道配置</Link> },
@@ -36,6 +38,7 @@ const menuItems = [
 
 const PAGE_TITLES: Record<string, string> = {
   '/': '岗位总览',
+  '/applied-flow': '申请流程看板',
   '/company-expand': '公司展开',
 
   '/tracks': '赛道配置',
@@ -98,6 +101,7 @@ function AppLayout() {
         }}>
           <Routes>
             <Route path="/" element={<Jobs />} />
+            <Route path="/applied-flow" element={<Jobs />} />
             <Route path="/company-expand" element={<CompanyExpand />} />
 
             <Route path="/job-intel/:jobId" element={<JobIntel />} />
