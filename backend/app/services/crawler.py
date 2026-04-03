@@ -23,6 +23,11 @@ from app.config import (
 )
 from app.models import Job, CrawlLog
 from app.services.company_recrawl_queue import process_company_recrawl_queue
+from app.services.crawl_detection import detect_from_page_signals
+from app.services.crawl_evidence import build_evidence
+from app.services.crawl_runtime import finish_run_context, record_detection, record_evidence, record_failure, record_validation, start_run_context
+from app.services.crawl_taxonomy import DetectionReport
+from app.services.crawl_validation import score_completeness
 from app.services.haitou_crawler import run_haitou_crawl
 from app.services.job_merge import merge_job_fields
 
@@ -368,8 +373,14 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
 
                         existing = existing_jobs.get(job_id)
                         if existing is None:
+                            # Check if job_id already exists in database (handle race conditions)
+                            existing_in_db = db.query(Job).filter(Job.job_id == job_id).first()
+                            if existing_in_db:
+                                existing_jobs[job_id] = existing_in_db
+                                continue
                             created = Job(**mapped)
                             db.add(created)
+                            db.flush()  # Flush to detect duplicates early
                             existing_jobs[job_id] = created
                             new_count += 1
                             continue
@@ -381,6 +392,9 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
                         
                         # Use protected merge logic for other fields
                         merge_job_fields(existing, mapped)
+
+                    # Commit after each page to save progress incrementally
+                    db.commit()
 
                     if len(records) < page_size:
                         break
@@ -395,18 +409,31 @@ def run_crawl(db: Session, max_pages: int = 100, page_size: int = 50,
         new_count += haitou_new_count
         total_fetched += haitou_total_count
 
-        db.commit()
-        setattr(log, "status", "success")
+        # Create detection report for API-based crawl
+        detection = DetectionReport(
+            target_url=API_URL,
+            final_url=API_URL,
+            page_title="Tata API Crawl",
+            has_api_clue=True,
+            api_hosts=["www.tatawangshen.com"],
+            has_job_signal=total_fetched > 0,
+            job_signal_count=total_fetched,
+        )
+
+        validation = score_completeness(
+            detection=detection,
+            extracted_count=total_fetched,
+            blocked_or_empty_response=(not token and total_fetched == 0),
+        )
+        record_validation(log, validation)
         setattr(log, "new_count", new_count)
         setattr(log, "total_count", total_fetched)
         if notes:
             setattr(log, "error_message", "; ".join(notes)[:500])
-        setattr(log, "finished_at", datetime.now(timezone.utc))
+        finish_run_context(log, status="success")
 
     except Exception as e:
-        setattr(log, "status", "failed")
-        setattr(log, "error_message", str(e)[:500])
-        setattr(log, "finished_at", datetime.now(timezone.utc))
+        record_failure(log, reason="BLOCKED_OR_EMPTY_RESPONSE", message=str(e)[:500])
 
     db.commit()
     db.refresh(log)

@@ -1,128 +1,285 @@
-# 招聘站点配置
-# 状态: completed=已完成, pending=待处理, failed=需特殊处理
-
 targets:
-  # ========== 已完成（需去重/更新）==========
-  - name: "携程"
-    url: "https://job.ctrip.com/#/campus/jobList"
-    type: "campus"
-    status: "completed"
-    note: "SPA，需要浏览器"
-    
-  - name: "美团"
-    url: "https://zhaopin.meituan.com/web/campus"
-    type: "campus"
-    status: "completed"
-    note: "SPA，需要浏览器"
-    
-  - name: "华为"
-    url: "https://career.huawei.com/reccampportal/portal5/campus-recruitment.html"
-    type: "campus"
-    status: "completed"
-    note: "静态页面"
-
-  # ========== 待处理 ==========
-  - name: "NIO蔚来"
-    url: "https://nio.jobs.feishu.cn/campus/?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10"
-    type: "campus"
-    status: "pending"
-    note: "飞书招聘，需要浏览器"
-    
-  - name: "滴滴"
-    url: "https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "小红书-校招"
-    url: "https://job.xiaohongshu.com/campus/position"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "小红书-社招"
-    url: "https://job.xiaohongshu.com/social/position?positionName="
-    type: "social"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "中国平安"
-    url: "https://campus.pingan.com/freshGraduates"
-    type: "campus"
-    status: "pending"
-    note: "需要浏览器"
-    
-  - name: "腾讯"
-    url: "https://careers.tencent.com/search.html?query=co_1&sc=1"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "字节跳动-分析"
-    url: "https://jobs.bytedance.com/campus/position?keywords=%E5%88%86%E6%9E%90&category=&location=&project=7525009396952582407&type=&job_hot_flag=&current=2&limit=10"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "字节跳动-全部"
-    url: "https://jobs.bytedance.com/campus/position?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "腾讯-校招"
-    url: "https://join.qq.com/post.html?query=p_2"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "阿里巴巴-校招"
-    url: "https://talent.alibaba.com/campus/position-list?campusType=freshman"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "阿里巴巴-Holding"
-    url: "https://talent-holding.alibaba.com/campus/position-list?campusType=freshman&lang=zh&batchId=100000060001"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "百度"
-    url: "https://talent.baidu.com/jobs/list?search="
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "京东"
-    url: "https://campus.jd.com/home#/jobs?to=present&type=present"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "拼多多"
-    url: "https://careers.pddglobalhr.com/campus/grad"
-    type: "campus"
-    status: "pending"
-    note: "需要浏览器"
-    
-  - name: "哔哩哔哩"
-    url: "https://jobs.bilibili.com/campus/positions?channel=bilibiliaccounts&type=3"
-    type: "campus"
-    status: "pending"
-    note: "SPA，需要浏览器"
-    
-  - name: "招商银行"
-    url: "https://career.cmbchina.com/positionlist/96574F8D-C7ED-4772-AE7C-BAC896D190C1"
-    type: "campus"
-    status: "pending"
-    note: "需要浏览器"
-
-# 全局配置
+- name: 腾讯
+  url: https://careers.tencent.com/search.html?query=co_1&sc=1
+  type: campus
+  tier: 1
+  status: completed
+  note: SPA，需要浏览器；已抓 4136 条（仅校招，>2026-01）
+- name: 阿里巴巴
+  url: https://campus-talent.alibaba.com/campus/position?batchId=100000540002
+  type: campus
+  tier: 1
+  status: completed
+  note: SPA，需要浏览器；已抓 23 条（仅校招，>2026-01）
+- name: 蚂蚁集团
+  url: https://talent.antgroup.com/campus-full-list?search=
+  type: campus
+  tier: 1
+  status: completed
+  note: SPA，需要浏览器；已抓 351 条（仅校招，>2026-01）
+- name: 字节跳动
+  url: https://jobs.bytedance.com/campus/position
+  type: campus
+  tier: 1
+  status: completed
+  note: SPA，需要浏览器；已抓 185 条（仅校招，>2026-01）
+- name: 美团
+  url: https://zhaopin.meituan.com/web/campus
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 249 条（仅校招，>2026-01）
+- name: 京东
+  url: https://campus.jd.com/#/jobs
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 101 条（仅校招，>2026-01）
+- name: 百度
+  url: https://talent.baidu.com/jobs/list?search=
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 11 条（仅校招，>2026-01）
+- name: 网易
+  url: https://campus.163.com/app/job/position?id=69
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 29 条（仅校招，>2026-01）
+- name: 网易雷火
+  url: https://leihuo.163.com/campus/#/full?channel=wJTOQNt
+  type: campus
+  tier: 2
+  status: pending
+  note: 网易雷火校园招聘
+- name: 快手
+  url: https://campus.kuaishou.cn/recruit/campus/e/#/campus/jobs?positionNatureCode=fulltime
+  type: campus
+  tier: 2
+  status: pending
+  note: 快手校招职位列表
+- name: 滴滴
+  url: https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs?keyword=
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 58 条（仅校招，>2026-01）
+- name: 携程
+  url: https://job.ctrip.com/#/campus/jobList
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 29 条（仅校招，>2026-01）
+- name: 小红书
+  url: https://job.xiaohongshu.com/campus/position
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 28 条（仅校招，>2026-01）
+- name: BOSS直聘
+  url: https://www.zhipin.com/campus/pc/job
+  type: campus
+  tier: 2
+  status: pending
+  note: BOSS直聘2026届校园招聘入口
+- name: 哔哩哔哩
+  url: https://jobs.bilibili.com/campus/positions?channel=bilibiliaccounts&type=3
+  type: campus
+  tier: 2
+  status: completed
+  note: SPA，需要浏览器；已抓 28 条（仅校招，>2026-01）
+- name: 米哈游
+  url: https://jobs.mihoyo.com/#/campus/position
+  type: campus
+  tier: 2
+  status: completed
+  note: 校招职位入口；已抓 33 条（仅校招）
+- name: 得物
+  url: https://campus.dewu.com/578078/position/list?keywords=
+  type: campus
+  tier: 2
+  status: pending
+  note: 得物校招职位列表入口
+- name: 爱奇艺
+  url: https://careers.iqiyi.com/campus
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 知乎
+  url: https://app.mokahr.com/campus_apply/zhihu
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档首批，Moka 校招入口
+- name: 微博
+  url: https://job.weibo.com/
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 贝壳找房
+  url: https://campus.ke.com/campus/jobs
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 同程旅行
+  url: https://mhr.ly.com/recruit/schoolPortal/#/postDelivery
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: '360'
+  url: https://360campus.zhiye.com/jobs
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档首批，官方校招职位页（按飞书口径）
+- name: 华为
+  url: https://career.huawei.com/reccampportal/portal5/campus-recruitment.html
+  type: campus
+  status: completed
+  note: 静态页面
+- name: NIO蔚来
+  url: https://nio.jobs.feishu.cn/campus/?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10
+  type: campus
+  status: pending
+  note: 飞书招聘，需要浏览器
+- name: 滴滴
+  url: https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 小红书-校招
+  url: https://job.xiaohongshu.com/campus/position
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 小红书-社招
+  url: https://job.xiaohongshu.com/social/position?positionName=
+  type: social
+  status: pending
+  note: SPA，需要浏览器
+- name: 中国平安
+  url: https://campus.pingan.com/freshGraduates
+  type: campus
+  status: pending
+  note: 需要浏览器
+- name: 腾讯
+  url: https://careers.tencent.com/search.html?query=co_1&sc=1
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 字节跳动-分析
+  url: https://jobs.bytedance.com/campus/position?keywords=%E5%88%86%E6%9E%90&category=&location=&project=7525009396952582407&type=&job_hot_flag=&current=2&limit=10
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 字节跳动-全部
+  url: https://jobs.bytedance.com/campus/position?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 腾讯-校招
+  url: https://join.qq.com/post.html?query=p_2
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 阿里巴巴-校招
+  url: https://talent.alibaba.com/campus/position-list?campusType=freshman
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 阿里巴巴-Holding
+  url: https://talent-holding.alibaba.com/campus/position-list?campusType=freshman&lang=zh&batchId=100000060001
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 百度
+  url: https://talent.baidu.com/jobs/list?search=
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 京东
+  url: https://campus.jd.com/home#/jobs?to=present&type=present
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 拼多多
+  url: https://careers.pddglobalhr.com/campus/grad
+  type: campus
+  status: pending
+  note: 需要浏览器
+- name: 哔哩哔哩
+  url: https://jobs.bilibili.com/campus/positions?channel=bilibiliaccounts&type=3
+  type: campus
+  status: pending
+  note: SPA，需要浏览器
+- name: 招商银行
+  url: https://career.cmbchina.com/positionlist/96574F8D-C7ED-4772-AE7C-BAC896D190C1
+  type: campus
+  status: pending
+  note: 需要浏览器
+- name: 哈啰
+  url: https://careers.hellobike.com/#/recruit/%E6%A0%A1%E5%9B%AD%E6%8B%9B%E8%81%98
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 盒马
+  url: https://hire.freshippo.com/campus/position-list?campusType=freshman&lang=zh
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 莉莉丝
+  url: https://lilithgames.jobs.feishu.cn/campus/
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 金山办公
+  url: https://app.mokahr.com/campus-recruitment/wps/41436?sourceToken=8379ee777457c4d22fc65d4439f660b3#/jobs?page=1&anchorName=jobsList&project%5B0%5D=100102183
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: Soul
+  url: https://soulapp.jobs.feishu.cn/index
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 虎扑
+  url: https://hupu.zhiye.com/campus/jobs#KeyWords=
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 搜狐
+  url: https://app.mokahr.com/campus_apply/sohu/5682#/jobs
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径：Moka校招）
+- name: 新浪
+  url: https://app.mokahr.com/campus-recruitment/sina/43536#/jobs?page=1&anchorName=jobsList&project%5B0%5D=100098744
+  type: campus
+  tier: 3
+  status: pending
+  note: 第三档官网入口（按飞书口径）
+- name: 阅文
+  url: ''
+  type: campus
+  tier: 3
+  status: pending
+  note: 待补充官网链接（按飞书口径）
 settings:
   crawl_interval_minutes: 30
   max_retries: 3
   timeout_seconds: 30
   headless: true
-  output_dir: "data"
-  snapshot_dir: "data/snapshots"
+  output_dir: data
+  snapshot_dir: data/snapshots

@@ -1,0 +1,250 @@
+# 咨询公司校园招聘配置文件
+# Tier B 及以上咨询公司
+# Discovery 日期: 2026-03-24
+
+name: "咨询公司校园招聘"
+description: "爬取 Tier B 及以上咨询公司的校园招聘岗位"
+
+companies:
+  # Tier S (MBB)
+  - name: McKinsey
+    career_url: https://www.mckinsey.com/careers
+    campus_url: https://www.mckinsey.com/careers/students
+    platform: custom
+    ats_family: custom_spa
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "Next.js 自建站点，有校招入口 /careers/students"
+
+  - name: BCG
+    career_url: https://www.bcg.com/careers
+    campus_url: https://careers.bcg.com/global/en/early-careers
+    platform: custom
+    ats_family: custom_spa
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "Phenom People 平台，有 early-careers 入口"
+
+  - name: Bain
+    career_url: https://www.bain.com/careers
+    campus_url: https://www.bain.com/careers/work-with-us/students/
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，有 students 入口"
+
+  # Tier A
+  - name: Oliver Wyman
+    career_url: https://www.oliverwyman.com/careers
+    campus_url: https://www.oliverwyman.com/careers.html
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，检测到 job 信号"
+
+  - name: LEK
+    career_url: https://www.lek.com/careers
+    campus_url: https://www.lek.com/join-lek
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，有 join-lek 入口，检测到 campus 关键词"
+
+  - name: EY-Parthenon
+    career_url: https://www.ey.com/careers
+    campus_url: https://www.ey.com/en_gl/careers
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "帕特农"]
+    notes: "自建站点，有 parthenon 入口"
+
+  # Tier A-
+  - name: Deloitte
+    career_url: https://www2.deloitte.com/cn/careers.html
+    platform: custom
+    status: entry_missing
+    failure_tags: ["NOT_FOUND_404"]
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "德勤"]
+    notes: "404 错误，需要人工补充真实招聘入口"
+
+  - name: PwC
+    career_url: https://www.pwccn.com/careers.html
+    campus_url: https://app.mokahr.com/campus_apply/pwc/148260
+    platform: moka
+    ats_family: Moka
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "普华永道"]
+    notes: "Moka 平台，有明确校招入口"
+
+  - name: EY
+    career_url: https://www.ey.com/cn/zh/careers
+    campus_url: https://ey.hotjob.cn/wt/EY/web/index#/
+    platform: custom
+    ats_family: Moka
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "安永"]
+    notes: "检测到 Moka 平台信号，使用 hotjob.cn 校招入口"
+
+  - name: KPMG
+    career_url: https://home.kpmg/cn/zh/home/careers.html
+    campus_url: https://kpmg.com/cn/zh/careers/campus.html
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "毕马威"]
+    notes: "自建站点，有 campus 入口"
+
+  - name: Accenture
+    career_url: https://www.accenture.com/careers
+    campus_url: https://www.accenture.com/sg-en/careers
+    platform: custom
+    ats_family: Workday
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "埃森哲"]
+    notes: "Workday 平台，有 internships 入口"
+
+  - name: IBM Consulting
+    career_url: https://www.ibm.com/careers
+    campus_url: https://www.ibm.com/careers
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "IBM"]
+    notes: "自建站点，有 consulting 入口"
+
+  # Tier B
+  - name: Capgemini Invent
+    career_url: https://www.capgemini.com/careers
+    campus_url: https://www.capgemini.com/careers/career-paths/students-and-graduates/
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "凯捷"]
+    notes: "自建站点，有 students-and-graduates 入口"
+
+  - name: Protiviti
+    career_url: https://www.protiviti.com/careers
+    campus_url: https://www.protiviti.com/gl-en/careers
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，检测到 campus 关键词"
+
+  - name: BearingPoint
+    career_url: https://www.bearingpoint.com/en/careers
+    campus_url: https://www.bearingpoint.com/en/careers/graduates/
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "毕博"]
+    notes: "自建站点，有 graduates 入口"
+
+  - name: ZS
+    career_url: https://www.zs.com/careers
+    campus_url: https://www.zs.com/careers
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，有独立 jobs.zs.com 入口"
+
+  - name: OC&C
+    career_url: https://www.occstrategy.com/careers
+    campus_url: https://www.occstrategy.com/en/careers/careers-at-occ/
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，有 careers.occstrategy.com 入口"
+
+  - name: BDA
+    career_url: https://www.bda.com/careers
+    platform: custom
+    status: entry_missing
+    failure_tags: ["SSL_ERROR"]
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "SSL 错误，需要人工补充真实招聘入口"
+
+  # Tier B (Optional) - 若能找到明确校招入口
+  - name: A&M
+    career_url: https://www.alvarezandmarsal.com/careers
+    campus_url: https://careers.alvarezandmarsal.com/
+    platform: custom
+    status: failed
+    failure_tags: ["HTTP_403"]
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "A&M"]
+    notes: "403 错误，需要重试 Discovery 或人工确认网络问题"
+
+  - name: AlixPartners
+    career_url: https://www.alixpartners.com/careers
+    campus_url: https://www.alixpartners.com/careers/students-and-recent-graduates/
+    platform: custom
+    ats_family: custom
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建站点，有 students-and-recent-graduates 入口"
+
+  - name: FTI
+    career_url: https://www.fticonsulting.com/careers
+    campus_url: https://www.fticonsulting.com/careers
+    platform: custom
+    ats_family: custom_spa
+    status: success
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师"]
+    notes: "自建 SPA 站点，有 careers 入口"
+
+  # Tier A (Entry Missing)
+  - name: Strategy&
+    career_url: https://www.strategyand.pwc.com/careers
+    campus_url: https://app.mokahr.com/campus_apply/pwc/148260
+    platform: moka
+    ats_family: Moka
+    status: partial
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "思略特"]
+    notes: "思略特与 PwC 本体共用 PwC 招聘入口家族；后续监控时仍需与 PwC 本体分开统计与识别具体岗位"
+
+  - name: Roland Berger
+    career_url: https://www.rolandberger.com/en/Careers
+    platform: custom
+    status: entry_missing
+    failure_tags: ["NOT_FOUND_404"]
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "罗兰贝格"]
+    notes: "404 错误，需要人工补充真实招聘入口"
+
+  # Tier A (Failed - 需要重试)
+  - name: Kearney
+    career_url: https://www.kearney.com/careers
+    campus_url: https://kearney.recsolu.com/job_boards/1
+    platform: custom
+    ats_family: Yello Enterprise
+    status: partial
+    keywords: ["咨询", "顾问", "分析师", "咨询顾问", "商业分析师", "科尔尼"]
+    notes: "用户补充直达招聘入口为 kearney.recsolu.com/job_boards/1（Yello Enterprise）；后续可从该入口继续提取与监控"
+
+# 爬虫配置
+crawler_config:
+  headless: true
+  timeout: 30000
+  wait_for_network_idle: true
+  max_pages: 10
+  delay_between_requests: 2
+
+# ATS 家族分布统计
+ats_families:
+  custom: 14
+  custom_spa: 3
+  Moka: 2
+  Workday: 1
+  unknown: 4
+
+# 状态统计
+status_summary:
+  success: 18
+  entry_missing: 4
+  failed: 2
+  total: 24

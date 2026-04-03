@@ -1,165 +1,256 @@
-# 招聘爬虫目标站点 v3
-# 新增：主流电商平台 + 股份制银行 + 国有银行
-# 执行模型: zai/glm-4.7-flash（主力）
-# 审核模型: claude-sonnet-4-6
-# 补爬模型: zai/glm-4.7-flashx（失败站点）
-
 sites:
-  # ===== 电商平台（新增/补充） =====
-  - name: SHEIN
-    url: https://careers.shein.com/
-    category: 跨境电商
-    status: pending
-    note: 已实际检查，招聘站在线
-
-  - name: 苏宁易购
-    url: https://careers.suning.com/
-    category: 综合电商
-    status: pending
-    note: 请求返回 403，疑似反爬；浏览器可再验
-
-  - name: 唯品会
-    url: https://career.vipshop.com/
-    category: 综合电商
-    status: pending
-    note: 请求层 SSL EOF，疑似站点 TLS/反爬问题
-
-  - name: 叮咚买菜
-    url: https://app.mokahr.com/social-recruitment/dingdong/39002
-    category: 即时零售/生鲜电商
-    status: pending
-    note: 当前入口疑似失效页
-
-  - name: 朴朴超市
-    url: https://app.mokahr.com/social-recruitment/pupu/20145
-    category: 即时零售/生鲜电商
-    status: pending
-    note: 当前入口疑似失效页
-
-  - name: 敦煌网
-    url: https://www.dhgate.com/careers
-    category: 跨境电商
-    status: pending
-    note: 当前返回 404，待复核
-
-  - name: 宝尊电商
-    url: https://join.baozun.com/
-    category: 电商服务/代运营
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  - name: 孩子王
-    url: https://zhaopin.haiziwang.com/
-    category: 垂类电商/母婴
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  - name: 什么值得买
-    url: https://job.smzdm.com/
-    category: 内容电商/导购
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  # ===== 股份制银行 =====
-  - name: 中信银行
-    url: https://job.citicbank.com/
-    category: 股份制银行
-    status: pending
-    note: 已实际检查，招聘站在线
-
-  - name: 民生银行
-    url: https://career.cmbc.com.cn/
-    category: 股份制银行
-    status: pending
-    note: 已实际检查，页面可访问，需进一步判定岗位接口
-
-  - name: 兴业银行
-    url: https://job.cib.com.cn/portal/
-    category: 股份制银行
-    status: pending
-    note: 已实际检查，招聘站在线
-
-  - name: 华夏银行
-    url: https://hxb.hotjob.cn/
-    category: 股份制银行
-    status: pending
-    note: 已实际检查，招聘站在线
-
-  - name: 浙商银行
-    url: https://zp.czbank.com.cn/
-    category: 股份制银行
-    status: pending
-    note: 页面可访问，需验证岗位接口
-
-  - name: 招商银行
-    url: https://career.cmbchina.com/
-    category: 股份制银行
-    status: existing
-    note: 已有
-
-  - name: 平安银行
-    url: https://bank.pingan.com/zt/2025campus/index.shtml
-    category: 股份制银行
-    status: pending
-    note: 当前链接 404，待复核新校招入口
-
-  - name: 浦发银行
-    url: https://spdb.zhiye.com/
-    category: 股份制银行
-    status: pending
-    note: 当前入口 404，待复核
-
-  - name: 广发银行
-    url: https://career.cgbchina.com.cn/
-    category: 股份制银行
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  - name: 光大银行
-    url: https://cebbank.zhiye.com/
-    category: 股份制银行
-    status: pending
-    note: 当前入口 404，待复核
-
-  - name: 渤海银行
-    url: https://career.cbhb.com.cn/
-    category: 股份制银行
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  # ===== 国有银行 =====
-  - name: 工商银行
-    url: https://job.icbc.com.cn/
-    category: 国有银行
-    status: pending
-    note: 请求层 legacy TLS 问题，待浏览器复核
-
-  - name: 农业银行
-    url: https://career.abchina.com/
-    category: 国有银行
-    status: pending
-    note: 请求层 legacy TLS 问题，待浏览器复核
-
-  - name: 中国银行
-    url: https://campus.bankofchina.com/
-    category: 国有银行
-    status: pending
-    note: 请求层 SSL EOF，待浏览器复核
-
-  - name: 建设银行
-    url: https://job.ccb.com/
-    category: 国有银行
-    status: pending
-    note: 请求层 legacy TLS 问题，待浏览器复核
-
-  - name: 交通银行
-    url: https://job.bankcomm.com/
-    category: 国有银行
-    status: pending
-    note: 请求层 legacy TLS 问题，待浏览器复核
-
-  - name: 邮储银行
-    url: https://psbc.zhaopin.com/
-    category: 国有银行
-    status: pending
-    note: 请求返回 403，疑似反爬/专题页限制
+- name: SHEIN
+  url: https://careers.shein.com/
+  category: 跨境电商
+  status: pending
+  note: 已实际检查，招聘站在线
+- name: 苏宁易购
+  url: https://careers.suning.com/
+  category: 综合电商
+  status: pending
+  note: 请求返回 403，疑似反爬；浏览器可再验
+- name: 唯品会
+  url: https://career.vipshop.com/
+  category: 综合电商
+  status: pending
+  note: 请求层 SSL EOF，疑似站点 TLS/反爬问题
+- name: 叮咚买菜
+  url: https://app.mokahr.com/social-recruitment/dingdong/39002
+  category: 即时零售/生鲜电商
+  status: pending
+  note: 当前入口疑似失效页
+- name: 朴朴超市
+  url: https://app.mokahr.com/social-recruitment/pupu/20145
+  category: 即时零售/生鲜电商
+  status: pending
+  note: 当前入口疑似失效页
+- name: 敦煌网
+  url: https://www.dhgate.com/careers
+  category: 跨境电商
+  status: pending
+  note: 当前返回 404，待复核
+- name: 宝尊电商
+  url: https://join.baozun.com/
+  category: 电商服务/代运营
+  status: pending
+  note: 请求层 SSL EOF，待浏览器复核
+- name: 孩子王
+  url: https://zhaopin.haiziwang.com/
+  category: 垂类电商/母婴
+  status: pending
+  note: 请求层 SSL EOF，待浏览器复核
+- name: 什么值得买
+  url: https://job.smzdm.com/
+  category: 内容电商/导购
+  status: pending
+  note: 请求层 SSL EOF，待浏览器复核
+- name: 中信银行
+  url: https://job.citicbank.com/
+  category: 股份制银行
+  status: pending
+  note: 已实际检查，招聘站在线
+- name: 民生银行
+  url: https://career.cmbc.com.cn/
+  category: 股份制银行
+  status: pending
+  note: 已实际检查，页面可访问，需进一步判定岗位接口
+- name: 兴业银行
+  url: https://job.cib.com.cn/portal/
+  category: 股份制银行
+  status: pending
+  note: 已实际检查，招聘站在线
+- name: 华夏银行
+  url: https://hxb.hotjob.cn/
+  category: 股份制银行
+  status: pending
+  note: 已实际检查，招聘站在线
+- name: 浙商银行
+  url: https://zp.czbank.com.cn/zpweb/planController/gotoIndex.mvc?pageType=2
+  category: 股份制银行
+  status: existing
+  note: 官方招聘入口，已接入接口抓取
+- name: 招商银行
+  url: https://career.cmbchina.com/positionlist/96574F8D-C7ED-4772-AE7C-BAC896D190C1
+  category: 股份制银行
+  status: existing
+  note: 官网校招岗位列表入口（已验证稳定出数）
+- name: 平安银行
+  url: https://campus.pingan.com/freshGraduates
+  category: 股份制银行
+  status: existing
+  note: 官方校招入口（中国平安校园招聘，含平安银行岗位）
+- name: 浦发银行
+  url: https://job.spdb.com.cn/campusJob
+  category: 股份制银行
+  status: pending
+  note: 官方校园招聘列表入口
+- name: 广发银行
+  url: https://career.cgbchina.com.cn/
+  category: 股份制银行
+  status: pending
+  note: 请求层 SSL EOF，待浏览器复核
+- name: 光大银行
+  url: https://cebbank.zhiye.com/
+  category: 股份制银行
+  status: pending
+  note: 用户确认当前未开，暂缓抓取
+- name: 渤海银行
+  url: https://career.cbhb.com.cn/
+  category: 股份制银行
+  status: pending
+  note: 请求层 SSL EOF，待浏览器复核
+- name: 宁波银行
+  url: https://zhaopin.nbcb.com.cn/#/campus-recruitment
+  category: 城商行
+  status: pending
+  note: 官方招聘入口（含校园招聘）
+- name: 江苏银行
+  url: https://hr.jsbchina.cn/spa/custom/static/index.html#/main/cs/app/415469a50449415a9b56642c69728966_campus
+  category: 城商行
+  status: pending
+  note: 当前未开校招，标记为待爬取
+- name: 南京银行
+  url: https://job.njcb.com.cn/#/home
+  category: 城商行
+  status: pending
+  note: 当前未开校招，标记为待爬取
+- name: 苏州银行
+  url: https://suzhoubank.zhiye.com/
+  category: 城商行
+  status: pending
+  note: 官方招聘站，含校园招聘入口
+- name: 上海银行
+  url: https://bosc.zhiye.com/
+  category: 城商行
+  status: pending
+  note: 官方招聘入口（含校园招聘）
+- name: 杭州银行
+  url: https://myjob.hzbank.com.cn/hzzp-apply-web/static/index.html#/index
+  category: 城商行
+  status: pending
+  note: 官方招聘站，含校园招聘
+- name: 上海农商银行
+  url: https://shrcb.zhiye.com/campus/jobs
+  category: 城商行
+  status: existing
+  note: 校招职位官方入口（用户提供）
+- name: 常熟农商银行
+  url: https://www.csrcbank.com/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 紫金农商银行
+  url: https://www.zjrcbank.com/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 无锡银行
+  url: https://www.wrcb.com.cn/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 无锡农商银行
+  url: https://www.wxrcb.com/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 张家港农商银行
+  url: https://www.zrcbank.com/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 江阴农商银行
+  url: https://www.jybank.com.cn/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 苏州农商银行
+  url: https://www.szrcb.com/szrcb/bjfw/rczp/xyzp/index.shtml
+  category: 城商行
+  status: pending
+  note: 校园招聘栏目页
+- name: 杭州联合银行
+  url: https://www.urcb.com/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口，需跳转到校招栏目
+- name: 泰隆银行
+  url: https://www.zjtlcb.com/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口，需跳转到校招
+- name: 浙江农商联合银行
+  url: https://www.zj96596.com/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口
+- name: 萧山农商银行
+  url: https://www.xsbank.com/
+  category: 城商行
+  status: pending
+  note: 待网络可达性复核
+- name: 民泰银行
+  url: https://www.mintaibank.com/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口，需跳转到校招
+- name: 台州银行
+  url: https://www.tzbank.com/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口，需跳转到校招
+- name: 温州银行
+  url: https://www.wzbank.cn/
+  category: 城商行
+  status: pending
+  note: 官网招聘入口，需跳转到校招
+- name: 交通银行
+  url: https://job.bankcomm.com/
+  category: 国有银行
+  status: pending
+  note: 待网络可达性复核
+- name: 工商银行
+  url: https://job.icbc.com.cn/
+  category: 国有银行
+  status: existing
+  note: 已接入专用浏览器捕获接口
+- name: 农业银行
+  url: https://career.abchina.com/
+  category: 国有银行
+  status: pending
+  note: 请求层 legacy TLS 问题，待浏览器复核
+- name: 中国银行
+  url: https://campus.chinahr.com/pages/boc-2026-Spring/#/springjobs
+  category: 国有银行
+  status: existing
+  note: 2026春招/实习官方入口（用户提供）
+- name: 建设银行
+  url: https://job2.ccb.com/cn/job/org_index.html?planType=XY&orgId=00c0e09739fb425d0139ff27cb50028b
+  category: 国有银行
+  status: pending
+  note: 官网招聘入口（用户提供，当前未开）
+- name: 交通银行
+  url: https://job.bankcomm.com/
+  category: 国有银行
+  status: pending
+  note: 请求层 legacy TLS 问题，待浏览器复核
+- name: 邮储银行
+  url: https://www.psbc.com/cn/gyyc/rczp/xyzp/
+  category: 国有银行
+  status: pending
+  note: 用户确认当前未开，暂缓抓取
+- name: 建信金科
+  url: https://www.ccbft.com.cn/recruit.html
+  category: 银行科技子公司
+  status: pending
+  note: 用户确认当前未开，暂缓抓取
+- name: 招银网络科技
+  url: https://career.cmbchina.com/positionlist/96574F8D-C7ED-4772-AE7C-BAC896D190C1
+  category: 银行科技子公司
+  status: pending
+  note: 并入招商银行校招入口（用户确认）
+- name: 浦银金融科技
+  url: https://job.spdb.com.cn/campusJob
+  category: 银行科技子公司
+  status: pending
+  note: 先挂母体校招入口，后续按关键词归属
