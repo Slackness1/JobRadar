@@ -2,8 +2,10 @@
 __pycache__/
 *.py[cod]
 
-# Virtual environments
+# Virtual environments (dirs and symlinks)
+.venv
 .venv/
+venv
 venv/
 
 # Environment files
