@@ -95,6 +95,10 @@
 - 工具/路径/命令约定 → `docs/tools-and-paths.md`
 - 长期决策 → `docs/decisions.md`
 
+## Frontend Tests
+- `cd frontend && npm run test -- --run`
+- `cd frontend && npm run test -- --run src/pages/Login.test.tsx`
+
 ## Existing Crawler Families
 新增逻辑前优先检查：
 - `backend/app/services/crawler.py` — 通用 Playwright

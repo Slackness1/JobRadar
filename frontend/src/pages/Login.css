@@ -1,0 +1,175 @@
+.login-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 192, 120, 0.22), transparent 32%),
+    linear-gradient(180deg, #fff8ef 0%, #f8f1e7 100%);
+  color: #1f2937;
+}
+
+.login-page__shell {
+  box-sizing: border-box;
+  max-width: 1180px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 48px 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 440px);
+  gap: 40px;
+  align-items: center;
+}
+
+.login-page__hero {
+  max-width: 560px;
+}
+
+.login-page__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 153, 51, 0.12);
+  color: #b45309;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.login-page__title.ant-typography {
+  margin-top: 20px;
+  margin-bottom: 16px;
+  color: #111827;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1.1;
+}
+
+.login-page__description.ant-typography {
+  margin-bottom: 32px;
+  color: #4b5563;
+  font-size: 17px;
+}
+
+.login-page__value-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  gap: 14px;
+}
+
+.login-page__value-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.login-page__value-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #fb923c);
+  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.12);
+}
+
+.login-page__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.login-page__stat {
+  padding: 20px;
+  border: 1px solid rgba(217, 119, 6, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 30px rgba(148, 163, 184, 0.12);
+}
+
+.login-page__stat-value {
+  margin-bottom: 6px;
+  color: #111827;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.login-page__stat-label {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.login-page__panel {
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.login-page__panel-title.ant-typography {
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.login-page__panel-copy.ant-typography {
+  margin-bottom: 24px;
+  color: #6b7280;
+}
+
+.login-page__alert {
+  margin-bottom: 16px;
+}
+
+.login-page__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.login-page__submit.ant-btn {
+  width: 100%;
+  height: 44px;
+  font-weight: 600;
+}
+
+.login-page__footer {
+  margin-top: 20px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.login-page__footer-help {
+  color: #b45309;
+}
+
+@media (max-width: 900px) {
+  .login-page__shell {
+    min-height: auto;
+    padding: 32px 16px;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .login-page__hero {
+    max-width: none;
+  }
+
+  .login-page__panel {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-page__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .login-page__title.ant-typography {
+    font-size: 2.2rem;
+  }
+}
