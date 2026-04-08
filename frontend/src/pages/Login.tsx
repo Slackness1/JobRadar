@@ -10,6 +10,31 @@ const { Title, Paragraph } = Typography;
 const COMPANY_COVERAGE_TARGET = 3486;
 const LIVE_UPDATE_TARGET = 1087;
 const COUNT_UP_INTERVAL_MS = 30;
+const TICKER_DURATION_SECONDS = 42;
+
+interface FeaturedJob {
+  company: string;
+  title: string;
+  location: string;
+  track: string;
+}
+
+const FEATURED_JOBS: FeaturedJob[] = [
+  { company: '阿里巴巴', title: '后端开发工程师', location: '杭州', track: '互联网' },
+  { company: '腾讯', title: '产品经理', location: '深圳', track: '互联网' },
+  { company: '字节跳动', title: '算法工程师', location: '北京', track: '互联网' },
+  { company: '中金公司', title: '研究助理', location: '上海', track: '券商' },
+  { company: '中信证券', title: '投行项目助理', location: '北京', track: '券商' },
+  { company: '中信建投', title: '行业研究岗', location: '上海', track: '券商' },
+  { company: '华泰证券', title: '量化分析岗', location: '上海', track: '券商' },
+  { company: '国家电网', title: '信息技术岗', location: '南京', track: '央国企' },
+  { company: '国家电投', title: '数字化运营岗', location: '北京', track: '央国企' },
+  { company: '招商银行', title: '数据分析岗', location: '深圳', track: '银行' },
+  { company: '工商银行', title: '金融科技岗', location: '北京', track: '银行' },
+  { company: '建设银行', title: '数据治理岗', location: '北京', track: '银行' },
+  { company: '中国银行', title: '风险管理岗', location: '上海', track: '银行' },
+  { company: '农业银行', title: '软件开发岗', location: '杭州', track: '银行' },
+];
 
 function useAnimatedMetric(target: number, keepGrowing = false) {
   const [value, setValue] = useState(0);
@@ -83,6 +108,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [tickerPaused, setTickerPaused] = useState(false);
   const companyCoverage = useAnimatedMetric(COMPANY_COVERAGE_TARGET);
   const liveUpdates = useAnimatedMetric(LIVE_UPDATE_TARGET, true);
 
@@ -102,25 +128,48 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      <section
+        className="login-page__ticker"
+        aria-label="重点岗位速览"
+        onMouseEnter={() => setTickerPaused(true)}
+        onMouseLeave={() => setTickerPaused(false)}
+      >
+        <div
+          className="login-page__ticker-track"
+          style={{
+            animationDuration: `${TICKER_DURATION_SECONDS}s`,
+            animationPlayState: tickerPaused ? 'paused' : 'running',
+          }}
+        >
+          <span className="login-page__ticker-badge">重点岗位速览</span>
+          {[...FEATURED_JOBS, ...FEATURED_JOBS].map((job, index) => (
+            <span className="login-page__ticker-item" key={`${job.company}-${job.title}-${index}`}>
+              <strong>{job.track}</strong>
+              <span>{`${job.company} · ${job.title} · ${job.location}`}</span>
+            </span>
+          ))}
+        </div>
+      </section>
+
       <main className="login-page__shell">
         <section className="login-page__hero" aria-label="JobRadar 平台介绍">
           <Title className="login-page__title">更快发现值得投递的岗位</Title>
           <Paragraph className="login-page__description">
-            聚合、筛选、评分与跟踪，集中管理你的求职信息流。
+            面向高校就业与职业发展场景，聚合互联网、券商、央国企、银行等重点平台岗位，强调覆盖、筛选与更新时效。
           </Paragraph>
 
           <ul className="login-page__value-list">
             <li className="login-page__value-item">
               <span className="login-page__value-dot" aria-hidden="true" />
-              <span>多来源岗位聚合，减少重复搜岗</span>
+              <span>重点公司持续覆盖，岗位入口统一归集</span>
             </li>
             <li className="login-page__value-item">
               <span className="login-page__value-dot" aria-hidden="true" />
-              <span>统一筛选与评分，快速定位优先机会</span>
+              <span>春招开放信息与岗位动态快速更新</span>
             </li>
             <li className="login-page__value-item">
               <span className="login-page__value-dot" aria-hidden="true" />
-              <span>申请流程可追踪，避免信息散落</span>
+              <span>更适合学校老师与学生一眼扫清核心信息</span>
             </li>
           </ul>
 
@@ -130,8 +179,8 @@ export default function Login() {
               <div className="login-page__stat-label">春招开放公司与重点目标持续覆盖</div>
             </article>
             <article className="login-page__stat">
-              <div className="login-page__stat-value">{liveUpdates} 更新</div>
-              <div className="login-page__stat-label">岗位动态与开放信息持续刷新</div>
+              <div className="login-page__stat-value">{liveUpdates} 日更新</div>
+              <div className="login-page__stat-label">岗位动态与开放信息按日持续刷新</div>
             </article>
           </div>
         </section>
