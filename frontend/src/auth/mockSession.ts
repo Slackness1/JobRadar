@@ -13,8 +13,10 @@ export interface PreviewLoginInput {
 
 export const STORAGE_KEY = 'jobradar_mock_session';
 
-const PREVIEW_USERNAME = 'preview';
-const PREVIEW_PASSWORD = 'preview';
+const PREVIEW_ACCOUNTS = new Map([
+  ['slackness', 'Zcbpp991060.'],
+  ['guest', '123456'],
+]);
 
 function isMockSession(value: unknown): value is MockSession {
   if (!value || typeof value !== 'object') {
@@ -67,7 +69,7 @@ export function clearMockSession() {
 export async function submitPreviewLogin(input: PreviewLoginInput) {
   await new Promise((resolve) => window.setTimeout(resolve, 400));
 
-  if (input.username !== PREVIEW_USERNAME || input.password !== PREVIEW_PASSWORD) {
+  if (PREVIEW_ACCOUNTS.get(input.username) !== input.password) {
     throw new Error('INVALID_CREDENTIALS');
   }
 
