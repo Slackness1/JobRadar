@@ -1,30 +1,31 @@
 import csv
 import io
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Any, Mapping, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import Job, JobScore, Track
 from app.schemas import JobOut, JobListOut, JobStatsOut, JobScoreOut, JobApplicationStatusIn
+from app.services.company_search import expand_company_search_names
 from app.services.scorer import score_all_jobs
 from app.services.system_config import get_spring_display_cutoff
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
-def _build_job_out(job: Job, tracks_by_id: dict) -> JobOut:
+def _build_job_out(job: Job, tracks_by_id: Mapping[Any, Track]) -> JobOut:
     scores = []
     total = 0
     for s in job.scores:
         track = tracks_by_id.get(s.track_id)
         scores.append(JobScoreOut(
             track_id=s.track_id,
-            track_key=track.key if track else "",
-            track_name=track.name if track else "",
+            track_key=str(track.key) if track else "",
+            track_name=str(track.name) if track else "",
             score=s.score,
             matched_keywords=s.matched_keywords,
         ))
@@ -79,6 +80,8 @@ def list_jobs(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
     tracks: str = "",
     min_score: int = 0,
     days: int = 0,
@@ -101,7 +104,17 @@ def list_jobs(
     elif job_stage == "internship":
         query = query.filter(Job.job_stage.in_(["internship", "both"]))
 
-    if search:
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
         pattern = f"%{search}%"
         query = query.filter(
             (Job.job_title.ilike(pattern))
@@ -163,6 +176,8 @@ def company_expand_jobs(
     department: str = Query("", description="Department name to filter (optional)"),
     scope: str = Query("current", description="Scope: 'current' for filtered, 'all' for unfiltered"),
     search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
     tracks: str = "",
     min_score: int = 0,
     days: int = 0,
@@ -189,7 +204,17 @@ def company_expand_jobs(
         query = query.filter(Job.job_stage.in_(["internship", "both"]))
 
     # Optional filters (for both scope=current/all)
-    if search:
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
         pattern = f"%{search}%"
         query = query.filter(
             (Job.job_title.ilike(pattern))
@@ -234,6 +259,8 @@ def list_jobs_by_company(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
     tracks: str = "",
     min_score: int = 0,
     days: int = 0,
@@ -256,7 +283,17 @@ def list_jobs_by_company(
     elif job_stage == "internship":
         query = query.filter(Job.job_stage.in_(["internship", "both"]))
 
-    if search:
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
         pattern = f"%{search}%"
         query = query.filter(
             (Job.job_title.ilike(pattern))

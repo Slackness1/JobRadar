@@ -64,6 +64,8 @@ export default function CompanyExpand() {
   const department = searchParams.get('department') || '';
   const initialScope = searchParams.get('scope') || 'current';
   const initialSearch = searchParams.get('search') || '';
+  const initialCompanySearch = searchParams.get('company_search') || '';
+  const initialJobTitleSearch = searchParams.get('job_title_search') || '';
   const initialTracks = searchParams.get('tracks') || '';
   const initialDays = searchParams.get('days') || '';
   const initialMinScore = searchParams.get('min_score') || '';
@@ -94,6 +96,8 @@ export default function CompanyExpand() {
     }
 
     const effectiveSearch = inheritMainFilters ? initialSearch : search;
+    const effectiveCompanySearch = inheritMainFilters ? initialCompanySearch : '';
+    const effectiveJobTitleSearch = inheritMainFilters ? initialJobTitleSearch : '';
     const effectiveTracks = inheritMainFilters ? initialTracks : (trackFilter || '');
     const effectiveDays = inheritMainFilters ? (initialDays ? parseInt(initialDays, 10) : undefined) : days;
     const effectiveMinScore = inheritMainFilters ? (initialMinScore ? parseInt(initialMinScore, 10) : undefined) : minScore;
@@ -110,6 +114,8 @@ export default function CompanyExpand() {
       };
       if (department) params.department = department;
 
+      if (effectiveCompanySearch) params.company_search = effectiveCompanySearch;
+      if (effectiveJobTitleSearch) params.job_title_search = effectiveJobTitleSearch;
       if (effectiveSearch) params.search = effectiveSearch;
       if (effectiveTracks) params.tracks = effectiveTracks;
       if (effectiveDays) params.days = effectiveDays;
@@ -133,6 +139,8 @@ export default function CompanyExpand() {
     pageSize,
     inheritMainFilters,
     initialSearch,
+    initialCompanySearch,
+    initialJobTitleSearch,
     initialTracks,
     initialDays,
     initialMinScore,

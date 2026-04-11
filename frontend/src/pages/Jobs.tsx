@@ -229,6 +229,7 @@ interface SavedFilterPreset {
   id: string;
   name: string;
   search: string;
+  searchMode?: string;
   sectorGroup?: string;
   days?: number;
   minScore?: number;
@@ -238,6 +239,7 @@ interface SavedFilterPreset {
 
 interface LastFilterState {
   search: string;
+  searchMode?: string;
   sectorGroup?: string;
   days?: number;
   minScore?: number;
@@ -246,7 +248,15 @@ interface LastFilterState {
 }
 
 const SAVED_FILTERS_KEY = 'jobradar.savedFilters.v1';
-const LAST_FILTER_KEY = 'jobradar.lastFilterState.v2';
+const LAST_FILTER_KEY = 'jobradar.lastFilterState.v3';
+
+function normalizeJobStage(value: unknown): string {
+  return value === 'campus' || value === 'internship' || value === 'all' ? value : 'all';
+}
+
+function normalizeSearchMode(value: unknown): 'company' | 'job' {
+  return value === 'job' ? 'job' : 'company';
+}
 
 function loadSavedFilters(): SavedFilterPreset[] {
   try {
@@ -275,14 +285,15 @@ function loadLastFilterState(): LastFilterState {
     const parsed = JSON.parse(raw);
     return {
       search: typeof parsed.search === 'string' ? parsed.search : '',
+      searchMode: normalizeSearchMode(parsed.searchMode),
       sectorGroup: typeof parsed.sectorGroup === 'string' ? parsed.sectorGroup : 'all',
       days: typeof parsed.days === 'number' ? parsed.days : undefined,
       minScore: typeof parsed.minScore === 'number' ? parsed.minScore : undefined,
-      jobStage: typeof parsed.jobStage === 'string' ? parsed.jobStage : 'campus',
+      jobStage: normalizeJobStage(parsed.jobStage),
       excludeAppliedCompanies: Boolean(parsed.excludeAppliedCompanies),
     };
   } catch {
-    return { search: '', jobStage: 'campus', excludeAppliedCompanies: false };
+    return { search: '', searchMode: 'company', jobStage: 'all', excludeAppliedCompanies: false };
   }
 }
 
@@ -330,10 +341,11 @@ export default function Jobs() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState(initialFilterState.search);
+  const [searchMode, setSearchMode] = useState<'company' | 'job'>(normalizeSearchMode(initialFilterState.searchMode));
   const [sectorGroup, setSectorGroup] = useState<string>(initialFilterState.sectorGroup || 'all'); // 'all' | 'internet' | 'bank' | 'other'
   const [days, setDays] = useState<number | undefined>(initialFilterState.days);
   const [minScore, setMinScore] = useState<number | undefined>(initialFilterState.minScore);
-  const [jobStage, setJobStage] = useState<string>(initialFilterState.jobStage || 'campus');
+  const [jobStage, setJobStage] = useState<string>(initialFilterState.jobStage || 'all');
   const [excludeAppliedCompanies, setExcludeAppliedCompanies] = useState<boolean>(Boolean(initialFilterState.excludeAppliedCompanies));
   const [stats, setStats] = useState<StatsData>({ total_jobs: 0, today_new: 0, by_track: {}, by_stage: {} });
   const [trackOptions, setTrackOptions] = useState<TrackOption[]>([]);
@@ -349,7 +361,13 @@ export default function Jobs() {
       const params: Record<string, unknown> = {
         page, page_size: pageSize, sort_by: 'total_score', sort_order: 'desc',
       };
-      if (search) params.search = search;
+      if (search) {
+        if (searchMode === 'company') {
+          params.company_search = search;
+        } else {
+          params.job_title_search = search;
+        }
+      }
       if (sectorGroup !== 'all') {
         const filteredTracks = getTracksByGroup(sectorGroup, trackOptions);
         if (filteredTracks.length > 0) {
@@ -370,13 +388,19 @@ export default function Jobs() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies, isAppliedFlowView, trackOptions, viewMode]);
+  }, [page, pageSize, search, searchMode, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies, isAppliedFlowView, trackOptions, viewMode]);
   const handleCompanyClick = (company: string) => {
     const params = new URLSearchParams({
       company,
       scope: 'current',
     });
-    if (search) params.set('search', search);
+    if (search) {
+      if (searchMode === 'company') {
+        params.set('company_search', search);
+      } else {
+        params.set('job_title_search', search);
+      }
+    }
     if (sectorGroup !== 'all' && sectorGroup) {
       const filteredTracks = getTracksByGroup(sectorGroup, trackOptions);
       if (filteredTracks.length > 0) params.set('tracks', filteredTracks.join(','));
@@ -401,18 +425,19 @@ export default function Jobs() {
   useEffect(() => { fetchTracks(); fetchStats(); }, []);
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
   useEffect(() => {
-    saveLastFilterState({ search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies });
-  }, [search, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies]);
+    saveLastFilterState({ search, searchMode, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies });
+  }, [search, searchMode, sectorGroup, days, minScore, jobStage, excludeAppliedCompanies]);
 
   const applyPreset = (presetId: string) => {
     const preset = savedFilters.find((p) => p.id === presetId);
     if (!preset) return;
     setSelectedPresetId(preset.id);
     setSearch(preset.search);
+    setSearchMode(normalizeSearchMode(preset.searchMode));
     setSectorGroup(preset.sectorGroup || 'all');
     setDays(preset.days);
     setMinScore(preset.minScore);
-    setJobStage(preset.jobStage || 'campus');
+    setJobStage(normalizeJobStage(preset.jobStage));
     setPage(1);
     message.success(`已应用筛选：${preset.name}`);
   };
@@ -443,6 +468,7 @@ export default function Jobs() {
         id,
         name,
         search,
+        searchMode,
         sectorGroup,
         days,
         minScore,
@@ -640,7 +666,7 @@ export default function Jobs() {
     }
 
     return baseColumns;
-  }, [viewMode, trackOptions]);
+  }, [viewMode, trackOptions, navigate, searchMode, search, sectorGroup, days, minScore, jobStage]);
 
   const expandedRowRender = (record: JobItem) => (
     <Descriptions column={2} size="small" bordered>
@@ -710,11 +736,22 @@ export default function Jobs() {
           onChange={(v) => { setJobStage(String(v)); setPage(1); }}
         />
         <Input
+          addonBefore={(
+            <Select
+              value={searchMode}
+              onChange={(value) => { setSearchMode(value as 'company' | 'job'); setPage(1); }}
+              options={[
+                { label: '公司', value: 'company' },
+                { label: '岗位', value: 'job' },
+              ]}
+              style={{ width: 88 }}
+            />
+          )}
           prefix={<SearchOutlined />}
-          placeholder="搜索公司/岗位/地点..."
+          placeholder={searchMode === 'company' ? '搜索公司名...' : '搜索岗位名...'}
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
-          style={{ width: 220 }}
+          style={{ width: 320 }}
           allowClear
         />
         <Segmented
