@@ -1,0 +1,447 @@
+# 能源公司校园招聘配置
+# 总部在上海/江浙沪的能源/新能源/风电/光伏/储能公司
+
+sites:
+  - name: 阳光电源
+    entry_url: https://app.mokahr.com/campus-recruitment/sungrow/94416#/
+    ats_family: moka_embedded
+    category: 光伏逆变器/储能
+    status: success
+    moka_url_template: https://app.mokahr.com/campus_apply/{org_id}/{site_id}#/job/{job_key}
+    note: 2026-03-24 Discovery 命中 Moka（custom 域 jobs.sungrowpower.com 跳转到 sungrow/94416）；已用页面内嵌 init-data 提取 15 条校招岗位
+
+  - name: 晶科能源
+    entry_url: https://app.mokahr.com/campus-recruitment/jinkosolar/41896#/
+    ats_family: moka_embedded
+    category: 光伏组件/电池
+    status: success
+    moka_url_template: https://app.mokahr.com/campus_apply/{org_id}/{site_id}#/job/{job_key}
+    note: 2026-03-24 Discovery 命中 Moka jinkosolar/41896；已用页面内嵌 init-data 提取 14 条校招岗位
+
+  - name: 宁德时代
+    entry_url: https://app.mokahr.com/campus-recruitment/ningdeshidai/40951#/
+    ats_family: moka_embedded
+    category: 动力电池/储能
+    status: entry_discovery_failed
+    note: |
+      2026-03-24 Discovery：命中疑似 Moka slug ningdeshidai/40951，但页面返回 HTTP 400，title=-1，init-data 仅含 error payload（message/domain/cdnPublicPath），未见公开 jobs 数组。
+      额外探测：catl.zhiye.com/campus -> 404；job/jobs/career/careers.catl.com -> SSL EOF；catl.zhaopin.com -> 403。
+      失败标签：BLOCKED_OR_EMPTY_RESPONSE。
+      下一步：优先人工确认 CATL 官方校招入口，再决定是否补 custom/Moka 变体。
+
+  - name: 金风科技
+    entry_url: https://goldwind.zhiye.com/campus
+    ats_family: zhiye
+    category: 风电整机
+    status: success
+    title_keywords_filter:
+      - "校园"
+      - "校招"
+      - "实习"
+      - "2026"
+      - "26届"
+      - "应届"
+    exclude_title_keywords: ["社招"]
+    max_pages: 10
+    note: 2026-03-24 Discovery 命中 zhiye；已复用 energy_zhiye 路径并按校招关键词过滤，提取 4 条岗位
+
+  - name: 明阳智能
+    entry_url: https://www.myse.com.cn/joinus
+    ats_family: custom_spa
+    category: 风电整机
+    status: entry_discovery_failed
+    note: |
+      2026-03-24 Discovery：官网 /joinus 可访问，但首屏是 WAF/JS challenge 页面，仅见 aliyunCaptcha 脚本，未发现公开 ATS 指纹、职位列表或 detail 链接。
+      额外探测：myse.zhiye.com/campus、mingyang.zhiye.com/campus -> 404；job.myse.com.cn -> SSL EOF；51job campus 常见路径 -> missing.php。
+      失败标签：BLOCKED_OR_EMPTY_RESPONSE。
+      下一步：优先用浏览器人工确认官网招聘页真实跳转或接口域名，再决定是否走 custom site 适配。
+
+  - name: 德业股份
+    entry_url: https://deye.zhiye.com/campus
+    ats_family: zhiye
+    category: 储能/热交换器
+    categories_filter: []  # zhiye 接口不返回分类，需要通过关键词过滤
+    title_keywords_filter:
+      - "校园"
+      - "实习"
+      - "intern"
+      - "campus"
+      - "校招"
+    exclude_title_keywords: ["博士后"]
+    max_pages: 10
+    note: zhiye ATS；通过关键词过滤校园/实习岗位
+
+  # 以下公司已修正真实入口或仍待进一步发现
+  - name: 天合光能
+    entry_url: https://app.mokahr.com/campus-recruitment/trinasolar/126157#/
+    ats_family: moka
+    category: 光伏
+    status: success
+    note: 已切换到真实 Moka 校招入口，2026-03-23 正式提取 40 条岗位
+
+  - name: 阿特斯
+    entry_url: https://recruit.csisolar.com/campus
+    ats_family: custom_spa
+    category: 光伏
+    status: success
+    note: 已打通自建 SPA 校招接口，2026-03-23 正式提取 208 条岗位
+
+  - name: 协鑫集团
+    entry_url: https://campus.51job.com/gcl-power/
+    ats_family: 51job_campus
+    category: 综合新能源
+    status: suspect_zero
+    note: |
+      2026-03-24 Discovery 更新：
+      1. 51job campus 入口 `https://campus.51job.com/gcl-power/` 可访问，title=`协鑫集团2024全球校园招聘`
+      2. 页面源码注释明确写有“是否使用数据接口：否”，当前仅见品牌落地页，无 jobs table / apply.aspx / jobs.html 链接
+      3. `https://campus.51job.com/gcl-power/jobs.html` -> 51job missing.php，未发现公开职位列表页
+      4. `https://gcl.zhiye.com/campus` -> 404；`www.gcl-group.com` 仍不可稳定访问
+      失败标签：NO_JOB_SIGNAL。
+      下一步：优先继续探测协鑫新能源/协鑫集成/协鑫能科等子公司的独立校招页，或人工确认 2026 校招是否迁移到新 microsite。
+
+  - name: 固德威
+    entry_url: https://goodwe.zhiye.com/campus
+    ats_family: zhiye
+    category: 储能/逆变器
+    status: entry_discovery_failed
+    note: |
+      2026-03-23 Discovery 完成：系统性探测所有已知 ATS 招聘入口均失败。
+      已测试入口：
+      1. zhiye: https://goodwe.zhiye.com/campus - 404
+      2. zhaopin: https://goodwe.zhaopin.com/campus - 403
+      3. 51job campus: 多路径 404 (/goodwe, /goodwe-com, /goodwe-com-cn)
+      4. liepin: https://goodwe.liepin.com/campus - 404
+      5. moka: 多路径 404 (/goodwe, /goodwe-com, /goodwepower)
+      6. hotjob: 空响应或 404
+      7. Boss直聘: 安全检查重定向
+      8. 官网招聘: 中文页 502，英文页无校园招聘信息
+      9. 子域名: job.goodwe.com、jobs.goodwe.com、hr.goodwe.com - 域名不存在
+      推测：可能未开放独立校园招聘系统，或使用未发现的自建系统/内推渠道。
+      建议：人工访问官网招聘页确认，或通过企业公众号/内推收集招聘信息。
+
+  # 以下公司需要进一步分析或代理支持
+  - name: 远景能源
+    entry_url: https://envision-career.com/campus-recruitment/envisiongroup/43123/#/jobs?keyword=
+    ats_family: moka
+    category: 综合新能源
+    status: success
+    note: 已切换到真实 Moka / 类 Moka 校招入口，2026-03-23 正式提取 23 条岗位
+
+  - name: 上海电气
+    entry_url: https://sec.hotjob.cn/wt/SEC/web/index?operational=a62c9d1e5e9c3f53313ed297ddac34cf58c24a18d6e46a448f3f030595fdb7d1029063f4f7106103
+    ats_family: hotjob
+    category: 电力装备
+    status: success
+    note: 已打通 Hotjob 校园招聘列表接口（recruitType=1），2026-03-23 正式提取 443 条岗位
+
+  - name: 正泰新能源
+    entry_url: https://app.mokahr.com/campus-recruitment/chint/40745#/
+    ats_family: moka_embedded
+    category: 光伏/储能
+    status: success
+    moka_url_template: https://app.mokahr.com/campus_apply/{org_id}/{site_id}#/job/{job_key}
+    note: |
+      2026-03-24 Discovery：历史 siteId `2766` 已失效，但 bare tenant `https://app.mokahr.com/campus-recruitment/chint/` 可访问并 302/跳转到真实校招入口 `chint/40745`。
+      轻量证据：title=`正泰 - 校园招聘`；页面存在 `input#init-data`；payload 中 `siteId=40745`、`org.id=chint`、`jobs=15`。
+      Extraction：复用 energy_crawler 的 Moka embedded init-data 路径，已提取并落库 15 条岗位。
+
+  - name: 东方日升
+    entry_url: https://risen.zhiye.com/campus
+    ats_family: zhiye
+    category: 光伏
+    status: success
+    categories_filter: ["校园招聘"]
+    max_pages: 10
+    note: |
+      2026-03-24 Discovery：官网 `https://www.risenenergy.com/career` / `career.risenenergy.com` 仍有 SSL EOF，但 `https://risen.zhiye.com/campus` 为真实可用入口。
+      轻量证据：title=`东方日升招聘门户`；ATS 指纹 `zhiye`；列表接口 `/api/Jobad/GetJobAdPageList` 返回 `Count=142`，其中 `Category=校园招聘` 共 14 条。
+      Extraction：复用 energy_zhiye 列表 API 路径，并新增分类过滤 `categories_filter: [校园招聘]`，已提取并落库 14 条岗位。
+
+  - name: 中来股份
+    entry_url: https://campus.51job.com/jolywood/jobs.html
+    ats_family: 51job_campus
+    category: 光伏背板/组件
+    status: success
+    note: 已定位到 51job campus 静态职位页，2026-03-23 正式提取 31 条岗位
+
+  # 2026-03-24 新发现的招聘入口（待提取）
+
+  # 风电 / 综合新能源
+  - name: 三一重能
+    entry_url: https://www.sanygroup.com/campus
+    ats_family: custom_spa
+    category: 风电整机
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  # 光伏 / 逆变器
+  - name: 爱旭太阳能
+    entry_url: https://aikosolar.com/en/careers/
+    ats_family: custom_spa
+    category: 光伏电池
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  # 储能 / 电池
+  - name: 国轩高科
+    entry_url: https://www.gotion.com/jobs-pages/
+    ats_family: custom_spa
+    category: 动力电池
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 融和元储
+    entry_url: https://rhpowerplus.com/campus
+    ats_family: custom_spa
+    category: 储能系统
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 采日能源
+    entry_url: https://cairi.com/campus
+    ats_family: custom_spa
+    category: 储能系统
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 孚能科技
+    entry_url: https://farasisenergy.com/campus
+    ats_family: custom_spa
+    category: 动力电池
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  # 工控 / 电气自动化
+  - name: 汇川
+    entry_url: https://www.inovance.com/campus
+    ats_family: custom_spa
+    category: 工控自动化
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 南瑞继保
+    entry_url: https://nari.com/campus
+    ats_family: custom_spa
+    category: 电力自动化
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  # 车企 / 整车
+  - name: 蔚来
+    entry_url: https://nio.cn/campus
+    ats_family: custom_spa
+    category: 新能源汽车
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 吉利
+    entry_url: https://geelyauto.com/campus
+    ats_family: custom_spa
+    category: 传统车企
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  - name: 北汽
+    entry_url: https://baicgroup.com/campus
+    ats_family: custom_spa
+    category: 传统车企
+    status: pending_extraction
+    note: 2026-03-24 Discovery 发现官网招聘入口；待用 Playwright 提取
+
+  # 零跑（待确认入口）
+  - name: 零跑
+    entry_url: https://www.leapmotor.com
+    ats_family: custom_spa
+    category: 新能源汽车
+    status: pending_discovery
+    note: 2026-03-24 Discovery 发现官网可访问，但需人工确认招聘入口
+
+  # 2026-03-24 Discovery 确认入口缺失的公司（需人工补充）
+
+  # 风电 / 综合新能源
+  - name: 运达股份
+    entry_url: null
+    ats_family: null
+    category: 风电整机
+    status: entry_missing
+    note: 2026-03-24 Discovery：windey.zhiye.com 返回 404，官网域名未找到；需人工搜索 windey / windeyenergy 招聘入口
+
+  - name: 中国中车
+    entry_url: null
+    ats_family: null
+    category: 电力装备
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 CRRC / 中车 招聘入口
+
+  - name: 电气风电
+    entry_url: null
+    ats_family: null
+    category: 风电整机
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 失败，zhiye 返回 404；需人工搜索 Shanghai Electric 风电板块招聘入口
+
+  - name: 东方电气
+    entry_url: null
+    ats_family: null
+    category: 电力装备
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 失败，zhiye 返回 404；需人工搜索 DFEM / 东方电气 招聘入口
+
+  - name: 联合动力
+    entry_url: null
+    ats_family: null
+    category: 风电整机
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 失败，zhiye 返回 404；需人工搜索 国电 / 联合动力 招聘入口
+
+  - name: 卧龙集团
+    entry_url: null
+    ats_family: null
+    category: 电机电气
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 失败，zhiye 返回 404；需人工搜索 卧龙 / wulong 招聘入口
+
+  # 光伏 / 逆变器
+  - name: 隆基绿能
+    entry_url: null
+    ats_family: null
+    category: 光伏组件
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 证书过期，zhiye 返回 404；需人工搜索 LONGi / 隆基 招聘入口
+
+  - name: 晶澳能源
+    entry_url: null
+    ats_family: null
+    category: 光伏组件
+    status: entry_missing
+    note: 2026-03-24 Discovery：jinkosolar.com 是晶科域名（错误探测），jasolar.com SSL 失败；需人工搜索 JA Solar / 晶澳 招聘入口
+
+  - name: TCL中环
+    entry_url: null
+    ats_family: null
+    category: 光伏硅片
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名 SSL 失败，zhiye 返回 404；需人工搜索 TCL Zhonghuan / TCL中环 招聘入口
+
+  - name: 晶盛机电
+    entry_url: null
+    ats_family: null
+    category: 光伏设备
+    status: entry_missing
+    note: 2026-03-24 Discovery：官网域名超时 / SSL 证书过期，zhiye 返回 404；需人工搜索 晶盛机电 招聘入口
+
+  - name: 锦浪科技
+    entry_url: null
+    ats_family: null
+    category: 光伏逆变器
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 锦浪 / jinlang 招聘入口
+
+  - name: 爱士惟
+    entry_url: null
+    ats_family: null
+    category: 光伏逆变器
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 爱士惟 / aishawei 招聘入口
+
+  # 储能 / 电池
+  - name: 派能科技
+    entry_url: null
+    ats_family: null
+    category: 储能系统
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Pylontech / 派能 招聘入口
+
+  - name: 瑞浦兰钧
+    entry_url: null
+    ats_family: null
+    category: 动力电池
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 REPT / 瑞浦兰钧 招聘入口
+
+  - name: 美克生能源
+    entry_url: null
+    ats_family: null
+    category: 储能系统
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 美克生 / mksheng 招聘入口
+
+  - name: 南都电源
+    entry_url: null
+    ats_family: null
+    category: 储能电池
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Narada / 南都 招聘入口
+
+  - name: 蜂巢能源
+    entry_url: null
+    ats_family: null
+    category: 动力电池
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 SVOLT / 蜂巢 招聘入口
+
+  - name: 星恒电源
+    entry_url: null
+    ats_family: null
+    category: 动力电池
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 星恒电源 招聘入口
+
+  - name: 远景动力
+    entry_url: null
+    ats_family: null
+    category: 动力电池
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 AESC / 远景动力 招聘入口
+
+  # 工控 / 电气自动化
+  - name: 先导智能
+    entry_url: null
+    ats_family: null
+    category: 光伏设备
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Lead Intelligent / 先导智能 招聘入口
+
+  # 车企 / 整车
+  - name: 理想
+    entry_url: null
+    ats_family: null
+    category: 新能源汽车
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Li Auto / 理想汽车 招聘入口
+
+  - name: 赛力斯
+    entry_url: null
+    ats_family: null
+    category: 新能源汽车
+    status: failed
+    note: 2026-03-24 Discovery 过程中失败 (Broken pipe)；需重试 Discovery
+
+  - name: 比亚迪
+    entry_url: null
+    ats_family: null
+    category: 新能源汽车
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 BYD / 比亚迪 招聘入口
+
+  - name: 长安汽车
+    entry_url: null
+    ats_family: null
+    category: 传统车企
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Changan / 长安 招聘入口
+
+  - name: 奇瑞
+    entry_url: null
+    ats_family: null
+    category: 传统车企
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 Chery / 奇瑞 招聘入口
+
+  - name: 上汽
+    entry_url: null
+    ats_family: null
+    category: 传统车企
+    status: entry_missing
+    note: 2026-03-24 Discovery：zhiye 返回 404，官网域名未找到；需人工搜索 SAIC / 上汽 招聘入口

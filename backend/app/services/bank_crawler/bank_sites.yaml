@@ -1,0 +1,81 @@
+# 银行招聘站点配置文件
+# 支持多个银行站点，每个银行有自己的配置
+
+banks:
+  # 招商银行
+  cmb:
+    name: "招商银行"
+    base_url: "https://career.cmbchina.com"
+    enabled: true
+    priority: 1
+    stages: ["campus", "internship", "social"]
+    delay:
+      min: 1.0
+      max: 3.0
+
+  # 浦发银行
+  spdb:
+    name: "浦发银行"
+    base_url: "https://job.spdb.com.cn"
+    enabled: true
+    priority: 2
+    stages: ["campus", "internship", "social"]
+    delay:
+      min: 1.0
+      max: 3.0
+
+  # 中国银行
+  icbc:
+    name: "中国银行"
+    base_url: "https://campus.icbc.com.cn"
+    enabled: true
+    priority: 3
+    stages: ["campus"]
+    delay:
+      min: 1.5
+      max: 4.0
+
+  # 建设银行
+  ccb:
+    name: "建设银行"
+    base_url: "https://job.ccb.com"
+    enabled: true
+    priority: 4
+    stages: ["campus", "social"]
+    delay:
+      min: 1.5
+      max: 4.0
+
+  # 宁波银行（江浙沪城商行）
+  nbc:
+    name: "宁波银行"
+    base_url: "https://zhaopin.nbcb.com.cn"
+    enabled: true
+    priority: 5
+    stages: ["campus", "internship", "social"]
+    delay:
+      min: 1.0
+      max: 2.5
+
+  # 江苏银行（江浙沪城商行）
+  jsbc:
+    name: "江苏银行"
+    base_url: "https://job.jsbchina.cn"
+    enabled: true
+    priority: 6
+    stages: ["campus", "internship", "social"]
+    delay:
+      min: 1.0
+      max: 2.5
+
+# 更多银行可以在此添加
+# 示例：
+# boc:
+#   name: "农业银行"
+#   base_url: "https://career.abchina.com"
+#   enabled: false
+#   priority: 7
+#   stages: ["campus", "internship", "social"]
+#   delay:
+#     min: 1.5
+#     max: 4.0
