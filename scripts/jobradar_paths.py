@@ -1,10 +1,10 @@
 from pathlib import Path
 
-WORKSPACE_DIR = Path("/home/ubuntu/.openclaw/workspace-projecta")
-PROJECT_DIR = WORKSPACE_DIR / "JobRadar"
-DATA_DIR = WORKSPACE_DIR / "data"
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+WORKSPACE_DIR = PROJECT_DIR.parent
+DATA_DIR = PROJECT_DIR / "data"
 EXPORTS_DIR = DATA_DIR / "exports"
-SCRIPTS_DIR = WORKSPACE_DIR / "scripts"
+SCRIPTS_DIR = PROJECT_DIR / "scripts"
 
 REAL_DB_PATH = PROJECT_DIR / "backend" / "data" / "jobradar.db"
 DB_ALIAS_PATH = DATA_DIR / "jobradar.db"
