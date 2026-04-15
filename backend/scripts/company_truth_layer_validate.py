@@ -17,7 +17,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DB_PATH = PROJECT_ROOT / "backend" / "data" / "jobradar.db"
 CSV_PATH = Path(
-    "/home/ubuntu/.openclaw/workspace-projecta/data/exports/all_xiaozhao_export.csv"
+    PROJECT_ROOT / "data" / "exports" / "all_xiaozhao_export.csv"
 )
 REPORT_DIR = PROJECT_ROOT / "backend" / "data" / "validation_reports"
 

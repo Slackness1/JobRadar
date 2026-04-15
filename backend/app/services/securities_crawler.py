@@ -5,12 +5,13 @@
 import hashlib
 import html
 import json
+import os
 import re
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 import yaml
@@ -397,10 +398,14 @@ def run_securities_crawl(db: Session, existing_jobs: Dict[str, Job], max_pages: 
     return new_count, total_fetched
 
 
-REQUEST_PROXIES = {
-    "http": "http://127.0.0.1:7890",
-    "https": "http://127.0.0.1:7890",
-}
+_HTTP_PROXY = os.environ.get("HTTP_PROXY") or os.environ.get("http_proxy")
+_HTTPS_PROXY = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+REQUEST_PROXIES = None
+if _HTTP_PROXY or _HTTPS_PROXY:
+    REQUEST_PROXIES = {
+        "http": _HTTP_PROXY or _HTTPS_PROXY,
+        "https": _HTTPS_PROXY or _HTTP_PROXY,
+    }
 SECURITIES_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "securities_campus.yaml"
 
 
@@ -408,7 +413,7 @@ def _parse_datetime(value: Any) -> Optional[datetime]:
     text = _safe_text(value)
     if not text or text.startswith("0001-01-01"):
         return None
-    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S"):
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
         try:
             return datetime.strptime(text[:19], fmt)
         except ValueError:
@@ -452,6 +457,22 @@ def _map_zhiye_record(company: str, category: str, item: Dict[str, Any], detail_
         "detail_url": detail_url,
         "scraped_at": datetime.utcnow(),
     }
+
+
+def _request_with_retries(method: str, url: str, retries: int = 3, **kwargs: Any) -> requests.Response:
+    last_error: Optional[Exception] = None
+    for attempt in range(retries):
+        try:
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except RequestException as exc:
+            last_error = exc
+            if attempt < retries - 1:
+                time.sleep(0.5 * (attempt + 1))
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError(f"request failed without exception: {url}")
 
 
 
@@ -586,6 +607,111 @@ def crawl_zhiye_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
     return records
 
 
+def _extract_legacy_zhiye_field(html_text: str, label: str) -> str:
+    pattern = re.compile(
+        rf'<li class="ntitle[^"]*">{re.escape(label)}：</li>\s*'
+        rf'<li class="(?:nvalue|nvcity)"[^>]*?(?:title="([^"]*)")?[^>]*>(.*?)</li>',
+        re.S,
+    )
+    match = pattern.search(html_text)
+    if not match:
+        return ""
+    title_value = _safe_text(match.group(1))
+    raw_value = _strip_html(match.group(2))
+    return title_value or raw_value
+
+
+def _map_legacy_zhiye_record(
+    target: Dict[str, Any],
+    title: str,
+    detail_url: str,
+    location: str,
+    detail_html: str,
+) -> Dict[str, Any]:
+    job_key_match = re.search(r"/zpdetail/(\d+)", detail_url)
+    job_key = _safe_text(job_key_match.group(1) if job_key_match else title)
+    duty_match = re.search(r'<p class="title">工作职责：</p>\s*<p>(.*?)</p>', detail_html, re.S)
+    req_match = re.search(r'<p class="title">任职资格：</p>\s*<p>(.*?)</p>', detail_html, re.S)
+    publish_date = _parse_datetime(_extract_legacy_zhiye_field(detail_html, "发布时间"))
+    deadline = _parse_datetime(_extract_legacy_zhiye_field(detail_html, "截止时间"))
+    return {
+        "job_id": _build_api_job_id("securities_zhiye_legacy", target["name"], job_key),
+        "source": "securities_zhiye_legacy",
+        "company": target["name"],
+        "company_type_industry": "券商",
+        "company_tags": "校园招聘",
+        "department": target["name"],
+        "job_title": _safe_text(title),
+        "location": _safe_text(location) or _extract_legacy_zhiye_field(detail_html, "工作地点") or "未知",
+        "major_req": "",
+        "job_req": _strip_html(req_match.group(1)) if req_match else "",
+        "job_duty": _strip_html(duty_match.group(1)) if duty_match else "",
+        "application_status": "待申请",
+        "job_stage": _infer_stage(title, detail_html),
+        "source_config_id": f"securities_api:{target['name']}:{job_key}",
+        "publish_date": publish_date,
+        "deadline": deadline,
+        "detail_url": detail_url,
+        "scraped_at": datetime.utcnow(),
+    }
+
+
+def crawl_zhiye_legacy_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    entry_url = target["entry_url"]
+    max_pages = int(target.get("max_pages") or 20)
+    records: List[Dict[str, Any]] = []
+    seen = set()
+    total_pages: Optional[int] = None
+
+    for page_index in range(1, max_pages + 1):
+        if total_pages is not None and page_index > total_pages:
+            break
+        page_url = entry_url if page_index == 1 else f"{entry_url}?PageIndex={page_index}"
+        resp = _request_with_retries(
+            "get",
+            page_url,
+            headers={"User-Agent": "Mozilla/5.0", "Referer": entry_url},
+            proxies=REQUEST_PROXIES,
+            timeout=30,
+        )
+        page_html = resp.text
+        if total_pages is None:
+            total_match = re.search(r"当前第\d+/(\d+)页", page_html)
+            if total_match:
+                total_pages = int(total_match.group(1))
+        rows = re.findall(
+            r'<a title="([^"]+)" href="(/zpdetail/\d+)"[^>]*>.*?</a>\s*</td>\s*<td>(.*?)</td>\s*<td title="([^"]*)">',
+            page_html,
+            re.S,
+        )
+        if not rows:
+            break
+        for raw_title, detail_path, _head_count, raw_location in rows:
+            detail_url = urljoin(entry_url, detail_path)
+            job_key_match = re.search(r"/zpdetail/(\d+)", detail_path)
+            dedupe_key = job_key_match.group(1) if job_key_match else detail_url
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            detail_resp = _request_with_retries(
+                "get",
+                detail_url,
+                headers={"User-Agent": "Mozilla/5.0", "Referer": page_url},
+                proxies=REQUEST_PROXIES,
+                timeout=30,
+            )
+            records.append(
+                _map_legacy_zhiye_record(
+                    target=target,
+                    title=html.unescape(raw_title),
+                    detail_url=detail_url,
+                    location=html.unescape(raw_location),
+                    detail_html=detail_resp.text,
+                )
+            )
+    return records
+
+
 
 def _infer_hotjob_stage(title: str, post_type_name: str, recruit_type: str) -> str:
     merged = " ".join([title, post_type_name, recruit_type])
@@ -691,14 +817,26 @@ def crawl_configured_securities_targets(target_names: Optional[List[str]] = None
     results: Dict[str, List[Dict[str, Any]]] = {}
     for target in targets:
         ats_family = target.get("ats_family")
+        company = target["name"]
         if ats_family == "zhiye":
-            results[target["name"]] = crawl_zhiye_target(target)
+            crawled = crawl_zhiye_target(target)
         elif ats_family == "hotjob":
-            results[target["name"]] = crawl_hotjob_target(target)
+            crawled = crawl_hotjob_target(target)
         elif ats_family == "moka_embedded":
-            results[target["name"]] = crawl_moka_embedded_target(target)
+            crawled = crawl_moka_embedded_target(target)
+        elif ats_family == "zhiye_legacy":
+            crawled = crawl_zhiye_legacy_target(target)
         else:
-            results[target["name"]] = []
+            crawled = []
+        company_records = results.setdefault(company, [])
+        seen_job_ids = {item.get("job_id") for item in company_records}
+        for record in crawled:
+            job_id = record.get("job_id")
+            if job_id and job_id in seen_job_ids:
+                continue
+            if job_id:
+                seen_job_ids.add(job_id)
+            company_records.append(record)
     return results
 
 

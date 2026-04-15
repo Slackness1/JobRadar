@@ -293,3 +293,51 @@ currentPage=1
 - 仅按 `Category` 过滤还不够
 - 对国信证券这类情况，需要在 config 中补 `exclude_title_keywords: ["博士后"]`
 - crawler 应保留通用的标题排除能力，避免为了单个站点硬编码
+
+## 2026-04-15 第七轮（研究所 T0-T2 全量复核）新增经验
+
+### 1) 真值层和聚合 detail_url 可继续作为“真实 ATS 反查器”
+**本轮新确认入口**：
+- 中信建投：`https://csc108.zhiye.com/campus/jobs`
+- 兴业证券：`https://wecruit.hotjob.cn/SU68fb2499b7da1347a9dd852c/pb/school.html`
+- 华泰证券：`https://wecruit.hotjob.cn/SU6419745cbef57c635fe10142/pb/school.html?projectCode=105904`
+- 天风证券：`https://wecruit.hotjob.cn/SU6114cab40dcad4106ffc953b/pb/school.html`
+- 长江证券：`https://cjzq.zhiye.com/campus`、`https://cjzq1.zhiye.com/campus`、`https://cjzq2.zhiye.com/campus`
+- 东吴证券：`https://dwzq.zhiye.com/campus`
+- 方正证券：`https://foundersc.zhiye.com/campus`
+- 浙商证券：`https://zszq.zhiye.com/Campus`
+- 国盛证券：`https://wecruit.hotjob.cn/SU6879a7b3e57172288b60df9d/pb/index.html#/`
+
+**本轮经验**：
+- 研究所/券商这条线里，很多“官网根域没看出来”的站，真实入口都能从库内公开 `detail_url` 反推出来
+- 如果聚合库存在大量稳定 `detail_url`，优先把它当成 ATS discovery 线索，而不是继续死磕官网首页导航
+
+### 2) 老版 zhiye 仍然在役，需要 HTML 列表 fallback
+**已验证公司**：
+- 浙商证券：`https://zszq.zhiye.com/Campus`
+
+**提取方式**：
+- 老版站点不走 `/api/Jobad/GetJobAdPageList`
+- 直接抓 `/Campus` HTML 列表页，再翻 `?PageIndex=N`
+- 从列表页抽 `/zpdetail/<id>` 详情链接，详情页再抽 `发布时间 / 工作地点 / 工作职责 / 任职资格`
+
+**本轮经验**：
+- `zszq.zhiye.com` 首页会暴露 `/Campus`、`/Social`、`/alljob/`
+- 不能因为新 API 404 就判站点不可抓；老版 zhiye 仍然有稳定 HTML 列表
+
+### 3) 同公司多 ATS 子站要允许聚合，而不是后写覆盖前写
+**已验证公司**：
+- 长江证券：总部 `cjzq`、分支机构 `cjzq1`、子公司 `cjzq2`
+
+**本轮经验**：
+- 同一品牌下可能存在多个公开校招子站
+- crawler 层如果仍用 `results[company] = records`，会把前面的子站结果覆盖掉
+- 应改成按公司聚合并按 `job_id` 去重，才能做到接近全量覆盖
+
+### 4) 站点现状更新
+- **中泰证券**：旧结论“campus/intern = 0”已经过期；2026-04-15 再次复核，当前公开校招/实习已恢复，本轮抓到 `81` 条
+- **光大证券**：`ebscn.zhiye.com/campus` 当前仍仅社会招聘，campus/intern = 0
+- **方正证券**：`foundersc.zhiye.com/campus` 当前公开 API 仅社会招聘，campus/intern = 0
+- **国盛证券**：`gszq.hotjob.cn` 当前 `getSLD` 可解析到真实 suite，但 `recruitType=1/3` 仍为 0，仅 social 有数据
+- **中信证券**：`careers.citics.com` 当前前端 bundle 已显式暴露职位接口名，但当前环境直连列表接口返回 `405`，仍属于“有官网职位信号但官方列表未打穿”
+- **民生证券**：根域已迁至 Hotjob，但公开页当前返回权限不足，且本地聚合库无精确民生证券春招信号

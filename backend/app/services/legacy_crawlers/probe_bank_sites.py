@@ -13,7 +13,8 @@ SITES = [
     ('渤海银行','https://career.cbhb.com.cn/'),
     ('邮储银行','https://psbc.zhaopin.com/'),
 ]
-OUT = Path('/home/ubuntu/workspace/job-crawler/reports/bank_probe.json')
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+OUT = PROJECT_ROOT / 'backend' / 'reports' / 'bank_probe.json'
 UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
 PROXY = {'server': 'http://127.0.0.1:7890'}
 

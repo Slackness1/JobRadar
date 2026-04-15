@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from playwright.sync_api import sync_playwright
 
-BASE = Path('/home/ubuntu/workspace/job-crawler')
+BASE = Path(__file__).resolve().parents[4]
 CSV_PATH = BASE / 'data' / 'jobs.csv'
 UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
 PROXY = {'server': 'http://127.0.0.1:7890'}

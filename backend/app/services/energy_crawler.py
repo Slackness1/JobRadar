@@ -27,7 +27,7 @@ REQUEST_PROXIES = {
 }
 
 # 配置文件路径
-CONFIG_PATH = Path("/home/ubuntu/.openclaw/workspace-projecta/JobRadar/backend/config/energy_campus.yaml")
+CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "energy_campus.yaml"
 
 
 def _safe_text(value: Any) -> str:
