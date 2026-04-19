@@ -13,6 +13,7 @@ from app.database import Base, get_db
 from app.main import app as main_app
 from app.models import (
     ResumeConfirmedProfile,
+    ResumeCopilotMessage,
     ResumeCopilotSession,
     ResumeDirectionAnalysisRun,
     ResumeFeedbackRun,
@@ -838,3 +839,109 @@ def test_get_direction_analysis_returns_persisted_result():
     assert result[0]['tier'] == 1
     assert result[0]['tier_label'] == '强匹配'
     assert 'Python' in result[0]['strengths']
+
+
+def test_get_chat_messages_returns_empty_for_new_session():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db)
+    finally:
+        db.close()
+
+    response = client.get(f'/api/resume-copilot/sessions/{seeded.id}/chat')
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_post_chat_returns_409_when_analysis_not_ready():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db)
+    finally:
+        db.close()
+
+    response = client.post(
+        f'/api/resume-copilot/sessions/{seeded.id}/chat',
+        json={'content': 'Hello'},
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {'detail': 'DIRECTION_ANALYSIS_NOT_READY'}
+
+
+def test_post_apply_rewrite_returns_422_on_bad_path():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db)
+        seeded_id = seeded.id
+        db.add(ResumeConfirmedProfile(
+            session_id=seeded_id,
+            profile_json=json.dumps({
+                'basic_info': {'name': 'Jane', 'email': ''},
+                'education': [], 'internships': [], 'projects': [],
+                'skills': {'technical': [], 'tools': [], 'languages': []},
+                'languages': [], 'awards': [],
+                'candidate_summary': '', 'inferred_roles': [], 'inferred_tracks': [],
+            }),
+        ))
+        msg = ResumeCopilotMessage(
+            session_id=seeded_id,
+            role='assistant',
+            content='Here are your options',
+            rewrite_options_json=json.dumps([{
+                'option_id': 'A',
+                'label': 'Option A',
+                'section': 'internships',
+                'field_path': 'internships.99.bullets.0',
+                'original': 'old text',
+                'improved': 'new text',
+                'rationale': 'Better',
+            }]),
+        )
+        db.add(msg)
+        db.commit()
+        db.refresh(msg)
+        msg_id = msg.id
+    finally:
+        db.close()
+
+    response = client.post(
+        f'/api/resume-copilot/sessions/{seeded_id}/chat/apply-rewrite',
+        json={'message_id': msg_id, 'option_id': 'A'},
+    )
+
+    assert response.status_code == 422
+
+
+def test_get_chat_messages_returns_persisted_messages():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db)
+        seeded_id = seeded.id
+        db.add(ResumeCopilotMessage(
+            session_id=seeded_id,
+            role='system',
+            content='Welcome to the chat!',
+        ))
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.get(f'/api/resume-copilot/sessions/{seeded_id}/chat')
+
+    assert response.status_code == 200
+    result = response.json()
+    assert len(result) == 1
+    assert result[0]['role'] == 'system'
+    assert result[0]['content'] == 'Welcome to the chat!'
+    assert result[0]['rewrite_options'] is None
+    assert result[0]['applied_option_id'] is None

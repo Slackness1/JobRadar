@@ -329,3 +329,69 @@ def get_direction_analysis(session_id: int, db: Session = Depends(get_db)):
         DirectionTierResult.model_validate(item)
         for item in json.loads(str(directions_json))
     ]
+
+
+@router.get('/sessions/{session_id}/chat', response_model=list[ResumeCopilotMessageOut])
+def get_chat_messages(session_id: int, db: Session = Depends(get_db)):
+    _get_session_or_404(db, session_id)
+    msgs = (
+        db.query(ResumeCopilotMessage)
+        .filter(ResumeCopilotMessage.session_id == session_id)
+        .order_by(ResumeCopilotMessage.created_at)
+        .all()
+    )
+    return [
+        ResumeCopilotMessageOut(
+            id=int(msg.id),
+            role=str(msg.role),
+            content=str(msg.content or ''),
+            rewrite_options=(
+                [RewriteOption.model_validate(o)
+                 for o in json.loads(str(msg.rewrite_options_json))]
+                if msg.rewrite_options_json else None
+            ),
+            applied_option_id=msg.applied_option_id,
+            created_at=msg.created_at,
+        )
+        for msg in msgs
+    ]
+
+
+@router.post('/sessions/{session_id}/chat', response_model=ResumeCopilotMessageOut)
+def post_chat_message(
+    session_id: int,
+    payload: ChatMessageIn,
+    db: Session = Depends(get_db),
+):
+    from app.services.resume_copilot.chat import generate_chat_turn
+
+    _get_session_or_404(db, session_id)
+    direction_run = db.query(ResumeDirectionAnalysisRun).filter(
+        ResumeDirectionAnalysisRun.session_id == session_id
+    ).first()
+    if not direction_run or str(getattr(direction_run, 'status', '')) != 'completed':
+        raise HTTPException(status_code=409, detail='DIRECTION_ANALYSIS_NOT_READY')
+
+    try:
+        return generate_chat_turn(session_id, payload.content, db)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.post('/sessions/{session_id}/chat/apply-rewrite', response_model=ApplyRewriteOut)
+def post_apply_rewrite(
+    session_id: int,
+    payload: ApplyRewriteIn,
+    db: Session = Depends(get_db),
+):
+    from app.services.resume_copilot.chat import apply_rewrite
+
+    _get_session_or_404(db, session_id)
+    try:
+        updated_profile = apply_rewrite(
+            session_id, payload.message_id, payload.option_id, db
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    return ApplyRewriteOut(profile=updated_profile, applied=True)
