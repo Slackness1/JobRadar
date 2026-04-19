@@ -194,3 +194,31 @@ def test_generate_direction_analysis_uses_inferred_when_preferences_all_skipped(
     )
     # Falls back to inferred_roles + inferred_tracks from profile
     assert len(results) >= 1
+
+
+from app.services.resume_copilot.agent.prompt import build_system_prompt
+from app.services.resume_copilot.agent.budget import AgentBudget
+
+
+def test_build_system_prompt_includes_direction_tiers_when_provided():
+    profile = _build_profile()
+    preferences = _build_preferences()
+    direction_results = [
+        DirectionTierResult(direction='Backend Engineer', tier=1, tier_label='强匹配',
+                            strengths=['Python'], gaps=[], transferable_from=[]),
+        DirectionTierResult(direction='投研', tier=2, tier_label='可迁移',
+                            strengths=[], gaps=['缺少金融经历'], transferable_from=['数据分析可迁移']),
+    ]
+    prompt = build_system_prompt(profile, preferences, [], AgentBudget(), direction_results=direction_results)
+    assert 'Backend Engineer' in prompt
+    assert '强匹配' in prompt
+    assert '投研' in prompt
+    assert '可迁移' in prompt
+
+
+def test_build_system_prompt_no_direction_section_when_none():
+    profile = _build_profile()
+    preferences = _build_preferences()
+    prompt = build_system_prompt(profile, preferences, [], AgentBudget(), direction_results=None)
+    assert 'Direction Tiers' not in prompt
+    assert '方向层级分析' not in prompt

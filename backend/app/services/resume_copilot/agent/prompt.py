@@ -1,6 +1,7 @@
 import json
 
 from app.schemas_resume_copilot import (
+    DirectionTierResult,
     ResumePreferencePayload,
     ResumeProfilePayload,
     ResumeRecommendationItem,
@@ -59,13 +60,37 @@ def _summarize_candidates(candidates: list[ResumeRecommendationItem]) -> str:
     return json.dumps(rows, ensure_ascii=False)
 
 
+def _format_direction_tiers(direction_results: list[DirectionTierResult]) -> str:
+    lines = []
+    for r in direction_results:
+        tier_emoji = '🟢' if r.tier == 1 else '🟡' if r.tier == 2 else '🔴'
+        hint = ''
+        if r.tier == 1:
+            hint = '— 优先在 finalize 中推荐此方向岗位'
+        elif r.tier == 2:
+            hint = '— 包含部分此方向岗位；在 why_recommended 中注明可迁移性'
+        else:
+            hint = '— 只包含入门级/容忍度高的岗位；在 finalize 的 target_direction 中标注'
+        lines.append(f"{tier_emoji} {r.direction}: 第{r.tier}层 ({r.tier_label}) {hint}")
+    return '\n'.join(lines)
+
+
 def build_system_prompt(
     profile: ResumeProfilePayload,
     preferences: ResumePreferencePayload | None,
     candidates: list[ResumeRecommendationItem],
     budget: AgentBudget,
+    direction_results: list[DirectionTierResult] | None = None,
 ) -> str:
     r = budget.remaining()
+    direction_section = ''
+    if direction_results:
+        direction_section = f"""
+## 方向层级分析
+{_format_direction_tiers(direction_results)}
+在 finalize 的每个推荐岗位中，请根据上述层级设置 target_direction 字段（例如 "投研"）。
+
+"""
     return f"""你是一个专业的校招求职顾问，正在帮助一名中国大学生匹配最适合的岗位。
 
 ## 候选人画像
@@ -73,7 +98,7 @@ def build_system_prompt(
 
 ## 求职偏好
 {_summarize_preferences(preferences)}
-
+{direction_section}
 ## 候选岗位池（规则引擎预筛 top-100，按规则分降序）
 {_summarize_candidates(candidates)}
 
@@ -89,6 +114,9 @@ def build_system_prompt(
 
 ## 输出格式（每轮严格返回 JSON）
 {{"thought": "...", "action": "工具名", "args": {{...}}, "reasoning_display": "..."}}
+
+## finalize 的 args 格式
+{{"recommendations": [{{"job_id": "...", "final_score": 85, "why_recommended": [...], "strengths": [...], "risks": [...], "target_direction": "目标方向名（如 互联网后端）"}}]}}
 
 ## 行为规则
 1. reasoning_display 用中文、用"你"称呼候选人，一句话，面向候选人展示

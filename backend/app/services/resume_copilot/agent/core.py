@@ -62,6 +62,7 @@ def _coerce_recommendation(
         'why_recommended': [str(v) for v in raw.get('why_recommended', [])],
         'strengths': [str(v) for v in raw.get('strengths', [])],
         'risks': [str(v) for v in raw.get('risks', [])],
+        'target_direction': str(raw.get('target_direction', '') or ''),
     })
 
 
@@ -76,11 +77,12 @@ class ReActAgent:
         preferences: ResumePreferencePayload | None,
         candidates: list[ResumeRecommendationItem],
         trace_recorder: TraceRecorder | None = None,
+        direction_results: list | None = None,
     ) -> list[ResumeRecommendationItem]:
         candidates_by_id = {item.job_id: item for item in candidates}
         client = build_resume_llm_client()
         messages: list[dict] = [
-            {'role': 'system', 'content': build_system_prompt(profile, preferences, candidates, self.budget)}
+            {'role': 'system', 'content': build_system_prompt(profile, preferences, candidates, self.budget, direction_results=direction_results)}
         ]
         step_index = 0
         _force_finish_sent = False
@@ -207,7 +209,7 @@ class ReActAgent:
             # Rebuild system prompt with updated budget remaining counts
             messages[0] = {
                 'role': 'system',
-                'content': build_system_prompt(profile, preferences, candidates, self.budget),
+                'content': build_system_prompt(profile, preferences, candidates, self.budget, direction_results=direction_results),
             }
             messages.append({'role': 'assistant', 'content': last_content})
             messages.append({'role': 'user', 'content': f'Observation: {observation}'})
