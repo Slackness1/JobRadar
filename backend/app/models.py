@@ -86,6 +86,163 @@ class JobIntelSnapshot(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
 
+class ResumeCopilotSession(Base):
+    __tablename__ = "resume_copilot_sessions"
+
+    id = Column(Integer, primary_key=True)
+    file_name = Column(Text, default="")
+    name = Column(Text, default="")
+    user_key = Column(Text, default="", index=True)
+    status = Column(Text, default="uploaded", index=True)
+    extracted_text = Column(Text, default="")
+    error_message = Column(Text, default="")
+    recommendation_status = Column(Text, default="pending")
+    feedback_status = Column(Text, default="pending")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+
+    parsed_profile = relationship(
+        "ResumeParsedProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    confirmed_profile = relationship(
+        "ResumeConfirmedProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    preference_profile = relationship(
+        "ResumePreferenceProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    recommendation_run = relationship(
+        "ResumeRecommendationRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    feedback_run = relationship(
+        "ResumeFeedbackRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    direction_analysis_run = relationship(
+        "ResumeDirectionAnalysisRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    chat_messages = relationship(
+        "ResumeCopilotMessage",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="ResumeCopilotMessage.created_at",
+    )
+
+
+class ResumeParsedProfile(Base):
+    __tablename__ = "resume_parsed_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    profile_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="parsed_profile")
+
+
+class ResumeConfirmedProfile(Base):
+    __tablename__ = "resume_confirmed_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    profile_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="confirmed_profile")
+
+
+class ResumePreferenceProfile(Base):
+    __tablename__ = "resume_preference_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    preferences_json = Column(Text, default="{}")
+    all_skipped = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="preference_profile")
+
+
+class ResumeRecommendationRun(Base):
+    __tablename__ = "resume_recommendation_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    used_ai = Column(Integer, default=0)
+    fallback_reason = Column(Text, default="")
+    agent_trace_json = Column(Text, default="[]")
+    recommendations_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="recommendation_run")
+
+
+class ResumeFeedbackRun(Base):
+    __tablename__ = "resume_feedback_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    diagnostics_json = Column(Text, default="[]")
+    rewrite_examples_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="feedback_run")
+
+
+class ResumeDirectionAnalysisRun(Base):
+    __tablename__ = "resume_direction_analysis_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    directions_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="direction_analysis_run")
+
+
+class ResumeCopilotMessage(Base):
+    __tablename__ = "resume_copilot_messages"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, index=True)
+    role = Column(Text, default="user")      # system | user | assistant
+    content = Column(Text, default="")
+    rewrite_options_json = Column(Text, nullable=True)   # JSON list[RewriteOption] or null
+    applied_option_id = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="chat_messages")
+
+
 class Job(Base):
     __tablename__ = "jobs"
 

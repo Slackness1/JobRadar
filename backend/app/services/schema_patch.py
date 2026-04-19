@@ -120,3 +120,102 @@ def ensure_compatible_schema(engine: Engine) -> None:
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_company ON company_recrawl_queue (company)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_status ON company_recrawl_queue (status)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_priority ON company_recrawl_queue (priority)"))
+
+        resume_session_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_copilot_sessions'")
+        ).fetchone()
+        if resume_session_exists:
+            resume_rows = conn.execute(text("PRAGMA table_info(resume_copilot_sessions)")).fetchall()
+            resume_columns = {row[1] for row in resume_rows}
+
+            resume_session_additions = {
+                "file_name": "ALTER TABLE resume_copilot_sessions ADD COLUMN file_name TEXT DEFAULT ''",
+                "extracted_text": "ALTER TABLE resume_copilot_sessions ADD COLUMN extracted_text TEXT DEFAULT ''",
+                "feedback_status": "ALTER TABLE resume_copilot_sessions ADD COLUMN feedback_status TEXT DEFAULT 'pending'",
+                "finished_at": "ALTER TABLE resume_copilot_sessions ADD COLUMN finished_at DATETIME",
+                "name": "ALTER TABLE resume_copilot_sessions ADD COLUMN name TEXT DEFAULT ''",
+                "user_key": "ALTER TABLE resume_copilot_sessions ADD COLUMN user_key TEXT DEFAULT ''",
+            }
+            for column_name, ddl in resume_session_additions.items():
+                if column_name not in resume_columns:
+                    conn.execute(text(ddl))
+
+            refreshed_rows = conn.execute(text("PRAGMA table_info(resume_copilot_sessions)")).fetchall()
+            refreshed_columns = {row[1] for row in refreshed_rows}
+            if {"filename", "file_name"}.issubset(refreshed_columns):
+                conn.execute(
+                    text(
+                        """
+                        UPDATE resume_copilot_sessions
+                        SET file_name = filename
+                        WHERE COALESCE(file_name, '') = '' AND COALESCE(filename, '') != ''
+                        """
+                    )
+                )
+            if {"resume_text", "extracted_text"}.issubset(refreshed_columns):
+                conn.execute(
+                    text(
+                        """
+                        UPDATE resume_copilot_sessions
+                        SET extracted_text = resume_text
+                        WHERE COALESCE(extracted_text, '') = '' AND COALESCE(resume_text, '') != ''
+                        """
+                    )
+                )
+
+        recommendation_run_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_recommendation_runs'")
+        ).fetchone()
+        if recommendation_run_exists:
+            recommendation_rows = conn.execute(text("PRAGMA table_info(resume_recommendation_runs)")).fetchall()
+            recommendation_columns = {row[1] for row in recommendation_rows}
+
+            recommendation_additions = {
+                "error_message": "ALTER TABLE resume_recommendation_runs ADD COLUMN error_message TEXT DEFAULT ''",
+                "used_ai": "ALTER TABLE resume_recommendation_runs ADD COLUMN used_ai INTEGER DEFAULT 0",
+                "fallback_reason": "ALTER TABLE resume_recommendation_runs ADD COLUMN fallback_reason TEXT DEFAULT ''",
+                "agent_trace_json": "ALTER TABLE resume_recommendation_runs ADD COLUMN agent_trace_json TEXT DEFAULT '[]'",
+                "recommendations_json": "ALTER TABLE resume_recommendation_runs ADD COLUMN recommendations_json TEXT DEFAULT '[]'",
+            }
+            for column_name, ddl in recommendation_additions.items():
+                if column_name not in recommendation_columns:
+                    conn.execute(text(ddl))
+
+        direction_analysis_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_direction_analysis_runs'")
+        ).fetchone()
+        if not direction_analysis_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE resume_direction_analysis_runs (
+                    id INTEGER PRIMARY KEY,
+                    session_id INTEGER NOT NULL UNIQUE REFERENCES resume_copilot_sessions(id) ON DELETE CASCADE,
+                    status TEXT DEFAULT 'pending',
+                    error_message TEXT DEFAULT '',
+                    directions_json TEXT DEFAULT '[]',
+                    created_at DATETIME,
+                    updated_at DATETIME
+                )
+                """
+            ))
+
+        messages_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_copilot_messages'")
+        ).fetchone()
+        if not messages_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE resume_copilot_messages (
+                    id INTEGER PRIMARY KEY,
+                    session_id INTEGER NOT NULL REFERENCES resume_copilot_sessions(id) ON DELETE CASCADE,
+                    role TEXT DEFAULT 'user',
+                    content TEXT DEFAULT '',
+                    rewrite_options_json TEXT,
+                    applied_option_id TEXT,
+                    created_at DATETIME
+                )
+                """
+            ))
+            conn.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_resume_copilot_messages_session_id ON resume_copilot_messages (session_id)"
+            ))

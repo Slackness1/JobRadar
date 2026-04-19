@@ -65,3 +65,38 @@ def test_recommendation_item_has_target_direction():
         target_direction='互联网后端',
     )
     assert item.target_direction == '互联网后端'
+
+
+from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+from app.database import Base
+from app.models import ResumeDirectionAnalysisRun, ResumeCopilotMessage
+from app.services.schema_patch import ensure_compatible_schema
+
+
+def _make_engine():
+    engine = create_engine(
+        'sqlite://',
+        connect_args={'check_same_thread': False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(bind=engine)
+    ensure_compatible_schema(engine)
+    return engine
+
+
+def test_direction_analysis_run_table_exists():
+    engine = _make_engine()
+    inspector = inspect(engine)
+    assert 'resume_direction_analysis_runs' in inspector.get_table_names()
+    columns = {c['name'] for c in inspector.get_columns('resume_direction_analysis_runs')}
+    assert {'id', 'session_id', 'status', 'directions_json', 'error_message', 'created_at'}.issubset(columns)
+
+
+def test_copilot_message_table_exists():
+    engine = _make_engine()
+    inspector = inspect(engine)
+    assert 'resume_copilot_messages' in inspector.get_table_names()
+    columns = {c['name'] for c in inspector.get_columns('resume_copilot_messages')}
+    assert {'id', 'session_id', 'role', 'content', 'rewrite_options_json', 'applied_option_id', 'created_at'}.issubset(columns)
