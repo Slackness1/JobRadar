@@ -184,8 +184,8 @@ def run_resume_generate_workflow(
         session = db.query(ResumeCopilotSession).filter(ResumeCopilotSession.id == session_id).first()
         recommendation_run.status = 'completed'
         recommendation_run.error_message = ''
-        recommendation_run.used_ai = 1 if any(getattr(item, 'used_ai', False) for item in recommendations) else 0
-        recommendation_run.fallback_reason = ''
+        recommendation_run.used_ai = 1
+        recommendation_run.fallback_reason = fallback_reason
         recommendation_run.agent_trace_json = serialize_agent_trace(agent_trace)
         recommendation_run.recommendations_json = json.dumps([item.model_dump() for item in recommendations])
         session.recommendation_status = 'completed'
