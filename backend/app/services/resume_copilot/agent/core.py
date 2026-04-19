@@ -83,11 +83,16 @@ class ReActAgent:
             {'role': 'system', 'content': build_system_prompt(profile, preferences, candidates, self.budget)}
         ]
         step_index = 0
+        _force_finish_sent = False
 
         while True:
-            # Inject force-finish if time is up
-            if not self.budget.is_time_ok():
+            # Inject force-finish once when time or total budget is up
+            if not self.budget.is_time_ok() and not _force_finish_sent:
                 messages.append({'role': 'user', 'content': _FORCE_FINISH})
+                _force_finish_sent = True
+            elif _force_finish_sent and not self.budget.is_time_ok():
+                # LLM ignored force-finish — give up
+                return self._fallback(candidates)
 
             # Call LLM
             last_content = '{}'
@@ -141,6 +146,14 @@ class ReActAgent:
                     )
                 return results
 
+            # Check for unknown tool before budget (so UNKNOWN_TOOL observation is returned)
+            tool_fn = self.tools.get(action)
+            if tool_fn is None and action != 'finalize':
+                observation = f'UNKNOWN_TOOL: {action}'
+                messages.append({'role': 'assistant', 'content': last_content})
+                messages.append({'role': 'user', 'content': f'Observation: {observation}'})
+                continue
+
             # Check budget
             allowed, budget_reason = self.budget.check(action)
             if not allowed:
@@ -153,8 +166,10 @@ class ReActAgent:
                             step_index=step_index,
                             result_summary=budget_reason,
                         )
-                    messages.append({'role': 'assistant', 'content': last_content})
-                    messages.append({'role': 'user', 'content': _FORCE_FINISH})
+                    if not _force_finish_sent:
+                        messages.append({'role': 'assistant', 'content': last_content})
+                        messages.append({'role': 'user', 'content': _FORCE_FINISH})
+                        _force_finish_sent = True
                     continue
                 observation = f'TOOL_LIMIT_REACHED for {action}'
                 messages.append({'role': 'assistant', 'content': last_content})
@@ -162,7 +177,6 @@ class ReActAgent:
                 continue
 
             # Execute tool
-            tool_fn = self.tools.get(action)
             if tool_fn is None:
                 observation = f'UNKNOWN_TOOL: {action}'
                 result_summary = observation

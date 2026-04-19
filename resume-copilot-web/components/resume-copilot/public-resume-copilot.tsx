@@ -366,6 +366,60 @@ function AgentRow({
   );
 }
 
+function StepCard({ item }: { item: ResumeAgentTraceItem }) {
+  const toolMeta = item.tool ? TOOL_META[item.tool] : undefined;
+  return (
+    <div
+      className="flex items-start gap-3 py-2"
+      style={{ animation: 'slideInUp 0.28s ease-out both' }}
+    >
+      <span
+        className="mt-[2px] shrink-0 font-mono text-[15px] leading-snug"
+        style={{ color: '#4ade80', minWidth: '1ch', display: 'inline-block', textAlign: 'center' }}
+      >
+        ✓
+      </span>
+      <div className="min-w-0 flex-1">
+        {toolMeta ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px]">{toolMeta.icon}</span>
+              <span className="text-[13px] font-semibold text-white/90">{toolMeta.label}</span>
+            </div>
+            <div className="mt-0.5 text-[12px] leading-snug text-white/55">{item.message}</div>
+            {item.result_summary && (
+              <div className="mt-0.5 text-[11px] leading-snug text-white/30">{item.result_summary}</div>
+            )}
+          </>
+        ) : (
+          <div className="text-[13px] leading-snug text-white/45">{item.message}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RunningStepRow({ message }: { message?: string }) {
+  const [frameIdx, setFrameIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setFrameIdx((i) => (i + 1) % SPINNER_FRAMES.length), 120);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="flex items-start gap-3 py-2">
+      <span
+        className="mt-[2px] shrink-0 font-mono text-[15px] leading-snug"
+        style={{ color: '#7c9ef7', minWidth: '1ch', display: 'inline-block', textAlign: 'center' }}
+      >
+        {SPINNER_FRAMES[frameIdx]}
+      </span>
+      <div className="min-w-0 flex-1">
+        <span className="text-[13px] leading-snug text-white/45">{message ?? '正在推理…'}</span>
+      </div>
+    </div>
+  );
+}
+
 function AgentThinkingPanel({
   trace,
   running,
@@ -375,32 +429,64 @@ function AgentThinkingPanel({
 }) {
   if (!running && !trace.length) return null;
 
-  const agentLatest = new Map<string, ResumeAgentTraceItem>();
-  for (const item of trace) agentLatest.set(item.agent, item);
+  // Detect ReAct trace: any item has a non-empty tool field
+  const isReActTrace = trace.some((item) => item.tool);
 
-  const agentsToShow: AgentName[] = running
-    ? [...ALL_AGENTS]
-    : ALL_AGENTS.filter((a) => agentLatest.has(a));
+  if (!isReActTrace) {
+    // Backward compat: old agent-name-based rendering
+    const agentLatest = new Map<string, ResumeAgentTraceItem>();
+    for (const item of trace) agentLatest.set(item.agent, item);
+    const agentsToShow: AgentName[] = running
+      ? [...ALL_AGENTS]
+      : ALL_AGENTS.filter((a) => agentLatest.has(a));
+    return (
+      <div className="rounded-[18px] border border-[var(--border)] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(15,23,42,0.06)]">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
+            {running ? '代理思考中' : '代理编排完成'}
+          </span>
+          <span className="rounded-full bg-[var(--soft-blue)] px-2 py-0.5 text-[11px] leading-5 text-[var(--primary)]">
+            快增强
+          </span>
+        </div>
+        <div className="divide-y divide-[var(--border)]">
+          {agentsToShow.map((agentName) => (
+            <AgentRow
+              key={agentName}
+              agentName={agentName}
+              latest={agentLatest.get(agentName)}
+              running={running}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ReAct trace: deduplicate by step_index, prefer completed over running
+  const stepMap = new Map<number, ResumeAgentTraceItem>();
+  for (const item of trace) {
+    const idx = item.step_index ?? 0;
+    if (!idx) continue; // skip pre-agent workflow items (step_index=0)
+    const existing = stepMap.get(idx);
+    if (!existing || item.status === 'completed') stepMap.set(idx, item);
+  }
+  const steps = [...stepMap.values()].sort((a, b) => (a.step_index ?? 0) - (b.step_index ?? 0));
+  const completedSteps = steps.filter((s) => s.status === 'completed' && s.tool);
+  const currentRunning = steps.find((s) => s.status === 'running' && s.tool);
 
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(15,23,42,0.06)]">
       <div className="mb-2 flex items-center gap-2">
         <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
-          {running ? '代理思考中' : '代理编排完成'}
-        </span>
-        <span className="rounded-full bg-[var(--soft-blue)] px-2 py-0.5 text-[11px] leading-5 text-[var(--primary)]">
-          快增强
+          {running ? 'AI 推理中' : '推理完成'}
         </span>
       </div>
-      <div className="divide-y divide-[var(--border)]">
-        {agentsToShow.map((agentName) => (
-          <AgentRow
-            key={agentName}
-            agentName={agentName}
-            latest={agentLatest.get(agentName)}
-            running={running}
-          />
+      <div className="space-y-0.5">
+        {completedSteps.map((item) => (
+          <StepCard key={item.step_index} item={item} />
         ))}
+        {running && <RunningStepRow message={currentRunning?.message} />}
       </div>
     </div>
   );
