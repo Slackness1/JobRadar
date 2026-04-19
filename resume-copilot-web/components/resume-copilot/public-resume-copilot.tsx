@@ -36,6 +36,7 @@ import {
 import {
   createResumeCopilotSession,
   deleteResumeCopilotSession,
+  getDirectionAnalysis,
   getResumeCopilotFeedback,
   getResumeCopilotParsedProfile,
   getResumeCopilotPreferences,
@@ -48,6 +49,7 @@ import {
   renameResumeCopilotSession,
 } from './api';
 import {
+  type DirectionTierResult,
   type ResumeAgentTraceItem,
   EMPTY_PREFERENCES,
   EMPTY_PROFILE,
@@ -347,18 +349,18 @@ function AgentRow({
           <>
             <div className="flex items-center gap-1.5">
               <span className="text-[13px]">{toolMeta.icon}</span>
-              <span className="text-[13px] font-semibold text-white/90">{toolMeta.label}</span>
+              <span className="text-[13px] font-semibold text-slate-800">{toolMeta.label}</span>
             </div>
-            <div className="mt-0.5 text-[12px] leading-snug text-white/55">{displayMessage}</div>
+            <div className="mt-0.5 text-[12px] leading-snug text-slate-500">{displayMessage}</div>
             {latest?.result_summary && (
-              <div className="mt-0.5 text-[11px] leading-snug text-white/30">{latest.result_summary}</div>
+              <div className="mt-0.5 text-[11px] leading-snug text-slate-400">{latest.result_summary}</div>
             )}
           </>
         ) : (
           <div className="flex items-baseline gap-2">
-            <span className="shrink-0 text-[13px] font-semibold text-white/90">{agentName}</span>
-            <span className="shrink-0 text-[12px] text-white/20">·</span>
-            <span className="min-w-0 truncate text-[13px] leading-snug text-white/45">{displayMessage}</span>
+            <span className="shrink-0 text-[13px] font-semibold text-slate-800">{agentName}</span>
+            <span className="shrink-0 text-[12px] text-slate-300">·</span>
+            <span className="min-w-0 truncate text-[13px] leading-snug text-slate-500">{displayMessage}</span>
           </div>
         )}
       </div>
@@ -384,15 +386,15 @@ function StepCard({ item }: { item: ResumeAgentTraceItem }) {
           <>
             <div className="flex items-center gap-1.5">
               <span className="text-[13px]">{toolMeta.icon}</span>
-              <span className="text-[13px] font-semibold text-white/90">{toolMeta.label}</span>
+              <span className="text-[13px] font-semibold text-slate-800">{toolMeta.label}</span>
             </div>
-            <div className="mt-0.5 text-[12px] leading-snug text-white/55">{item.message}</div>
+            <div className="mt-0.5 text-[12px] leading-snug text-slate-500">{item.message}</div>
             {item.result_summary && (
-              <div className="mt-0.5 text-[11px] leading-snug text-white/30">{item.result_summary}</div>
+              <div className="mt-0.5 text-[11px] leading-snug text-slate-400">{item.result_summary}</div>
             )}
           </>
         ) : (
-          <div className="text-[13px] leading-snug text-white/45">{item.message}</div>
+          <div className="text-[13px] leading-snug text-slate-500">{item.message}</div>
         )}
       </div>
     </div>
@@ -414,7 +416,7 @@ function RunningStepRow({ message }: { message?: string }) {
         {SPINNER_FRAMES[frameIdx]}
       </span>
       <div className="min-w-0 flex-1">
-        <span className="text-[13px] leading-snug text-white/45">{message ?? '正在推理…'}</span>
+        <span className="text-[13px] leading-snug text-slate-500">{message ?? '正在推理…'}</span>
       </div>
     </div>
   );
@@ -1091,6 +1093,8 @@ export function PublicResumeCopilot() {
   const [savedPreferences, setSavedPreferences] = useState<ResumePreferencePayload>(EMPTY_PREFERENCES);
   const [recommendations, setRecommendations] = useState<ResumeRecommendationResult | null>(null);
   const [feedback, setFeedback] = useState<ResumeFeedbackResult | null>(null);
+  const [directionResults, setDirectionResults] = useState<DirectionTierResult[]>([]);
+  const [activeDirection, setActiveDirection] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [resumeHistory, setResumeHistory] = useState<ResumeHistoryItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -1216,6 +1220,17 @@ export function PublicResumeCopilot() {
     }
   }, [editorOpen, profile, session?.has_parsed_profile]);
 
+  useEffect(() => {
+    if (!session || session.feedback_status !== 'completed') return;
+    getDirectionAnalysis(session.id).then((results) => {
+      setDirectionResults(results);
+      if (results.length > 0 && !activeDirection) {
+        const sorted = [...results].sort((a, b) => a.tier - b.tier);
+        setActiveDirection(sorted[0].direction);
+      }
+    }).catch(() => {});
+  }, [session?.feedback_status, session?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const updateProfile = (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => {
     setProfile((previous) => updater(previous ?? EMPTY_PROFILE));
   };
@@ -1259,6 +1274,7 @@ export function PublicResumeCopilot() {
         has_preferences: false,
         has_recommendations: false,
         has_feedback: false,
+        has_direction_analysis: false,
         created_at: null,
         updated_at: null,
         finished_at: null,
@@ -1348,6 +1364,8 @@ export function PublicResumeCopilot() {
     setEditorOpen(false);
     setRecommendations(null);
     setFeedback(null);
+    setDirectionResults([]);
+    setActiveDirection(null);
     router.replace(`/resume-copilot?sessionId=${nextSessionId}`);
   };
 
@@ -1429,6 +1447,9 @@ export function PublicResumeCopilot() {
           isGenerating={isGenerating}
           recommendations={recommendations}
           feedback={feedback}
+          directionResults={directionResults}
+          activeDirection={activeDirection}
+          onSetActiveDirection={setActiveDirection}
           currentSessionId={sessionId}
           resumeHistory={resumeHistory}
           onSwitchSession={switchResumeSession}
@@ -1489,6 +1510,9 @@ function ResumeChatRail({
   isGenerating,
   recommendations,
   feedback,
+  directionResults,
+  activeDirection,
+  onSetActiveDirection,
   currentSessionId,
   resumeHistory,
   onSwitchSession,
@@ -1510,6 +1534,9 @@ function ResumeChatRail({
   isGenerating: boolean;
   recommendations: ResumeRecommendationResult | null;
   feedback: ResumeFeedbackResult | null;
+  directionResults: DirectionTierResult[];
+  activeDirection: string | null;
+  onSetActiveDirection: (direction: string) => void;
   currentSessionId: number | null;
   resumeHistory: ResumeHistoryItem[];
   onSwitchSession: (sessionId: number) => void;
@@ -1531,7 +1558,11 @@ function ResumeChatRail({
   const selectedTracks = preferences.preferred_tracks.length ? preferences.preferred_tracks.join('、') : '未设定';
   const selectedLocations = preferences.preferred_locations.length ? preferences.preferred_locations.join('、') : '未设定';
   const selectedCompanyTypes = preferences.preferred_company_types.length ? preferences.preferred_company_types.join('、') : '未设定';
-  const topRecommendations = recommendations?.items.slice(0, 5) ?? [];
+  const activeDirectionResult = directionResults.find(r => r.direction === activeDirection) ?? null;
+  const filteredRecommendations = activeDirection
+    ? (recommendations?.items ?? []).filter(r => !r.target_direction || r.target_direction === activeDirection)
+    : (recommendations?.items ?? []);
+  const topRecommendations = filteredRecommendations.slice(0, 5);
   const recommendationFallback = formatModelFallback(recommendations?.fallback_reason);
   const feedbackFallback = formatModelFallback(feedback?.error_message);
 
@@ -1777,11 +1808,49 @@ function ResumeChatRail({
               ))}
 
               {topRecommendations.length > 0 ? (
-                <div className="max-w-[92%] rounded-2xl rounded-tl-md bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                  <div className="flex items-center justify-between gap-3">
+                <div className="max-w-[92%] rounded-2xl rounded-tl-md bg-slate-50 text-sm text-slate-700" style={{ overflow: 'hidden' }}>
+                  <div className="flex items-center justify-between gap-3 px-4 pt-3">
                     <div className="font-semibold text-slate-950">真实岗位推荐 Top 5</div>
                     <Badge className="bg-white text-slate-500">{recommendations?.used_ai ? 'AI 重排' : '规则排序'}</Badge>
                   </div>
+                  {directionResults.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, padding: '10px 12px 0', flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+                      {directionResults.map((dr) => {
+                        const isActive = activeDirection === dr.direction;
+                        const badgeColor = dr.tier === 1 ? { bg: '#dcfce7', color: '#166534' }
+                          : dr.tier === 2 ? { bg: '#fef9c3', color: '#854d0e' }
+                          : { bg: '#fee2e2', color: '#991b1b' };
+                        return (
+                          <button
+                            key={dr.direction}
+                            onClick={() => onSetActiveDirection(dr.direction)}
+                            style={{
+                              padding: '5px 12px 8px',
+                              borderRadius: '8px 8px 0 0',
+                              border: `1px solid ${isActive ? 'var(--border)' : 'transparent'}`,
+                              borderBottom: isActive ? '1px solid white' : '1px solid transparent',
+                              background: isActive ? 'white' : 'transparent',
+                              color: isActive ? 'var(--ink)' : 'var(--muted)',
+                              fontWeight: isActive ? 600 : 400,
+                              fontSize: 12,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              position: 'relative',
+                              bottom: -1,
+                            }}
+                          >
+                            {dr.direction}
+                            <span style={{ background: badgeColor.bg, color: badgeColor.color, borderRadius: 10, padding: '1px 7px', fontSize: 10, fontWeight: 600 }}>
+                              {dr.tier_label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="px-4 pb-3">
                   {recommendationFallback && (
                     <div className="mt-2 rounded-lg bg-white px-3 py-2 text-xs leading-5 text-slate-500">
                       AI 重排未启用：{recommendationFallback}
@@ -1793,6 +1862,16 @@ function ResumeChatRail({
                     </div>
                   )}
                   <div className="mt-3 grid gap-2">
+                    {activeDirectionResult?.tier === 2 && activeDirectionResult.transferable_from.length > 0 && (
+                      <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 8, padding: '8px 12px', fontSize: 11.5, color: '#78350f', marginBottom: 8, lineHeight: 1.5 }}>
+                        💡 <strong>可迁移方向</strong> · {activeDirectionResult.transferable_from[0]}——右侧对话可帮你改写表达
+                      </div>
+                    )}
+                    {activeDirectionResult?.tier === 3 && (
+                      <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: 8, padding: '8px 12px', fontSize: 11.5, color: '#881337', marginBottom: 8, lineHeight: 1.5 }}>
+                        ⚠️ <strong>差距较大</strong>{activeDirectionResult.gaps.length > 0 ? ` · 缺少：${activeDirectionResult.gaps.slice(0, 2).join('、')}` : ''}。当前为你推荐接受零经验的入门机会。
+                      </div>
+                    )}
                     {topRecommendations.map((item, index) => (
                       <a
                         key={`${item.job_id}-${item.company}`}
@@ -1834,6 +1913,7 @@ function ResumeChatRail({
                         </div>
                       </a>
                     ))}
+                  </div>
                   </div>
                 </div>
               ) : null}

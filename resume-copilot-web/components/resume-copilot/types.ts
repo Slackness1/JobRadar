@@ -67,6 +67,7 @@ export interface ResumeCopilotSession {
   has_preferences: boolean;
   has_recommendations: boolean;
   has_feedback: boolean;
+  has_direction_analysis: boolean;
   created_at: string | null;
   updated_at: string | null;
   finished_at: string | null;
@@ -143,6 +144,7 @@ export interface ResumeRecommendationItem {
   why_recommended: string[];
   strengths: string[];
   risks: string[];
+  target_direction: string;
 }
 
 export interface ResumeAgentTraceItem {
@@ -182,6 +184,39 @@ export interface ResumeFeedbackResult {
   error_message: string;
   diagnostics: ResumeFeedbackDiagnosticItem[];
   rewrite_examples: ResumeFeedbackRewriteExample[];
+}
+
+export interface DirectionTierResult {
+  direction: string;
+  tier: 1 | 2 | 3;
+  tier_label: string;
+  strengths: string[];
+  gaps: string[];
+  transferable_from: string[];
+}
+
+export interface RewriteOption {
+  option_id: string;
+  label: string;
+  section: string;
+  field_path: string;
+  original: string;
+  improved: string;
+  rationale: string;
+}
+
+export interface CopilotMessage {
+  id: number;
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+  rewrite_options: RewriteOption[] | null;
+  applied_option_id: string | null;
+  created_at: string | null;
+}
+
+export interface ApplyRewriteOut {
+  profile: ResumeProfilePayload;
+  applied: boolean;
 }
 
 export const EMPTY_PROFILE: ResumeProfilePayload = {
