@@ -100,3 +100,97 @@ def test_copilot_message_table_exists():
     assert 'resume_copilot_messages' in inspector.get_table_names()
     columns = {c['name'] for c in inspector.get_columns('resume_copilot_messages')}
     assert {'id', 'session_id', 'role', 'content', 'rewrite_options_json', 'applied_option_id', 'created_at'}.issubset(columns)
+
+
+from app.schemas_resume_copilot import (
+    ResumeProfilePayload,
+    ResumePreferencePayload,
+    ResumeSkillsPayload,
+)
+from app.services.resume_copilot.direction_analysis import generate_direction_analysis
+
+
+def _build_profile():
+    return ResumeProfilePayload(
+        basic_info={'name': 'Jane'},
+        education=[],
+        internships=[],
+        projects=[],
+        skills=ResumeSkillsPayload(technical=['Python'], tools=[], languages=[]),
+        languages=[],
+        awards=[],
+        candidate_summary='Data-focused student',
+        inferred_roles=['Data Analyst'],
+        inferred_tracks=['Internet'],
+    )
+
+
+def _build_preferences(roles=None, tracks=None):
+    return ResumePreferencePayload(
+        preferred_roles=roles or ['Backend Engineer'],
+        preferred_tracks=tracks or ['Internet'],
+        preferred_locations=['Shanghai'],
+        preferred_company_types=[],
+        accept_relocation=False,
+        accept_internship=False,
+        campus_only=False,
+        social_ok=False,
+        preference_notes='',
+        all_skipped=False,
+    )
+
+
+class _StubDirectionProvider:
+    def analyze_directions(self, profile, preferences, directions):
+        return [
+            {
+                'direction': d,
+                'tier': 1 if d == 'Backend Engineer' else 2,
+                'tier_label': '强匹配' if d == 'Backend Engineer' else '可迁移',
+                'strengths': ['Python skills'],
+                'gaps': [] if d == 'Backend Engineer' else ['missing finance experience'],
+                'transferable_from': [] if d == 'Backend Engineer' else ['data analysis transferable'],
+            }
+            for d in directions
+        ]
+
+
+class _FailingDirectionProvider:
+    def analyze_directions(self, profile, preferences, directions):
+        raise RuntimeError('LLM unavailable')
+
+
+def test_generate_direction_analysis_returns_tier_results():
+    results = generate_direction_analysis(
+        _build_profile(),
+        _build_preferences(roles=['Backend Engineer', '投研']),
+        provider=_StubDirectionProvider(),
+    )
+    assert len(results) >= 2
+    assert all(isinstance(r, DirectionTierResult) for r in results)
+    be = next(r for r in results if r.direction == 'Backend Engineer')
+    assert be.tier == 1
+    assert be.tier_label == '强匹配'
+
+
+def test_generate_direction_analysis_falls_back_on_llm_failure():
+    results = generate_direction_analysis(
+        _build_profile(),
+        _build_preferences(roles=['Backend Engineer']),
+        provider=_FailingDirectionProvider(),
+    )
+    # Should return fallback tier=1 for each direction, not raise
+    assert len(results) >= 1
+    assert all(r.tier == 1 for r in results)
+
+
+def test_generate_direction_analysis_uses_inferred_when_preferences_all_skipped():
+    prefs = _build_preferences()
+    prefs.all_skipped = True
+    results = generate_direction_analysis(
+        _build_profile(),
+        prefs,
+        provider=_StubDirectionProvider(),
+    )
+    # Falls back to inferred_roles + inferred_tracks from profile
+    assert len(results) >= 1
