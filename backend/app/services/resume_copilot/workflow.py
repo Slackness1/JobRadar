@@ -194,6 +194,8 @@ def run_resume_generate_workflow(
         direction_run = db.query(ResumeDirectionAnalysisRun).filter(
             ResumeDirectionAnalysisRun.session_id == session_id
         ).first()
+        if not direction_run:
+            raise ValueError(f'direction_run for session {session_id} was deleted mid-flight')
         direction_run.status = 'completed'
         direction_run.directions_json = json.dumps(
             [r.model_dump() for r in direction_results]
@@ -218,6 +220,8 @@ def run_resume_generate_workflow(
         recommendation_run = db.query(ResumeRecommendationRun).filter(
             ResumeRecommendationRun.session_id == session_id
         ).first()
+        if not recommendation_run:
+            raise ValueError(f'recommendation_run for session {session_id} was deleted mid-flight')
         session = db.query(ResumeCopilotSession).filter(
             ResumeCopilotSession.id == session_id
         ).first()
