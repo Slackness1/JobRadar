@@ -1,0 +1,2295 @@
+'use client';
+
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ChangeEvent,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  Clock3,
+  FileText,
+  Github,
+  Home,
+  Linkedin,
+  Link as LinkIcon,
+  Loader2,
+  Mail,
+  MapPin,
+  PencilLine,
+  Phone,
+  Plus,
+  Sparkles,
+  Trash2,
+  UploadCloud,
+} from 'lucide-react';
+
+import {
+  createResumeCopilotSession,
+  deleteResumeCopilotSession,
+  getResumeCopilotFeedback,
+  getResumeCopilotParsedProfile,
+  getResumeCopilotPreferences,
+  getResumeCopilotRecommendations,
+  getResumeCopilotSession,
+  listResumeCopilotSessions,
+  postResumeCopilotGenerate,
+  putResumeCopilotConfirmedProfile,
+  putResumeCopilotPreferences,
+  renameResumeCopilotSession,
+} from './api';
+import {
+  type ResumeAgentTraceItem,
+  EMPTY_PREFERENCES,
+  EMPTY_PROFILE,
+  type ResumeCopilotSession,
+  type ResumeCopilotSessionListItem,
+  type ResumeEducationItem,
+  type ResumeFeedbackResult,
+  type ResumeInternshipItem,
+  type ResumePreferencePayload,
+  type ResumeProfilePayload,
+  type ResumeProjectItem,
+  type ResumeRecommendationResult,
+} from './types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+
+const EMPTY_EDUCATION: ResumeEducationItem = {
+  school: '',
+  degree: '',
+  major: '',
+  start_date: '',
+  end_date: '',
+  highlights: [],
+};
+
+const EMPTY_INTERNSHIP: ResumeInternshipItem = {
+  company: '',
+  role: '',
+  start_date: '',
+  end_date: '',
+  bullets: [],
+};
+
+const EMPTY_PROJECT: ResumeProjectItem = {
+  name: '',
+  role: '',
+  tech_stack: [],
+  bullets: [],
+};
+
+const CUSTOM_MODULES_KEY = '__custom_modules_json';
+
+interface CustomResumeModule {
+  id: string;
+  title: string;
+  content: string;
+}
+
+interface ResumeLayoutSettings {
+  fontSize: number;
+  lineHeight: number;
+  pagePaddingX: number;
+  pagePaddingY: number;
+  moduleGap: number;
+}
+
+const DEFAULT_RESUME_LAYOUT: ResumeLayoutSettings = {
+  fontSize: 14,
+  lineHeight: 1.72,
+  pagePaddingX: 56,
+  pagePaddingY: 48,
+  moduleGap: 24,
+};
+
+type ResumeLayoutControlKey = 'pagePadding' | 'moduleGap' | 'lineHeight' | 'fontSize';
+
+const RESUME_LAYOUT_CONTROL_META: Record<
+  ResumeLayoutControlKey,
+  {
+    title: string;
+    description: string;
+    min: number;
+    max: number;
+    step: number;
+    unit: string;
+    range: string;
+  }
+> = {
+  pagePadding: {
+    title: '页边距',
+    description: '调整简历页面四周留白',
+    min: 36,
+    max: 84,
+    step: 1,
+    unit: 'px',
+    range: '36 - 84',
+  },
+  moduleGap: {
+    title: '模块边距',
+    description: '调整简历模块之间的距离',
+    min: 12,
+    max: 40,
+    step: 1,
+    unit: 'px',
+    range: '12 - 40',
+  },
+  lineHeight: {
+    title: '行间距',
+    description: '调整简历文本的行间距',
+    min: 1,
+    max: 2.5,
+    step: 0.01,
+    unit: '',
+    range: '1.0 - 2.5',
+  },
+  fontSize: {
+    title: '字体大小',
+    description: '调整简历正文的字体大小',
+    min: 12,
+    max: 18,
+    step: 0.1,
+    unit: 'px',
+    range: '12 - 18',
+  },
+};
+
+const TRACK_OPTIONS = ['金融科技', '咨询', '数据分析', '产品运营', '后端开发', '投研'];
+const LOCATION_OPTIONS = ['上海', '北京', '深圳', '杭州', '广州', '远程'];
+const ROLE_OPTIONS = ['数据分析师', '后端工程师', '产品经理', '咨询顾问', '投研实习生'];
+const COMPANY_OPTIONS = ['互联网', '金融机构', '咨询公司', '外企', '初创公司', '国央企'];
+interface ResumeHistoryItem {
+  id: number;
+  fileName: string;
+  name: string;
+  status: string;
+  updatedAt: string | null;
+  hasRecommendations: boolean;
+}
+
+function mapListItem(item: ResumeCopilotSessionListItem): ResumeHistoryItem {
+  return {
+    id: item.id,
+    fileName: item.file_name,
+    name: item.name,
+    status: item.status,
+    updatedAt: item.updated_at,
+    hasRecommendations: item.has_recommendations,
+  };
+}
+
+function timeAgo(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  const ms = Date.now() - new Date(dateStr).getTime();
+  if (ms < 60_000) return '刚刚';
+  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)} 分钟前`;
+  if (ms < 86_400_000) return `${Math.floor(ms / 3_600_000)} 小时前`;
+  if (ms < 7 * 86_400_000) return `${Math.floor(ms / 86_400_000)} 天前`;
+  return new Date(dateStr).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+}
+
+const workflowSteps = [
+  { key: 'upload', label: '上传简历', description: '校验 PDF 并抽取文本' },
+  { key: 'parse', label: 'AI 解析', description: '提取教育、实习、项目、技能' },
+  { key: 'confirm', label: '确认画像', description: '预览优先，需要时再编辑模块' },
+  { key: 'preferences', label: '求职偏好', description: '可填写，也可以全部跳过' },
+  { key: 'generate', label: '推荐反馈', description: '岗位匹配、重排、简历建议' },
+];
+
+function splitLines(value: string) {
+  return value
+    .split('\n')
+    .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean);
+}
+
+function joinLines(values: string[]) {
+  return values.join('\n');
+}
+
+function appendUnique(values: string[], value: string) {
+  const normalized = value.trim();
+  if (!normalized || values.includes(normalized)) return values;
+  return [...values, normalized];
+}
+
+
+function sessionIsActive(session: ResumeCopilotSession | null) {
+  if (!session) return false;
+  return (
+    session.status === 'parsing_profile' ||
+    session.status === 'generating_recommendations' ||
+    session.recommendation_status === 'running' ||
+    session.feedback_status === 'running'
+  );
+}
+
+function formatModelFallback(reason: string | undefined) {
+  if (!reason) return '';
+  if (reason.includes('RESUME_COPILOT_LLM_API_KEY')) {
+    return '当前后端进程没有加载模型 Key，已先使用规则排序。';
+  }
+  return reason;
+}
+
+function enrichmentStatusLabel(status: string, needEnrichment: boolean) {
+  if (status === 'ready') return '情报缓存已命中';
+  if (status === 'quick_enriched') return '快增强已完成';
+  if (status === 'internal_beta_pending' || needEnrichment) return '情报增强内测中';
+  return '基础推荐';
+}
+
+function enrichmentBadgeClass(status: string, needEnrichment: boolean) {
+  if (status === 'ready') return 'border-emerald-100 bg-emerald-50 text-emerald-700';
+  if (status === 'quick_enriched') return 'border-sky-100 bg-sky-50 text-sky-700';
+  if (status === 'internal_beta_pending' || needEnrichment) return 'border-amber-100 bg-amber-50 text-amber-700';
+  return 'border-slate-200 bg-slate-50 text-slate-500';
+}
+
+// All known agents — shown in parallel from the moment the panel appears
+const ALL_AGENTS = ['Agent 1', 'Agent 2', 'Agent 3'] as const;
+type AgentName = typeof ALL_AGENTS[number];
+
+// Claude Code-style spinner: · ✢ ✳ ✶ ✻ ✽
+const SPINNER_FRAMES = ['·', '✢', '✳', '✶', '✻', '✽'] as const;
+
+// Cycling verbs shown as placeholder while waiting for real backend messages
+const AGENT_VERBS: Record<AgentName, string[]> = {
+  'Agent 1': ['召回岗位中', '计算匹配权重', '评估候选岗位', '对齐求职偏好', '初筛排序'],
+  'Agent 2': ['生成检索词', '检索互联网', '聚合搜索结果', '过滤去重'],
+  'Agent 3': ['提取页面正文', '分析岗位信息', '生成轻量画像', '评估相关性'],
+};
+
+// Start each agent's spinner at a different frame so they look visually offset
+const AGENT_SPINNER_OFFSETS: Record<AgentName, number> = {
+  'Agent 1': 0,
+  'Agent 2': 2,
+  'Agent 3': 4,
+};
+
+const TOOL_META: Record<string, { icon: string; label: string }> = {
+  search_candidates: { icon: '🔍', label: '检索候选岗位' },
+  inspect_jobs:      { icon: '📄', label: '阅读岗位详情' },
+  get_company_intel: { icon: '🏢', label: '查询公司情报' },
+  search_web:        { icon: '🌐', label: '搜索外部信息' },
+  finalize:          { icon: '✅', label: '生成最终推荐' },
+};
+
+function AgentRow({
+  agentName,
+  latest,
+  running,
+}: {
+  agentName: AgentName;
+  latest: ResumeAgentTraceItem | undefined;
+  running: boolean;
+}) {
+  const isDone = latest?.status === 'completed' || latest?.status === 'failed';
+  const animate = running && !isDone;
+
+  const [frameIdx, setFrameIdx] = useState(AGENT_SPINNER_OFFSETS[agentName]);
+  const [verbIdx, setVerbIdx] = useState(0);
+
+  useEffect(() => {
+    if (!animate) return;
+    const spinTimer = setInterval(
+      () => setFrameIdx((i) => (i + 1) % SPINNER_FRAMES.length),
+      120,
+    );
+    const verbMs = 2000 + AGENT_SPINNER_OFFSETS[agentName] * 150;
+    const verbTimer = setInterval(
+      () => setVerbIdx((i) => (i + 1) % AGENT_VERBS[agentName].length),
+      verbMs,
+    );
+    return () => {
+      clearInterval(spinTimer);
+      clearInterval(verbTimer);
+    };
+  }, [animate, agentName]);
+
+  const spinChar = isDone ? '✓' : SPINNER_FRAMES[frameIdx];
+  const toolMeta = latest?.tool ? TOOL_META[latest.tool] : undefined;
+  const displayMessage = latest?.message ?? (running ? AGENT_VERBS[agentName][verbIdx] : '—');
+
+  return (
+    <div
+      className="flex items-start gap-3 py-2"
+      style={{
+        animation: isDone && latest?.tool ? 'slideInUp 0.28s ease-out both' : 'none',
+      }}
+    >
+      <span
+        className="mt-[2px] shrink-0 font-mono text-[15px] leading-snug"
+        style={{
+          color: isDone ? '#4ade80' : '#7c9ef7',
+          minWidth: '1ch',
+          display: 'inline-block',
+          textAlign: 'center',
+        }}
+      >
+        {spinChar}
+      </span>
+      <div className="min-w-0 flex-1">
+        {toolMeta && isDone ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px]">{toolMeta.icon}</span>
+              <span className="text-[13px] font-semibold text-white/90">{toolMeta.label}</span>
+            </div>
+            <div className="mt-0.5 text-[12px] leading-snug text-white/55">{displayMessage}</div>
+            {latest?.result_summary && (
+              <div className="mt-0.5 text-[11px] leading-snug text-white/30">{latest.result_summary}</div>
+            )}
+          </>
+        ) : (
+          <div className="flex items-baseline gap-2">
+            <span className="shrink-0 text-[13px] font-semibold text-white/90">{agentName}</span>
+            <span className="shrink-0 text-[12px] text-white/20">·</span>
+            <span className="min-w-0 truncate text-[13px] leading-snug text-white/45">{displayMessage}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AgentThinkingPanel({
+  trace,
+  running,
+}: {
+  trace: ResumeAgentTraceItem[];
+  running: boolean;
+}) {
+  if (!running && !trace.length) return null;
+
+  const agentLatest = new Map<string, ResumeAgentTraceItem>();
+  for (const item of trace) agentLatest.set(item.agent, item);
+
+  const agentsToShow: AgentName[] = running
+    ? [...ALL_AGENTS]
+    : ALL_AGENTS.filter((a) => agentLatest.has(a));
+
+  return (
+    <div className="rounded-[18px] border border-[var(--border)] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(15,23,42,0.06)]">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
+          {running ? '代理思考中' : '代理编排完成'}
+        </span>
+        <span className="rounded-full bg-[var(--soft-blue)] px-2 py-0.5 text-[11px] leading-5 text-[var(--primary)]">
+          快增强
+        </span>
+      </div>
+      <div className="divide-y divide-[var(--border)]">
+        {agentsToShow.map((agentName) => (
+          <AgentRow
+            key={agentName}
+            agentName={agentName}
+            latest={agentLatest.get(agentName)}
+            running={running}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function stepState(stepKey: string, session: ResumeCopilotSession | null) {
+  if (!session) return stepKey === 'upload' ? 'current' : 'pending';
+  if (stepKey === 'upload') return 'done';
+  if (stepKey === 'parse') {
+    if (session.has_parsed_profile) return 'done';
+    if (session.status === 'failed') return 'failed';
+    return 'current';
+  }
+  if (stepKey === 'confirm') {
+    if (session.has_confirmed_profile) return 'done';
+    if (session.has_parsed_profile) return 'current';
+    return 'pending';
+  }
+  if (stepKey === 'preferences') {
+    if (session.has_preferences) return 'done';
+    if (session.has_confirmed_profile) return 'current';
+    return 'pending';
+  }
+  if (session.has_recommendations || session.has_feedback) return 'done';
+  if (session.recommendation_status === 'running' || session.feedback_status === 'running') return 'current';
+  return 'pending';
+}
+
+function getProfileName(profile: ResumeProfilePayload) {
+  return getBasicInfoValue(profile.basic_info, ['name', 'full_name', '姓名']) || '候选人姓名';
+}
+
+function getProfileHeadline(profile: ResumeProfilePayload) {
+  return getBasicInfoValue(profile.basic_info, ['headline', 'target_role', 'title', '目标岗位']) || profile.inferred_roles[0] || '目标岗位 / 当前身份';
+}
+
+function getBasicInfoValue(basicInfo: Record<string, string>, keys: string[]) {
+  for (const key of keys) {
+    const value = basicInfo[key];
+    if (value) return value;
+  }
+  return '';
+}
+
+function getProfileContactItems(profile: ResumeProfilePayload) {
+  const basicInfo = profile.basic_info;
+  const items = [
+    {
+      key: 'email',
+      value: getBasicInfoValue(basicInfo, ['email', '邮箱', '电子邮箱']),
+      icon: <Mail className="size-3.5" />,
+    },
+    {
+      key: 'phone',
+      value: getBasicInfoValue(basicInfo, ['phone', 'mobile', 'tel', '电话', '手机号']),
+      icon: <Phone className="size-3.5" />,
+    },
+    {
+      key: 'github',
+      value: getBasicInfoValue(basicInfo, ['github', 'github_url', 'GitHub']),
+      icon: <Github className="size-3.5" />,
+    },
+    {
+      key: 'linkedin',
+      value: getBasicInfoValue(basicInfo, ['linkedin', 'linkedin_url', 'LinkedIn', '领英']),
+      icon: <Linkedin className="size-3.5" />,
+    },
+    {
+      key: 'website',
+      value: getBasicInfoValue(basicInfo, ['website', 'portfolio', '个人网站', '个人主页']),
+      icon: <LinkIcon className="size-3.5" />,
+    },
+    {
+      key: 'location',
+      value: getBasicInfoValue(basicInfo, ['location', '所在地', '地址']),
+      icon: <MapPin className="size-3.5" />,
+    },
+  ];
+
+  return items.filter((item) => Boolean(item.value));
+}
+
+function readCustomModules(profile: ResumeProfilePayload): CustomResumeModule[] {
+  const rawValue = profile.basic_info[CUSTOM_MODULES_KEY];
+  if (!rawValue) return [];
+
+  try {
+    const parsed = JSON.parse(rawValue) as CustomResumeModule[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((item) => item && typeof item.id === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function updateCustomModules(
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void,
+  modules: CustomResumeModule[],
+) {
+  updateProfile((previous) => ({
+    ...previous,
+    basic_info: {
+      ...previous.basic_info,
+      [CUSTOM_MODULES_KEY]: JSON.stringify(modules),
+    },
+  }));
+}
+
+function nextCustomModuleId(modules: CustomResumeModule[]) {
+  const existingIds = new Set(modules.map((module) => module.id));
+  let index = modules.length + 1;
+  while (existingIds.has(`custom-${index}`)) {
+    index += 1;
+  }
+  return `custom-${index}`;
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  className,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <label className={cn('grid gap-1.5 text-sm font-semibold text-[var(--ink)]', className)}>
+      <span>{label}</span>
+      <Input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
+    </label>
+  );
+}
+
+function AreaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  rows = 4,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <label className="grid gap-1.5 text-sm font-semibold text-[var(--ink)]">
+      <span>{label}</span>
+      <Textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
+    </label>
+  );
+}
+
+function ChipEditor({
+  label,
+  values,
+  placeholder,
+  onChange,
+}: {
+  label: string;
+  values: string[];
+  placeholder: string;
+  onChange: (values: string[]) => void;
+}) {
+  const [draft, setDraft] = useState('');
+
+  const addDraft = () => {
+    onChange(appendUnique(values, draft));
+    setDraft('');
+  };
+
+  return (
+    <div className="grid gap-2">
+      <div className="text-sm font-semibold text-[var(--ink)]">{label}</div>
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-white p-3">
+        {values.map((item) => (
+          <span
+            key={item}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--soft-blue)] px-3 py-1.5 text-sm font-semibold text-[var(--primary-strong)]"
+          >
+            {item}
+            <button
+              type="button"
+              className="rounded-full px-1 text-[var(--primary)] hover:bg-white"
+              aria-label={`删除${item}`}
+              onClick={() => onChange(values.filter((value) => value !== item))}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          className="min-w-32 flex-1 bg-transparent px-1 py-1.5 text-sm outline-none placeholder:text-[var(--muted)]"
+          value={draft}
+          placeholder={placeholder}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              addDraft();
+            }
+          }}
+        />
+        <Button type="button" variant="secondary" size="sm" onClick={addDraft}>
+          <Plus />
+          添加
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function OptionPills({
+  label,
+  options,
+  values,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  values: string[];
+  onChange: (values: string[]) => void;
+}) {
+  return (
+    <div className="grid gap-2">
+      <div className="text-sm font-semibold text-[var(--ink)]">{label}</div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const selected = values.includes(option);
+          return (
+            <button
+              key={option}
+              type="button"
+              className={cn(
+                'rounded-full border px-3 py-1.5 text-sm font-semibold transition',
+                selected
+                  ? 'border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm'
+                  : 'border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]',
+              )}
+              onClick={() => onChange(selected ? values.filter((value) => value !== option) : [...values, option])}
+            >
+              {option}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PreviewSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="mt-[var(--resume-section-gap)]">
+      <h2 className="mb-3 inline-block border-b-2 border-[var(--primary)] pb-1 text-[14px] font-semibold tracking-[0.08em] text-[var(--primary-strong)]">
+        {title}
+      </h2>
+      <div className="grid gap-3">{children}</div>
+    </section>
+  );
+}
+
+function PreviewEntry({
+  title,
+  meta,
+  date,
+  bullets,
+}: {
+  title: string;
+  meta?: string;
+  date?: string;
+  bullets?: string[];
+}) {
+  return (
+    <article>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="font-semibold text-slate-950">{title || '未命名条目'}</div>
+          {meta && <div className="text-[12px] text-slate-500">{meta}</div>}
+        </div>
+        {date && <div className="whitespace-nowrap text-[12px] text-slate-500">{date}</div>}
+      </div>
+      {Boolean(bullets?.length) && (
+        <ul className="mt-1 list-disc space-y-1 pl-4 text-slate-700">
+          {bullets?.slice(0, 4).map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
+
+function LandingUploadGate({
+  onUpload,
+  isUploading,
+  error,
+}: {
+  onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
+  isUploading: boolean;
+  error: string;
+}) {
+  const tickerItems = [
+    '互联网 · 腾讯 · 后端开发工程师 · 深圳',
+    '互联网 · 字节跳动 · 算法工程师 · 北京',
+    '互联网 · 阿里巴巴 · 数据分析师 · 杭州',
+    '券商 · 中金公司 · 研究助理 · 上海',
+    '国央企 · 国家电网 · 技术培训生 · 西安',
+    '外企 · 雀巢 · 管培生 · 上海',
+  ];
+
+  const highlightItems = [
+    '优先主流赛道顶级平台，先把值得投的岗位排到前面',
+    '先给第一版推荐，再对重点岗位做 10–20 秒快增强',
+    '把平台梯队、岗位画像和不确定点一起讲清楚',
+  ];
+
+  return (
+    <main className="min-h-screen bg-[#f6f7f8] text-slate-950">
+      <section className="border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-[1600px] gap-3 overflow-x-auto px-5 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tickerItems.map((item) => (
+            <div
+              key={item}
+              className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-[1400px] gap-10 px-6 py-12 lg:grid-cols-[minmax(0,1.15fr)_420px] lg:px-10 lg:py-16">
+        <div>
+          <div className="max-w-4xl">
+            <Badge className="border-[var(--primary-ring)] bg-[var(--soft-blue)] text-[var(--primary-strong)]">Resume Copilot</Badge>
+            <h1 className="mt-6 max-w-[920px] text-balance text-[clamp(3rem,6vw,5.5rem)] font-black leading-[0.94] tracking-[-0.06em] text-slate-950">
+              更快发现真正值得投递的岗位
+            </h1>
+            <p className="mt-6 max-w-[760px] text-lg leading-8 text-slate-600">
+              面向高校学生的求职推荐入口。先基于真实岗位库给出第一版推荐，再对重点岗位做轻量增强，把平台、岗位倾向和不确定点一起讲清楚。
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4">
+            {highlightItems.map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-4 rounded-[22px] border border-slate-200 bg-white px-5 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.05)]"
+              >
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-sky-100">
+                  <span className="size-3 rounded-full bg-[var(--primary)]" />
+                </span>
+                <span className="text-base font-semibold tracking-[-0.02em] text-slate-800">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Badge className="border-[var(--primary-ring)] bg-[var(--soft-blue)] text-[var(--primary-strong)]">优先主流赛道顶级平台</Badge>
+            <Badge className="border-[var(--border)] bg-white text-[var(--muted)]">Base / Enhanced 双分数</Badge>
+            <Badge className="border-slate-200 bg-white text-[var(--muted)]">代理思考式快增强</Badge>
+            <Badge className="border-amber-100 bg-amber-50 text-amber-700">岗位情报增强内测中</Badge>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="rounded-[24px] border border-slate-200 bg-white px-6 py-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)]">
+              <div className="text-4xl font-black tracking-[-0.05em] text-slate-950">Top 平台</div>
+              <div className="mt-3 text-sm leading-6 text-slate-500">腾讯、阿里、字节、美团、蚂蚁、头部券商、核心国央企会优先进入学生向推荐池。</div>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-white px-6 py-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)]">
+              <div className="text-4xl font-black tracking-[-0.05em] text-slate-950">快增强</div>
+              <div className="mt-3 text-sm leading-6 text-slate-500">生成 query、搜索公开网页、抽正文，再给出岗位偏技术还是偏业务的轻量画像。</div>
+            </div>
+            <div className="rounded-[24px] border border-slate-200 bg-white px-6 py-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)]">
+              <div className="text-4xl font-black tracking-[-0.05em] text-slate-950">可解释</div>
+              <div className="mt-3 text-sm leading-6 text-slate-500">不是只给一个分数，还会告诉你为什么排前面、哪里不确定、下一步该怎么看。</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:sticky lg:top-8 lg:self-start">
+          <section className="rounded-[28px] border border-slate-200 bg-white px-8 py-8 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+            <div className="grid size-16 place-items-center rounded-full bg-sky-50 text-[var(--primary)]">
+              {isUploading ? <Loader2 className="size-7 animate-spin" /> : <UploadCloud className="size-7" />}
+            </div>
+
+            <h2 className="mt-6 text-2xl font-black tracking-tight text-slate-950">上传你的简历</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">支持 PDF，先生成第一版推荐，再对前排岗位做 10–20 秒快增强。</p>
+
+            <label className="mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[var(--primary-strong)]">
+              <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
+              {isUploading ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
+              {isUploading ? '上传中' : '上传简历'}
+            </label>
+
+            <div className="mt-5 text-xs leading-6 text-slate-500">最大 10MB。建议使用包含教育、实习、项目与技能信息的简历版本。</div>
+
+            <div className="mt-8 rounded-2xl bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+              上传后你会依次看到：
+              <ul className="mt-3 grid gap-2 text-slate-500">
+                <li>1. 简历解析与画像确认</li>
+                <li>2. 基础推荐与平台优先排序</li>
+                <li>3. 代理思考式快增强</li>
+              </ul>
+            </div>
+
+            {error && <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          </section>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+const PARSE_PHASES = [
+  { label: '提取 PDF 文本', durationMs: 1800, hints: ['正在读取 PDF 字节流…', '提取嵌入字体文本…', '清理换行与乱码…'] },
+  { label: '识别基本信息', durationMs: 2200, hints: ['定位姓名与联系方式…', '解析邮箱与电话…', '提取 GitHub 链接…'] },
+  { label: '解析教育背景', durationMs: 2800, hints: ['识别院校与学院…', '提取学历与专业…', '解析在校时间段…'] },
+  { label: '解析实习与工作', durationMs: 3500, hints: ['识别公司与职位…', '提取工作时间段…', '理解职责描述…', '评估工作经验深度…'] },
+  { label: '提取项目与技能', durationMs: 3000, hints: ['识别项目标题…', '提取技术栈关键词…', '归类语言与框架…'] },
+  { label: '生成结构化画像', durationMs: 99999, hints: ['整合全部字段…', '生成 JSON 画像…', '准备进入预览…'] },
+] as const;
+
+function ParseProgressPanel({ done }: { done: boolean }) {
+  const [phase, setPhase] = useState(0);
+  const [hintIdx, setHintIdx] = useState(0);
+  const [frameIdx, setFrameIdx] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setFrameIdx((f) => (f + 1) % SPINNER_FRAMES.length), 200);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Hint cycling restarts when phase changes (hintIdx reset happens in the phase-advance callback)
+  useEffect(() => {
+    const currentPhase = PARSE_PHASES[Math.min(phase, PARSE_PHASES.length - 1)];
+    const id = setInterval(() => setHintIdx((h) => (h + 1) % currentPhase.hints.length), 1400);
+    return () => clearInterval(id);
+  }, [phase]);
+
+  useEffect(() => {
+    if (done || phase >= PARSE_PHASES.length - 1) return;
+    const id = setTimeout(() => {
+      setPhase((p) => p + 1);
+      setHintIdx(0);
+    }, PARSE_PHASES[phase].durationMs);
+    return () => clearTimeout(id);
+  }, [phase, done]);
+
+  return (
+    <div>
+      <div className="space-y-2">
+        {PARSE_PHASES.map((p, i) => {
+          const isDone = done || i < phase;
+          const isActive = !done && i === phase;
+          const isPending = !done && i > phase;
+          const currentHint = isActive ? p.hints[hintIdx % p.hints.length] : '';
+          const spinnerChar = SPINNER_FRAMES[(frameIdx + i * 2) % SPINNER_FRAMES.length];
+
+          return (
+            <div
+              key={i}
+              className={cn(
+                'flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-300',
+                isDone && 'border-emerald-400/30 bg-emerald-400/10',
+                isActive && 'border-blue-300/30 bg-blue-400/[0.08]',
+                isPending && 'border-white/5 bg-white/[0.02] opacity-40',
+              )}
+            >
+              <span
+                className={cn(
+                  'w-5 shrink-0 text-center font-mono text-base',
+                  isDone && 'text-emerald-400',
+                  isActive && 'text-blue-300',
+                  isPending && 'text-slate-600',
+                )}
+              >
+                {isDone ? '✓' : isActive ? spinnerChar : '·'}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div
+                  className={cn(
+                    'text-sm font-semibold',
+                    isDone && 'text-emerald-100',
+                    isActive && 'text-slate-100',
+                    isPending && 'text-slate-500',
+                  )}
+                >
+                  {p.label}
+                </div>
+                {isActive && <div className="mt-0.5 truncate text-xs text-slate-400">{currentHint}</div>}
+                {isDone && <div className="mt-0.5 text-xs text-emerald-400/70">完成</div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-4 text-right font-mono text-xs text-slate-500">{elapsed}s</div>
+    </div>
+  );
+}
+
+function ParsingGate({
+  session,
+  notice,
+  error,
+  onUpload,
+  isUploading,
+}: {
+  session: ResumeCopilotSession | null;
+  notice: string;
+  error: string;
+  onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
+  isUploading: boolean;
+}) {
+  const failed = session?.status === 'failed';
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#0d1217] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(96,165,250,0.24),transparent_28rem),radial-gradient(circle_at_80%_70%,rgba(34,197,94,0.14),transparent_22rem)]" />
+      <section className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-5 py-16">
+        <Badge className="mb-6 w-fit border-white/10 bg-white/10 text-slate-200 shadow-none">
+          {failed ? 'Parse failed' : 'Analyzing resume'}
+        </Badge>
+        <h1 className="max-w-3xl text-4xl font-black tracking-[-0.05em] text-white sm:text-6xl">
+          {failed ? '简历解析没有完成。' : '正在解析你的简历。'}
+        </h1>
+        <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
+          {failed
+            ? '后端已经返回失败状态，不是页面卡住。你可以重新上传，或检查本地模型配置。'
+            : '完成后才会进入简历预览界面。现在先把 PDF 文本、教育、实习、项目和技能拆成结构化画像。'}
+        </p>
+
+        <div className="mt-10 rounded-[30px] border border-white/10 bg-[#10161b]/90 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+          {failed ? (
+            <div className="grid gap-3">
+              {workflowSteps.slice(0, 3).map((step) => {
+                const state = stepState(step.key, session);
+                return (
+                  <div
+                    key={step.key}
+                    className={cn(
+                      'flex items-center gap-4 rounded-2xl border px-4 py-3',
+                      state === 'done' && 'border-emerald-400/30 bg-emerald-400/10',
+                      state === 'current' && 'border-blue-300/40 bg-blue-400/10',
+                      state === 'pending' && 'border-white/10 bg-white/[0.03]',
+                      state === 'failed' && 'border-red-400/30 bg-red-500/10',
+                    )}
+                  >
+                    <span className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5">
+                      {state === 'done' ? <Check className="size-4 text-emerald-300" /> : <Clock3 className="size-4 text-blue-200" />}
+                    </span>
+                    <div>
+                      <div className="font-bold text-slate-100">{step.label}</div>
+                      <div className="text-sm text-slate-400">{step.description}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <ParseProgressPanel done={!!session?.has_parsed_profile} />
+          )}
+        </div>
+
+        {notice && <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">{notice}</div>}
+        {error && <div className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-100">{error}</div>}
+
+        <label className="mt-6 inline-flex w-fit cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
+          <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
+          {isUploading ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
+          重新上传
+        </label>
+      </section>
+    </main>
+  );
+}
+
+export function PublicResumeCopilot() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialSessionId = Number(searchParams.get('sessionId') ?? 0) || null;
+
+  const [sessionId, setSessionId] = useState<number | null>(initialSessionId);
+  const [session, setSession] = useState<ResumeCopilotSession | null>(null);
+  const hasAutoLoaded = useRef(false);
+  const sessionIdRef = useRef<number | null>(initialSessionId);
+  const [profile, setProfile] = useState<ResumeProfilePayload | null>(null);
+  const [preferences, setPreferences] = useState<ResumePreferencePayload>(EMPTY_PREFERENCES);
+  const [savedPreferences, setSavedPreferences] = useState<ResumePreferencePayload>(EMPTY_PREFERENCES);
+  const [recommendations, setRecommendations] = useState<ResumeRecommendationResult | null>(null);
+  const [feedback, setFeedback] = useState<ResumeFeedbackResult | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [resumeHistory, setResumeHistory] = useState<ResumeHistoryItem[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+
+  const currentProfile = profile ?? EMPTY_PROFILE;
+  const designParam = searchParams.get('design');
+  const designVariant = designParam === 'apple' || designParam === 'default' ? designParam : 'claude';
+
+  const refreshHistory = useCallback(async () => {
+    try {
+      const items = await listResumeCopilotSessions();
+      setResumeHistory(items.map(mapListItem));
+      return items;
+    } catch {
+      return [];
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshHistory().then((items) => {
+      if (!hasAutoLoaded.current && !sessionIdRef.current && items && items.length > 0) {
+        hasAutoLoaded.current = true;
+        const firstId = items[0].id;
+        sessionIdRef.current = firstId;
+        setSessionId(firstId);
+        router.replace(`/resume-copilot?sessionId=${firstId}`);
+      }
+    });
+  }, [refreshHistory]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadSession = useCallback(async (id: number) => {
+    const nextSession = await getResumeCopilotSession(id);
+    setSession(nextSession);
+    refreshHistory();
+    if (nextSession.status === 'failed' && nextSession.error_message) {
+      setError(nextSession.error_message);
+    }
+
+    if (nextSession.has_parsed_profile) {
+      try {
+        const parsed = await getResumeCopilotParsedProfile(id);
+        setProfile((existing) => existing ?? parsed.profile);
+      } catch {
+        // Parsed profile may not be committed yet during a tight polling window.
+      }
+    }
+
+    if (nextSession.has_recommendations || nextSession.recommendation_status === 'running') {
+      try {
+        setRecommendations(await getResumeCopilotRecommendations(id));
+      } catch {
+        // Recommendation run is created asynchronously after generation starts.
+      }
+    }
+
+    if (nextSession.has_feedback || nextSession.feedback_status === 'running') {
+      try {
+        setFeedback(await getResumeCopilotFeedback(id));
+      } catch {
+        // Feedback follows the same async lifecycle.
+      }
+    }
+
+    if (nextSession.has_preferences) {
+      try {
+        const prefOut = await getResumeCopilotPreferences(id);
+        setSavedPreferences(prefOut.preferences);
+        setPreferences(prefOut.preferences);
+      } catch {
+        // Preferences may not be committed yet.
+      }
+    }
+  }, [refreshHistory]);
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let cancelled = false;
+    loadSession(sessionId).catch(async (reason: unknown) => {
+      if (cancelled) return;
+      const msg = reason instanceof Error ? reason.message : String(reason);
+      if (msg.toLowerCase().includes('not found')) {
+        const items = await refreshHistory();
+        if (cancelled) return;
+        if (items && items.length > 0) {
+          sessionIdRef.current = items[0].id;
+          setSessionId(items[0].id);
+          router.replace(`/resume-copilot?sessionId=${items[0].id}`);
+        } else {
+          sessionIdRef.current = null;
+          setSessionId(null);
+          router.replace('/resume-copilot');
+        }
+      } else {
+        setError(msg);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loadSession, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!sessionId || !sessionIsActive(session)) return;
+
+    const timer = window.setInterval(() => {
+      loadSession(sessionId).catch((reason: unknown) => {
+        setError(reason instanceof Error ? reason.message : '刷新状态失败');
+      });
+    }, 1600);
+
+    return () => window.clearInterval(timer);
+  }, [loadSession, session, sessionId]);
+
+  useEffect(() => {
+    if (session?.has_parsed_profile && profile && !editorOpen) {
+      setNotice('AI 已生成结构化画像。你可以先看右侧预览，需要修改时再展开编辑模块。');
+    }
+  }, [editorOpen, profile, session?.has_parsed_profile]);
+
+  const updateProfile = (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => {
+    setProfile((previous) => updater(previous ?? EMPTY_PROFILE));
+  };
+
+  const updateBasicInfo = (key: string, value: string) => {
+    updateProfile((previous) => ({
+      ...previous,
+      basic_info: {
+        ...previous.basic_info,
+        [key]: value,
+      },
+    }));
+  };
+
+  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setNotice('');
+    setIsUploading(true);
+    setEditorOpen(false);
+    setRecommendations(null);
+    setFeedback(null);
+    hasAutoLoaded.current = true; // prevent auto-load from overriding this upload
+
+    try {
+      const created = await createResumeCopilotSession(file);
+      sessionIdRef.current = created.session_id;
+      setSessionId(created.session_id);
+      setSession({
+        id: created.session_id,
+        file_name: file.name,
+        name: '',
+        status: created.status,
+        error_message: '',
+        recommendation_status: 'pending',
+        feedback_status: 'pending',
+        has_parsed_profile: false,
+        has_confirmed_profile: false,
+        has_preferences: false,
+        has_recommendations: false,
+        has_feedback: false,
+        created_at: null,
+        updated_at: null,
+        finished_at: null,
+      });
+      setProfile(null);
+      router.replace(`/resume-copilot?sessionId=${created.session_id}`);
+      refreshHistory();
+      setNotice('已创建解析任务。中间会显示 AI 简历助手进度，右侧预览会在解析完成后出现。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '上传失败，请检查 PDF 文件');
+    } finally {
+      setIsUploading(false);
+      event.target.value = '';
+    }
+  };
+
+  const saveProfile = async () => {
+    if (!sessionId || !profile) return;
+    setError('');
+    setNotice('');
+    setIsSaving(true);
+    try {
+      await putResumeCopilotConfirmedProfile(sessionId, profile);
+      await loadSession(sessionId);
+      setEditorOpen(false);
+      setNotice('简历画像已确认。现在可以填写偏好，也可以直接生成推荐。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '保存简历画像失败');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const savePreferences = async (nextPreferences = preferences) => {
+    if (!sessionId) return;
+    setError('');
+    setNotice('');
+    setIsSaving(true);
+    try {
+      await putResumeCopilotPreferences(sessionId, nextPreferences);
+      setSavedPreferences(nextPreferences);
+      await loadSession(sessionId);
+      setNotice(nextPreferences.all_skipped ? '已跳过偏好，将只基于简历客观信息推荐。' : '求职偏好已保存。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '保存偏好失败');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const generate = async () => {
+    if (!sessionId || !profile) return;
+    setError('');
+    setNotice('');
+    setIsGenerating(true);
+    try {
+      await putResumeCopilotConfirmedProfile(sessionId, profile);
+      await putResumeCopilotPreferences(sessionId, preferences);
+      await postResumeCopilotGenerate(sessionId);
+      await loadSession(sessionId);
+      setEditorOpen(false);
+      setNotice('推荐与反馈生成中，完成后会自动刷新到结果区。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '生成推荐失败');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const skipPreferences = () => {
+    const skipped = {
+      ...EMPTY_PREFERENCES,
+      all_skipped: true,
+    };
+    setPreferences(skipped);
+    void savePreferences(skipped);
+  };
+
+  const switchResumeSession = (nextSessionId: number) => {
+    if (nextSessionId === sessionId) return;
+    sessionIdRef.current = nextSessionId;
+    setError('');
+    setNotice('');
+    setSessionId(nextSessionId);
+    setSession(null);
+    setProfile(null);
+    setEditorOpen(false);
+    setRecommendations(null);
+    setFeedback(null);
+    router.replace(`/resume-copilot?sessionId=${nextSessionId}`);
+  };
+
+  const handleRenameSession = async (id: number, name: string) => {
+    try {
+      await renameResumeCopilotSession(id, name);
+      setResumeHistory((prev) => prev.map((item) => (item.id === id ? { ...item, name } : item)));
+      if (session && session.id === id) setSession((s) => (s ? { ...s, name } : s));
+    } catch {
+      // Rename failure is non-critical — ignore silently.
+    }
+  };
+
+  const handleDeleteSession = async (id: number) => {
+    try {
+      await deleteResumeCopilotSession(id);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '删除简历失败');
+      return;
+    }
+    const remaining = resumeHistory.filter((item) => item.id !== id);
+    setResumeHistory(remaining);
+    if (sessionId === id) {
+      if (remaining.length > 0) {
+        const nextId = remaining[0].id;
+        sessionIdRef.current = nextId;
+        setError('');
+        setNotice('');
+        setSessionId(nextId);
+        router.replace(`/resume-copilot?sessionId=${nextId}`);
+        setSession(null);
+        setProfile(null);
+        setRecommendations(null);
+        setFeedback(null);
+      } else {
+        sessionIdRef.current = null;
+        hasAutoLoaded.current = true;
+        setSessionId(null);
+        setSession(null);
+        setProfile(null);
+        setRecommendations(null);
+        setFeedback(null);
+        router.replace('/resume-copilot');
+      }
+    }
+    void refreshHistory();
+  };
+
+  if (!sessionId && !profile) {
+    return <LandingUploadGate onUpload={handleUpload} isUploading={isUploading} error={error} />;
+  }
+
+  if (sessionId && !profile) {
+    return (
+      <ParsingGate
+        session={session}
+        notice={notice}
+        error={error}
+        onUpload={handleUpload}
+        isUploading={isUploading}
+      />
+    );
+  }
+
+  return (
+    <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
+      <section className="grid min-h-screen lg:grid-cols-[minmax(560px,52vw)_minmax(0,1fr)]">
+        <ResumeChatRail
+          session={session}
+          notice={notice}
+          error={error}
+          preferences={preferences}
+          savedPreferences={savedPreferences}
+          setPreferences={setPreferences}
+          savePreferences={savePreferences}
+          skipPreferences={skipPreferences}
+          generate={generate}
+          isSaving={isSaving}
+          isGenerating={isGenerating}
+          recommendations={recommendations}
+          feedback={feedback}
+          currentSessionId={sessionId}
+          resumeHistory={resumeHistory}
+          onSwitchSession={switchResumeSession}
+          onRenameSession={handleRenameSession}
+          onDeleteSession={handleDeleteSession}
+          onUpload={handleUpload}
+          isUploading={isUploading}
+        />
+        <EditableResumeCanvas
+          profile={currentProfile}
+          updateProfile={updateProfile}
+          updateBasicInfo={updateBasicInfo}
+          onSave={saveProfile}
+          isSaving={isSaving}
+        />
+      </section>
+    </main>
+  );
+}
+
+function ResumeDuckLogo() {
+  return (
+    <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-[8px] border border-amber-200 bg-amber-50 shadow-sm">
+      <svg viewBox="0 0 36 36" className="size-8" aria-hidden="true">
+        <rect width="36" height="36" rx="8" fill="#fff7d6" />
+        <path
+          d="M10.2 21.4c.8-4.9 4.9-8.2 9.9-8.2 4.6 0 8.2 2.6 9.2 6.6.5 2.2-.5 4.4-2.6 5.4-2.2 1.1-5.6 1.6-9.6 1.3-4.8-.4-7.5-2.1-6.9-5.1Z"
+          fill="#f8d14f"
+          stroke="#1f2937"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M8.3 16.8c.9-3.9 3.7-6.2 7.3-6.2 3.1 0 5.6 1.8 6.4 4.6.7 2.6-1.5 4.7-5.7 5.1-4.3.4-8.8.1-8-3.5Z"
+          fill="#ffe16f"
+          stroke="#1f2937"
+          strokeWidth="1.4"
+        />
+        <path d="M21.9 16.3 28 14.7c1.4-.4 2.4 1.3 1.3 2.3l-4.6 3.8" fill="#f59e0b" stroke="#1f2937" strokeWidth="1.3" />
+        <circle cx="15.5" cy="14.7" r="1.1" fill="#111827" />
+        <path d="M11.8 20.7c2.5 1.1 5.5 1.2 8.7.1" fill="none" stroke="#1f2937" strokeLinecap="round" strokeWidth="1.1" />
+        <path d="M23.5 22.2c1.8.2 3.7.1 5.5-.4" fill="none" stroke="#1f2937" strokeLinecap="round" strokeWidth="1.1" />
+      </svg>
+    </span>
+  );
+}
+
+function ResumeChatRail({
+  session,
+  notice,
+  error,
+  preferences,
+  savedPreferences,
+  setPreferences,
+  savePreferences,
+  skipPreferences,
+  generate,
+  isSaving,
+  isGenerating,
+  recommendations,
+  feedback,
+  currentSessionId,
+  resumeHistory,
+  onSwitchSession,
+  onRenameSession,
+  onDeleteSession,
+  onUpload,
+  isUploading,
+}: {
+  session: ResumeCopilotSession | null;
+  notice: string;
+  error: string;
+  preferences: ResumePreferencePayload;
+  savedPreferences: ResumePreferencePayload;
+  setPreferences: Dispatch<SetStateAction<ResumePreferencePayload>>;
+  savePreferences: () => Promise<void>;
+  skipPreferences: () => void;
+  generate: () => Promise<void>;
+  isSaving: boolean;
+  isGenerating: boolean;
+  recommendations: ResumeRecommendationResult | null;
+  feedback: ResumeFeedbackResult | null;
+  currentSessionId: number | null;
+  resumeHistory: ResumeHistoryItem[];
+  onSwitchSession: (sessionId: number) => void;
+  onRenameSession: (id: number, name: string) => void;
+  onDeleteSession: (id: number) => void;
+  onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
+  isUploading: boolean;
+}) {
+  const [draft, setDraft] = useState('');
+  const [targetOpen, setTargetOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(true);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [contextMenu, setContextMenu] = useState<{ id: number; x: number; y: number } | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+  const canChat = Boolean(session?.has_parsed_profile) && !sessionIsActive(session);
+  const selectedRoles = preferences.preferred_roles.length ? preferences.preferred_roles.join('、') : '未设定';
+  const selectedTracks = preferences.preferred_tracks.length ? preferences.preferred_tracks.join('、') : '未设定';
+  const selectedLocations = preferences.preferred_locations.length ? preferences.preferred_locations.join('、') : '未设定';
+  const selectedCompanyTypes = preferences.preferred_company_types.length ? preferences.preferred_company_types.join('、') : '未设定';
+  const topRecommendations = recommendations?.items.slice(0, 5) ?? [];
+  const recommendationFallback = formatModelFallback(recommendations?.fallback_reason);
+  const feedbackFallback = formatModelFallback(feedback?.error_message);
+
+  useEffect(() => {
+    if (!contextMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!contextMenuRef.current?.contains(e.target as Node)) setContextMenu(null);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [contextMenu]);
+
+  const commitRename = (id: number) => {
+    const trimmed = editingName.trim();
+    if (trimmed) onRenameSession(id, trimmed);
+    setEditingId(null);
+    setEditingName('');
+  };
+
+  const sendMessage = () => {
+    const content = draft.trim();
+    if (!content || !canChat) return;
+    setMessages((previous) => [
+      ...previous,
+      { role: 'user', content },
+      {
+        role: 'assistant',
+        content: '我已经记下这个问题。当前版本会先把目标岗位和偏好用于推荐，后续可以接入真正的多轮简历改写对话。',
+      },
+    ]);
+    setDraft('');
+  };
+
+  return (
+    <aside className="resume-chat-shell min-h-screen border-r border-slate-200 bg-white">
+      <div className={cn('grid h-screen transition-[grid-template-columns] duration-200', libraryOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[64px_minmax(0,1fr)]')}>
+        {libraryOpen ? (
+          <aside className="resume-library-panel flex min-w-0 flex-col border-r border-slate-200 bg-[#f6f7fa]">
+            <div className="resume-library-header flex h-[60px] items-center justify-between border-b border-slate-200 px-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <ResumeDuckLogo />
+                <div className="truncate text-[18px] font-semibold tracking-tight text-slate-950">简历鸭</div>
+              </div>
+              <button
+                type="button"
+                className="grid size-8 place-items-center rounded-lg text-slate-600 transition hover:bg-white hover:text-slate-950"
+                aria-label="收起简历管理"
+                onClick={() => setLibraryOpen(false)}
+              >
+                <ChevronDown className="size-4 -rotate-90" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <label className="resume-new-session mb-5 flex h-11 cursor-pointer items-center justify-center gap-3 rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--primary-strong)]">
+                <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
+                {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+                新建会话
+              </label>
+
+              <div className="mb-3 text-sm font-medium text-slate-500">我的简历</div>
+              <div className="grid gap-1.5">
+                {resumeHistory.length > 0 ? (
+                  resumeHistory.map((item, index) => {
+                    const displayName = item.name || (item.fileName ? item.fileName.replace(/\.pdf$/i, '') : `新简历 ${resumeHistory.length - index}`);
+                    const isActive = currentSessionId === item.id;
+                    const isEditing = editingId === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          'resume-history-item group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition',
+                          isActive ? 'bg-slate-200/70 text-slate-950' : 'text-slate-600 hover:bg-white',
+                        )}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          setContextMenu({ id: item.id, x: e.clientX, y: e.clientY });
+                        }}
+                      >
+                        <FileText className={cn('size-4 shrink-0', isActive ? 'text-[var(--primary)]' : 'text-slate-400')} />
+                        <span className="min-w-0 flex-1" onClick={() => !isEditing && onSwitchSession(item.id)}>
+                          {isEditing ? (
+                            <input
+                              autoFocus
+                              className="w-full rounded border border-[var(--primary)] bg-white px-1.5 py-0.5 text-sm font-semibold text-slate-950 outline-none"
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              onBlur={() => commitRename(item.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') commitRename(item.id);
+                                if (e.key === 'Escape') { setEditingId(null); setEditingName(''); }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <>
+                              <span className="block truncate text-sm font-semibold">{displayName}</span>
+                              <span className="mt-0.5 block text-xs text-slate-400">
+                                {isActive ? '当前简历' : (timeAgo(item.updatedAt) || '最近使用')}
+                              </span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-xl bg-white px-3 py-4 text-sm leading-6 text-slate-400">上传简历后，会在这里管理不同版本。</div>
+                )}
+              </div>
+
+              {/* Right-click context menu */}
+              {contextMenu && (
+                <div
+                  ref={contextMenuRef}
+                  className="fixed z-50 min-w-[140px] overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
+                  style={{ left: contextMenu.x, top: contextMenu.y }}
+                >
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => {
+                      const item = resumeHistory.find((h) => h.id === contextMenu.id);
+                      setEditingId(contextMenu.id);
+                      setEditingName(item?.name || item?.fileName?.replace(/\.pdf$/i, '') || '');
+                      setContextMenu(null);
+                    }}
+                  >
+                    <PencilLine className="size-3.5 shrink-0 text-slate-400" />
+                    重命名
+                  </button>
+                  <div className="my-1 h-px bg-slate-100" />
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                    onClick={() => {
+                      onDeleteSession(contextMenu.id);
+                      setContextMenu(null);
+                    }}
+                  >
+                    <Trash2 className="size-3.5 shrink-0" />
+                    删除
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="flex h-14 items-center gap-3 border-t border-slate-200 px-6 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-950"
+            >
+              <Home className="size-4" />
+              返回首页
+            </button>
+          </aside>
+        ) : (
+          <nav className="resume-library-rail flex flex-col items-center border-r border-slate-200 bg-[#f6f7fa] py-3">
+          <button
+            type="button"
+            className="grid size-9 place-items-center rounded-xl text-slate-500 transition hover:bg-white hover:text-slate-900"
+            aria-label="展开简历管理"
+            onClick={() => setLibraryOpen(true)}
+          >
+            <ChevronDown className="size-4 rotate-90" />
+          </button>
+
+          <label className="mt-5 grid size-10 cursor-pointer place-items-center rounded-lg bg-[var(--primary)] text-white shadow-sm transition hover:bg-[var(--primary-strong)]">
+            <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
+            {isUploading ? <Loader2 className="size-5 animate-spin" /> : <Plus className="size-5" />}
+          </label>
+
+          <div className="mt-5 grid gap-2">
+            {resumeHistory.slice(0, 4).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                title={item.fileName}
+                className={cn(
+                  'grid size-9 place-items-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900',
+                  currentSessionId === item.id && 'bg-slate-200 text-slate-800',
+                )}
+                onClick={() => onSwitchSession(item.id)}
+              >
+                <FileText className="size-4" />
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="mt-auto grid size-9 place-items-center rounded-lg text-slate-500 transition hover:bg-white hover:text-slate-900"
+            aria-label="返回首页"
+          >
+            <Home className="size-4" />
+          </button>
+          </nav>
+        )}
+
+        <div className="resume-ai-panel flex min-w-0 flex-col bg-white">
+          <header className="resume-ai-header flex h-[60px] items-center justify-between border-b border-slate-200 px-4">
+            <div className="flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-full bg-[var(--primary)] text-white">
+                <Sparkles className="size-5" />
+              </span>
+              <div>
+                <div className="text-[16px] font-semibold leading-tight tracking-tight text-slate-950">AI 简历助手</div>
+                <div className="mt-0.5 text-xs leading-tight text-slate-500">AI 简历助手</div>
+              </div>
+            </div>
+            {sessionIsActive(session) ? (
+              <Loader2 className="size-4 animate-spin text-[var(--primary)]" />
+            ) : (
+              <Check className="size-4 text-emerald-500" />
+            )}
+          </header>
+
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+            <p className="resume-ai-status text-sm leading-6 text-slate-600">
+              {!canChat
+                ? '等待首次分析完成后可对话。'
+                : topRecommendations.length
+                  ? '已基于当前真实岗位库生成初筛推荐。你可以修改目标岗位后重新分析。'
+                  : '暂无分析结果。如需重新分析，请在下方修改目标岗位后点击“保存并重新分析”。'}
+            </p>
+
+            <div className="mt-5 grid gap-3">
+              {notice && <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700">{notice}</div>}
+              {error && <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">{error}</div>}
+              <AgentThinkingPanel trace={recommendations?.agent_trace ?? []} running={Boolean(session?.recommendation_status === 'running')} />
+
+              {messages.map((message, index) => (
+                <div
+                  key={`${message.role}-${index}`}
+                  className={cn(
+                    'max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6',
+                    message.role === 'user'
+                      ? 'ml-auto rounded-tr-md bg-[var(--primary)] text-white'
+                      : 'rounded-tl-md bg-slate-50 text-slate-600',
+                  )}
+                >
+                  {message.content}
+                </div>
+              ))}
+
+              {topRecommendations.length > 0 ? (
+                <div className="max-w-[92%] rounded-2xl rounded-tl-md bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="font-semibold text-slate-950">真实岗位推荐 Top 5</div>
+                    <Badge className="bg-white text-slate-500">{recommendations?.used_ai ? 'AI 重排' : '规则排序'}</Badge>
+                  </div>
+                  {recommendationFallback && (
+                    <div className="mt-2 rounded-lg bg-white px-3 py-2 text-xs leading-5 text-slate-500">
+                      AI 重排未启用：{recommendationFallback}
+                    </div>
+                  )}
+                  {feedback?.status === 'failed' && (
+                    <div className="mt-2 rounded-lg bg-white px-3 py-2 text-xs leading-5 text-slate-500">
+                      简历反馈暂未生成：{feedbackFallback || '外部模型暂不可用'}
+                    </div>
+                  )}
+                  <div className="mt-3 grid gap-2">
+                    {topRecommendations.map((item, index) => (
+                      <a
+                        key={`${item.job_id}-${item.company}`}
+                        href={item.detail_url || undefined}
+                        target={item.detail_url ? '_blank' : undefined}
+                        rel={item.detail_url ? 'noreferrer' : undefined}
+                        className={cn(
+                          'rounded-xl border border-slate-200 bg-white px-3 py-2 transition',
+                          item.detail_url && 'hover:border-[var(--primary)] hover:shadow-sm',
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold text-slate-950">
+                              {index + 1}. {item.job_title}
+                            </div>
+                            <div className="mt-1 truncate text-xs text-slate-500">
+                              {item.company} · {item.location || '地点待确认'}
+                            </div>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--primary)]">
+                            {Math.round(item.final_score)}
+                            {item.detail_url && <ArrowUpRight className="size-3.5" />}
+                          </div>
+                        </div>
+                        <div className="mt-2 text-[11px] leading-4 text-slate-400">
+                          Base {item.base_match_score || item.rule_score} · Enhanced {item.enhanced_score || item.final_score}
+                          {item.company_priority_label ? ` · ${item.company_priority_label}` : ''}
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {item.company_priority_label && (
+                            <Badge className="border-[var(--primary-ring)] bg-[var(--soft-blue)] text-[var(--primary-strong)]">
+                              {item.company_priority_label}
+                            </Badge>
+                          )}
+                          <Badge className={enrichmentBadgeClass(item.topic_cache_status, item.need_enrichment)}>
+                            {enrichmentStatusLabel(item.topic_cache_status, item.need_enrichment)}
+                          </Badge>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="border-t border-slate-200 bg-white px-4 py-4">
+            <div className="resume-target-card rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_4px_16px_rgba(15,23,42,0.08)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                    修改目标岗位
+                    <Badge className="bg-slate-100 text-slate-500">已确认</Badge>
+                  </div>
+                  <div className="text-sm font-medium text-slate-900">{selectedRoles}</div>
+                  <div className="mt-1 text-xs leading-5 text-slate-500">
+                    {selectedTracks} · {selectedLocations} · {selectedCompanyTypes}
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => setTargetOpen((value) => {
+                    if (!value) setPreferences(savedPreferences);
+                    return !value;
+                  })}
+                >
+                  <PencilLine className="size-4" />
+                  修改目标岗位
+                  <ChevronDown className={cn('size-4 transition-transform', targetOpen && 'rotate-180')} />
+                </Button>
+              </div>
+
+              {targetOpen && (
+                <div className="mt-4 grid gap-4 border-t border-slate-100 pt-4">
+                  <div className="text-xs leading-5 text-slate-400">岗位大类、目标岗位、地点和公司类型会影响后续推荐排序。</div>
+                  <OptionPills
+                    label="目标赛道"
+                    options={TRACK_OPTIONS}
+                    values={preferences.preferred_tracks}
+                    onChange={(values) => setPreferences((previous) => ({ ...previous, preferred_tracks: values, all_skipped: false }))}
+                  />
+                  <OptionPills
+                    label="岗位方向"
+                    options={ROLE_OPTIONS}
+                    values={preferences.preferred_roles}
+                    onChange={(values) => setPreferences((previous) => ({ ...previous, preferred_roles: values, all_skipped: false }))}
+                  />
+                  <OptionPills
+                    label="地点偏好"
+                    options={LOCATION_OPTIONS}
+                    values={preferences.preferred_locations}
+                    onChange={(values) => setPreferences((previous) => ({ ...previous, preferred_locations: values, all_skipped: false }))}
+                  />
+                  <OptionPills
+                    label="公司类型"
+                    options={COMPANY_OPTIONS}
+                    values={preferences.preferred_company_types}
+                    onChange={(values) =>
+                      setPreferences((previous) => ({ ...previous, preferred_company_types: values, all_skipped: false }))
+                    }
+                  />
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="ghost" size="sm" onClick={skipPreferences} disabled={isSaving}>
+                      跳过偏好
+                    </Button>
+                    <Button type="button" variant="secondary" size="sm" onClick={() => void savePreferences()} disabled={isSaving}>
+                      {isSaving ? <Loader2 className="animate-spin" /> : <Check />}
+                      保存
+                    </Button>
+                    <Button type="button" size="sm" onClick={generate} disabled={isGenerating}>
+                      {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                      保存并重新分析
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={cn('resume-chat-input mt-3 flex items-end gap-2 rounded-xl bg-slate-50 p-3', !canChat && 'opacity-70')}>
+              <Textarea
+                rows={2}
+                value={draft}
+                disabled={!canChat}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                placeholder={canChat ? '问我如何优化这份简历...' : '等待首次分析完成后可对话...'}
+                className="min-h-16 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
+              />
+              <Button type="button" size="icon" className="mb-1 rounded-full" disabled={!canChat || !draft.trim()} onClick={sendMessage}>
+                <ArrowUpRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function EditableResumeCanvas({
+  profile,
+  updateProfile,
+  updateBasicInfo,
+  onSave,
+  isSaving,
+}: {
+  profile: ResumeProfilePayload;
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
+  updateBasicInfo: (key: string, value: string) => void;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
+}) {
+  const [editMode, setEditMode] = useState(false);
+  const [layoutSettings, setLayoutSettings] = useState<ResumeLayoutSettings>(DEFAULT_RESUME_LAYOUT);
+  const name = getProfileName(profile);
+  const headline = getProfileHeadline(profile);
+  const contactItems = getProfileContactItems(profile);
+  const skills = [...profile.skills.technical, ...profile.skills.tools, ...profile.skills.languages, ...profile.languages].filter(
+    (value, index, values) => Boolean(value) && values.indexOf(value) === index,
+  );
+  const customModules = readCustomModules(profile);
+  const canvasStyle = {
+    fontSize: `${layoutSettings.fontSize}px`,
+    lineHeight: layoutSettings.lineHeight,
+    padding: `${layoutSettings.pagePaddingY}px ${layoutSettings.pagePaddingX}px`,
+    '--resume-section-gap': `${layoutSettings.moduleGap}px`,
+    '--resume-module-gap': `${layoutSettings.moduleGap}px`,
+  } as CSSProperties;
+
+  const setCustomModules = (modules: CustomResumeModule[]) => updateCustomModules(updateProfile, modules);
+
+  return (
+    <section className="min-w-0 overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,0.06)]">
+      <div className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-100 bg-white/95 px-5 py-3 backdrop-blur">
+        <div className="text-sm text-slate-500">{editMode ? '模块编辑' : '简历预览'}</div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <ResumeLayoutControls value={layoutSettings} onChange={setLayoutSettings} />
+          <Button type="button" variant="secondary" size="sm" onClick={() => setEditMode((value) => !value)}>
+            <PencilLine />
+            {editMode ? '预览' : '编辑'}
+          </Button>
+          <Button type="button" size="sm" onClick={onSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="animate-spin" /> : <Check />}
+            保存
+          </Button>
+        </div>
+      </div>
+
+      <div className="h-[calc(100vh-98px)] overflow-y-auto bg-[#f7f7f7] px-4 py-8">
+        <article
+          className="resume-paper-shadow mx-auto min-h-[1120px] max-w-[920px] bg-white text-slate-800"
+          style={canvasStyle}
+        >
+          {editMode ? (
+            <div className="grid gap-[var(--resume-module-gap)]">
+              <ModuleEditBlock title="基本信息">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Field label="姓名" value={profile.basic_info.name ?? ''} onChange={(value) => updateBasicInfo('name', value)} />
+                  <Field label="目标岗位 / 当前身份" value={profile.basic_info.headline ?? ''} onChange={(value) => updateBasicInfo('headline', value)} />
+                  <Field label="邮箱" value={profile.basic_info.email ?? ''} onChange={(value) => updateBasicInfo('email', value)} />
+                  <Field label="电话" value={profile.basic_info.phone ?? ''} onChange={(value) => updateBasicInfo('phone', value)} />
+                  <Field label="GitHub" value={profile.basic_info.github ?? ''} onChange={(value) => updateBasicInfo('github', value)} />
+                  <Field label="LinkedIn / 领英" value={profile.basic_info.linkedin ?? ''} onChange={(value) => updateBasicInfo('linkedin', value)} />
+                  <Field label="个人网站 / 作品集" value={profile.basic_info.website ?? ''} onChange={(value) => updateBasicInfo('website', value)} />
+                  <Field label="所在地" value={profile.basic_info.location ?? ''} onChange={(value) => updateBasicInfo('location', value)} />
+                </div>
+              </ModuleEditBlock>
+
+              <ModuleEditBlock title="个人介绍">
+                <AreaField
+                  label="摘要"
+                  value={profile.candidate_summary}
+                  onChange={(value) => updateProfile((previous) => ({ ...previous, candidate_summary: value }))}
+                />
+              </ModuleEditBlock>
+
+              <ModuleEditBlock title="教育背景">
+                <CompactEducationEditor profile={profile} updateProfile={updateProfile} />
+              </ModuleEditBlock>
+
+              <ModuleEditBlock title="工作经历">
+                <CompactInternshipEditor profile={profile} updateProfile={updateProfile} />
+              </ModuleEditBlock>
+
+              <ModuleEditBlock title="项目经历">
+                <CompactProjectEditor profile={profile} updateProfile={updateProfile} />
+              </ModuleEditBlock>
+
+              <ModuleEditBlock title="专业技能">
+                <CompactSkillEditor profile={profile} updateProfile={updateProfile} />
+              </ModuleEditBlock>
+
+              {customModules.map((module) => (
+                <ModuleEditBlock
+                  key={module.id}
+                  title={module.title || '自定义模块'}
+                  onDelete={() => setCustomModules(customModules.filter((item) => item.id !== module.id))}
+                >
+                  <Field
+                    label="模块标题"
+                    value={module.title}
+                    onChange={(value) =>
+                      setCustomModules(customModules.map((item) => (item.id === module.id ? { ...item, title: value } : item)))
+                    }
+                  />
+                  <AreaField
+                    label="模块内容"
+                    value={module.content}
+                    placeholder="可以写证书、志愿经历、社团经历、作品链接等"
+                    onChange={(value) =>
+                      setCustomModules(customModules.map((item) => (item.id === module.id ? { ...item, content: value } : item)))
+                    }
+                  />
+                </ModuleEditBlock>
+              ))}
+
+              <button
+                type="button"
+                className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm font-semibold text-slate-500 transition hover:border-sky-300 hover:bg-sky-50 hover:text-[var(--primary)]"
+                onClick={() =>
+                  setCustomModules([
+                    ...customModules,
+                    {
+                      id: nextCustomModuleId(customModules),
+                      title: '自定义模块',
+                      content: '',
+                    },
+                  ])
+                }
+              >
+                <Plus className="mx-auto mb-2 size-5" />
+                添加自定义模块
+                <div className="mt-1 text-xs font-normal">如：证书资质、荣誉奖项、志愿经历、作品链接等</div>
+              </button>
+            </div>
+          ) : (
+            <>
+              <header className="border-b border-slate-200 pb-5 text-center">
+                <h1 className="text-[28px] font-semibold tracking-[0.04em] text-slate-950">{name}</h1>
+                <p className="mt-2 text-[14px] font-medium text-slate-600">{headline}</p>
+                <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[12px] text-slate-500">
+                  {contactItems.map((item) => (
+                    <span key={item.key} className="inline-flex items-center gap-1.5">
+                      {item.icon}
+                      {item.value}
+                    </span>
+                  ))}
+                </div>
+              </header>
+
+              {profile.candidate_summary && (
+                <PreviewSection title="个人介绍">
+                  <p>{profile.candidate_summary}</p>
+                </PreviewSection>
+              )}
+
+              {profile.education.length > 0 && (
+                <PreviewSection title="教育背景">
+                  {profile.education.map((item, index) => (
+                    <PreviewEntry
+                      key={`${item.school}-${index}`}
+                      title={item.school}
+                      meta={[item.degree, item.major].filter(Boolean).join(' · ')}
+                      date={[item.start_date, item.end_date].filter(Boolean).join(' - ')}
+                      bullets={item.highlights}
+                    />
+                  ))}
+                </PreviewSection>
+              )}
+
+              {profile.internships.length > 0 && (
+                <PreviewSection title="工作经历">
+                  {profile.internships.map((item, index) => (
+                    <PreviewEntry
+                      key={`${item.company}-${index}`}
+                      title={item.company}
+                      meta={item.role}
+                      date={[item.start_date, item.end_date].filter(Boolean).join(' - ')}
+                      bullets={item.bullets}
+                    />
+                  ))}
+                </PreviewSection>
+              )}
+
+              {profile.projects.length > 0 && (
+                <PreviewSection title="项目经历">
+                  {profile.projects.map((item, index) => (
+                    <PreviewEntry
+                      key={`${item.name}-${index}`}
+                      title={item.name}
+                      meta={[item.role, item.tech_stack.join(' / ')].filter(Boolean).join(' · ')}
+                      bullets={item.bullets}
+                    />
+                  ))}
+                </PreviewSection>
+              )}
+
+              {skills.length > 0 && (
+                <PreviewSection title="专业技能">
+                  <p>{skills.join(' · ')}</p>
+                </PreviewSection>
+              )}
+
+              {customModules.map((module) => (
+                <PreviewSection key={module.id} title={module.title || '自定义模块'}>
+                  <p className="whitespace-pre-line">{module.content}</p>
+                </PreviewSection>
+              ))}
+            </>
+          )}
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function ResumeLayoutControls({
+  value,
+  onChange,
+}: {
+  value: ResumeLayoutSettings;
+  onChange: (value: ResumeLayoutSettings) => void;
+}) {
+  const [activeControl, setActiveControl] = useState<ResumeLayoutControlKey | null>(null);
+
+  const getControlValue = (key: ResumeLayoutControlKey) => {
+    if (key === 'pagePadding') return value.pagePaddingX;
+    return value[key];
+  };
+
+  const updateControl = (key: ResumeLayoutControlKey, nextValue: number) => {
+    if (key === 'pagePadding') {
+      onChange({
+        ...value,
+        pagePaddingX: nextValue,
+        pagePaddingY: Math.round(nextValue * 0.86),
+      });
+      return;
+    }
+
+    onChange({
+      ...value,
+      [key]: nextValue,
+    });
+  };
+
+  const activeMeta = activeControl ? RESUME_LAYOUT_CONTROL_META[activeControl] : null;
+  const activeValue = activeControl ? getControlValue(activeControl) : 0;
+
+  return (
+    <div className="relative hidden items-center gap-2 xl:flex">
+      {(Object.keys(RESUME_LAYOUT_CONTROL_META) as ResumeLayoutControlKey[]).map((key) => (
+        <Button
+          key={key}
+          type="button"
+          variant={activeControl === key ? 'default' : 'secondary'}
+          size="sm"
+          className="rounded-lg"
+          onClick={() => setActiveControl((current) => (current === key ? null : key))}
+        >
+          {RESUME_LAYOUT_CONTROL_META[key].title}
+        </Button>
+      ))}
+
+      {activeControl && activeMeta && (
+        <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-[360px] rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <div className="text-base font-semibold text-slate-950">{activeMeta.title}</div>
+              <div className="mt-1 text-sm text-slate-500">{activeMeta.description}</div>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-2 py-1 font-mono text-xs text-slate-500">
+              {Number.isInteger(activeValue) ? activeValue : activeValue.toFixed(2)}
+              {activeMeta.unit}
+            </div>
+          </div>
+
+          <input
+            type="range"
+            className="h-1.5 w-full cursor-pointer accent-[var(--primary)]"
+            min={activeMeta.min}
+            max={activeMeta.max}
+            step={activeMeta.step}
+            value={activeValue}
+            onChange={(event) => updateControl(activeControl, Number(event.target.value))}
+          />
+
+          <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+            <span>范围：{activeMeta.range}</span>
+            <span>拖动滑杆无级调节</span>
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-slate-100 pt-4">
+            <Button type="button" variant="secondary" onClick={() => setActiveControl(null)}>
+              取消
+            </Button>
+            <Button type="button" onClick={() => setActiveControl(null)}>
+              确定
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ModuleEditBlock({
+  title,
+  children,
+  onDelete,
+}: {
+  title: string;
+  children: ReactNode;
+  onDelete?: () => void;
+}) {
+  return (
+    <section className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_8px_rgba(15,23,42,0.04)]">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="inline-block border-b-2 border-[var(--primary)] pb-1 text-[14px] font-semibold tracking-[0.08em] text-[var(--primary-strong)]">
+          {title}
+        </h2>
+        {onDelete && (
+          <button
+            type="button"
+            className="rounded-lg p-2 text-red-400 transition hover:bg-red-50 hover:text-red-600"
+            aria-label={`删除${title}`}
+            onClick={onDelete}
+          >
+            <Trash2 className="size-4" />
+          </button>
+        )}
+      </div>
+      <div className="grid gap-3">{children}</div>
+    </section>
+  );
+}
+function CompactEducationEditor({
+  profile,
+  updateProfile,
+}: {
+  profile: ResumeProfilePayload;
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      {profile.education.map((item, index) => (
+        <div key={`education-edit-${index}`} className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="grid gap-2 md:grid-cols-2">
+            <Field label="学校" value={item.school} onChange={(value) => updateProfile((previous) => ({ ...previous, education: previous.education.map((entry, itemIndex) => (itemIndex === index ? { ...entry, school: value } : entry)) }))} />
+            <Field label="专业" value={item.major} onChange={(value) => updateProfile((previous) => ({ ...previous, education: previous.education.map((entry, itemIndex) => (itemIndex === index ? { ...entry, major: value } : entry)) }))} />
+            <Field label="学历" value={item.degree} onChange={(value) => updateProfile((previous) => ({ ...previous, education: previous.education.map((entry, itemIndex) => (itemIndex === index ? { ...entry, degree: value } : entry)) }))} />
+            <Field label="时间" value={[item.start_date, item.end_date].filter(Boolean).join(' - ')} onChange={(value) => {
+              const [start = '', end = ''] = value.split(/\s*-\s*/);
+              updateProfile((previous) => ({ ...previous, education: previous.education.map((entry, itemIndex) => (itemIndex === index ? { ...entry, start_date: start, end_date: end } : entry)) }));
+            }} />
+          </div>
+          <AreaField label="亮点" value={joinLines(item.highlights)} onChange={(value) => updateProfile((previous) => ({ ...previous, education: previous.education.map((entry, itemIndex) => (itemIndex === index ? { ...entry, highlights: splitLines(value) } : entry)) }))} />
+        </div>
+      ))}
+      <Button type="button" variant="secondary" size="sm" onClick={() => updateProfile((previous) => ({ ...previous, education: [...previous.education, EMPTY_EDUCATION] }))}>
+        <Plus />
+        添加教育
+      </Button>
+    </div>
+  );
+}
+
+function CompactInternshipEditor({
+  profile,
+  updateProfile,
+}: {
+  profile: ResumeProfilePayload;
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      {profile.internships.map((item, index) => (
+        <div key={`internship-edit-${index}`} className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="grid gap-2 md:grid-cols-2">
+            <Field label="公司" value={item.company} onChange={(value) => updateProfile((previous) => ({ ...previous, internships: previous.internships.map((entry, itemIndex) => (itemIndex === index ? { ...entry, company: value } : entry)) }))} />
+            <Field label="职位" value={item.role} onChange={(value) => updateProfile((previous) => ({ ...previous, internships: previous.internships.map((entry, itemIndex) => (itemIndex === index ? { ...entry, role: value } : entry)) }))} />
+            <Field label="开始" value={item.start_date} onChange={(value) => updateProfile((previous) => ({ ...previous, internships: previous.internships.map((entry, itemIndex) => (itemIndex === index ? { ...entry, start_date: value } : entry)) }))} />
+            <Field label="结束" value={item.end_date} onChange={(value) => updateProfile((previous) => ({ ...previous, internships: previous.internships.map((entry, itemIndex) => (itemIndex === index ? { ...entry, end_date: value } : entry)) }))} />
+          </div>
+          <AreaField label="职责与成果" value={joinLines(item.bullets)} onChange={(value) => updateProfile((previous) => ({ ...previous, internships: previous.internships.map((entry, itemIndex) => (itemIndex === index ? { ...entry, bullets: splitLines(value) } : entry)) }))} />
+        </div>
+      ))}
+      <Button type="button" variant="secondary" size="sm" onClick={() => updateProfile((previous) => ({ ...previous, internships: [...previous.internships, EMPTY_INTERNSHIP] }))}>
+        <Plus />
+        添加经历
+      </Button>
+    </div>
+  );
+}
+
+function CompactProjectEditor({
+  profile,
+  updateProfile,
+}: {
+  profile: ResumeProfilePayload;
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      {profile.projects.map((item, index) => (
+        <div key={`project-edit-${index}`} className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="grid gap-2 md:grid-cols-2">
+            <Field label="项目名称" value={item.name} onChange={(value) => updateProfile((previous) => ({ ...previous, projects: previous.projects.map((entry, itemIndex) => (itemIndex === index ? { ...entry, name: value } : entry)) }))} />
+            <Field label="角色" value={item.role} onChange={(value) => updateProfile((previous) => ({ ...previous, projects: previous.projects.map((entry, itemIndex) => (itemIndex === index ? { ...entry, role: value } : entry)) }))} />
+          </div>
+          <ChipEditor label="技术栈" values={item.tech_stack} placeholder="Python / SQL" onChange={(values) => updateProfile((previous) => ({ ...previous, projects: previous.projects.map((entry, itemIndex) => (itemIndex === index ? { ...entry, tech_stack: values } : entry)) }))} />
+          <AreaField label="项目内容" value={joinLines(item.bullets)} onChange={(value) => updateProfile((previous) => ({ ...previous, projects: previous.projects.map((entry, itemIndex) => (itemIndex === index ? { ...entry, bullets: splitLines(value) } : entry)) }))} />
+        </div>
+      ))}
+      <Button type="button" variant="secondary" size="sm" onClick={() => updateProfile((previous) => ({ ...previous, projects: [...previous.projects, EMPTY_PROJECT] }))}>
+        <Plus />
+        添加项目
+      </Button>
+    </div>
+  );
+}
+
+function CompactSkillEditor({
+  profile,
+  updateProfile,
+}: {
+  profile: ResumeProfilePayload;
+  updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      <ChipEditor label="技能" values={profile.skills.technical} placeholder="输入后回车" onChange={(values) => updateProfile((previous) => ({ ...previous, skills: { ...previous.skills, technical: values } }))} />
+      <ChipEditor label="工具" values={profile.skills.tools} placeholder="输入后回车" onChange={(values) => updateProfile((previous) => ({ ...previous, skills: { ...previous.skills, tools: values } }))} />
+      <ChipEditor label="语言" values={[...profile.skills.languages, ...profile.languages].filter((value, index, values) => values.indexOf(value) === index)} placeholder="英语 / 普通话" onChange={(values) => updateProfile((previous) => ({ ...previous, languages: values, skills: { ...previous.skills, languages: values } }))} />
+    </div>
+  );
+}

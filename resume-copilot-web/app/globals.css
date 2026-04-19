@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+
+:root {
+  --background: oklch(0.982 0.009 247.9);
+  --paper: oklch(1 0 0);
+  --soft: oklch(0.968 0.011 247.9);
+  --soft-blue: oklch(0.956 0.029 241.8);
+  --ink: oklch(0.188 0.03 258.3);
+  --muted: oklch(0.48 0.035 257.5);
+  --border: oklch(0.902 0.018 248.3);
+  --border-strong: oklch(0.828 0.034 248.4);
+  --primary: oklch(0.521 0.136 243.9);
+  --primary-strong: oklch(0.45 0.13 244.4);
+  --primary-ring: oklch(0.79 0.095 241.5 / 0.28);
+  --accent: oklch(0.67 0.15 154.2);
+  --accent-soft: oklch(0.956 0.052 154.2);
+  --warning-soft: oklch(0.962 0.049 87.2);
+  --ring: oklch(0.646 0.154 244.8 / 0.34);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 8%, oklch(0.88 0.07 232 / 0.55), transparent 28rem),
+    radial-gradient(circle at 90% 0%, oklch(0.9 0.09 155 / 0.34), transparent 24rem),
+    linear-gradient(180deg, oklch(0.991 0.006 247), var(--background));
+  color: var(--ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: oklch(0.82 0.09 241 / 0.5);
+}
+
+.resume-paper-shadow {
+  box-shadow:
+    0 28px 80px rgba(15, 23, 42, 0.12),
+    0 4px 18px rgba(15, 23, 42, 0.08);
+}
+
+.module-dots {
+  background-image: radial-gradient(currentColor 1.1px, transparent 1.1px);
+  background-size: 6px 6px;
+}
+
+.resume-design-apple {
+  --primary: #0071e3;
+  --primary-strong: #0066cc;
+  --soft: #f5f5f7;
+  --soft-blue: #e8f2ff;
+  --ink: #1d1d1f;
+  --muted: rgba(0, 0, 0, 0.56);
+  --border: rgba(0, 0, 0, 0.12);
+  background: #f5f5f7 !important;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.resume-design-apple .resume-chat-shell,
+.resume-design-apple .resume-ai-panel {
+  background: #ffffff !important;
+}
+
+.resume-design-apple .resume-library-panel,
+.resume-design-apple .resume-library-rail {
+  background: #f5f5f7 !important;
+}
+
+.resume-design-apple .resume-library-header,
+.resume-design-apple .resume-ai-header {
+  height: 52px;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+.resume-design-apple .resume-new-session {
+  border-radius: 10px !important;
+  background: #0071e3 !important;
+  box-shadow: none !important;
+}
+
+.resume-design-apple .resume-history-item {
+  border-radius: 12px !important;
+}
+
+.resume-design-apple .resume-target-card {
+  border: none !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: rgba(0, 0, 0, 0.13) 0 8px 30px !important;
+}
+
+.resume-design-apple .resume-chat-input {
+  border-radius: 14px !important;
+  background: #f5f5f7 !important;
+}
+
+.resume-design-apple .resume-paper-shadow {
+  box-shadow: rgba(0, 0, 0, 0.16) 0 16px 48px !important;
+}
+
+.resume-design-claude {
+  --primary: #c96442;
+  --primary-strong: #a84f34;
+  --soft: #f5f4ed;
+  --soft-blue: #f0eee6;
+  --ink: #141413;
+  --muted: #5e5d59;
+  --border: #e8e6dc;
+  background: #f5f4ed !important;
+  color: #141413;
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+}
+
+.resume-design-claude .resume-chat-shell {
+  border-color: #e8e6dc !important;
+  background: #faf9f5 !important;
+}
+
+.resume-design-claude .resume-library-panel,
+.resume-design-claude .resume-library-rail {
+  border-color: #e8e6dc !important;
+  background: #f0eee6 !important;
+}
+
+.resume-design-claude .resume-library-header,
+.resume-design-claude .resume-ai-header {
+  border-color: #e8e6dc !important;
+  background: #faf9f5 !important;
+}
+
+.resume-design-claude .resume-ai-panel {
+  background: #faf9f5 !important;
+}
+
+.resume-design-claude .resume-ai-header,
+.resume-design-claude .resume-ai-status,
+.resume-design-claude .resume-target-card,
+.resume-design-claude .resume-chat-input,
+.resume-design-claude button,
+.resume-design-claude input,
+.resume-design-claude textarea {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.resume-design-claude .resume-new-session {
+  border-radius: 10px !important;
+  background: #c96442 !important;
+  box-shadow: 0 0 0 1px #c96442 !important;
+}
+
+.resume-design-claude .resume-history-item {
+  border-radius: 12px !important;
+}
+
+.resume-design-claude .resume-target-card {
+  border-color: #e8e6dc !important;
+  border-radius: 18px !important;
+  background: #faf9f5 !important;
+  box-shadow: 0 0 0 1px #e8e6dc, rgba(0, 0, 0, 0.05) 0 4px 24px !important;
+}
+
+.resume-design-claude .resume-chat-input {
+  border: 1px solid #e8e6dc;
+  border-radius: 16px !important;
+  background: #f0eee6 !important;
+}
+
+.resume-design-claude .resume-paper-shadow {
+  box-shadow: 0 0 0 1px #e8e6dc, rgba(0, 0, 0, 0.08) 0 18px 52px !important;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
