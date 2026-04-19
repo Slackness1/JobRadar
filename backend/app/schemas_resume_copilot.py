@@ -46,6 +46,15 @@ class ResumeProfilePayload(BaseModel):
     inferred_tracks: list[str] = []
 
 
+class DirectionTierResult(BaseModel):
+    direction: str
+    tier: int  # 1, 2, or 3
+    tier_label: str  # "强匹配" | "可迁移" | "有差距"
+    strengths: list[str] = []
+    gaps: list[str] = []
+    transferable_from: list[str] = []
+
+
 class ResumePreferencePayload(BaseModel):
     preferred_tracks: list[str] = []
     preferred_locations: list[str] = []
@@ -100,6 +109,7 @@ class ResumeCopilotSessionOut(BaseModel):
     has_preferences: bool
     has_recommendations: bool
     has_feedback: bool
+    has_direction_analysis: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
     finished_at: datetime | None = None
@@ -182,6 +192,7 @@ class ResumeRecommendationItem(BaseModel):
     why_recommended: list[str] = []
     strengths: list[str] = []
     risks: list[str] = []
+    target_direction: str = ''   # set by ReAct agent in finalize
 
 
 class ResumeRecommendationResultOut(BaseModel):
@@ -212,3 +223,36 @@ class ResumeFeedbackResultOut(BaseModel):
     error_message: str = ''
     diagnostics: list[ResumeFeedbackDiagnosticItem] = []
     rewrite_examples: list[ResumeFeedbackRewriteExample] = []
+
+
+class RewriteOption(BaseModel):
+    option_id: str      # "A" | "B" | "C"
+    label: str
+    section: str        # "internships" | "projects" | etc.
+    field_path: str     # dot-notation: "internships.0.bullets.2"
+    original: str
+    improved: str
+    rationale: str
+
+
+class ResumeCopilotMessageOut(BaseModel):
+    id: int
+    role: str           # "system" | "user" | "assistant"
+    content: str
+    rewrite_options: list[RewriteOption] | None = None
+    applied_option_id: str | None = None
+    created_at: datetime | None = None
+
+
+class ChatMessageIn(BaseModel):
+    content: str
+
+
+class ApplyRewriteIn(BaseModel):
+    message_id: int
+    option_id: str
+
+
+class ApplyRewriteOut(BaseModel):
+    profile: 'ResumeProfilePayload'
+    applied: bool = True
