@@ -402,3 +402,15 @@ class CompanyRecrawlQueue(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
+
+
+class InterviewReport(Base):
+    __tablename__ = 'interview_reports'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_key = Column(Text, nullable=False, index=True)
+    target_job = Column(Text, nullable=False)
+    transcript_json = Column(Text, default='[]')
+    report_json = Column(Text, default='{}')
+    duration_seconds = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)

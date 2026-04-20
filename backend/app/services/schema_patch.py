@@ -219,3 +219,24 @@ def ensure_compatible_schema(engine: Engine) -> None:
             conn.execute(text(
                 "CREATE INDEX IF NOT EXISTS ix_resume_copilot_messages_session_id ON resume_copilot_messages (session_id)"
             ))
+
+        interview_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='interview_reports'")
+        ).fetchone()
+        if not interview_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE interview_reports (
+                    id INTEGER PRIMARY KEY,
+                    user_key TEXT NOT NULL,
+                    target_job TEXT NOT NULL,
+                    transcript_json TEXT DEFAULT '[]',
+                    report_json TEXT DEFAULT '{}',
+                    duration_seconds INTEGER DEFAULT 0,
+                    created_at DATETIME
+                )
+                """
+            ))
+            conn.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_interview_reports_user_key ON interview_reports (user_key)"
+            ))
