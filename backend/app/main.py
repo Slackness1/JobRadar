@@ -17,8 +17,10 @@ from app.routers import (
     crawl,
     exclude,
     export,
+    interview,
     job_intel,
     jobs,
+    resume_copilot,
     scheduler,
     scoring,
     system_config,
@@ -84,6 +86,8 @@ app.include_router(scheduler.router)
 app.include_router(system_config.router)
 app.include_router(company_recrawl.router)
 app.include_router(job_intel.router)
+app.include_router(resume_copilot.router)
+app.include_router(interview.router)
 
 
 @app.get("/api/health")
