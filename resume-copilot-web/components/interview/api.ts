@@ -46,9 +46,15 @@ export async function streamInterviewTurn(
       if (data === '[DONE]') continue;
       try {
         const event = JSON.parse(data);
+        if (event?.error) {
+          throw new Error(`LLM error: ${event.error}`);
+        }
         const token: string = event?.choices?.[0]?.delta?.content ?? '';
         if (token) onToken(token);
-      } catch {
+      } catch (err) {
+        if (err instanceof Error && err.message.startsWith('LLM error:')) {
+          throw err;
+        }
         // skip malformed SSE lines
       }
     }

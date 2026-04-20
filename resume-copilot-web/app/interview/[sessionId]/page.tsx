@@ -6,6 +6,8 @@ import type { InterviewMessage, InterviewReport as InterviewReportType, Intervie
 import { streamInterviewTurn, saveInterviewReport } from '@/components/interview/api';
 import { InterviewChat } from '@/components/interview/InterviewChat';
 import { InterviewReport } from '@/components/interview/InterviewReport';
+import { VoiceControls } from '@/components/interview/voice/VoiceControls';
+import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
 
 const INTERVIEW_END_MARKER = '[INTERVIEW_END]';
 const LS_PREFIX = 'interview.';
@@ -29,12 +31,12 @@ export default function InterviewSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
 
-  // Initialize from localStorage or sessionStorage on first render (lazy initializers run only once)
+  // Initialize from localStorage (session or pending key set by setup page)
   const [targetJob] = useState(() => {
     const saved = loadSession(sessionId);
     if (saved) return saved.targetJob;
     if (typeof window === 'undefined') return '';
-    return sessionStorage.getItem(`interview.${sessionId}.job`) || '';
+    return localStorage.getItem(`interview.pending.${sessionId}`) || '';
   });
   const [messages, setMessages] = useState<InterviewMessage[]>(() => loadSession(sessionId)?.messages ?? []);
   const [round, setRound] = useState(() => {
@@ -43,11 +45,18 @@ export default function InterviewSessionPage() {
   });
 
   const [streamingContent, setStreamingContent] = useState('');
+  const [streamError, setStreamError] = useState('');
+  const [isTurning, setIsTurning] = useState(false);
   const [state, setState] = useState<InterviewState>('interviewing');
   const [report, setReport] = useState<InterviewReportType | null>(null);
   const [reportError, setReportError] = useState('');
   const [finalDuration, setFinalDuration] = useState(0);
+  const [voiceMode, setVoiceMode] = useState(false);
   const startTimeRef = useRef<number>(0);
+  const initializedRef = useRef(false);
+  const lastSpokenIdxRef = useRef(-1);
+
+  const tts = useTTSPlayer();
 
   useEffect(() => {
     startTimeRef.current = Date.now();
@@ -82,38 +91,68 @@ export default function InterviewSessionPage() {
         () => {
           const hasEnd = accumulated.includes(INTERVIEW_END_MARKER);
           const clean = accumulated.replace(INTERVIEW_END_MARKER, '').trim();
+          setStreamingContent('');
+          setIsTurning(false);
+          if (!clean) {
+            setStreamError('面试官回复为空，可能是 LLM 接口异常。请检查后端日志或重试。');
+            return;
+          }
           const newMsg: InterviewMessage = { role: 'assistant', content: clean };
           const updatedMsgs = [...msgs, newMsg];
           setMessages(updatedMsgs);
-          setStreamingContent('');
           setRound((r) => r + 1);
           saveSession(sessionId, updatedMsgs, job);
           if (hasEnd) triggerReport(job, updatedMsgs);
         },
       );
-    } catch {
+    } catch (err) {
       setStreamingContent('');
-      setMessages((prev) => [...prev, { role: 'assistant', content: '⚠️ 网络错误，请重新发送。' }]);
+      setIsTurning(false);
+      setStreamError(err instanceof Error ? err.message : '网络错误，请重试。');
     }
   }, [sessionId, triggerReport]);
 
-  // On first visit (no localStorage data): clean up sessionStorage and start first turn
+  // On first visit: read pending job from localStorage, start first turn.
+  // Strict Mode fires this effect twice in dev. The ref guards against double-execution
+  // (refs are preserved across Strict Mode's simulated unmount/remount).
   useEffect(() => {
-    if (loadSession(sessionId)) return; // restored from localStorage, skip
-    const job = sessionStorage.getItem(`interview.${sessionId}.job`) || '';
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    if (loadSession(sessionId)) return; // restored from localStorage
+    const job = localStorage.getItem(`interview.pending.${sessionId}`) || '';
     if (!job) { router.push('/interview'); return; }
-    sessionStorage.removeItem(`interview.${sessionId}.job`);
-    setTimeout(() => startTurn(job, []), 0);
+    localStorage.removeItem(`interview.pending.${sessionId}`);
+    setTimeout(() => { setIsTurning(true); startTurn(job, []); }, 0);
   }, [sessionId, router, startTurn]);
 
   function handleSend(content: string) {
+    tts.stop();
     const userMsg: InterviewMessage = { role: 'user', content };
     const updatedMsgs = [...messages, userMsg];
     setMessages(updatedMsgs);
     setStreamingContent('');
+    setStreamError('');
+    setIsTurning(true);
     setState('interviewing');
     saveSession(sessionId, updatedMsgs, targetJob);
     startTurn(targetJob, updatedMsgs);
+  }
+
+  // When a new assistant message lands AND voice mode is on, play TTS.
+  useEffect(() => {
+    if (!voiceMode) return;
+    const lastIdx = messages.length - 1;
+    if (lastIdx < 0 || lastIdx === lastSpokenIdxRef.current) return;
+    const last = messages[lastIdx];
+    if (last.role !== 'assistant') return;
+    lastSpokenIdxRef.current = lastIdx;
+    tts.speak(last.content);
+  }, [messages, voiceMode, tts]);
+
+  function handleRetry() {
+    setStreamError('');
+    setIsTurning(true);
+    startTurn(targetJob, messages);
   }
 
   function handleEndInterview() {
@@ -145,6 +184,25 @@ export default function InterviewSessionPage() {
           <p className="text-[12px] text-[var(--muted)]">第 {round} 轮</p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => { setVoiceMode((v) => !v); tts.stop(); }}
+            className={`rounded-[10px] border px-3 py-1.5 text-[13px] transition-colors ${
+              voiceMode
+                ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
+                : 'border-[var(--border)] text-[var(--muted)] hover:bg-[var(--soft)]'
+            }`}
+            title="切换语音 / 文字模式"
+          >
+            {voiceMode ? '🎙 语音模式' : '💬 文字模式'}
+          </button>
+          {tts.isPlaying && (
+            <button
+              onClick={() => tts.stop()}
+              className="text-[12px] text-[var(--muted)] underline hover:text-[var(--ink)]"
+            >
+              停止播放
+            </button>
+          )}
           {state === 'generating_report' && (
             <span className="text-[13px] text-[var(--muted)]">生成报告中…</span>
           )}
@@ -166,13 +224,33 @@ export default function InterviewSessionPage() {
         </div>
       </div>
 
+      {streamError && (
+        <div className="mx-4 mt-3 flex items-center justify-between rounded-[10px] border border-red-300 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
+          <span>⚠️ {streamError}</span>
+          <button
+            onClick={handleRetry}
+            className="ml-3 rounded-[8px] border border-red-300 bg-white px-3 py-1 text-[12px] font-medium text-red-700 hover:bg-red-100"
+          >
+            重试
+          </button>
+        </div>
+      )}
+
       <InterviewChat
         messages={messages}
         streamingContent={streamingContent}
-        isStreaming={!!streamingContent}
-        disabled={state !== 'interviewing'}
+        isStreaming={isTurning || !!streamingContent}
+        disabled={isTurning || state !== 'interviewing'}
         onSend={handleSend}
+        hideInput={voiceMode}
       />
+
+      {voiceMode && (
+        <VoiceControls
+          disabled={isTurning || state !== 'interviewing' || tts.isPlaying}
+          onSubmit={handleSend}
+        />
+      )}
     </main>
   );
 }

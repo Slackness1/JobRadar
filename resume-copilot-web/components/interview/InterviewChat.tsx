@@ -15,9 +15,10 @@ interface Props {
   isStreaming: boolean;
   disabled: boolean;
   onSend: (content: string) => void;
+  hideInput?: boolean;
 }
 
-export function InterviewChat({ messages, streamingContent, isStreaming, disabled, onSend }: Props) {
+export function InterviewChat({ messages, streamingContent, isStreaming, disabled, onSend, hideInput = false }: Props) {
   const [input, setInput] = useState('');
   const [frameIdx, setFrameIdx] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -79,26 +80,28 @@ export function InterviewChat({ messages, streamingContent, isStreaming, disable
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-[var(--border)] px-4 py-3">
-        <div className="flex gap-2">
-          <textarea
-            className="flex-1 resize-none rounded-[12px] border border-[var(--border)] bg-[var(--soft)] px-4 py-2.5 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] focus:border-[var(--primary)] focus:outline-none"
-            rows={2}
-            placeholder="输入你的回答… (Enter 发送，Shift+Enter 换行)"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={disabled || isStreaming}
-          />
-          <button
-            onClick={handleSend}
-            disabled={disabled || isStreaming || !input.trim()}
-            className="self-end rounded-[10px] bg-[var(--primary)] px-4 py-2.5 text-[13px] font-semibold text-white disabled:opacity-40 hover:opacity-90"
-          >
-            发送
-          </button>
+      {!hideInput && (
+        <div className="border-t border-[var(--border)] px-4 py-3">
+          <div className="flex gap-2">
+            <textarea
+              className="flex-1 resize-none rounded-[12px] border border-[var(--border)] bg-[var(--soft)] px-4 py-2.5 text-[14px] text-[var(--ink)] placeholder:text-[var(--muted)] focus:border-[var(--primary)] focus:outline-none"
+              rows={2}
+              placeholder="输入你的回答… (Enter 发送，Shift+Enter 换行)"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={disabled || isStreaming}
+            />
+            <button
+              onClick={handleSend}
+              disabled={disabled || isStreaming || !input.trim()}
+              className="self-end rounded-[10px] bg-[var(--primary)] px-4 py-2.5 text-[13px] font-semibold text-white disabled:opacity-40 hover:opacity-90"
+            >
+              发送
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

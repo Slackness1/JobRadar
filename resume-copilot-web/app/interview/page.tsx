@@ -15,7 +15,7 @@ export default function InterviewSetupPage() {
       return;
     }
     const sessionId = crypto.randomUUID();
-    sessionStorage.setItem(`interview.${sessionId}.job`, trimmed);
+    localStorage.setItem(`interview.pending.${sessionId}`, trimmed);
     router.push(`/interview/${sessionId}`);
   }
 
