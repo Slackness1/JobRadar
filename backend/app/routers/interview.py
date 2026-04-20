@@ -1,7 +1,9 @@
+import asyncio
 import json
+import logging
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -10,6 +12,10 @@ from app.database import get_db
 from app.models import InterviewReport
 from app.services.interview.llm import stream_interview_turn
 from app.services.interview.report import generate_interview_report
+from app.services.interview.voice.asr import AsrUnavailable, run_asr_session
+from app.services.interview.voice.tts import TTSUnavailable, synthesize
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/api/interview', tags=['interview'])
 
@@ -36,8 +42,17 @@ def interview_turn(
     x_resume_user_key: str = Header(default=''),
 ):
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
+
+    def safe_stream():
+        try:
+            yield from stream_interview_turn(body.target_job, messages)
+        except Exception as exc:
+            logger.exception('interview stream failed: %s', exc)
+            error_event = {'error': str(exc), 'type': type(exc).__name__}
+            yield f'data: {json.dumps(error_event, ensure_ascii=False)}\n\n'
+
     return StreamingResponse(
-        stream_interview_turn(body.target_job, messages),
+        safe_stream(),
         media_type='text/event-stream',
         headers={'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache'},
     )
@@ -89,6 +104,80 @@ def list_reports(
         }
         for r in rows
     ]
+
+
+class TTSIn(BaseModel):
+    text: str
+    voice: str | None = None
+
+
+@router.post('/tts')
+def interview_tts(body: TTSIn):
+    if not body.text.strip():
+        raise HTTPException(status_code=400, detail='text is empty')
+    try:
+        stream = synthesize(body.text, voice=body.voice)
+    except TTSUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return StreamingResponse(stream, media_type='audio/mpeg')
+
+
+@router.websocket('/asr')
+async def interview_asr(ws: WebSocket):
+    await ws.accept()
+    audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue()
+
+    async def audio_frames():
+        while True:
+            frame = await audio_queue.get()
+            if frame is None:
+                break
+            yield frame
+
+    async def send_event(event: dict):
+        try:
+            await ws.send_text(json.dumps(event, ensure_ascii=False))
+        except Exception:
+            pass
+
+    asr_task = asyncio.create_task(
+        run_asr_session(audio_frames(), send_event)  # type: ignore[arg-type]
+    )
+
+    try:
+        while True:
+            msg = await ws.receive()
+            if msg.get('type') == 'websocket.disconnect':
+                break
+            if 'bytes' in msg and msg['bytes']:
+                await audio_queue.put(msg['bytes'])
+            elif 'text' in msg and msg['text']:
+                try:
+                    cmd = json.loads(msg['text'])
+                except json.JSONDecodeError:
+                    continue
+                if cmd.get('action') == 'stop':
+                    break
+    except WebSocketDisconnect:
+        pass
+    except AsrUnavailable as exc:
+        await send_event({'type': 'error', 'message': str(exc)})
+    except Exception as exc:
+        logger.exception('asr websocket error: %s', exc)
+        await send_event({'type': 'error', 'message': str(exc)})
+    finally:
+        await audio_queue.put(None)
+        try:
+            await asyncio.wait_for(asr_task, timeout=5)
+        except (asyncio.TimeoutError, AsrUnavailable) as exc:
+            if isinstance(exc, AsrUnavailable):
+                await send_event({'type': 'error', 'message': str(exc)})
+        except Exception as exc:
+            logger.exception('asr task cleanup error: %s', exc)
+        try:
+            await ws.close()
+        except Exception:
+            pass
 
 
 @router.get('/reports/{report_id}')
