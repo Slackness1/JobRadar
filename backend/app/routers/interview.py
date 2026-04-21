@@ -119,7 +119,7 @@ def interview_tts(body: TTSIn):
         stream = synthesize(body.text, voice=body.voice)
     except TTSUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc))
-    return StreamingResponse(stream, media_type='audio/mpeg')
+    return StreamingResponse(stream, media_type='audio/wav')
 
 
 @router.websocket('/asr')

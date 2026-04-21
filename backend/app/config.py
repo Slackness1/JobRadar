@@ -94,10 +94,10 @@ BRAVE_SEARCH_API_KEY = os.environ.get("BRAVE_SEARCH_API_KEY", "")
 FIRECRAWL_API_KEY = os.environ.get("FIRECRAWL_API_KEY", "")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
 
-ALIYUN_ACCESS_KEY_ID = os.environ.get("ALIYUN_ACCESS_KEY_ID", "")
-ALIYUN_ACCESS_KEY_SECRET = os.environ.get("ALIYUN_ACCESS_KEY_SECRET", "")
-ALIYUN_NLS_APPKEY = os.environ.get("ALIYUN_NLS_APPKEY", "")
-ALIYUN_NLS_REGION = os.environ.get("ALIYUN_NLS_REGION", "cn-shanghai")
+DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "")
+DASHSCOPE_TTS_MODEL = os.environ.get("DASHSCOPE_TTS_MODEL", "qwen3-tts-flash")
+DASHSCOPE_TTS_VOICE = os.environ.get("DASHSCOPE_TTS_VOICE", "Chelsie")
+DASHSCOPE_ASR_MODEL = os.environ.get("DASHSCOPE_ASR_MODEL", "paraformer-realtime-v2")
 
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]

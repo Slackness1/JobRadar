@@ -1,9 +1,11 @@
-"""Aliyun NLS TTS (text-to-speech) streaming client.
+"""DashScope (阿里云百炼) Qwen3-TTS client.
 
-Uses the REST "stream/v1/tts" endpoint which returns audio bytes (MP3 by default).
-We keep it synchronous and yield chunks so FastAPI can stream to the browser.
+Two-step flow:
+    1. POST text → DashScope returns an OSS audio URL (WAV)
+    2. Fetch the URL and stream bytes back to our caller
 
-Docs: https://help.aliyun.com/zh/isi/developer-reference/restful-api-for-short-speech-synthesis
+Docs: https://help.aliyun.com/zh/model-studio/qwen-tts
+Model list: https://help.aliyun.com/zh/model-studio/models
 """
 from __future__ import annotations
 
@@ -12,65 +14,62 @@ from typing import Iterator
 from urllib import request as urllib_request
 
 from app import config
-from app.services.interview.voice.token import get_token
 
-_GATEWAY = 'https://nls-gateway-{region}.aliyuncs.com/stream/v1/tts'
-
-# Default voice: "zhixiaobai" (female, standard Mandarin). Alternatives:
-# - "zhiyuan" (male, warm), "zhimiao" (female, young), "aiqi" (female, professional)
-DEFAULT_VOICE = 'zhiyuan'
-DEFAULT_FORMAT = 'mp3'
-DEFAULT_SAMPLE_RATE = 16000
+_GENERATION_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation'
 
 
 class TTSUnavailable(RuntimeError):
     pass
 
 
+def _request_audio_url(text: str, voice: str) -> str:
+    if not config.DASHSCOPE_API_KEY:
+        raise TTSUnavailable(
+            'DashScope key missing: set DASHSCOPE_API_KEY in backend/.env.local'
+        )
+
+    payload = {
+        'model': config.DASHSCOPE_TTS_MODEL,
+        'input': {'text': text, 'voice': voice},
+        'parameters': {},
+    }
+    req = urllib_request.Request(
+        _GENERATION_URL,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {config.DASHSCOPE_API_KEY}',
+            'Content-Type': 'application/json',
+        },
+        method='POST',
+    )
+    with urllib_request.urlopen(req, timeout=30) as resp:
+        body = json.loads(resp.read().decode('utf-8'))
+    output = (body.get('output') or {}).get('audio') or {}
+    url = output.get('url')
+    if not url:
+        raise TTSUnavailable(f'DashScope TTS returned no audio: {body}')
+    return str(url)
+
+
 def synthesize(text: str, voice: str | None = None) -> Iterator[bytes]:
     """Stream synthesized audio bytes for `text`.
 
-    Validation (missing keys, empty text) happens synchronously and raises
-    TTSUnavailable before returning. The HTTP connection + streaming is in
-    the inner generator.
+    Validation (missing key, empty text, upstream error) happens synchronously
+    and raises TTSUnavailable before returning. Audio bytes are streamed from
+    the OSS URL returned by DashScope.
     """
-    if not config.ALIYUN_NLS_APPKEY:
-        raise TTSUnavailable(
-            'Aliyun NLS AppKey missing: set ALIYUN_NLS_APPKEY in backend/.env.local'
-        )
     if not text.strip():
         raise TTSUnavailable('text is empty')
 
-    token = get_token()
-    url = _GATEWAY.format(region=config.ALIYUN_NLS_REGION or 'cn-shanghai')
-    payload = {
-        'appkey': config.ALIYUN_NLS_APPKEY,
-        'text': text,
-        'token': token,
-        'format': DEFAULT_FORMAT,
-        'sample_rate': DEFAULT_SAMPLE_RATE,
-        'voice': voice or DEFAULT_VOICE,
-        'volume': 50,
-        'speech_rate': 0,
-        'pitch_rate': 0,
-    }
-    req = urllib_request.Request(
-        url,
-        data=json.dumps(payload).encode('utf-8'),
-        headers={'Content-Type': 'application/json'},
-        method='POST',
-    )
-    resp = urllib_request.urlopen(req, timeout=30)
-    content_type = resp.headers.get('Content-Type', '')
-    if 'audio' not in content_type:
-        error_body = resp.read().decode('utf-8', errors='replace')
-        resp.close()
-        raise TTSUnavailable(f'Aliyun TTS error: {error_body}')
+    effective_voice = voice or config.DASHSCOPE_TTS_VOICE
+    audio_url = _request_audio_url(text, effective_voice)
+
+    resp = urllib_request.urlopen(audio_url, timeout=30)
 
     def _iter():
         try:
             while True:
-                chunk = resp.read(4096)
+                chunk = resp.read(8192)
                 if not chunk:
                     break
                 yield chunk
