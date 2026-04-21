@@ -13,6 +13,7 @@ from app.models import InterviewReport
 from app.services.interview.llm import stream_interview_turn
 from app.services.interview.report import generate_interview_report
 from app.services.interview.voice.asr import AsrUnavailable, run_asr_session
+from app.services.interview.voice.avatar import AvatarUnavailable, create_avatar_session
 from app.services.interview.voice.tts import TTSUnavailable, synthesize
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,16 @@ def interview_report(
     db.commit()
     db.refresh(row)
     return {'id': row.id, 'report': report}
+
+
+@router.post('/avatar/session')
+def avatar_session():
+    """Create a Lingmou digital-human session, return rtcParams for the frontend SDK."""
+    try:
+        rtc_params = create_avatar_session(platform='webSDK')
+    except AvatarUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return rtc_params
 
 
 @router.get('/reports')

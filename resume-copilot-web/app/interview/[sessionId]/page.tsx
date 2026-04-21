@@ -8,6 +8,8 @@ import { InterviewChat } from '@/components/interview/InterviewChat';
 import { InterviewReport } from '@/components/interview/InterviewReport';
 import { VoiceControls } from '@/components/interview/voice/VoiceControls';
 import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
+import { SelfView } from '@/components/interview/devices/SelfView';
+import { AvatarView } from '@/components/interview/devices/AvatarView';
 
 const INTERVIEW_END_MARKER = '[INTERVIEW_END]';
 const LS_PREFIX = 'interview.';
@@ -52,9 +54,15 @@ export default function InterviewSessionPage() {
   const [reportError, setReportError] = useState('');
   const [finalDuration, setFinalDuration] = useState(0);
   const [voiceMode, setVoiceMode] = useState(false);
+  // Text buffered while TTS is fetching / playing; revealed char-by-char as audio plays.
+  const [pendingAssistantText, setPendingAssistantText] = useState('');
+  const pendingMetaRef = useRef<{ msgs: InterviewMessage[]; job: string; hasEnd: boolean } | null>(null);
+  const ttsTriggeredRef = useRef(false);
+  const voiceModeRef = useRef(voiceMode);
   const startTimeRef = useRef<number>(0);
   const initializedRef = useRef(false);
-  const lastSpokenIdxRef = useRef(-1);
+
+  useEffect(() => { voiceModeRef.current = voiceMode; }, [voiceMode]);
 
   const tts = useTTSPlayer();
 
@@ -86,20 +94,34 @@ export default function InterviewSessionPage() {
         msgs,
         (token) => {
           accumulated += token;
-          setStreamingContent(accumulated);
+          // In voice mode we hide the LLM-streamed text and reveal it in sync
+          // with TTS playback later. Keep streamingContent empty to show the spinner.
+          if (!voiceModeRef.current) setStreamingContent(accumulated);
         },
         () => {
           const hasEnd = accumulated.includes(INTERVIEW_END_MARKER);
           const clean = accumulated.replace(INTERVIEW_END_MARKER, '').trim();
-          setStreamingContent('');
-          setIsTurning(false);
           if (!clean) {
+            setStreamingContent('');
+            setIsTurning(false);
             setStreamError('面试官回复为空，可能是 LLM 接口异常。请检查后端日志或重试。');
             return;
           }
+          if (voiceModeRef.current) {
+            // Hand off to the TTS-reveal pipeline; commit happens when audio ends.
+            pendingMetaRef.current = { msgs, job, hasEnd };
+            ttsTriggeredRef.current = false;
+            setStreamingContent('');
+            setPendingAssistantText(clean);
+            // isTurning stays true until TTS finishes.
+            return;
+          }
+          // Text mode: commit immediately.
           const newMsg: InterviewMessage = { role: 'assistant', content: clean };
           const updatedMsgs = [...msgs, newMsg];
           setMessages(updatedMsgs);
+          setStreamingContent('');
+          setIsTurning(false);
           setRound((r) => r + 1);
           saveSession(sessionId, updatedMsgs, job);
           if (hasEnd) triggerReport(job, updatedMsgs);
@@ -138,16 +160,60 @@ export default function InterviewSessionPage() {
     startTurn(targetJob, updatedMsgs);
   }
 
-  // When a new assistant message lands AND voice mode is on, play TTS.
+  // ---- Voice-mode pipeline ----
+  // 1. When pending text is set, kick off TTS (once).
   useEffect(() => {
-    if (!voiceMode) return;
-    const lastIdx = messages.length - 1;
-    if (lastIdx < 0 || lastIdx === lastSpokenIdxRef.current) return;
-    const last = messages[lastIdx];
-    if (last.role !== 'assistant') return;
-    lastSpokenIdxRef.current = lastIdx;
-    tts.speak(last.content);
-  }, [messages, voiceMode, tts]);
+    if (!voiceMode || !pendingAssistantText || ttsTriggeredRef.current) return;
+    ttsTriggeredRef.current = true;
+    tts.speak(pendingAssistantText);
+  }, [pendingAssistantText, voiceMode, tts]);
+
+  // 2. Character reveal is computed at render time from progress (see JSX below).
+
+  // 3. When TTS ends (or errors), commit the pending message and move on.
+  useEffect(() => {
+    if (!pendingAssistantText || !ttsTriggeredRef.current) return;
+    const finished = !tts.isPlaying && (tts.progress >= 1 || !!tts.error);
+    if (!finished) return;
+
+    const meta = pendingMetaRef.current;
+    if (!meta) return;
+    const newMsg: InterviewMessage = { role: 'assistant', content: pendingAssistantText };
+    const updatedMsgs = [...meta.msgs, newMsg];
+    setMessages(updatedMsgs);
+    setStreamingContent('');
+    setIsTurning(false);
+    setRound((r) => r + 1);
+    saveSession(sessionId, updatedMsgs, meta.job);
+    if (meta.hasEnd) triggerReport(meta.job, updatedMsgs);
+
+    pendingMetaRef.current = null;
+    ttsTriggeredRef.current = false;
+    setPendingAssistantText('');
+  }, [tts.isPlaying, tts.progress, tts.error, pendingAssistantText, sessionId, triggerReport]);
+
+  const toggleVoiceMode = useCallback(() => {
+    const next = !voiceMode;
+    setVoiceMode(next);
+    tts.stop();
+    // If turning OFF voice while a message is waiting for TTS reveal, commit it now.
+    if (!next && pendingAssistantText) {
+      const meta = pendingMetaRef.current;
+      if (meta) {
+        const newMsg: InterviewMessage = { role: 'assistant', content: pendingAssistantText };
+        const updatedMsgs = [...meta.msgs, newMsg];
+        setMessages(updatedMsgs);
+        setIsTurning(false);
+        setRound((r) => r + 1);
+        saveSession(sessionId, updatedMsgs, meta.job);
+        if (meta.hasEnd) triggerReport(meta.job, updatedMsgs);
+      }
+      setStreamingContent('');
+      setPendingAssistantText('');
+      pendingMetaRef.current = null;
+      ttsTriggeredRef.current = false;
+    }
+  }, [voiceMode, pendingAssistantText, sessionId, triggerReport, tts]);
 
   function handleRetry() {
     setStreamError('');
@@ -178,6 +244,7 @@ export default function InterviewSessionPage() {
 
   return (
     <main className="flex h-screen flex-col bg-[var(--background)]">
+      {voiceMode ? <AvatarView /> : <SelfView />}
       <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--paper)] px-6 py-3">
         <div>
           <h1 className="text-[15px] font-semibold text-[var(--ink)]">{targetJob || '模拟面试'}</h1>
@@ -185,7 +252,7 @@ export default function InterviewSessionPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { setVoiceMode((v) => !v); tts.stop(); }}
+            onClick={toggleVoiceMode}
             className={`rounded-[10px] border px-3 py-1.5 text-[13px] transition-colors ${
               voiceMode
                 ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
@@ -238,8 +305,15 @@ export default function InterviewSessionPage() {
 
       <InterviewChat
         messages={messages}
-        streamingContent={streamingContent}
-        isStreaming={isTurning || !!streamingContent}
+        streamingContent={(() => {
+          if (voiceMode && pendingAssistantText) {
+            const len = pendingAssistantText.length;
+            const revealed = Math.max(0, Math.round(len * tts.progress));
+            return pendingAssistantText.slice(0, revealed);
+          }
+          return streamingContent;
+        })()}
+        isStreaming={isTurning || !!streamingContent || !!pendingAssistantText}
         disabled={isTurning || state !== 'interviewing'}
         onSend={handleSend}
         hideInput={voiceMode}

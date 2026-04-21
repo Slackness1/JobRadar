@@ -99,6 +99,11 @@ DASHSCOPE_TTS_MODEL = os.environ.get("DASHSCOPE_TTS_MODEL", "qwen3-tts-flash")
 DASHSCOPE_TTS_VOICE = os.environ.get("DASHSCOPE_TTS_VOICE", "Chelsie")
 DASHSCOPE_ASR_MODEL = os.environ.get("DASHSCOPE_ASR_MODEL", "paraformer-realtime-v2")
 
+ALIYUN_ACCESS_KEY_ID = os.environ.get("ALIYUN_ACCESS_KEY_ID", "")
+ALIYUN_ACCESS_KEY_SECRET = os.environ.get("ALIYUN_ACCESS_KEY_SECRET", "")
+AVATAR_PROJECT_ID = os.environ.get("AVATAR_PROJECT_ID", "")
+AVATAR_INSTANCE_ID = os.environ.get("AVATAR_INSTANCE_ID", "")
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 
