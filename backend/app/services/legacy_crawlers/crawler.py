@@ -355,27 +355,150 @@ def crawl_with_pagination(page, target: Dict[str, Any], company: str, base_url: 
 
 
 def crawl_bytedance(page, target) -> List[JobInfo]:
-    jobs = crawl_with_pagination(
-        page, target, '字节跳动', 'https://jobs.bytedance.com',
-        selectors=['.position-list-item', '[class*="jobItem"]', '[class*="position-item"]', 'a[href*="/position/"]'],
-        scroll=False, timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """字节跳动：
+    - 初始 goto 加载页面，等待第一次 /api/v1/search/job/posts 响应获取 total_count
+    - 之后通过点击分页器的「下一页」按钮（~1s/page）逐页采集
+    - 所有 JSON 响应由 on_response 拦截收集，无需解析 DOM
+    - API 请求携带 _signature（页面 JS 自动附加），无法从外部 requests 直接调用
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    total_count = [0]
+
+    def _ingest_post_item(item: Dict[str, Any]) -> Optional[JobInfo]:
+        pid = str(item.get('id') or '').strip()
+        title = norm_text(item.get('title') or item.get('sub_title') or '')
+        if not title or not pid:
+            return None
+        if pid in seen:
+            return None
+        seen.add(pid)
+        city_info = item.get('city_info') or {}
+        city_list = item.get('city_list') or []
+        if city_list:
+            location = norm_text('/'.join(c.get('name', '') for c in city_list if c.get('name'))) or '未知'
+        else:
+            location = norm_text(city_info.get('name') or city_info.get('i18n_name') or '') or '未知'
+        category = item.get('job_category') or {}
+        department = norm_text(category.get('name') or category.get('i18n_name') or '')
+        job_func = item.get('job_function') or {}
+        if not department:
+            department = norm_text(job_func.get('name') or job_func.get('i18n_name') or '')
+        recruit = item.get('recruit_type') or {}
+        job_type = norm_text(recruit.get('name') or recruit.get('i18n_name') or target.get('type', 'campus'))
+        publish_time = norm_text(str(item.get('publish_time') or ''))
+        return JobInfo(
+            id='', company='字节跳动', title=title, location=location,
+            department=department, job_type=job_type,
+            url=f'https://jobs.bytedance.com/campus/position/{pid}/detail',
+            publish_date=publish_time,
+        )
+
+    # Intercept API responses directly (more reliable than scanning _captured_json)
+    fresh_posts: List[JobInfo] = []
+
+    def on_post_response(resp):
+        url = resp.url
+        ct = (resp.headers or {}).get('content-type', '')
+        if 'search/job/posts' not in url or 'json' not in ct.lower():
+            return
+        try:
+            data = resp.json()
+        except Exception:
+            return
+        if not isinstance(data, dict) or data.get('code') != 0:
+            return
+        cnt = (data.get('data') or {}).get('count')
+        if cnt:
+            total_count[0] = int(cnt)
+        posts = (data.get('data') or {}).get('job_post_list') or []
+        for item in posts:
+            job = _ingest_post_item(item)
+            if job:
+                fresh_posts.append(job)
+
+    page.on('response', on_post_response)
+
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+
+    # Initial load
+    try:
+        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=4)
+    except Exception as e:
+        logger.warning(f'字节跳动初始页面加载失败: {e}')
+        return jobs
+
+    # Drain fresh_posts
+    jobs.extend(fresh_posts)
+    fresh_posts.clear()
+
+    if total_count[0]:
+        pages_needed = min(max_page_limit, (total_count[0] + 9) // 10)
+    else:
+        pages_needed = max_page_limit
+
+    logger.info(f'字节跳动: total_count={total_count[0]}, pages_needed={pages_needed}, so_far={len(jobs)}')
+
+    # Paginate via next-button clicks (~1s/page)
+    empty_rounds = 0
+    for pg in range(2, pages_needed + 1):
+        before = len(jobs)
+        try:
+            next_btn = page.locator('.atsx-pagination-next:not(.atsx-pagination-disabled)').first
+            if next_btn.count() == 0:
+                logger.info(f'字节跳动: 第 {pg} 页找不到下一页按钮，终止')
+                break
+            next_btn.click(timeout=5000)
+            time.sleep(1.0)
+        except Exception as e:
+            logger.warning(f'字节跳动第 {pg} 页点击失败: {e}，尝试 goto fallback')
+            try:
+                goto_and_wait(page, f'https://jobs.bytedance.com/campus/position?current={pg}', timeout=30000, extra_sleep=2)
+            except Exception as e2:
+                logger.warning(f'字节跳动第 {pg} 页 goto fallback 失败: {e2}')
+                break
+
+        jobs.extend(fresh_posts)
+        fresh_posts.clear()
+        added = len(jobs) - before
+
+        if pg % 100 == 0 or added == 0:
+            logger.info(f'字节跳动第 {pg}/{pages_needed} 页: +{added} (total={len(jobs)})')
+
+        if added == 0:
+            empty_rounds += 1
+            if empty_rounds >= MAX_EMPTY_PAGES:
+                logger.info(f'字节跳动: 连续 {MAX_EMPTY_PAGES} 页空结果，终止于第 {pg} 页')
+                break
+        else:
+            empty_rounds = 0
+
+    logger.info(f'字节跳动: 最终采集 {len(jobs)} 条岗位')
     return jobs
 
 
 def crawl_tencent(page, target) -> List[JobInfo]:
     jobs = []
     seen = set()
-    for idx in range(1, MAX_PAGES + 1):
+    page_size = 100
+    # Derive total pages from first response; cap at 50 pages (5000 jobs)
+    max_page_limit = max(int(target.get('max_pages') or MAX_PAGES), 50)
+    total_count = 0
+    for idx in range(1, max_page_limit + 1):
         try:
             resp = requests.get(
                 'https://careers.tencent.com/tencentcareer/api/post/Query',
-                params={'pageIndex': idx, 'pageSize': 100, 'language': 'zh-cn', 'area': 'cn'},
+                params={'pageIndex': idx, 'pageSize': page_size, 'language': 'zh-cn', 'area': 'cn'},
                 headers={'User-Agent': UA, 'Accept': 'application/json', 'Referer': 'https://careers.tencent.com/'},
                 proxies=REQUEST_PROXIES, timeout=30
             )
             data = resp.json()
+            if idx == 1:
+                total_count = int(((data or {}).get('Data') or {}).get('Count') or 0)
+                if total_count:
+                    pages_total = (total_count + page_size - 1) // page_size
+                    max_page_limit = min(max_page_limit, pages_total)
+                    logger.info(f'腾讯: total={total_count}, pages={max_page_limit}')
             posts = (((data or {}).get('Data') or {}).get('Posts') or [])
             if not posts:
                 break
@@ -396,11 +519,85 @@ def crawl_tencent(page, target) -> List[JobInfo]:
 
 
 def crawl_meituan(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '美团', 'https://zhaopin.meituan.com',
-        selectors=['[class*="position-item"]', '[class*="job-item"]', '.job-list-item', 'a[href*="job"]'],
-        scroll=True, timeout=30000, extra_sleep=2
-    )
+    """美团：直接调用 /api/official/job/getJobList REST 接口（无需浏览器会话）。"""
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    page_size = 20
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+    total_count = 0
+    headers = {
+        'User-Agent': UA,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Referer': 'https://zhaopin.meituan.com/web/campus',
+    }
+    page_no = 1
+    while page_no <= max_page_limit:
+        payload = {
+            'page': {'pageNo': page_no, 'pageSize': page_size},
+            'jobShareType': '1',
+            'keywords': '',
+            'cityList': [],
+            'department': [],
+            'jfJgList': [],
+            'jobType': [],
+            'typeCode': [],
+            'specialCode': [],
+        }
+        try:
+            resp = requests.post(
+                'https://zhaopin.meituan.com/api/official/job/getJobList',
+                json=payload,
+                headers=headers,
+                proxies=REQUEST_PROXIES,
+                timeout=30,
+            )
+            data = resp.json() or {}
+        except Exception as e:
+            logger.warning(f'美团 API 第 {page_no} 页失败: {e}')
+            break
+        dd = data.get('data') or {}
+        if page_no == 1:
+            pg_info = dd.get('page') or {}
+            total_count = int(pg_info.get('totalCount') or 0)
+            if total_count:
+                pages_total = (total_count + page_size - 1) // page_size
+                max_page_limit = min(max(max_page_limit, pages_total), 300)
+                logger.info(f'美团: total={total_count}, pages_needed={max_page_limit}')
+        items = dd.get('list') or []
+        if not items:
+            break
+        page_added = 0
+        for item in items:
+            title = norm_text(item.get('name') or item.get('jobName') or '')
+            if not title:
+                continue
+            job_union_id = str(item.get('jobUnionId') or item.get('id') or '').strip()
+            project_id = str(item.get('projectId') or '').strip()
+            url = f'https://zhaopin.meituan.com/web/position/detail?jobId={job_union_id}' if job_union_id else target['url']
+            cities = item.get('cityList') or []
+            location = norm_text('/'.join(c.get('name', '') for c in cities if c.get('name'))) or '未知'
+            dept = norm_text(item.get('department') or item.get('jobFamily') or item.get('jobFamilyGroup') or '')
+            job_type_info = item.get('jobType') or {}
+            jt_name = norm_text(job_type_info.get('name') or '') if isinstance(job_type_info, dict) else ''
+            publish_date = norm_text(item.get('firstPostTime') or item.get('refreshTime') or '')
+            deadline = norm_text(item.get('expiredTime') or '')
+            job = JobInfo(
+                id='', company='美团', title=title, location=location,
+                department=dept, job_type=jt_name or target.get('type', 'campus'),
+                url=url, publish_date=publish_date, deadline=deadline,
+                description=norm_text(item.get('jobDuty') or item.get('desc') or ''),
+                requirements=norm_text(item.get('jobRequirement') or ''),
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+                page_added += 1
+        logger.info(f'美团 API 第 {page_no} 页: {page_added} 条 / total={total_count}')
+        if page_added == 0:
+            break
+        page_no += 1
+    return jobs
 
 
 def crawl_ctrip(page, target) -> List[JobInfo]:
@@ -420,8 +617,136 @@ def crawl_xiaohongshu(page, target) -> List[JobInfo]:
     )
 
 
+def _crawl_campus_talent_alibaba(page, target) -> List[JobInfo]:
+    """campus-talent.alibaba.com：用 Playwright 获取 XSRF-TOKEN，然后直调 /position/search API。"""
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    page_size = 20
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+
+    # Load the page to get XSRF-TOKEN cookie
+    try:
+        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=3)
+    except Exception as e:
+        logger.warning(f'阿里巴巴(campus-talent) 页面加载失败: {e}')
+        return jobs
+
+    # Extract CSRF token from cookies
+    csrf_token = None
+    try:
+        context = page.context
+        cookies = context.cookies()
+        for c in cookies:
+            if c.get('name') == 'XSRF-TOKEN':
+                csrf_token = c.get('value')
+                break
+    except Exception as e:
+        logger.warning(f'阿里巴巴(campus-talent) 获取 CSRF token 失败: {e}')
+
+    if not csrf_token:
+        logger.warning('阿里巴巴(campus-talent): 无法获取 CSRF token，跳过 REST API 路径')
+        return jobs
+
+    # Extract batchId from URL
+    import re as _re
+    batch_id_match = _re.search(r'batchId=(\d+)', target['url'])
+    batch_id = int(batch_id_match.group(1)) if batch_id_match else 100000540002
+
+    # Get cookies string for requests
+    cookies = page.context.cookies()
+    cookie_str = '; '.join(f'{c["name"]}={c["value"]}' for c in cookies if c.get("name") and c.get("value"))
+
+    headers = {
+        'User-Agent': UA,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Referer': target['url'],
+        'Cookie': cookie_str,
+        'X-XSRF-TOKEN': csrf_token,
+    }
+
+    total_count = 0
+    page_index = 1
+    while page_index <= max_page_limit:
+        payload = {
+            'batchId': batch_id,
+            'pageIndex': page_index,
+            'pageSize': page_size,
+            'channel': 'campus_group_official_site',
+            'language': 'zh',
+        }
+        try:
+            resp = requests.post(
+                f'https://campus-talent.alibaba.com/position/search?_csrf={csrf_token}',
+                json=payload,
+                headers=headers,
+                proxies=REQUEST_PROXIES,
+                timeout=30,
+            )
+            data = resp.json() or {}
+        except Exception as e:
+            logger.warning(f'阿里巴巴(campus-talent) API 第 {page_index} 页失败: {e}')
+            break
+
+        if not data.get('success'):
+            logger.warning(f'阿里巴巴(campus-talent) API 返回失败: {data.get("errorMsg")}')
+            break
+
+        content = data.get('content') or {}
+        if page_index == 1:
+            total_count = int(content.get('totalCount') or 0)
+            if total_count:
+                pages_total = (total_count + page_size - 1) // page_size
+                max_page_limit = min(max(max_page_limit, pages_total), 200)
+                logger.info(f'阿里巴巴(campus-talent): total={total_count}, pages={max_page_limit}')
+
+        items = content.get('datas') or []
+        if not items:
+            break
+
+        page_added = 0
+        for item in items:
+            pid = str(item.get('id') or '').strip()
+            title = norm_text(item.get('name') or item.get('title') or '')
+            if not title or not pid:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            pos_url = item.get('positionUrl') or f'https://campus-talent.alibaba.com/campus/position/detail?id={pid}'
+            locs = item.get('workLocations') or []
+            location = norm_text('/'.join(str(l) for l in locs if l)) or '未知'
+            cats = item.get('categories') or []
+            department = norm_text('/'.join(str(c) for c in cats if c)) or ''
+            publish_time = norm_text(str(item.get('publishTime') or ''))
+            grad_time = item.get('graduationTime') or {}
+            deadline = ''
+            if isinstance(grad_time, dict) and (grad_time.get('from') or grad_time.get('to')):
+                deadline = f"{norm_text(str(grad_time.get('from') or ''))}-{norm_text(str(grad_time.get('to') or ''))}".strip('-')
+            job = JobInfo(
+                id='', company='阿里巴巴', title=title, location=location,
+                department=department, job_type=target.get('type', 'campus'),
+                url=pos_url, publish_date=publish_time, deadline=deadline,
+            )
+            jobs.append(job)
+            page_added += 1
+
+        logger.info(f'阿里巴巴(campus-talent) 第 {page_index} 页: {page_added} 条 / total={total_count}')
+        if page_added == 0:
+            break
+        page_index += 1
+
+    return jobs
+
+
 def crawl_alibaba(page, target) -> List[JobInfo]:
-    base = 'https://talent.alibaba.com' if 'talent.alibaba.com' in target['url'] else 'https://talent-holding.alibaba.com'
+    """阿里巴巴：campus-talent.alibaba.com 走 CSRF+REST API；
+    talent.alibaba.com 和 talent-holding.alibaba.com 走 Playwright 分页。
+    """
+    url = target['url']
+    if 'campus-talent.alibaba.com' in url:
+        return _crawl_campus_talent_alibaba(page, target)
+    base = 'https://talent.alibaba.com' if 'talent.alibaba.com' in url else 'https://talent-holding.alibaba.com'
     return crawl_with_pagination(
         page, target, '阿里巴巴', base,
         selectors=['[class*="position-item"]', '[class*="job-card"]', '[class*="list-item"]', 'a[href*="position"]'],
@@ -545,12 +870,97 @@ def crawl_pingan(page, target) -> List[JobInfo]:
 
 
 def crawl_pdd(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '拼多多', 'https://careers.pddglobalhr.com',
-        selectors=['[class*="job-item"]', '[class*="position"]', '[class*="card"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=3,
-        response_keywords=['position', 'job', 'api']
-    )
+    """拼多多：先用 Playwright 加载页面获取 session cookie，再直调
+    /api/careers/api/recruit/position/list REST 接口分页。"""
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    page_size = 20
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+
+    # Load the page to establish session
+    try:
+        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=3)
+    except Exception as e:
+        logger.warning(f'拼多多页面加载失败: {e}')
+        return jobs
+
+    # Extract cookies for requests
+    try:
+        cookies = page.context.cookies()
+        cookie_str = '; '.join(f'{c["name"]}={c["value"]}' for c in cookies if c.get("name") and c.get("value"))
+    except Exception:
+        cookie_str = ''
+
+    headers = {
+        'User-Agent': UA,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Referer': target['url'],
+        'Cookie': cookie_str,
+    }
+
+    total_count = 0
+    pg = 1
+    while pg <= max_page_limit:
+        payload = {'page': pg, 'pageSize': page_size, 't': None}
+        try:
+            resp = requests.post(
+                'https://careers.pddglobalhr.com/api/careers/api/recruit/position/list',
+                json=payload,
+                headers=headers,
+                proxies=REQUEST_PROXIES,
+                timeout=30,
+            )
+            data = resp.json() or {}
+        except Exception as e:
+            logger.warning(f'拼多多 API 第 {pg} 页失败: {e}')
+            break
+
+        if not data.get('success'):
+            logger.warning(f'拼多多 API 返回失败: {data.get("errorMsg")}')
+            break
+
+        result = data.get('result') or {}
+        if pg == 1:
+            total_count = int(result.get('total') or 0)
+            if total_count:
+                pages_total = (total_count + page_size - 1) // page_size
+                max_page_limit = min(max(max_page_limit, pages_total), 200)
+                logger.info(f'拼多多: total={total_count}, pages={max_page_limit}')
+
+        items = result.get('list') or []
+        if not items:
+            break
+
+        page_added = 0
+        for item in items:
+            pid = str(item.get('id') or '').strip()
+            title = norm_text(item.get('name') or item.get('jobName') or '')
+            if not title or not pid:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            location = norm_text(item.get('workLocationName') or item.get('workLocation') or '') or '未知'
+            dept = norm_text(item.get('jobName') or item.get('job') or '')
+            recruit_type = norm_text(item.get('recruitTypeName') or target.get('type', 'campus'))
+            url = f'https://careers.pddglobalhr.com/campus/grad?jobId={pid}'
+            job = JobInfo(
+                id='', company='拼多多', title=title, location=location,
+                department=dept, job_type=recruit_type,
+                url=url,
+                publish_date=norm_text(str(item.get('releaseTime') or '')),
+                description=norm_text(item.get('jobDuty') or ''),
+            )
+            jobs.append(job)
+            page_added += 1
+
+        logger.info(f'拼多多 API 第 {pg} 页: {page_added} 条 / total={total_count}')
+        if page_added == 0:
+            break
+        pg += 1
+
+    return jobs
 
 
 def crawl_cmb(page, target) -> List[JobInfo]:
@@ -1034,40 +1444,44 @@ def crawl_360_campus(page, target) -> List[JobInfo]:
     return jobs
 
 
-def crawl_antgroup(page, target) -> List[JobInfo]:
+def _crawl_antgroup_one_type(
+    target, headers: Dict[str, str], ctoken: str,
+    recruit_types: List[str], type_label: str,
+    seen: Set[str],
+) -> List[JobInfo]:
+    """蚂蚁集团：按指定 recruitType 列表抓取一轮。"""
     jobs: List[JobInfo] = []
-    seen: Set[str] = set()
-    headers = {
-        'User-Agent': UA,
-        'Accept': 'application/json',
-        'Referer': 'https://talent.antgroup.com/',
-        'Content-Type': 'application/json;charset=UTF-8',
-        'front-user-id': f'{hashlib.md5(str(time.time()).encode()).hexdigest()}30',
-    }
-    ctoken = f'bigfish_ctoken_{hashlib.md5(str(time.time()).encode()).hexdigest()[:10]}'
+    page_size = 20
     current_page = 1
-    page_size = 10
     total_pages = 1
-    while current_page <= total_pages and current_page <= MAX_PAGES * 2:
-        resp = requests.post(
-            'https://hrcareersweb.antgroup.com/api/campus/position/search',
-            params={'ctoken': ctoken},
-            headers=headers,
-            proxies=REQUEST_PROXIES,
-            timeout=30,
-            json={
-                'channel': 'campus_group_official_site',
-                'language': 'zh',
-                'regions': '',
-                'subCategories': '',
-                'bgCode': '',
-                'pageIndex': current_page,
-                'pageSize': page_size,
-                'recruitType': [],
-                'batchIds': [],
-            },
-        )
-        data = resp.json()
+    max_pages = MAX_PAGES * 5  # generous cap (500 items max)
+    while current_page <= total_pages and current_page <= max_pages:
+        try:
+            resp = requests.post(
+                'https://hrcareersweb.antgroup.com/api/campus/position/search',
+                params={'ctoken': ctoken},
+                headers=headers,
+                proxies=REQUEST_PROXIES,
+                timeout=30,
+                json={
+                    'channel': 'campus_group_official_site',
+                    'language': 'zh',
+                    'regions': '',
+                    'subCategories': '',
+                    'bgCode': '',
+                    'pageIndex': current_page,
+                    'pageSize': page_size,
+                    'recruitType': recruit_types,
+                    'batchIds': [],
+                },
+            )
+            data = resp.json()
+        except Exception as e:
+            logger.warning(f'蚂蚁集团({type_label}) 第 {current_page} 页失败: {e}')
+            break
+        if not data.get('success', True) and data.get('errorCode'):
+            logger.warning(f'蚂蚁集团({type_label}) API 错误: {data.get("errorMsg")}')
+            break
         rows = data.get('content') or []
         total_count = int(data.get('totalCount') or 0)
         total_pages = max(1, (total_count + page_size - 1) // page_size)
@@ -1081,13 +1495,16 @@ def crawl_antgroup(page, target) -> List[JobInfo]:
             grad = item.get('graduationTime') or {}
             deadline = ''
             if grad.get('from') or grad.get('to'):
-                deadline = f"{norm_text(grad.get('from'))} ~ {norm_text(grad.get('to'))}".strip(' ~')
+                deadline = f"{norm_text(str(grad.get('from') or ''))} ~ {norm_text(str(grad.get('to') or ''))}".strip(' ~')
+            # Derive job_type from item's recruitType field
+            item_recruit = item.get('recruitType') or {}
+            item_jtype = norm_text(item_recruit.get('name') or '') if isinstance(item_recruit, dict) else norm_text(str(item_recruit))
             job = JobInfo(
                 id='', company='蚂蚁集团', title=title,
-                location=norm_text('/'.join(item.get('workLocations') or [])) or '未知',
-                department=norm_text('/'.join(item.get('categories') or [])) or norm_text(item.get('category') or ''),
-                job_type=target.get('type', 'campus'), url=url,
-                publish_date=norm_text(item.get('publishTime') or ''),
+                location=norm_text('/'.join(str(x) for x in (item.get('workLocations') or []) if x)) or '未知',
+                department=norm_text('/'.join(str(x) for x in (item.get('categories') or []) if x)) or norm_text(item.get('category') or ''),
+                job_type=item_jtype or target.get('type', 'campus'), url=url,
+                publish_date=norm_text(str(item.get('publishTime') or '')),
                 deadline=deadline,
                 description=norm_text(item.get('requirement') or ''),
                 requirements=norm_text(item.get('requirement') or ''),
@@ -1096,10 +1513,36 @@ def crawl_antgroup(page, target) -> List[JobInfo]:
                 seen.add(job.id)
                 jobs.append(job)
                 page_added += 1
-        logger.info(f'蚂蚁集团 API 第 {current_page} 页: {page_added} 条 / total={total_count}')
+        logger.info(f'蚂蚁集团({type_label}) 第 {current_page} 页: {page_added} 条 / total={total_count}')
         if not rows:
             break
         current_page += 1
+    return jobs
+
+
+def crawl_antgroup(page, target) -> List[JobInfo]:
+    """蚂蚁集团：分别抓取校招（campus_graduates）和实习（campus_interns）两种岗位类型，
+    再合并去重。之前只用空 recruitType 会只返回部分结果（约 300 条），遗漏了 600+ 实习岗位。
+    """
+    seen: Set[str] = set()
+    headers = {
+        'User-Agent': UA,
+        'Accept': 'application/json',
+        'Referer': 'https://talent.antgroup.com/',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'front-user-id': f'{hashlib.md5(str(time.time()).encode()).hexdigest()}30',
+    }
+    ctoken = f'bigfish_ctoken_{hashlib.md5(str(time.time()).encode()).hexdigest()[:10]}'
+
+    jobs: List[JobInfo] = []
+    for recruit_types, label in [
+        (['campus_graduates'], 'graduates'),
+        (['campus_interns'], 'interns'),
+    ]:
+        batch = _crawl_antgroup_one_type(target, headers, ctoken, recruit_types, label, seen)
+        logger.info(f'蚂蚁集团({label}): {len(batch)} 条')
+        jobs.extend(batch)
+
     return jobs
 
 
