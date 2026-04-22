@@ -22,7 +22,8 @@ targets:
   type: campus
   tier: 1
   status: completed
-  note: SPA，需要浏览器；已抓 185 条（仅校招，>2026-01）
+  max_pages: 800
+  note: 分页点击爬取，total~7800，800页≈8000岗位，1s/page
 - name: 美团
   url: https://zhaopin.meituan.com/web/campus
   type: campus
