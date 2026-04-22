@@ -112,6 +112,7 @@ class InternetCrawlTarget:
     source: str
     platform: str
     reason: str
+    max_pages: int = 0
 
 
 @dataclass
@@ -215,8 +216,18 @@ def _name_matches_company(name: str, company: str) -> bool:
         if not alias_text:
             continue
         if alias_text.lower() in lowered:
-            if company == "京东" and "京东方" in raw:
-                continue
+            if company == "京东":
+                normalized_without_city = re.sub(
+                    r"^(北京市|北京|上海市|上海|深圳市|深圳|广州市|广州|杭州市|杭州|南京市|南京|"
+                    r"武汉市|武汉|苏州市|苏州|成都市|成都|重庆市|重庆|天津市|天津|西安市|西安)",
+                    "",
+                    normalized,
+                    count=1,
+                )
+                if not normalized_without_city.startswith("京东"):
+                    continue
+                if "京东方" in raw:
+                    continue
             return True
     return False
 
@@ -239,6 +250,7 @@ def _add_candidate(
     reason: str,
     target_type: str = "",
     allow_detail_url: bool = False,
+    max_pages: int = 0,
 ) -> None:
     normalized = _normalize_url(url)
     if _is_skipped_url(normalized):
@@ -260,6 +272,7 @@ def _add_candidate(
         source=source,
         platform=_detect_platform(normalized),
         reason=reason,
+        max_pages=int(max_pages) if max_pages else 0,
     )
 
 
@@ -383,6 +396,7 @@ def build_internet_targets(
                 source=targets_config_path.name,
                 reason=str(item.get("note", "") or "configured target"),
                 target_type=str(item.get("type", "") or ""),
+                max_pages=int(item.get("max_pages") or 0),
             )
 
     return sorted(candidates.values(), key=lambda item: (item.tier, item.company, item.source, item.url))
@@ -518,8 +532,10 @@ def crawl_internet_targets(
                             "url": target.url,
                             "type": target.target_type,
                         }
-                        if max_pages:
-                            runtime_target["max_pages"] = int(max_pages)
+                        # CLI --max-pages overrides per-target config; per-target config overrides global MAX_PAGES
+                        effective_max_pages = max_pages or target.max_pages
+                        if effective_max_pages:
+                            runtime_target["max_pages"] = int(effective_max_pages)
 
                         legacy_jobs = fn(page, runtime_target)
                         fetched_count = 0
@@ -546,6 +562,13 @@ def crawl_internet_targets(
                                     existing_jobs[mapped["job_id"]] = created
                                 new_count += 1
                             else:
+                                # If the existing record was from a legacy source, promote it to
+                                # internet_official so the canonical source is always preferred.
+                                existing_source = getattr(existing, "source", "") or ""
+                                if existing_source != "internet_official" and mapped.get("source") == "internet_official":
+                                    if not dry_run:
+                                        setattr(existing, "source", "internet_official")
+                                        setattr(existing, "source_config_id", mapped.get("source_config_id", ""))
                                 if not dry_run and merge_job_fields(existing, mapped):
                                     updated_count += 1
                                 existing_jobs[mapped["job_id"]] = existing

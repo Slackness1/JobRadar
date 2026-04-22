@@ -40,6 +40,7 @@ def _write_targets_csv(path: Path, rows: list[dict]) -> None:
         "source",
         "platform",
         "reason",
+        "max_pages",
     ]
     with path.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

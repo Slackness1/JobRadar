@@ -178,16 +178,21 @@ targets:
   type: campus
   status: pending
   note: SPA，需要浏览器
-- name: 字节跳动-全部
-  url: https://jobs.bytedance.com/campus/position?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10
-  type: campus
-  status: pending
-  note: SPA，需要浏览器
-- name: 腾讯-校招
-  url: https://join.qq.com/post.html?query=p_2
-  type: campus
-  status: pending
-  note: SPA，需要浏览器
+# 字节跳动-全部 — redundant with main 字节跳动 entry (same URL base, parameterized start page
+# confuses the SPA response interceptor and returns 0 on initial load). Commented out 2026-04-23.
+# - name: 字节跳动-全部
+#   url: https://jobs.bytedance.com/campus/position?keywords=&category=&location=&project=&type=&job_hot_flag=&current=1&limit=10
+#   type: campus
+#   status: pending
+#   note: SPA，需要浏览器（已停用：与主条目重复，初始加载无法触发响应拦截）
+# 腾讯-校招 (join.qq.com) — portal is no longer accessible as a standalone job list;
+# crawl_tencent() uses careers.tencent.com REST API regardless of target URL, so this
+# entry would duplicate all records under a different source_config_id. Commented out 2026-04-23.
+# - name: 腾讯-校招
+#   url: https://join.qq.com/post.html?query=p_2
+#   type: campus
+#   status: pending
+#   note: SPA，需要浏览器（已停用：改用 careers.tencent.com REST API）
 - name: 阿里巴巴-校招
   url: https://talent.alibaba.com/campus/position-list?campusType=freshman
   type: campus

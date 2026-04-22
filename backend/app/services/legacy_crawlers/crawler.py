@@ -439,10 +439,35 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
 
     logger.info(f'字节跳动: total_count={total_count[0]}, pages_needed={pages_needed}, so_far={len(jobs)}')
 
-    # Paginate via next-button clicks (~1s/page)
+    # Paginate via next-button clicks (~1s/page).
+    # After BYTEDANCE_SESSION_RESET_INTERVAL pages the SPA stops returning new data in the
+    # same browser context, so we do a hard goto to the target page number every N pages to
+    # reset the session and let the response interceptor pick up fresh API results.
+    BYTEDANCE_SESSION_RESET_INTERVAL = 150
     empty_rounds = 0
     for pg in range(2, pages_needed + 1):
         before = len(jobs)
+
+        # Periodic hard-reset: navigate directly to the current page number so the SPA
+        # re-issues a fresh API request rather than serving stale cached state.
+        if pg > 2 and (pg - 1) % BYTEDANCE_SESSION_RESET_INTERVAL == 0:
+            logger.info(f'字节跳动: 会话重置 goto 第 {pg} 页 (每 {BYTEDANCE_SESSION_RESET_INTERVAL} 页重置一次)')
+            try:
+                goto_and_wait(page, f'https://jobs.bytedance.com/campus/position?current={pg}', timeout=30000, extra_sleep=3)
+                jobs.extend(fresh_posts)
+                fresh_posts.clear()
+                added = len(jobs) - before
+                if added == 0:
+                    empty_rounds += 1
+                    if empty_rounds >= MAX_EMPTY_PAGES:
+                        logger.info(f'字节跳动: 会话重置后仍空，终止于第 {pg} 页')
+                        break
+                else:
+                    empty_rounds = 0
+                continue
+            except Exception as e:
+                logger.warning(f'字节跳动会话重置失败于第 {pg} 页: {e}，继续尝试点击')
+
         try:
             next_btn = page.locator('.atsx-pagination-next:not(.atsx-pagination-disabled)').first
             if next_btn.count() == 0:
