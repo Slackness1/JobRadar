@@ -58,7 +58,7 @@ DETAIL_URL_PATTERNS = [
 COMPANY_ALIASES = {
     "腾讯": ["腾讯", "tencent", "qq.com"],
     "字节跳动": ["字节跳动", "bytedance", "toutiao", "抖音", "tiktok"],
-    "阿里巴巴": ["阿里巴巴", "alibaba", "阿里云", "淘天"],
+    "阿里巴巴": ["阿里巴巴", "alibaba", "阿里云", "淘天", "阿里健康", "阿里巴巴集团"],
     "蚂蚁集团": ["蚂蚁集团", "antgroup", "蚂蚁"],
     "美团": ["美团", "meituan", "三快"],
     "拼多多": ["拼多多", "pdd", "pddglobal"],
