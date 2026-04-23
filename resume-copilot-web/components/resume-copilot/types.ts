@@ -200,8 +200,9 @@ export interface RewriteOption {
   label: string;
   section: string;
   field_path: string;
-  original: string;
-  improved: string;
+  target_title: string;
+  original: string[];
+  improved: string[];
   rationale: string;
 }
 

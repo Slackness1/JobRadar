@@ -36,6 +36,7 @@ import {
 import {
   createResumeCopilotSession,
   deleteResumeCopilotSession,
+  getChatMessages,
   getDirectionAnalysis,
   getResumeCopilotFeedback,
   getResumeCopilotParsedProfile,
@@ -43,12 +44,15 @@ import {
   getResumeCopilotRecommendations,
   getResumeCopilotSession,
   listResumeCopilotSessions,
+  postApplyRewrite,
+  postChatMessage,
   postResumeCopilotGenerate,
   putResumeCopilotConfirmedProfile,
   putResumeCopilotPreferences,
   renameResumeCopilotSession,
 } from './api';
 import {
+  type CopilotMessage,
   type DirectionTierResult,
   type ResumeAgentTraceItem,
   EMPTY_PREFERENCES,
@@ -62,6 +66,7 @@ import {
   type ResumeProfilePayload,
   type ResumeProjectItem,
   type ResumeRecommendationResult,
+  type RewriteOption,
 } from './types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1095,6 +1100,9 @@ export function PublicResumeCopilot() {
   const [feedback, setFeedback] = useState<ResumeFeedbackResult | null>(null);
   const [directionResults, setDirectionResults] = useState<DirectionTierResult[]>([]);
   const [activeDirection, setActiveDirection] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<CopilotMessage[]>([]);
+  const [isSendingChat, setIsSendingChat] = useState(false);
+  const [applyingOption, setApplyingOption] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [resumeHistory, setResumeHistory] = useState<ResumeHistoryItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -1231,8 +1239,74 @@ export function PublicResumeCopilot() {
     }).catch(() => {});
   }, [session?.feedback_status, session?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!sessionId) {
+      setChatMessages([]);
+      return;
+    }
+    if (!session || session.feedback_status !== 'completed') return;
+    let cancelled = false;
+    getChatMessages(sessionId).then((msgs) => {
+      if (!cancelled) setChatMessages(msgs);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [sessionId, session?.feedback_status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const updateProfile = (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => {
     setProfile((previous) => updater(previous ?? EMPTY_PROFILE));
+  };
+
+  const sendChatMessage = async (content: string): Promise<void> => {
+    if (!sessionId || isSendingChat) return;
+    const trimmed = content.trim();
+    if (!trimmed) return;
+    const optimistic: CopilotMessage = {
+      id: -Date.now(),
+      role: 'user',
+      content: trimmed,
+      rewrite_options: null,
+      applied_option_id: null,
+      created_at: new Date().toISOString(),
+    };
+    setChatMessages((prev) => [...prev, optimistic]);
+    setIsSendingChat(true);
+    setError('');
+    try {
+      const assistantMsg = await postChatMessage(sessionId, trimmed);
+      const refreshed = await getChatMessages(sessionId).catch(() => null);
+      if (refreshed) {
+        setChatMessages(refreshed);
+      } else {
+        setChatMessages((prev) => [
+          ...prev.filter((m) => m.id !== optimistic.id),
+          optimistic,
+          assistantMsg,
+        ]);
+      }
+    } catch (reason) {
+      setChatMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+      setError(reason instanceof Error ? reason.message : '发送失败，请稍后再试');
+    } finally {
+      setIsSendingChat(false);
+    }
+  };
+
+  const applyRewriteOption = async (messageId: number, optionId: string): Promise<void> => {
+    if (!sessionId || applyingOption) return;
+    setApplyingOption(`${messageId}:${optionId}`);
+    setError('');
+    try {
+      const result = await postApplyRewrite(sessionId, messageId, optionId);
+      setProfile(result.profile);
+      setChatMessages((prev) => prev.map((m) =>
+        m.id === messageId ? { ...m, applied_option_id: optionId } : m,
+      ));
+      setNotice('已将改写应用到简历。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '应用改写失败');
+    } finally {
+      setApplyingOption(null);
+    }
   };
 
   const updateBasicInfo = (key: string, value: string) => {
@@ -1457,6 +1531,11 @@ export function PublicResumeCopilot() {
           onDeleteSession={handleDeleteSession}
           onUpload={handleUpload}
           isUploading={isUploading}
+          chatMessages={chatMessages}
+          sendChatMessage={sendChatMessage}
+          applyRewriteOption={applyRewriteOption}
+          isSendingChat={isSendingChat}
+          applyingOption={applyingOption}
         />
         <EditableResumeCanvas
           profile={currentProfile}
@@ -1467,6 +1546,120 @@ export function PublicResumeCopilot() {
         />
       </section>
     </main>
+  );
+}
+
+function ChatMessageBubble({
+  message,
+  applyingOption,
+  onApply,
+}: {
+  message: CopilotMessage;
+  applyingOption: string | null;
+  onApply: (messageId: number, optionId: string) => Promise<void>;
+}) {
+  if (message.role === 'user') {
+    return (
+      <div className="ml-auto max-w-[88%] rounded-2xl rounded-tr-md bg-[var(--primary)] px-4 py-3 text-sm leading-6 text-white">
+        {message.content}
+      </div>
+    );
+  }
+
+  const isSystem = message.role === 'system';
+  const options = message.rewrite_options ?? [];
+
+  return (
+    <div
+      className={cn(
+        'max-w-[92%] rounded-2xl rounded-tl-md px-4 py-3 text-sm leading-6',
+        isSystem ? 'bg-amber-50 text-amber-900' : 'bg-slate-50 text-slate-700',
+      )}
+    >
+      <div className="whitespace-pre-wrap">{message.content}</div>
+      {options.length > 0 && (
+        <div className="mt-3 grid gap-2">
+          {options.map((opt) => (
+            <RewriteOptionCard
+              key={opt.option_id}
+              messageId={message.id}
+              option={opt}
+              applied={message.applied_option_id === opt.option_id}
+              disabled={Boolean(message.applied_option_id) || applyingOption !== null}
+              isApplying={applyingOption === `${message.id}:${opt.option_id}`}
+              onApply={onApply}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RewriteOptionCard({
+  messageId,
+  option,
+  applied,
+  disabled,
+  isApplying,
+  onApply,
+}: {
+  messageId: number;
+  option: RewriteOption;
+  applied: boolean;
+  disabled: boolean;
+  isApplying: boolean;
+  onApply: (messageId: number, optionId: string) => Promise<void>;
+}) {
+  const originalLines = option.original ?? [];
+  const improvedLines = option.improved ?? [];
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs font-semibold text-slate-950">{option.label || `方案 ${option.option_id}`}</div>
+          {option.target_title && (
+            <div className="mt-0.5 truncate text-[11px] text-slate-500">{option.target_title}</div>
+          )}
+        </div>
+        <Badge className="shrink-0 bg-slate-100 text-[10px] text-slate-500">{option.section || option.field_path}</Badge>
+      </div>
+      {originalLines.length > 0 && (
+        <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2 text-xs leading-5 text-slate-500">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">原文</div>
+          <ul className="list-disc space-y-1 pl-4">
+            {originalLines.map((line, idx) => (
+              <li key={idx}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {improvedLines.length > 0 && (
+        <div className="mt-2 rounded-lg bg-emerald-50 px-2.5 py-2 text-xs leading-5 text-emerald-900">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-600">改写</div>
+          <ul className="list-disc space-y-1 pl-4">
+            {improvedLines.map((line, idx) => (
+              <li key={idx}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {option.rationale && (
+        <div className="mt-2 text-[11px] leading-5 text-slate-500">理由：{option.rationale}</div>
+      )}
+      <div className="mt-3 flex justify-end">
+        <Button
+          type="button"
+          size="sm"
+          variant={applied ? 'secondary' : 'default'}
+          disabled={disabled || applied}
+          onClick={() => void onApply(messageId, option.option_id)}
+        >
+          {isApplying ? <Loader2 className="size-3.5 animate-spin" /> : applied ? <Check className="size-3.5" /> : null}
+          {applied ? '已应用' : '一键应用到简历'}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -1520,6 +1713,11 @@ function ResumeChatRail({
   onDeleteSession,
   onUpload,
   isUploading,
+  chatMessages,
+  sendChatMessage,
+  applyRewriteOption,
+  isSendingChat,
+  applyingOption,
 }: {
   session: ResumeCopilotSession | null;
   notice: string;
@@ -1544,11 +1742,15 @@ function ResumeChatRail({
   onDeleteSession: (id: number) => void;
   onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
   isUploading: boolean;
+  chatMessages: CopilotMessage[];
+  sendChatMessage: (content: string) => Promise<void>;
+  applyRewriteOption: (messageId: number, optionId: string) => Promise<void>;
+  isSendingChat: boolean;
+  applyingOption: string | null;
 }) {
   const [draft, setDraft] = useState('');
   const [targetOpen, setTargetOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(true);
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const [contextMenu, setContextMenu] = useState<{ id: number; x: number; y: number } | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -1584,16 +1786,9 @@ function ResumeChatRail({
 
   const sendMessage = () => {
     const content = draft.trim();
-    if (!content || !canChat) return;
-    setMessages((previous) => [
-      ...previous,
-      { role: 'user', content },
-      {
-        role: 'assistant',
-        content: '我已经记下这个问题。当前版本会先把目标岗位和偏好用于推荐，后续可以接入真正的多轮简历改写对话。',
-      },
-    ]);
+    if (!content || !canChat || isSendingChat) return;
     setDraft('');
+    void sendChatMessage(content);
   };
 
   return (
@@ -1793,19 +1988,22 @@ function ResumeChatRail({
               {error && <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">{error}</div>}
               <AgentThinkingPanel trace={recommendations?.agent_trace ?? []} running={Boolean(session?.recommendation_status === 'running')} />
 
-              {messages.map((message, index) => (
-                <div
-                  key={`${message.role}-${index}`}
-                  className={cn(
-                    'max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6',
-                    message.role === 'user'
-                      ? 'ml-auto rounded-tr-md bg-[var(--primary)] text-white'
-                      : 'rounded-tl-md bg-slate-50 text-slate-600',
-                  )}
-                >
-                  {message.content}
-                </div>
+              {chatMessages.map((message) => (
+                <ChatMessageBubble
+                  key={message.id}
+                  message={message}
+                  applyingOption={applyingOption}
+                  onApply={applyRewriteOption}
+                />
               ))}
+              {isSendingChat && (
+                <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="size-3.5 animate-spin" />
+                    AI 思考中…
+                  </span>
+                </div>
+              )}
 
               {topRecommendations.length > 0 ? (
                 <div className="max-w-[92%] rounded-2xl rounded-tl-md bg-slate-50 text-sm text-slate-700" style={{ overflow: 'hidden' }}>
@@ -1995,11 +2193,11 @@ function ResumeChatRail({
               )}
             </div>
 
-            <div className={cn('resume-chat-input mt-3 flex items-end gap-2 rounded-xl bg-slate-50 p-3', !canChat && 'opacity-70')}>
+            <div className={cn('resume-chat-input mt-3 flex items-end gap-2 rounded-xl bg-slate-50 p-3', (!canChat || isSendingChat) && 'opacity-70')}>
               <Textarea
                 rows={2}
                 value={draft}
-                disabled={!canChat}
+                disabled={!canChat || isSendingChat}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' && !event.shiftKey) {
@@ -2010,8 +2208,8 @@ function ResumeChatRail({
                 placeholder={canChat ? '问我如何优化这份简历...' : '等待首次分析完成后可对话...'}
                 className="min-h-16 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
               />
-              <Button type="button" size="icon" className="mb-1 rounded-full" disabled={!canChat || !draft.trim()} onClick={sendMessage}>
-                <ArrowUpRight className="size-4" />
+              <Button type="button" size="icon" className="mb-1 rounded-full" disabled={!canChat || !draft.trim() || isSendingChat} onClick={sendMessage}>
+                {isSendingChat ? <Loader2 className="size-4 animate-spin" /> : <ArrowUpRight className="size-4" />}
               </Button>
             </div>
           </div>

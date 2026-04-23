@@ -192,3 +192,36 @@ textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Border Beam — rotating conic gradient around an element (AI thinking indicator). */
+@property --border-beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  z-index: 2;
+  background: conic-gradient(
+    from var(--border-beam-angle),
+    transparent 0deg,
+    var(--primary) 40deg,
+    #a78bfa 70deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: border-beam-rotate 2.4s linear infinite;
+}
+
+@keyframes border-beam-rotate {
+  to { --border-beam-angle: 360deg; }
+}
+
