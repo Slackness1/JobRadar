@@ -65,6 +65,7 @@ import {
   type ResumePreferencePayload,
   type ResumeProfilePayload,
   type ResumeProjectItem,
+  type ResumeRecommendationItem,
   type ResumeRecommendationResult,
   type RewriteOption,
 } from './types';
@@ -1791,6 +1792,19 @@ function ResumeChatRail({
     void sendChatMessage(content);
   };
 
+  const interviewRouter = useRouter();
+  const handleStartInterview = (item: ResumeRecommendationItem) => {
+    const targetJob = [item.job_title, item.company].filter(Boolean).join(' · ');
+    if (!targetJob) return;
+    const sessionId = crypto.randomUUID();
+    try {
+      window.localStorage.setItem(`interview.pending.${sessionId}`, targetJob);
+    } catch {
+      /* localStorage unavailable — interview page will fall back to empty target */
+    }
+    interviewRouter.push(`/interview/${sessionId}/check`);
+  };
+
   return (
     <aside className="resume-chat-shell min-h-screen border-r border-slate-200 bg-white">
       <div className={cn('grid h-screen transition-[grid-template-columns] duration-200', libraryOpen ? 'grid-cols-[300px_minmax(0,1fr)]' : 'grid-cols-[64px_minmax(0,1fr)]')}>
@@ -2071,15 +2085,9 @@ function ResumeChatRail({
                       </div>
                     )}
                     {topRecommendations.map((item, index) => (
-                      <a
+                      <div
                         key={`${item.job_id}-${item.company}`}
-                        href={item.detail_url || undefined}
-                        target={item.detail_url ? '_blank' : undefined}
-                        rel={item.detail_url ? 'noreferrer' : undefined}
-                        className={cn(
-                          'rounded-xl border border-slate-200 bg-white px-3 py-2 transition',
-                          item.detail_url && 'hover:border-[var(--primary)] hover:shadow-sm',
-                        )}
+                        className="rounded-xl border border-slate-200 bg-white px-3 py-2 transition hover:border-[var(--primary)] hover:shadow-sm"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -2092,7 +2100,6 @@ function ResumeChatRail({
                           </div>
                           <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--primary)]">
                             {Math.round(item.final_score)}
-                            {item.detail_url && <ArrowUpRight className="size-3.5" />}
                           </div>
                         </div>
                         <div className="mt-2 text-[11px] leading-4 text-slate-400">
@@ -2109,7 +2116,26 @@ function ResumeChatRail({
                             {enrichmentStatusLabel(item.topic_cache_status, item.need_enrichment)}
                           </Badge>
                         </div>
-                      </a>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {item.detail_url && (
+                            <a
+                              href={item.detail_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-medium text-slate-600 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                            >
+                              查看岗位 <ArrowUpRight className="size-3" />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleStartInterview(item)}
+                            className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)] px-2 py-1 text-[11px] font-medium text-white transition hover:bg-[var(--primary-strong)]"
+                          >
+                            <Sparkles className="size-3" /> 模拟面试
+                          </button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                   </div>
