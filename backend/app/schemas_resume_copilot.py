@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ResumeEducationItem(BaseModel):
@@ -226,13 +227,26 @@ class ResumeFeedbackResultOut(BaseModel):
 
 
 class RewriteOption(BaseModel):
-    option_id: str      # "A" | "B" | "C"
+    option_id: str                  # "A" | "B"
     label: str
-    section: str        # "internships" | "projects" | etc.
-    field_path: str     # dot-notation: "internships.0.bullets.2"
-    original: str
-    improved: str
-    rationale: str
+    section: str                    # "internships" | "projects" | "candidate_summary"
+    field_path: str                 # dot-notation, points to a bullets list or text field.
+                                    # Options A and B for the same turn MUST share this path.
+    target_title: str = ''          # e.g. "字节跳动 · 产品实习生" — shown on the card
+    original: list[str] = []        # all bullets of the targeted block
+    improved: list[str] = []        # rewritten bullets for the same block
+    rationale: str = ''
+
+    @field_validator('original', 'improved', mode='before')
+    @classmethod
+    def _coerce_bullets(cls, value: Any) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value] if value else []
+        if isinstance(value, list):
+            return [str(v) for v in value]
+        return [str(value)]
 
 
 class ResumeCopilotMessageOut(BaseModel):

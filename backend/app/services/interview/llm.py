@@ -45,7 +45,10 @@ def stream_interview_turn(target_job: str, messages: list[dict]) -> Iterator[str
         },
         method='POST',
     )
-    with urllib_request.urlopen(req, timeout=client.timeout_seconds) as response:
+    # Streaming LLMs can pause between tokens (especially on reasoning models).
+    # Use a generous per-read timeout so the socket doesn't abort mid-stream.
+    stream_timeout = max(client.timeout_seconds, 120)
+    with urllib_request.urlopen(req, timeout=stream_timeout) as response:
         for raw_line in response:
             line = raw_line.decode('utf-8').rstrip('\n')
             if line:

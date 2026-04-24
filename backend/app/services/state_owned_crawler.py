@@ -82,12 +82,12 @@ SOE_GROUP_RULES = [
         "group": "中国石油",
         "tier": "tier1_oil_core",
         "include": ["中国石油", "中石油", "cnpc"],
-        "exclude": ["中国石油大学"],
+        "exclude": ["中国石油大学", "中国石油化工", "中石化", "sinopec"],
     },
     {
         "group": "中国石化",
         "tier": "tier1_oil_core",
-        "include": ["中国石化", "中石化", "sinopec"],
+        "include": ["中国石化", "中国石油化工", "中石化", "sinopec"],
         "exclude": [],
     },
     {

@@ -33,18 +33,27 @@ export default function InterviewSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
 
-  // Initialize from localStorage (session or pending key set by setup page)
-  const [targetJob] = useState(() => {
+  // localStorage is only available on the client. Defer all reads to after mount
+  // to keep the initial render SSR-identical and avoid hydration mismatches.
+  const [hydrated, setHydrated] = useState(false);
+  const [targetJob, setTargetJob] = useState('');
+  const [messages, setMessages] = useState<InterviewMessage[]>([]);
+  const [round, setRound] = useState(0);
+
+  // Reading localStorage can't happen during render (SSR has no window). Defer to mount.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
     const saved = loadSession(sessionId);
-    if (saved) return saved.targetJob;
-    if (typeof window === 'undefined') return '';
-    return localStorage.getItem(`interview.pending.${sessionId}`) || '';
-  });
-  const [messages, setMessages] = useState<InterviewMessage[]>(() => loadSession(sessionId)?.messages ?? []);
-  const [round, setRound] = useState(() => {
-    const saved = loadSession(sessionId);
-    return saved ? saved.messages.filter((m) => m.role === 'assistant').length : 0;
-  });
+    if (saved) {
+      setTargetJob(saved.targetJob);
+      setMessages(saved.messages);
+      setRound(saved.messages.filter((m) => m.role === 'assistant').length);
+    } else {
+      setTargetJob(localStorage.getItem(`interview.pending.${sessionId}`) || '');
+    }
+    setHydrated(true);
+  }, [sessionId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const [streamingContent, setStreamingContent] = useState('');
   const [streamError, setStreamError] = useState('');
@@ -244,7 +253,8 @@ export default function InterviewSessionPage() {
 
   return (
     <main className="flex h-screen flex-col bg-[var(--background)]">
-      {voiceMode ? <AvatarView /> : <SelfView />}
+      {voiceMode && <AvatarView speaking={tts.isPlaying} thinking={isTurning && !tts.isPlaying} />}
+      <SelfView />
       <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--paper)] px-6 py-3">
         <div>
           <h1 className="text-[15px] font-semibold text-[var(--ink)]">{targetJob || '模拟面试'}</h1>

@@ -23,12 +23,18 @@ venv/
 # Frontend artifacts
 frontend/node_modules/
 frontend/dist/
+resume-copilot-web/node_modules/
+resume-copilot-web/.next/
 
 # Local database/data files
 backend/data/*.db
 backend/data/*.db-shm
 backend/data/*.db-wal
+backend/data/*.bak
+backend/data/*.json
 backend/data/browser_sessions/
+backend/data/validation_reports/
+devnull
 
 # Runtime data exports
 data/exports/

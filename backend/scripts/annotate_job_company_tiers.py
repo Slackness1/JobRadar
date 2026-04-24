@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import shutil
@@ -20,6 +21,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from app.services.company_truth_merge import normalize_company_for_matching
+from app.services.company_truth_merge import infer_parent_company
 from app.services.consumer_foreign_crawler import COMPANY_ALIASES as CONSUMER_ALIASES
 from app.services.internet_crawler import COMPANY_ALIASES as INTERNET_ALIASES
 from app.services.state_owned_crawler import SOE_GROUP_RULES
@@ -33,6 +35,8 @@ CONSULTING_CONFIG = BACKEND_DIR / "config" / "consulting_campus.yaml"
 SECURITIES_CONFIG = BACKEND_DIR / "config" / "securities_campus.yaml"
 ENERGY_CONFIG = BACKEND_DIR / "config" / "energy_campus.yaml"
 BANK_CONFIG = BACKEND_DIR / "app" / "services" / "bank_crawler" / "bank_sites.yaml"
+COMPANY_TRUTH_PATH = PROJECT_ROOT / "data" / "exports" / "company_truth_spring_master.csv"
+JOB_TRUTH_PATH = PROJECT_ROOT / "data" / "exports" / "job_truth_spring_master.csv"
 
 INTERNET_TIER_LABELS = {
     "t1": "互联网-一线",
@@ -141,12 +145,75 @@ class TierRule:
     extra_tags: tuple[str, ...] = ()
 
 
+@dataclass
+class TruthLayerResolver:
+    alias_to_candidates: dict[str, tuple[str, ...]]
+    ordered_aliases: tuple[str, ...]
+
+    def candidates_for(self, company: str) -> list[str]:
+        candidates: list[str] = []
+
+        def add(value: str) -> None:
+            value = str(value or "").strip()
+            if value and value not in candidates:
+                candidates.append(value)
+
+        add(company)
+        inferred = infer_parent_company(company)
+        if inferred != company:
+            add(inferred)
+
+        normalized = _normalize_alias(company)
+        for value in self.alias_to_candidates.get(normalized, ()):
+            add(value)
+
+        for alias_norm in self.ordered_aliases:
+            if alias_norm == normalized:
+                continue
+            if not _alias_matches_company_name(alias_norm, normalized):
+                continue
+            for value in self.alias_to_candidates.get(alias_norm, ()):
+                add(value)
+
+        return candidates
+
+
 def _load_yaml(path: Path) -> dict:
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def _normalize_alias(value: str) -> str:
     return normalize_company_for_matching(str(value or ""))
+
+
+_LOCATION_PREFIX_RE = re.compile(
+    r"^(北京市|北京|上海市|上海|深圳市|深圳|广州市|广州|杭州市|杭州|南京市|南京|"
+    r"武汉市|武汉|苏州市|苏州|成都市|成都|重庆市|重庆|天津市|天津|西安市|西安)"
+)
+
+
+def _strip_location_prefix(value: str) -> str:
+    return _LOCATION_PREFIX_RE.sub("", value or "", count=1)
+
+
+def _alias_matches_company_name(alias_norm: str, company_norm: str) -> bool:
+    if not alias_norm or not company_norm:
+        return False
+    if alias_norm == company_norm:
+        return True
+
+    stripped_company = _strip_location_prefix(company_norm)
+    if alias_norm == "京东" and stripped_company.startswith("京东方"):
+        return False
+    if stripped_company.startswith(alias_norm):
+        return True
+
+    # Very short Chinese aliases are easy to hit across a location suffix and a
+    # company prefix, e.g. 北京 + 东方... accidentally matching 京东.
+    if re.fullmatch(r"[\u4e00-\u9fff]{1,2}", alias_norm):
+        return False
+
+    return alias_norm in company_norm
 
 
 def _split_tags(raw: str) -> list[str]:
@@ -163,6 +230,69 @@ def _merge_tags(existing: str, additions: list[str]) -> str:
         seen.add(lowered)
         merged.append(value.strip())
     return ", ".join(merged)
+
+
+def _safe_json_list(raw: str) -> list[str]:
+    if not raw:
+        return []
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _add_truth_alias(
+    mapping: dict[str, set[str]],
+    alias: str,
+    candidates: list[str],
+) -> None:
+    alias_norm = _normalize_alias(alias)
+    if not alias_norm:
+        return
+    values = [candidate for candidate in candidates if candidate]
+    if not values:
+        return
+    mapping.setdefault(alias_norm, set()).update(values)
+
+
+def _load_truth_layer_resolver(
+    company_truth_path: Path = COMPANY_TRUTH_PATH,
+    job_truth_path: Path = JOB_TRUTH_PATH,
+) -> TruthLayerResolver:
+    mapping: dict[str, set[str]] = {}
+
+    if company_truth_path.exists():
+        with company_truth_path.open(encoding="utf-8-sig", newline="") as fh:
+            for row in csv.DictReader(fh):
+                canonical = str(row.get("canonical_name", "") or "").strip()
+                display = str(row.get("display_name", "") or "").strip()
+                candidates = [canonical, display]
+                aliases = [
+                    canonical,
+                    display,
+                    *_safe_json_list(str(row.get("aliases_json", "") or "")),
+                    *_safe_json_list(str(row.get("entity_members_json", "") or "")),
+                ]
+                for alias in aliases:
+                    _add_truth_alias(mapping, alias, candidates)
+
+    if job_truth_path.exists():
+        with job_truth_path.open(encoding="utf-8-sig", newline="") as fh:
+            for row in csv.DictReader(fh):
+                parent = str(row.get("parent_company_name", "") or "").strip()
+                canonical = str(row.get("canonical_company_name", "") or "").strip()
+                norm = str(row.get("norm_company_name", "") or "").strip()
+                raw = str(row.get("company_name_raw", "") or "").strip()
+                candidates = [parent, canonical]
+                for alias in [raw, norm, canonical, parent]:
+                    _add_truth_alias(mapping, alias, candidates)
+
+    frozen = {key: tuple(dict.fromkeys(values)) for key, values in mapping.items()}
+    ordered_aliases = tuple(sorted(frozen, key=len, reverse=True))
+    return TruthLayerResolver(alias_to_candidates=frozen, ordered_aliases=ordered_aliases)
 
 
 def _build_internet_rules() -> list[TierRule]:
@@ -341,7 +471,7 @@ def build_rules() -> list[TierRule]:
     return rules
 
 
-def _best_rule_for_company(company: str, rules: list[TierRule]) -> TierRule | None:
+def _best_rule_for_name(company: str, rules: list[TierRule]) -> TierRule | None:
     raw = (company or "").strip()
     if not raw:
         return None
@@ -355,9 +485,7 @@ def _best_rule_for_company(company: str, rules: list[TierRule]) -> TierRule | No
             continue
         for alias in rule.aliases:
             alias_norm = _normalize_alias(alias)
-            if not alias_norm:
-                continue
-            if alias_norm not in normalized:
+            if not _alias_matches_company_name(alias_norm, normalized):
                 continue
             score = len(alias_norm)
             if normalized == alias_norm:
@@ -365,6 +493,33 @@ def _best_rule_for_company(company: str, rules: list[TierRule]) -> TierRule | No
             if score > best_score:
                 best_score = score
                 best_rule = rule
+    return best_rule
+
+
+def _best_rule_for_company(
+    company: str,
+    rules: list[TierRule],
+    truth_resolver: TruthLayerResolver | None = None,
+) -> TierRule | None:
+    direct_rule = _best_rule_for_name(company, rules)
+    if direct_rule is not None:
+        return direct_rule
+
+    candidates = truth_resolver.candidates_for(company) if truth_resolver else [company]
+    best_rule: TierRule | None = None
+    best_score = -1
+
+    for candidate in candidates:
+        rule = _best_rule_for_name(candidate, rules)
+        if rule is None:
+            continue
+        score = len(_normalize_alias(candidate))
+        if candidate != company:
+            score += 50
+        if score > best_score:
+            best_rule = rule
+            best_score = score
+
     return best_rule
 
 
@@ -388,6 +543,7 @@ def main() -> None:
     db_path = Path(args.db_path).resolve()
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     rules = build_rules()
+    truth_resolver = _load_truth_layer_resolver()
 
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
@@ -400,7 +556,7 @@ def main() -> None:
     company_samples: dict[str, list[str]] = {}
 
     for company in companies:
-        rule = _best_rule_for_company(company, rules)
+        rule = _best_rule_for_company(company, rules, truth_resolver=truth_resolver)
         if rule is None:
             continue
         company_matches[company] = rule

@@ -1,0 +1,175 @@
+categories:
+  internet:
+    label: 互联网
+    high_info_asymmetry: false
+    tiers:
+      tier1:
+        label: T0-T1 主流平台
+        bonus: 24
+        aliases:
+          - 腾讯
+          - 腾讯科技
+          - 阿里巴巴
+          - 阿里
+          - 蚂蚁集团
+          - 蚂蚁科技
+          - 字节跳动
+          - 抖音
+          - 美团
+          - 拼多多
+      tier2:
+        label: T2 强势平台
+        bonus: 16
+        aliases:
+          - 京东
+          - 百度
+          - 快手
+          - 滴滴
+          - 网易
+          - 携程
+          - 小红书
+          - BOSS直聘
+          - 哔哩哔哩
+          - B站
+          - 米哈游
+          - 得物
+          - 小米
+  securities:
+    label: 券商
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0-T0.5 头部研究平台
+        bonus: 24
+        aliases:
+          - 广发证券
+          - 长江证券
+          - 中信建投
+          - 中金公司
+          - 中国国际金融
+      tier2:
+        label: T1-T2 主流研究平台
+        bonus: 16
+        aliases:
+          - 申万宏源
+          - 国泰海通
+          - 国泰君安
+          - 海通证券
+          - 兴业证券
+          - 中信证券
+          - 招商证券
+          - 华泰证券
+          - 中泰证券
+          - 东方证券
+          - 浙商证券
+          - 东吴证券
+          - 光大证券
+          - 国信证券
+          - 方正证券
+          - 华创证券
+          - 民生证券
+          - 天风证券
+          - 国盛证券
+  bank:
+    label: 银行
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T1 银行平台
+        bonus: 22
+        aliases:
+          - 招商银行
+          - 浦发银行
+          - 兴业银行
+          - 上海农商银行
+          - 上海银行
+          - 宁波银行
+          - 浙商银行
+      tier2:
+        label: T2 重点银行平台
+        bonus: 14
+        aliases:
+          - 中信银行
+          - 邮储银行
+          - 中国邮政储蓄银行
+          - 交通银行
+          - 北京银行
+          - 建设银行
+          - 农业银行
+          - 工商银行
+          - 中国银行
+          - 平安银行
+          - 民生银行
+          - 光大银行
+          - 华夏银行
+  state_owned:
+    label: 国央企
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 央企核心平台
+        bonus: 24
+        aliases:
+          - 国家电网
+          - 南方电网
+          - 中国烟草
+          - 中烟
+          - 中国石油
+          - 中石油
+          - 中国石化
+          - 中石化
+          - 中海油
+          - 中国移动
+          - 中国电信
+          - 中国联通
+          - 中广核
+          - 中核
+          - 三峡集团
+          - 国家能源集团
+      tier2:
+        label: T1 头部国央企
+        bonus: 16
+        aliases:
+          - 中国建筑
+          - 中国交建
+          - 中国中铁
+          - 中国铁建
+          - 中国航天科技
+          - 中国航天科工
+          - 中航工业
+          - 中国船舶
+  foreign:
+    label: 外企
+    high_info_asymmetry: false
+    tiers:
+      tier1:
+        label: T0 快消与消费管培
+        bonus: 22
+        aliases:
+          - 宝洁
+          - 联合利华
+          - 欧莱雅
+          - 玛氏
+          - 雅诗兰黛
+      tier2:
+        label: T1-T2 外企核心池
+        bonus: 14
+        aliases:
+          - 亿滋
+          - 雀巢
+          - 强生
+          - 百胜
+          - LVMH
+          - 耐克
+          - 可口可乐
+          - 达能
+          - 资生堂
+          - 高露洁
+          - 金佰利
+          - 默克
+          - Wayfair
+          - 索尼
+          - 宜家
+          - 乐高
+          - 爱立信
+          - 沃尔沃

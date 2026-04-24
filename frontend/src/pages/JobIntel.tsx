@@ -44,6 +44,13 @@ interface Task {
   error_message: string;
 }
 
+interface JobDetail {
+  company: string;
+  job_title: string;
+  location: string;
+  publish_date?: string | null;
+}
+
 const PLATFORM_COLORS: Record<string, string> = {
   xiaohongshu: 'red',
   maimai: 'orange',
@@ -54,7 +61,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 export default function JobIntel() {
   const { jobId } = useParams<{ jobId: string }>();
-  const [job, setJob] = useState<any>(null);
+  const [job, setJob] = useState<JobDetail | null>(null);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [records, setRecords] = useState<IntelRecord[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -99,7 +106,7 @@ export default function JobIntel() {
       });
       await reloadIntelData(parseInt(jobId));
       message.success('情报搜索任务已执行并已刷新页面');
-    } catch (e: any) {
+    } catch (e: unknown) {
       message.error('创建搜索任务失败');
       console.error(e);
     } finally {
@@ -114,7 +121,7 @@ export default function JobIntel() {
       await refreshJobIntel(parseInt(jobId), { force: forceRefresh });
       await reloadIntelData(parseInt(jobId));
       message.success('情报刷新已完成并已刷新页面');
-    } catch (e: any) {
+    } catch (e: unknown) {
       message.error('刷新情报失败');
       console.error(e);
     } finally {

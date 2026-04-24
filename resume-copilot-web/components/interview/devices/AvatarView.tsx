@@ -1,130 +1,135 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+import { useDraggable } from '@/lib/useDraggable';
 
-/**
- * Lingmou digital-human avatar. Fetches a session from our backend,
- * initializes the `lm-avatar-chat-sdk`, and renders the avatar video.
- *
- * The SDK is loaded dynamically to avoid SSR issues.
- */
+const PANEL_WIDTH = 180;
+const PANEL_HEIGHT = 230;
 
-interface AvatarState {
-  status: 'loading' | 'ready' | 'error' | 'idle';
-  error: string;
+interface Props {
+  /** True while TTS audio is playing — drives the "speaking" pulse. */
+  speaking: boolean;
+  /** True while the LLM is generating — drives the Border Beam "thinking" effect. */
+  thinking?: boolean;
+  /** Optional status label shown under the portrait. */
+  status?: string;
 }
 
-export function AvatarView() {
-  const [state, setState] = useState<AvatarState>({ status: 'idle', error: '' });
+/**
+ * Draggable interviewer portrait.
+ * - idle         → static, soft purple hairline border
+ * - `thinking`   → Border Beam (conic gradient sweeping the frame)
+ * - `speaking`   → solid purple pulse ring
+ */
+export function AvatarView({ speaking, thinking = false, status }: Props) {
   const [hidden, setHidden] = useState(false);
-  const avatarRef = useRef<unknown>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const initRef = useRef(false);
-
-  const initAvatar = useCallback(async () => {
-    if (initRef.current) return;
-    initRef.current = true;
-    setState({ status: 'loading', error: '' });
-
-    try {
-      // 1. Fetch session params from our backend
-      const res = await fetch('/api/interview/avatar/session', { method: 'POST' });
-      if (!res.ok) {
-        const detail = await res.text().catch(() => '');
-        throw new Error(`创建数字人会话失败: ${res.status} ${detail}`);
-      }
-      const rtcParams = await res.json();
-
-      // 2. Dynamically import the SDK (avoid SSR)
-      const { createAvatar, TYAvatarType } = await import('lm-avatar-chat-sdk');
-
-      // 3. Create avatar instance
-      const avatar = createAvatar(TYAvatarType.cloudAvatar, {
-        rootContainer: '#avatarContainer',
-        ...rtcParams,
-      });
-      avatarRef.current = avatar;
-
-      // 4. Set up callbacks
-      avatar.onFirstFrameReceived = () => {
-        setState({ status: 'ready', error: '' });
-      };
-      avatar.onErrorReceived = (err: unknown) => {
-        const msg = typeof err === 'string' ? err : (err as { message?: string })?.message || 'Avatar error';
-        setState({ status: 'error', error: msg });
-      };
-      avatar.onReadyToSpeech = () => {
-        // Avatar is ready for interaction
-      };
-
-      // 5. Start the avatar session
-      avatar.start();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : '数字人初始化失败';
-      setState({ status: 'error', error: msg });
-      initRef.current = false;
-    }
-  }, []);
-
-  useEffect(() => {
-    initAvatar();
-    return () => {
-      if (avatarRef.current) {
-        try {
-          (avatarRef.current as { exit?: () => void }).exit?.();
-        } catch { /* ignore */ }
-        avatarRef.current = null;
-        initRef.current = false;
-      }
-    };
-  }, [initAvatar]);
+  const [imgFailed, setImgFailed] = useState(false);
+  const { style, dragHandlers, isDragging } = useDraggable({
+    storageKey: 'interview.avatar.pos',
+    defaultRight: 16,
+    defaultTop: 80,
+    width: PANEL_WIDTH,
+    height: PANEL_HEIGHT + 24, // +24 leaves room for the status label below
+  });
 
   if (hidden) return null;
 
+  const effectiveStatus = status || (thinking ? '思考中' : speaking ? '说话中' : '聆听中');
+
   return (
-    <div className="fixed right-4 top-20 z-40 flex flex-col items-end gap-1">
-      <div className="relative overflow-hidden rounded-[14px] border border-[var(--border)] bg-black shadow-lg">
-        <video
-          id="avatarContainer"
-          ref={videoRef}
-          playsInline
-          muted
-          className={`h-[216px] w-[162px] object-cover transition-opacity ${
-            state.status === 'ready' ? 'opacity-100' : 'opacity-30'
-          }`}
-        />
-
-        {state.status === 'loading' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-            <span className="text-[12px] text-white/70">数字人加载中…</span>
-          </div>
-        )}
-
-        {state.status === 'error' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80 px-2">
-            <span className="text-center text-[11px] text-red-400">{state.error}</span>
-            <button
-              onClick={() => { initRef.current = false; initAvatar(); }}
-              className="rounded-[6px] bg-white/20 px-2 py-0.5 text-[11px] text-white hover:bg-white/30"
-            >
-              重试
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={() => {
-            if (avatarRef.current) {
-              try { (avatarRef.current as { exit?: () => void }).exit?.(); } catch { /* ignore */ }
-            }
-            setHidden(true);
+    <div
+      style={style}
+      className={`z-40 select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      {...dragHandlers}
+    >
+      <div className="relative" style={{ width: PANEL_WIDTH }}>
+        <div
+          className="relative rounded-[18px] bg-[var(--soft)] shadow-lg transition-shadow duration-500"
+          style={{
+            overflow: 'hidden',
+            // Speaking ring lives ON the frame itself so it always hugs the image edge perfectly.
+            boxShadow: speaking
+              ? '0 0 0 3px var(--primary), 0 0 26px 6px rgba(79, 70, 229, 0.45), 0 8px 18px -4px rgba(0,0,0,0.18)'
+              : '0 8px 18px -4px rgba(0,0,0,0.18)',
+            animation: speaking ? 'avatar-pulse 1.6s ease-in-out infinite' : 'none',
           }}
-          className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white text-[10px] hover:bg-black/80"
-          title="关闭数字人"
         >
-          ×
-        </button>
+          {/* Border Beam — wraps the portrait itself, drawn on top via z-index:2 */}
+          {thinking && <div className="border-beam" style={{ borderRadius: 18 }} />}
+          {imgFailed ? (
+            <div
+              className="flex flex-col items-center justify-center gap-3 bg-gradient-to-b from-[#f5f3ff] to-[#ede9fe]"
+              style={{ width: PANEL_WIDTH, height: PANEL_HEIGHT }}
+              aria-label="AI 面试官占位图"
+            >
+              <svg width="76" height="76" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" fill="var(--primary)" opacity="0.85" />
+                <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="var(--primary)" opacity="0.85" />
+              </svg>
+              <div className="text-center">
+                <div className="text-[13px] font-semibold text-[var(--ink)]">AI 面试官</div>
+                <div className="mt-1 text-[11px] text-[var(--muted)]">
+                  放一张头像到<br />
+                  <code className="text-[10px]">public/interviewer.png</code>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <img
+              src="/interviewer.png"
+              alt="AI 面试官"
+              draggable={false}
+              className="block object-cover"
+              style={{ width: PANEL_WIDTH, height: PANEL_HEIGHT }}
+              onError={() => setImgFailed(true)}
+            />
+          )}
+          <button
+            onClick={() => setHidden(true)}
+            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-[10px] text-white hover:bg-black/80"
+            title="隐藏面试官"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Status label — fixed width matching the image, centered text */}
+        <div
+          className="mt-1 flex items-center justify-center gap-1.5 text-[11px] text-[var(--muted)]"
+          style={{ width: PANEL_WIDTH }}
+        >
+          <span
+            className={`inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full ${
+              speaking || thinking ? 'bg-[var(--primary)]' : 'bg-[var(--muted)]'
+            }`}
+            style={{
+              animation: speaking || thinking ? 'avatar-blink 0.9s ease-in-out infinite' : 'none',
+            }}
+          />
+          <span className="whitespace-nowrap">AI 面试官 · {effectiveStatus}</span>
+        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes avatar-pulse {
+          0%, 100% {
+            box-shadow:
+              0 0 0 3px var(--primary),
+              0 0 22px 6px rgba(79, 70, 229, 0.40),
+              0 8px 18px -4px rgba(0, 0, 0, 0.18);
+          }
+          50% {
+            box-shadow:
+              0 0 0 4px var(--primary),
+              0 0 32px 10px rgba(79, 70, 229, 0.55),
+              0 8px 18px -4px rgba(0, 0, 0, 0.18);
+          }
+        }
+        @keyframes avatar-blink {
+          0%, 100% { opacity: 0.3; }
+          50%      { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

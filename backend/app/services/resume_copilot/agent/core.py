@@ -14,6 +14,27 @@ from app.services.resume_copilot.llm import build_resume_llm_client
 
 TraceRecorder = Callable[..., None]
 
+
+def _normalize_tool_args(tool_name: str, args: dict) -> dict:
+    """Fix common LLM argument hallucinations before calling the tool."""
+    if tool_name == 'get_company_intel':
+        # LLM often passes company_names (plural list) instead of company_name (str)
+        if 'company_names' in args and 'company_name' not in args:
+            names = args['company_names']
+            args = {**args, 'company_name': names[0] if isinstance(names, list) and names else str(names)}
+            del args['company_names']  # type: ignore[reportArgumentType]
+        # Drop any unknown keys
+        return {k: v for k, v in args.items() if k == 'company_name'}
+    if tool_name == 'search_candidates':
+        # LLM sometimes adds limit= or top_k=
+        return {k: v for k, v in args.items() if k in ('query', 'filters')}
+    if tool_name == 'inspect_jobs':
+        return {k: v for k, v in args.items() if k == 'job_ids'}
+    if tool_name == 'search_web':
+        return {k: v for k, v in args.items() if k == 'query'}
+    return args
+
+
 _FORCE_FINISH = (
     '\n\n⚠️ BUDGET_EXHAUSTED — Call finalize NOW with the best candidates you have. '
     'Return JSON with action="finalize" and no other tool.'
@@ -184,7 +205,7 @@ class ReActAgent:
                 result_summary = observation
             else:
                 try:
-                    call_args = args if isinstance(args, dict) else {}
+                    call_args = _normalize_tool_args(action, args if isinstance(args, dict) else {})
                     tool_result: ToolResult = tool_fn(**call_args)
                     self.budget.record(action)
                     observation = (

@@ -85,7 +85,7 @@ def interview_report(
 def avatar_session():
     """Create a Lingmou digital-human session, return rtcParams for the frontend SDK."""
     try:
-        rtc_params = create_avatar_session(platform='webSDK')
+        rtc_params = create_avatar_session(platform='Web')
     except AvatarUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     return rtc_params

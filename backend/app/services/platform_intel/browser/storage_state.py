@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from pathlib import Path
 
 
-STORAGE_DIR = Path("/home/ubuntu/.openclaw/workspace-projecta/JobRadar/backend/data/browser_sessions")
+STORAGE_DIR = Path(__file__).resolve().parents[4] / "data" / "browser_sessions"
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 
 

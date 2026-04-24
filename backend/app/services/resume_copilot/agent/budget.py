@@ -13,7 +13,7 @@ DEFAULT_PER_TOOL_LIMITS: dict[str, int] = {
 @dataclass
 class AgentBudget:
     max_total_calls: int = 12
-    max_seconds: int = 90
+    max_seconds: int = 150
     per_tool_limits: dict[str, int] = field(
         default_factory=lambda: dict(DEFAULT_PER_TOOL_LIMITS)
     )

@@ -24,13 +24,17 @@ const PLATFORM_NAMES: Record<string, string> = {
 };
 
 export default function IntelPlatformTabs({
-  selectedPlatforms: _selectedPlatforms,
+  selectedPlatforms,
   onPlatformsChange,
   disabled = false,
 }: IntelPlatformTabsProps) {
+  const activeKey = selectedPlatforms.length === Object.keys(PLATFORM_NAMES).length
+    ? 'all'
+    : selectedPlatforms[0] || 'all';
+
   return (
     <Tabs
-      defaultActiveKey="all"
+      activeKey={activeKey}
       items={[
         {
           key: 'all',
