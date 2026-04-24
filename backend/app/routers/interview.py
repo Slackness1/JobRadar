@@ -63,6 +63,7 @@ def interview_turn(
 def interview_report(
     body: InterviewReportIn,
     x_resume_user_key: str = Header(default=''),
+    x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
@@ -73,6 +74,7 @@ def interview_report(
         transcript_json=json.dumps(messages, ensure_ascii=False),
         report_json=json.dumps(report, ensure_ascii=False),
         duration_seconds=body.duration_seconds,
+        is_guest=1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0,
         created_at=datetime.utcnow(),
     )
     db.add(row)

@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Checkbox, Form, Input, Typography } from 'antd';
+import { Button, Checkbox, Form, Input, Typography, message } from 'antd';
+
+import { markAsGuest } from './api';
+
+const GUEST_USERNAME = 'guest1';
+const GUEST_PASSWORD = '123456';
 
 const { Title, Paragraph } = Typography;
 
@@ -106,9 +111,14 @@ function EntryLoginPageWithDestination({ destination }: { destination: string })
   const companyCoverage = useAnimatedMetric(COMPANY_COVERAGE_TARGET);
   const liveUpdates = useAnimatedMetric(LIVE_UPDATE_TARGET, true);
 
-  const handleFinish = async () => {
+  const handleFinish = async (values: LoginFormValues) => {
+    if (values.username !== GUEST_USERNAME || values.password !== GUEST_PASSWORD) {
+      void message.error('账号或密码错误');
+      return;
+    }
     setSubmitting(true);
     try {
+      markAsGuest();
       router.push(destination);
     } finally {
       window.setTimeout(() => setSubmitting(false), 200);
@@ -178,7 +188,9 @@ function EntryLoginPageWithDestination({ destination }: { destination: string })
           <Title className="login-page__panel-title" level={2}>
             登录 JobRadar
           </Title>
-          <Paragraph className="login-page__panel-copy">登录后继续访问岗位总览、申请流程看板与配置中心。</Paragraph>
+          <Paragraph className="login-page__panel-copy">
+            体验账号：<strong>guest1</strong> / 密码 <strong>123456</strong>；上传的简历仅保留 2 小时。
+          </Paragraph>
 
           <Form<LoginFormValues>
             layout="vertical"

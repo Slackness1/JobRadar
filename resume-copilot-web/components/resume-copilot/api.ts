@@ -17,6 +17,7 @@ import type {
 // ── User key (anonymous per-browser identity stored in localStorage) ─────────
 
 const USER_KEY_STORAGE_KEY = 'jobradar.resumeCopilot.userKey';
+const GUEST_STORAGE_KEY = 'jobradar.resumeCopilot.isGuest';
 
 export function getOrCreateUserKey(): string {
   if (typeof window === 'undefined') return '';
@@ -28,15 +29,27 @@ export function getOrCreateUserKey(): string {
   return key;
 }
 
+export function isGuestUser(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.sessionStorage.getItem(GUEST_STORAGE_KEY) === '1';
+}
+
+export function markAsGuest(): void {
+  if (typeof window === 'undefined') return;
+  window.sessionStorage.setItem(GUEST_STORAGE_KEY, '1');
+}
+
 // ── Base request helper ───────────────────────────────────────────────────────
 
 async function requestJson<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
   const userKey = getOrCreateUserKey();
+  const guestHeaders: Record<string, string> = isGuestUser() ? { 'X-Guest': '1' } : {};
   const response = await fetch(input, {
     ...init,
     headers: {
       ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       'X-Resume-User-Key': userKey,
+      ...guestHeaders,
       ...init?.headers,
     },
   });

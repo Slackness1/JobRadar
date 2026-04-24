@@ -135,6 +135,7 @@ def ensure_compatible_schema(engine: Engine) -> None:
                 "finished_at": "ALTER TABLE resume_copilot_sessions ADD COLUMN finished_at DATETIME",
                 "name": "ALTER TABLE resume_copilot_sessions ADD COLUMN name TEXT DEFAULT ''",
                 "user_key": "ALTER TABLE resume_copilot_sessions ADD COLUMN user_key TEXT DEFAULT ''",
+                "is_guest": "ALTER TABLE resume_copilot_sessions ADD COLUMN is_guest INTEGER DEFAULT 0",
             }
             for column_name, ddl in resume_session_additions.items():
                 if column_name not in resume_columns:
@@ -233,6 +234,7 @@ def ensure_compatible_schema(engine: Engine) -> None:
                     transcript_json TEXT DEFAULT '[]',
                     report_json TEXT DEFAULT '{}',
                     duration_seconds INTEGER DEFAULT 0,
+                    is_guest INTEGER DEFAULT 0,
                     created_at DATETIME
                 )
                 """
@@ -240,3 +242,8 @@ def ensure_compatible_schema(engine: Engine) -> None:
             conn.execute(text(
                 "CREATE INDEX IF NOT EXISTS ix_interview_reports_user_key ON interview_reports (user_key)"
             ))
+        else:
+            interview_rows = conn.execute(text("PRAGMA table_info(interview_reports)")).fetchall()
+            interview_columns = {row[1] for row in interview_rows}
+            if "is_guest" not in interview_columns:
+                conn.execute(text("ALTER TABLE interview_reports ADD COLUMN is_guest INTEGER DEFAULT 0"))

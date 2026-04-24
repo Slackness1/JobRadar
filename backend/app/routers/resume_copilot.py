@@ -122,6 +122,7 @@ async def create_resume_copilot_session(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     x_resume_user_key: str = Header(default=''),
+    x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     try:
@@ -135,6 +136,7 @@ async def create_resume_copilot_session(
         user_key=x_resume_user_key,
         status='parsing_profile',
         extracted_text=extracted_text,
+        is_guest=1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0,
     )
     db.add(session)
     db.commit()

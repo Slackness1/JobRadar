@@ -98,6 +98,7 @@ class ResumeCopilotSession(Base):
     error_message = Column(Text, default="")
     recommendation_status = Column(Text, default="pending")
     feedback_status = Column(Text, default="pending")
+    is_guest = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
@@ -413,4 +414,5 @@ class InterviewReport(Base):
     transcript_json = Column(Text, default='[]')
     report_json = Column(Text, default='{}')
     duration_seconds = Column(Integer, default=0)
+    is_guest = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
