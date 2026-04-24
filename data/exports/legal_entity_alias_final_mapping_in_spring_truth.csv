@@ -1,0 +1,664 @@
+﻿tata_company,mapped_parent,mapping_source,confidence,tata_rows,reason
+北京抖音信息服务有限公司,字节跳动,high_confidence_rule,high,4854,known brand/legal-entity alias via 抖音
+小米科技有限责任公司,小米集团,high_confidence_rule,high,1110,known brand/legal-entity alias via 小米
+北京小桔科技有限公司,滴滴,high_confidence_rule,high,1083,known brand/legal-entity alias via 小桔
+百度在线网络技术（北京）有限公司,百度,high_confidence_rule,high,922,normalized legal entity exact match
+北京快手科技有限公司,快手,high_confidence_rule,high,858,normalized legal entity exact match
+北京三快科技有限公司,美团,high_confidence_rule,high,822,known brand/legal-entity alias via 三快
+中国移动通信集团有限公司,中国移动,glm_reviewed_medium,high,626,brand name of the telecom group
+蚂蚁科技集团股份有限公司,蚂蚁集团,high_confidence_rule,high,543,normalized legal entity exact match
+行吟信息科技（上海）有限公司,小红书,high_confidence_rule,high,512,known brand/legal-entity alias via 行吟
+北京理想汽车有限公司,理想汽车,high_confidence_rule,high,495,normalized legal entity exact match
+中国电信集团有限公司,中国电信,high_confidence_rule,high,461,normalized legal entity exact match
+上海蔚来汽车有限公司,蔚来,glm_reviewed_medium,high,440,brand name of the EV company
+北京达佳互联信息技术有限公司,快手,high_confidence_rule,high,400,known brand/legal-entity alias via 达佳
+深圳市腾讯计算机系统有限公司,腾讯,glm_reviewed_medium,high,345,brand name of the tech conglomerate
+华为技术有限公司,华为,glm_high_value_override,high,338,spring truth direct hit 华为
+德勤企业咨询（上海）有限公司,德勤,glm_high_value_override,high,305,spring truth direct hit 德勤
+上海宽娱数码科技有限公司,哔哩哔哩,glm_high_value_override,high,295,spring truth direct hit 哔哩哔哩
+广州网易计算机系统有限公司,网易,glm_reviewed_medium,high,281,brand name of the internet company
+中国平安保险（集团）股份有限公司,中国平安,glm_reviewed_medium,high,264,brand name of the insurance group
+苹果,Apple苹果,glm_reviewed_medium,high,249,Chinese brand alias for Apple Inc.
+毕马威华振会计师事务所（特殊普通合伙）,毕马威,glm_reviewed_medium,high,241,brand name of KPMG China
+北京京东世纪贸易有限公司,京东,glm_reviewed_medium,high,236,brand name of JD.com
+中国航天科技集团有限公司,中国航天科技集团,glm_high_value_override,high,234,spring truth direct hit 中国航天科技集团
+浙江吉利控股集团有限公司,吉利,glm_reviewed_medium,high,223,brand name of the auto group
+上海米哈游网络科技股份有限公司,米哈游,glm_reviewed_medium,high,216,brand name of the game company
+广东小鹏汽车科技有限公司,小鹏汽车,glm_reviewed_medium,high,216,brand name of the EV company
+中国电信股份有限公司重庆分公司,中国电信,glm_reviewed_medium,high,190,parent telecom group for regional subsidiary
+泰康保险集团股份有限公司,泰康保险集团,high_confidence_rule,high,171,normalized legal entity exact match
+TCL科技集团股份有限公司,TCL,glm_reviewed_medium,high,164,brand name of the electronics group
+TCL中环新能源科技股份有限公司,TCL,glm_reviewed_medium,high,159,parent group for this subsidiary
+浙江核新同花顺网络信息股份有限公司,同花顺,glm_reviewed_medium,high,151,brand name of the fintech company
+上海哈啰普惠科技有限公司,哈啰,glm_reviewed_medium,high,149,brand name of the mobility platform
+中国人民保险集团股份有限公司,中国人民保险集团,high_confidence_rule,high,147,normalized legal entity exact match
+中国兵器工业集团有限公司,中国兵器工业集团,glm_high_value_override,high,142,spring truth direct hit 中国兵器工业集团
+易方达基金管理有限公司,易方达基金,glm_reviewed_medium,high,133,brand name of the fund management company
+杭州海康威视数字技术股份有限公司,海康威视,glm_reviewed_medium,high,124,brand matches legal entity
+欣旺达电子股份有限公司,欣旺达,glm_reviewed_medium,high,119,brand matches legal entity
+北京地平线信息技术有限公司,地平线,high_confidence_rule,high,118,normalized legal entity exact match
+联想（北京）有限公司,联想,high_confidence_rule,high,118,normalized legal entity exact match
+中国船舶集团有限公司,中国船舶集团,glm_reviewed_medium,high,114,short name of the group itself
+阿里巴巴（中国）有限公司,阿里巴巴,high_confidence_rule,high,108,normalized legal entity exact match
+迪卡侬（上海）体育用品有限公司,迪卡侬,glm_reviewed_medium,high,106,brand matches legal entity
+重庆千里智驾科技有限公司,千里智驾,high_confidence_rule,high,102,normalized legal entity exact match
+顺丰控股股份有限公司,顺丰,glm_reviewed_medium,high,98,brand matches legal entity
+顺丰速运有限公司,顺丰,glm_reviewed_medium,high,98,brand matches legal entity
+上海得物信息集团有限公司,得物,high_confidence_rule,high,95,normalized legal entity exact match
+特斯拉汽车（北京）有限公司,特斯拉,glm_reviewed_medium,high,87,brand matches legal entity
+广发基金管理有限公司,广发基金,glm_reviewed_medium,high,86,brand matches legal entity
+神州数码集团股份有限公司,神州数码集团,high_confidence_rule,high,86,normalized legal entity exact match
+新东方教育科技集团有限公司,新东方,glm_reviewed_medium,high,84,brand matches legal entity
+普华永道中天会计师事务所有限公司,普华永道,glm_reviewed_medium,high,79,brand matches legal entity
+广州虹科电子科技有限公司,虹科,glm_reviewed_medium,high,69,brand matches legal entity
+阿里巴巴文化娱乐有限公司,阿里巴巴,glm_reviewed_medium,high,69,subsidiary maps to parent brand
+亚信科技（中国）有限公司,亚信科技,glm_reviewed_medium,high,67,brand matches legal entity
+兴业银行股份有限公司,兴业银行,high_confidence_rule,high,67,normalized legal entity exact match
+上海阅文信息技术有限公司,阅文集团,glm_reviewed_medium,high,66,brand is parent group of this legal entity
+奇瑞汽车股份有限公司,奇瑞汽车,high_confidence_rule,high,65,normalized legal entity exact match
+深圳传音控股股份有限公司,传音控股,high_confidence_rule,high,65,normalized legal entity exact match
+中芯国际集成电路制造（上海）有限公司,中芯国际,glm_reviewed_medium,high,64,well-known brand abbreviation for SMIC
+广州文远知行科技有限公司,文远知行,high_confidence_rule,high,64,normalized legal entity exact match
+广州虎牙科技有限公司,虎牙,high_confidence_rule,high,63,normalized legal entity exact match
+深圳拓竹科技有限公司,拓竹科技,glm_reviewed_medium,high,63,brand matches legal entity core name
+上海沐瞳科技有限公司,沐瞳科技,glm_reviewed_medium,high,62,brand matches legal entity core name
+中国电子科技集团有限公司,中国电子科技集团,glm_reviewed_medium,high,61,group-level parent abbreviation of full legal name
+中科寒武纪科技股份有限公司,寒武纪,glm_reviewed_medium,high,61,well-known brand for Cambricon
+作业帮教育科技（北京）有限公司,作业帮,glm_reviewed_medium,high,60,brand matches legal entity core name
+广发银行股份有限公司,广发银行,high_confidence_rule,high,60,normalized legal entity exact match
+度小满科技（北京）有限公司,度小满,high_confidence_rule,high,60,normalized legal entity exact match
+中国建筑集团有限公司,中国建筑集团,glm_reviewed_medium,high,59,group-level parent abbreviation of full legal name
+阿里巴巴达摩院（杭州）科技有限公司,阿里巴巴,glm_reviewed_medium,high,59,Alibaba is parent group of DAMO Academy subsidiary
+中国电信股份有限公司人工智能研究院,中国电信,glm_reviewed_medium,high,58,China Telecom is parent of this AI research institute
+杭州迪普科技股份有限公司,迪普科技,glm_reviewed_medium,high,58,brand matches legal entity core name
+华夏银行股份有限公司,华夏银行,high_confidence_rule,high,56,normalized legal entity exact match
+上海阶跃星辰智能科技有限公司,阶跃星辰,glm_reviewed_medium,high,55,brand matches legal entity core name
+深圳市卓驭科技有限公司,卓驭,glm_reviewed_medium,high,55,brand matches legal entity core name
+亿滋（中国）有限公司,亿滋,high_confidence_rule,high,54,normalized legal entity exact match
+深圳市广和通无线股份有限公司,广和通,glm_reviewed_medium,high,51,brand matches legal entity core name
+贝壳找房（北京）科技有限公司,贝壳找房,high_confidence_rule,high,51,normalized legal entity exact match
+北京轻舟智航智能技术有限公司,轻舟智航,glm_reviewed_medium,high,50,brand matches legal entity core name
+中国平安财产保险股份有限公司,中国平安,glm_reviewed_medium,high,49,Ping An is parent brand of this subsidiary
+中国电信股份有限公司,中国电信,high_confidence_rule,high,49,normalized legal entity exact match
+杭州群核信息技术有限公司,群核科技,glm_reviewed_medium,high,48,brand short name of legal entity
+平安银行股份有限公司,平安银行,high_confidence_rule,high,47,normalized legal entity exact match
+中国平安人寿保险股份有限公司,中国平安,glm_reviewed_medium,high,46,parent group of insurance subsidiary
+北京搜狐互联网信息服务有限公司,搜狐,glm_reviewed_medium,high,46,brand short name of legal entity
+盛趣信息技术（上海）有限公司,盛趣游戏,glm_reviewed_medium,high,46,brand short name of legal entity
+景顺长城基金管理有限公司,景顺长城基金,glm_reviewed_medium,high,45,brand short name of legal entity
+特变电工股份有限公司,特变电工,high_confidence_rule,high,45,normalized legal entity exact match
+震坤行工业超市（上海）有限公司,震坤行,glm_reviewed_medium,high,45,brand short name of legal entity
+天职国际会计师事务所（特殊普通合伙）,天职国际会计师事务所,high_confidence_rule,high,44,normalized legal entity exact match
+北京金山云网络技术有限公司,金山云,high_confidence_rule,high,43,normalized legal entity exact match
+富途网络科技（深圳）有限公司,富途,glm_reviewed_medium,high,43,brand short name of legal entity
+嘉实基金管理有限公司,嘉实基金,glm_reviewed_medium,high,42,brand short name of legal entity
+中粮集团有限公司,中粮集团,glm_reviewed_medium,high,41,brand short name of legal entity
+兴业证券股份有限公司,兴业证券集团,glm_reviewed_medium,high,41,brand/parent group of legal entity
+北京水滴科技集团有限公司,水滴公司,glm_reviewed_medium,high,41,brand short name of legal entity
+博时基金管理有限公司,博时基金,glm_reviewed_medium,high,41,brand short name of legal entity
+三一集团有限公司,三一集团,glm_reviewed_medium,high,39,brand short name of legal entity
+用友网络科技股份有限公司,用友,glm_reviewed_medium,high,39,brand short name of legal entity
+广电运通集团股份有限公司,广电运通集团,high_confidence_rule,high,38,normalized legal entity exact match
+深信服科技股份有限公司,深信服,high_confidence_rule,high,38,normalized legal entity exact match
+钉钉（中国）信息技术有限公司,钉钉,high_confidence_rule,high,38,normalized legal entity exact match
+上海合合信息科技股份有限公司,合合信息,glm_reviewed_medium,high,37,brand short name of legal entity
+麒麟软件有限公司,麒麟软件,glm_reviewed_medium,high,35,brand short name of legal entity
+思源电气股份有限公司,思源电气,high_confidence_rule,high,34,normalized legal entity exact match
+中国电气装备集团有限公司,中国电气装备集团,glm_reviewed_medium,high,33,brand name after removing legal suffix
+中诚信国际信用评级有限责任公司,中诚信国际,glm_reviewed_medium,high,33,parent brand short name
+华勤技术股份有限公司,华勤技术,high_confidence_rule,high,33,normalized legal entity exact match
+追觅科技（苏州）有限公司,追觅科技,glm_reviewed_medium,high,33,parent brand name
+宝洁（中国）有限公司,宝洁,high_confidence_rule,high,32,normalized legal entity exact match
+普华永道中天会计师事务所（特殊普通合伙）,普华永道,glm_reviewed_medium,high,31,parent brand short name
+极兔速递有限公司,极兔速递,high_confidence_rule,high,31,normalized legal entity exact match
+永赢基金管理有限公司,永赢基金,glm_reviewed_medium,high,31,parent brand short name
+海能达通信股份有限公司,海能达,glm_reviewed_medium,high,31,parent brand short name
+中国旅游集团有限公司,中国旅游集团,glm_reviewed_medium,high,30,brand name after removing legal suffix
+唯品会（中国）有限公司,唯品会,high_confidence_rule,high,30,normalized legal entity exact match
+石化盈科信息技术有限责任公司,石化盈科,high_confidence_rule,high,30,normalized legal entity exact match
+上海禾赛科技有限公司,禾赛科技,glm_reviewed_medium,high,29,parent brand name
+南方基金管理股份有限公司,南方基金,glm_reviewed_medium,high,29,parent brand short name
+成都海艺互娱科技有限公司,海艺互娱,high_confidence_rule,high,29,normalized legal entity exact match
+创维集团有限公司,创维集团,glm_reviewed_medium,high,28,brand name after removing legal suffix
+北京四维图新科技股份有限公司,四维图新,high_confidence_rule,high,28,normalized legal entity exact match
+深圳依时货拉拉科技有限公司,货拉拉,glm_reviewed_medium,high,28,parent brand short name
+首创证券股份有限公司,首创证券,high_confidence_rule,high,28,normalized legal entity exact match
+上海为旌科技有限公司,为旌科技,glm_reviewed_medium,high,27,parent brand name
+中国电信股份有限公司北京分公司,中国电信,glm_reviewed_medium,high,27,parent brand of regional branch
+乐鑫信息科技（上海）股份有限公司,乐鑫科技,glm_reviewed_medium,high,27,parent brand name
+九号有限公司,九号公司,glm_reviewed_medium,high,27,official brand short name
+巨人网络集团股份有限公司,巨人网络,glm_reviewed_medium,high,27,brand matches legal entity after suffix removal
+斑马网络技术有限公司,斑马智行,glm_reviewed_medium,high,27,known brand of this legal entity (SAIC-Alibaba JV)
+深圳元戎启行科技有限公司,元戎启行,high_confidence_rule,high,27,normalized legal entity exact match
+联易融数字科技集团有限公司,联易融,glm_reviewed_medium,high,27,brand matches legal entity after suffix removal
+高途教育科技集团有限公司,高途教育,high_confidence_rule,high,27,normalized legal entity exact match
+广东涂鸦智能信息技术有限公司,涂鸦智能,glm_reviewed_medium,high,26,brand matches legal entity after suffix removal
+金蝶软件（中国）有限公司,金蝶,high_confidence_rule,high,26,normalized legal entity exact match
+中国电信股份有限公司云计算分公司,中国电信,glm_reviewed_medium,high,25,branch of China Telecom parent
+北京北森云计算股份有限公司,北森云计算,high_confidence_rule,high,25,normalized legal entity exact match
+思特威（上海）电子科技股份有限公司,思特威电子,high_confidence_rule,high,25,normalized legal entity exact match
+无锡药明生物技术股份有限公司,药明生物,glm_reviewed_medium,high,25,brand matches legal entity after suffix removal
+中国铝业集团有限公司,中国铝业集团,glm_reviewed_medium,high,24,brand matches legal entity after suffix removal
+仲利国际融资租赁有限公司,仲利国际,glm_reviewed_medium,high,24,brand matches legal entity after suffix removal
+北京极智嘉科技股份有限公司,极智嘉,high_confidence_rule,high,24,normalized legal entity exact match
+北京点众科技股份有限公司,点众科技,glm_reviewed_medium,high,24,brand matches legal entity after suffix removal
+海目星激光科技集团股份有限公司,海目星激光,glm_reviewed_medium,high,24,brand matches legal entity after suffix removal
+牧原食品股份有限公司,牧原,glm_reviewed_medium,high,24,brand matches legal entity after suffix removal
+赛力斯集团股份有限公司,赛力斯集团,high_confidence_rule,high,24,normalized legal entity exact match
+三七互娱网络科技集团股份有限公司,三七互娱,glm_reviewed_medium,high,23,brand matches legal entity after suffix removal
+上汽通用汽车有限公司,上汽通用汽车,high_confidence_rule,high,23,normalized legal entity exact match
+中国外运股份有限公司,中国外运,high_confidence_rule,high,23,normalized legal entity exact match
+中国移动通信有限公司研究院,中国移动,glm_reviewed_medium,high,23,research institute branch of China Mobile parent
+北京学而思教育科技有限公司,学而思,glm_reviewed_medium,high,23,brand matches legal entity after suffix removal
+华润置地控股有限公司,华润置地,glm_reviewed_medium,high,23,subsidiary holding company of CR Land brand
+贝恩投资顾问（中国）有限公司,贝恩,glm_reviewed_medium,high,23,Bain & Company China entity
+雀巢（中国）有限公司,雀巢中国,glm_reviewed_medium,high,23,Nestle China legal entity; 雀巢销售菁英 is a recruitment program not a parent
+中国外运长航集团有限公司,中国外运,glm_reviewed_medium,high,22,brand short name of Sinotrans
+佳兆业集团（深圳）有限公司,佳兆业集团,glm_reviewed_medium,high,22,parent group brand
+朴道征信有限公司,朴道征信,high_confidence_rule,high,22,normalized legal entity exact match
+万物云空间科技服务股份有限公司,万物云,glm_reviewed_medium,high,21,brand short name
+汇添富基金管理股份有限公司,汇添富基金,glm_reviewed_medium,high,21,brand short name
+内蒙古蒙牛乳业（集团）股份有限公司,蒙牛,glm_reviewed_medium,high,20,Mengniu parent brand
+北京极感科技有限公司,极感科技,glm_reviewed_medium,high,20,brand short name
+杭州当虹科技股份有限公司,当虹科技,glm_reviewed_medium,high,20,brand short name
+深圳TCL新技术有限公司,TCL,glm_reviewed_medium,high,20,parent brand
+深圳市迅雷网络技术有限公司,迅雷,glm_reviewed_medium,high,20,Xunlei parent brand
+上海它石智航技术有限公司,它石智航,glm_reviewed_medium,high,19,brand short name
+北京智联招聘咨询有限公司,智联招聘,glm_reviewed_medium,high,19,Zhaopin brand
+广联达科技股份有限公司,广联达,high_confidence_rule,high,19,normalized legal entity exact match
+成都鼎桥通信技术有限公司,鼎桥通信,glm_reviewed_medium,high,19,brand short name
+波克科技集团有限公司,波克,high_confidence_rule,high,19,normalized legal entity exact match
+金风科技股份有限公司,金风科技,glm_reviewed_medium,high,19,brand short name
+上海城投（集团）有限公司,上海城投集团,glm_reviewed_medium,high,18,same entity shortened name from top3
+上海汉得信息技术股份有限公司,汉得信息,glm_reviewed_medium,high,18,brand short name
+九坤投资（北京）有限公司,九坤投资,high_confidence_rule,high,18,normalized legal entity exact match
+卡尔动力（北京）科技有限公司,卡尔动力,high_confidence_rule,high,18,normalized legal entity exact match
+深圳市海柔创新科技有限公司,海柔创新,glm_reviewed_medium,high,18,brand name from legal entity
+爱奇迹（深圳）创新科技有限公司,爱奇迹,glm_reviewed_medium,high,18,brand name from legal entity
+甘李药业股份有限公司,甘李药业,high_confidence_rule,high,18,normalized legal entity exact match
+申能（集团）有限公司,申能集团,glm_reviewed_medium,high,18,parent group name
+神州数码信息服务集团股份有限公司,神州数码集团,high_confidence_rule,high,18,normalized legal entity exact match
+龙湖集团控股有限公司,龙湖集团,glm_reviewed_medium,high,18,parent group name
+中国医药集团有限公司,中国医药集团,glm_reviewed_medium,high,17,parent group name
+中国移动通信集团内蒙古有限公司,中国移动,glm_reviewed_medium,high,17,parent group of regional subsidiary
+兴证全球基金管理有限公司,兴证全球基金,glm_reviewed_medium,high,17,brand name from legal entity
+北京长亭科技有限公司,长亭科技,glm_reviewed_medium,high,17,brand name from legal entity
+小米通讯技术有限公司,小米集团,high_confidence_rule,high,17,known brand/legal-entity alias via 小米
+歌尔股份有限公司,歌尔,high_confidence_rule,high,17,normalized legal entity exact match
+深圳市昊一源科技有限公司,昊一源,glm_reviewed_medium,high,17,brand name from legal entity
+爱奇迹（深圳）技术有限公司,爱奇迹,glm_reviewed_medium,high,17,brand name from legal entity
+网易游戏,网易,glm_reviewed_medium,high,17,parent company of game division
+广州极飞科技股份有限公司,极飞科技,glm_reviewed_medium,high,16,brand name from legal entity
+普华永道管理咨询（上海）有限公司,普华永道,glm_reviewed_medium,high,16,parent brand of regional entity
+点点互动（北京）科技有限公司,点点互动,high_confidence_rule,high,16,normalized legal entity exact match
+上海医药（集团）有限公司,上海医药,glm_reviewed_medium,high,15,brand name from legal entity (selected from top3)
+上海银行股份有限公司,上海银行,glm_reviewed_medium,high,15,brand matches legal entity from top3 candidates
+云和恩墨（北京）信息技术有限公司,云和恩墨,high_confidence_rule,high,15,normalized legal entity exact match
+北方集成电路技术创新中心（北京）有限公司,北方集成电路技术创新中心,high_confidence_rule,high,15,normalized legal entity exact match
+春秋航空股份有限公司,春秋航空,high_confidence_rule,high,15,normalized legal entity exact match
+杭州科百特过滤器材有限公司,科百特过滤器材,high_confidence_rule,high,15,normalized legal entity exact match
+深圳市其域创新科技有限公司,其域创新,glm_reviewed_medium,high,15,brand extracted from legal name
+深圳晶泰科技有限公司,晶泰科技,glm_reviewed_medium,high,15,brand extracted from legal name
+申万菱信基金管理有限公司,申万菱信基金,glm_reviewed_medium,high,15,brand extracted from legal name
+白象食品股份有限公司,白象食品,high_confidence_rule,high,15,normalized legal entity exact match
+长城汽车股份有限公司,长城汽车,high_confidence_rule,high,15,normalized legal entity exact match
+中关村发展集团股份有限公司,中关村发展集团,high_confidence_rule,high,14,normalized legal entity exact match
+中国移动通信集团浙江有限公司,中国移动,glm_reviewed_medium,high,14,provincial subsidiary of China Mobile
+中证信用增进股份有限公司,中证信用,glm_reviewed_medium,high,14,brand extracted from legal name
+利欧集团股份有限公司,利欧集团,high_confidence_rule,high,14,normalized legal entity exact match
+华侨城集团有限公司,华侨城集团,glm_reviewed_medium,high,14,brand matches legal entity
+四川腾盾科创股份有限公司,四川腾盾科创,high_confidence_rule,high,14,normalized legal entity exact match
+广州钛动科技股份有限公司,钛动科技,glm_reviewed_medium,high,14,brand extracted from legal name
+欧普照明股份有限公司,欧普照明,high_confidence_rule,high,14,normalized legal entity exact match
+深圳乐信软件技术有限公司,乐信,high_confidence_rule,high,14,normalized legal entity exact match
+深圳市锐明技术股份有限公司,锐明技术,glm_reviewed_medium,high,14,brand extracted from legal name
+渤海银行股份有限公司,渤海银行,high_confidence_rule,high,14,normalized legal entity exact match
+上海壁仞科技股份有限公司,壁仞科技,glm_reviewed_medium,high,13,brand extracted from legal name
+中信银行股份有限公司,中信银行,high_confidence_rule,high,13,normalized legal entity exact match
+中国建筑国际集团有限公司,中国建筑国际集团,glm_reviewed_medium,high,13,brand matches legal entity
+华硕电脑（上海）有限公司,华硕电脑,high_confidence_rule,high,13,normalized legal entity exact match
+启明星辰信息技术集团股份有限公司,启明星辰集团,high_confidence_rule,high,13,normalized legal entity exact match
+国泰君安期货有限公司,国泰君安,glm_reviewed_medium,high,13,futures subsidiary of Guotai Junan parent
+奥比中光科技集团股份有限公司,奥比中光,glm_reviewed_medium,high,13,brand extracted from legal name
+晶晨半导体（上海）股份有限公司,晶晨半导体,high_confidence_rule,high,13,normalized legal entity exact match
+西南证券股份有限公司,西南证券,high_confidence_rule,high,13,normalized legal entity exact match
+上海证券交易所（中国证券博物馆）,上海证券交易所,glm_reviewed_medium,high,12,museum branch of Shanghai Stock Exchange; parent is clear
+中邮理财有限责任公司,中邮理财,high_confidence_rule,high,12,normalized legal entity exact match
+先临三维科技股份有限公司,先临三维,high_confidence_rule,high,12,normalized legal entity exact match
+四川九洲电器集团有限责任公司,四川九洲电器集团,high_confidence_rule,high,12,normalized legal entity exact match
+宁德时代新能源科技股份有限公司,宁德时代,glm_reviewed_medium,high,12,CATL brand name is exact match
+浙江银泰百货有限公司,银泰百货,glm_reviewed_medium,high,12,Intime Department Store brand matches legal entity
+深圳新凯来技术有限公司,新凯来,glm_reviewed_medium,high,12,brand name for this semiconductor equipment maker
+北京科锐国际人力资源股份有限公司上海分公司,科锐国际,glm_reviewed_medium,high,11,Shanghai branch of Career International; parent brand clear
+华润建材科技有限公司,华润建材科技,glm_reviewed_medium,high,11,CR Building Technology stock/brand name matches
+华润置地（北京）股份有限公司,华润置地,high_confidence_rule,high,11,normalized legal entity exact match
+小天才科技有限公司,小天才,high_confidence_rule,high,11,normalized legal entity exact match
+广东海大集团股份有限公司,海大集团,glm_reviewed_medium,high,11,Evergreen Group brand matches legal entity
+广州菲亚兰德科技集团股份有限公司,菲亚兰德集团,high_confidence_rule,high,11,normalized legal entity exact match
+杭州游卡网络技术有限公司,游卡,high_confidence_rule,high,11,normalized legal entity exact match
+锦泓时装集团股份有限公司,锦泓时装集团,high_confidence_rule,high,11,normalized legal entity exact match
+万向集团公司,万向集团,glm_reviewed_medium,high,10,Wanxiang Group brand matches legal entity
+上海晶丰明源半导体股份有限公司,晶丰明源,glm_reviewed_medium,high,10,brand name for this LED driver IC company
+中国铁塔股份有限公司,中国铁塔,high_confidence_rule,high,10,normalized legal entity exact match
+利欧集团数字科技有限公司,利欧集团,glm_reviewed_medium,high,10,digital subsidiary of LEO Group; parent clear
+北京乐信圣文科技有限责任公司,乐信,glm_reviewed_medium,high,10,Lexin/Fenqile group brand for this fintech subsidiary
+北京城建集团有限责任公司,北京城建集团,glm_reviewed_medium,high,10,brand short name of the legal entity
+大华会计师事务所（特殊普通合伙）,大华会计师事务所,high_confidence_rule,high,10,normalized legal entity exact match
+岚图汽车科技有限公司,岚图汽车,high_confidence_rule,high,10,normalized legal entity exact match
+延锋国际座椅系统有限公司,延锋,glm_reviewed_medium,high,10,brand/parent group of Yanfeng subsidiaries
+成都联发科技有限公司,联发科技,glm_reviewed_medium,high,10,brand short name of the legal entity
+杭州广立微电子股份有限公司,广立微,glm_reviewed_medium,high,10,brand short name of the legal entity
+极米科技股份有限公司,极米科技,glm_reviewed_medium,high,10,brand short name of the legal entity
+歌尔丹拿科技有限公司,歌尔丹拿,high_confidence_rule,high,10,normalized legal entity exact match
+深南电路股份有限公司,深南电路,high_confidence_rule,high,10,normalized legal entity exact match
+申能股份有限公司,申能集团,glm_reviewed_medium,high,10,parent group company
+中国电信研究院,中国电信,glm_reviewed_medium,high,9,中国电信 is the parent group of this research institute
+华夏久盈资产管理有限责任公司,华夏久盈,glm_reviewed_medium,high,9,brand short name of the legal entity
+奇安信科技集团股份有限公司,奇安信,glm_reviewed_medium,high,9,brand short name of the legal entity
+延锋国际汽车技术有限公司,延锋,glm_reviewed_medium,high,9,brand/parent group of Yanfeng subsidiaries
+恒生银行（中国）有限公司,恒生,glm_reviewed_medium,high,9,brand/parent is Hang Seng Bank
+江苏正力新能电池技术股份有限公司,正力新能,glm_reviewed_medium,high,9,brand short name of the legal entity
+泰豪软件股份有限公司,泰豪公司,glm_reviewed_medium,medium,9,informal reference to parent Tellhow Group
+浙江华友钴业股份有限公司,华友钴业,glm_reviewed_medium,high,9,brand short name of the legal entity
+深圳市英维克科技股份有限公司,英维克,glm_reviewed_medium,high,9,brand short name of the legal entity
+稳健医疗用品股份有限公司,稳健医疗,glm_reviewed_medium,high,9,brand short name of the legal entity
+紫金矿业集团股份有限公司,紫金矿业,glm_reviewed_medium,high,9,brand short name of the legal entity
+舜宇集团有限公司,舜宇集团,glm_reviewed_medium,high,9,brand short name of the legal entity
+上海七猫文化传媒有限公司,七猫,glm_reviewed_medium,high,8,brand name of the company
+北京世纪好未来教育科技有限公司,好未来,glm_reviewed_medium,high,8,well-known brand/parent company
+北京半亩花田科技有限公司,半亩花田,high_confidence_rule,high,8,normalized legal entity exact match
+北京微观博易私募基金管理有限公司,微观博易,glm_reviewed_medium,high,8,brand short name of the legal entity
+北京掌趣科技股份有限公司,掌趣科技,glm_reviewed_medium,high,8,brand name matching legal entity
+安踏体育用品集团有限公司,安踏,glm_reviewed_medium,high,8,well-known brand/parent company
+广州敏视数码科技有限公司,敏视,glm_reviewed_medium,medium,8,brand short name of the legal entity
+日立能源（中国）有限公司,日立能源,high_confidence_rule,high,8,normalized legal entity exact match
+智慧芽信息科技（苏州）有限公司,智慧芽,high_confidence_rule,high,8,normalized legal entity exact match
+深圳市基克纳科技有限公司,基克纳,glm_reviewed_medium,medium,8,brand short name of the legal entity
+立信会计师事务所（特殊普通合伙）,立信会计师事务所,high_confidence_rule,high,8,normalized legal entity exact match
+达能亚太（上海）管理有限公司,达能,glm_reviewed_medium,high,8,global parent brand Danone
+上海七十迈数字科技有限公司,七十迈,glm_reviewed_medium,medium,7,brand short name of the legal entity
+中信证券股份有限公司,中信证券,high_confidence_rule,high,7,normalized legal entity exact match
+中国华电集团有限公司,中国华电,high_confidence_rule,high,7,normalized legal entity exact match
+中建电子商务有限责任公司,中建电子,glm_reviewed_medium,medium,7,common abbreviation of the legal entity
+北京正定私募基金管理合伙企业（有限合伙）,正定私募,glm_reviewed_medium,medium,7,brand short name of the legal entity
+北京泡泡玛特文化创意有限公司,泡泡玛特,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+南京诺唯赞生物科技股份有限公司,诺唯赞生物,high_confidence_rule,high,7,normalized legal entity exact match
+安永（中国）企业咨询有限公司,安永,glm_reviewed_medium,high,7,Ernst & Young China subsidiary brand
+广州兴趣岛信息科技有限公司,兴趣岛,high_confidence_rule,high,7,normalized legal entity exact match
+广汽丰田汽车有限公司,广汽丰田,glm_reviewed_medium,high,7,joint venture brand matches legal entity
+思摩尔国际控股有限公司,思摩尔国际,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+杭州海兴电力科技股份有限公司,海兴电力,high_confidence_rule,high,7,normalized legal entity exact match
+沈阳新松机器人自动化股份有限公司,沈阳新松机器人,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+清华大学出版社有限公司,清华大学出版社,high_confidence_rule,high,7,normalized legal entity exact match
+湖南国科微电子股份有限公司,国科微电子,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+祖龙（天津）科技股份有限公司,祖龙娱乐,glm_reviewed_medium,high,7,well-known game company brand
+超聚变数字技术有限公司,超聚变,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+进迭时空（杭州）科技有限公司,进迭时空,high_confidence_rule,high,7,normalized legal entity exact match
+金发科技股份有限公司,金发科技,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+长园深瑞继保自动化有限公司,长园深瑞,glm_reviewed_medium,high,7,brand matches legal entity after stripping suffix
+三棵树涂料股份有限公司,三棵树,glm_reviewed_medium,high,6,brand matches legal entity after stripping suffix
+上海复旦微电子集团股份有限公司,复旦微电子集团,high_confidence_rule,high,6,normalized legal entity exact match
+上海思勰投资管理有限公司,思勰投资,glm_reviewed_medium,high,6,brand matches legal entity after stripping suffix
+东风汽车有限公司东风日产乘用车公司,东风日产,glm_reviewed_medium,high,6,division brand matches Dongfeng Nissan JV
+中国移动通信集团上海有限公司,中国移动,glm_reviewed_medium,high,6,regional subsidiary of China Mobile
+中粮家佳康食品有限公司,中粮家佳康,glm_reviewed_medium,high,6,COFCO subsidiary brand matches entity
+中船动力（集团）有限公司,中船动力集团,glm_reviewed_medium,high,6,brand matches legal entity after stripping suffix
+九号科技有限公司,九号公司,glm_reviewed_medium,high,6,brand name of the legal entity
+亿滋食品企业管理（上海）有限公司,亿滋,glm_reviewed_medium,high,6,parent brand Mondelez
+佳兆业集团控股有限公司,佳兆业集团,glm_reviewed_medium,high,6,parent group brand
+兆易创新科技集团股份有限公司,兆易创新,glm_reviewed_medium,high,6,stock brand name
+北京千曙科技有限公司,千曙科技,glm_reviewed_medium,high,6,brand shortening
+北京柠檬微趣科技股份有限公司,柠檬微趣,high_confidence_rule,high,6,normalized legal entity exact match
+北京比特大陆科技有限公司,比特大陆,high_confidence_rule,high,6,normalized legal entity exact match
+北京润科通用技术有限公司,润科通用,glm_reviewed_medium,high,6,brand shortening
+华润三九医药股份有限公司,华润三九,glm_reviewed_medium,high,6,brand name
+博思软件（中国）有限公司,博思软件,glm_reviewed_medium,high,6,brand shortening
+和谐健康保险股份有限公司,和谐健康,glm_reviewed_medium,high,6,brand name
+广州多益网络股份有限公司,多益网络,high_confidence_rule,high,6,normalized legal entity exact match
+广州欧莱雅百库网络科技有限公司,欧莱雅百库,glm_reviewed_medium,medium,6,subsidiary brand name
+广州谷雨生物科技有限公司,谷雨,glm_reviewed_medium,high,6,brand shortening
+康诺亚生物医药科技（成都）有限公司,康诺亚,glm_reviewed_medium,high,6,brand name
+欧派家居集团股份有限公司,欧派家居集团,high_confidence_rule,high,6,normalized legal entity exact match
+汤臣倍健股份有限公司,汤臣倍健,high_confidence_rule,high,6,normalized legal entity exact match
+沈阳三生制药有限责任公司,三生制药,glm_reviewed_medium,high,6,brand name
+浙江晶盛机电股份有限公司,晶盛机电,glm_reviewed_medium,high,6,stock brand name
+浙江省自然资源集团有限公司,浙江省自然资源集团,glm_reviewed_medium,high,6,same entity without legal suffix
+海南世纪前沿私募基金管理有限公司,世纪前沿,glm_reviewed_medium,high,6,brand matches legal entity
+深圳冰川网络股份有限公司,冰川网络,high_confidence_rule,high,6,normalized legal entity exact match
+深圳市东信时代信息技术有限公司,东信,glm_reviewed_medium,medium,6,brand matches legal entity
+深圳市新产业生物医学工程股份有限公司,新产业生物,glm_reviewed_medium,high,6,brand matches legal entity
+矿冶科技集团有限公司,矿冶集团,glm_reviewed_medium,high,6,brand matches legal entity
+三菱日联银行（中国）有限公司,三菱日联银行（中国）,glm_reviewed_medium,high,5,brand matches legal entity
+上海伏达半导体有限公司,伏达半导体,high_confidence_rule,high,5,normalized legal entity exact match
+东软医疗系统股份有限公司,东软医疗,glm_reviewed_medium,high,5,brand matches legal entity
+中信兴业投资集团有限公司,中信兴业投资集团,glm_reviewed_medium,high,5,brand matches legal entity
+中国印钞造币集团有限公司,中国印钞造币集团,glm_reviewed_medium,high,5,brand matches legal entity
+九阳股份有限公司,九阳,high_confidence_rule,high,5,normalized legal entity exact match
+人民邮电出版社有限公司,人民邮电出版社,high_confidence_rule,high,5,normalized legal entity exact match
+保利物业服务股份有限公司,保利物业,glm_reviewed_medium,high,5,brand matches legal entity
+信达生物制药（苏州）有限公司,信达生物,glm_reviewed_medium,high,5,brand matches legal entity
+北京乐刻网络技术有限公司,乐刻运动,glm_reviewed_medium,high,5,brand matches legal entity
+北京奕斯伟计算技术股份有限公司,奕斯伟计算,glm_reviewed_medium,high,5,brand matches legal entity
+北京猿辅导线上学科培训学校,猿辅导,glm_reviewed_medium,high,5,brand matches legal entity
+北京科锐国际人力资源股份有限公司,科锐国际,glm_reviewed_medium,high,5,brand matches legal entity
+北汽福田汽车股份有限公司,北汽福田汽车,high_confidence_rule,high,5,normalized legal entity exact match
+华润五丰（中国）投资有限公司,华润五丰,glm_reviewed_medium,high,5,brand shortening of legal entity
+天弘基金管理有限公司,天弘基金,glm_reviewed_medium,high,5,brand shortening of legal entity
+奥克斯集团有限公司,奥克斯集团,glm_reviewed_medium,high,5,brand shortening of legal entity
+广东华兴银行股份有限公司,广东华兴银行,high_confidence_rule,high,5,normalized legal entity exact match
+广州安凯微电子股份有限公司,安凯微电子,high_confidence_rule,high,5,normalized legal entity exact match
+横店集团控股有限公司,横店集团,glm_reviewed_medium,high,5,brand shortening of legal entity
+浙江春风动力股份有限公司,春风动力,glm_reviewed_medium,high,5,brand shortening of legal entity
+浙江麦瑞克科技有限公司,麦瑞克,glm_reviewed_medium,high,5,brand shortening of legal entity
+深圳全棉时代科技有限公司,全棉时代,high_confidence_rule,high,5,normalized legal entity exact match
+深圳市共进电子股份有限公司,共进电子,glm_reviewed_medium,high,5,brand shortening of legal entity
+深圳市睿联技术股份有限公司,睿联技术,glm_reviewed_medium,high,5,brand shortening of legal entity
+深圳舞肌科技有限公司,舞肌科技,glm_reviewed_medium,high,5,brand shortening of legal entity
+深圳鼎匠创新科技有限公司,鼎匠创新,high_confidence_rule,high,5,normalized legal entity exact match
+烽火通信科技股份有限公司,烽火通信,high_confidence_rule,high,5,normalized legal entity exact match
+特斯拉（上海）有限公司,特斯拉,high_confidence_rule,high,5,normalized legal entity exact match
+瑞芯微电子股份有限公司,瑞芯微电子,high_confidence_rule,high,5,normalized legal entity exact match
+白犀牛智达（北京）科技有限公司,白犀牛,glm_reviewed_medium,high,5,brand shortening of legal entity
+益普索（中国）咨询有限公司,益普索,glm_reviewed_medium,high,5,brand shortening of legal entity
+福建星网锐捷通讯股份有限公司,星网锐捷,glm_reviewed_medium,high,5,brand shortening of legal entity
+联想开天科技有限公司,联想,glm_reviewed_medium,high,5,联想 is parent brand of 联想开天
+致欧家居科技股份有限公司,致欧家居,high_confidence_rule,high,5,normalized legal entity exact match
+衣臻时装有限公司,衣臻时装,high_confidence_rule,high,5,normalized legal entity exact match
+上海富瀚微电子股份有限公司,富瀚微电子,high_confidence_rule,high,4,normalized legal entity exact match
+上海鹏欣（集团）有限公司,鹏欣集团,glm_reviewed_medium,high,4,brand abbreviation of same group
+东方空间技术（山东）有限公司,东方空间,glm_reviewed_medium,high,4,brand abbreviation
+中国中元国际工程有限公司,中国中元,glm_reviewed_medium,high,4,brand abbreviation
+中航技进出口有限责任公司,中航技,glm_reviewed_medium,high,4,brand abbreviation
+中茵微电子（南京）有限公司,中茵微电子,high_confidence_rule,high,4,normalized legal entity exact match
+仙乐（上海）健康科技有限公司,仙乐健康,high_confidence_rule,high,4,normalized legal entity exact match
+伊戈尔电气股份有限公司,伊戈尔电气,high_confidence_rule,high,4,normalized legal entity exact match
+保利和润房地产投资顾问有限公司,保利和润,glm_reviewed_medium,high,4,brand abbreviation
+北京云圣智能科技有限责任公司,云圣智能,high_confidence_rule,high,4,normalized legal entity exact match
+北京大北农科技集团股份有限公司,大北农集团,high_confidence_rule,high,4,normalized legal entity exact match
+北京搜狐新媒体信息技术有限公司,搜狐,glm_reviewed_medium,high,4,parent brand Sohu
+厦门国际银行股份有限公司,厦门国际银行,high_confidence_rule,high,4,normalized legal entity exact match
+奇瑞捷豹路虎汽车有限公司,奇瑞捷豹路虎,glm_reviewed_medium,high,4,jv brand abbreviation
+安捷利美维电子（厦门）有限责任公司,安捷利美维,glm_reviewed_medium,high,4,brand abbreviation
+安永校园招聘,安永,glm_reviewed_medium,high,4,parent brand Danone
+容诚会计师事务所（特殊普通合伙）,容诚会计师事务所,high_confidence_rule,high,4,normalized legal entity exact match
+帆软软件有限公司,帆软,high_confidence_rule,high,4,normalized legal entity exact match
+广州天赐高新材料股份有限公司,天赐高新材料,high_confidence_rule,high,4,normalized legal entity exact match
+施耐德电气（中国）有限公司,施耐德电气,high_confidence_rule,high,4,normalized legal entity exact match
+无忧传媒集团有限公司,无忧传媒,high_confidence_rule,high,4,normalized legal entity exact match
+深圳佰维存储科技股份有限公司,佰维存储,high_confidence_rule,high,4,normalized legal entity exact match
+深圳市大族数控科技股份有限公司,大族数控,glm_reviewed_medium,high,4,brand abbreviation
+深圳市昇维旭技术有限公司,昇维旭,glm_reviewed_medium,high,4,brand abbreviation
+深圳市景旺电子股份有限公司,景旺电子,glm_reviewed_medium,high,4,brand abbreviation
+深圳市禾望电气股份有限公司,禾望电气,glm_reviewed_medium,high,4,brand abbreviation
+深圳齐心集团股份有限公司,齐心集团,high_confidence_rule,high,4,normalized legal entity exact match
+睿尔曼智能科技（北京）有限公司,睿尔曼智能,high_confidence_rule,high,4,normalized legal entity exact match
+立讯精密工业股份有限公司,立讯精密,glm_reviewed_medium,high,4,brand abbreviation
+维信诺科技股份有限公司,维信诺,high_confidence_rule,high,4,normalized legal entity exact match
+达能（中国）食品饮料有限公司,达能,glm_reviewed_medium,high,4,parent brand Danone
+迪安诊断技术集团股份有限公司,迪安诊断,glm_reviewed_medium,high,4,brand abbreviation
+陕西星环聚能科技有限公司,星环聚能,glm_reviewed_medium,high,4,brand name after legal-entity suffix removal
+上海华谊集团股份有限公司,华谊集团,high_confidence_rule,high,3,normalized legal entity exact match
+上海吉祥航空股份有限公司,吉祥航空,high_confidence_rule,high,3,normalized legal entity exact match
+上海晨光文具股份有限公司,晨光文具,high_confidence_rule,high,3,normalized legal entity exact match
+上海智驾科技有限公司,千里智驾,glm_reviewed_medium,medium,3,千里智驾 is the operating brand of this company
+上海曼伦商贸有限公司,曼伦,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+上海贝岭股份有限公司,上海贝岭,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+上海量派投资管理有限公司,量派投资,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+东莞银行股份有限公司,东莞银行,high_confidence_rule,high,3,normalized legal entity exact match
+东鹏饮料（集团）股份有限公司,东鹏饮料,high_confidence_rule,high,3,normalized legal entity exact match
+中国移动通信集团北京有限公司,中国移动,glm_reviewed_medium,high,3,Beijing subsidiary of China Mobile parent group
+中国移动通信集团四川有限公司,中国移动,glm_reviewed_medium,high,3,Sichuan subsidiary of China Mobile parent group
+中国移动通信集团四川有限公司眉山分公司,中国移动,glm_reviewed_medium,high,3,Meishan branch under China Mobile parent group
+中海物业管理有限公司,中海物业,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+九江银行股份有限公司,九江银行,high_confidence_rule,high,3,normalized legal entity exact match
+云尖信息技术有限公司,云尖信息,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+北京华峰测控技术股份有限公司,华峰测控,glm_reviewed_medium,high,3,brand name after legal-entity suffix removal
+北方华创科技集团股份有限公司,北方华创,glm_reviewed_medium,high,3,well-known brand name of the company
+南华期货股份有限公司,南华期货,high_confidence_rule,high,3,normalized legal entity exact match
+厦门港务控股集团有限公司,厦门港务控股集团,glm_reviewed_medium,high,3,commonly known group name without legal suffix
+太古可口可乐（中国）有限公司,太古可口可乐(中国),glm_reviewed_medium,medium,3,operating brand name with half-width parentheses convention
+好未来招聘,好未来,glm_reviewed_medium,high,3,好未来 is the parent company; 好未来招聘 is a recruitment channel name
+广东鸿钧微电子科技有限公司,鸿钧微电子,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+广州王老吉大健康产业有限公司,王老吉大健康,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+广州蓝深科技有限公司,蓝深科技,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+广州融捷能源科技有限公司,融捷能源,high_confidence_rule,high,3,normalized legal entity exact match
+成都芯源系统有限公司,MPS芯源系统,glm_reviewed_medium,high,3,MPS is the well-known parent brand for 芯源系统
+扬子江药业集团有限公司,扬子江药业集团,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+无锡奥特维科技股份有限公司,奥特维,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+无锡药明合联生物技术有限公司,药明合联,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+杭州碧橙数字技术股份有限公司,碧橙数字,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+杰克科技股份有限公司,杰克科技,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+株洲旗滨集团股份有限公司,旗滨集团,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+株洲时代新材料科技股份有限公司,时代新材,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+格科微电子（上海）有限公司,格科,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+深圳乐信控股有限公司,乐信,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+深圳巴士集团股份有限公司,深圳巴士集团,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+深圳市李森智能有限公司,李森智能,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+深圳市理然化妆品有限公司,理然,glm_reviewed_medium,high,3,core brand name after legal-entity normalization
+白云电气集团有限公司,白云电气集团,glm_reviewed_medium,high,3,brand after legal suffix removal
+福建三福服饰有限公司,三福,glm_reviewed_medium,high,3,brand after legal suffix removal
+芯联集成电路制造股份有限公司,芯联集成,glm_reviewed_medium,high,3,brand after legal suffix removal
+西安知象光电科技有限公司,知象光电,glm_reviewed_medium,high,3,brand after legal suffix removal
+记忆科技（深圳）有限公司,记忆科技,glm_reviewed_medium,high,3,brand after legal suffix removal
+上海剧星传媒股份有限公司,剧星传媒,high_confidence_rule,high,2,normalized legal entity exact match
+上海林清轩生物科技股份有限公司,林清轩,glm_reviewed_medium,high,2,brand after legal suffix removal
+上海维塔士电脑软件有限公司,维塔士,glm_reviewed_medium,high,2,brand after legal suffix removal
+上海聪链信息科技有限公司,聪链集团,glm_reviewed_medium,high,2,parent group brand
+中国电信国际有限公司,中国电信,glm_reviewed_medium,high,2,parent company of international subsidiary
+中国电建集团成都勘测设计研究院有限公司,中国电建集团,glm_reviewed_medium,high,2,parent group of subsidiary institute
+亚玛芬体育用品贸易（上海）有限公司,亚玛芬体育,glm_reviewed_medium,high,2,parent brand of regional trading subsidiary
+凯莱英医药集团（天津）股份有限公司,凯莱英医药集团,high_confidence_rule,high,2,normalized legal entity exact match
+北京学而思网络科技有限公司,学而思,glm_reviewed_medium,high,2,brand after legal suffix removal
+北京微财科技有限公司,微财数科,glm_reviewed_medium,high,2,brand of legal entity
+北京润泽园教育科技（集团）有限公司,润泽园教育,high_confidence_rule,high,2,normalized legal entity exact match
+北京精雕科技集团有限公司,北京精雕,glm_reviewed_medium,high,2,brand of legal entity
+华域汽车系统股份有限公司,华域汽车,glm_reviewed_medium,high,2,brand/parent company
+南京商络电子股份有限公司,商络电子,high_confidence_rule,high,2,normalized legal entity exact match
+因湃电池科技有限公司,因湃电池科技,glm_reviewed_medium,high,2,brand of legal entity
+国光电器股份有限公司,国光电器,high_confidence_rule,high,2,normalized legal entity exact match
+国机重装成都重型机械有限公司,国机重装,glm_reviewed_medium,high,2,parent group company
+圣湘生物科技股份有限公司,圣湘生物,high_confidence_rule,high,2,normalized legal entity exact match
+富途集团,富途,glm_reviewed_medium,high,2,brand of group
+山东黄金集团有限公司,山东黄金集团,glm_reviewed_medium,high,2,brand of legal entity
+广东星云开物科技股份有限公司,星云开物,glm_reviewed_medium,high,2,brand of legal entity
+广州星嘉信息科技有限公司,星嘉游戏,glm_reviewed_medium,high,2,brand of legal entity
+广州金域医学检验中心有限公司,金域医学,glm_reviewed_medium,high,2,brand of legal entity
+广西投资集团有限公司,广西投资集团,glm_reviewed_medium,high,2,brand of legal entity
+成都新易盛通信技术股份有限公司,新易盛,glm_reviewed_medium,high,2,brand of legal entity
+斯凯孚（中国）有限公司,SKF斯凯孚,glm_reviewed_medium,high,2,brand of legal entity
+新疆巨融能源（集团）有限公司,巨融能源,glm_reviewed_medium,high,2,brand of legal entity
+无锡先导智能装备股份有限公司,先导智能,glm_reviewed_medium,high,2,brand of legal entity
+桂林市啄木鸟医疗器械有限公司,啄木鸟医疗,glm_reviewed_medium,high,2,brand of legal entity
+武汉市聚芯微电子有限责任公司,聚芯微电子,glm_reviewed_medium,high,2,brand of legal entity
+永卓控股有限公司,永卓控股,high_confidence_rule,high,2,normalized legal entity exact match
+江苏省招标中心有限公司,江苏省招标中心,high_confidence_rule,high,2,normalized legal entity exact match
+江西银行股份有限公司,江西银行,high_confidence_rule,high,2,normalized legal entity exact match
+法国液化空气集团,液化空气集团,glm_reviewed_medium,high,2,parent brand name after legal entity normalization
+浙江我武生物科技股份有限公司,我武生物,glm_reviewed_medium,high,2,stock short name and brand
+深圳市钱大妈农产品有限公司,钱大妈,glm_reviewed_medium,high,2,well-known consumer brand
+深圳市鹏新旭技术有限公司,鹏新旭,glm_reviewed_medium,medium,2,brand derived from legal entity name
+深圳汉阳科技有限公司,汉阳科技Yarbo,glm_reviewed_medium,medium,2,brand with English suffix used in recruitment
+深圳盛屯集团有限公司,盛屯集团,glm_reviewed_medium,high,2,parent group name
+深圳硅基仿生科技股份有限公司,硅基仿生,high_confidence_rule,high,2,normalized legal entity exact match
+游酷盛世科技（北京）有限公司,游酷盛世,high_confidence_rule,high,2,normalized legal entity exact match
+湖南建设投资集团有限责任公司,湖南建设投资集团,high_confidence_rule,high,2,normalized legal entity exact match
+玫德集团有限公司,玫德集团,glm_reviewed_medium,high,2,parent group name
+生益电子股份有限公司,生益电子,high_confidence_rule,high,2,normalized legal entity exact match
+菲利斯太阳能科技有限公司,菲利斯,glm_reviewed_medium,medium,2,brand name
+许昌智能继电器股份有限公司,许昌智能,glm_reviewed_medium,high,2,stock short name
+贵阳银行股份有限公司,贵阳银行,high_confidence_rule,high,2,normalized legal entity exact match
+超视界显示技术有限公司,超视界,glm_reviewed_medium,medium,2,brand name
+七色纺商业连锁有限公司,七色纺,glm_reviewed_medium,high,1,brand name
+三福服饰有限公司,三福,glm_reviewed_medium,high,1,brand name
+上汽大众汽车有限公司,上汽大众,glm_reviewed_medium,high,1,well-known JV brand
+上汽大通汽车有限公司,上汽大通,glm_reviewed_medium,high,1,brand name
+上海华讯网络系统有限公司,华讯网络,glm_reviewed_medium,high,1,brand name
+上海寅成智能科技有限公司,寅成智能,high_confidence_rule,high,1,normalized legal entity exact match
+上海极洞科技有限公司,极洞科技,glm_reviewed_medium,medium,1,brand name
+上海烈冰生物医药科技有限公司,烈冰生物,glm_reviewed_medium,high,1,brand name extracted from legal entity
+上海玄信资产管理中心（有限合伙）,玄信资产,glm_reviewed_medium,high,1,brand name extracted from legal entity
+上海贝特威自动化科技有限公司,贝特威,glm_reviewed_medium,high,1,brand name extracted from legal entity
+上海采日能源科技有限公司,采日能源,high_confidence_rule,high,1,normalized legal entity exact match
+上海钧合原子科技有限公司,钧合原子,high_confidence_rule,high,1,normalized legal entity exact match
+上海飒智智能科技有限公司,飒智智能,high_confidence_rule,high,1,normalized legal entity exact match
+东方电子股份有限公司,东方电子,high_confidence_rule,high,1,normalized legal entity exact match
+东莞立讯技术股份有限公司,立讯技术,glm_reviewed_medium,high,1,subsidiary brand of luxshare group used in recruitment
+东软睿驰汽车技术（沈阳）有限公司,东软睿驰,glm_reviewed_medium,high,1,brand name extracted from legal entity
+东阿阿胶股份有限公司,东阿阿胶,high_confidence_rule,high,1,normalized legal entity exact match
+中农华牧集团股份有限公司,中农华牧集团,high_confidence_rule,high,1,normalized legal entity exact match
+中国一重集团有限公司,中国一重集团,glm_reviewed_medium,high,1,well-known state-owned enterprise brand
+中国启源工程设计研究院有限公司,中国启源,glm_reviewed_medium,high,1,brand name extracted from legal entity
+中国土木工程集团有限公司,中国土木,glm_reviewed_medium,high,1,well-known state-owned enterprise brand
+中国平安人寿保险股份有限公司四川分公司,平安人寿,glm_reviewed_medium,high,1,parent brand for regional branch
+中国民航科学技术研究院（中国民用航空局航空安全技术中心）,中国民航科学技术研究院,high_confidence_rule,high,1,normalized legal entity exact match
+中国电建集团贵州工程有限公司,中国电建集团,glm_reviewed_medium,high,1,well-known state-owned enterprise parent brand
+中国电建集团贵阳勘测设计研究院有限公司,中国电建集团,glm_reviewed_medium,high,1,well-known state-owned enterprise parent brand
+中国节能环保集团有限公司,中国节能,glm_reviewed_medium,high,1,well-known state-owned enterprise brand
+中电科蓝天科技股份有限公司,电科蓝天,glm_reviewed_medium,high,1,cetc subsidiary brand used in recruitment
+临港算力（上海）科技有限公司,临港算力,high_confidence_rule,high,1,normalized legal entity exact match
+九牧集团有限公司,九牧集团,glm_reviewed_medium,high,1,brand name extracted from legal entity
+亨通集团有限公司,亨通集团,glm_reviewed_medium,high,1,brand name extracted from legal entity
+佛山市卓驭工程有限公司,卓驭,glm_reviewed_medium,high,1,brand name extracted from legal entity
+健合（中国）有限公司,健合,high_confidence_rule,high,1,normalized legal entity exact match
+光宝科技股份有限公司,光宝科技,glm_reviewed_medium,high,1,brand name extracted from legal entity
+农夫山泉股份有限公司,养生堂·农夫山泉,glm_reviewed_medium,medium,1,parent company yangshengtang combined with brand
+北京博乐科技有限公司,博乐科技,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+北京天地和兴科技有限公司,天地和兴,high_confidence_rule,high,1,normalized legal entity exact match
+北京易华录信息技术股份有限公司,易华录,high_confidence_rule,high,1,normalized legal entity exact match
+北京清大科越股份有限公司,清大科越,high_confidence_rule,high,1,normalized legal entity exact match
+北京源乐晟资产管理有限公司,源乐晟资产,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+北京艾达乐博科技有限公司,艾达乐博,high_confidence_rule,high,1,normalized legal entity exact match
+北京高博医疗科技集团有限公司,高博医疗集团,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+南京正大天晴制药有限公司,正大天晴,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+南京金斯瑞生物科技有限公司,金斯瑞生物,high_confidence_rule,high,1,normalized legal entity exact match
+合肥我们方田教育科技有限公司,方田教育,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+同济大学建筑设计研究院（集团）有限公司,同济大学建筑设计研究院,high_confidence_rule,high,1,normalized legal entity exact match
+哈药集团股份有限公司,哈药集团,high_confidence_rule,high,1,normalized legal entity exact match
+四川英杰电气股份有限公司,英杰电气,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+国新国际（中国）有限公司,国新国际,high_confidence_rule,high,1,normalized legal entity exact match
+多抓鱼（北京）科技有限公司,多抓鱼,high_confidence_rule,high,1,normalized legal entity exact match
+多维联合集团股份有限公司,多维联合集团,high_confidence_rule,high,1,normalized legal entity exact match
+大参林医药集团股份有限公司,大参林医药集团,high_confidence_rule,high,1,normalized legal entity exact match
+天津瑞普生物技术股份有限公司,瑞普生物,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+天能控股集团有限公司,天能控股集团,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+天虹数科商业股份有限公司,天虹数科,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+孚能科技（赣州）股份有限公司,孚能科技,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+富德生命人寿保险股份有限公司,富德生命人寿,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+山东半亩花田化妆品有限公司,半亩花田,glm_reviewed_medium,high,1,brand matches legal entity after normalization
+广东三福服装有限公司,三福,glm_reviewed_medium,medium,1,brand matches legal entity after normalization
+广东南粤银行股份有限公司,广东南粤银行,high_confidence_rule,high,1,normalized legal entity exact match
+广东省建筑设计研究院集团股份有限公司,广东省建筑设计研究院集团,high_confidence_rule,high,1,normalized legal entity exact match
+广州凡岛网络科技有限公司,凡岛,glm_reviewed_medium,medium,1,brand matches legal entity after normalization
+广州宝洁有限公司,宝洁,high_confidence_rule,high,1,normalized legal entity exact match
+广州广之旅国际旅行社股份有限公司,广之旅,glm_reviewed_medium,high,1,brand short name of the company
+建华控股有限公司,建华控股,high_confidence_rule,high,1,normalized legal entity exact match
+得力集团有限公司,得力集团,glm_reviewed_medium,high,1,same company brand name
+徽商银行股份有限公司,徽商银行,high_confidence_rule,high,1,normalized legal entity exact match
+成都中电锦江信息产业有限公司,中电锦江,glm_reviewed_medium,high,1,brand short name of the company
+成都极客未来教育科技有限公司,极客未来,glm_reviewed_medium,high,1,brand short name of the company
+无锡北微传感科技有限公司,北微传感,glm_reviewed_medium,high,1,brand short name of the company
+旭阳集团有限公司,旭阳集团,glm_reviewed_medium,high,1,same company brand name
+杭州九阳豆业有限公司,九阳,glm_reviewed_medium,high,1,九阳 is the parent brand of 九阳豆业 subsidiary
+杭州欣俊哲微纳科技有限公司,欣俊哲微纳,high_confidence_rule,high,1,normalized legal entity exact match
+杰华特微电子股份有限公司,杰华特,glm_reviewed_medium,high,1,brand short name of the company
+森松（苏州）生命科技有限公司,森松生命科技,glm_reviewed_medium,high,1,brand short name of the company
+正大天晴药业集团股份有限公司,正大天晴,glm_reviewed_medium,high,1,brand short name of the company
+武汉达梦数据库股份有限公司,达梦数据,glm_reviewed_medium,high,1,brand short name of the company
+江苏丰尚智能科技有限公司,丰尚,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+江苏吉家宠物用品有限公司,吉家宠物,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+江苏神马电力股份有限公司,神马电力,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+河北力准机械制造有限公司,力准机械,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+河北建设投资集团有限责任公司,河北建设投资集团,high_confidence_rule,high,1,normalized legal entity exact match
+派克汉尼汾流体传动产品（上海）有限公司,派克汉尼汾,glm_reviewed_medium,high,1,Parker Hannifin Chinese brand name
+浙江京新药业股份有限公司,京新药业,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+浙江博圣生物技术股份有限公司,博圣生物,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+浙江吉利远程新能源商用车集团有限公司,吉利,glm_reviewed_medium,high,1,Geely is the well-known parent group brand
+深圳嘉立创科技集团股份有限公司,嘉立创集团,high_confidence_rule,high,1,normalized legal entity exact match
+深圳市华睿欣能投资控股有限公司,华睿欣能,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳市埃芯半导体科技有限公司,埃芯半导体,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳市智微智能科技股份有限公司,智微智能,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳市纵维立方科技有限公司,纵维立方,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳市香橙资本管理有限公司,香橙资本,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳礼意久久网络科技有限公司,礼意久久,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+深圳英集芯科技股份有限公司,英集芯科技,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+特步（中国）有限公司,特步集团,glm_reviewed_medium,high,1,Xtep Group is the parent brand
+玖龙纸业(控股)有限公司,玖龙纸业,high_confidence_rule,high,1,normalized legal entity exact match
+电装（中国）投资有限公司,电装,glm_reviewed_medium,high,1,Denso Chinese brand name
+盖璞（上海）商业有限公司,盖璞,glm_reviewed_medium,high,1,Gap Inc Chinese brand name
+盛吉盛（宁波）半导体科技有限公司,盛吉盛半导体,high_confidence_rule,high,1,normalized legal entity exact match
+硕贝德无线科技股份有限公司,硕贝德,glm_reviewed_medium,high,1,brand name derived from legal entity normalization
+稳赢云计算（上海）有限公司,稳赢云,glm_reviewed_medium,medium,1,brand name derived from legal entity normalization
+纳思达股份有限公司,纳思达,high_confidence_rule,high,1,normalized legal entity exact match
+绫致时装（天津）有限公司‌,绫致时装,glm_reviewed_medium,high,1,brand/parent name of the legal entity
+苏交科集团股份有限公司,苏交科集团,high_confidence_rule,high,1,normalized legal entity exact match
+苏州极易科技股份有限公司,极易科技,glm_reviewed_medium,high,1,brand short name
+苏州盛科通信股份有限公司,盛科通信,high_confidence_rule,high,1,normalized legal entity exact match
+苏文电能科技股份有限公司,苏文电能,high_confidence_rule,high,1,normalized legal entity exact match
+英洛华科技股份有限公司,英洛华科技,glm_reviewed_medium,high,1,brand short name
+英科再生资源股份有限公司,英科再生,glm_reviewed_medium,high,1,brand short name
+药明合联生物技术有限公司,药明合联,glm_reviewed_medium,high,1,subsidiary brand of WuXi XDC
+西安铂力特增材技术股份有限公司,铂力特,glm_reviewed_medium,high,1,brand short name (BLT)
+诺力昂化学品（宁波）有限公司,诺力昂,glm_reviewed_medium,high,1,Nouryon brand name
+贵州磷化（集团）有限责任公司,贵州磷化集团,glm_reviewed_medium,high,1,parent group name
+费斯托（中国）有限公司,费斯托中国,glm_reviewed_medium,high,1,Festo China brand
+赛维时代科技股份有限公司,赛维时代,high_confidence_rule,high,1,normalized legal entity exact match
+鑫荣懋果业科技集团股份有限公司,鑫荣懋,glm_reviewed_medium,high,1,brand short name
+长园深瑞能源技术有限公司,长园深瑞,glm_reviewed_medium,high,1,brand short name
+雪川农业集团股份有限公司,雪川农业集团,high_confidence_rule,high,1,normalized legal entity exact match
+青岛鹿秀投资管理有限公司,鹿秀投资,glm_reviewed_medium,medium,1,brand short name
+黑龙江飞鹤乳业有限公司,飞鹤,glm_reviewed_medium,high,1,parent brand of Feihe
+中国商用飞机有限责任公司,中国商飞公司,wave1_repo_review,high,241,spring truth direct hit 中国商飞公司
+博世（中国）投资有限公司,博世中国,wave1_repo_review,high,223,spring truth direct hit 博世中国
+安克创新科技股份有限公司,安克创新,wave1_repo_review,high,202,spring truth alias hit 安克创新
+北京经纬恒润科技股份有限公司,经纬恒润,wave1_repo_review,high,198,spring truth alias hit 经纬恒润
+中国核工业集团有限公司,中核集团,wave1_repo_review,high,194,spring truth direct hit 中核集团
+中国联合网络通信集团有限公司,中国联通,wave1_repo_review,high,190,spring truth alias hit 中国联通
+长鑫新桥存储技术有限公司,长鑫存储,wave1_repo_review,high,176,spring truth alias hit 长鑫存储
+上海智元新创技术有限公司,智元机器人,wave1_repo_review,high,160,spring truth direct hit 智元机器人
+国金证券股份有限公司,国金证券研究所,wave2_repo_review,high,105,spring truth alias hit 国金证券
+中国太平保险集团有限责任公司,中国太平保险,wave2_repo_review,high,55,spring truth alias hit 中国太平
+德勤咨询（北京）有限公司,德勤,wave2_repo_review,high,54,spring truth direct hit 德勤
+招商证券股份有限公司,招商证券研究发展中心,wave2_repo_review,high,52,spring truth alias hit 招商证券
+北京小马智行科技有限公司,小马智行Pony.ai,wave2_repo_review,high,49,spring truth alias hit 小马智行
+中国电建集团华东勘测设计研究院有限公司,中国电建集团,wave2_repo_review,high,24,spring truth alias hit 中国电建集团华东勘测设计研究院
+深圳虾皮信息科技有限公司,Shopee,wave3_repo_review,high,237,spring truth alias hit Shopee
+中国航天科工集团有限公司,中国航天科工集团,wave3_repo_review,high,125,spring truth direct hit 中国航天科工集团
+东方财富信息股份有限公司,东方财富,wave3_repo_review,high,119,spring truth alias hit 东方财富
+京东方科技集团股份有限公司,京东方,wave3_repo_review,high,110,spring truth direct hit 京东方
+影石创新科技股份有限公司,影石创新,wave4_repo_review,high,156,roll up Insta360 spring rows to 影石创新 parent
+NVIDIA Corporation,英伟达,wave5_broadened_main,high,376,main layer now admits intern/fall evidence for 英伟达
+中国国际金融股份有限公司,中金公司,wave5_broadened_main,high,351,main layer now admits intern/fall evidence for 中金公司
+微软（中国）有限公司,微软,wave5_broadened_main,high,235,main layer now admits intern/fall evidence for 微软
+上海商汤智能科技有限公司,商汤科技,wave5_broadened_main,high,196,main layer now admits intern/fall evidence for 商汤科技
+高德软件有限公司,高德,wave5_broadened_main,high,151,main layer now admits intern/fall evidence for 高德
+阿里云计算有限公司,阿里云,wave5_broadened_main,high,115,main layer now admits intern/fall evidence for 阿里云
+波士顿咨询（上海）有限公司,BCG波士顿咨询,wave5_broadened_main,high,151,main layer now admits fall evidence for BCG波士顿咨询
+淘天有限公司,淘天集团,wave6_rollup_main,high,162,roll up 阿里-淘天集团 to 淘天集团 parent
+摩根士丹利,摩根士丹利,wave6_rollup_main,high,135,roll up 摩根士丹利证券 to 摩根士丹利 parent
+中移（上海）信息通信科技有限公司,中国移动,wave7_repo_review,high,140,brand abbreviation 中移 maps to 中国移动 parent already in main layer
+中电信人工智能科技（北京）有限公司,中国电信,wave7_repo_review,high,107,brand abbreviation 中电信 maps to 中国电信 parent already in main layer
+携程计算机技术（上海）有限公司,携程集团,wave7_repo_review,high,107,roll up 携程集团 program rows to 携程集团 parent
+中国远洋海运集团有限公司,中国远洋海运集团,wave8_repo_review,high,77,main layer direct hit 中国远洋海运集团
+北京面壁智能科技有限责任公司,面壁智能,wave8_repo_review,high,69,main layer direct hit 面壁智能
+荣耀终端有限公司,荣耀,wave8_repo_review,high,67,main layer direct hit 荣耀
+杭州安恒信息技术股份有限公司,安恒信息,wave8_repo_review,high,64,main layer direct hit 安恒信息
+华夏基金管理有限公司,华夏基金,wave8_repo_review,high,63,main layer direct hit 华夏基金
+中国华能集团有限公司,中国华能,wave8_repo_review,high,60,main layer direct hit 中国华能
+广州越秀集团股份有限公司,越秀集团,wave8_repo_review,high,58,main layer direct hit 越秀集团
+马上消费金融股份有限公司,马上消费,wave8_repo_review,high,54,main layer direct hit 马上消费
+上海莉莉丝网络科技有限公司,莉莉丝,wave9_screened_review,high,94,screened clean parent based on existing 莉莉丝 canonical
+招商局集团有限公司,招商局集团,wave10_priority_sector,high,93,priority sector direct hit 招商局集团 canonical
+中国通用技术（集团）控股有限责任公司,通用技术集团,wave10_priority_sector,high,110,priority sector direct hit 通用技术集团 canonical
+北京爱奇艺科技有限公司,爱奇艺,wave10_priority_sector,high,111,priority sector clean parent derived from 爱奇艺重庆
+新华人寿保险股份有限公司,新华保险,wave10_priority_sector,high,171,priority sector clean parent derived from 新华保险总部
+麦肯锡（上海）咨询有限公司,麦肯锡,wave10_priority_sector,high,142,priority sector clean parent derived from 麦肯锡中国区
+中兴通讯股份有限公司,中兴通讯,wave11_priority_sector,high,84,priority sector clean parent derived from existing ZTE sub-lines
+中国交通建设集团有限公司,中交集团,wave11_priority_sector,high,74,priority sector direct hit 中交集团 canonical
+众安在线财产保险股份有限公司,众安保险,wave12_user_decision,high,75,user confirmed insurance-body canonical over broader brand
+北京奇虎科技有限公司,360集团,wave13_user_decision,high,175,user approved mapping to existing 360集团 canonical
+中国通信院,中国信通院,wave14_user_decision,high,94,user approved mapping to existing 中国信通院 canonical
+中国信息通信研究院,中国信通院,wave14_user_decision,high,73,user approved mapping to existing 中国信通院 canonical
+国家电力投资集团有限公司,国家电投集团,wave14_user_decision,high,91,user approved new clean parent 国家电投集团
+中国中化控股有限责任公司,中国中化,wave14_user_decision,high,90,user approved new clean parent 中国中化
+浙江零跑科技股份有限公司,零跑,wave15_final_review,high,64,final review accepted existing 零跑 brand canonical
+上海复星高科技（集团）有限公司,复星,wave15_final_review,high,60,final review accepted existing 复星 brand canonical

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JobRadar Login Mockups</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      .page {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 32px 24px 60px;
+      }
+      .header {
+        margin-bottom: 24px;
+      }
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+      }
+      .header p {
+        margin: 0;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+      .panel {
+        background: #111827;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .panel-title {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      }
+      .panel-title strong {
+        display: block;
+        font-size: 17px;
+        margin-bottom: 4px;
+      }
+      .panel-title span {
+        color: #94a3b8;
+        font-size: 13px;
+      }
+      .mockup {
+        min-height: 420px;
+        padding: 0;
+      }
+      .shell {
+        min-height: 420px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+      .hero {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 14px;
+      }
+      .hero h2 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.18;
+      }
+      .hero p {
+        margin: 0;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+      .badge {
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+      .list-item, .stat {
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .stat strong {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .auth-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .auth-card {
+        width: 100%;
+        max-width: 310px;
+        border-radius: 18px;
+        padding: 22px;
+        background: rgba(255,255,255,.9);
+        color: #0f172a;
+        box-shadow: 0 24px 64px rgba(15,23,42,.12);
+      }
+      .auth-card h3 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      .auth-card p {
+        margin: 0 0 14px;
+        font-size: 13px;
+        color: #475569;
+        line-height: 1.6;
+      }
+      .btn {
+        width: 100%;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .btn.primary { color: #fff; }
+      .btn.secondary {
+        border: 1px solid rgba(15,23,42,.12);
+        color: #334155;
+        background: transparent;
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 0;
+        color: #94a3b8;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+      }
+      .divider::before, .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: rgba(148,163,184,.35);
+      }
+      .note {
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.5;
+        margin-top: 8px;
+      }
+      .simple {
+        min-height: 420px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+        padding: 28px;
+      }
+      .simple-card {
+        width: 100%;
+        max-width: 430px;
+        background: rgba(255,255,255,.92);
+        color: #0f172a;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 28px 60px rgba(15,23,42,.08);
+      }
+      .simple-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        font-size: 12px;
+        color: #64748b;
+      }
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+      }
+      .logo-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #2563eb;
+      }
+      .simple-card h2 {
+        margin: 8px 0;
+        font-size: 30px;
+        line-height: 1.2;
+      }
+      .simple-card p {
+        margin: 0 0 16px;
+        color: #475569;
+        line-height: 1.6;
+      }
+
+      .theme-simple { background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%); }
+      .theme-saas { background: linear-gradient(135deg, #f7f9fc 0%, #e8eef8 46%, #edf3ff 100%); color: #10203a; }
+      .theme-career { background: linear-gradient(135deg, #fffaf1 0%, #fff2d8 50%, #fff7ef 100%); color: #3b2412; }
+      .theme-dark { background: radial-gradient(circle at top left, #1d4ed8 0%, rgba(29,78,216,.18) 18%, transparent 36%), linear-gradient(135deg, #07111f 0%, #0b1730 58%, #111827 100%); color: #eef4ff; }
+
+      .theme-saas .badge, .theme-career .badge { background: rgba(255,255,255,.65); border: 1px solid rgba(15,23,42,.08); }
+      .theme-dark .badge { background: rgba(148,163,184,.12); border: 1px solid rgba(148,163,184,.22); }
+      .theme-saas .list-item, .theme-saas .stat, .theme-career .list-item, .theme-career .stat { background: rgba(255,255,255,.58); border: 1px solid rgba(15,23,42,.06); }
+      .theme-dark .list-item, .theme-dark .stat { background: rgba(15,23,42,.35); border: 1px solid rgba(148,163,184,.18); }
+      .theme-dark .auth-card { background: rgba(10,16,29,.86); color: #eef4ff; }
+      .theme-dark .auth-card p, .theme-dark .note { color: #cbd5e1; }
+      .theme-dark .btn.secondary { color: #e2e8f0; border-color: rgba(148,163,184,.22); }
+
+      @media (max-width: 1100px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 720px) {
+        .page { padding: 20px 14px 40px; }
+        .shell { grid-template-columns: 1fr; }
+        .hero { padding-bottom: 0; }
+        .mockup, .simple, .shell { min-height: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <h1>JobRadar 登录页 Mockup 对比</h1>
+        <p>基于你的要求：内部成员使用、先只做 UI、主按钮 + 次级登录方式、中文为主少量英文点缀、既有产品价值又不过分像营销页。</p>
+      </div>
+
+      <div class="grid">
+        <section class="panel">
+          <div class="panel-title">
+            <strong>简洁版</strong>
+            <span>最克制，最像精致内部工具</span>
+          </div>
+          <div class="mockup simple">
+            <div class="simple-card">
+              <div class="simple-top">
+                <div class="logo"><span class="logo-dot"></span>JobRadar</div>
+                <div>Private Preview</div>
+              </div>
+              <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;">Clean Access</div>
+              <h2>登录你的岗位雷达</h2>
+              <p>继续查看聚合岗位、筛选结果与管理面板。</p>
+              <div class="btn primary" style="background:#2563eb;">使用 GitHub 登录</div>
+              <div class="divider">其他方式</div>
+              <div class="btn secondary">Google</div>
+              <div class="btn secondary">邮箱登录</div>
+              <div class="note">当前为内部预览版本，仅限受邀成员访问。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <strong>专业感 SaaS</strong>
+            <span>最平衡，最适合作为默认主方向</span>
+          </div>
+          <div class="mockup theme-saas">
+            <div class="shell">
+              <div class="hero">
+                <div class="badge">Internal Access</div>
+                <h2>更快发现值得投递的岗位</h2>
+                <p>聚合、筛选、评分与跟踪，集中管理你的求职信息流。</p>
+                <div class="stats">
+                  <div class="stat"><strong>74k+</strong>岗位数据池</div>
+                  <div class="stat"><strong>55k+</strong>TATA 覆盖</div>
+                </div>
+                <div class="list">
+                  <div class="list-item">跨来源聚合与去重，减少重复检索成本</div>
+                  <div class="list-item">统一筛选、评分与申请状态管理</div>
+                  <div class="list-item">适合内部成员的稳定控制台体验</div>
+                </div>
+              </div>
+              <div class="auth-wrap">
+                <div class="auth-card">
+                  <h3>登录 JobRadar</h3>
+                  <p>继续访问岗位总览、申请流程看板与配置中心。</p>
+                  <div class="btn primary" style="background:#2563eb;">使用 GitHub 登录</div>
+                  <div class="divider">其他方式</div>
+                  <div class="btn secondary">Google</div>
+                  <div class="btn secondary">企业入口</div>
+                  <div class="note">仅限受邀成员访问。如需开通请联系管理员。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <strong>求职产品感</strong>
+            <span>业务语义更强，更像求职工作台</span>
+          </div>
+          <div class="mockup theme-career">
+            <div class="shell">
+              <div class="hero">
+                <div class="badge">Career Intelligence</div>
+                <h2>把分散岗位，变成一条清晰的投递路径</h2>
+                <p>从岗位发现到申请跟进，用一个界面追踪整个求职过程。</p>
+                <div class="list">
+                  <div class="list-item">岗位聚合: 多来源汇总，减少手动搜岗</div>
+                  <div class="list-item">智能筛选: 按城市、方向、来源快速定位</div>
+                  <div class="list-item">申请跟踪: 记录状态，避免信息散落</div>
+                </div>
+                <div class="stats">
+                  <div class="stat"><strong>聚合</strong>岗位发现</div>
+                  <div class="stat"><strong>跟踪</strong>申请流程</div>
+                </div>
+              </div>
+              <div class="auth-wrap">
+                <div class="auth-card">
+                  <h3>欢迎回来</h3>
+                  <p>继续管理你的投递节奏与岗位优先级。</p>
+                  <div class="btn primary" style="background:#ea580c;">使用 GitHub 登录</div>
+                  <div class="divider">其他方式</div>
+                  <div class="btn secondary">Google</div>
+                  <div class="btn secondary">邮箱登录</div>
+                  <div class="note">产品当前为邀请制预览，开放范围有限。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">
+            <strong>科技感 / 深色</strong>
+            <span>最有个性，更像数据情报平台</span>
+          </div>
+          <div class="mockup theme-dark">
+            <div class="shell">
+              <div class="hero">
+                <div class="badge">Signal Console</div>
+                <h2>构建你的求职情报面板</h2>
+                <p>把岗位流、申请状态和平台情报集中到一处，保持决策节奏。</p>
+                <div class="list">
+                  <div class="list-item">雷达式视觉语言，强化“数据平台”感</div>
+                  <div class="list-item">适合深色界面与夜间使用场景</div>
+                  <div class="list-item">个性最强，但也最容易显得偏重</div>
+                </div>
+                <div class="stats">
+                  <div class="stat"><strong>Live</strong>聚合源状态</div>
+                  <div class="stat"><strong>Track</strong>投递进度</div>
+                </div>
+              </div>
+              <div class="auth-wrap">
+                <div class="auth-card">
+                  <h3>Access JobRadar</h3>
+                  <p>登录查看岗位情报、过滤视图和内部配置。</p>
+                  <div class="btn primary" style="background:linear-gradient(90deg,#2563eb 0%,#4f46e5 100%);">Continue with GitHub</div>
+                  <div class="divider">Other methods</div>
+                  <div class="btn secondary">Google</div>
+                  <div class="btn secondary">SSO</div>
+                  <div class="note">Private preview for invited members only.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+sites:
+# 四大会计师事务所
+- name: 普华永道
+  url: https://www.pwccn.com/careers.html
+  category: 会计师事务所
+  status: pending
+  note: 官方招聘入口
+
+- name: 德勤
+  url: https://www2.deloitte.com/cn/careers.html
+  category: 会计师事务所
+  status: pending
+  note: 官方招聘入口
+
+- name: 毕马威
+  url: https://home.kpmg/cn/zh/home/careers.html
+  category: 会计师事务所
+  status: pending
+  note: 官方招聘入口
+
+- name: 安永
+  url: https://www.ey.com/cn/zh/careers
+  category: 会计师事务所
+  status: pending
+  note: 官方招聘入口
+
+# MBB 咨询公司
+- name: 麦肯锡
+  url: https://www.mckinsey.com/careers
+  category: 咨询公司
+  status: pending
+  note: 官方招聘入口
+
+- name: 波士顿咨询
+  url: https://www.bcg.com/careers
+  category: 咨询公司
+  status: pending
+  note: 官方招聘入口
+
+- name: 贝恩咨询
+  url: https://www.bain.com/careers
+  category: 咨询公司
+  status: pending
+  note: 官方招聘入口

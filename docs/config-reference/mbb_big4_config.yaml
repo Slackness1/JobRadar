@@ -1,0 +1,56 @@
+# 四大会计师事务所和MBB咨询公司配置
+name: "四大会计师事务所和MBB咨询公司"
+description: "爬取四大会计师事务所（普华永道、德勤、毕马威、安永）和MBB咨询公司（麦肯锡、波士顿咨询、贝恩）的春招岗位"
+
+companies:
+  # 四大会计师事务所
+  - name: 普华永道
+    career_url: https://www.pwccn.com/careers.html
+    platform: moka
+    campus_url: https://app.mokahr.com/campus_apply/pwc/148260
+    keywords: ["咨询", "审计", "税务", "咨询顾问", "审计师", "税务师"]
+
+  - name: 德勤
+    career_url: https://www2.deloitte.com/cn/careers.html
+    platform: custom
+    keywords: ["咨询", "审计", "税务", "咨询顾问", "审计师", "税务师"]
+
+  - name: 毕马威
+    career_url: https://home.kpmg/cn/zh/home/careers.html
+    platform: custom
+    keywords: ["咨询", "审计", "税务", "咨询顾问", "审计师", "税务师"]
+
+  - name: 安永
+    career_url: https://www.ey.com/cn/zh/careers
+    platform: custom
+    keywords: ["咨询", "审计", "税务", "咨询顾问", "审计师", "税务师"]
+
+  # MBB咨询公司
+  - name: 麦肯锡
+    career_url: https://www.mckinsey.com/careers
+    platform: custom
+    keywords: ["咨询顾问", "商业分析师", "分析师", "顾问"]
+
+  - name: 波士顿咨询
+    career_url: https://www.bcg.com/careers
+    platform: custom
+    keywords: ["咨询顾问", "商业分析师", "分析师", "顾问"]
+
+  - name: 贝恩咨询
+    career_url: https://www.bain.com/careers
+    platform: custom
+    keywords: ["咨询顾问", "商业分析师", "分析师", "顾问"]
+
+# 爬虫配置
+crawler_config:
+  headless: true
+  timeout: 30000
+  wait_for_network_idle: true
+  max_pages: 10
+  delay_between_requests: 2
+
+# 代理配置
+proxy:
+  enabled: true
+  http: "http://127.0.0.1:7890"
+  https: "http://127.0.0.1:7890"

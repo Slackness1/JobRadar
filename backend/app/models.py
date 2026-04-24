@@ -4,6 +4,246 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 
+class JobIntelTask(Base):
+    __tablename__ = "job_intel_tasks"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    trigger_mode = Column(Text, default="manual")
+    search_level = Column(Text, default="strict")
+    platform_scope_json = Column(Text, default="[]")
+    query_bundle_json = Column(Text, default="{}")
+    status = Column(Text, default="queued")
+    result_count = Column(Integer, default=0)
+    error_message = Column(Text, default="")
+    started_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    job = relationship("Job", foreign_keys=[job_id])
+
+
+class JobIntelRecord(Base):
+    __tablename__ = "job_intel_records"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    task_id = Column(Integer, ForeignKey("job_intel_tasks.id", ondelete="SET NULL"))
+    platform = Column(Text, default="")
+    content_type = Column(Text, default="")
+    platform_item_id = Column(Text, default="")
+    title = Column(Text, default="")
+    author_name = Column(Text, default="")
+    author_meta_json = Column(Text, default="{}")
+    url = Column(Text, default="")
+    publish_time = Column(DateTime, nullable=True)
+    raw_text = Column(Text, default="")
+    cleaned_text = Column(Text, default="")
+    summary = Column(Text, default="")
+    keywords_json = Column(Text, default="[]")
+    tags_json = Column(Text, default="[]")
+    metrics_json = Column(Text, default="{}")
+    entities_json = Column(Text, default="{}")
+    relevance_score = Column(Float, default=0)
+    confidence_score = Column(Float, default=0)
+    sentiment = Column(Text, default="")
+    data_version = Column(Text, default="v1")
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+    parsed_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JobIntelComment(Base):
+    __tablename__ = "job_intel_comments"
+
+    id = Column(Integer, primary_key=True)
+    intel_record_id = Column(Integer, ForeignKey("job_intel_records.id", ondelete="CASCADE"), nullable=False, index=True)
+    platform_comment_id = Column(Text, default="")
+    parent_comment_id = Column(Text, default="")
+    author_name = Column(Text, default="")
+    content = Column(Text, default="")
+    like_count = Column(Integer, default=0)
+    publish_time = Column(DateTime, nullable=True)
+    relevance_score = Column(Float, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JobIntelSnapshot(Base):
+    __tablename__ = "job_intel_snapshots"
+
+    id = Column(Integer, primary_key=True)
+    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    snapshot_type = Column(Text, default="")
+    summary_text = Column(Text, default="")
+    evidence_count = Column(Integer, default=0)
+    source_platforms_json = Column(Text, default="[]")
+    confidence_score = Column(Float, default=0)
+    generated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class ResumeCopilotSession(Base):
+    __tablename__ = "resume_copilot_sessions"
+
+    id = Column(Integer, primary_key=True)
+    file_name = Column(Text, default="")
+    name = Column(Text, default="")
+    user_key = Column(Text, default="", index=True)
+    status = Column(Text, default="uploaded", index=True)
+    extracted_text = Column(Text, default="")
+    error_message = Column(Text, default="")
+    recommendation_status = Column(Text, default="pending")
+    feedback_status = Column(Text, default="pending")
+    is_guest = Column(Integer, default=0, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+
+    parsed_profile = relationship(
+        "ResumeParsedProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    confirmed_profile = relationship(
+        "ResumeConfirmedProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    preference_profile = relationship(
+        "ResumePreferenceProfile",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    recommendation_run = relationship(
+        "ResumeRecommendationRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    feedback_run = relationship(
+        "ResumeFeedbackRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    direction_analysis_run = relationship(
+        "ResumeDirectionAnalysisRun",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    chat_messages = relationship(
+        "ResumeCopilotMessage",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="ResumeCopilotMessage.created_at",
+    )
+
+
+class ResumeParsedProfile(Base):
+    __tablename__ = "resume_parsed_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    profile_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="parsed_profile")
+
+
+class ResumeConfirmedProfile(Base):
+    __tablename__ = "resume_confirmed_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    profile_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="confirmed_profile")
+
+
+class ResumePreferenceProfile(Base):
+    __tablename__ = "resume_preference_profiles"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    preferences_json = Column(Text, default="{}")
+    all_skipped = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="preference_profile")
+
+
+class ResumeRecommendationRun(Base):
+    __tablename__ = "resume_recommendation_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    used_ai = Column(Integer, default=0)
+    fallback_reason = Column(Text, default="")
+    agent_trace_json = Column(Text, default="[]")
+    recommendations_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="recommendation_run")
+
+
+class ResumeFeedbackRun(Base):
+    __tablename__ = "resume_feedback_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    diagnostics_json = Column(Text, default="[]")
+    rewrite_examples_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="feedback_run")
+
+
+class ResumeDirectionAnalysisRun(Base):
+    __tablename__ = "resume_direction_analysis_runs"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, unique=True)
+    status = Column(Text, default="pending")
+    error_message = Column(Text, default="")
+    directions_json = Column(Text, default="[]")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="direction_analysis_run")
+
+
+class ResumeCopilotMessage(Base):
+    __tablename__ = "resume_copilot_messages"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Integer, ForeignKey("resume_copilot_sessions.id", ondelete="CASCADE"), nullable=False, index=True)
+    role = Column(Text, default="user")      # system | user | assistant
+    content = Column(Text, default="")
+    rewrite_options_json = Column(Text, nullable=True)   # JSON list[RewriteOption] or null
+    applied_option_id = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ResumeCopilotSession", back_populates="chat_messages")
+
+
 class Job(Base):
     __tablename__ = "jobs"
 
@@ -107,6 +347,21 @@ class CrawlLog(Base):
 
     id = Column(Integer, primary_key=True)
     source = Column(Text, default="tatawangshen")
+    target_url = Column(Text, default="")
+    final_url = Column(Text, default="")
+    page_title = Column(Text, default="")
+    ats_family = Column(Text, default="")
+    framework_family = Column(Text, default="")
+    detection_flags_json = Column(Text, default="{}")
+    evidence_json = Column(Text, default="{}")
+    failure_reason = Column(Text, default="")
+    failure_reasons_json = Column(Text, default="[]")
+    completeness_score = Column(Float, default=0)
+    zero_result_type = Column(Text, default="")
+    fallback_action = Column(Text, default="")
+    detail_link_count = Column(Integer, default=0)
+    job_signal_count = Column(Integer, default=0)
+    page_claimed_count = Column(Integer, default=0)
     started_at = Column(DateTime, default=datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
     status = Column(Text, default="running")
@@ -137,6 +392,27 @@ class CompanyRecrawlQueue(Base):
     fetched_count = Column(Integer, default=0)
     new_count = Column(Integer, default=0)
     last_error = Column(Text, default="")
+    failure_reason = Column(Text, default="")
+    failure_reasons_json = Column(Text, default="[]")
+    last_detection_json = Column(Text, default="{}")
+    last_evidence_json = Column(Text, default="{}")
+    completeness_score = Column(Float, default=0)
+    zero_result_type = Column(Text, default="")
+    fallback_action = Column(Text, default="")
+    priority = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
+
+
+class InterviewReport(Base):
+    __tablename__ = 'interview_reports'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_key = Column(Text, nullable=False, index=True)
+    target_job = Column(Text, nullable=False)
+    transcript_json = Column(Text, default='[]')
+    report_json = Column(Text, default='{}')
+    duration_seconds = Column(Integer, default=0)
+    is_guest = Column(Integer, default=0, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

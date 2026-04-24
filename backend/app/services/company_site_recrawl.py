@@ -1,11 +1,16 @@
 import hashlib
 import re
+from dataclasses import asdict
 from datetime import datetime
 from html import unescape
-from typing import List
+from typing import Any, List
 from urllib.parse import urljoin, urlparse
 
 import requests
+
+from app.services.crawl_detection import detect_from_html
+from app.services.crawl_evidence import build_evidence
+from app.services.crawl_validation import score_completeness
 
 _ANCHOR_PATTERN = re.compile(r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", re.IGNORECASE | re.DOTALL)
 _TITLE_PATTERN = re.compile(r"<title>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -38,20 +43,25 @@ def _build_job_id(source_domain: str, detail_url: str, title: str) -> str:
     return f"company_site:{source_domain}:{digest}"
 
 
-def crawl_company_site(career_url: str, company: str, department: str = "") -> List[dict]:
+def crawl_company_site(career_url: str, company: str, department: str = "", return_diagnostics: bool = False) -> List[dict] | dict[str, Any]:
     response = requests.get(career_url, timeout=25)
     response.raise_for_status()
 
     html = response.text
-    parsed = urlparse(career_url)
+    final_url = str(getattr(response, "url", "") or career_url)
+    title_match = _TITLE_PATTERN.search(html)
+    page_title = _clean_text(title_match.group(1) if title_match else "")
+    parsed = urlparse(final_url)
     source_domain = parsed.netloc.lower()
+
+    detection = detect_from_html(url=final_url, html=html, title=page_title)
 
     jobs: List[dict] = []
     seen_keys = set()
 
     for href, inner_html in _ANCHOR_PATTERN.findall(html):
         title = _clean_text(inner_html)
-        full_url = urljoin(career_url, href.strip())
+        full_url = urljoin(final_url, href.strip())
         combined = f"{title} {full_url}".lower()
         if not title:
             continue
@@ -87,29 +97,46 @@ def crawl_company_site(career_url: str, company: str, department: str = "") -> L
         if len(jobs) >= 200:
             break
 
-    if not jobs:
-        title_match = _TITLE_PATTERN.search(html)
-        fallback_title = _clean_text(title_match.group(1) if title_match else "")
-        if fallback_title:
-            jobs.append({
-                "job_id": _build_job_id(source_domain, career_url, fallback_title),
-                "source": f"company_site:{source_domain}",
-                "company": company,
-                "company_type_industry": "",
-                "company_tags": "",
-                "department": department,
-                "job_title": fallback_title,
-                "location": "",
-                "major_req": "",
-                "job_req": "",
-                "job_duty": "",
-                "application_status": "待申请",
-                "job_stage": _infer_stage(fallback_title),
-                "source_config_id": career_url,
-                "publish_date": None,
-                "deadline": None,
-                "detail_url": career_url,
-                "scraped_at": datetime.utcnow(),
-            })
+    if not jobs and page_title:
+        jobs.append({
+            "job_id": _build_job_id(source_domain, final_url, page_title),
+            "source": f"company_site:{source_domain}",
+            "company": company,
+            "company_type_industry": "",
+            "company_tags": "",
+            "department": department,
+            "job_title": page_title,
+            "location": "",
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": _infer_stage(page_title),
+            "source_config_id": career_url,
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": final_url,
+            "scraped_at": datetime.utcnow(),
+        })
+
+    evidence = build_evidence(
+        final_url=final_url,
+        page_title=page_title,
+        html_initial=html,
+        html_rendered=html,
+        dom_count_before=html.count("<a"),
+        dom_count_after=len(jobs),
+        detected_detail_links=detection.detail_link_samples,
+        ats_fingerprint_hits=detection.ats_fingerprints,
+    )
+    validation = score_completeness(detection=detection, extracted_count=len(jobs))
+
+    if return_diagnostics:
+        return {
+            "jobs": jobs,
+            "detection": asdict(detection),
+            "evidence": asdict(evidence),
+            "validation": asdict(validation),
+        }
 
     return jobs

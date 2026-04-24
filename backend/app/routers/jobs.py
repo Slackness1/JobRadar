@@ -1,30 +1,31 @@
 import csv
 import io
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Any, Mapping, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import Job, JobScore, Track
 from app.schemas import JobOut, JobListOut, JobStatsOut, JobScoreOut, JobApplicationStatusIn
+from app.services.company_search import expand_company_search_names
 from app.services.scorer import score_all_jobs
 from app.services.system_config import get_spring_display_cutoff
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
-def _build_job_out(job: Job, tracks_by_id: dict) -> JobOut:
+def _build_job_out(job: Job, tracks_by_id: Mapping[Any, Track]) -> JobOut:
     scores = []
     total = 0
     for s in job.scores:
         track = tracks_by_id.get(s.track_id)
         scores.append(JobScoreOut(
             track_id=s.track_id,
-            track_key=track.key if track else "",
-            track_name=track.name if track else "",
+            track_key=str(track.key) if track else "",
+            track_name=str(track.name) if track else "",
             score=s.score,
             matched_keywords=s.matched_keywords,
         ))
@@ -79,12 +80,16 @@ def list_jobs(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
     tracks: str = "",
     min_score: int = 0,
     days: int = 0,
     job_stage: str = "all",
     sort_by: str = "total_score",
     sort_order: str = "desc",
+    exclude_applied_companies: bool = False,
+    application_statuses: str = "",
     db: Session = Depends(get_db),
 ):
     all_tracks = db.query(Track).all()
@@ -99,7 +104,17 @@ def list_jobs(
     elif job_stage == "internship":
         query = query.filter(Job.job_stage.in_(["internship", "both"]))
 
-    if search:
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
         pattern = f"%{search}%"
         query = query.filter(
             (Job.job_title.ilike(pattern))
@@ -108,9 +123,21 @@ def list_jobs(
             | (Job.job_req.ilike(pattern))
         )
 
+    if application_statuses:
+        status_list = [s.strip() for s in application_statuses.split(",") if s.strip()]
+        if status_list:
+            query = query.filter(Job.application_status.in_(status_list))
+
     if days > 0:
         cutoff = datetime.utcnow() - timedelta(days=days)
         query = query.filter(Job.publish_date >= cutoff)
+
+    if exclude_applied_companies:
+        applied_statuses = ["已申请", "已网测", "一面", "二面", "三面", "已面试"]
+        applied_company_rows = db.query(Job.company).filter(Job.application_status.in_(applied_statuses)).distinct().all()
+        applied_companies = [row[0] for row in applied_company_rows if row and row[0]]
+        if applied_companies:
+            query = query.filter(~Job.company.in_(applied_companies))
 
     all_jobs = query.all()
 
@@ -146,9 +173,11 @@ def list_jobs(
 @router.get("/company-expand", response_model=JobListOut)
 def company_expand_jobs(
     company: str = Query(..., description="Company name to filter"),
-    department: str = Query(..., description="Department name to filter"),
+    department: str = Query("", description="Department name to filter (optional)"),
     scope: str = Query("current", description="Scope: 'current' for filtered, 'all' for unfiltered"),
     search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
     tracks: str = "",
     min_score: int = 0,
     days: int = 0,
@@ -165,28 +194,38 @@ def company_expand_jobs(
     cutoff_dt = get_spring_display_cutoff(db)
     query = _apply_spring_cutoff(query, cutoff_dt)
     
-    # Always filter by exact company and department
+    # Always filter by company; department optional
     query = query.filter(Job.company == company)
-    query = query.filter(Job.department == department)
+    if department:
+        query = query.filter(Job.department == department)
     if job_stage == "campus":
         query = query.filter(Job.job_stage.in_(["campus", "both"]))
     elif job_stage == "internship":
         query = query.filter(Job.job_stage.in_(["internship", "both"]))
 
-    # Apply optional filters only if scope is 'current'
-    if scope == "current":
-        if search:
-            pattern = f"%{search}%"
-            query = query.filter(
-                (Job.job_title.ilike(pattern))
-                | (Job.company.ilike(pattern))
-                | (Job.location.ilike(pattern))
-                | (Job.job_req.ilike(pattern))
-            )
+    # Optional filters (for both scope=current/all)
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
+        pattern = f"%{search}%"
+        query = query.filter(
+            (Job.job_title.ilike(pattern))
+            | (Job.company.ilike(pattern))
+            | (Job.location.ilike(pattern))
+            | (Job.job_req.ilike(pattern))
+        )
 
-        if days > 0:
-            cutoff = datetime.utcnow() - timedelta(days=days)
-            query = query.filter(Job.publish_date >= cutoff)
+    if days > 0:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        query = query.filter(Job.publish_date >= cutoff)
 
     all_jobs = query.all()
 
@@ -194,16 +233,15 @@ def company_expand_jobs(
     for job in all_jobs:
         job_out = _build_job_out(job, tracks_by_id)
 
-        # Apply track and score filters only in current scope
-        if scope == "current":
-            if tracks:
-                wanted_keys = set(tracks.split(","))
-                job_track_keys = {s.track_key for s in job_out.scores}
-                if not wanted_keys & job_track_keys:
-                    continue
-
-            if min_score > 0 and job_out.total_score < min_score:
+        # Apply track/score filters for both scope=current/all
+        if tracks:
+            wanted_keys = set(tracks.split(","))
+            job_track_keys = {s.track_key for s in job_out.scores}
+            if not wanted_keys & job_track_keys:
                 continue
+
+        if min_score > 0 and job_out.total_score < min_score:
+            continue
 
         results.append(job_out)
 
@@ -215,6 +253,102 @@ def company_expand_jobs(
     page_items = results[start: start + page_size]
 
     return JobListOut(items=page_items, total=total, page=page, page_size=page_size)
+
+@router.get("/by-company", response_model=JobListOut)
+def list_jobs_by_company(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    search: str = "",
+    company_search: str = "",
+    job_title_search: str = "",
+    tracks: str = "",
+    min_score: int = 0,
+    days: int = 0,
+    job_stage: str = "all",
+    exclude_applied_companies: bool = False,
+    db: Session = Depends(get_db),
+):
+    """
+    按公司聚合岗位列表，每个公司只显示最高分的一个岗位
+    """
+    all_tracks = db.query(Track).all()
+    tracks_by_id = {t.id: t for t in all_tracks}
+
+    query = db.query(Job).options(joinedload(Job.scores))
+    cutoff_dt = get_spring_display_cutoff(db)
+    query = _apply_spring_cutoff(query, cutoff_dt)
+
+    if job_stage == "campus":
+        query = query.filter(Job.job_stage.in_(["campus", "both"]))
+    elif job_stage == "internship":
+        query = query.filter(Job.job_stage.in_(["internship", "both"]))
+
+    if company_search:
+        pattern = f"%{company_search}%"
+        expanded_names = expand_company_search_names(company_search)
+        if expanded_names:
+            query = query.filter(or_(Job.company.ilike(pattern), Job.company.in_(sorted(expanded_names))))
+        else:
+            query = query.filter(Job.company.ilike(pattern))
+    if job_title_search:
+        pattern = f"%{job_title_search}%"
+        query = query.filter(Job.job_title.ilike(pattern))
+    elif search:
+        pattern = f"%{search}%"
+        query = query.filter(
+            (Job.job_title.ilike(pattern))
+            | (Job.company.ilike(pattern))
+            | (Job.location.ilike(pattern))
+            | (Job.job_req.ilike(pattern))
+        )
+
+    if days > 0:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        query = query.filter(Job.publish_date >= cutoff)
+
+    if exclude_applied_companies:
+        applied_statuses = ["已申请", "已网测", "一面", "二面", "三面", "已面试"]
+        applied_company_rows = db.query(Job.company).filter(Job.application_status.in_(applied_statuses)).distinct().all()
+        applied_companies = [row[0] for row in applied_company_rows if row and row[0]]
+        if applied_companies:
+            query = query.filter(~Job.company.in_(applied_companies))
+
+    all_jobs = query.all()
+
+    # 计算每个岗位的分数
+    job_scores = {}
+    for job in all_jobs:
+        job_out = _build_job_out(job, tracks_by_id)
+
+        # 赛道筛选
+        if tracks:
+            wanted_keys = set(tracks.split(","))
+            job_track_keys = {s.track_key for s in job_out.scores}
+            if not wanted_keys & job_track_keys:
+                continue
+
+        # 最低分筛选
+        if min_score > 0 and job_out.total_score < min_score:
+            continue
+
+        job_scores[job.id] = job_out
+
+    # 按公司分组，保留最高分的岗位
+    companies_map: dict[str, JobOut] = {}
+    for job_out in job_scores.values():
+        company = job_out.company
+        if company not in companies_map or job_out.total_score > companies_map[company].total_score:
+            companies_map[company] = job_out
+
+    # 转换为列表并按总分降序排序
+    results = sorted(companies_map.values(), key=lambda x: x.total_score, reverse=True)
+
+    total = len(results)
+    start = (page - 1) * page_size
+    page_items = results[start: start + page_size]
+
+    return JobListOut(items=page_items, total=total, page=page, page_size=page_size)
+
 
 @router.get("/{job_id}", response_model=JobOut)
 def get_job(job_id: int, db: Session = Depends(get_db)):

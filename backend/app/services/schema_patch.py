@@ -34,6 +34,14 @@ def ensure_compatible_schema(engine: Engine) -> None:
                     fetched_count INTEGER DEFAULT 0,
                     new_count INTEGER DEFAULT 0,
                     last_error TEXT DEFAULT '',
+                    failure_reason TEXT DEFAULT '',
+                    failure_reasons_json TEXT DEFAULT '[]',
+                    last_detection_json TEXT DEFAULT '{}',
+                    last_evidence_json TEXT DEFAULT '{}',
+                    completeness_score FLOAT DEFAULT 0,
+                    zero_result_type TEXT DEFAULT '',
+                    fallback_action TEXT DEFAULT '',
+                    priority INTEGER DEFAULT 0,
                     created_at DATETIME,
                     updated_at DATETIME,
                     finished_at DATETIME
@@ -51,5 +59,191 @@ def ensure_compatible_schema(engine: Engine) -> None:
             if "new_count" not in queue_columns:
                 conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN new_count INTEGER DEFAULT 0"))
 
+        crawl_log_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='crawl_logs'")
+        ).fetchone()
+
+        if crawl_log_exists:
+            crawl_rows = conn.execute(text("PRAGMA table_info(crawl_logs)")).fetchall()
+            crawl_columns = {row[1] for row in crawl_rows}
+
+            crawl_additions = {
+                "target_url": "ALTER TABLE crawl_logs ADD COLUMN target_url TEXT DEFAULT ''",
+                "final_url": "ALTER TABLE crawl_logs ADD COLUMN final_url TEXT DEFAULT ''",
+                "page_title": "ALTER TABLE crawl_logs ADD COLUMN page_title TEXT DEFAULT ''",
+                "ats_family": "ALTER TABLE crawl_logs ADD COLUMN ats_family TEXT DEFAULT ''",
+                "framework_family": "ALTER TABLE crawl_logs ADD COLUMN framework_family TEXT DEFAULT ''",
+                "detection_flags_json": "ALTER TABLE crawl_logs ADD COLUMN detection_flags_json TEXT DEFAULT '{}'",
+                "evidence_json": "ALTER TABLE crawl_logs ADD COLUMN evidence_json TEXT DEFAULT '{}'",
+                "failure_reason": "ALTER TABLE crawl_logs ADD COLUMN failure_reason TEXT DEFAULT ''",
+                "failure_reasons_json": "ALTER TABLE crawl_logs ADD COLUMN failure_reasons_json TEXT DEFAULT '[]'",
+                "completeness_score": "ALTER TABLE crawl_logs ADD COLUMN completeness_score FLOAT DEFAULT 0",
+                "zero_result_type": "ALTER TABLE crawl_logs ADD COLUMN zero_result_type TEXT DEFAULT ''",
+                "fallback_action": "ALTER TABLE crawl_logs ADD COLUMN fallback_action TEXT DEFAULT ''",
+                "detail_link_count": "ALTER TABLE crawl_logs ADD COLUMN detail_link_count INTEGER DEFAULT 0",
+                "job_signal_count": "ALTER TABLE crawl_logs ADD COLUMN job_signal_count INTEGER DEFAULT 0",
+                "page_claimed_count": "ALTER TABLE crawl_logs ADD COLUMN page_claimed_count INTEGER DEFAULT 0",
+            }
+            for column_name, ddl in crawl_additions.items():
+                if column_name not in crawl_columns:
+                    conn.execute(text(ddl))
+
+        if not queue_exists:
+            pass
+        else:
+            queue_rows = conn.execute(text("PRAGMA table_info(company_recrawl_queue)")).fetchall()
+            queue_columns = {row[1] for row in queue_rows}
+
+            if "source_domain" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN source_domain TEXT DEFAULT ''"))
+            if "fetched_count" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN fetched_count INTEGER DEFAULT 0"))
+            if "new_count" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN new_count INTEGER DEFAULT 0"))
+            if "failure_reason" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN failure_reason TEXT DEFAULT ''"))
+            if "failure_reasons_json" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN failure_reasons_json TEXT DEFAULT '[]'"))
+            if "last_detection_json" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN last_detection_json TEXT DEFAULT '{}'"))
+            if "last_evidence_json" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN last_evidence_json TEXT DEFAULT '{}'"))
+            if "completeness_score" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN completeness_score FLOAT DEFAULT 0"))
+            if "zero_result_type" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN zero_result_type TEXT DEFAULT ''"))
+            if "fallback_action" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN fallback_action TEXT DEFAULT ''"))
+            if "priority" not in queue_columns:
+                conn.execute(text("ALTER TABLE company_recrawl_queue ADD COLUMN priority INTEGER DEFAULT 0"))
+
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_company ON company_recrawl_queue (company)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_status ON company_recrawl_queue (status)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_company_recrawl_queue_priority ON company_recrawl_queue (priority)"))
+
+        resume_session_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_copilot_sessions'")
+        ).fetchone()
+        if resume_session_exists:
+            resume_rows = conn.execute(text("PRAGMA table_info(resume_copilot_sessions)")).fetchall()
+            resume_columns = {row[1] for row in resume_rows}
+
+            resume_session_additions = {
+                "file_name": "ALTER TABLE resume_copilot_sessions ADD COLUMN file_name TEXT DEFAULT ''",
+                "extracted_text": "ALTER TABLE resume_copilot_sessions ADD COLUMN extracted_text TEXT DEFAULT ''",
+                "feedback_status": "ALTER TABLE resume_copilot_sessions ADD COLUMN feedback_status TEXT DEFAULT 'pending'",
+                "finished_at": "ALTER TABLE resume_copilot_sessions ADD COLUMN finished_at DATETIME",
+                "name": "ALTER TABLE resume_copilot_sessions ADD COLUMN name TEXT DEFAULT ''",
+                "user_key": "ALTER TABLE resume_copilot_sessions ADD COLUMN user_key TEXT DEFAULT ''",
+                "is_guest": "ALTER TABLE resume_copilot_sessions ADD COLUMN is_guest INTEGER DEFAULT 0",
+            }
+            for column_name, ddl in resume_session_additions.items():
+                if column_name not in resume_columns:
+                    conn.execute(text(ddl))
+
+            refreshed_rows = conn.execute(text("PRAGMA table_info(resume_copilot_sessions)")).fetchall()
+            refreshed_columns = {row[1] for row in refreshed_rows}
+            if {"filename", "file_name"}.issubset(refreshed_columns):
+                conn.execute(
+                    text(
+                        """
+                        UPDATE resume_copilot_sessions
+                        SET file_name = filename
+                        WHERE COALESCE(file_name, '') = '' AND COALESCE(filename, '') != ''
+                        """
+                    )
+                )
+            if {"resume_text", "extracted_text"}.issubset(refreshed_columns):
+                conn.execute(
+                    text(
+                        """
+                        UPDATE resume_copilot_sessions
+                        SET extracted_text = resume_text
+                        WHERE COALESCE(extracted_text, '') = '' AND COALESCE(resume_text, '') != ''
+                        """
+                    )
+                )
+
+        recommendation_run_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_recommendation_runs'")
+        ).fetchone()
+        if recommendation_run_exists:
+            recommendation_rows = conn.execute(text("PRAGMA table_info(resume_recommendation_runs)")).fetchall()
+            recommendation_columns = {row[1] for row in recommendation_rows}
+
+            recommendation_additions = {
+                "error_message": "ALTER TABLE resume_recommendation_runs ADD COLUMN error_message TEXT DEFAULT ''",
+                "used_ai": "ALTER TABLE resume_recommendation_runs ADD COLUMN used_ai INTEGER DEFAULT 0",
+                "fallback_reason": "ALTER TABLE resume_recommendation_runs ADD COLUMN fallback_reason TEXT DEFAULT ''",
+                "agent_trace_json": "ALTER TABLE resume_recommendation_runs ADD COLUMN agent_trace_json TEXT DEFAULT '[]'",
+                "recommendations_json": "ALTER TABLE resume_recommendation_runs ADD COLUMN recommendations_json TEXT DEFAULT '[]'",
+            }
+            for column_name, ddl in recommendation_additions.items():
+                if column_name not in recommendation_columns:
+                    conn.execute(text(ddl))
+
+        direction_analysis_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_direction_analysis_runs'")
+        ).fetchone()
+        if not direction_analysis_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE resume_direction_analysis_runs (
+                    id INTEGER PRIMARY KEY,
+                    session_id INTEGER NOT NULL UNIQUE REFERENCES resume_copilot_sessions(id) ON DELETE CASCADE,
+                    status TEXT DEFAULT 'pending',
+                    error_message TEXT DEFAULT '',
+                    directions_json TEXT DEFAULT '[]',
+                    created_at DATETIME,
+                    updated_at DATETIME
+                )
+                """
+            ))
+
+        messages_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='resume_copilot_messages'")
+        ).fetchone()
+        if not messages_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE resume_copilot_messages (
+                    id INTEGER PRIMARY KEY,
+                    session_id INTEGER NOT NULL REFERENCES resume_copilot_sessions(id) ON DELETE CASCADE,
+                    role TEXT DEFAULT 'user',
+                    content TEXT DEFAULT '',
+                    rewrite_options_json TEXT,
+                    applied_option_id TEXT,
+                    created_at DATETIME
+                )
+                """
+            ))
+            conn.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_resume_copilot_messages_session_id ON resume_copilot_messages (session_id)"
+            ))
+
+        interview_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='interview_reports'")
+        ).fetchone()
+        if not interview_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE interview_reports (
+                    id INTEGER PRIMARY KEY,
+                    user_key TEXT NOT NULL,
+                    target_job TEXT NOT NULL,
+                    transcript_json TEXT DEFAULT '[]',
+                    report_json TEXT DEFAULT '{}',
+                    duration_seconds INTEGER DEFAULT 0,
+                    is_guest INTEGER DEFAULT 0,
+                    created_at DATETIME
+                )
+                """
+            ))
+            conn.execute(text(
+                "CREATE INDEX IF NOT EXISTS ix_interview_reports_user_key ON interview_reports (user_key)"
+            ))
+        else:
+            interview_rows = conn.execute(text("PRAGMA table_info(interview_reports)")).fetchall()
+            interview_columns = {row[1] for row in interview_rows}
+            if "is_guest" not in interview_columns:
+                conn.execute(text("ALTER TABLE interview_reports ADD COLUMN is_guest INTEGER DEFAULT 0"))

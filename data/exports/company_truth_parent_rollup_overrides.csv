@@ -1,0 +1,28 @@
+match_type,match_value,parent_name,confidence,reason
+prefix,中国移动,中国移动,high,spring truth子实体（杭州研发中心、咪咕等）统一上卷到中国移动母体
+prefix,中国电信,中国电信,high,spring truth子实体（江苏公司、广东公司、云计算研究院、天翼视联等）统一上卷到中国电信母体
+prefix,华为,华为,high,spring truth子实体（数字能源研发、法务、销售类等）统一上卷到华为母体
+prefix,德勤,德勤,high,spring truth子实体（春季全职+暑期实习、全球交付中心）统一上卷到德勤品牌母体
+prefix,中国航天科技集团,中国航天科技集团,high,spring truth院所统一上卷到中国航天科技集团母体
+prefix,阿里巴巴,阿里巴巴,high,spring truth子实体（钉钉等）统一上卷到阿里巴巴母体
+exact,Shopee研发中心,Shopee,high,spring truth研发中心统一上卷到Shopee母体
+exact,Shopee(AIStarProgram),Shopee,high,spring truth项目名统一上卷到Shopee母体
+exact,阿里-淘天集团,淘天集团,high,intern/fall 主层口径下统一上卷到淘天集团母体
+exact,摩根士丹利证券,摩根士丹利,high,intern 主层口径下统一上卷到摩根士丹利母体
+exact,爱奇艺重庆,爱奇艺,high,互联网优先口径下去区域形成干净母体爱奇艺
+exact,新华保险总部,新华保险,high,金融优先口径下去总部形成干净母体新华保险
+exact,麦肯锡中国区,麦肯锡,high,外企优先口径下去中国区形成干净母体麦肯锡
+prefix,国家电投,国家电投集团,high,能源优先口径下统一国家电投体系到集团母体
+prefix,国电投,国家电投集团,high,能源优先口径下统一国电投体系到集团母体
+prefix,中化,中国中化,high,能源优先口径下统一中化体系到中国中化母体
+prefix,中国中化,中国中化,high,能源优先口径下统一中国中化体系到集团母体
+exact,中兴通讯【大专学历可投】,中兴通讯,high,科技优先口径下去专项标签形成干净母体中兴通讯
+exact,中兴通讯供应链,中兴通讯,high,科技优先口径下去条线形成干净母体中兴通讯
+exact,中兴通讯国内营销,中兴通讯,high,科技优先口径下去条线形成干净母体中兴通讯
+exact,中兴通讯数字能源产品经营部,中兴通讯,high,科技优先口径下去部门名形成干净母体中兴通讯
+exact,中兴通讯智能制造基地,中兴通讯,high,科技优先口径下去基地名形成干净母体中兴通讯
+exact,中兴通讯法律合规专场,中兴通讯,high,科技优先口径下去专场名形成干净母体中兴通讯
+exact,携程集团/TigerProgram,携程集团,high,fall 主层口径下统一上卷到携程集团母体
+exact,携程集团/EagleProgram,携程集团,high,fall 主层口径下统一上卷到携程集团母体
+exact,携程集团/旅行官星辰计划,携程集团,high,fall 主层口径下统一上卷到携程集团母体
+contains,影石,影石创新,high,spring truth品牌行统一上卷到影石创新母体

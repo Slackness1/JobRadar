@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-03-18T11:32:28.990114",
+  "total": 1,
+  "jobs": [
+    {
+      "id": "5233d6eacd69",
+      "company": "知乎",
+      "title": "隐私协议",
+      "location": "未知",
+      "department": "",
+      "job_type": "campus",
+      "url": "https://app.mokahr.com/100112636",
+      "publish_date": "",
+      "deadline": null,
+      "description": "",
+      "requirements": "",
+      "crawled_at": "2026-03-18T11:32:28.823514"
+    }
+  ]
+}
