@@ -86,6 +86,8 @@ export interface ResumeCopilotSessionListItem {
 export interface ResumeCopilotSessionCreatedOut {
   session_id: number;
   status: string;
+  page_count?: number;
+  file_size_bytes?: number;
 }
 
 export interface ResumeParsedProfileOut {

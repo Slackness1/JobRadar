@@ -1,0 +1,137 @@
+/* HiFi page-level layouts (Hero + Upload) */
+
+.hf-hero-page {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.hf-hero-page__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 56px;
+}
+
+.hf-hero-page__main {
+  padding: 0 56px;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 56px;
+  align-items: start;
+  margin-bottom: 88px;
+}
+
+.hf-hero-page__coverage {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.hf-hero-page__metrics {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .hf-hero-page__nav { padding: 18px 28px; }
+  .hf-hero-page__ticker-wrap { padding: 0 28px !important; }
+  .hf-hero-page__main {
+    padding: 0 28px;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-bottom: 80px;
+  }
+  .hf-hero-page__coverage {
+    left: 28px;
+    right: 28px;
+    bottom: 20px;
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hf-hero-page__nav { padding: 14px 18px; }
+  .hf-hero-page__ticker-wrap { padding: 0 18px !important; }
+  .hf-hero-page__main { padding: 0 18px; }
+  .hf-hero-page__coverage {
+    left: 18px;
+    right: 18px;
+    position: static;
+    margin: 24px 0 32px;
+    padding: 0 18px;
+  }
+  .hf-hero {
+    font-size: 52px !important;
+    line-height: 1.0;
+  }
+  .hf-hero-page__metrics {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+}
+
+/* Upload page */
+
+.hf-upload-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--parchment);
+  position: relative;
+}
+
+.hf-upload-page__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 48px;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.hf-upload-page__main {
+  padding: 0 48px 100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+}
+
+.hf-upload-page__footer {
+  position: absolute;
+  bottom: 20px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .hf-upload-page__nav { padding: 18px 28px; }
+  .hf-upload-page__main {
+    padding: 0 28px 90px;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .hf-upload-page__footer {
+    left: 28px;
+    right: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hf-upload-page__nav { padding: 14px 18px; }
+  .hf-upload-page__main { padding: 0 18px 80px; }
+  .hf-upload-page__footer {
+    position: static;
+    padding: 16px 18px 24px;
+    margin-top: 24px;
+  }
+}

@@ -1,5 +1,5 @@
-import { EntryLoginPage } from '@/components/resume-copilot/entry-login';
+import { HFHero } from '@/components/hifi/hifi-hero';
 
 export default function Home() {
-  return <EntryLoginPage />;
+  return <HFHero />;
 }

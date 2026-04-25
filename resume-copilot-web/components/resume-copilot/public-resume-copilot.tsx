@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 
 import {
+  DEMO_SESSION_ID,
   createResumeCopilotSession,
   deleteResumeCopilotSession,
   getChatMessages,
@@ -69,6 +70,7 @@ import {
   type ResumeRecommendationResult,
   type RewriteOption,
 } from './types';
+import { DemoBanner } from '@/components/hifi/demo-banner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1507,6 +1509,7 @@ export function PublicResumeCopilot() {
 
   return (
     <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
+      {sessionId === DEMO_SESSION_ID && <DemoBanner />}
       <section className="grid min-h-screen lg:grid-cols-[minmax(560px,52vw)_minmax(0,1fr)]">
         <ResumeChatRail
           session={session}
@@ -1554,10 +1557,12 @@ function ChatMessageBubble({
   message,
   applyingOption,
   onApply,
+  isDemo = false,
 }: {
   message: CopilotMessage;
   applyingOption: string | null;
   onApply: (messageId: number, optionId: string) => Promise<void>;
+  isDemo?: boolean;
 }) {
   if (message.role === 'user') {
     return (
@@ -1586,7 +1591,7 @@ function ChatMessageBubble({
               messageId={message.id}
               option={opt}
               applied={message.applied_option_id === opt.option_id}
-              disabled={Boolean(message.applied_option_id) || applyingOption !== null}
+              disabled={Boolean(message.applied_option_id) || applyingOption !== null || isDemo}
               isApplying={applyingOption === `${message.id}:${opt.option_id}`}
               onApply={onApply}
             />
@@ -1756,7 +1761,8 @@ function ResumeChatRail({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const canChat = Boolean(session?.has_parsed_profile) && !sessionIsActive(session);
+  const isDemoSession = currentSessionId === DEMO_SESSION_ID;
+  const canChat = Boolean(session?.has_parsed_profile) && !sessionIsActive(session) && !isDemoSession;
   const selectedRoles = preferences.preferred_roles.length ? preferences.preferred_roles.join('、') : '未设定';
   const selectedTracks = preferences.preferred_tracks.length ? preferences.preferred_tracks.join('、') : '未设定';
   const selectedLocations = preferences.preferred_locations.length ? preferences.preferred_locations.join('、') : '未设定';
@@ -2008,6 +2014,7 @@ function ResumeChatRail({
                   message={message}
                   applyingOption={applyingOption}
                   onApply={applyRewriteOption}
+                  isDemo={isDemoSession}
                 />
               ))}
               {isSendingChat && (
@@ -2231,7 +2238,7 @@ function ResumeChatRail({
                     sendMessage();
                   }
                 }}
-                placeholder={canChat ? '问我如何优化这份简历...' : '等待首次分析完成后可对话...'}
+                placeholder={canChat ? '问我如何优化这份简历...' : isDemoSession ? '示例会话只读 — 上传你自己的简历后可对话' : '等待首次分析完成后可对话...'}
                 className="min-h-16 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
               />
               <Button type="button" size="icon" className="mb-1 rounded-full" disabled={!canChat || !draft.trim() || isSendingChat} onClick={sendMessage}>

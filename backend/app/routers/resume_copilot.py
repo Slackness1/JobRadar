@@ -38,10 +38,19 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationResultOut,
     RewriteOption,
 )
-from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_from_pdf, validate_pdf_upload
+from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
+from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
 from app.services.resume_copilot.workflow import run_resume_generate_workflow, run_resume_parse_workflow
 
 router = APIRouter(prefix='/api/resume-copilot', tags=['resume-copilot'])
+
+
+def _assert_not_demo(session: ResumeCopilotSession) -> None:
+    if str(getattr(session, 'user_key', '') or '') == '__demo__':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Demo session is read-only',
+        )
 
 
 def _get_session_or_404(db: Session, session_id: int) -> ResumeCopilotSession:
@@ -127,7 +136,8 @@ async def create_resume_copilot_session(
 ):
     try:
         validate_pdf_upload(file.filename or '', file.content_type or '')
-        extracted_text = extract_resume_text_from_pdf(await file.read())
+        file_bytes = await file.read()
+        extracted_text, page_count = extract_resume_text_with_page_count(file_bytes)
     except ResumeUploadError as exc:
         raise HTTPException(status_code=400, detail=exc.code) from exc
 
@@ -145,6 +155,8 @@ async def create_resume_copilot_session(
     return ResumeCopilotSessionCreatedOut(
         session_id=int(getattr(session, 'id')),
         status='parsing_profile',
+        page_count=page_count,
+        file_size_bytes=len(file_bytes),
     )
 
 
@@ -163,6 +175,7 @@ def rename_resume_copilot_session(
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
+    _assert_not_demo(session)
     session.name = payload.name.strip()[:120]
     session.updated_at = datetime.utcnow()
     db.commit()
@@ -176,6 +189,7 @@ def rename_resume_copilot_session(
 @router.delete('/sessions/{session_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_resume_copilot_session(session_id: int, db: Session = Depends(get_db)):
     session = _get_session_or_404(db, session_id)
+    _assert_not_demo(session)
     db.delete(session)
     db.commit()
 
@@ -212,7 +226,8 @@ def put_resume_copilot_confirmed_profile(
     payload: ResumeConfirmedProfileIn,
     db: Session = Depends(get_db),
 ):
-    _get_session_or_404(db, session_id)
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_not_demo(session_obj)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not profile:
         profile = ResumeConfirmedProfile(session_id=session_id)
@@ -242,7 +257,8 @@ def put_resume_copilot_preferences(
     payload: ResumePreferenceIn,
     db: Session = Depends(get_db),
 ):
-    _get_session_or_404(db, session_id)
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_not_demo(session_obj)
     preference_profile = db.query(ResumePreferenceProfile).filter(ResumePreferenceProfile.session_id == session_id).first()
     if not preference_profile:
         preference_profile = ResumePreferenceProfile(session_id=session_id)
@@ -266,6 +282,7 @@ def generate_resume_recommendations(
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
+    _assert_not_demo(session)
     confirmed_profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not confirmed_profile:
         raise HTTPException(status_code=409, detail='CONFIRMED_PROFILE_REQUIRED')
@@ -367,7 +384,8 @@ def post_chat_message(
 ):
     from app.services.resume_copilot.chat import generate_chat_turn
 
-    _get_session_or_404(db, session_id)
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_not_demo(session_obj)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
     ).first()
@@ -388,7 +406,8 @@ def post_apply_rewrite(
 ):
     from app.services.resume_copilot.chat import apply_rewrite
 
-    _get_session_or_404(db, session_id)
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_not_demo(session_obj)
     try:
         updated_profile = apply_rewrite(
             session_id, payload.message_id, payload.option_id, db

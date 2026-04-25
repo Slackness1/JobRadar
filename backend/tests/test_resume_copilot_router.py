@@ -94,8 +94,8 @@ def test_create_session_stores_extracted_text_for_valid_pdf(monkeypatch):
     observed = {}
 
     monkeypatch.setattr(
-        'app.routers.resume_copilot.extract_resume_text_from_pdf',
-        lambda _file_bytes: 'Jane Doe\n\nPython, SQL',
+        'app.routers.resume_copilot.extract_resume_text_with_page_count',
+        lambda _file_bytes: ('Jane Doe\n\nPython, SQL', 2),
     )
     monkeypatch.setattr(
         'app.routers.resume_copilot.run_resume_parse_workflow',
@@ -108,7 +108,11 @@ def test_create_session_stores_extracted_text_for_valid_pdf(monkeypatch):
     )
 
     assert response.status_code == 202
-    assert response.json() == {'session_id': 1, 'status': 'parsing_profile'}
+    body = response.json()
+    assert body['session_id'] == 1
+    assert body['status'] == 'parsing_profile'
+    assert body['page_count'] == 2
+    assert body['file_size_bytes'] == len(b'%PDF-1.4\ncontent')
     assert observed == {'session_id': 1}
 
     db = testing_session_local()

@@ -10,6 +10,11 @@ except ImportError:  # pragma: no cover - covered once dependency is installed
 
 
 def extract_resume_text_from_pdf(file_bytes: bytes) -> str:
+    text, _ = extract_resume_text_with_page_count(file_bytes)
+    return text
+
+
+def extract_resume_text_with_page_count(file_bytes: bytes) -> tuple[str, int]:
     if not file_bytes:
         raise ResumeUploadError("Resume upload was empty")
 
@@ -27,6 +32,7 @@ def extract_resume_text_from_pdf(file_bytes: bytes) -> str:
     except Exception as exc:
         raise ResumeUploadError("Resume file could not be parsed as PDF") from exc
 
+    page_count = len(reader.pages)
     text_parts: list[str] = []
     for page in reader.pages:
         page_text = page.extract_text() or ""
@@ -37,7 +43,7 @@ def extract_resume_text_from_pdf(file_bytes: bytes) -> str:
     if not text_parts:
         raise ResumeUploadError("Resume file did not contain readable text")
 
-    return "\n\n".join(text_parts)
+    return "\n\n".join(text_parts), page_count
 
 
 def validate_pdf_upload(filename: str, content_type: str) -> None:

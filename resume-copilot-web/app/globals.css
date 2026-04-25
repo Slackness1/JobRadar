@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import '../components/hifi/hifi-tokens.css';
+@import '../components/hifi/hifi-pages.css';
 
 :root {
   --background: oklch(0.982 0.009 247.9);

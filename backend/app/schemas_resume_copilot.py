@@ -95,6 +95,8 @@ class ResumePreferenceOut(BaseModel):
 class ResumeCopilotSessionCreatedOut(BaseModel):
     session_id: int
     status: str
+    page_count: int = 0
+    file_size_bytes: int = 0
 
 
 class ResumeCopilotSessionOut(BaseModel):

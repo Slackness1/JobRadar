@@ -27,6 +27,7 @@ from app.routers import (
     tracks,
 )
 from app.services.company_recrawl_queue import mark_stale_running_tasks_failed
+from app.services.resume_copilot.demo_session import ensure_demo_session
 from app.services.schema_patch import ensure_compatible_schema
 from app.services.scheduler_service import start_scheduler
 from app.services.seed import seed_from_yaml
@@ -55,6 +56,12 @@ async def lifespan(app: FastAPI):
         seeded = seed_from_yaml(db)
         if seeded:
             print("[INFO] Seeded database from config.yaml")
+
+        try:
+            ensure_demo_session(db)
+            print("[INFO] Demo session ready (id=1)")
+        except Exception as exc:  # demo seeding must not block startup
+            print(f"[WARN] ensure_demo_session failed: {exc}")
     finally:
         db.close()
 

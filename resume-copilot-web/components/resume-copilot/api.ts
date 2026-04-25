@@ -14,6 +14,10 @@ import type {
   ResumeRecommendationResult,
 } from './types';
 
+// ── Constants ────────────────────────────────────────────────────────────────
+
+export const DEMO_SESSION_ID = 1;
+
 // ── User key (anonymous per-browser identity stored in localStorage) ─────────
 
 const USER_KEY_STORAGE_KEY = 'jobradar.resumeCopilot.userKey';
