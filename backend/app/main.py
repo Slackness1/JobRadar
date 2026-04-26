@@ -23,6 +23,7 @@ from app.routers import (
     resume_copilot,
     scheduler,
     scoring,
+    sites,
     system_config,
     tracks,
 )
@@ -95,6 +96,7 @@ app.include_router(company_recrawl.router)
 app.include_router(job_intel.router)
 app.include_router(resume_copilot.router)
 app.include_router(interview.router)
+app.include_router(sites.router)
 
 
 @app.get("/api/health")
