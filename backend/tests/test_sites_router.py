@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import get_db
 from app.main import app
-from app.models import Base, CompanyCrawlLog, CrawlLog
+from app.models import Base, CompanyCrawlLog
 
 
 @pytest.fixture
@@ -128,3 +128,28 @@ def test_recrawl_unknown_company_returns_400(client):
     c, _ = client
     res = c.post("/api/sites/不存在的公司/recrawl")
     assert res.status_code == 400
+
+
+def test_recrawl_known_company_returns_parent_log_id(client, monkeypatch):
+    c, Session = client
+
+    # Patch the BackgroundTasks invocation to a no-op so we don't actually
+    # try to crawl. The endpoint still creates the parent CrawlLog row and
+    # returns its id; that's what we assert.
+    from app.routers import sites as sites_module
+    captured = {}
+    def fake_add_task(fn, *args, **kwargs):
+        captured["fn"] = fn
+        captured["args"] = args
+    monkeypatch.setattr(
+        "fastapi.BackgroundTasks.add_task",
+        lambda self, fn, *args, **kwargs: fake_add_task(fn, *args, **kwargs),
+    )
+
+    res = c.post("/api/sites/腾讯/recrawl")
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert "parent_log_id" in body
+    assert isinstance(body["parent_log_id"], int)
+    assert body["message"]
+    assert captured.get("args") == ("腾讯", body["parent_log_id"])

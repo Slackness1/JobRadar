@@ -128,7 +128,10 @@ def _run_recrawl_in_background(company: str, parent_log_id: int) -> None:
             .scalar()
         )
         if int(new_total or 0) > 0:
-            score_all_jobs(db)
+            try:
+                score_all_jobs(db)
+            except Exception:
+                pass  # scoring failure is non-fatal; jobs are visible now, scores update on next cron
         parent = db.query(CrawlLog).filter(CrawlLog.id == parent_log_id).first()
         if parent is not None:
             parent.status = "success"
