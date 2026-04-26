@@ -269,6 +269,6 @@ def ensure_compatible_schema(engine: Engine) -> None:
                 )
                 """
             ))
-            conn.execute(text("CREATE INDEX idx_ccl_company_started ON company_crawl_logs(company, started_at DESC)"))
-            conn.execute(text("CREATE INDEX idx_ccl_source_started  ON company_crawl_logs(source, started_at DESC)"))
-            conn.execute(text("CREATE INDEX idx_ccl_parent          ON company_crawl_logs(parent_log_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_company_started ON company_crawl_logs(company, started_at DESC)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_source_started  ON company_crawl_logs(source, started_at DESC)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_parent          ON company_crawl_logs(parent_log_id)"))
