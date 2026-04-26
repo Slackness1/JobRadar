@@ -527,7 +527,7 @@ def crawl_internet_targets(
                         ))
                         continue
 
-                    _target_exc: Optional[Exception] = None
+                    target_exc: Optional[Exception] = None
                     try:
                         with company_crawl_log(
                             db,
@@ -602,7 +602,7 @@ def crawl_internet_targets(
                                     platform=target.platform,
                                 ))
                             except Exception as exc:
-                                _target_exc = exc
+                                target_exc = exc
                                 if not dry_run:
                                     db.rollback()
                                 results.append(InternetCrawlResult(
@@ -620,8 +620,8 @@ def crawl_internet_targets(
                             # Re-raise so company_crawl_log can mark the row as failed.
                             # The outer try/except (just below) swallows it to preserve
                             # the original continue-on-error behaviour for the for-loop.
-                            if _target_exc is not None:
-                                raise _target_exc
+                            if target_exc is not None:
+                                raise target_exc
                     except Exception:
                         pass  # result already appended above; log row already marked failed
             finally:
