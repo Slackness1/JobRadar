@@ -19,6 +19,7 @@ from requests.exceptions import RequestException
 from sqlalchemy.orm import Session
 
 from app.models import Job
+from app.services.company_crawl_logger import company_crawl_log
 
 # 代理配置
 REQUEST_PROXIES = {
@@ -386,6 +387,90 @@ def save_to_database(db_session: Session, records: List[Dict[str, Any]], dry_run
         print(f"\n[COMMIT] 已保存 {added_count} 条新岗位")
 
     return added_count
+
+
+# Map ats_family values in energy_campus.yaml to canonical source strings.
+_ATS_FAMILY_TO_SOURCE: Dict[str, str] = {
+    "hotjob": "energy_hotjob",
+    "csisolar": "energy_csisolar",
+    "moka": "energy_moka",
+    "moka_embedded": "energy_moka_embedded",
+    "zhiye": "energy_zhiye",
+    "51job_campus": "energy_51job_campus",
+}
+
+
+def run_energy_crawl(
+    db: Session,
+    config_path: Optional[Path] = None,
+    dry_run: bool = False,
+    parent_log_id: Optional[int] = None,
+) -> Tuple[int, int]:
+    """
+    Orchestrate energy-company crawl with per-company CompanyCrawlLog rows.
+
+    Returns (new_count, total_fetched).
+    """
+    config = load_config(config_path)
+    sites = config.get("sites", [])
+
+    new_count = 0
+    total_fetched = 0
+
+    for target in sites:
+        company = target.get("name", "unknown")
+        status = target.get("status")
+        ats_family = target.get("ats_family")
+
+        # Skip targets that are known-broken or unsupported at config level.
+        if status in ["entry_discovery_failed", "ssl_error", "cloudflare_blocked"]:
+            continue
+        if ats_family not in _ATS_FAMILY_TO_SOURCE and ats_family not in ("moka", "moka_embedded", "zhiye"):
+            continue
+
+        source = _ATS_FAMILY_TO_SOURCE.get(ats_family or "", "energy_official")
+
+        with company_crawl_log(
+            db,
+            source=source,
+            company=company,
+            parent_log_id=parent_log_id,
+        ) as log:
+            try:
+                if ats_family == "zhiye":
+                    records, _metadata = crawl_energy_zhiye_target(target)
+                else:
+                    records, _metadata = crawl_moka_embedded_target(target)
+            except Exception:
+                raise
+
+            fetched_count = len(records)
+            company_new = 0
+
+            for record in records:
+                job_id = record.get("job_id")
+                if not job_id:
+                    continue
+                existing = db.query(Job).filter_by(job_id=job_id).first()
+                if existing:
+                    for key, value in record.items():
+                        if hasattr(existing, key):
+                            setattr(existing, key, value)
+                    existing.scraped_at = record.get("scraped_at")
+                else:
+                    job = Job(**record)
+                    db.add(job)
+                    company_new += 1
+
+            if not dry_run:
+                db.commit()
+
+            log.fetched_count = fetched_count
+            log.new_count = company_new
+            new_count += company_new
+            total_fetched += fetched_count
+
+    return new_count, total_fetched
 
 
 def main():

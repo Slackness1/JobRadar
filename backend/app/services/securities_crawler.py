@@ -19,6 +19,7 @@ from requests.exceptions import RequestException
 from sqlalchemy.orm import Session
 
 from app.models import Job
+from app.services.company_crawl_logger import company_crawl_log
 
 # 目标券商列表（A档和A-档）
 TARGET_COMPANIES = {
@@ -841,49 +842,83 @@ def crawl_configured_securities_targets(target_names: Optional[List[str]] = None
 
 
 
+_ATS_FAMILY_TO_SOURCE: Dict[str, str] = {
+    "zhiye": "securities_zhiye",
+    "zhiye_legacy": "securities_zhiye",
+    "hotjob": "securities_hotjob",
+    "moka_embedded": "securities_moka_embedded",
+}
+
+
 def run_configured_securities_crawl(
     db: Session,
     existing_jobs: Dict[str, Job],
     target_names: Optional[List[str]] = None,
+    parent_log_id: Optional[int] = None,
 ) -> Tuple[int, int, Dict[str, int]]:
+    # Build company→source map from raw targets so we know which sub-source to log.
+    raw_targets = _load_securities_targets()
+    if target_names:
+        wanted = set(target_names)
+        raw_targets = [t for t in raw_targets if t.get("name") in wanted]
+    company_source_map: Dict[str, str] = {
+        t["name"]: _ATS_FAMILY_TO_SOURCE.get(t.get("ats_family", ""), "securities_configured")
+        for t in raw_targets
+    }
+
     grouped = crawl_configured_securities_targets(target_names=target_names)
     new_count = 0
     total_count = 0
     company_counts: Dict[str, int] = {}
 
     for company, records in grouped.items():
-        company_counts[company] = len(records)
-        total_count += len(records)
-        for mapped in records:
-            job_id = mapped.get("job_id")
-            if not job_id:
-                continue
-            existing = existing_jobs.get(job_id)
-            if existing is None:
-                job = Job(**mapped)
-                db.add(job)
-                existing_jobs[job_id] = job
-                new_count += 1
-            else:
-                for field in [
-                    "company",
-                    "company_tags",
-                    "department",
-                    "job_title",
-                    "location",
-                    "major_req",
-                    "job_req",
-                    "job_duty",
-                    "job_stage",
-                    "publish_date",
-                    "deadline",
-                    "detail_url",
-                    "scraped_at",
-                ]:
-                    value = mapped.get(field)
-                    if value not in (None, ""):
-                        setattr(existing, field, value)
-                existing_jobs[job_id] = existing
+        source = company_source_map.get(company, "securities_configured")
+        company_fetched = len(records)
+        company_new = 0
+
+        with company_crawl_log(
+            db,
+            source=source,
+            company=company,
+            parent_log_id=parent_log_id,
+        ) as log:
+            company_counts[company] = company_fetched
+            total_count += company_fetched
+            for mapped in records:
+                job_id = mapped.get("job_id")
+                if not job_id:
+                    continue
+                existing = existing_jobs.get(job_id)
+                if existing is None:
+                    job = Job(**mapped)
+                    db.add(job)
+                    existing_jobs[job_id] = job
+                    new_count += 1
+                    company_new += 1
+                else:
+                    for field in [
+                        "company",
+                        "company_tags",
+                        "department",
+                        "job_title",
+                        "location",
+                        "major_req",
+                        "job_req",
+                        "job_duty",
+                        "job_stage",
+                        "publish_date",
+                        "deadline",
+                        "detail_url",
+                        "scraped_at",
+                    ]:
+                        value = mapped.get(field)
+                        if value not in (None, ""):
+                            setattr(existing, field, value)
+                    existing_jobs[job_id] = existing
+
+            log.fetched_count = company_fetched
+            log.new_count = company_new
+
     return new_count, total_count, company_counts
 
 

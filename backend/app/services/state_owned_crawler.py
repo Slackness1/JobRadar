@@ -15,6 +15,7 @@ from urllib.parse import urlparse, urlunparse
 from sqlalchemy.orm import Session
 
 from app.models import Job
+from app.services.company_crawl_logger import company_crawl_log
 from app.services.job_merge import merge_job_fields
 
 
@@ -610,6 +611,7 @@ def crawl_state_owned_targets(
     targets: list[StateOwnedTarget],
     dry_run: bool = False,
     max_pages: Optional[int] = None,
+    parent_log_id: Optional[int] = None,
 ) -> list[StateOwnedCrawlResult]:
     _configure_legacy_network()
 
@@ -633,77 +635,96 @@ def crawl_state_owned_targets(
             try:
                 for target in targets:
                     context, page = legacy.new_page(browser)
+                    target_exc: Optional[Exception] = None
                     try:
-                        zhaopin_jobs = _crawl_zhaopin_grace(target, max_pages=max_pages) if target.platform == "Zhaopin" else None
-                        if zhaopin_jobs is not None:
-                            legacy_jobs = zhaopin_jobs
-                        else:
-                            fn = _select_legacy_crawler(target)
-                            if fn is not None:
-                                runtime_target = {"name": target.company, "url": target.url, "type": target.target_type}
-                                if max_pages:
-                                    runtime_target["max_pages"] = int(max_pages)
-                                legacy_jobs = fn(page, runtime_target)
-                            else:
-                                legacy_jobs = _crawl_generic(page, target, max_pages=max_pages)
+                        with company_crawl_log(
+                            db,
+                            source="state_owned_official",
+                            company=target.company,
+                            parent_log_id=parent_log_id,
+                        ) as log:
+                            try:
+                                zhaopin_jobs = _crawl_zhaopin_grace(target, max_pages=max_pages) if target.platform == "Zhaopin" else None
+                                if zhaopin_jobs is not None:
+                                    legacy_jobs = zhaopin_jobs
+                                else:
+                                    fn = _select_legacy_crawler(target)
+                                    if fn is not None:
+                                        runtime_target = {"name": target.company, "url": target.url, "type": target.target_type}
+                                        if max_pages:
+                                            runtime_target["max_pages"] = int(max_pages)
+                                        legacy_jobs = fn(page, runtime_target)
+                                    else:
+                                        legacy_jobs = _crawl_generic(page, target, max_pages=max_pages)
 
-                        fetched_count = 0
-                        new_count = 0
-                        updated_count = 0
-                        for legacy_job in legacy_jobs:
-                            mapped = _map_legacy_job(target, legacy_job)
-                            if not _valid_mapped_job(mapped):
-                                continue
-                            dedupe_key = (mapped["job_id"], mapped["detail_url"])
-                            if dedupe_key in seen_run_jobs:
-                                continue
-                            seen_run_jobs.add(dedupe_key)
-                            fetched_count += 1
+                                fetched_count = 0
+                                new_count = 0
+                                updated_count = 0
+                                for legacy_job in legacy_jobs:
+                                    mapped = _map_legacy_job(target, legacy_job)
+                                    if not _valid_mapped_job(mapped):
+                                        continue
+                                    dedupe_key = (mapped["job_id"], mapped["detail_url"])
+                                    if dedupe_key in seen_run_jobs:
+                                        continue
+                                    seen_run_jobs.add(dedupe_key)
+                                    fetched_count += 1
 
-                            existing = existing_jobs.get(mapped["job_id"])
-                            if existing is None:
-                                existing = db.query(Job).filter(Job.job_id == mapped["job_id"]).first()
-                            if existing is None:
+                                    existing = existing_jobs.get(mapped["job_id"])
+                                    if existing is None:
+                                        existing = db.query(Job).filter(Job.job_id == mapped["job_id"]).first()
+                                    if existing is None:
+                                        if not dry_run:
+                                            created = Job(**mapped)
+                                            db.add(created)
+                                            existing_jobs[mapped["job_id"]] = created
+                                        new_count += 1
+                                    else:
+                                        if not dry_run and merge_job_fields(existing, mapped):
+                                            updated_count += 1
+                                        existing_jobs[mapped["job_id"]] = existing
+
                                 if not dry_run:
-                                    created = Job(**mapped)
-                                    db.add(created)
-                                    existing_jobs[mapped["job_id"]] = created
-                                new_count += 1
-                            else:
-                                if not dry_run and merge_job_fields(existing, mapped):
-                                    updated_count += 1
-                                existing_jobs[mapped["job_id"]] = existing
+                                    db.commit()
 
-                        if not dry_run:
-                            db.commit()
+                                log.fetched_count = fetched_count
+                                log.new_count = new_count
 
-                        results.append(StateOwnedCrawlResult(
-                            tier=target.tier,
-                            group=target.group,
-                            company_id=target.company_id,
-                            company=target.company,
-                            url=target.url,
-                            status="success" if fetched_count else "empty",
-                            fetched_count=fetched_count,
-                            new_count=new_count,
-                            updated_count=updated_count,
-                            platform=target.platform,
-                        ))
-                    except Exception as exc:
-                        if not dry_run:
-                            db.rollback()
-                        results.append(StateOwnedCrawlResult(
-                            tier=target.tier,
-                            group=target.group,
-                            company_id=target.company_id,
-                            company=target.company,
-                            url=target.url,
-                            status="failed",
-                            error=str(exc)[:500],
-                            platform=target.platform,
-                        ))
-                    finally:
-                        context.close()
+                                results.append(StateOwnedCrawlResult(
+                                    tier=target.tier,
+                                    group=target.group,
+                                    company_id=target.company_id,
+                                    company=target.company,
+                                    url=target.url,
+                                    status="success" if fetched_count else "empty",
+                                    fetched_count=fetched_count,
+                                    new_count=new_count,
+                                    updated_count=updated_count,
+                                    platform=target.platform,
+                                ))
+                            except Exception as exc:
+                                target_exc = exc
+                                if not dry_run:
+                                    db.rollback()
+                                results.append(StateOwnedCrawlResult(
+                                    tier=target.tier,
+                                    group=target.group,
+                                    company_id=target.company_id,
+                                    company=target.company,
+                                    url=target.url,
+                                    status="failed",
+                                    error=str(exc)[:500],
+                                    platform=target.platform,
+                                ))
+                            finally:
+                                context.close()
+                            # Re-raise so company_crawl_log can mark the row as failed.
+                            # The outer try/except (just below) swallows it to preserve
+                            # the original continue-on-error behaviour for the for-loop.
+                            if target_exc is not None:
+                                raise target_exc
+                    except Exception:
+                        pass  # result already appended above; log row already marked failed
             finally:
                 browser.close()
     finally:
