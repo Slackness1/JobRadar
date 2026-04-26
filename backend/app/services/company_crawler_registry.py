@@ -26,7 +26,7 @@ from sqlalchemy.orm import Session
 CompanyCrawler = Callable[[Session, Optional[int]], None]
 
 
-def _shim_internet(company: str, source: str = "internet_official") -> CompanyCrawler:
+def _shim_internet(company: str) -> CompanyCrawler:
     """Build a recrawl shim for a single internet_official target.
 
     Uses build_internet_targets() to get the up-to-date target list
@@ -47,7 +47,7 @@ def _shim_internet(company: str, source: str = "internet_official") -> CompanyCr
     return _run
 
 
-# Internet t1 (16 companies). Other source clusters (state_owned_official,
+# Internet t1 (15 companies). Other source clusters (state_owned_official,
 # securities_*, consumer_foreign_official) don't expose a discover_* function;
 # they're invoked from CLI scripts not currently wired into the runtime
 # recrawl path. Add them here when their orchestrators expose a target-list
@@ -64,7 +64,6 @@ COMPANY_CRAWLERS: dict[str, CompanyCrawler] = {
     "拼多多":     _shim_internet("拼多多"),
     "百度":       _shim_internet("百度"),
     "网易":       _shim_internet("网易"),
-    "网易雷火":   _shim_internet("网易雷火"),
     "哔哩哔哩":   _shim_internet("哔哩哔哩"),
     "米哈游":     _shim_internet("米哈游"),
     "携程":       _shim_internet("携程"),
