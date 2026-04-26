@@ -247,3 +247,28 @@ def ensure_compatible_schema(engine: Engine) -> None:
             interview_columns = {row[1] for row in interview_rows}
             if "is_guest" not in interview_columns:
                 conn.execute(text("ALTER TABLE interview_reports ADD COLUMN is_guest INTEGER DEFAULT 0"))
+
+        ccl_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='company_crawl_logs'")
+        ).fetchone()
+        if not ccl_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE company_crawl_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source TEXT NOT NULL,
+                    company TEXT NOT NULL,
+                    started_at DATETIME NOT NULL,
+                    finished_at DATETIME,
+                    status TEXT NOT NULL,
+                    fetched_count INTEGER NOT NULL DEFAULT 0,
+                    new_count INTEGER NOT NULL DEFAULT 0,
+                    error_message TEXT NOT NULL DEFAULT '',
+                    parent_log_id INTEGER,
+                    duration_ms INTEGER NOT NULL DEFAULT 0
+                )
+                """
+            ))
+            conn.execute(text("CREATE INDEX idx_ccl_company_started ON company_crawl_logs(company, started_at DESC)"))
+            conn.execute(text("CREATE INDEX idx_ccl_source_started  ON company_crawl_logs(source, started_at DESC)"))
+            conn.execute(text("CREATE INDEX idx_ccl_parent          ON company_crawl_logs(parent_log_id)"))

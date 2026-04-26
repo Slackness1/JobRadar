@@ -416,3 +416,19 @@ class InterviewReport(Base):
     duration_seconds = Column(Integer, default=0)
     is_guest = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CompanyCrawlLog(Base):
+    __tablename__ = "company_crawl_logs"
+
+    id = Column(Integer, primary_key=True)
+    source = Column(Text, nullable=False, index=True)
+    company = Column(Text, nullable=False, index=True)
+    started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    finished_at = Column(DateTime, nullable=True)
+    status = Column(Text, nullable=False, default="running")
+    fetched_count = Column(Integer, nullable=False, default=0)
+    new_count = Column(Integer, nullable=False, default=0)
+    error_message = Column(Text, nullable=False, default="")
+    parent_log_id = Column(Integer, nullable=True, index=True)
+    duration_ms = Column(Integer, nullable=False, default=0)
