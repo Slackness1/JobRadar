@@ -67,7 +67,7 @@ docker compose up --build
 
 ### Backend (`backend/app/`)
 
-**Entry point:** `main.py` — FastAPI app with a lifespan that: creates all tables, runs `ensure_compatible_schema()` (ad-hoc DDL patcher), seeds from YAML configs, and starts an APScheduler daily crawl at 08:00 Asia/Shanghai.
+**Entry point:** `main.py` — FastAPI app with a lifespan that: creates all tables, runs `ensure_compatible_schema()` (ad-hoc DDL patcher), seeds from YAML configs, calls `ensure_demo_session(db)` to (re)hydrate the shared demo session, and starts an APScheduler daily crawl at 08:00 Asia/Shanghai + an hourly guest-cleanup interval job.
 
 **Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`. Each router is a file under `app/routers/`.
 
@@ -76,9 +76,13 @@ docker compose up --build
 **Resume Copilot pipeline** (`app/services/resume_copilot/`):
 - `workflow.py` — two async-safe workflows: `run_resume_parse_workflow` and `run_resume_generate_workflow`, both dispatched via FastAPI `BackgroundTasks`. Each opens its own `SessionLocal`.
 - `parser.py` — calls an LLM to extract structured profile from raw PDF text; falls back to heuristic extraction on HTTP errors.
+- `ingest.py` — `extract_resume_text_with_page_count(bytes) -> (text, page_count)` is the canonical PDF-extract helper; `extract_resume_text_from_pdf` is a thin wrapper kept for older call sites. `POST /sessions` returns `page_count` and `file_size_bytes` so the upload UI can show real numbers in its agent trace.
 - `recommendation.py` — pre-filters jobs from DB by preferences/track, scores with `compute_rule_score`, optionally enriches with `JobIntelSnapshot` boosts (14-day TTL). LLM reranks top-N results.
 - `quick_enrichment.py` — parallel web search + page extraction for top-N jobs using `ThreadPoolExecutor`. Trace events are collected in thread-local lists and replayed in the main thread to avoid concurrent SQLite writes.
 - `feedback.py` — LLM-generated resume diagnostics and rewrite suggestions.
+- `demo_session.py` — `DEMO_SESSION_ID = 1` + `ensure_demo_session(db)`. Seeds a fully-prepared shared session (张三 / 上交大本科 / 互联网数据分析) with `user_key='__demo__'`, `is_guest=0`, status `completed`, and pre-computed recommendations + direction analysis + 3 chat messages. The lifespan calls this on every startup; existing demo rows are force-updated to ensure `user_key='__demo__'` is set (so the read-only guard catches them).
+
+**Demo session read-only guard**: in `routers/resume_copilot.py`, `_assert_not_demo(session)` checks `session.user_key == '__demo__'` (not session_id, so tests using id=1 with a different user_key pass). It must be called **after** `_get_session_or_404` and is mounted on every write endpoint (PATCH/DELETE session, PUT confirmed-profile, PUT preferences, POST generate, POST chat, POST chat/apply-rewrite). All `GET` endpoints are unaffected.
 
 **Config** (`app/config.py`): reads `.env.local` from `backend/` then root, then OS env. Key groups:
 - `RESUME_COPILOT_*` — LLM base URL, API key, model name, timeouts
@@ -91,11 +95,30 @@ Vite + React 19 + React Router 7 + Ant Design 6. All API calls go through an Axi
 
 ### Resume Copilot Web (`resume-copilot-web/`)
 
-Next.js 16 App Router + Tailwind CSS 4 + Ant Design 6. All API calls are proxied via `next.config.ts` rewrites: `/api/:path*` → `${RESUME_COPILOT_BACKEND_URL}/api/:path*` (default `http://127.0.0.1:8002`). 
+Next.js 16 App Router + Tailwind CSS 4 + Ant Design 6. All API calls are proxied via `next.config.ts` rewrites: `/api/:path*` → `${RESUME_COPILOT_BACKEND_URL}/api/:path*` (default `http://127.0.0.1:8002`).
 
-Key file: `components/resume-copilot/public-resume-copilot.tsx` (~1980 lines) — the entire resume copilot UI: upload → parse progress → profile editor → preference picker → recommendation cards + chat rail. It polls the backend at 1.6s intervals while `sessionIsActive(session)` is true.
+**Routes**:
 
-Styling uses CSS custom properties (`var(--primary)`, `var(--ink)`, `var(--muted)`, `var(--border)`, `var(--soft-blue)`). The agent thinking panel uses `SPINNER_FRAMES = ['·', '✢', '✳', '✶', '✻', '✽']` at **120ms** ticks with staggered per-agent start offsets (0, 2, 4), matching Claude Code terminal style. Verb cycling is 2000/2300/2600ms per agent so they don't sync.
+| Path | Component | Notes |
+|---|---|---|
+| `/` | `<HFHero/>` from `components/hifi/hifi-hero.tsx` | Public marketing page (HiFi terracotta). CTAs `上传简历` / `看示例推荐` open `<GuestLoginModal/>` if not logged in. |
+| `/upload` | `<HFUpload/>` from `components/hifi/hifi-upload.tsx` | Single-page upload + 3-stage real parse trace (read PDF → LLM extract → ready). Client-side guard: redirects to `/` if `!isGuestUser()`. |
+| `/resume-copilot?sessionId=X` | `public-resume-copilot.tsx` | Workspace. `sessionId=1` shows `<DemoBanner/>` and disables chat composer + apply-rewrite buttons. |
+| `/interview/[sessionId]/check` + `/[sessionId]` | mock interview pages | Untouched by HiFi work. |
+| `/login` | **deleted** | Login is a modal, not a page. |
+
+**Two design systems coexist** (kept strictly isolated):
+
+- **Workspace** (`/resume-copilot`) — original sky-blue palette via `var(--primary)`, `var(--ink)`, `var(--muted)`, `var(--border)`, `var(--soft-blue)`. Defined in `app/globals.css`. The agent thinking panel uses `SPINNER_FRAMES = ['·', '✢', '✳', '✶', '✻', '✽']` at **120ms** ticks with staggered per-agent start offsets (0, 2, 4), matching Claude Code terminal style. Verb cycling is 2000/2300/2600ms per agent so they don't sync.
+- **HiFi** (`/`, `/upload`, `<DemoBanner/>`) — Claude terracotta system: `--terracotta` `#c96442` on `--parchment` `#f5f4ed`, Fraunces serif for headings/numbers, Inter for body, JetBrains Mono for terminal-style traces. Tokens live in `components/hifi/hifi-tokens.css` and are **scoped to `.hf`** — every HiFi root element wraps in `<div className="hf">`. Page-level layout (`hf-hero-page__*`, `hf-upload-page__*`) is in `components/hifi/hifi-pages.css` with mobile breakpoints at 1024px (single-column) and 640px (compact). Both files are imported from `app/globals.css`. **Do not** add HiFi class names to workspace components, and do not redefine workspace tokens inside `.hf`.
+
+**Shared HiFi primitives** (`components/hifi/hifi-primitives.tsx`): `HFLogo`, `HFBtn` (primary/ghost/sand/dark/link × sm/md/lg), `HFPill` (default/amber/terra/emerald/dark), `HFTicker`, `useCountUp(target, duration)`, `useLiveCount(target, duration)` (count-up then slow live tick), and an icon set under `I.{arrowRight, upload, file, check, sparkle, ...}`.
+
+**Auth state**: `isGuestUser()` reads `sessionStorage.jobradar.resumeCopilot.isGuest`. `markAsGuest()` sets it after `<GuestLoginModal/>` validates `guest1` / `123456`. `requestJson` in `api.ts` injects `X-Guest: 1` when this flag is set, which causes the backend to mark new sessions as `is_guest=1` (subject to 2-hour cleanup).
+
+**Demo session constant**: `DEMO_SESSION_ID = 1` is exported from `components/resume-copilot/api.ts` and consumed by both Hero (CTA destination), Upload (`使用示例简历` button), and the workspace (`<DemoBanner/>` mount + write-disable).
+
+Workspace key file: `components/resume-copilot/public-resume-copilot.tsx` (~1990 lines) — the entire resume copilot UI: upload → parse progress → profile editor → preference picker → recommendation cards + chat rail. It polls the backend at 1.6s intervals while `sessionIsActive(session)` is true.
 
 ### Session state machine (resume copilot)
 
