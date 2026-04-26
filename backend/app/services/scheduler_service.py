@@ -19,6 +19,8 @@ _current_cron = DEFAULT_CRON
 
 JOB_ID = "daily_crawl"
 GUEST_CLEANUP_JOB_ID = "guest_cleanup"
+TIER_CRAWL_JOB_ID = "daily_tier_crawl"
+DEFAULT_TIER_CRON = "0 9 * * *"
 
 
 def _daily_crawl_job():
@@ -35,6 +37,98 @@ def _daily_crawl_job():
         db.close()
     except Exception as e:
         print(f"[SCHEDULER ERROR] {e}")
+
+
+def _daily_tier_crawl_job():
+    """Cron job at 09:00 Asia/Shanghai. Runs all 4 tier orchestrators
+    sequentially with error isolation per tier. Populates company_crawl_logs
+    automatically. Re-scores once at the end if any new jobs were added.
+    """
+    from datetime import datetime
+    from app.models import CrawlLog, Job
+
+    db = SessionLocal()
+    try:
+        # Create a parent CrawlLog so per-company rows can FK link via parent_log_id
+        parent = CrawlLog(
+            source="tier-crawl",
+            started_at=datetime.utcnow(),
+            status="running",
+        )
+        db.add(parent)
+        db.commit()
+        db.refresh(parent)
+        parent_id = parent.id
+
+        total_new = 0
+        errors = []
+
+        # Each tier wrapped so one failure doesn't stop the others.
+        # The orchestrators write per-company rows via company_crawl_log.
+
+        try:
+            from app.services.internet_crawler import (
+                build_internet_targets,
+                crawl_internet_targets,
+                select_primary_targets,
+            )
+            targets = select_primary_targets(build_internet_targets())
+            results = crawl_internet_targets(db, targets, parent_log_id=parent_id)
+            total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
+        except Exception as exc:
+            errors.append(f"internet: {exc}")
+            print(f"[TIER CRAWL ERROR][internet] {exc}")
+
+        try:
+            from app.services.state_owned_crawler import (
+                build_state_owned_targets,
+                crawl_state_owned_targets,
+            )
+            targets = build_state_owned_targets()
+            results = crawl_state_owned_targets(db, targets, parent_log_id=parent_id)
+            total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
+        except Exception as exc:
+            errors.append(f"state_owned: {exc}")
+            print(f"[TIER CRAWL ERROR][state_owned] {exc}")
+
+        try:
+            from app.services.securities_crawler import run_configured_securities_crawl
+            existing = {j.job_id: j for j in db.query(Job).all() if j.job_id}
+            new_count, _total, _per_company = run_configured_securities_crawl(
+                db, existing, parent_log_id=parent_id
+            )
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"securities: {exc}")
+            print(f"[TIER CRAWL ERROR][securities] {exc}")
+
+        try:
+            from app.services.consumer_foreign_crawler import (
+                build_consumer_targets,
+                crawl_consumer_targets,
+                select_primary_targets,
+            )
+            targets = select_primary_targets(build_consumer_targets())
+            results = crawl_consumer_targets(db, targets, parent_log_id=parent_id)
+            total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
+        except Exception as exc:
+            errors.append(f"consumer_foreign: {exc}")
+            print(f"[TIER CRAWL ERROR][consumer_foreign] {exc}")
+
+        # Finalize parent
+        parent.finished_at = datetime.utcnow()
+        parent.status = "failed" if errors else "success"
+        parent.new_count = total_new
+        if errors:
+            parent.error_message = "; ".join(errors)[:500]
+        db.commit()
+
+        if total_new > 0:
+            score_all_jobs(db)
+    except Exception as exc:
+        print(f"[TIER CRAWL ERROR][outer] {exc}")
+    finally:
+        db.close()
 
 
 def _guest_cleanup_job():
@@ -56,6 +150,14 @@ def start_scheduler():
             CronTrigger.from_crontab(DEFAULT_CRON, timezone=SCHEDULER_TZ),
             id=JOB_ID,
             replace_existing=True,
+        )
+        scheduler.add_job(
+            _daily_tier_crawl_job,
+            CronTrigger.from_crontab(DEFAULT_TIER_CRON, timezone=SCHEDULER_TZ),
+            id=TIER_CRAWL_JOB_ID,
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1,
         )
         scheduler.add_job(
             _guest_cleanup_job,

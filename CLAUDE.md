@@ -92,7 +92,9 @@ docker compose up --build
 
 **Sites monitor** (`app/routers/sites.py` + `app/services/{company_crawl_logger,sites_alert,company_crawler_registry}.py`):
 
-> ⚠️ **Trigger model**: the daily APScheduler job at 08:00 calls `run_crawl()` which only handles Tata API + Haitou. The instrumented tier orchestrators (`crawl_internet_targets`, `crawl_state_owned_targets`, `run_configured_securities_crawl`, `crawl_consumer_targets`) are invoked from CLI scripts in `backend/scripts/run_*_tier_crawl.py` — **not** from the daily cron. So `company_crawl_logs` populates when those scripts run (manually or via separate cron) or via `POST /api/sites/{company}/recrawl`. If you want the monitor to populate from the daily 08:00 job, wire the tier orchestrators into `run_crawl()` (separate decision — meaningful scope change because tier crawls add ~30 min of Playwright work to the previously-fast cron).
+> **Cron schedule**: two daily APScheduler jobs.
+> - **08:00 Asia/Shanghai** — `_daily_crawl_job` calls `run_crawl()` (Tata API + Haitou + recrawl-queue). Fast, ~5 min.
+> - **09:00 Asia/Shanghai** — `_daily_tier_crawl_job` runs the 4 tier orchestrators (internet / state_owned / securities / consumer_foreign) sequentially with error isolation per tier. Populates `company_crawl_logs`. Slow, ~30 min, Playwright-heavy. Each tier wrapped so one failure doesn't stop the others; a parent `CrawlLog` row with `source='tier-crawl'` aggregates the run.
 
 - New table `company_crawl_logs` — per-company run record, parent-linked to `crawl_logs.id` for the daily batch.
 - Context manager `company_crawl_log(db, source=, company=, parent_log_id=)` wraps each per-target call inside the orchestrators (`internet_crawler`, `state_owned_crawler`, `securities_crawler`, `consumer_foreign_crawler`). On exception: marks row `failed`, truncates `error_message` to 500 chars, re-raises. Body sets `log.fetched_count` / `log.new_count`.
