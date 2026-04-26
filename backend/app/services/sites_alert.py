@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Literal
 
+from app.config import ALERT_STALE_DAYS
+
 AlertLevel = Literal["green", "yellow", "red", "unknown"]
-ALERT_STALE_DAYS = 3
 
 
 def alert_level(runs: list, now: datetime) -> AlertLevel:

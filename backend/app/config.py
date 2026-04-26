@@ -70,6 +70,7 @@ def _get_int_env(name: str, default: int) -> int:
         return default
 
 HAITOU_MAX_PAGES = _get_int_env("HAITOU_MAX_PAGES", 16)
+ALERT_STALE_DAYS = _get_int_env("ALERT_STALE_DAYS", 3)
 
 RESUME_COPILOT_MAX_UPLOAD_MB = _get_int_env("RESUME_COPILOT_MAX_UPLOAD_MB", 10)
 RESUME_COPILOT_LLM_BASE_URL = os.environ.get(
