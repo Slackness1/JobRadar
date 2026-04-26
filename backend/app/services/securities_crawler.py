@@ -844,7 +844,7 @@ def crawl_configured_securities_targets(target_names: Optional[List[str]] = None
 
 _ATS_FAMILY_TO_SOURCE: Dict[str, str] = {
     "zhiye": "securities_zhiye",
-    "zhiye_legacy": "securities_zhiye",
+    "zhiye_legacy": "securities_zhiye_legacy",
     "hotjob": "securities_hotjob",
     "moka_embedded": "securities_moka_embedded",
 }
