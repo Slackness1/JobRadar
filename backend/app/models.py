@@ -416,3 +416,27 @@ class InterviewReport(Base):
     duration_seconds = Column(Integer, default=0)
     is_guest = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class InterviewIntelKeyword(Base):
+    __tablename__ = "interview_intel_keywords"
+
+    keyword = Column(Text, primary_key=True)
+    summary_md = Column(Text, default="")
+    source_count = Column(Integer, default=0)
+    generated_at = Column(DateTime, nullable=True)
+    last_error = Column(Text, default="")
+
+
+class InterviewIntelPost(Base):
+    __tablename__ = "interview_intel_posts"
+
+    pid = Column(Text, primary_key=True)
+    keyword = Column(Text, primary_key=True, index=True)
+    title = Column(Text, default="")
+    company = Column(Text, default="")
+    interview_date = Column(Text, default="")
+    position = Column(Text, default="")
+    questions_text = Column(Text, default="")
+    fetched_at = Column(DateTime, default=datetime.utcnow)
+    parse_status = Column(Text, default="ok")

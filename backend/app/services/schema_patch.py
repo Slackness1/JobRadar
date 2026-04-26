@@ -247,3 +247,42 @@ def ensure_compatible_schema(engine: Engine) -> None:
             interview_columns = {row[1] for row in interview_rows}
             if "is_guest" not in interview_columns:
                 conn.execute(text("ALTER TABLE interview_reports ADD COLUMN is_guest INTEGER DEFAULT 0"))
+
+        kw_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='interview_intel_keywords'")
+        ).fetchone()
+        if not kw_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE interview_intel_keywords (
+                    keyword TEXT PRIMARY KEY,
+                    summary_md TEXT DEFAULT '',
+                    source_count INTEGER DEFAULT 0,
+                    generated_at DATETIME,
+                    last_error TEXT DEFAULT ''
+                )
+                """
+            ))
+
+        post_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='interview_intel_posts'")
+        ).fetchone()
+        if not post_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE interview_intel_posts (
+                    pid TEXT NOT NULL,
+                    keyword TEXT NOT NULL,
+                    title TEXT DEFAULT '',
+                    company TEXT DEFAULT '',
+                    interview_date TEXT DEFAULT '',
+                    position TEXT DEFAULT '',
+                    questions_text TEXT DEFAULT '',
+                    fetched_at DATETIME,
+                    parse_status TEXT DEFAULT 'ok',
+                    PRIMARY KEY (pid, keyword)
+                )
+                """
+            ))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_iip_keyword ON interview_intel_posts(keyword)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_iip_fetched ON interview_intel_posts(fetched_at)"))
