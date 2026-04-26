@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -54,7 +53,6 @@ def test_running_row_visible_before_block_exits(db):
     """During the with-block, status='running' is committed so external readers can see in-flight runs."""
     with company_crawl_log(db, source="internet_official", company="字节跳动", parent_log_id=None) as log:
         # Use a separate session to query — the row should already be committed
-        from sqlalchemy.orm import sessionmaker
         OtherSession = sessionmaker(bind=db.bind)
         other = OtherSession()
         try:
