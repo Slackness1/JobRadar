@@ -1,7 +1,10 @@
 import json
-from typing import Iterator
+from typing import Iterator, Optional
 from urllib import request as urllib_request
 
+from sqlalchemy.orm import Session
+
+from app.services.interview.nowcoder import intel_provider
 from app.services.resume_copilot.llm import build_resume_llm_client
 
 INTERVIEW_END_MARKER = '[INTERVIEW_END]'
@@ -9,8 +12,8 @@ INTERVIEW_END_MARKER = '[INTERVIEW_END]'
 _TURN_LIMIT = 14
 
 
-def build_interview_system_prompt(target_job: str) -> str:
-    return f"""你是一位专业的校招面试官，正在对一名应届生进行一对一面试。
+def build_interview_system_prompt(target_job: str, db: Optional[Session] = None) -> str:
+    base = f"""你是一位专业的校招面试官，正在对一名应届生进行一对一面试。
 目标岗位：{target_job}
 
 ## 面试规则
@@ -24,15 +27,30 @@ def build_interview_system_prompt(target_job: str) -> str:
 ## 开场
 第一条消息：用一句话介绍自己的面试官身份，然后直接提出第一个行为类问题。"""
 
+    if db is None:
+        return base
 
-def stream_interview_turn(target_job: str, messages: list[dict]) -> Iterator[str]:
-    """Yields raw SSE lines proxied from the LLM streaming response."""
+    intel = intel_provider.get_intel_for_target_job(db, target_job)
+    if intel is None or not intel.summary_md.strip():
+        return base
+
+    return (
+        base
+        + "\n\n## 最近公开面经的高频考察方向\n"
+        + intel.summary_md.strip()
+        + f"\n\n（以上方向参考了 {intel.source_count} 条来自牛客网的公开面经，作为出题灵感，不要直接复述原题。）"
+    )
+
+
+def stream_interview_turn(
+    target_job: str, messages: list[dict], db: Optional[Session] = None
+) -> Iterator[str]:
     client = build_resume_llm_client()
     payload = {
         'model': client.model,
         'stream': True,
         'messages': [
-            {'role': 'system', 'content': build_interview_system_prompt(target_job)},
+            {'role': 'system', 'content': build_interview_system_prompt(target_job, db=db)},
             *messages,
         ],
     }
@@ -45,8 +63,6 @@ def stream_interview_turn(target_job: str, messages: list[dict]) -> Iterator[str
         },
         method='POST',
     )
-    # Streaming LLMs can pause between tokens (especially on reasoning models).
-    # Use a generous per-read timeout so the socket doesn't abort mid-stream.
     stream_timeout = max(client.timeout_seconds, 120)
     with urllib_request.urlopen(req, timeout=stream_timeout) as response:
         for raw_line in response:

@@ -41,12 +41,13 @@ class InterviewReportIn(BaseModel):
 def interview_turn(
     body: InterviewTurnIn,
     x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
 ):
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
 
     def safe_stream():
         try:
-            yield from stream_interview_turn(body.target_job, messages)
+            yield from stream_interview_turn(body.target_job, messages, db=db)
         except Exception as exc:
             logger.exception('interview stream failed: %s', exc)
             error_event = {'error': str(exc), 'type': type(exc).__name__}

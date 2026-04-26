@@ -50,3 +50,28 @@ def test_parse_report_json_handles_missing_fields():
     result = parse_report_json(raw)
     assert "overall_score" in result
     assert "dimensions" in result
+
+
+from unittest.mock import patch
+from app.services.interview.nowcoder.intel_provider import IntelView
+
+
+def test_system_prompt_no_db_uses_base_only():
+    prompt = build_interview_system_prompt("产品经理", db=None)
+    assert "高频考察方向" not in prompt
+    assert "产品经理" in prompt
+
+
+def test_system_prompt_injects_intel_when_present():
+    fake = IntelView(keyword="产品经理", summary_md="## 高频考察方向\n- 用户增长", source_count=8)
+    with patch("app.services.interview.llm.intel_provider.get_intel_for_target_job", return_value=fake):
+        prompt = build_interview_system_prompt("字节产品经理实习", db="dummy")
+    assert "高频考察方向" in prompt
+    assert "用户增长" in prompt
+    assert "8 条" in prompt or "8条" in prompt
+
+
+def test_system_prompt_no_intel_uses_base_only():
+    with patch("app.services.interview.llm.intel_provider.get_intel_for_target_job", return_value=None):
+        prompt = build_interview_system_prompt("宁德时代电芯研发", db="dummy")
+    assert "高频考察方向" not in prompt
