@@ -69,7 +69,7 @@ docker compose up --build
 
 **Entry point:** `main.py` — FastAPI app with a lifespan that: creates all tables, runs `ensure_compatible_schema()` (ad-hoc DDL patcher), seeds from YAML configs, calls `ensure_demo_session(db)` to (re)hydrate the shared demo session, and starts an APScheduler daily crawl at 08:00 Asia/Shanghai + an hourly guest-cleanup interval job.
 
-**Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`. Each router is a file under `app/routers/`.
+**Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`, `sites`. Each router is a file under `app/routers/`.
 
 **Database:** Single SQLite file at `backend/data/jobradar.db`. WAL mode and `busy_timeout=5000` are set via a SQLAlchemy `@event.listens_for(engine, 'connect')` hook. Models are in `app/models.py`; schema evolution is handled by `app/services/schema_patch.py` (not Alembic — see Q10 in the review plan if you want to migrate this).
 
@@ -88,6 +88,17 @@ docker compose up --build
 - `RESUME_COPILOT_*` — LLM base URL, API key, model name, timeouts
 - `TAVILY_API_KEY`, `FIRECRAWL_API_KEY`, `JINA_API_KEY`, `BRAVE_SEARCH_API_KEY` — enrichment search
 - `TATA_USERNAME` / `TATA_PASSWORD` — crawler credentials
+- `ALERT_STALE_DAYS` — sites-monitor staleness threshold (default 3 days)
+
+**Sites monitor** (`app/routers/sites.py` + `app/services/{company_crawl_logger,sites_alert,company_crawler_registry}.py`):
+- New table `company_crawl_logs` — per-company run record, parent-linked to `crawl_logs.id` for the daily batch.
+- Context manager `company_crawl_log(db, source=, company=, parent_log_id=)` wraps each per-target call inside the orchestrators (`internet_crawler`, `state_owned_crawler`, `securities_crawler`, `consumer_foreign_crawler`). On exception: marks row `failed`, truncates `error_message` to 500 chars, re-raises. Body sets `log.fetched_count` / `log.new_count`.
+- For orchestrators whose existing inner except SWALLOWS exceptions (state_owned, consumer_foreign, internet), the wrap uses a `target_exc` sentinel: inner except saves exc + still appends to results / rolls back; after the inner finally an `if target_exc is not None: raise target_exc` propagates so `company_crawl_log` marks row failed; an outer `try/except: pass` swallows for continue-on-error. Securities re-raises naturally — simple wrap.
+- Energy and antgroup are explicitly **out of scope**: `energy_crawler.py` is a CLI-only standalone script not invoked by the daily cron. `crawl_antgroup` flows through `crawl_internet_targets` so it's covered transitively by the internet wrap.
+- 4 endpoints under `/api/sites/*`: `GET /summary`, `GET /?source=`, `GET /{company}/runs?limit=`, `POST /{company}/recrawl`. Recrawl validates against `COMPANY_CRAWLERS` registry (16 internet t1 companies; 网易雷火 deliberately omitted because `build_internet_targets()` doesn't return targets for it), schedules a fresh `SessionLocal` background task, runs scoring on `new_count > 0` (scorer failure non-fatal — doesn't escalate to parent CrawlLog status), returns `{parent_log_id, message}`.
+- Alert level rule (`alert_level(runs, now)`, pure): empty=`unknown`; last failed + prev failed=`red`; last failed alone=`yellow`; last success + no new in `ALERT_STALE_DAYS`=`yellow`; else `green`.
+- `_shanghai_today_start()` returns Asia/Shanghai today 00:00 expressed as naive UTC. Fixed +08:00 offset (Asia/Shanghai never observes DST).
+- `_build_site_rows` is N+1 by design: 2N+1 queries per `/api/sites` call. Acceptable at current scale (~30 companies, SQLite WAL); revisit if registry grows past ~50.
 
 ### Frontend (`frontend/src/`)
 
