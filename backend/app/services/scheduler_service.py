@@ -9,6 +9,10 @@ from apscheduler.triggers.interval import IntervalTrigger
 from app.database import SessionLocal
 from app.services.crawler import get_token, run_crawl
 from app.services.guest_cleanup import cleanup_expired_guest_records
+from app.services.interview.nowcoder.refresh_job import (
+    get_last_refresh_status as get_nowcoder_status,
+    run_refresh as run_nowcoder_refresh,
+)
 from app.services.scorer import score_all_jobs
 
 scheduler = BackgroundScheduler()
@@ -19,6 +23,8 @@ _current_cron = DEFAULT_CRON
 
 JOB_ID = "daily_crawl"
 GUEST_CLEANUP_JOB_ID = "guest_cleanup"
+NOWCODER_INTEL_JOB_ID = "nowcoder_intel_refresh"
+NOWCODER_INTEL_CRON = "0 9 * * *"  # 09:00 Asia/Shanghai
 
 
 def _daily_crawl_job():
@@ -35,6 +41,16 @@ def _daily_crawl_job():
         db.close()
     except Exception as e:
         print(f"[SCHEDULER ERROR] {e}")
+
+
+def _nowcoder_intel_job():
+    db = SessionLocal()
+    try:
+        run_nowcoder_refresh(db)
+    except Exception as e:
+        print(f"[NOWCODER INTEL ERROR] {e}")
+    finally:
+        db.close()
 
 
 def _guest_cleanup_job():
@@ -63,6 +79,12 @@ def start_scheduler():
             id=GUEST_CLEANUP_JOB_ID,
             replace_existing=True,
         )
+        scheduler.add_job(
+            _nowcoder_intel_job,
+            CronTrigger.from_crontab(NOWCODER_INTEL_CRON, timezone=SCHEDULER_TZ),
+            id=NOWCODER_INTEL_JOB_ID,
+            replace_existing=True,
+        )
         scheduler.start()
 
 
@@ -79,8 +101,21 @@ def get_scheduler_info() -> dict:
         next_run_time = getattr(job, "next_run_time", None)
         if next_run_time is not None:
             next_run = next_run_time.isoformat()
+
+    nowcoder_job = scheduler.get_job(NOWCODER_INTEL_JOB_ID)
+    nowcoder_next_run = None
+    if nowcoder_job is not None:
+        nrt = getattr(nowcoder_job, "next_run_time", None)
+        if nrt is not None:
+            nowcoder_next_run = nrt.isoformat()
+
+    nowcoder_status = get_nowcoder_status()
+    nowcoder_status["cron_expression"] = NOWCODER_INTEL_CRON
+    nowcoder_status["next_run"] = nowcoder_next_run
+
     return {
         "cron_expression": _current_cron,
         "next_run": next_run,
         "is_active": scheduler.running,
+        "nowcoder_intel_refresh": nowcoder_status,
     }

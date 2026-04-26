@@ -192,6 +192,7 @@ class SchedulerConfigOut(BaseModel):
     cron_expression: str
     next_run: Optional[str] = None
     is_active: bool
+    nowcoder_intel_refresh: Optional[dict] = None
 
 
 class SchedulerConfigIn(BaseModel):
