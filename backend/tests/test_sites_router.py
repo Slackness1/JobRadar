@@ -55,11 +55,14 @@ def _seed(session, **kw):
 def test_summary_counts_active_and_alerted(client):
     c, Session = client
     db = Session()
-    now = datetime.utcnow()
-    _seed(db, company="腾讯", started_at=now - timedelta(hours=2), status="success", new_count=5)
-    _seed(db, company="阿里巴巴", started_at=now - timedelta(hours=2), status="failed", new_count=0)
-    _seed(db, company="阿里巴巴", started_at=now - timedelta(days=1), status="failed", new_count=0)
-    _seed(db, company="字节跳动", started_at=now - timedelta(hours=2), status="success", new_count=20)
+    from app.routers.sites import _shanghai_today_start
+    today_start = _shanghai_today_start()
+    # Seed all rows safely inside today's Shanghai window (today_start + 1h)
+    in_today = today_start + timedelta(hours=1)
+    _seed(db, company="腾讯", started_at=in_today, status="success", new_count=5)
+    _seed(db, company="阿里巴巴", started_at=in_today, status="failed", new_count=0)
+    _seed(db, company="阿里巴巴", started_at=in_today - timedelta(days=1), status="failed", new_count=0)
+    _seed(db, company="字节跳动", started_at=in_today, status="success", new_count=20)
     db.close()
 
     res = c.get("/api/sites/summary")

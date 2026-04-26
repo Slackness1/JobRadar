@@ -22,22 +22,11 @@ router = APIRouter(prefix="/api/sites", tags=["sites"])
 
 
 def _shanghai_today_start() -> datetime:
-    """Return today 00:00 Asia/Shanghai expressed as naive UTC.
-
-    In the early Shanghai morning (00:00-03:00) the calendar day just
-    started, so runs from 2+ hours ago fall on "yesterday" by the strict
-    definition.  To keep the monitoring dashboard useful (and tests
-    deterministic), the cutoff is the earlier of calendar midnight and
-    ``now - 3h``, so any run from the past couple of hours is always
-    counted as "today new".
-    """
+    """Return today 00:00 Asia/Shanghai expressed as naive UTC."""
     sh = timezone(timedelta(hours=8))
-    now_utc = datetime.utcnow()
     now_sh = datetime.now(sh)
     today_sh = now_sh.replace(hour=0, minute=0, second=0, microsecond=0)
-    midnight_as_utc = today_sh.astimezone(timezone.utc).replace(tzinfo=None)
-    three_hours_ago = now_utc - timedelta(hours=3)
-    return min(midnight_as_utc, three_hours_ago)
+    return today_sh.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 def _build_site_rows(db: Session, source_filter: Optional[str]) -> list[SiteRowOut]:
