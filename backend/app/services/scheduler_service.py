@@ -249,9 +249,21 @@ def get_scheduler_info() -> dict:
     nowcoder_status["cron_expression"] = NOWCODER_INTEL_CRON
     nowcoder_status["next_run"] = nowcoder_next_run
 
+    jobs_out: list[dict] = []
+    for j in scheduler.get_jobs():
+        nrt = getattr(j, "next_run_time", None)
+        jobs_out.append(
+            {
+                "id": j.id,
+                "cron_expression": str(j.trigger),
+                "next_run": nrt.isoformat() if nrt is not None else None,
+            }
+        )
+
     return {
         "cron_expression": _current_cron,
         "next_run": next_run,
         "is_active": scheduler.running,
         "nowcoder_intel_refresh": nowcoder_status,
+        "jobs": jobs_out,
     }

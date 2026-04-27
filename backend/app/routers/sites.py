@@ -6,7 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, get_db
-from app.models import CompanyCrawlLog, CrawlLog
+from app.models import CompanyCrawlLog, CrawlLog, Job
 from app.schemas_sites import (
     SiteRecrawlOut,
     SiteRowOut,
@@ -85,6 +85,21 @@ def get_summary(db: Session = Depends(get_db)) -> SitesSummaryOut:
         .order_by(CrawlLog.id.desc())
         .first()
     )
+
+    today_start = _shanghai_today_start()
+    today_jobs_total = (
+        db.query(func.count(Job.id))
+        .filter(Job.created_at >= today_start)
+        .scalar()
+        or 0
+    )
+    today_enriched_count = (
+        db.query(func.count(Job.id))
+        .filter(Job.created_at >= today_start, Job.track_predicted != "")
+        .scalar()
+        or 0
+    )
+
     return SitesSummaryOut(
         active=active,
         alerted=alerted,
@@ -92,6 +107,8 @@ def get_summary(db: Session = Depends(get_db)) -> SitesSummaryOut:
         total_today_new=total_today_new,
         last_batch_at=last_batch.started_at if last_batch else None,
         last_batch_status=last_batch.status if last_batch else None,
+        today_jobs_total=int(today_jobs_total),
+        today_enriched_count=int(today_enriched_count),
     )
 
 

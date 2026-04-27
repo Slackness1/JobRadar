@@ -49,8 +49,14 @@ export default function SitesSummaryBar({ summary, rows, digest, onJumpToCompany
   const totalRows = rows.length;
   const failedToday = rows.filter((r) => r.last_status === 'failed').length;
 
+  const enriched = summary.today_enriched_count ?? 0;
+  const totalJobsToday = summary.today_jobs_total ?? 0;
+  const enrichSegment = totalJobsToday > 0
+    ? ` · LLM enriched ${enriched}/${totalJobsToday}`
+    : '';
+
   const subLine = summary.last_batch_at
-    ? `上次跑批 ${formatRunTime(summary.last_batch_at)} · ${statusLabel(summary.last_batch_status)} · ${totalRows} 家公司 · ${failedToday} 失败`
+    ? `上次跑批 ${formatRunTime(summary.last_batch_at)} · ${statusLabel(summary.last_batch_status)} · ${totalRows} 家公司 · ${failedToday} 失败${enrichSegment}`
     : '上次跑批 — 暂无运行';
 
   return (

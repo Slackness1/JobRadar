@@ -193,6 +193,7 @@ class SchedulerConfigOut(BaseModel):
     next_run: Optional[str] = None
     is_active: bool
     nowcoder_intel_refresh: Optional[dict] = None
+    jobs: list[dict] = []
 
 
 class SchedulerConfigIn(BaseModel):

@@ -14,6 +14,8 @@ class SitesSummaryOut(BaseModel):
     total_today_new: int
     last_batch_at: Optional[datetime]
     last_batch_status: Optional[str]
+    today_enriched_count: int = 0
+    today_jobs_total: int = 0
 
 
 class SiteRowOut(BaseModel):

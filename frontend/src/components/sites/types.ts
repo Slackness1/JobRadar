@@ -7,6 +7,8 @@ export interface SitesSummary {
   total_today_new: number;
   last_batch_at: string | null;
   last_batch_status: string | null;
+  today_enriched_count?: number;
+  today_jobs_total?: number;
 }
 
 export interface SiteRow {
