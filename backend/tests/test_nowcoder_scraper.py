@@ -62,6 +62,41 @@ def test_fetch_post_returns_failed_on_no_meta():
     assert detail.questions_text == ""
 
 
+def test_fetch_post_falls_back_to_full_meta_when_no_template():
+    free_form_meta = (
+        "1.分享一段做的比较成功但是又比较有挑战的事情 2.如果这个项目重做一次，"
+        "哪里可以做得更好 3.分享一件比较难忘但最终结果可能是失败的事情"
+    )
+    html_free = f'<html><head><meta name="description" content="{free_form_meta}"/></head></html>'
+    with patch.object(scraper, "_fetch", return_value=html_free):
+        detail = scraper.fetch_post("999", title="携程产品经理秋招面经（二）")
+    assert detail.parse_status == "ok"
+    assert "1.分享一段" in detail.questions_text
+    assert detail.company == "携程"
+
+
+def test_fetch_post_short_meta_still_fails():
+    html_short = '<html><head><meta name="description" content="太短了"/></head></html>'
+    with patch.object(scraper, "_fetch", return_value=html_short):
+        detail = scraper.fetch_post("888", title="某公司面经")
+    # Short noise meta + no template fields → still failed (not ok),
+    # but company may have been extracted from title.
+    assert detail.parse_status in ("failed", "partial")
+    assert detail.questions_text == ""
+
+
+def test_parse_company_from_title():
+    cases = [
+        ("携程产品经理秋招面经（二）", "携程"),
+        ("腾讯-微信支付 C++ 二面 面经 分析", "腾讯"),
+        ("中金投行部分析师校招面经", "中金投行部"),
+        ("上海玄信 量化研究员实习面经", "上海玄信"),
+        ("", ""),
+    ]
+    for title, expected in cases:
+        assert scraper.parse_company_from_title(title) == expected, f"failed on {title!r}"
+
+
 @pytest.mark.integration
 def test_search_real_nowcoder_smoke():
     """Hits real Nowcoder. Run manually: pytest -m integration."""

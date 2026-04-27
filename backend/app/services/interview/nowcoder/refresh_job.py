@@ -110,7 +110,7 @@ def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) ->
         existing = db.query(InterviewIntelPost).filter_by(pid=meta.pid, keyword=chip).one_or_none()
         if _is_fresh(existing):
             continue
-        detail = scraper.fetch_post(meta.pid)
+        detail = scraper.fetch_post(meta.pid, title=meta.title)
         _upsert_post(db, chip, detail, meta.title)
         stats.posts_fetched += 1
         time.sleep(random.uniform(0.4, 1.0))
