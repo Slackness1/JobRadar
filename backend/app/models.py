@@ -440,3 +440,4 @@ class InterviewIntelPost(Base):
     questions_text = Column(Text, default="")
     fetched_at = Column(DateTime, default=datetime.utcnow)
     parse_status = Column(Text, default="ok")
+    quality_score = Column(Integer, default=2)

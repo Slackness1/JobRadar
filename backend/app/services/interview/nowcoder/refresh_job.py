@@ -10,7 +10,7 @@ import yaml
 from sqlalchemy.orm import Session
 
 from app.models import InterviewIntelKeyword, InterviewIntelPost
-from app.services.interview.nowcoder import scraper, summarizer
+from app.services.interview.nowcoder import scraper, summarizer, title_filter, quality_scorer
 
 _KEYWORDS_PATH = pathlib.Path(__file__).parent / "keywords.yaml"
 _DEFAULT_LIMIT = 10
@@ -44,7 +44,9 @@ def _is_fresh(post: Optional[InterviewIntelPost]) -> bool:
     return datetime.utcnow() - post.fetched_at < timedelta(hours=_FETCH_FRESH_HOURS)
 
 
-def _upsert_post(db: Session, keyword: str, detail: scraper.PostDetail, title: str) -> None:
+def _upsert_post(
+    db: Session, keyword: str, detail: scraper.PostDetail, title: str, quality_score: int
+) -> None:
     row = db.query(InterviewIntelPost).filter_by(pid=detail.pid, keyword=keyword).one_or_none()
     if row is None:
         row = InterviewIntelPost(pid=detail.pid, keyword=keyword)
@@ -55,6 +57,7 @@ def _upsert_post(db: Session, keyword: str, detail: scraper.PostDetail, title: s
     row.position = detail.position
     row.questions_text = detail.questions_text
     row.parse_status = detail.parse_status
+    row.quality_score = quality_score
     row.fetched_at = datetime.utcnow()
 
 
@@ -82,10 +85,11 @@ def get_last_refresh_status() -> dict:
 
 _SUMMARY_POST_AGE_DAYS = 60
 _MAX_SUMMARY_POSTS = 20
+_MIN_QUALITY_FOR_SUMMARY = 2
 
 
 def _collect_ok_posts_for_summary(db: Session, chip: str) -> list[scraper.PostDetail]:
-    """Pull all parse_status='ok' posts for this chip from DB (not just this run's),
+    """Pull parse_status='ok' AND quality_score >= 2 posts for this chip from DB,
     capped to the most recent _MAX_SUMMARY_POSTS within _SUMMARY_POST_AGE_DAYS."""
     cutoff = datetime.utcnow() - timedelta(days=_SUMMARY_POST_AGE_DAYS)
     rows = (
@@ -93,6 +97,7 @@ def _collect_ok_posts_for_summary(db: Session, chip: str) -> list[scraper.PostDe
         .filter(
             InterviewIntelPost.keyword == chip,
             InterviewIntelPost.parse_status == "ok",
+            InterviewIntelPost.quality_score >= _MIN_QUALITY_FOR_SUMMARY,
             InterviewIntelPost.fetched_at >= cutoff,
         )
         .order_by(InterviewIntelPost.fetched_at.desc())
@@ -110,12 +115,20 @@ def _collect_ok_posts_for_summary(db: Session, chip: str) -> list[scraper.PostDe
 
 def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) -> None:
     metas = scraper.search(query, limit=_DEFAULT_LIMIT)
-    for meta in metas:
+    if not metas:
+        return
+
+    # LLM gate: drop titles that are off-topic / cache-bled / "求面经" survivors.
+    keep_idx = title_filter.filter_relevant_titles(chip, [m.title for m in metas])
+    relevant = [metas[i] for i in keep_idx if 0 <= i < len(metas)]
+
+    for meta in relevant:
         existing = db.query(InterviewIntelPost).filter_by(pid=meta.pid, keyword=chip).one_or_none()
         if _is_fresh(existing):
             continue
         detail = scraper.fetch_post(meta.pid, title=meta.title)
-        _upsert_post(db, chip, detail, meta.title)
+        score = quality_scorer.score_post_quality(detail) if detail.parse_status == "ok" else 0
+        _upsert_post(db, chip, detail, meta.title, quality_score=score)
         stats.posts_fetched += 1
         time.sleep(random.uniform(0.4, 1.0))
     db.commit()

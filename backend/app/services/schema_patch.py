@@ -280,9 +280,15 @@ def ensure_compatible_schema(engine: Engine) -> None:
                     questions_text TEXT DEFAULT '',
                     fetched_at DATETIME,
                     parse_status TEXT DEFAULT 'ok',
+                    quality_score INTEGER DEFAULT 2,
                     PRIMARY KEY (pid, keyword)
                 )
                 """
             ))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_iip_keyword ON interview_intel_posts(keyword)"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS idx_iip_fetched ON interview_intel_posts(fetched_at)"))
+        else:
+            post_rows = conn.execute(text("PRAGMA table_info(interview_intel_posts)")).fetchall()
+            post_columns = {row[1] for row in post_rows}
+            if "quality_score" not in post_columns:
+                conn.execute(text("ALTER TABLE interview_intel_posts ADD COLUMN quality_score INTEGER DEFAULT 2"))

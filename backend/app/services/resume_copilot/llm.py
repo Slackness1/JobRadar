@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from app import config
 
@@ -18,10 +19,10 @@ class OpenAICompatibleLLMClient:
         return f"{self.base_url}/chat/completions"
 
 
-def build_resume_llm_client() -> OpenAICompatibleLLMClient:
+def build_resume_llm_client(*, model: Optional[str] = None) -> OpenAICompatibleLLMClient:
     return OpenAICompatibleLLMClient(
         base_url=config.RESUME_COPILOT_LLM_BASE_URL,
         api_key=config.RESUME_COPILOT_LLM_API_KEY,
-        model=config.RESUME_COPILOT_LLM_MODEL,
+        model=model or config.RESUME_COPILOT_LLM_MODEL,
         timeout_seconds=config.RESUME_COPILOT_LLM_TIMEOUT_SECONDS,
     )
