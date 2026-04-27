@@ -10,6 +10,7 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
+from app.services.resume_copilot.redact import redact_profile_for_llm
 
 
 class ResumeFeedbackProvider(Protocol):
@@ -47,7 +48,7 @@ class OpenAICompatibleResumeFeedbackProvider:
                     'role': 'user',
                     'content': json.dumps(
                         {
-                            'profile': profile.model_dump(),
+                            'profile': redact_profile_for_llm(profile).model_dump(),
                             'preferences': preferences.model_dump() if preferences else None,
                             'recommendations': [item.model_dump() for item in recommendations],
                         },

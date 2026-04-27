@@ -53,6 +53,24 @@ def _assert_not_demo(session: ResumeCopilotSession) -> None:
         )
 
 
+def _assert_session_owner(session: ResumeCopilotSession, user_key: str) -> None:
+    """Reject access unless caller's X-Resume-User-Key matches the session.
+
+    Demo session (`user_key == '__demo__'`) is publicly readable; writes are
+    blocked separately by `_assert_not_demo`. Sessions with empty `user_key`
+    are legacy/orphan rows from before auth was enforced — they become
+    inaccessible, which is the intended outcome.
+    """
+    session_key = str(getattr(session, 'user_key', '') or '')
+    if session_key == '__demo__':
+        return
+    if not user_key or user_key != session_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='SESSION_FORBIDDEN',
+        )
+
+
 def _get_session_or_404(db: Session, session_id: int) -> ResumeCopilotSession:
     session = db.query(ResumeCopilotSession).filter(ResumeCopilotSession.id == session_id).first()
     if not session:
@@ -161,10 +179,15 @@ async def create_resume_copilot_session(
 
 
 @router.get('/sessions/{session_id}', response_model=ResumeCopilotSessionOut)
-def get_resume_copilot_session(session_id: int, db: Session = Depends(get_db)):
+def get_resume_copilot_session(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
     session = _get_session_eager(db, session_id)
     if not session:
         raise HTTPException(status_code=404, detail=f'Resume copilot session {session_id} not found')
+    _assert_session_owner(session, x_resume_user_key)
     return _build_session_out(session)
 
 
@@ -172,9 +195,11 @@ def get_resume_copilot_session(session_id: int, db: Session = Depends(get_db)):
 def rename_resume_copilot_session(
     session_id: int,
     payload: ResumeCopilotRenameIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)
     session.name = payload.name.strip()[:120]
     session.updated_at = datetime.utcnow()
@@ -187,16 +212,26 @@ def rename_resume_copilot_session(
 
 
 @router.delete('/sessions/{session_id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_resume_copilot_session(session_id: int, db: Session = Depends(get_db)):
+def delete_resume_copilot_session(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)
     db.delete(session)
     db.commit()
 
 
 @router.get('/sessions/{session_id}/parsed-profile', response_model=ResumeParsedProfileOut)
-def get_resume_copilot_parsed_profile(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_resume_copilot_parsed_profile(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     profile = db.query(ResumeParsedProfile).filter(ResumeParsedProfile.session_id == session_id).first()
     if not profile:
         raise HTTPException(status_code=404, detail=f'Parsed profile for session {session_id} not found')
@@ -208,8 +243,13 @@ def get_resume_copilot_parsed_profile(session_id: int, db: Session = Depends(get
 
 
 @router.get('/sessions/{session_id}/confirmed-profile', response_model=ResumeConfirmedProfileOut)
-def get_resume_copilot_confirmed_profile(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_resume_copilot_confirmed_profile(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not profile:
         raise HTTPException(status_code=404, detail=f'Confirmed profile for session {session_id} not found')
@@ -224,9 +264,11 @@ def get_resume_copilot_confirmed_profile(session_id: int, db: Session = Depends(
 def put_resume_copilot_confirmed_profile(
     session_id: int,
     payload: ResumeConfirmedProfileIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not profile:
@@ -240,8 +282,13 @@ def put_resume_copilot_confirmed_profile(
 
 
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)
-def get_resume_copilot_preferences(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_resume_copilot_preferences(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     preference_profile = db.query(ResumePreferenceProfile).filter(ResumePreferenceProfile.session_id == session_id).first()
     if not preference_profile:
         raise HTTPException(status_code=404, detail=f'Preferences for session {session_id} not found')
@@ -255,9 +302,11 @@ def get_resume_copilot_preferences(session_id: int, db: Session = Depends(get_db
 def put_resume_copilot_preferences(
     session_id: int,
     payload: ResumePreferenceIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
     preference_profile = db.query(ResumePreferenceProfile).filter(ResumePreferenceProfile.session_id == session_id).first()
     if not preference_profile:
@@ -279,9 +328,11 @@ def put_resume_copilot_preferences(
 def generate_resume_recommendations(
     session_id: int,
     background_tasks: BackgroundTasks,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)
     confirmed_profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not confirmed_profile:
@@ -318,8 +369,13 @@ def generate_resume_recommendations(
 
 
 @router.get('/sessions/{session_id}/recommendations', response_model=ResumeRecommendationResultOut)
-def get_resume_copilot_recommendations(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_resume_copilot_recommendations(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     recommendation_run = db.query(ResumeRecommendationRun).filter(ResumeRecommendationRun.session_id == session_id).first()
     if not recommendation_run:
         raise HTTPException(status_code=404, detail=f'Recommendations for session {session_id} not found')
@@ -336,8 +392,13 @@ def get_resume_copilot_recommendations(session_id: int, db: Session = Depends(ge
 
 
 @router.get('/sessions/{session_id}/direction-analysis', response_model=list[DirectionTierResult])
-def get_direction_analysis(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_direction_analysis(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
     ).first()
@@ -351,8 +412,13 @@ def get_direction_analysis(session_id: int, db: Session = Depends(get_db)):
 
 
 @router.get('/sessions/{session_id}/chat', response_model=list[ResumeCopilotMessageOut])
-def get_chat_messages(session_id: int, db: Session = Depends(get_db)):
-    _get_session_or_404(db, session_id)
+def get_chat_messages(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     msgs = (
         db.query(ResumeCopilotMessage)
         .filter(ResumeCopilotMessage.session_id == session_id)
@@ -380,11 +446,13 @@ def get_chat_messages(session_id: int, db: Session = Depends(get_db)):
 def post_chat_message(
     session_id: int,
     payload: ChatMessageIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     from app.services.resume_copilot.chat import generate_chat_turn
 
     session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
@@ -402,11 +470,13 @@ def post_chat_message(
 def post_apply_rewrite(
     session_id: int,
     payload: ApplyRewriteIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     from app.services.resume_copilot.chat import apply_rewrite
 
     session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
     try:
         updated_profile = apply_rewrite(

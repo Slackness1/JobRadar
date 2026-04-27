@@ -7,9 +7,11 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
 )
 from app.services.resume_copilot.agent.budget import AgentBudget
+from app.services.resume_copilot.redact import redact_profile_for_llm
 
 
 def _summarize_profile(profile: ResumeProfilePayload) -> str:
+    profile = redact_profile_for_llm(profile)
     parts: list[str] = []
     if profile.basic_info:
         parts.append(f"基本信息：{json.dumps(profile.basic_info, ensure_ascii=False)}")

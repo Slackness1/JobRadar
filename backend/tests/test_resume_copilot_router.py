@@ -46,12 +46,15 @@ def _build_test_client():
             db.close()
 
     test_app.dependency_overrides[get_db] = override_get_db
-    return TestClient(test_app), testing_session_local
+    client = TestClient(test_app)
+    client.headers.update({'X-Resume-User-Key': 'test-user-key'})
+    return client, testing_session_local
 
 
 def _seed_session(db: Session, **overrides) -> ResumeCopilotSession:
     session = ResumeCopilotSession(
         file_name=overrides.get('file_name', 'resume.pdf'),
+        user_key=overrides.get('user_key', 'test-user-key'),
         status=overrides.get('status', 'uploaded'),
         extracted_text=overrides.get('extracted_text', ''),
         error_message=overrides.get('error_message', ''),
@@ -949,3 +952,201 @@ def test_get_chat_messages_returns_persisted_messages():
     assert result[0]['content'] == 'Welcome to the chat!'
     assert result[0]['rewrite_options'] is None
     assert result[0]['applied_option_id'] is None
+
+
+# ─── C1: session ownership / auth ────────────────────────────────────────────
+
+
+def test_get_session_rejects_mismatched_user_key():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='owner-A')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    # Default test header is 'test-user-key', not 'owner-A' → should 403
+    response = client.get(f'/api/resume-copilot/sessions/{seeded_id}')
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'SESSION_FORBIDDEN'}
+
+
+def test_get_session_rejects_empty_user_key_header():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='owner-A')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    response = client.get(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        headers={'X-Resume-User-Key': ''},
+    )
+    assert response.status_code == 403
+
+
+def test_owner_can_access_their_own_session():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='owner-A')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    response = client.get(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        headers={'X-Resume-User-Key': 'owner-A'},
+    )
+    assert response.status_code == 200
+    assert response.json()['id'] == seeded_id
+
+
+def test_demo_session_is_publicly_readable():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='__demo__')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    # Strangers can read demo session — no key, mismatched key, etc.
+    no_key = client.get(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        headers={'X-Resume-User-Key': ''},
+    )
+    stranger = client.get(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        headers={'X-Resume-User-Key': 'stranger-Z'},
+    )
+    assert no_key.status_code == 200
+    assert stranger.status_code == 200
+
+
+def test_demo_session_blocks_writes_even_for_strangers():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='__demo__')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    response = client.patch(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        json={'name': 'attempted rename'},
+        headers={'X-Resume-User-Key': 'anybody'},
+    )
+    assert response.status_code == 403
+    assert response.json() == {'detail': 'Demo session is read-only'}
+
+
+def test_cross_user_cannot_read_parsed_profile():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='owner-A')
+        db.add(ResumeParsedProfile(
+            session_id=seeded.id,
+            profile_json='{"basic_info":{"name":"Owner A","email":"a@a.com"}}',
+        ))
+        db.commit()
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    response = client.get(
+        f'/api/resume-copilot/sessions/{seeded_id}/parsed-profile',
+        headers={'X-Resume-User-Key': 'owner-B'},
+    )
+    assert response.status_code == 403
+
+
+def test_cross_user_cannot_delete_session():
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='owner-A')
+        seeded_id = seeded.id
+    finally:
+        db.close()
+
+    response = client.delete(
+        f'/api/resume-copilot/sessions/{seeded_id}',
+        headers={'X-Resume-User-Key': 'attacker'},
+    )
+    assert response.status_code == 403
+
+    db = testing_session_local()
+    try:
+        still_there = db.query(ResumeCopilotSession).filter(
+            ResumeCopilotSession.id == seeded_id
+        ).first()
+        assert still_there is not None
+    finally:
+        db.close()
+
+
+# ─── C2: PII redaction ───────────────────────────────────────────────────────
+
+
+def test_redact_profile_for_llm_strips_contact_fields():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.redact import redact_profile_for_llm
+
+    profile = ResumeProfilePayload(
+        basic_info={
+            'name': '张三',
+            'email': 'a@b.com',
+            'phone': '13800138000',
+            'github': 'gh.com/zs',
+            'wechat': 'zs_wx',
+            'qq': '12345',
+            'address': '北京市',
+            'school': '清华大学',  # not PII — should survive
+        },
+        candidate_summary='Backend candidate',
+    )
+
+    redacted = redact_profile_for_llm(profile)
+    assert redacted.basic_info == {'school': '清华大学'}
+    # Original is untouched (model_copy semantics)
+    assert profile.basic_info['email'] == 'a@b.com'
+    # Other fields preserved
+    assert redacted.candidate_summary == 'Backend candidate'
+
+
+def test_redact_profile_for_llm_handles_empty_basic_info():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.redact import redact_profile_for_llm
+
+    profile = ResumeProfilePayload(basic_info={})
+    assert redact_profile_for_llm(profile).basic_info == {}
+
+
+def test_redact_profile_for_llm_is_case_insensitive():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.redact import redact_profile_for_llm
+
+    profile = ResumeProfilePayload(basic_info={
+        'Email': 'a@b.com',
+        'PHONE': '13800',
+        ' Mobile ': '139',
+        'Major': 'CS',  # keep
+    })
+    out = redact_profile_for_llm(profile)
+    assert 'Email' not in out.basic_info
+    assert 'PHONE' not in out.basic_info
+    assert ' Mobile ' not in out.basic_info
+    assert out.basic_info == {'Major': 'CS'}

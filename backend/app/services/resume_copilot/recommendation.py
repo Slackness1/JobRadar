@@ -18,6 +18,7 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
+from app.services.resume_copilot.redact import redact_profile_for_llm
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 PRIORITY_CONFIG_PATH = PROJECT_ROOT / 'backend' / 'config' / 'resume_copilot_priority.yaml'
@@ -87,7 +88,7 @@ class OpenAICompatibleResumeRecommendationProvider:
                     'role': 'user',
                     'content': json.dumps(
                         {
-                            'profile': profile.model_dump(),
+                            'profile': redact_profile_for_llm(profile).model_dump(),
                             'preferences': preferences.model_dump() if preferences else None,
                             'items': [item.model_dump() for item in items],
                         },
