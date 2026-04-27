@@ -135,7 +135,7 @@ def enrich_jobs_parallel(
     # Submit all, then wait
     with ThreadPoolExecutor(max_workers=_MAX_PARALLEL) as pool:
         future_to_job = {
-            pool.submit(extract_and_classify, raw_text=raw, title=getattr(j, "title", "") or ""): j
+            pool.submit(extract_and_classify, raw_text=raw, title=getattr(j, "job_title", "") or ""): j
             for j, raw in jobs_with_raw
         }
         for fut in as_completed(future_to_job):
