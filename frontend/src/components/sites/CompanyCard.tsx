@@ -6,18 +6,19 @@ interface CompanyCardProps {
   onClick: (company: string) => void;
 }
 
-function relativeTime(iso: string | null): string {
+function formatRunTime(iso: string | null): string {
   if (!iso) return '从未运行';
-  const t = new Date(iso).getTime();
-  const now = Date.now();
-  const diffMs = Math.max(0, now - t);
-  const min = Math.floor(diffMs / 60000);
-  if (min < 1) return '刚刚';
-  if (min < 60) return `${min}m 前`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h 前`;
-  const day = Math.floor(hr / 24);
-  return `${day}d 前`;
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay =
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  if (sameDay) return `${hh}:${mm}`;
+  const md = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `${md} ${hh}:${mm}`;
 }
 
 export default function CompanyCard({ row, selected, onClick }: CompanyCardProps) {
@@ -31,7 +32,10 @@ export default function CompanyCard({ row, selected, onClick }: CompanyCardProps
       </div>
       <div className="sites-company-card__meta">
         <span className={deltaCls}>{row.today_new === 0 ? '·' : `+${row.today_new}`}</span>
-        {relativeTime(row.last_run_at)}
+        {row.last_status === 'failed' && (
+          <span style={{ color: 'var(--crimson)', marginRight: 4 }}>⚠</span>
+        )}
+        {formatRunTime(row.last_run_at)}
       </div>
     </div>
   );

@@ -46,4 +46,29 @@ describe('CompanyCard', () => {
     fireEvent.click(screen.getByText('阿里巴巴'));
     expect(onClick).toHaveBeenCalledWith('阿里巴巴');
   });
+
+  it('renders absolute HH:MM timestamp instead of relative time', () => {
+    render(<CompanyCard row={mkRow({})} selected={false} onClick={() => {}} />);
+    // Should render an absolute time (HH:MM or MM-DD HH:MM), not relative strings like '5h 前'
+    expect(screen.queryByText(/前/)).toBeNull();
+    expect(screen.queryByText(/刚刚/)).toBeNull();
+    // There should be a time-like pattern in the rendered text
+    const metaEl = document.querySelector('.sites-company-card__meta');
+    expect(metaEl?.textContent).toMatch(/\d{2}:\d{2}/);
+  });
+
+  it('shows 从未运行 when last_run_at is null', () => {
+    render(<CompanyCard row={mkRow({ last_run_at: null })} selected={false} onClick={() => {}} />);
+    expect(screen.getByText(/从未运行/)).toBeInTheDocument();
+  });
+
+  it('shows warning icon when last_status is failed', () => {
+    render(<CompanyCard row={mkRow({ last_status: 'failed' })} selected={false} onClick={() => {}} />);
+    expect(screen.getByText('⚠')).toBeInTheDocument();
+  });
+
+  it('does not show warning icon when last_status is success', () => {
+    render(<CompanyCard row={mkRow({ last_status: 'success' })} selected={false} onClick={() => {}} />);
+    expect(screen.queryByText('⚠')).toBeNull();
+  });
 });

@@ -74,4 +74,30 @@ describe('SitesSummaryBar', () => {
     fireEvent.click(banner);
     expect(onJump).toHaveBeenCalledWith('腾讯');
   });
+
+  it('renders second-line batch info with total rows and failed count', () => {
+    const rows: SiteRow[] = [
+      { ...baseRow, company: 'a', last_status: 'success' },
+      { ...baseRow, company: 'b', last_status: 'failed' },
+      { ...baseRow, company: 'c', last_status: 'success' },
+    ];
+    render(<SitesSummaryBar summary={baseSummary} rows={rows} onJumpToCompany={() => {}} />);
+    const sub = document.querySelector('.sites-summary-bar__sub');
+    expect(sub).toBeTruthy();
+    // Should contain "上次跑批" prefix
+    expect(sub!.textContent).toMatch(/上次跑批/);
+    // Should contain "3 家公司"
+    expect(sub!.textContent).toMatch(/3 家公司/);
+    // Should contain "1 失败"
+    expect(sub!.textContent).toMatch(/1 失败/);
+    // Should contain "成功" status
+    expect(sub!.textContent).toMatch(/成功/);
+  });
+
+  it('shows 暂无运行 when last_batch_at is null', () => {
+    const summary = { ...baseSummary, last_batch_at: null, last_batch_status: null };
+    render(<SitesSummaryBar summary={summary} rows={[]} onJumpToCompany={() => {}} />);
+    const sub = document.querySelector('.sites-summary-bar__sub');
+    expect(sub!.textContent).toMatch(/暂无运行/);
+  });
 });

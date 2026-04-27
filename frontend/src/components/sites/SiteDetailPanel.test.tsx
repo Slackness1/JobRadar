@@ -64,4 +64,76 @@ describe('SiteDetailPanel', () => {
     render(<SiteDetailPanel row={baseRow} runs={[]} inFlight={false} onRecrawlSubmit={() => {}} />);
     expect(screen.getByRole('button', { name: /立即重跑这个节点/ })).toBeInTheDocument();
   });
+
+  it('renders 4-cell stat strip with today_new, fetched, avg duration, success rate', () => {
+    const { container } = render(
+      <SiteDetailPanel row={baseRow} runs={[baseRun]} inFlight={false} onRecrawlSubmit={() => {}} />,
+    );
+    const strip = container.querySelector('.sites-stat-strip');
+    expect(strip).toBeTruthy();
+    const cells = container.querySelectorAll('.sites-stat-strip__cell');
+    expect(cells.length).toBe(4);
+
+    // Read nums directly from stat strip cells to avoid ambiguity with runs table
+    const nums = Array.from(container.querySelectorAll('.sites-stat-strip__num')).map((n) => n.textContent);
+    // today_new = 12
+    expect(nums).toContain('12');
+    // 24h fetched = 38 (sum of fetched_count)
+    expect(nums).toContain('38');
+    // avg duration = 1m 0s (60000ms)
+    expect(nums).toContain('1m 0s');
+    // success rate = 100%
+    expect(nums).toContain('100%');
+
+    // Labels
+    const labels = Array.from(container.querySelectorAll('.sites-stat-strip__label')).map((n) => n.textContent);
+    expect(labels).toContain('今日新增');
+    expect(labels).toContain('24h 抓取');
+    expect(labels).toContain('平均耗时');
+    expect(labels).toContain('成功率');
+  });
+
+  it('stat strip shows — for duration and success rate when no runs', () => {
+    render(<SiteDetailPanel row={baseRow} runs={[]} inFlight={false} onRecrawlSubmit={() => {}} />);
+    const nums = document.querySelectorAll('.sites-stat-strip__num');
+    // today_new = 12, fetched = 0, duration = —, success rate = —
+    const texts = Array.from(nums).map((n) => n.textContent);
+    expect(texts).toContain('—');
+  });
+
+  it('renders compact recent-runs table with up to 5 rows', () => {
+    const runs: SiteRun[] = Array.from({ length: 7 }, (_, i) => ({
+      ...baseRun,
+      id: i + 1,
+      started_at: `2026-04-27T0${i}:00:00`,
+      fetched_count: 10 + i,
+      new_count: i,
+      duration_ms: 5000 + i * 1000,
+    }));
+    const { container } = render(
+      <SiteDetailPanel row={baseRow} runs={runs} inFlight={false} onRecrawlSubmit={() => {}} />,
+    );
+    const table = container.querySelector('.sites-recent-runs');
+    expect(table).toBeTruthy();
+    // Only first 5 rows rendered
+    const bodyRows = table!.querySelectorAll('tbody tr');
+    expect(bodyRows.length).toBe(5);
+  });
+
+  it('does not render recent-runs table when runs is empty', () => {
+    const { container } = render(
+      <SiteDetailPanel row={baseRow} runs={[]} inFlight={false} onRecrawlSubmit={() => {}} />,
+    );
+    expect(container.querySelector('.sites-recent-runs')).toBeNull();
+  });
+
+  it('recent-runs table shows 成功/失败 status labels', () => {
+    const runs: SiteRun[] = [
+      { ...baseRun, id: 1, status: 'success' },
+      { ...baseRun, id: 2, status: 'failed' },
+    ];
+    render(<SiteDetailPanel row={baseRow} runs={runs} inFlight={false} onRecrawlSubmit={() => {}} />);
+    expect(screen.getByText('成功')).toBeInTheDocument();
+    expect(screen.getByText('失败')).toBeInTheDocument();
+  });
 });
