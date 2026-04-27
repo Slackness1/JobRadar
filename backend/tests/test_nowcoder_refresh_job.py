@@ -46,7 +46,7 @@ def test_run_refresh_writes_keyword_and_posts(db):
         patch("app.services.interview.nowcoder.refresh_job.scraper.search",
               side_effect=lambda q, limit: [_meta("100"), _meta("200")]),
         patch("app.services.interview.nowcoder.refresh_job.scraper.fetch_post",
-              side_effect=lambda pid: _detail(pid)),
+              side_effect=lambda pid, title="": _detail(pid)),
         patch("app.services.interview.nowcoder.refresh_job.summarizer.summarize_keyword",
               return_value="## summary"),
         patch("app.services.interview.nowcoder.refresh_job.time.sleep", return_value=None),
@@ -68,7 +68,7 @@ def test_run_refresh_skips_recently_fetched_posts(db):
     db.commit()
     fetch_calls = []
 
-    def fake_fetch(pid):
+    def fake_fetch(pid, title=""):
         fetch_calls.append(pid)
         return _detail(pid)
 

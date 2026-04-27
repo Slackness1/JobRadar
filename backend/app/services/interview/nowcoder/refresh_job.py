@@ -15,6 +15,10 @@ from app.services.interview.nowcoder import scraper, summarizer
 _KEYWORDS_PATH = pathlib.Path(__file__).parent / "keywords.yaml"
 _DEFAULT_LIMIT = 10
 _FETCH_FRESH_HOURS = 24
+# Nowcoder SSR caches search results across rapid consecutive requests; without
+# this gap, a query's HTML may be served as the response for the next query.
+# 5s empirically clears the bleed.
+_INTER_KEYWORD_SLEEP_SECONDS = 5.0
 _STATUS_LOCK = threading.Lock()
 _STATUS: dict = {}
 
@@ -142,9 +146,11 @@ def run_refresh(db: Session) -> RefreshStats:
         return stats
 
     stats.keywords_total = len(keywords)
-    for entry in keywords:
+    for idx, entry in enumerate(keywords):
         chip = entry["chip"]
         query = entry["query"]
+        if idx > 0:
+            time.sleep(_INTER_KEYWORD_SLEEP_SECONDS)
         try:
             _process_keyword(db, chip, query, stats)
             stats.keywords_ok += 1
