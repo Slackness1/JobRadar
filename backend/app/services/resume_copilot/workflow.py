@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from app.database import SessionLocal
 from app.models import (
@@ -16,6 +17,7 @@ from app.services.resume_copilot.parser import (
     parse_resume_text_to_profile,
 )
 from app.services.resume_copilot.quick_enrichment import serialize_agent_trace
+from app.services.resume_copilot.state import RunStatus, SessionStatus
 from app.services.resume_copilot.agent.budget import AgentBudget
 from app.services.resume_copilot.agent.core import ReActAgent
 from app.services.resume_copilot.agent.tools import build_tools
@@ -51,6 +53,7 @@ def _append_agent_trace(
     ).first()
     if recommendation_run:
         recommendation_run.agent_trace_json = serialize_agent_trace(agent_trace)
+        recommendation_run.updated_at = datetime.utcnow()  # heartbeat for inflight guard
         db.commit()
 
 
@@ -72,7 +75,7 @@ def run_resume_parse_workflow(
             parsed_profile = ResumeParsedProfile(session_id=session_id)
             db.add(parsed_profile)
         parsed_profile.profile_json = json.dumps(profile.model_dump())
-        session.status = 'awaiting_user_confirmation'
+        session.status = SessionStatus.AWAITING_USER_CONFIRMATION.value
         session.error_message = ''
         db.commit()
     except Exception as exc:
@@ -85,7 +88,7 @@ def run_resume_parse_workflow(
                 db.add(parsed_profile)
             fallback_profile = build_heuristic_resume_profile(str(getattr(session, 'extracted_text', '') or ''))
             parsed_profile.profile_json = json.dumps(fallback_profile.model_dump())
-            session.status = 'awaiting_user_confirmation'
+            session.status = SessionStatus.AWAITING_USER_CONFIRMATION.value
             session.error_message = ''
             db.commit()
             db.close()
@@ -95,7 +98,7 @@ def run_resume_parse_workflow(
         parsed_profile = db.query(ResumeParsedProfile).filter(ResumeParsedProfile.session_id == session_id).first()
         if parsed_profile:
             db.delete(parsed_profile)
-        session.status = 'failed'
+        session.status = SessionStatus.FAILED.value
         session.error_message = str(exc)
         db.commit()
     finally:
@@ -133,18 +136,20 @@ def run_resume_generate_workflow(
         direction_run = ResumeDirectionAnalysisRun(session_id=session_id)
         db.add(direction_run)
 
-    recommendation_run.status = 'running'
+    recommendation_run.status = RunStatus.RUNNING.value
     recommendation_run.error_message = ''
     recommendation_run.used_ai = 0
     recommendation_run.fallback_reason = ''
     recommendation_run.agent_trace_json = '[]'
     recommendation_run.recommendations_json = '[]'
-    direction_run.status = 'running'
+    recommendation_run.updated_at = datetime.utcnow()
+    direction_run.status = RunStatus.RUNNING.value
     direction_run.error_message = ''
     direction_run.directions_json = '[]'
-    session.status = 'generating_recommendations'
-    session.recommendation_status = 'running'
-    session.feedback_status = 'running'
+    direction_run.updated_at = datetime.utcnow()
+    session.status = SessionStatus.GENERATING_RECOMMENDATIONS.value
+    session.recommendation_status = RunStatus.RUNNING.value
+    session.feedback_status = RunStatus.RUNNING.value
     session.error_message = ''
     db.commit()
     agent_trace: list[ResumeAgentTraceItem] = []
@@ -184,7 +189,8 @@ def run_resume_generate_workflow(
         recommendation_run.recommendations_json = json.dumps(
             [item.model_dump() for item in candidates[:15]]
         )
-        session.recommendation_status = 'running'
+        recommendation_run.updated_at = datetime.utcnow()
+        session.recommendation_status = RunStatus.RUNNING.value
         db.commit()
 
         # ── Step 2: Direction analysis ────────────────────────────────────
@@ -196,10 +202,11 @@ def run_resume_generate_workflow(
         ).first()
         if not direction_run:
             raise ValueError(f'direction_run for session {session_id} was deleted mid-flight')
-        direction_run.status = 'completed'
+        direction_run.status = RunStatus.COMPLETED.value
         direction_run.directions_json = json.dumps(
             [r.model_dump() for r in direction_results]
         )
+        direction_run.updated_at = datetime.utcnow()
         db.commit()
 
         # ── Step 3: ReAct agent ───────────────────────────────────────────
@@ -225,7 +232,7 @@ def run_resume_generate_workflow(
         session = db.query(ResumeCopilotSession).filter(
             ResumeCopilotSession.id == session_id
         ).first()
-        recommendation_run.status = 'completed'
+        recommendation_run.status = RunStatus.COMPLETED.value
         recommendation_run.error_message = ''
         recommendation_run.used_ai = 1
         recommendation_run.fallback_reason = fallback_reason
@@ -233,8 +240,9 @@ def run_resume_generate_workflow(
         recommendation_run.recommendations_json = json.dumps(
             [item.model_dump() for item in recommendations]
         )
-        session.recommendation_status = 'completed'
-        session.status = 'generating_recommendations'
+        recommendation_run.updated_at = datetime.utcnow()
+        session.recommendation_status = RunStatus.COMPLETED.value
+        session.status = SessionStatus.GENERATING_RECOMMENDATIONS.value
         db.commit()
 
         # ── Step 4: Initialize chat from direction analysis ───────────────
@@ -242,8 +250,8 @@ def run_resume_generate_workflow(
         session = db.query(ResumeCopilotSession).filter(
             ResumeCopilotSession.id == session_id
         ).first()
-        session.feedback_status = 'completed'
-        session.status = 'completed'
+        session.feedback_status = RunStatus.COMPLETED.value
+        session.status = SessionStatus.COMPLETED.value
         session.error_message = ''
         db.commit()
 
@@ -259,7 +267,7 @@ def run_resume_generate_workflow(
             ResumeCopilotSession.id == session_id
         ).first()
         if recommendation_run:
-            recommendation_run.status = 'failed'
+            recommendation_run.status = RunStatus.FAILED.value
             recommendation_run.error_message = str(exc)
             recommendation_run.used_ai = 0
             recommendation_run.fallback_reason = ''
@@ -267,14 +275,16 @@ def run_resume_generate_workflow(
                 agent_trace + [ResumeAgentTraceItem(agent='Agent', message=str(exc), status='failed')]
             )
             recommendation_run.recommendations_json = '[]'
+            recommendation_run.updated_at = datetime.utcnow()
         if direction_run:
-            direction_run.status = 'failed'
+            direction_run.status = RunStatus.FAILED.value
             direction_run.error_message = str(exc)
+            direction_run.updated_at = datetime.utcnow()
         if session:
-            session.status = 'failed'
+            session.status = SessionStatus.FAILED.value
             session.error_message = str(exc)
-            session.recommendation_status = 'failed'
-            session.feedback_status = 'failed'
+            session.recommendation_status = RunStatus.FAILED.value
+            session.feedback_status = RunStatus.FAILED.value
         db.commit()
     finally:
         db.close()

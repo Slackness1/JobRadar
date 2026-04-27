@@ -225,7 +225,11 @@ def generate_chat_turn(
     db.add(user_msg)
     db.commit()
 
-    raw = _provider.generate_turn(messages_payload)
+    raw: Any = _provider.generate_turn(messages_payload)
+    if not isinstance(raw, dict):
+        # Defensive: LLM contract is JSON object, but a malformed response
+        # must not crash the chat turn. Fall back to a generic apology.
+        raw = {'content': '抱歉，我刚刚没能理解，请再说一次？', 'rewrite_options': []}
     content = str(raw.get('content', ''))
     raw_options = raw.get('rewrite_options') or []
     options: list[RewriteOption] = []

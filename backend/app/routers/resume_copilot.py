@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, UploadFile, status
@@ -40,6 +40,7 @@ from app.schemas_resume_copilot import (
 )
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
+from app.services.resume_copilot.state import INFLIGHT_GUARD_SECONDS, RunStatus, SessionStatus
 from app.services.resume_copilot.workflow import run_resume_generate_workflow, run_resume_parse_workflow
 
 router = APIRouter(prefix='/api/resume-copilot', tags=['resume-copilot'])
@@ -162,7 +163,7 @@ async def create_resume_copilot_session(
     session = ResumeCopilotSession(
         file_name=file.filename or '',
         user_key=x_resume_user_key,
-        status='parsing_profile',
+        status=SessionStatus.PARSING_PROFILE.value,
         extracted_text=extracted_text,
         is_guest=1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0,
     )
@@ -172,7 +173,7 @@ async def create_resume_copilot_session(
     background_tasks.add_task(run_resume_parse_workflow, int(getattr(session, 'id')))
     return ResumeCopilotSessionCreatedOut(
         session_id=int(getattr(session, 'id')),
-        status='parsing_profile',
+        status=SessionStatus.PARSING_PROFILE.value,
         page_count=page_count,
         file_size_bytes=len(file_bytes),
     )
@@ -339,6 +340,12 @@ def generate_resume_recommendations(
         raise HTTPException(status_code=409, detail='CONFIRMED_PROFILE_REQUIRED')
 
     recommendation_run = db.query(ResumeRecommendationRun).filter(ResumeRecommendationRun.session_id == session_id).first()
+    if recommendation_run is not None and str(recommendation_run.status) == RunStatus.RUNNING.value:
+        last_heartbeat = getattr(recommendation_run, 'updated_at', None) or getattr(recommendation_run, 'created_at', None)
+        if last_heartbeat is not None and datetime.utcnow() - last_heartbeat < timedelta(seconds=INFLIGHT_GUARD_SECONDS):
+            raise HTTPException(status_code=409, detail='GENERATE_ALREADY_RUNNING')
+        # Stale worker — fall through and let the new run take over.
+
     if not recommendation_run:
         recommendation_run = ResumeRecommendationRun(session_id=session_id)
         db.add(recommendation_run)
@@ -350,22 +357,24 @@ def generate_resume_recommendations(
         direction_run = ResumeDirectionAnalysisRun(session_id=session_id)
         db.add(direction_run)
 
-    recommendation_run.status = 'running'
+    recommendation_run.status = RunStatus.RUNNING.value
     recommendation_run.error_message = ''
     recommendation_run.used_ai = 0
     recommendation_run.fallback_reason = ''
     recommendation_run.recommendations_json = '[]'
-    direction_run.status = 'running'
+    recommendation_run.updated_at = datetime.utcnow()
+    direction_run.status = RunStatus.RUNNING.value
     direction_run.error_message = ''
     direction_run.directions_json = '[]'
-    session.status = 'generating_recommendations'
-    session.recommendation_status = 'running'
-    session.feedback_status = 'running'
+    direction_run.updated_at = datetime.utcnow()
+    session.status = SessionStatus.GENERATING_RECOMMENDATIONS.value
+    session.recommendation_status = RunStatus.RUNNING.value
+    session.feedback_status = RunStatus.RUNNING.value
     session.error_message = ''
     db.commit()
     background_tasks.add_task(run_resume_generate_workflow, int(session_id))
 
-    return ResumeGenerateOut(session_id=session_id, status='running')
+    return ResumeGenerateOut(session_id=session_id, status=RunStatus.RUNNING.value)
 
 
 @router.get('/sessions/{session_id}/recommendations', response_model=ResumeRecommendationResultOut)

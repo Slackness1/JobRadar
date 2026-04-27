@@ -1150,3 +1150,166 @@ def test_redact_profile_for_llm_is_case_insensitive():
     assert 'PHONE' not in out.basic_info
     assert ' Mobile ' not in out.basic_info
     assert out.basic_info == {'Major': 'CS'}
+
+
+# ─── Q4: state machine + inflight guard ──────────────────────────────────────
+
+
+def test_state_strenum_compares_equal_to_string():
+    from app.services.resume_copilot.state import RunStatus, SessionStatus
+
+    assert SessionStatus.COMPLETED == 'completed'
+    assert RunStatus.RUNNING == 'running'
+    # Round-trip through DB-style string assignment still matches
+    db_value = 'failed'
+    assert RunStatus.FAILED.value == db_value
+
+
+def test_generate_rejects_409_when_recommendation_run_already_running():
+    from datetime import datetime
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='test-user-key', status='awaiting_user_confirmation')
+        seeded_id = seeded.id
+        # Confirmed profile is required for /generate
+        db.add(ResumeConfirmedProfile(
+            session_id=seeded_id,
+            profile_json='{"basic_info":{"name":"x"}}',
+        ))
+        # An already-running recommendation_run with a recent heartbeat
+        db.add(ResumeRecommendationRun(
+            session_id=seeded_id,
+            status='running',
+            updated_at=datetime.utcnow(),
+        ))
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.post(f'/api/resume-copilot/sessions/{seeded_id}/generate')
+    assert response.status_code == 409
+    assert response.json() == {'detail': 'GENERATE_ALREADY_RUNNING'}
+
+
+def test_generate_recovers_when_running_run_is_stale(monkeypatch):
+    from datetime import datetime, timedelta
+    client, testing_session_local = _build_test_client()
+
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='test-user-key', status='awaiting_user_confirmation')
+        seeded_id = seeded.id
+        db.add(ResumeConfirmedProfile(
+            session_id=seeded_id,
+            profile_json='{"basic_info":{"name":"x"}}',
+        ))
+        # Running but heartbeat is 10 minutes old → considered stale
+        db.add(ResumeRecommendationRun(
+            session_id=seeded_id,
+            status='running',
+            updated_at=datetime.utcnow() - timedelta(minutes=10),
+        ))
+        db.commit()
+    finally:
+        db.close()
+
+    monkeypatch.setattr(
+        'app.routers.resume_copilot.run_resume_generate_workflow',
+        lambda _sid: None,
+    )
+    response = client.post(f'/api/resume-copilot/sessions/{seeded_id}/generate')
+    assert response.status_code == 202
+    assert response.json() == {'session_id': seeded_id, 'status': 'running'}
+
+
+# ─── Q5: LLM JSON validation hardening ───────────────────────────────────────
+
+
+def test_feedback_skips_malformed_diagnostics_keeps_valid():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.feedback import generate_feedback_for_profile
+
+    class _MixedProvider:
+        def generate_feedback(self, _profile, _prefs, _recs):
+            return {
+                'diagnostics': [
+                    {'title': 'good', 'description': 'ok'},
+                    {'wrong_shape': 'bad'},  # missing required fields
+                    {'title': 'second good', 'description': 'still ok'},
+                ],
+                'rewrite_examples': [],
+            }
+
+    profile = ResumeProfilePayload(basic_info={'name': 'x'})
+    diags, rewrites = generate_feedback_for_profile(profile, None, [], provider=_MixedProvider())
+
+    assert len(diags) == 2
+    assert [d.title for d in diags] == ['good', 'second good']
+    assert rewrites == []
+
+
+def test_feedback_returns_empty_on_non_dict_response():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.feedback import generate_feedback_for_profile
+
+    class _BrokenProvider:
+        def generate_feedback(self, _profile, _prefs, _recs):
+            return [1, 2, 3]  # not a dict
+
+    profile = ResumeProfilePayload(basic_info={'name': 'x'})
+    diags, rewrites = generate_feedback_for_profile(profile, None, [], provider=_BrokenProvider())
+
+    assert diags == []
+    assert rewrites == []
+
+
+def test_feedback_returns_empty_on_non_json_string():
+    from app.schemas_resume_copilot import ResumeProfilePayload
+    from app.services.resume_copilot.feedback import generate_feedback_for_profile
+
+    class _StringProvider:
+        def generate_feedback(self, _profile, _prefs, _recs):
+            return 'this is not json'
+
+    profile = ResumeProfilePayload(basic_info={'name': 'x'})
+    diags, rewrites = generate_feedback_for_profile(profile, None, [], provider=_StringProvider())
+
+    assert diags == []
+    assert rewrites == []
+
+
+def test_chat_falls_back_when_provider_returns_non_dict():
+    """Chat workflow must keep the conversation alive on malformed LLM output."""
+    from app.services.resume_copilot.chat import generate_chat_turn
+
+    client, testing_session_local = _build_test_client()
+    db = testing_session_local()
+    try:
+        seeded = _seed_session(db, user_key='test-user-key', status='completed')
+        seeded_id = seeded.id
+        db.add(ResumeConfirmedProfile(
+            session_id=seeded_id,
+            profile_json='{"basic_info":{"name":"x"},"internships":[],"projects":[],"candidate_summary":""}',
+        ))
+        db.commit()
+    finally:
+        db.close()
+
+    class _MalformedChatProvider:
+        def generate_turn(self, _payload):
+            return ['not', 'a', 'dict']
+
+    db = testing_session_local()
+    try:
+        result = generate_chat_turn(
+            seeded_id, 'hello', db, provider=_MalformedChatProvider()
+        )
+    finally:
+        db.close()
+
+    # Workflow must NOT crash; user gets a graceful fallback message.
+    assert result.role == 'assistant'
+    assert result.content  # non-empty fallback
+    assert result.rewrite_options is None

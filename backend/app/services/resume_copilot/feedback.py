@@ -1,6 +1,9 @@
 import json
+import logging
 from typing import Any, Protocol
 from urllib import request
+
+from pydantic import ValidationError
 
 from app.schemas_resume_copilot import (
     ResumeFeedbackDiagnosticItem,
@@ -11,6 +14,8 @@ from app.schemas_resume_copilot import (
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
 from app.services.resume_copilot.redact import redact_profile_for_llm
+
+logger = logging.getLogger(__name__)
 
 
 class ResumeFeedbackProvider(Protocol):
@@ -85,15 +90,33 @@ def generate_feedback_for_profile(
     recommendations: list[ResumeRecommendationItem],
     provider: ResumeFeedbackProvider | None = None,
 ) -> tuple[list[ResumeFeedbackDiagnosticItem], list[ResumeFeedbackRewriteExample]]:
+    """Returns (diagnostics, rewrite_examples). Bad LLM output degrades to
+    empty lists rather than raising — feedback is non-critical, missing items
+    must not bring down the surrounding generate workflow."""
     feedback_provider = provider or build_resume_feedback_provider()
-    raw_feedback = feedback_provider.generate_feedback(profile, preferences, recommendations)
+    raw_feedback: Any = feedback_provider.generate_feedback(profile, preferences, recommendations)
     if isinstance(raw_feedback, str):
-        raw_feedback = json.loads(raw_feedback)
-    diagnostics = [
-        ResumeFeedbackDiagnosticItem.model_validate(item)
-        for item in raw_feedback.get('diagnostics', [])
-    ]
-    rewrite_examples = [
-        ResumeFeedbackRewriteExample.model_validate(item) for item in raw_feedback.get('rewrite_examples', [])
-    ]
+        try:
+            raw_feedback = json.loads(raw_feedback)
+        except json.JSONDecodeError:
+            logger.warning('feedback LLM returned non-JSON string; falling back to empty feedback')
+            return [], []
+    if not isinstance(raw_feedback, dict):
+        logger.warning('feedback LLM returned non-dict (%s); falling back to empty feedback', type(raw_feedback).__name__)
+        return [], []
+
+    diagnostics: list[ResumeFeedbackDiagnosticItem] = []
+    for item in raw_feedback.get('diagnostics', []) or []:
+        try:
+            diagnostics.append(ResumeFeedbackDiagnosticItem.model_validate(item))
+        except ValidationError as exc:
+            logger.warning('skip malformed feedback diagnostic: %s', exc)
+
+    rewrite_examples: list[ResumeFeedbackRewriteExample] = []
+    for item in raw_feedback.get('rewrite_examples', []) or []:
+        try:
+            rewrite_examples.append(ResumeFeedbackRewriteExample.model_validate(item))
+        except ValidationError as exc:
+            logger.warning('skip malformed feedback rewrite_example: %s', exc)
+
     return diagnostics, rewrite_examples
