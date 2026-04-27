@@ -19,6 +19,7 @@ import Scoring from './pages/Scoring';
 import Exclude from './pages/Exclude';
 import Crawl from './pages/Crawl';
 import Scheduler from './pages/Scheduler';
+import Sites from './pages/Sites';
 import CompanyExpand from './pages/CompanyExpand';
 
 const { Sider, Content, Header } = Layout;
@@ -33,6 +34,7 @@ const menuItems = [
   { key: '/scoring', icon: <BarChartOutlined />, label: <Link to="/scoring">评分设置</Link> },
   { key: '/crawl', icon: <BugOutlined />, label: <Link to="/crawl">爬取管理</Link> },
   { key: '/scheduler', icon: <ClockCircleOutlined />, label: <Link to="/scheduler">定时任务</Link> },
+  { key: '/sites', icon: <ClockCircleOutlined />, label: <Link to="/sites">站点节点视图</Link> },
 ];
 
 const PAGE_TITLES: Record<string, string> = {
@@ -45,6 +47,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/scoring': '评分设置',
   '/crawl': '爬取管理',
   '/scheduler': '定时任务',
+  '/sites': '站点节点视图',
 };
 
 export default function AppLayout() {
@@ -112,6 +115,7 @@ export default function AppLayout() {
             <Route path="/exclude" element={<Exclude />} />
             <Route path="/crawl" element={<Crawl />} />
             <Route path="/scheduler" element={<Scheduler />} />
+            <Route path="/sites" element={<Sites />} />
           </Routes>
         </Content>
       </Layout>
