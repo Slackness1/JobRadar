@@ -293,6 +293,44 @@ def ensure_compatible_schema(engine: Engine) -> None:
             if "quality_score" not in post_columns:
                 conn.execute(text("ALTER TABLE interview_intel_posts ADD COLUMN quality_score INTEGER DEFAULT 2"))
 
+        # interview_turns — per-turn audit + scoring storage
+        conn.execute(text(
+            """
+            CREATE TABLE IF NOT EXISTS interview_turns (
+                id INTEGER PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                user_key TEXT DEFAULT '',
+                turn_index INTEGER NOT NULL,
+                target_job TEXT DEFAULT '',
+                question TEXT DEFAULT '',
+                user_answer TEXT DEFAULT '',
+                asr_transcript TEXT DEFAULT '',
+                voice_metrics TEXT,
+                score_json TEXT,
+                reference_answer TEXT DEFAULT '',
+                question_source TEXT DEFAULT 'skeleton',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_interview_turns_session ON interview_turns(session_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_interview_turns_user ON interview_turns(user_key)"
+        ))
+
+        # interview_reports new columns — idempotent ALTER
+        existing_report_cols = {
+            row[1] for row in conn.execute(text("PRAGMA table_info(interview_reports)")).fetchall()
+        }
+        if "weakness_profile_json" not in existing_report_cols:
+            conn.execute(text("ALTER TABLE interview_reports ADD COLUMN weakness_profile_json TEXT"))
+        if "weekly_plan_md" not in existing_report_cols:
+            conn.execute(text("ALTER TABLE interview_reports ADD COLUMN weekly_plan_md TEXT DEFAULT ''"))
+        if "turn_count" not in existing_report_cols:
+            conn.execute(text("ALTER TABLE interview_reports ADD COLUMN turn_count INTEGER DEFAULT 0"))
+
         ccl_exists = conn.execute(
             text("SELECT name FROM sqlite_master WHERE type='table' AND name='company_crawl_logs'")
         ).fetchone()

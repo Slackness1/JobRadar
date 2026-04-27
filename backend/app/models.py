@@ -418,6 +418,9 @@ class InterviewReport(Base):
     duration_seconds = Column(Integer, default=0)
     is_guest = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    weakness_profile_json = Column(Text, nullable=True)
+    weekly_plan_md = Column(Text, default="")
+    turn_count = Column(Integer, default=0)
 
 
 class InterviewIntelKeyword(Base):
@@ -460,3 +463,21 @@ class CompanyCrawlLog(Base):
     parent_log_id = Column(Integer, nullable=True, index=True)
     duration_ms = Column(Integer, nullable=False, default=0)
     suggested_fix = Column(Text, nullable=False, default="")
+
+
+class InterviewTurn(Base):
+    __tablename__ = "interview_turns"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(Text, nullable=False, index=True)
+    user_key = Column(Text, default="", index=True)
+    turn_index = Column(Integer, nullable=False)
+    target_job = Column(Text, default="")
+    question = Column(Text, default="")
+    user_answer = Column(Text, default="")
+    asr_transcript = Column(Text, default="")
+    voice_metrics = Column(Text, nullable=True)
+    score_json = Column(Text, nullable=True)
+    reference_answer = Column(Text, default="")
+    question_source = Column(Text, default="skeleton")
+    created_at = Column(DateTime, default=datetime.utcnow)
