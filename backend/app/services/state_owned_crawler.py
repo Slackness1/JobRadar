@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Job
 from app.services.company_crawl_logger import company_crawl_log
+from app.services.crawler_llm_enrich import enrich_jobs_parallel
 from app.services.job_merge import merge_job_fields
 
 
@@ -660,6 +661,7 @@ def crawl_state_owned_targets(
                                 fetched_count = 0
                                 new_count = 0
                                 updated_count = 0
+                                new_jobs_for_enrich: list[tuple[Job, str]] = []
                                 for legacy_job in legacy_jobs:
                                     mapped = _map_legacy_job(target, legacy_job)
                                     if not _valid_mapped_job(mapped):
@@ -678,6 +680,10 @@ def crawl_state_owned_targets(
                                             created = Job(**mapped)
                                             db.add(created)
                                             existing_jobs[mapped["job_id"]] = created
+                                            new_jobs_for_enrich.append((
+                                                created,
+                                                str(mapped.get("job_duty", "") or "") + "\n" + str(mapped.get("job_req", "") or ""),
+                                            ))
                                         new_count += 1
                                     else:
                                         if not dry_run and merge_job_fields(existing, mapped):
@@ -686,6 +692,14 @@ def crawl_state_owned_targets(
 
                                 if not dry_run:
                                     db.commit()
+
+                                if not dry_run and new_jobs_for_enrich:
+                                    try:
+                                        enriched_count = enrich_jobs_parallel(db, new_jobs_for_enrich)
+                                        if enriched_count:
+                                            db.commit()
+                                    except Exception:  # noqa: BLE001
+                                        pass  # Enrichment is best-effort; never fail the crawl
 
                                 log.fetched_count = fetched_count
                                 log.new_count = new_count

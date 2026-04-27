@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Job
 from app.services.company_crawl_logger import company_crawl_log
+from app.services.crawler_llm_enrich import enrich_jobs_parallel
 
 # 目标券商列表（A档和A-档）
 TARGET_COMPANIES = {
@@ -884,6 +885,7 @@ def run_configured_securities_crawl(
         ) as log:
             company_counts[company] = company_fetched
             total_count += company_fetched
+            new_jobs_for_enrich: list[tuple[Job, str]] = []
             for mapped in records:
                 job_id = mapped.get("job_id")
                 if not job_id:
@@ -893,6 +895,10 @@ def run_configured_securities_crawl(
                     job = Job(**mapped)
                     db.add(job)
                     existing_jobs[job_id] = job
+                    new_jobs_for_enrich.append((
+                        job,
+                        str(mapped.get("job_duty", "") or "") + "\n" + str(mapped.get("job_req", "") or ""),
+                    ))
                     new_count += 1
                     company_new += 1
                 else:
@@ -918,6 +924,14 @@ def run_configured_securities_crawl(
 
             log.fetched_count = company_fetched
             log.new_count = company_new
+
+        if new_jobs_for_enrich:
+            try:
+                enriched_count = enrich_jobs_parallel(db, new_jobs_for_enrich)
+                if enriched_count:
+                    db.commit()
+            except Exception:  # noqa: BLE001
+                pass  # Enrichment is best-effort; never fail the crawl
 
     return new_count, total_count, company_counts
 
