@@ -267,6 +267,8 @@ class Job(Base):
     detail_url = Column(Text, default="")
     scraped_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
+    track_predicted = Column(Text, nullable=False, default="")
+    quality_label = Column(Text, nullable=False, default="")
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
 
@@ -441,3 +443,20 @@ class InterviewIntelPost(Base):
     fetched_at = Column(DateTime, default=datetime.utcnow)
     parse_status = Column(Text, default="ok")
     quality_score = Column(Integer, default=2)
+
+
+class CompanyCrawlLog(Base):
+    __tablename__ = "company_crawl_logs"
+
+    id = Column(Integer, primary_key=True)
+    source = Column(Text, nullable=False, index=True)
+    company = Column(Text, nullable=False, index=True)
+    started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    finished_at = Column(DateTime, nullable=True)
+    status = Column(Text, nullable=False, default="running")
+    fetched_count = Column(Integer, nullable=False, default=0)
+    new_count = Column(Integer, nullable=False, default=0)
+    error_message = Column(Text, nullable=False, default="")
+    parent_log_id = Column(Integer, nullable=True, index=True)
+    duration_ms = Column(Integer, nullable=False, default=0)
+    suggested_fix = Column(Text, nullable=False, default="")

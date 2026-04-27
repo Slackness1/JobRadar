@@ -292,3 +292,39 @@ def ensure_compatible_schema(engine: Engine) -> None:
             post_columns = {row[1] for row in post_rows}
             if "quality_score" not in post_columns:
                 conn.execute(text("ALTER TABLE interview_intel_posts ADD COLUMN quality_score INTEGER DEFAULT 2"))
+
+        ccl_exists = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='company_crawl_logs'")
+        ).fetchone()
+        if not ccl_exists:
+            conn.execute(text(
+                """
+                CREATE TABLE company_crawl_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source TEXT NOT NULL,
+                    company TEXT NOT NULL,
+                    started_at DATETIME NOT NULL,
+                    finished_at DATETIME,
+                    status TEXT NOT NULL,
+                    fetched_count INTEGER NOT NULL DEFAULT 0,
+                    new_count INTEGER NOT NULL DEFAULT 0,
+                    error_message TEXT NOT NULL DEFAULT '',
+                    parent_log_id INTEGER,
+                    duration_ms INTEGER NOT NULL DEFAULT 0
+                )
+                """
+            ))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_company_started ON company_crawl_logs(company, started_at DESC)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_source_started  ON company_crawl_logs(source, started_at DESC)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ccl_parent          ON company_crawl_logs(parent_log_id)"))
+
+        # Crawler LLM enrichment columns (LLM-1 foundation)
+        ccl_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(company_crawl_logs)")).fetchall()}
+        if "suggested_fix" not in ccl_cols:
+            conn.execute(text("ALTER TABLE company_crawl_logs ADD COLUMN suggested_fix TEXT NOT NULL DEFAULT ''"))
+
+        jobs_cols = {row[1] for row in conn.execute(text("PRAGMA table_info(jobs)")).fetchall()}
+        if "track_predicted" not in jobs_cols:
+            conn.execute(text("ALTER TABLE jobs ADD COLUMN track_predicted TEXT NOT NULL DEFAULT ''"))
+        if "quality_label" not in jobs_cols:
+            conn.execute(text("ALTER TABLE jobs ADD COLUMN quality_label TEXT NOT NULL DEFAULT ''"))

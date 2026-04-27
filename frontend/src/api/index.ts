@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { SitesSummary, SiteRow, SiteRun, SiteRecrawlOut, SitesDigest } from '../components/sites/types';
 
 const api = axios.create({ baseURL: '/api', timeout: 60000 });
 
@@ -92,5 +93,15 @@ export const getJobIntelPlatformStatus = () =>
 
 export const bootstrapJobIntelPlatform = (platform: string) =>
   api.post(`/job-intel/platforms/${platform}/bootstrap-login`);
+
+// Sites monitor
+export const fetchSitesSummary = () => api.get<SitesSummary>('/sites/summary');
+export const fetchSites = (source?: string) =>
+  api.get<SiteRow[]>('/sites', { params: source ? { source } : {} });
+export const fetchSiteRuns = (company: string, limit = 24) =>
+  api.get<SiteRun[]>(`/sites/${encodeURIComponent(company)}/runs`, { params: { limit } });
+export const triggerSiteRecrawl = (company: string) =>
+  api.post<SiteRecrawlOut>(`/sites/${encodeURIComponent(company)}/recrawl`);
+export const fetchSitesDigest = () => api.get<SitesDigest>('/sites/digest');
 
 export default api;

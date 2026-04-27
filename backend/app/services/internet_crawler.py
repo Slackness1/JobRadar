@@ -14,7 +14,9 @@ import yaml
 from sqlalchemy.orm import Session
 
 from app.models import Job
+from app.services.company_crawl_logger import company_crawl_log
 from app.services.company_truth_merge import normalize_company_for_matching
+from app.services.crawler_llm_enrich import enrich_jobs_parallel
 from app.services.job_merge import merge_job_fields
 
 
@@ -489,6 +491,7 @@ def crawl_internet_targets(
     targets: list[InternetCrawlTarget],
     dry_run: bool = False,
     max_pages: Optional[int] = None,
+    parent_log_id: Optional[int] = None,
 ) -> list[InternetCrawlResult]:
     _configure_legacy_network()
 
@@ -525,84 +528,116 @@ def crawl_internet_targets(
                         ))
                         continue
 
-                    context, page = legacy.new_page(browser)
+                    target_exc: Optional[Exception] = None
                     try:
-                        runtime_target = {
-                            "name": target.display_name,
-                            "url": target.url,
-                            "type": target.target_type,
-                        }
-                        # CLI --max-pages overrides per-target config; per-target config overrides global MAX_PAGES
-                        effective_max_pages = max_pages or target.max_pages
-                        if effective_max_pages:
-                            runtime_target["max_pages"] = int(effective_max_pages)
+                        with company_crawl_log(
+                            db,
+                            source=target.source or "internet_official",
+                            company=target.company,
+                            parent_log_id=parent_log_id,
+                        ) as log:
+                            context, page = legacy.new_page(browser)
+                            try:
+                                runtime_target = {
+                                    "name": target.display_name,
+                                    "url": target.url,
+                                    "type": target.target_type,
+                                }
+                                # CLI --max-pages overrides per-target config; per-target config overrides global MAX_PAGES
+                                effective_max_pages = max_pages or target.max_pages
+                                if effective_max_pages:
+                                    runtime_target["max_pages"] = int(effective_max_pages)
 
-                        legacy_jobs = fn(page, runtime_target)
-                        fetched_count = 0
-                        new_count = 0
-                        updated_count = 0
+                                legacy_jobs = fn(page, runtime_target)
+                                fetched_count = 0
+                                new_count = 0
+                                updated_count = 0
+                                new_jobs_for_enrich: list[tuple[Job, str]] = []
 
-                        for legacy_job in legacy_jobs:
-                            mapped = _map_legacy_job(target, legacy_job)
-                            if not _valid_mapped_job(mapped):
-                                continue
-                            dedupe_key = (mapped["job_id"], mapped["detail_url"])
-                            if dedupe_key in seen_target_jobs:
-                                continue
-                            seen_target_jobs.add(dedupe_key)
-                            fetched_count += 1
+                                for legacy_job in legacy_jobs:
+                                    mapped = _map_legacy_job(target, legacy_job)
+                                    if not _valid_mapped_job(mapped):
+                                        continue
+                                    dedupe_key = (mapped["job_id"], mapped["detail_url"])
+                                    if dedupe_key in seen_target_jobs:
+                                        continue
+                                    seen_target_jobs.add(dedupe_key)
+                                    fetched_count += 1
 
-                            existing = existing_jobs.get(mapped["job_id"])
-                            if existing is None:
-                                existing = db.query(Job).filter(Job.job_id == mapped["job_id"]).first()
-                            if existing is None:
+                                    existing = existing_jobs.get(mapped["job_id"])
+                                    if existing is None:
+                                        existing = db.query(Job).filter(Job.job_id == mapped["job_id"]).first()
+                                    if existing is None:
+                                        if not dry_run:
+                                            created = Job(**mapped)
+                                            db.add(created)
+                                            existing_jobs[mapped["job_id"]] = created
+                                            new_jobs_for_enrich.append((
+                                                created,
+                                                str(mapped.get("job_duty", "") or "") + "\n" + str(mapped.get("job_req", "") or ""),
+                                            ))
+                                        new_count += 1
+                                    else:
+                                        # If the existing record was from a legacy source, promote it to
+                                        # internet_official so the canonical source is always preferred.
+                                        existing_source = getattr(existing, "source", "") or ""
+                                        if existing_source != "internet_official" and mapped.get("source") == "internet_official":
+                                            if not dry_run:
+                                                setattr(existing, "source", "internet_official")
+                                                setattr(existing, "source_config_id", mapped.get("source_config_id", ""))
+                                        if not dry_run and merge_job_fields(existing, mapped):
+                                            updated_count += 1
+                                        existing_jobs[mapped["job_id"]] = existing
+
                                 if not dry_run:
-                                    created = Job(**mapped)
-                                    db.add(created)
-                                    existing_jobs[mapped["job_id"]] = created
-                                new_count += 1
-                            else:
-                                # If the existing record was from a legacy source, promote it to
-                                # internet_official so the canonical source is always preferred.
-                                existing_source = getattr(existing, "source", "") or ""
-                                if existing_source != "internet_official" and mapped.get("source") == "internet_official":
-                                    if not dry_run:
-                                        setattr(existing, "source", "internet_official")
-                                        setattr(existing, "source_config_id", mapped.get("source_config_id", ""))
-                                if not dry_run and merge_job_fields(existing, mapped):
-                                    updated_count += 1
-                                existing_jobs[mapped["job_id"]] = existing
+                                    db.commit()
 
-                        if not dry_run:
-                            db.commit()
+                                if not dry_run and new_jobs_for_enrich:
+                                    try:
+                                        enriched_count = enrich_jobs_parallel(db, new_jobs_for_enrich)
+                                        if enriched_count:
+                                            db.commit()
+                                    except Exception:  # noqa: BLE001
+                                        pass  # Enrichment is best-effort; never fail the crawl
 
-                        results.append(InternetCrawlResult(
-                            tier=target.tier,
-                            company=target.company,
-                            display_name=target.display_name,
-                            url=target.url,
-                            status="success" if fetched_count else "empty",
-                            fetched_count=fetched_count,
-                            new_count=new_count,
-                            updated_count=updated_count,
-                            source=target.source,
-                            platform=target.platform,
-                        ))
-                    except Exception as exc:
-                        if not dry_run:
-                            db.rollback()
-                        results.append(InternetCrawlResult(
-                            tier=target.tier,
-                            company=target.company,
-                            display_name=target.display_name,
-                            url=target.url,
-                            status="failed",
-                            error=str(exc)[:500],
-                            source=target.source,
-                            platform=target.platform,
-                        ))
-                    finally:
-                        context.close()
+                                log.fetched_count = fetched_count
+                                log.new_count = new_count
+
+                                results.append(InternetCrawlResult(
+                                    tier=target.tier,
+                                    company=target.company,
+                                    display_name=target.display_name,
+                                    url=target.url,
+                                    status="success" if fetched_count else "empty",
+                                    fetched_count=fetched_count,
+                                    new_count=new_count,
+                                    updated_count=updated_count,
+                                    source=target.source,
+                                    platform=target.platform,
+                                ))
+                            except Exception as exc:
+                                target_exc = exc
+                                if not dry_run:
+                                    db.rollback()
+                                results.append(InternetCrawlResult(
+                                    tier=target.tier,
+                                    company=target.company,
+                                    display_name=target.display_name,
+                                    url=target.url,
+                                    status="failed",
+                                    error=str(exc)[:500],
+                                    source=target.source,
+                                    platform=target.platform,
+                                ))
+                            finally:
+                                context.close()
+                            # Re-raise so company_crawl_log can mark the row as failed.
+                            # The outer try/except (just below) swallows it to preserve
+                            # the original continue-on-error behaviour for the for-loop.
+                            if target_exc is not None:
+                                raise target_exc
+                    except Exception:
+                        pass  # result already appended above; log row already marked failed
             finally:
                 browser.close()
     finally:
