@@ -24,7 +24,7 @@ _current_cron = DEFAULT_CRON
 JOB_ID = "daily_crawl"
 GUEST_CLEANUP_JOB_ID = "guest_cleanup"
 NOWCODER_INTEL_JOB_ID = "nowcoder_intel_refresh"
-NOWCODER_INTEL_CRON = "0 9 * * *"  # 09:00 Asia/Shanghai
+NOWCODER_INTEL_CRON = "0 */3 * * *"  # every 3h, 8 runs/day, accumulate over time
 
 
 def _daily_crawl_job():

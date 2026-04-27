@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import InterviewReport
+from app.models import InterviewIntelKeyword, InterviewIntelPost, InterviewReport
 from app.services.interview.llm import stream_interview_turn
 from app.services.interview.report import generate_interview_report
 from app.services.interview.voice.asr import AsrUnavailable, run_asr_session
@@ -92,6 +92,31 @@ def avatar_session():
     except AvatarUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     return rtc_params
+
+
+@router.get('/intel-status')
+def intel_status(db: Session = Depends(get_db)):
+    """Per-chip 面经 coverage status. Drives the count badges on the /interview
+    setup page so users can see how much real data backs each chip."""
+    from sqlalchemy import func
+    keyword_rows = db.query(InterviewIntelKeyword).all()
+    post_counts = dict(
+        db.query(InterviewIntelPost.keyword, func.count())
+        .filter(InterviewIntelPost.parse_status == "ok")
+        .group_by(InterviewIntelPost.keyword)
+        .all()
+    )
+    items = []
+    for r in keyword_rows:
+        items.append({
+            'keyword': r.keyword,
+            'source_count': r.source_count or 0,
+            'post_count': post_counts.get(r.keyword, 0),
+            'has_summary': bool((r.summary_md or '').strip()),
+            'generated_at': r.generated_at.isoformat() if r.generated_at else None,
+        })
+    items.sort(key=lambda x: -x['source_count'])
+    return {'items': items, 'total_chips_with_summary': sum(1 for i in items if i['has_summary'])}
 
 
 @router.get('/reports')

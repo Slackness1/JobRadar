@@ -1,7 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+type IntelStatusItem = {
+  keyword: string;
+  source_count: number;
+  post_count: number;
+  has_summary: boolean;
+  generated_at: string | null;
+};
 
 // High-frequency campus-recruitment targets, grouped roughly by track.
 const PRESETS: { group: string; items: string[] }[] = [
@@ -23,6 +31,23 @@ export default function InterviewSetupPage() {
   const router = useRouter();
   const [targetJob, setTargetJob] = useState('');
   const [error, setError] = useState('');
+  const [intelByChip, setIntelByChip] = useState<Record<string, IntelStatusItem>>({});
+  const [intelTotal, setIntelTotal] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/interview/intel-status')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (cancelled || !data) return;
+        const map: Record<string, IntelStatusItem> = {};
+        for (const it of data.items as IntelStatusItem[]) map[it.keyword] = it;
+        setIntelByChip(map);
+        setIntelTotal(data.total_chips_with_summary ?? null);
+      })
+      .catch(() => { /* silent — falls back to no badges */ });
+    return () => { cancelled = true; };
+  }, []);
 
   function handleStart(jobOverride?: string) {
     const trimmed = (jobOverride ?? targetJob).trim();
@@ -39,9 +64,14 @@ export default function InterviewSetupPage() {
     <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-10">
       <div className="resume-paper-shadow w-full max-w-2xl rounded-[24px] bg-[var(--paper)] px-8 py-10">
         <h1 className="mb-1 text-[22px] font-semibold text-[var(--ink)]">模拟面试</h1>
-        <p className="mb-7 text-[14px] text-[var(--muted)]">
+        <p className="mb-2 text-[14px] text-[var(--muted)]">
           选一个高频岗位快速开始，或者在下方自由填写你的目标岗位。
         </p>
+        {intelTotal !== null && (
+          <p className="mb-5 text-[12px] text-[var(--muted)]">
+            🧠 数据基座：{intelTotal} 个岗位已积累真实面经摘要 · 角标显示每个岗位参考的牛客面经数
+          </p>
+        )}
 
         {/* Preset job chips */}
         <div className="mb-6 space-y-3">
@@ -51,19 +81,35 @@ export default function InterviewSetupPage() {
               <div className="flex flex-wrap gap-2">
                 {g.items.map((item) => {
                   const active = targetJob === item;
+                  const intel = intelByChip[item];
+                  const count = intel?.has_summary ? intel.source_count : 0;
                   return (
                     <button
                       key={item}
                       onClick={() => { setTargetJob(item); setError(''); }}
                       onDoubleClick={() => handleStart(item)}
-                      className={`rounded-full border px-3 py-1.5 text-[13px] transition-colors ${
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors ${
                         active
                           ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
                           : 'border-[var(--border)] text-[var(--ink)] hover:border-[var(--primary)] hover:bg-[var(--soft)]'
                       }`}
-                      title="单击填入，双击直接开始"
+                      title={count > 0
+                        ? `单击填入，双击直接开始 · 已参考 ${count} 条牛客真实面经`
+                        : '单击填入，双击直接开始'}
                     >
-                      {item}
+                      <span>{item}</span>
+                      {count > 0 && (
+                        <span
+                          className={`inline-flex items-center justify-center rounded-full px-1.5 text-[11px] leading-[16px] ${
+                            active
+                              ? 'bg-white/25 text-white'
+                              : 'bg-[var(--soft)] text-[var(--muted)]'
+                          }`}
+                          style={{ minWidth: 22, height: 16 }}
+                        >
+                          {count}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
