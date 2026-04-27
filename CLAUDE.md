@@ -104,10 +104,11 @@ docker compose up --build
 - Alert level rule (`alert_level(runs, now)`, pure): empty=`unknown`; last failed + prev failed=`red`; last failed alone=`yellow`; last success + no new in `ALERT_STALE_DAYS`=`yellow`; else `green`.
 - `_shanghai_today_start()` returns Asia/Shanghai today 00:00 expressed as naive UTC. Fixed +08:00 offset (Asia/Shanghai never observes DST).
 - `_build_site_rows` is N+1 by design: 2N+1 queries per `/api/sites` call. Acceptable at current scale (~30 companies, SQLite WAL); revisit if registry grows past ~50.
+- **UI** (`/frontend/src/pages/Sites.tsx` + `components/sites/*` + `styles/{hifi-tokens,sites-theme}.css`): `/sites` route. HiFi terracotta scoped via `<div className="hf" data-theme="sites">` — does not bleed into other AntD admin pages. Adaptive polling (8s default, 2s while any recrawl is in flight). Source→group bucketing maps `internet_official` / `securities_*` / `state_owned_official` / `consumer_foreign_official` onto 4 visible categories (互联网官网 / 券商 / 国央企 / 消费外企). Components: `SitesSummaryBar` (KPI pills + alert banner), `CategoryGroup` → `CompanyCard`, `SiteDetailPanel` → `RunSparkline` + `RecrawlButton`, `ToastHost` for recrawl feedback. 34 vitest unit + integration tests, no Playwright e2e.
 
 ### Frontend (`frontend/src/`)
 
-Vite + React 19 + React Router 7 + Ant Design 6. All API calls go through an Axios instance with `baseURL: '/api'`, proxied to the backend by Vite (`vite.config.ts`). Pages: `Jobs`, `JobIntel`, `Tracks`, `Scoring`, `Exclude`, `Crawl`, `Scheduler`, `Login`. There are no SSR concerns.
+Vite + React 19 + React Router 7 + Ant Design 6. All API calls go through an Axios instance with `baseURL: '/api'`, proxied to the backend by Vite (`vite.config.ts`). Pages: `Jobs`, `JobIntel`, `Tracks`, `Scoring`, `Exclude`, `Crawl`, `Scheduler`, `Sites`, `Login`. There are no SSR concerns. The `/sites` page deliberately doesn't use AntD components — it's HiFi-styled (Fraunces serif, terracotta on parchment) — see "Sites monitor" subsection above.
 
 ### Resume Copilot Web (`resume-copilot-web/`)
 
