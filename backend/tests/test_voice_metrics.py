@@ -80,3 +80,57 @@ def test_zero_duration_does_not_divide_by_zero():
     out = compute_voice_metrics(transcript)
     assert out.filler_rate is None
     assert out.wpm is None
+
+
+# ---------------------------------------------------------------------------
+# Task 7: score_confidence_from_transcript tests
+# ---------------------------------------------------------------------------
+
+class _StubLLM:
+    def __init__(self, raw):
+        self._raw = raw
+
+    def chat_text(self, system, user, **_):
+        if isinstance(self._raw, Exception):
+            raise self._raw
+        return self._raw
+
+
+def test_score_confidence_returns_int_on_clean_response():
+    from app.services.interview.voice_metrics import score_confidence_from_transcript
+    stub = _StubLLM("75")
+    metrics = VoiceMetrics(filler_rate=2.0, wpm=210, pause_count=1, response_latency_ms=600)
+    score = score_confidence_from_transcript(_make_transcript([(0, 5, "你好")], 5.0), metrics, llm=stub)
+    assert score == 75
+
+
+def test_score_confidence_strips_extra_whitespace_and_punctuation():
+    from app.services.interview.voice_metrics import score_confidence_from_transcript
+    stub = _StubLLM("  82.  \n")
+    metrics = VoiceMetrics()
+    score = score_confidence_from_transcript({}, metrics, llm=stub)
+    assert score == 82
+
+
+def test_score_confidence_returns_none_on_llm_failure():
+    from app.services.interview.voice_metrics import score_confidence_from_transcript
+    stub = _StubLLM(RuntimeError("down"))
+    metrics = VoiceMetrics()
+    score = score_confidence_from_transcript({}, metrics, llm=stub)
+    assert score is None
+
+
+def test_score_confidence_returns_none_on_non_numeric_response():
+    from app.services.interview.voice_metrics import score_confidence_from_transcript
+    stub = _StubLLM("very confident!")
+    metrics = VoiceMetrics()
+    score = score_confidence_from_transcript({}, metrics, llm=stub)
+    assert score is None
+
+
+def test_score_confidence_clamps_to_0_100_range():
+    from app.services.interview.voice_metrics import score_confidence_from_transcript
+    stub = _StubLLM("150")
+    metrics = VoiceMetrics()
+    score = score_confidence_from_transcript({}, metrics, llm=stub)
+    assert score == 100

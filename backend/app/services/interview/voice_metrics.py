@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, asdict
+from typing import Protocol
 
 
 _FILLER_WORDS = ("嗯", "啊", "那个", "然后", "就是", "对", "呢", "诶")
@@ -94,3 +95,48 @@ def compute_voice_metrics(transcript: dict) -> VoiceMetrics:
     metrics.response_latency_ms = int(round(first_start * 1000))
 
     return metrics
+
+
+class _LLMClient(Protocol):
+    def chat_text(self, system: str, user: str, **kwargs) -> object: ...
+
+
+def score_confidence_from_transcript(
+    transcript: dict,
+    metrics: VoiceMetrics,
+    llm: _LLMClient,
+) -> int | None:
+    """Ask the LLM to rate confidence 0-100 from transcript + cadence features.
+
+    Returns None on any failure (network, non-numeric response, etc).
+    """
+    from app.services.interview.prompts import CONFIDENCE_SYSTEM
+
+    payload = json.dumps({
+        "transcript": transcript,
+        "cadence": {
+            "filler_rate": metrics.filler_rate,
+            "wpm": metrics.wpm,
+            "pause_count": metrics.pause_count,
+            "response_latency_ms": metrics.response_latency_ms,
+        },
+    }, ensure_ascii=False)
+
+    try:
+        raw = llm.chat_text(system=CONFIDENCE_SYSTEM, user=payload)
+    except Exception:
+        return None
+
+    if not isinstance(raw, str):
+        return None
+
+    match = re.search(r"\d+", raw)
+    if not match:
+        return None
+
+    try:
+        n = int(match.group())
+    except ValueError:
+        return None
+
+    return max(0, min(100, n))
