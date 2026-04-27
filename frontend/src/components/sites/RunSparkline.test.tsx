@@ -15,6 +15,7 @@ function mkRun(overrides: Partial<SiteRun>): SiteRun {
     new_count: 2,
     error_message: '',
     duration_ms: 60000,
+    suggested_fix: '',
     ...overrides,
   };
 }

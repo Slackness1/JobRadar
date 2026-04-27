@@ -73,6 +73,7 @@ const baseRun: SiteRun = {
   new_count: 5,
   error_message: '',
   duration_ms: 60000,
+  suggested_fix: '',
 };
 
 describe('Sites page', () => {

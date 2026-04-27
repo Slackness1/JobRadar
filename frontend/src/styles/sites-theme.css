@@ -300,6 +300,29 @@
   font-family: var(--font-sans);
 }
 
+/* LLM diagnosis block */
+.hf .sites-detail-card__diagnosis {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--terracotta-wash);
+  border-left: 3px solid var(--terracotta);
+  border-radius: var(--r-md);
+}
+.hf .sites-detail-card__diagnosis-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--terracotta-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.hf .sites-detail-card__diagnosis-body {
+  font-size: 12.5px;
+  color: var(--charcoal);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 /* Toast (top-right stack) */
 .hf .sites-toast-host {
   position: fixed;

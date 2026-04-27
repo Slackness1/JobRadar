@@ -134,6 +134,13 @@ export default function SiteDetailPanel({ row, runs, inFlight, onRecrawlSubmit }
         </details>
       ) : null}
 
+      {lastRun && lastRun.suggested_fix ? (
+        <div className="sites-detail-card__diagnosis">
+          <div className="sites-detail-card__diagnosis-label">🔧 LLM 诊断建议</div>
+          <div className="sites-detail-card__diagnosis-body">{lastRun.suggested_fix}</div>
+        </div>
+      ) : null}
+
       <div style={{ marginTop: 16 }}>
         <RecrawlButton company={row.company} inFlight={inFlight} onSubmit={onRecrawlSubmit} />
       </div>

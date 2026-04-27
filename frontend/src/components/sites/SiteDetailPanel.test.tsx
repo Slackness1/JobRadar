@@ -32,6 +32,7 @@ const baseRun: SiteRun = {
   new_count: 12,
   error_message: '',
   duration_ms: 60000,
+  suggested_fix: '',
 };
 
 describe('SiteDetailPanel', () => {
@@ -135,5 +136,17 @@ describe('SiteDetailPanel', () => {
     render(<SiteDetailPanel row={baseRow} runs={runs} inFlight={false} onRecrawlSubmit={() => {}} />);
     expect(screen.getByText('成功')).toBeInTheDocument();
     expect(screen.getByText('失败')).toBeInTheDocument();
+  });
+
+  it('renders suggested_fix block when last run has it', () => {
+    const failed: SiteRun = {
+      ...baseRun,
+      status: 'failed',
+      error_message: 'Timeout',
+      suggested_fix: '**可能原因**: selector 已变。',
+    };
+    render(<SiteDetailPanel row={baseRow} runs={[failed]} inFlight={false} onRecrawlSubmit={() => {}} />);
+    expect(screen.getByText(/LLM 诊断建议/)).toBeInTheDocument();
+    expect(screen.getByText(/selector 已变/)).toBeInTheDocument();
   });
 });

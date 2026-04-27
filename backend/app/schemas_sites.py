@@ -38,6 +38,7 @@ class SiteRunOut(BaseModel):
     new_count: int
     error_message: str
     duration_ms: int
+    suggested_fix: str = ""
 
 
 class SiteRecrawlOut(BaseModel):

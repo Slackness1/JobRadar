@@ -29,6 +29,7 @@ export interface SiteRun {
   new_count: number;
   error_message: string;
   duration_ms: number;
+  suggested_fix: string;
 }
 
 export interface SiteRecrawlOut {
