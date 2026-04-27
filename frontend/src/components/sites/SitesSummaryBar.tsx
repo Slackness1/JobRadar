@@ -77,6 +77,16 @@ export default function SitesSummaryBar({ summary, rows, digest, onJumpToCompany
         <span className="hf-cap" style={{ marginRight: 8 }}>今日新增</span>
         <span className="sites-kpi-num">{summary.total_today_new}</span>
         <div className="sites-summary-bar__sub">{subLine}</div>
+        {(summary.today_track_distribution ?? []).length > 0 ? (
+          <div className="sites-summary-bar__tracks">
+            <span className="sites-summary-bar__tracks-label">今日 track</span>
+            {(summary.today_track_distribution ?? []).slice(0, 6).map((t) => (
+              <span key={t.track} className="hf-pill">
+                {t.track} <strong style={{ marginLeft: 4 }}>{t.count}</strong>
+              </span>
+            ))}
+          </div>
+        ) : null}
         {digest && digest.text ? (
           <div className="sites-summary-bar__digest">
             <span className="sites-summary-bar__digest-label">今日简报</span>

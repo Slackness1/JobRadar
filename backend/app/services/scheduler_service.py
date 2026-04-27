@@ -249,13 +249,20 @@ def get_scheduler_info() -> dict:
     nowcoder_status["cron_expression"] = NOWCODER_INTEL_CRON
     nowcoder_status["next_run"] = nowcoder_next_run
 
+    job_cron_map = {
+        JOB_ID: _current_cron,
+        TIER_CRAWL_JOB_ID: DEFAULT_TIER_CRON,
+        DIGEST_JOB_ID: DEFAULT_DIGEST_CRON,
+        NOWCODER_INTEL_JOB_ID: NOWCODER_INTEL_CRON,
+        GUEST_CLEANUP_JOB_ID: "interval:1h",
+    }
     jobs_out: list[dict] = []
     for j in scheduler.get_jobs():
         nrt = getattr(j, "next_run_time", None)
         jobs_out.append(
             {
                 "id": j.id,
-                "cron_expression": str(j.trigger),
+                "cron_expression": job_cron_map.get(j.id, str(j.trigger)),
                 "next_run": nrt.isoformat() if nrt is not None else None,
             }
         )

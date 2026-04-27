@@ -7,6 +7,11 @@ from pydantic import BaseModel, ConfigDict
 AlertLevel = Literal["green", "yellow", "red", "unknown"]
 
 
+class TrackCount(BaseModel):
+    track: str
+    count: int
+
+
 class SitesSummaryOut(BaseModel):
     active: int
     alerted: int
@@ -16,6 +21,7 @@ class SitesSummaryOut(BaseModel):
     last_batch_status: Optional[str]
     today_enriched_count: int = 0
     today_jobs_total: int = 0
+    today_track_distribution: list[TrackCount] = []
 
 
 class SiteRowOut(BaseModel):

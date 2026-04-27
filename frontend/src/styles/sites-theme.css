@@ -375,6 +375,26 @@
 .hf .sites-toast.success { box-shadow: 0 0 0 1px var(--emerald-soft), 0 18px 52px rgba(0,0,0,0.08); border-left: 3px solid var(--emerald); }
 .hf .sites-toast.failed  { box-shadow: 0 0 0 1px #f4d4d4, 0 18px 52px rgba(0,0,0,0.08); border-left: 3px solid var(--crimson); }
 
+/* Today track distribution strip — between sub line and digest */
+.hf .sites-summary-bar__tracks {
+  flex-basis: 100%;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-cream);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.hf .sites-summary-bar__tracks-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--terracotta-strong);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
 /* Daily digest strip below summary-bar sub line */
 .hf .sites-summary-bar__digest {
   flex-basis: 100%;

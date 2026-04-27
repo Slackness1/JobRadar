@@ -1,5 +1,10 @@
 export type AlertLevel = 'green' | 'yellow' | 'red' | 'unknown';
 
+export interface TrackCount {
+  track: string;
+  count: number;
+}
+
 export interface SitesSummary {
   active: number;
   alerted: number;
@@ -9,6 +14,7 @@ export interface SitesSummary {
   last_batch_status: string | null;
   today_enriched_count?: number;
   today_jobs_total?: number;
+  today_track_distribution?: TrackCount[];
 }
 
 export interface SiteRow {

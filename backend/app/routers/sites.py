@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal, get_db
 from app.models import CompanyCrawlLog, CrawlLog, Job
 from app.schemas_sites import (
+    TrackCount,
     SiteRecrawlOut,
     SiteRowOut,
     SiteRunOut,
@@ -100,6 +101,17 @@ def get_summary(db: Session = Depends(get_db)) -> SitesSummaryOut:
         or 0
     )
 
+    track_rows = (
+        db.query(Job.track_predicted, func.count(Job.id))
+        .filter(Job.created_at >= today_start, Job.track_predicted != "")
+        .group_by(Job.track_predicted)
+        .order_by(func.count(Job.id).desc())
+        .all()
+    )
+    today_track_distribution = [
+        TrackCount(track=str(row[0]), count=int(row[1])) for row in track_rows
+    ]
+
     return SitesSummaryOut(
         active=active,
         alerted=alerted,
@@ -109,6 +121,7 @@ def get_summary(db: Session = Depends(get_db)) -> SitesSummaryOut:
         last_batch_status=last_batch.status if last_batch else None,
         today_jobs_total=int(today_jobs_total),
         today_enriched_count=int(today_enriched_count),
+        today_track_distribution=today_track_distribution,
     )
 
 
