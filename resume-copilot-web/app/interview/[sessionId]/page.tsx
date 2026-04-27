@@ -1,18 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import {
+  Mic, MicOff, PhoneOff, Type, RotateCcw, Captions, Check,
+  MessageCircleQuestion,
+} from 'lucide-react';
 import type { InterviewMessage, InterviewReport as InterviewReportType, InterviewState } from '@/components/interview/types';
 import { streamInterviewTurn, saveInterviewReport } from '@/components/interview/api';
-import { InterviewChat } from '@/components/interview/InterviewChat';
 import { InterviewReport } from '@/components/interview/InterviewReport';
-import { VoiceControls } from '@/components/interview/voice/VoiceControls';
 import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
-import { SelfView } from '@/components/interview/devices/SelfView';
-import { AvatarView } from '@/components/interview/devices/AvatarView';
+import { useRecorder } from '@/components/interview/voice/useRecorder';
+import { TopBar, Pill, AIOrb, ListenWave } from '@/components/interview/primitives';
 
 const INTERVIEW_END_MARKER = '[INTERVIEW_END]';
 const LS_PREFIX = 'interview.';
+const PROGRESS_QUESTIONS = [
+  '自我介绍与来意',
+  '主导过的核心项目',
+  '关键技术 / 业务取舍',
+  '在不确定下的决策',
+  '为什么是这家公司',
+  '反问环节',
+];
 
 function loadSession(sessionId: string): { messages: InterviewMessage[]; targetJob: string } | null {
   if (typeof window === 'undefined') return null;
@@ -33,14 +43,11 @@ export default function InterviewSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
 
-  // localStorage is only available on the client. Defer all reads to after mount
-  // to keep the initial render SSR-identical and avoid hydration mismatches.
-  const [hydrated, setHydrated] = useState(false);
+  /* ───────────────────── Hydration ──────────────────────────────────────── */
   const [targetJob, setTargetJob] = useState('');
   const [messages, setMessages] = useState<InterviewMessage[]>([]);
   const [round, setRound] = useState(0);
 
-  // Reading localStorage can't happen during render (SSR has no window). Defer to mount.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = loadSession(sessionId);
@@ -51,10 +58,10 @@ export default function InterviewSessionPage() {
     } else {
       setTargetJob(localStorage.getItem(`interview.pending.${sessionId}`) || '');
     }
-    setHydrated(true);
   }, [sessionId]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* ───────────────────── Stream / state ─────────────────────────────────── */
   const [streamingContent, setStreamingContent] = useState('');
   const [streamError, setStreamError] = useState('');
   const [isTurning, setIsTurning] = useState(false);
@@ -62,23 +69,42 @@ export default function InterviewSessionPage() {
   const [report, setReport] = useState<InterviewReportType | null>(null);
   const [reportError, setReportError] = useState('');
   const [finalDuration, setFinalDuration] = useState(0);
-  const [voiceMode, setVoiceMode] = useState(false);
-  // Text buffered while TTS is fetching / playing; revealed char-by-char as audio plays.
+
+  // mode: voice (default — speak via mic) or text (type your answer).
+  const [mode, setMode] = useState<'voice' | 'text'>('voice');
+  // The text the AI just produced; revealed char-by-char as TTS plays.
   const [pendingAssistantText, setPendingAssistantText] = useState('');
   const pendingMetaRef = useRef<{ msgs: InterviewMessage[]; job: string; hasEnd: boolean } | null>(null);
   const ttsTriggeredRef = useRef(false);
-  const voiceModeRef = useRef(voiceMode);
+  // Tracks whether TTS audio has actually started playing for the CURRENT pending text.
+  // Without this, round 2+ commits early because tts.progress is still 1 from round 1
+  // before the new speak() call resets it.
+  const ttsPlayedRef = useRef(false);
+  const modeRef = useRef(mode);
   const startTimeRef = useRef<number>(0);
   const initializedRef = useRef(false);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [textDraft, setTextDraft] = useState('');
+  const [toast, setToast] = useState('');
+  const [micMuted, setMicMuted] = useState(false);
 
-  useEffect(() => { voiceModeRef.current = voiceMode; }, [voiceMode]);
+  useEffect(() => { modeRef.current = mode; }, [mode]);
 
   const tts = useTTSPlayer();
+  const recorder = useRecorder({
+    onFinalizedChange: (text) => { if (mode === 'voice') setTextDraft(text); },
+  });
 
+  useEffect(() => { startTimeRef.current = Date.now(); }, []);
+
+  /* ───────────────────── Elapsed timer for the rail ─────────────────────── */
+  const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
-    startTimeRef.current = Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000)), 1000);
+    return () => clearInterval(id);
   }, []);
 
+  /* ───────────────────── Report flow ────────────────────────────────────── */
   const triggerReport = useCallback(async (job: string, msgs: InterviewMessage[]) => {
     setState('generating_report');
     setReportError('');
@@ -94,18 +120,16 @@ export default function InterviewSessionPage() {
     }
   }, []);
 
+  /* ───────────────────── LLM streaming turn ─────────────────────────────── */
   const startTurn = useCallback(async (job: string, msgs: InterviewMessage[]) => {
     let accumulated = '';
-
     try {
       await streamInterviewTurn(
         job,
         msgs,
         (token) => {
           accumulated += token;
-          // In voice mode we hide the LLM-streamed text and reveal it in sync
-          // with TTS playback later. Keep streamingContent empty to show the spinner.
-          if (!voiceModeRef.current) setStreamingContent(accumulated);
+          if (modeRef.current === 'text') setStreamingContent(accumulated);
         },
         () => {
           const hasEnd = accumulated.includes(INTERVIEW_END_MARKER);
@@ -113,27 +137,25 @@ export default function InterviewSessionPage() {
           if (!clean) {
             setStreamingContent('');
             setIsTurning(false);
-            setStreamError('面试官回复为空，可能是 LLM 接口异常。请检查后端日志或重试。');
+            setStreamError('面试官回复为空，可能是 LLM 接口异常。请稍后重试。');
             return;
           }
-          if (voiceModeRef.current) {
-            // Hand off to the TTS-reveal pipeline; commit happens when audio ends.
+          if (modeRef.current === 'voice') {
             pendingMetaRef.current = { msgs, job, hasEnd };
             ttsTriggeredRef.current = false;
             setStreamingContent('');
             setPendingAssistantText(clean);
-            // isTurning stays true until TTS finishes.
             return;
           }
-          // Text mode: commit immediately.
+          // text mode: commit immediately
           const newMsg: InterviewMessage = { role: 'assistant', content: clean };
-          const updatedMsgs = [...msgs, newMsg];
-          setMessages(updatedMsgs);
+          const updated = [...msgs, newMsg];
+          setMessages(updated);
           setStreamingContent('');
           setIsTurning(false);
           setRound((r) => r + 1);
-          saveSession(sessionId, updatedMsgs, job);
-          if (hasEnd) triggerReport(job, updatedMsgs);
+          saveSession(sessionId, updated, job);
+          if (hasEnd) triggerReport(job, updated);
         },
       );
     } catch (err) {
@@ -143,198 +165,711 @@ export default function InterviewSessionPage() {
     }
   }, [sessionId, triggerReport]);
 
-  // On first visit: read pending job from localStorage, start first turn.
-  // Strict Mode fires this effect twice in dev. The ref guards against double-execution
-  // (refs are preserved across Strict Mode's simulated unmount/remount).
+  /* ───────────────────── Kick off the first turn on first visit ─────────── */
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
-    if (loadSession(sessionId)) return; // restored from localStorage
+    if (loadSession(sessionId)) return;
     const job = localStorage.getItem(`interview.pending.${sessionId}`) || '';
     if (!job) { router.push('/interview'); return; }
     localStorage.removeItem(`interview.pending.${sessionId}`);
     setTimeout(() => { setIsTurning(true); startTurn(job, []); }, 0);
   }, [sessionId, router, startTurn]);
 
-  function handleSend(content: string) {
-    tts.stop();
-    const userMsg: InterviewMessage = { role: 'user', content };
-    const updatedMsgs = [...messages, userMsg];
-    setMessages(updatedMsgs);
-    setStreamingContent('');
-    setStreamError('');
-    setIsTurning(true);
-    setState('interviewing');
-    saveSession(sessionId, updatedMsgs, targetJob);
-    startTurn(targetJob, updatedMsgs);
-  }
-
-  // ---- Voice-mode pipeline ----
-  // 1. When pending text is set, kick off TTS (once).
+  /* ───────────────────── Voice pipeline: TTS speak + commit ─────────────── */
   useEffect(() => {
-    if (!voiceMode || !pendingAssistantText || ttsTriggeredRef.current) return;
+    if (mode !== 'voice' || !pendingAssistantText || ttsTriggeredRef.current) return;
     ttsTriggeredRef.current = true;
+    ttsPlayedRef.current = false; // reset for this turn
     tts.speak(pendingAssistantText);
-  }, [pendingAssistantText, voiceMode, tts]);
+  }, [pendingAssistantText, mode, tts]);
 
-  // 2. Character reveal is computed at render time from progress (see JSX below).
+  // Watch for TTS actually starting (so we don't mistake stale round-1 progress for "done").
+  useEffect(() => {
+    if (tts.isPlaying) ttsPlayedRef.current = true;
+  }, [tts.isPlaying]);
 
-  // 3. When TTS ends (or errors), commit the pending message and move on.
   useEffect(() => {
     if (!pendingAssistantText || !ttsTriggeredRef.current) return;
+    // Only consider "finished" once TTS has actually played at least once for THIS turn.
+    if (!ttsPlayedRef.current && !tts.error) return;
     const finished = !tts.isPlaying && (tts.progress >= 1 || !!tts.error);
     if (!finished) return;
 
     const meta = pendingMetaRef.current;
     if (!meta) return;
     const newMsg: InterviewMessage = { role: 'assistant', content: pendingAssistantText };
-    const updatedMsgs = [...meta.msgs, newMsg];
-    setMessages(updatedMsgs);
+    const updated = [...meta.msgs, newMsg];
+    setMessages(updated);
     setStreamingContent('');
     setIsTurning(false);
     setRound((r) => r + 1);
-    saveSession(sessionId, updatedMsgs, meta.job);
-    if (meta.hasEnd) triggerReport(meta.job, updatedMsgs);
+    saveSession(sessionId, updated, meta.job);
+    if (meta.hasEnd) triggerReport(meta.job, updated);
 
     pendingMetaRef.current = null;
     ttsTriggeredRef.current = false;
+    ttsPlayedRef.current = false;
     setPendingAssistantText('');
+    setToast('已记录回答 · 进入下一问');
+    setTimeout(() => setToast(''), 2000);
   }, [tts.isPlaying, tts.progress, tts.error, pendingAssistantText, sessionId, triggerReport]);
 
-  const toggleVoiceMode = useCallback(() => {
-    const next = !voiceMode;
-    setVoiceMode(next);
-    tts.stop();
-    // If turning OFF voice while a message is waiting for TTS reveal, commit it now.
-    if (!next && pendingAssistantText) {
-      const meta = pendingMetaRef.current;
-      if (meta) {
-        const newMsg: InterviewMessage = { role: 'assistant', content: pendingAssistantText };
-        const updatedMsgs = [...meta.msgs, newMsg];
-        setMessages(updatedMsgs);
-        setIsTurning(false);
-        setRound((r) => r + 1);
-        saveSession(sessionId, updatedMsgs, meta.job);
-        if (meta.hasEnd) triggerReport(meta.job, updatedMsgs);
-      }
-      setStreamingContent('');
-      setPendingAssistantText('');
-      pendingMetaRef.current = null;
-      ttsTriggeredRef.current = false;
-    }
-  }, [voiceMode, pendingAssistantText, sessionId, triggerReport, tts]);
+  /* ───────────────────── Self-view camera ───────────────────────────────── */
+  const selfVideoRef = useRef<HTMLVideoElement>(null);
+  const selfStreamRef = useRef<MediaStream | null>(null);
+  const [selfReady, setSelfReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+        if (cancelled) { s.getTracks().forEach((t) => t.stop()); return; }
+        selfStreamRef.current = s;
+        if (selfVideoRef.current) {
+          selfVideoRef.current.srcObject = s;
+          await selfVideoRef.current.play().catch(() => {});
+        }
+        setSelfReady(true);
+      } catch { /* denied */ }
+    })();
+    return () => { cancelled = true; selfStreamRef.current?.getTracks().forEach((t) => t.stop()); };
+  }, []);
 
-  function handleRetry() {
+  /* ───────────────────── Mic input bar (voice mode) ─────────────────────── */
+  const handleSend = useCallback((content: string) => {
+    tts.stop();
+    const userMsg: InterviewMessage = { role: 'user', content };
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    setStreamingContent('');
+    setStreamError('');
+    setIsTurning(true);
+    setState('interviewing');
+    setTextDraft('');
+    saveSession(sessionId, updated, targetJob);
+    startTurn(targetJob, updated);
+  }, [messages, sessionId, startTurn, targetJob, tts]);
+
+  const startListening = useCallback(() => {
+    if (mode !== 'voice' || micMuted) return;
+    setTextDraft('');
+    recorder.start();
+  }, [mode, recorder, micMuted]);
+
+  const stopListeningAndSend = useCallback(() => {
+    recorder.stop();
+    const text = (recorder.finalText + recorder.partialText).trim();
+    if (!text) return;
+    handleSend(text);
+  }, [recorder, handleSend]);
+
+  // Tap-to-toggle space:
+  //   • AI is speaking          → interrupt the AI (do not start recording)
+  //   • Already recording        → stop + send what was captured
+  //   • Idle                     → start recording
+  useEffect(() => {
+    if (mode !== 'voice') return;
+    const onDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space' || e.repeat) return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      e.preventDefault();
+      if (tts.isPlaying) { tts.stop(); return; }
+      if (recorder.isRecording) { stopListeningAndSend(); return; }
+      if (micMuted) return;
+      startListening();
+    };
+    window.addEventListener('keydown', onDown);
+    return () => { window.removeEventListener('keydown', onDown); };
+  }, [mode, startListening, stopListeningAndSend, tts, recorder.isRecording, micMuted]);
+
+  /* ───────────────────── Caption text (TTS-progress reveal) ─────────────── */
+  const captionText = useMemo(() => {
+    if (mode === 'voice' && pendingAssistantText) {
+      const len = pendingAssistantText.length;
+      return pendingAssistantText.slice(0, Math.round(len * tts.progress));
+    }
+    return streamingContent;
+  }, [mode, pendingAssistantText, tts.progress, streamingContent]);
+
+  const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
+  // While a turn is in flight (LLM streaming or TTS playing), show the live caption
+  // even if it's currently an empty string. Only fall back to the last committed
+  // message when there is genuinely nothing in flight — otherwise round 2+ would
+  // briefly flash round 1's full text whenever progress is 0.
+  const turnInFlight = isTurning || !!pendingAssistantText || tts.isPlaying;
+  const captionDisplayed = turnInFlight ? captionText : (lastAssistant?.content ?? '');
+  const showCursor = isTurning || (mode === 'voice' && tts.isPlaying && captionText.length < pendingAssistantText.length);
+
+  /* ───────────────────── Status (orb + caption header) ──────────────────── */
+  const isThinking = isTurning && !tts.isPlaying;
+  const isSpeaking = tts.isPlaying;
+  const isListening = recorder.isRecording;
+  const orbStatus = isThinking ? '正在思考下一问…'
+    : isSpeaking ? `正在讲第 ${round + 1} 问…`
+    : isListening ? '听你说…'
+    : round === 0 ? '准备就绪'
+    : '讲完了 · 等你作答';
+
+  /* ───────────────────── End interview / Skip ───────────────────────────── */
+  const handleEndInterview = useCallback(() => {
+    if (state !== 'interviewing') return;
+    triggerReport(targetJob, messages);
+  }, [state, targetJob, messages, triggerReport]);
+
+  const handleRetry = useCallback(() => {
     setStreamError('');
     setIsTurning(true);
     startTurn(targetJob, messages);
-  }
+  }, [targetJob, messages, startTurn]);
 
-  function handleEndInterview() {
-    if (state !== 'interviewing') return;
-    triggerReport(targetJob, messages);
-  }
-
+  /* ───────────────────── Report screen ──────────────────────────────────── */
   if (state === 'report_ready' && report) {
     return (
-      <main className="flex min-h-screen flex-col bg-[var(--background)]">
-        <div className="border-b border-[var(--border)] bg-[var(--paper)] px-6 py-4">
-          <h1 className="text-[16px] font-semibold text-[var(--ink)]">面试完成 · {targetJob}</h1>
+      <main className="min-h-screen" style={{ background: 'var(--parchment)' }}>
+        <TopBar crumb={<>模拟面试 · <b className="font-medium text-[var(--ink-soft)]">面试报告</b></>} />
+        <div className="mx-auto max-w-[960px] px-6 py-6">
+          <h1
+            className="mb-4 text-[28px] text-[var(--ink)]"
+            style={{ fontFamily: 'var(--font-serif)', fontWeight: 500 }}
+          >
+            面试完成 · {targetJob}
+          </h1>
+          <InterviewReport
+            report={report}
+            targetJob={targetJob}
+            durationSeconds={finalDuration}
+            onRestart={() => router.push('/interview')}
+          />
         </div>
-        <InterviewReport
-          report={report}
-          targetJob={targetJob}
-          durationSeconds={finalDuration}
-          onRestart={() => router.push('/interview')}
-        />
       </main>
     );
   }
 
+  /* ───────────────────── Render — interview stage ───────────────────────── */
   return (
-    <main className="flex h-screen flex-col bg-[var(--background)]">
-      {voiceMode && <AvatarView speaking={tts.isPlaying} thinking={isTurning && !tts.isPlaying} />}
-      <SelfView />
-      <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--paper)] px-6 py-3">
-        <div>
-          <h1 className="text-[15px] font-semibold text-[var(--ink)]">{targetJob || '模拟面试'}</h1>
-          <p className="text-[12px] text-[var(--muted)]">第 {round} 轮</p>
+    <main className="grid h-screen grid-rows-[auto_1fr_auto] overflow-hidden" style={{ background: 'var(--parchment)' }}>
+      {/* TOP BAR */}
+      <header
+        className="flex items-center gap-[14px] border-b border-[var(--border)] px-[22px] py-[12px]"
+        style={{ background: 'rgba(245,244,237,0.92)', backdropFilter: 'blur(10px)' }}
+      >
+        <span
+          className="inline-flex items-center gap-[10px] text-[17px] tracking-[-0.02em] text-[var(--ink)]"
+          style={{ fontFamily: 'var(--font-serif)', fontWeight: 500 }}
+        >
+          <span className="inline-block h-[9px] w-[9px] rounded-full" style={{ background: 'var(--terracotta)' }} />
+          JobRadar
+        </span>
+        <div
+          className="ml-1 border-l border-[var(--border-strong)] pl-[14px] text-[13px] font-semibold leading-[1.35] text-[var(--ink)]"
+        >
+          {targetJob || '模拟面试'}
+          <span className="block text-[11px] font-normal text-[var(--stone)]">AI 面试官 · 姜老师</span>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleVoiceMode}
-            className={`rounded-[10px] border px-3 py-1.5 text-[13px] transition-colors ${
-              voiceMode
-                ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
-                : 'border-[var(--border)] text-[var(--muted)] hover:bg-[var(--soft)]'
-            }`}
-            title="切换语音 / 文字模式"
-          >
-            {voiceMode ? '🎙 语音模式' : '💬 文字模式'}
-          </button>
-          {tts.isPlaying && (
-            <button
-              onClick={() => tts.stop()}
-              className="text-[12px] text-[var(--muted)] underline hover:text-[var(--ink)]"
-            >
-              停止播放
-            </button>
-          )}
-          {state === 'generating_report' && (
-            <span className="text-[13px] text-[var(--muted)]">生成报告中…</span>
-          )}
-          {reportError && (
-            <button
-              onClick={() => triggerReport(targetJob, messages)}
-              className="text-[13px] text-red-500 underline"
-            >
-              {reportError} 重试
-            </button>
-          )}
-          <button
-            onClick={handleEndInterview}
-            disabled={state !== 'interviewing' || messages.length < 2}
-            className="rounded-[10px] border border-[var(--border)] px-3 py-1.5 text-[13px] text-[var(--muted)] hover:bg-[var(--soft)] disabled:opacity-30 transition-colors"
-          >
-            结束面试
-          </button>
-        </div>
-      </div>
+        <span className="flex-1" />
+        <Pill>
+          <span className="inline-block h-[6px] w-[6px] rounded-full" style={{ background: 'var(--emerald)' }} />
+          已连接 · 16 kHz
+        </Pill>
+        <ModeTabs mode={mode} onChange={setMode} />
+        <button
+          onClick={handleEndInterview}
+          className="inline-flex items-center gap-[8px] rounded-[10px] border bg-white px-[16px] py-[8px] text-[13px] font-semibold text-[var(--crimson)] hover:bg-[#fdf4f4]"
+          style={{ borderColor: '#e8cdcd' }}
+        >
+          <PhoneOff size={14} strokeWidth={1.7} />结束面试
+        </button>
+      </header>
 
-      {streamError && (
-        <div className="mx-4 mt-3 flex items-center justify-between rounded-[10px] border border-red-300 bg-red-50 px-4 py-2.5 text-[13px] text-red-700">
-          <span>⚠️ {streamError}</span>
-          <button
-            onClick={handleRetry}
-            className="ml-3 rounded-[8px] border border-red-300 bg-white px-3 py-1 text-[12px] font-medium text-red-700 hover:bg-red-100"
+      {/* MAIN STAGE */}
+      <section className="relative overflow-hidden">
+        {/* Question marker */}
+        <div className="absolute left-[28px] top-[68px] z-[2] text-[11px] tracking-[0.08em] text-[var(--stone)]">
+          <b className="mr-[6px] text-[12px] font-semibold text-[var(--ink)]">第 {round + 1} 问</b>
+          {round === 0 ? '开场 · 自我介绍' : '深挖追问'}
+        </div>
+
+        {/* CAPTIONS — Border Beam wraps the entire box during thinking */}
+        <div
+          className="absolute left-1/2 top-[26px] z-[5] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2"
+        >
+          <div
+            className="relative rounded-[18px]"
+            style={{
+              background: 'var(--deep-dark)',
+              color: '#faf9f5',
+              padding: '18px 26px 20px',
+              boxShadow: '0 20px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.04)',
+            }}
           >
-            重试
+            <div className="mb-[10px] flex items-center gap-[10px] text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--warm-silver)]">
+              <span
+                className="relative inline-block h-[18px] w-[18px] rounded-full"
+                style={{
+                  background: 'var(--terracotta)',
+                  animation: 'itv-breathe 1.8s ease-in-out infinite',
+                }}
+              />
+              <span>AI 面试官 · {isThinking ? '正在思考' : isSpeaking ? '正在讲' : isListening ? '在听你说' : '等你作答'}</span>
+              <span className="text-[var(--warm-silver)] font-medium tracking-[0.12em]">· Question {round + 1}</span>
+              <span className="flex-1" />
+              <span className="text-[11px] font-normal tracking-normal text-[var(--warm-silver)]" style={{ fontFamily: 'var(--font-mono)' }}>
+                {fmtMMSS(elapsed)}
+              </span>
+            </div>
+
+            <div
+              className="text-[#faf9f5]"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 500,
+                fontSize: 22,
+                lineHeight: 1.55,
+                letterSpacing: '-0.005em',
+                minHeight: 68,
+              }}
+            >
+              {captionDisplayed || (
+                <span className="text-[var(--warm-silver)]">{isThinking ? '…' : '面试即将开始。'}</span>
+              )}
+              {showCursor && (
+                <span
+                  className="ml-[2px] inline-block align-baseline"
+                  style={{
+                    width: 10,
+                    height: '1.1em',
+                    verticalAlign: '-0.15em',
+                    background: 'var(--terracotta)',
+                    animation: 'itv-blink-cursor 1s step-end infinite',
+                  }}
+                />
+              )}
+            </div>
+
+            <div
+              className="mt-[14px] flex items-center gap-[6px] border-t pt-[12px] text-[11px] text-[var(--warm-silver)]"
+              style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+            >
+              <span
+                className="inline-flex items-center gap-[5px] rounded-full px-[9px] py-[4px] text-[11px] font-medium"
+                style={{
+                  background: 'rgba(201,100,66,0.18)',
+                  border: '1px solid rgba(201,100,66,0.4)',
+                  color: '#faf9f5',
+                }}
+              >
+                <MessageCircleQuestion size={12} strokeWidth={1.8} />
+                {round === 0 ? '开场 · 自我介绍' : '项目深挖'}
+              </span>
+              <span
+                className="inline-flex items-center gap-[5px] rounded-full px-[9px] py-[4px] text-[11px] font-medium"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                岗位：{targetJob || '—'}
+              </span>
+              <span className="flex-1" />
+              <button
+                className="cursor-pointer text-[var(--warm-silver)] underline"
+                onClick={() => setShowTranscript((v) => !v)}
+              >
+                {showTranscript ? '收起逐字稿' : '查看全文逐字稿'}
+              </button>
+            </div>
+
+            {/* Border Beam — show whenever AI is busy (streaming OR speaking),
+                not just during the brief LLM-streaming-before-TTS window. */}
+            {turnInFlight && <div className="border-beam" style={{ borderRadius: 18 }} />}
+          </div>
+        </div>
+
+        {/* TRANSCRIPT (overlay, toggled) */}
+        {showTranscript && (
+          <div
+            className="absolute left-1/2 z-[4] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2 overflow-y-auto rounded-[18px] border border-[var(--border)] p-[16px_26px]"
+            style={{
+              top: 230,
+              maxHeight: 'calc(100vh - 420px)',
+              background: 'var(--ivory)',
+              boxShadow: 'var(--shadow-whisper)',
+            }}
+          >
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className="flex gap-[14px] border-b border-dashed border-[var(--border)] py-[10px] last:border-b-0"
+              >
+                <div
+                  className="w-[64px] flex-none pt-[2px] text-[11px] font-semibold uppercase tracking-[0.1em]"
+                  style={{ color: m.role === 'assistant' ? 'var(--terracotta-strong)' : 'var(--ink)' }}
+                >
+                  {m.role === 'assistant' ? '面试官' : '你'}
+                </div>
+                <div className="flex-1 text-[14px] leading-[1.6] text-[var(--ink)]">{m.content}</div>
+              </div>
+            ))}
+            {messages.length === 0 && (
+              <div className="text-[13px] text-[var(--olive)]">面试还未开始。</div>
+            )}
+          </div>
+        )}
+
+        {/* PROGRESS RAIL — hidden < 1200px */}
+        <aside
+          className="absolute left-[28px] top-1/2 z-[3] hidden -translate-y-1/2 rounded-[18px] border border-[var(--border)] p-[16px_14px] xl:block"
+          style={{ background: 'var(--ivory)', boxShadow: 'var(--shadow-whisper)', width: 208 }}
+        >
+          <div className="mb-[12px] text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--olive)]">
+            本轮 6 问 · 进度
+          </div>
+          {PROGRESS_QUESTIONS.map((q, idx) => {
+            const status = idx < round ? 'done' : idx === round ? 'now' : 'todo';
+            return (
+              <div
+                key={idx}
+                className="-mx-[8px] flex items-start gap-[10px] rounded-[10px] p-[8px]"
+                style={{ background: status === 'now' ? '#fff2ec' : 'transparent' }}
+              >
+                <span
+                  className="grid h-[22px] w-[22px] flex-none place-items-center rounded-full border text-[11px]"
+                  style={{
+                    background: status === 'done' ? 'var(--emerald)' : status === 'now' ? 'var(--terracotta)' : 'var(--library-rail)',
+                    color: status === 'todo' ? 'var(--stone)' : '#fff',
+                    borderColor: status === 'done' ? 'var(--emerald)' : status === 'now' ? 'var(--terracotta)' : 'var(--border)',
+                    animation: status === 'now' ? 'itv-pulse-dot 1.2s ease-in-out infinite' : undefined,
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
+                  {status === 'done' ? <Check size={12} strokeWidth={2.2} /> : idx + 1}
+                </span>
+                <span
+                  className="pt-[2px] text-[12.5px] leading-[1.45]"
+                  style={{ color: status === 'todo' ? 'var(--stone)' : 'var(--ink)' }}
+                >
+                  {q}
+                </span>
+              </div>
+            );
+          })}
+          <div
+            className="mt-[14px] flex items-center justify-between border-t border-dashed border-[var(--border)] pt-[12px] text-[11px] text-[var(--olive)]"
+          >
+            <span>已进行</span>
+            <span className="text-[13px] font-medium text-[var(--ink)]" style={{ fontFamily: 'var(--font-mono)' }}>
+              {fmtMMSS(elapsed)}
+            </span>
+          </div>
+        </aside>
+
+        {/* CENTER — AI orb */}
+        <div
+          className="pointer-events-none absolute flex flex-col items-center justify-center gap-[18px]"
+          style={{ inset: '240px 0 160px' }}
+        >
+          <AIOrb />
+          <div className="text-center">
+            <div
+              className="text-[22px] tracking-[-0.01em] text-[var(--ink)]"
+              style={{ fontFamily: 'var(--font-serif)', fontWeight: 500 }}
+            >
+              姜老师 · AI 面试官
+            </div>
+            <div className="mt-[4px] inline-flex items-center gap-[8px] text-[12px] text-[var(--olive)]">
+              <span
+                className="inline-block h-[6px] w-[6px] rounded-full"
+                style={{
+                  background: isListening ? 'var(--emerald)' : 'var(--terracotta)',
+                  animation: 'itv-pulse-dot 1.2s ease-in-out infinite',
+                }}
+              />
+              {orbStatus}
+            </div>
+            <div className="mt-1 grid place-items-center">
+              <ListenWave active={isListening} />
+            </div>
+          </div>
+        </div>
+
+        {/* SELF-VIEW */}
+        <div
+          className="absolute right-[28px] bottom-[110px] z-[3] w-[220px] overflow-hidden rounded-[16px]"
+          style={{
+            background: '#1c1c1b',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.18), 0 0 0 1px var(--border)',
+          }}
+        >
+          <video
+            ref={selfVideoRef}
+            autoPlay muted playsInline
+            className="block w-full"
+            style={{ aspectRatio: '4 / 3', objectFit: 'cover', transform: 'scaleX(-1)', background: '#1c1c1b' }}
+          />
+          {!selfReady && (
+            <div
+              className="grid w-full place-items-center gap-[6px] text-[12px] text-[var(--warm-silver)]"
+              style={{
+                aspectRatio: '4 / 3',
+                background: 'repeating-linear-gradient(135deg, #1c1c1b, #1c1c1b 14px, #232321 14px, #232321 28px)',
+              }}
+            >
+              摄像头预览
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setMicMuted((m) => {
+                const next = !m;
+                if (next && recorder.isRecording) recorder.stop();
+                setToast(next ? '已静音麦克风' : '已开启麦克风');
+                setTimeout(() => setToast(''), 1600);
+                return next;
+              });
+            }}
+            title={micMuted ? '点击取消静音' : '点击静音麦克风'}
+            className="flex w-full items-center gap-[8px] px-[12px] py-[8px] text-[11px] text-[#faf9f5] transition-colors hover:bg-[#262624]"
+            style={{ background: '#1c1c1b', borderTop: '1px solid #30302e' }}
+          >
+            <span className="relative inline-flex">
+              {micMuted ? <MicOff size={12} strokeWidth={1.7} /> : <Mic size={12} strokeWidth={1.7} />}
+              {!micMuted && (
+                <span
+                  className="absolute -right-[3px] -top-[3px] inline-block h-[6px] w-[6px] rounded-full"
+                  style={{
+                    background: isListening ? 'var(--emerald)' : '#5fbf7a',
+                    boxShadow: isListening
+                      ? '0 0 0 2px rgba(95,191,122,0.25)'
+                      : '0 0 0 2px rgba(95,191,122,0.15)',
+                    animation: isListening ? 'itv-pulse-dot 1.2s ease-in-out infinite' : undefined,
+                  }}
+                />
+              )}
+            </span>
+            <span>
+              你 · 麦克风
+              {micMuted ? '已静音' : isListening ? '打开中' : '在线'}
+            </span>
+            <span className="ml-auto inline-flex h-[12px] items-end gap-[2px]" style={{ opacity: micMuted ? 0.25 : 1 }}>
+              {[0, 0.1, 0.2, 0.3].map((d, i) => (
+                <span
+                  key={i}
+                  style={{
+                    width: 3,
+                    height: 4 + i * 2,
+                    background: micMuted ? 'var(--stone)' : 'var(--emerald)',
+                    borderRadius: 1,
+                    animation: micMuted ? undefined : `itv-self-blip 1.2s ease-in-out infinite ${d}s`,
+                  }}
+                />
+              ))}
+            </span>
           </button>
         </div>
-      )}
 
-      <InterviewChat
-        messages={messages}
-        streamingContent={(() => {
-          if (voiceMode && pendingAssistantText) {
-            const len = pendingAssistantText.length;
-            const revealed = Math.max(0, Math.round(len * tts.progress));
-            return pendingAssistantText.slice(0, revealed);
+        {/* TOAST */}
+        {toast && (
+          <div
+            className="absolute left-1/2 z-10 flex -translate-x-1/2 items-center gap-[8px] rounded-full px-[18px] py-[10px] text-[12.5px] text-[#faf9f5]"
+            style={{
+              bottom: 120,
+              background: 'var(--deep-dark)',
+              boxShadow: '0 10px 28px rgba(0,0,0,0.3)',
+              animation: 'itv-toast-in 0.4s ease-out',
+            }}
+          >
+            <span className="inline-block h-[6px] w-[6px] rounded-full" style={{ background: 'var(--emerald)' }} />
+            {toast}
+          </div>
+        )}
+
+        {streamError && (
+          <div
+            className="absolute left-1/2 z-10 -translate-x-1/2 rounded-[12px] border border-[#e8cdcd] bg-white px-[16px] py-[10px] text-[13px] text-[var(--crimson)] shadow"
+            style={{ bottom: 160 }}
+          >
+            {streamError} ·
+            <button onClick={handleRetry} className="ml-2 underline">重试</button>
+          </div>
+        )}
+
+        {state === 'generating_report' && (
+          <div
+            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-[18px] border border-[var(--border)] bg-[var(--ivory)] px-[24px] py-[18px] text-[14px] text-[var(--ink)] shadow"
+          >
+            生成面试报告中…
+            {reportError && <div className="mt-2 text-[var(--crimson)]">{reportError}</div>}
+          </div>
+        )}
+      </section>
+
+      {/* FOOTER — mic input bar */}
+      <footer
+        className="flex items-center gap-[14px] border-t border-[var(--border)] px-[22px] py-[14px]"
+        style={{ background: 'var(--library-rail)' }}
+      >
+        <button
+          onClick={() => (isListening ? stopListeningAndSend() : startListening())}
+          disabled={mode !== 'voice' || isTurning || isSpeaking || micMuted}
+          title={micMuted ? '麦克风已静音 · 点击右下角解除' : '按住空格 / 点击切换'}
+          className="grid h-[46px] w-[46px] place-items-center rounded-full border bg-white text-[var(--ink)] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          style={
+            isListening
+              ? {
+                  background: 'var(--terracotta)',
+                  color: '#faf9f5',
+                  borderColor: 'var(--terracotta)',
+                  boxShadow: '0 0 0 4px rgba(201,100,66,0.16), 0 0 0 8px rgba(201,100,66,0.06)',
+                  animation: 'itv-pulse-dot 1.4s ease-in-out infinite',
+                }
+              : { borderColor: 'var(--border-strong)' }
           }
-          return streamingContent;
-        })()}
-        isStreaming={isTurning || !!streamingContent || !!pendingAssistantText}
-        disabled={isTurning || state !== 'interviewing'}
-        onSend={handleSend}
-        hideInput={voiceMode}
-      />
+        >
+          <Mic size={22} strokeWidth={1.7} />
+        </button>
 
-      {voiceMode && (
-        <VoiceControls
-          disabled={isTurning || state !== 'interviewing' || tts.isPlaying}
-          onSubmit={handleSend}
-        />
-      )}
+        <div
+          className="flex min-h-[52px] flex-1 items-center gap-[12px] rounded-[14px] border border-[var(--border-strong)] bg-white px-[16px] py-[12px]"
+        >
+          {mode === 'voice' ? (
+            <span className={`flex-1 text-[13px] ${isListening ? 'text-[var(--ink)]' : 'text-[var(--stone)]'}`}>
+              {isListening
+                ? `正在聆听你的回答 · ${textDraft || '…'}`
+                : isSpeaking
+                  ? '面试官在说话…'
+                  : isTurning
+                    ? '面试官思考中…'
+                    : '点击麦克风开始语音作答 · 或按住空格键说话'}
+              {isListening && (
+                <span className="ml-[2px] text-[var(--terracotta)]" style={{ animation: 'itv-blink-cursor 1s step-end infinite' }}>｜</span>
+              )}
+            </span>
+          ) : (
+            <input
+              className="flex-1 bg-transparent text-[13px] text-[var(--ink)] outline-none placeholder:text-[var(--stone)]"
+              placeholder={isTurning ? '面试官思考中…' : '输入你的回答（Enter 提交）'}
+              value={textDraft}
+              onChange={(e) => setTextDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && textDraft.trim() && !isTurning && !isSpeaking) {
+                  e.preventDefault();
+                  handleSend(textDraft.trim());
+                }
+              }}
+              disabled={isTurning || isSpeaking}
+            />
+          )}
+        </div>
+
+        <div className="flex items-center gap-[8px]">
+          <IconBtn title="重复问题" onClick={() => { if (lastAssistant && mode === 'voice') tts.speak(lastAssistant.content); }}>
+            <RotateCcw size={18} strokeWidth={1.6} />
+          </IconBtn>
+          <IconBtn title="切换模式" onClick={() => setMode((m) => (m === 'voice' ? 'text' : 'voice'))}>
+            {mode === 'voice' ? <Type size={18} strokeWidth={1.6} /> : <Mic size={18} strokeWidth={1.6} />}
+          </IconBtn>
+          <IconBtn title="切换字幕" onClick={() => setShowTranscript((v) => !v)}>
+            <Captions size={18} strokeWidth={1.6} />
+          </IconBtn>
+          <IconBtn
+            title={micMuted ? '点击取消静音麦克风' : '点击静音麦克风'}
+            onClick={() => {
+              setMicMuted((m) => {
+                const next = !m;
+                if (next && recorder.isRecording) recorder.stop();
+                setToast(next ? '已静音麦克风' : '已开启麦克风');
+                setTimeout(() => setToast(''), 1600);
+                return next;
+              });
+            }}
+            active={!micMuted}
+            indicatorPulse={isListening}
+          >
+            {micMuted ? <MicOff size={18} strokeWidth={1.6} /> : <Mic size={18} strokeWidth={1.6} />}
+          </IconBtn>
+        </div>
+
+        <span className="text-[11px] text-[var(--stone)]" style={{ fontFamily: 'var(--font-mono)' }}>
+          Space 开始/结束 · Enter 提交
+        </span>
+      </footer>
     </main>
   );
+}
+
+/* ─────────────────────────── Local subcomponents ──────────────────────────── */
+
+function ModeTabs({ mode, onChange }: { mode: 'voice' | 'text'; onChange: (m: 'voice' | 'text') => void }) {
+  return (
+    <div
+      className="inline-flex rounded-[10px] border border-[var(--border)] p-[3px]"
+      style={{ background: 'var(--library-rail)' }}
+    >
+      <button
+        onClick={() => onChange('voice')}
+        className="inline-flex items-center gap-[6px] rounded-[8px] px-[12px] py-[6px] text-[12px] font-medium transition-colors"
+        style={{
+          background: mode === 'voice' ? '#fff' : 'transparent',
+          color: mode === 'voice' ? 'var(--ink)' : 'var(--olive)',
+          boxShadow: mode === 'voice' ? '0 0 0 1px var(--border-strong), 0 1px 2px rgba(0,0,0,0.03)' : 'none',
+        }}
+      >
+        <Mic size={14} strokeWidth={1.6} />
+        语音模式
+      </button>
+      <button
+        onClick={() => onChange('text')}
+        className="inline-flex items-center gap-[6px] rounded-[8px] px-[12px] py-[6px] text-[12px] font-medium transition-colors"
+        style={{
+          background: mode === 'text' ? '#fff' : 'transparent',
+          color: mode === 'text' ? 'var(--ink)' : 'var(--olive)',
+          boxShadow: mode === 'text' ? '0 0 0 1px var(--border-strong), 0 1px 2px rgba(0,0,0,0.03)' : 'none',
+        }}
+      >
+        <Type size={14} strokeWidth={1.6} />
+        文本模式
+      </button>
+    </div>
+  );
+}
+
+function IconBtn({
+  children, onClick, title, active, indicatorPulse,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  title?: string;
+  active?: boolean;
+  indicatorPulse?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className="relative grid h-[40px] w-[40px] place-items-center rounded-[10px] border border-transparent text-[var(--olive)] transition-colors hover:border-[var(--border)] hover:bg-white hover:text-[var(--ink)]"
+    >
+      {children}
+      {active && (
+        <span
+          className="absolute right-[7px] top-[7px] inline-block h-[7px] w-[7px] rounded-full"
+          style={{
+            background: indicatorPulse ? 'var(--emerald)' : '#5fbf7a',
+            boxShadow: indicatorPulse
+              ? '0 0 0 2px rgba(95,191,122,0.25)'
+              : '0 0 0 2px rgba(95,191,122,0.15)',
+            animation: indicatorPulse ? 'itv-pulse-dot 1.2s ease-in-out infinite' : undefined,
+          }}
+        />
+      )}
+    </button>
+  );
+}
+
+function fmtMMSS(secs: number): string {
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  return `${m}:${s}`;
 }

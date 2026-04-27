@@ -50,7 +50,7 @@ export function GuestLoginModal({ open, onClose, onSuccess }: GuestLoginModalPro
       width={420}
       centered
       destroyOnHidden
-      maskClosable
+      mask={{ closable: true }}
       classNames={{ body: 'hf' }}
     >
       <div className="hf" style={{ padding: '8px 4px 4px' }}>

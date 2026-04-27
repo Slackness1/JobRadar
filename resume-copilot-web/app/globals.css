@@ -203,17 +203,23 @@ textarea {
 
 .border-beam {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 3px;
   pointer-events: none;
-  z-index: 2;
+  z-index: 5;
   background: conic-gradient(
     from var(--border-beam-angle),
     transparent 0deg,
-    var(--primary) 40deg,
-    #a78bfa 70deg,
-    transparent 120deg,
+    var(--primary) 30deg,
+    #ffffff 55deg,
+    #a78bfa 80deg,
+    transparent 140deg,
+    transparent 180deg,
+    var(--primary) 210deg,
+    #ffffff 235deg,
+    #a78bfa 260deg,
+    transparent 320deg,
     transparent 360deg
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -221,6 +227,7 @@ textarea {
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   animation: border-beam-rotate 2.4s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(201,100,66,0.65)) drop-shadow(0 0 12px rgba(167,139,250,0.35));
 }
 
 @keyframes border-beam-rotate {

@@ -4,6 +4,7 @@ const backendUrl = process.env.RESUME_COPILOT_BACKEND_URL ?? 'http://127.0.0.1:8
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1', 'localhost'],
+  devIndicators: false,
   async rewrites() {
     return [
       {
