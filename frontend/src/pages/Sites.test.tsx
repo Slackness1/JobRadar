@@ -15,6 +15,7 @@ vi.mock('../api', async () => {
     fetchSites: vi.fn(),
     fetchSiteRuns: vi.fn(),
     triggerSiteRecrawl: vi.fn(),
+    fetchSitesDigest: vi.fn(),
   };
 });
 
@@ -84,6 +85,7 @@ describe('Sites page', () => {
     vi.mocked(api.fetchSites).mockResolvedValue(mockResponse([tencentRow, aliRow, cicc]));
     vi.mocked(api.fetchSiteRuns).mockResolvedValue(mockResponse([baseRun]));
     vi.mocked(api.triggerSiteRecrawl).mockResolvedValue(mockResponse({ parent_log_id: 99, message: '已启动' }));
+    vi.mocked(api.fetchSitesDigest).mockResolvedValue(mockResponse({ text: '', generated_at: null }));
   });
 
   afterEach(() => {

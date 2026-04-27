@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { fetchSiteRuns, fetchSites, fetchSitesSummary } from '../api';
+import { fetchSiteRuns, fetchSites, fetchSitesSummary, fetchSitesDigest } from '../api';
 import CategoryGroup from '../components/sites/CategoryGroup';
 import SiteDetailPanel from '../components/sites/SiteDetailPanel';
 import SitesSummaryBar from '../components/sites/SitesSummaryBar';
 import { ToastHost, useToast } from '../components/sites/ToastHost';
-import type { SiteRecrawlOut, SiteRow, SiteRun, SitesSummary } from '../components/sites/types';
+import type { SiteRecrawlOut, SiteRow, SiteRun, SitesSummary, SitesDigest } from '../components/sites/types';
 
 import '../styles/sites-theme.css';
 
@@ -29,6 +29,7 @@ function groupKeyForSource(source: string): string {
 function SitesInner() {
   const [summary, setSummary] = useState<SitesSummary | null>(null);
   const [rows, setRows] = useState<SiteRow[] | null>(null);
+  const [digest, setDigest] = useState<SitesDigest | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [runs, setRuns] = useState<SiteRun[]>([]);
   const [recrawlInFlight, setRecrawlInFlight] = useState<Record<string, number>>({});
@@ -37,9 +38,10 @@ function SitesInner() {
 
   const refresh = async (currentSelected: string | null) => {
     try {
-      const [s, r] = await Promise.all([fetchSitesSummary(), fetchSites()]);
+      const [s, r, d] = await Promise.all([fetchSitesSummary(), fetchSites(), fetchSitesDigest()]);
       setSummary(s.data);
       setRows(r.data);
+      setDigest(d.data);
       if (currentSelected) {
         const runsRes = await fetchSiteRuns(currentSelected, 24);
         setRuns(runsRes.data);
@@ -152,7 +154,7 @@ function SitesInner() {
     <div className="hf" data-theme="sites">
       <div className="sites-shell">
         {summary ? (
-          <SitesSummaryBar summary={summary} rows={rows ?? []} onJumpToCompany={setSelectedCompany} />
+          <SitesSummaryBar summary={summary} rows={rows ?? []} digest={digest} onJumpToCompany={setSelectedCompany} />
         ) : null}
         <div className="sites-content">
           <div>

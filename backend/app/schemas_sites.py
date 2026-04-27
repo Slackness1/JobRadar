@@ -44,3 +44,8 @@ class SiteRunOut(BaseModel):
 class SiteRecrawlOut(BaseModel):
     parent_log_id: int
     message: str
+
+
+class SitesDigestOut(BaseModel):
+    text: str
+    generated_at: Optional[datetime]

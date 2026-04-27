@@ -36,3 +36,8 @@ export interface SiteRecrawlOut {
   parent_log_id: number;
   message: string;
 }
+
+export interface SitesDigest {
+  text: string;
+  generated_at: string | null;
+}

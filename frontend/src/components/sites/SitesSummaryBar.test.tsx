@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import SitesSummaryBar from './SitesSummaryBar';
-import type { SiteRow, SitesSummary } from './types';
+import type { SiteRow, SitesSummary, SitesDigest } from './types';
 
 const baseSummary: SitesSummary = {
   active: 38,
@@ -25,7 +25,7 @@ const baseRow: SiteRow = {
 
 describe('SitesSummaryBar', () => {
   it('renders the three KPI counters and total_today_new', () => {
-    render(<SitesSummaryBar summary={baseSummary} rows={[]} onJumpToCompany={() => {}} />);
+    render(<SitesSummaryBar summary={baseSummary} rows={[]} digest={null} onJumpToCompany={() => {}} />);
     expect(screen.getByText(/运行中/)).toBeInTheDocument();
     expect(screen.getByText('38')).toBeInTheDocument();
     expect(screen.getByText(/今日新增/)).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe('SitesSummaryBar', () => {
 
   it('does not render the alert banner when alerted < 2', () => {
     const summary = { ...baseSummary, alerted: 1 };
-    const { container } = render(<SitesSummaryBar summary={summary} rows={[]} onJumpToCompany={() => {}} />);
+    const { container } = render(<SitesSummaryBar summary={summary} rows={[]} digest={null} onJumpToCompany={() => {}} />);
     expect(container.querySelector('.sites-alert-banner')).toBeNull();
   });
 
@@ -45,7 +45,7 @@ describe('SitesSummaryBar', () => {
       { ...baseRow, company: 'b', alert_level: 'yellow' },
       { ...baseRow, company: 'c', alert_level: 'yellow' },
     ];
-    const { container } = render(<SitesSummaryBar summary={summary} rows={rows} onJumpToCompany={() => {}} />);
+    const { container } = render(<SitesSummaryBar summary={summary} rows={rows} digest={null} onJumpToCompany={() => {}} />);
     expect(container.querySelector('.sites-alert-banner')).toBeNull();
   });
 
@@ -55,7 +55,7 @@ describe('SitesSummaryBar', () => {
       { ...baseRow, company: '腾讯', alert_level: 'red' },
       { ...baseRow, company: '中金公司', alert_level: 'yellow' },
     ];
-    render(<SitesSummaryBar summary={summary} rows={rows} onJumpToCompany={() => {}} />);
+    render(<SitesSummaryBar summary={summary} rows={rows} digest={null} onJumpToCompany={() => {}} />);
     expect(screen.getByText(/今日 2 家爬虫疑似失效/)).toBeInTheDocument();
     expect(screen.getByText(/腾讯/)).toBeInTheDocument();
   });
@@ -68,7 +68,7 @@ describe('SitesSummaryBar', () => {
       { ...baseRow, company: '阿里巴巴', alert_level: 'red' },
     ];
     const onJump = vi.fn();
-    const { container } = render(<SitesSummaryBar summary={summary} rows={rows} onJumpToCompany={onJump} />);
+    const { container } = render(<SitesSummaryBar summary={summary} rows={rows} digest={null} onJumpToCompany={onJump} />);
     const banner = container.querySelector('.sites-alert-banner') as HTMLElement;
     expect(banner).toBeTruthy();
     fireEvent.click(banner);
@@ -81,7 +81,7 @@ describe('SitesSummaryBar', () => {
       { ...baseRow, company: 'b', last_status: 'failed' },
       { ...baseRow, company: 'c', last_status: 'success' },
     ];
-    render(<SitesSummaryBar summary={baseSummary} rows={rows} onJumpToCompany={() => {}} />);
+    render(<SitesSummaryBar summary={baseSummary} rows={rows} digest={null} onJumpToCompany={() => {}} />);
     const sub = document.querySelector('.sites-summary-bar__sub');
     expect(sub).toBeTruthy();
     // Should contain "上次跑批" prefix
@@ -96,8 +96,20 @@ describe('SitesSummaryBar', () => {
 
   it('shows 暂无运行 when last_batch_at is null', () => {
     const summary = { ...baseSummary, last_batch_at: null, last_batch_status: null };
-    render(<SitesSummaryBar summary={summary} rows={[]} onJumpToCompany={() => {}} />);
+    render(<SitesSummaryBar summary={summary} rows={[]} digest={null} onJumpToCompany={() => {}} />);
     const sub = document.querySelector('.sites-summary-bar__sub');
     expect(sub!.textContent).toMatch(/暂无运行/);
+  });
+
+  it('renders digest text below the bar when present', () => {
+    const digest: SitesDigest = { text: '今早 09:00 跑完，28 家成功。', generated_at: '2026-04-27T01:35:00' };
+    render(<SitesSummaryBar summary={baseSummary} rows={[]} digest={digest} onJumpToCompany={() => {}} />);
+    expect(screen.getByText(/28 家成功/)).toBeInTheDocument();
+  });
+
+  it('does not render digest section when text is empty', () => {
+    const digest: SitesDigest = { text: '', generated_at: null };
+    const { container } = render(<SitesSummaryBar summary={baseSummary} rows={[]} digest={digest} onJumpToCompany={() => {}} />);
+    expect(container.querySelector('.sites-summary-bar__digest')).toBeNull();
   });
 });

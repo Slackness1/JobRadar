@@ -21,6 +21,8 @@ JOB_ID = "daily_crawl"
 GUEST_CLEANUP_JOB_ID = "guest_cleanup"
 TIER_CRAWL_JOB_ID = "daily_tier_crawl"
 DEFAULT_TIER_CRON = "0 9 * * *"
+DIGEST_JOB_ID = "daily_digest"
+DEFAULT_DIGEST_CRON = "35 9 * * *"
 
 
 def _daily_crawl_job():
@@ -131,6 +133,30 @@ def _daily_tier_crawl_job():
         db.close()
 
 
+def _daily_digest_job():
+    from app.config import CRAWLER_LLM_DIGEST_ENABLED
+    if not CRAWLER_LLM_DIGEST_ENABLED:
+        return
+    db = SessionLocal()
+    try:
+        from datetime import datetime as _dt
+        from app.services.crawler_llm_digest import (
+            aggregate_today_stats,
+            generate_daily_digest,
+            persist_digest,
+        )
+        stats = aggregate_today_stats(db, _dt.utcnow())
+        if stats["total_companies"] == 0:
+            return
+        text = generate_daily_digest(stats)
+        if text:
+            persist_digest(db, text)
+    except Exception as exc:
+        print(f"[DIGEST ERROR] {exc}")
+    finally:
+        db.close()
+
+
 def _guest_cleanup_job():
     try:
         result = cleanup_expired_guest_records()
@@ -155,6 +181,14 @@ def start_scheduler():
             _daily_tier_crawl_job,
             CronTrigger.from_crontab(DEFAULT_TIER_CRON, timezone=SCHEDULER_TZ),
             id=TIER_CRAWL_JOB_ID,
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1,
+        )
+        scheduler.add_job(
+            _daily_digest_job,
+            CronTrigger.from_crontab(DEFAULT_DIGEST_CRON, timezone=SCHEDULER_TZ),
+            id=DIGEST_JOB_ID,
             replace_existing=True,
             coalesce=True,
             max_instances=1,

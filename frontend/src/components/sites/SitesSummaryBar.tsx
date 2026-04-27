@@ -1,8 +1,9 @@
-import type { SiteRow, SitesSummary } from './types';
+import type { SiteRow, SitesSummary, SitesDigest } from './types';
 
 interface SitesSummaryBarProps {
   summary: SitesSummary;
   rows: SiteRow[];
+  digest: SitesDigest | null;
   onJumpToCompany: (company: string) => void;
 }
 
@@ -29,7 +30,7 @@ function statusLabel(s: string | null): string {
   return s;
 }
 
-export default function SitesSummaryBar({ summary, rows, onJumpToCompany }: SitesSummaryBarProps) {
+export default function SitesSummaryBar({ summary, rows, digest, onJumpToCompany }: SitesSummaryBarProps) {
   const redRows = rows.filter((r) => r.alert_level === 'red');
   const showBanner = summary.alerted >= 2 && redRows.length > 0;
 
@@ -70,6 +71,12 @@ export default function SitesSummaryBar({ summary, rows, onJumpToCompany }: Site
         <span className="hf-cap" style={{ marginRight: 8 }}>今日新增</span>
         <span className="sites-kpi-num">{summary.total_today_new}</span>
         <div className="sites-summary-bar__sub">{subLine}</div>
+        {digest && digest.text ? (
+          <div className="sites-summary-bar__digest">
+            <span className="sites-summary-bar__digest-label">今日简报</span>
+            <span className="sites-summary-bar__digest-text">{digest.text}</span>
+          </div>
+        ) : null}
       </div>
 
       {showBanner ? (

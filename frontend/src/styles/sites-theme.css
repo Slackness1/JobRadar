@@ -347,3 +347,24 @@
 }
 .hf .sites-toast.success { box-shadow: 0 0 0 1px var(--emerald-soft), 0 18px 52px rgba(0,0,0,0.08); border-left: 3px solid var(--emerald); }
 .hf .sites-toast.failed  { box-shadow: 0 0 0 1px #f4d4d4, 0 18px 52px rgba(0,0,0,0.08); border-left: 3px solid var(--crimson); }
+
+/* Daily digest strip below summary-bar sub line */
+.hf .sites-summary-bar__digest {
+  flex-basis: 100%;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-cream);
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.hf .sites-summary-bar__digest-label {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--terracotta-strong);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+

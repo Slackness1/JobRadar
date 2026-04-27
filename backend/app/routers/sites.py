@@ -12,6 +12,7 @@ from app.schemas_sites import (
     SiteRowOut,
     SiteRunOut,
     SitesSummaryOut,
+    SitesDigestOut,
 )
 from app.services.company_crawler_registry import COMPANY_CRAWLERS, recrawl_company
 from app.services.scorer import score_all_jobs
@@ -147,6 +148,24 @@ def _run_recrawl_in_background(company: str, parent_log_id: int) -> None:
             db.commit()
     finally:
         db.close()
+
+
+@router.get("/digest", response_model=SitesDigestOut)
+def get_digest(db: Session = Depends(get_db)) -> SitesDigestOut:
+    import json as _json
+    from app.models import SystemConfig
+    from app.services.crawler_llm_digest import DIGEST_KEY
+
+    row = db.query(SystemConfig).filter_by(key=DIGEST_KEY).first()
+    if row is None or not row.value:
+        return SitesDigestOut(text="", generated_at=None)
+    try:
+        payload = _json.loads(row.value)
+        gen_at = payload.get("generated_at")
+        gen_dt = datetime.fromisoformat(gen_at) if gen_at else None
+        return SitesDigestOut(text=str(payload.get("text") or ""), generated_at=gen_dt)
+    except Exception:
+        return SitesDigestOut(text="", generated_at=None)
 
 
 @router.post("/{company}/recrawl", response_model=SiteRecrawlOut)
