@@ -34,11 +34,26 @@ from app.services.scheduler_service import start_scheduler
 from app.services.seed import seed_from_yaml
 
 
+def _run_alembic_upgrade() -> None:
+    from pathlib import Path
+    from alembic import command
+    from alembic.config import Config
+
+    backend_dir = Path(__file__).resolve().parent.parent
+    cfg_path = backend_dir / 'alembic.ini'
+    if not cfg_path.exists():
+        return
+    cfg = Config(str(cfg_path))
+    cfg.set_main_option('script_location', str(backend_dir / 'alembic'))
+    command.upgrade(cfg, 'head')
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create tables + schema patch + seed + scheduler
     Base.metadata.create_all(bind=engine)
     ensure_compatible_schema(engine)
+    _run_alembic_upgrade()
 
     db = SessionLocal()
     try:
