@@ -35,7 +35,6 @@ from app.services.seed import seed_from_yaml
 
 
 def _run_alembic_upgrade() -> None:
-    from pathlib import Path
     from alembic import command
     from alembic.config import Config
 
@@ -46,6 +45,7 @@ def _run_alembic_upgrade() -> None:
     cfg = Config(str(cfg_path))
     cfg.set_main_option('script_location', str(backend_dir / 'alembic'))
     command.upgrade(cfg, 'head')
+    print('[INFO] alembic upgrade head OK')
 
 
 @asynccontextmanager
