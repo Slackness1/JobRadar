@@ -69,7 +69,7 @@ docker compose up --build
 
 **Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`, `interview`, `sites`. Each router is a file under `app/routers/`.
 
-**Database:** Single SQLite file at `backend/data/jobradar.db`. WAL mode and `busy_timeout=5000` are set via a SQLAlchemy `@event.listens_for(engine, 'connect')` hook. Models are in `app/models.py`; schema evolution is handled by `app/services/schema_patch.py` (not Alembic — see Q10 in the review plan if you want to migrate this).
+**Database:** Single SQLite file at `backend/data/jobradar.db`. WAL mode and `busy_timeout=5000` are set via a SQLAlchemy `@event.listens_for(engine, 'connect')` hook. Models are in `app/models.py`. Schema evolution: starting 2026-04-28, new schema changes go through Alembic (`backend/alembic/versions/`); legacy `app/services/schema_patch.py` still runs at startup for safety during transition. To add a migration: `cd backend && PYTHONPATH=. .venv/bin/alembic revision --autogenerate -m "<name>"`, review the generated file, then `alembic upgrade head` (also runs automatically in lifespan). On a brand-new VPS DB, after first deploy run `cd /home/ubuntu/opencode-worktrees/jobrador-edit/backend && PYTHONPATH=. .venv/bin/alembic stamp head` once before any code that calls `alembic upgrade head`.
 
 **Resume Copilot pipeline** (`app/services/resume_copilot/`):
 - `workflow.py` — two async-safe workflows: `run_resume_parse_workflow` and `run_resume_generate_workflow`, both dispatched via FastAPI `BackgroundTasks`. Each opens its own `SessionLocal`.
