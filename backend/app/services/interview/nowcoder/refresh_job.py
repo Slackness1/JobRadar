@@ -118,9 +118,15 @@ def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) ->
     if not metas:
         return
 
-    # LLM gate: drop titles that are off-topic / cache-bled / "求面经" survivors.
+    # title_filter is a soft gate — empirically the LLM is too restrictive on
+    # some chips (e.g. drops 直接命中 titles for 中国银行总行). If it returns
+    # < 30% of input, ignore its judgment and keep all titles; quality_scorer
+    # at the next layer is the real filter.
     keep_idx = title_filter.filter_relevant_titles(chip, [m.title for m in metas])
-    relevant = [metas[i] for i in keep_idx if 0 <= i < len(metas)]
+    if len(keep_idx) >= max(1, len(metas) * 3 // 10):
+        relevant = [metas[i] for i in keep_idx if 0 <= i < len(metas)]
+    else:
+        relevant = list(metas)
 
     for meta in relevant:
         existing = db.query(InterviewIntelPost).filter_by(pid=meta.pid, keyword=chip).one_or_none()
