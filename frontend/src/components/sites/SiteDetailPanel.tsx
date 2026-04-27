@@ -1,3 +1,4 @@
+import MarkdownLite from './MarkdownLite';
 import RecrawlButton from './RecrawlButton';
 import RunSparkline from './RunSparkline';
 import type { SiteRecrawlOut, SiteRow, SiteRun } from './types';
@@ -137,7 +138,9 @@ export default function SiteDetailPanel({ row, runs, inFlight, onRecrawlSubmit }
       {lastRun && lastRun.suggested_fix ? (
         <div className="sites-detail-card__diagnosis">
           <div className="sites-detail-card__diagnosis-label">🔧 LLM 诊断建议</div>
-          <div className="sites-detail-card__diagnosis-body">{lastRun.suggested_fix}</div>
+          <div className="sites-detail-card__diagnosis-body">
+            <MarkdownLite text={lastRun.suggested_fix} />
+          </div>
         </div>
       ) : null}
 

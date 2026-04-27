@@ -319,8 +319,35 @@
 .hf .sites-detail-card__diagnosis-body {
   font-size: 12.5px;
   color: var(--charcoal);
-  line-height: 1.5;
-  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+/* MarkdownLite — minimal markdown subset for /sites */
+.hf .md-lite-p {
+  margin: 0 0 8px 0;
+}
+.hf .md-lite-p:last-child {
+  margin-bottom: 0;
+}
+.hf .md-lite-list {
+  margin: 4px 0 8px 0;
+  padding-left: 18px;
+}
+.hf .md-lite-list li {
+  margin-bottom: 3px;
+}
+.hf .md-lite-code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  background: var(--ivory);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--terracotta-strong);
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+.hf .md-lite strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 
 /* Toast (top-right stack) */
