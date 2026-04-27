@@ -105,6 +105,18 @@ ALIYUN_ACCESS_KEY_SECRET = os.environ.get("ALIYUN_ACCESS_KEY_SECRET", "")
 AVATAR_PROJECT_ID = os.environ.get("AVATAR_PROJECT_ID", "")
 AVATAR_INSTANCE_ID = os.environ.get("AVATAR_INSTANCE_ID", "")
 
+# Crawler LLM (cheap-and-fast for enrichment, stronger for diagnosis)
+CRAWLER_LLM_BASE_URL = os.environ.get("CRAWLER_LLM_BASE_URL", RESUME_COPILOT_LLM_BASE_URL)
+CRAWLER_LLM_API_KEY = os.environ.get("CRAWLER_LLM_API_KEY", RESUME_COPILOT_LLM_API_KEY)
+CRAWLER_LLM_FLASH_MODEL = os.environ.get("CRAWLER_LLM_FLASH_MODEL", "deepseek-chat")
+CRAWLER_LLM_PRO_MODEL = os.environ.get("CRAWLER_LLM_PRO_MODEL", "deepseek-chat")
+CRAWLER_LLM_TIMEOUT_SECONDS = _get_int_env("CRAWLER_LLM_TIMEOUT_SECONDS", 30)
+
+# Feature flags — all OFF by default; flip via env
+CRAWLER_LLM_ENRICH_ENABLED = os.environ.get("CRAWLER_LLM_ENRICH_ENABLED", "0") in {"1", "true", "True"}
+CRAWLER_LLM_DIAGNOSE_ENABLED = os.environ.get("CRAWLER_LLM_DIAGNOSE_ENABLED", "0") in {"1", "true", "True"}
+CRAWLER_LLM_DIGEST_ENABLED = os.environ.get("CRAWLER_LLM_DIGEST_ENABLED", "0") in {"1", "true", "True"}
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 

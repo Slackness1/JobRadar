@@ -267,6 +267,8 @@ class Job(Base):
     detail_url = Column(Text, default="")
     scraped_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
+    track_predicted = Column(Text, nullable=False, default="")
+    quality_label = Column(Text, nullable=False, default="")
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
 
@@ -432,3 +434,4 @@ class CompanyCrawlLog(Base):
     error_message = Column(Text, nullable=False, default="")
     parent_log_id = Column(Integer, nullable=True, index=True)
     duration_ms = Column(Integer, nullable=False, default=0)
+    suggested_fix = Column(Text, nullable=False, default="")
