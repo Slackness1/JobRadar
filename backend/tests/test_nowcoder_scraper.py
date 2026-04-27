@@ -31,6 +31,19 @@ def test_search_dedupes_repeated_pids():
         seen.add(r.pid)
 
 
+def test_search_filters_noise_titles():
+    html = (
+        '<a href="/discuss/1?sourceSSR=search">字节数据分析面经分享</a>'
+        '<a href="/discuss/2?sourceSSR=search">中国银行总行信科实习求面经</a>'
+        '<a href="/discuss/3?sourceSSR=search">有谁面过腾讯产品岗吗</a>'
+        '<a href="/discuss/4?sourceSSR=search">美团数据分析一面 实习面经 20min</a>'
+    )
+    with patch.object(scraper, "_fetch", return_value=html):
+        results = scraper.search("anything", limit=10)
+    pids = [r.pid for r in results]
+    assert pids == ["1", "4"]
+
+
 def test_fetch_post_parses_emoji_template():
     with patch.object(scraper, "_fetch", return_value=_read("post_sample.html")):
         detail = scraper.fetch_post("873597725214789632")

@@ -76,29 +76,59 @@ def get_last_refresh_status() -> dict:
         return dict(_STATUS)
 
 
+_SUMMARY_POST_AGE_DAYS = 60
+_MAX_SUMMARY_POSTS = 20
+
+
+def _collect_ok_posts_for_summary(db: Session, chip: str) -> list[scraper.PostDetail]:
+    """Pull all parse_status='ok' posts for this chip from DB (not just this run's),
+    capped to the most recent _MAX_SUMMARY_POSTS within _SUMMARY_POST_AGE_DAYS."""
+    cutoff = datetime.utcnow() - timedelta(days=_SUMMARY_POST_AGE_DAYS)
+    rows = (
+        db.query(InterviewIntelPost)
+        .filter(
+            InterviewIntelPost.keyword == chip,
+            InterviewIntelPost.parse_status == "ok",
+            InterviewIntelPost.fetched_at >= cutoff,
+        )
+        .order_by(InterviewIntelPost.fetched_at.desc())
+        .limit(_MAX_SUMMARY_POSTS)
+        .all()
+    )
+    return [
+        scraper.PostDetail(
+            pid=r.pid, company=r.company, interview_date=r.interview_date,
+            position=r.position, questions_text=r.questions_text, parse_status="ok",
+        )
+        for r in rows
+    ]
+
+
 def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) -> None:
     metas = scraper.search(query, limit=_DEFAULT_LIMIT)
-    ok_posts: list[scraper.PostDetail] = []
     for meta in metas:
         existing = db.query(InterviewIntelPost).filter_by(pid=meta.pid, keyword=chip).one_or_none()
         if _is_fresh(existing):
-            if existing.parse_status == "ok":
-                ok_posts.append(scraper.PostDetail(
-                    pid=existing.pid, company=existing.company, interview_date=existing.interview_date,
-                    position=existing.position, questions_text=existing.questions_text, parse_status="ok",
-                ))
             continue
         detail = scraper.fetch_post(meta.pid)
         _upsert_post(db, chip, detail, meta.title)
-        if detail.parse_status == "ok":
-            ok_posts.append(detail)
         stats.posts_fetched += 1
         time.sleep(random.uniform(0.4, 1.0))
     db.commit()
 
-    summary = summarizer.summarize_keyword(chip, ok_posts) if ok_posts else ""
-    _upsert_keyword(db, chip, summary, len(ok_posts))
-    db.commit()
+    ok_posts = _collect_ok_posts_for_summary(db, chip)
+    if not ok_posts:
+        # Preserve existing summary if any — don't blow away a good one with empty.
+        existing_kw = db.query(InterviewIntelKeyword).filter_by(keyword=chip).one_or_none()
+        if existing_kw is None:
+            _upsert_keyword(db, chip, "", 0)
+            db.commit()
+        return
+
+    summary = summarizer.summarize_keyword(chip, ok_posts)
+    if summary:
+        _upsert_keyword(db, chip, summary, len(ok_posts))
+        db.commit()
 
 
 def run_refresh(db: Session) -> RefreshStats:

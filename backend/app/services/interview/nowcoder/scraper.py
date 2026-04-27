@@ -38,6 +38,13 @@ def _fetch(url: str) -> str:
         return r.read().decode("utf-8", errors="replace")
 
 
+_NOISE_TITLE_RE = re.compile(r'(求面经|求面试|求经验|求帮助|求大佬|求问|求指导|求建议|急求|求带|没人面|有没有人|有人面过|有谁面过|跪求)')
+
+
+def _is_noise_title(title: str) -> bool:
+    return bool(_NOISE_TITLE_RE.search(title))
+
+
 def search(query: str, limit: int = 10) -> list[PostMeta]:
     url = _SEARCH_URL.format(q=urllib.parse.quote(query))
     htm = _fetch(url)
@@ -48,6 +55,8 @@ def search(query: str, limit: int = 10) -> list[PostMeta]:
         if pid in seen:
             continue
         seen.add(pid)
+        if _is_noise_title(title):
+            continue
         out.append(PostMeta(pid=pid, title=title))
         if len(out) >= limit:
             break
