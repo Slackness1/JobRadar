@@ -313,11 +313,14 @@ def ensure_compatible_schema(engine: Engine) -> None:
             )
             """
         ))
+        # Drop legacy manual indexes; ensure ORM-named indexes exist (idempotent)
+        conn.execute(text("DROP INDEX IF EXISTS idx_interview_turns_session"))
+        conn.execute(text("DROP INDEX IF EXISTS idx_interview_turns_user"))
         conn.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_interview_turns_session ON interview_turns(session_id)"
+            "CREATE INDEX IF NOT EXISTS ix_interview_turns_session_id ON interview_turns(session_id)"
         ))
         conn.execute(text(
-            "CREATE INDEX IF NOT EXISTS idx_interview_turns_user ON interview_turns(user_key)"
+            "CREATE INDEX IF NOT EXISTS ix_interview_turns_user_key ON interview_turns(user_key)"
         ))
 
         # interview_reports new columns — idempotent ALTER
