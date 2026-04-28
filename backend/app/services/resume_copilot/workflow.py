@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.database import SessionLocal
 from app.models import (
@@ -25,6 +25,10 @@ from app.services.resume_copilot.recommendation import ResumeRecommendationProvi
 
 RESUME_RECOMMENDATION_LIMIT = 100
 _AGENT_TRACE_CAP = 50
+
+# Mirrors USER_SESSION_TTL from app.routers.resume_copilot — duplicated here
+# to avoid a circular import. Keep in sync.
+USER_SESSION_TTL = timedelta(days=7)
 
 
 def _append_agent_trace(
@@ -252,6 +256,7 @@ def run_resume_generate_workflow(
         ).first()
         session.feedback_status = RunStatus.COMPLETED.value
         session.status = SessionStatus.COMPLETED.value
+        session.expires_at = datetime.utcnow() + USER_SESSION_TTL
         session.error_message = ''
         db.commit()
 

@@ -13,7 +13,7 @@ def _make_candidate(job_id: str, score: int = 50) -> ResumeRecommendationItem:
         job_id=job_id, company='公司', job_title='岗位', location='上海',
         objective_score=10, preference_score=5, base_job_score=20,
         company_priority_score=15, base_match_score=score,
-        enhanced_score=score, rule_score=score, final_score=score,
+        enhanced_score=score, final_score=score,
     )
 
 

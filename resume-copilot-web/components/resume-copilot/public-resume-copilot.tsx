@@ -266,6 +266,8 @@ type AgentName = typeof ALL_AGENTS[number];
 
 // Claude Code-style spinner: · ✢ ✳ ✶ ✻ ✽
 const SPINNER_FRAMES = ['·', '✢', '✳', '✶', '✻', '✽'] as const;
+const POLL_MAX_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const POLL_ERROR_LIMIT = 3;
 
 // Cycling verbs shown as placeholder while waiting for real backend messages
 const AGENT_VERBS: Record<AgentName, string[]> = {
@@ -957,6 +959,9 @@ export function PublicResumeCopilot() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [pollStartedAt, setPollStartedAt] = useState<number | null>(null);
+  const [pollErrorStreak, setPollErrorStreak] = useState(0);
+  const [pollGaveUp, setPollGaveUp] = useState(false);
 
   const currentProfile = profile ?? EMPTY_PROFILE;
   const designParam = searchParams.get('design');
@@ -1058,16 +1063,30 @@ export function PublicResumeCopilot() {
   }, [loadSession, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!sessionId || !sessionIsActive(session)) return;
+    if (!sessionId || !sessionIsActive(session)) {
+      setPollStartedAt(null);
+      setPollErrorStreak(0);
+      setPollGaveUp(false);
+      return;
+    }
+    if (pollGaveUp) return;
+    if (pollStartedAt == null) setPollStartedAt(Date.now());
 
     const timer = window.setInterval(() => {
-      loadSession(sessionId).catch((reason: unknown) => {
-        setError(reason instanceof Error ? reason.message : '刷新状态失败');
-      });
+      if (pollStartedAt != null && Date.now() - pollStartedAt > POLL_MAX_DURATION_MS) {
+        setPollGaveUp(true);
+        return;
+      }
+      loadSession(sessionId)
+        .then(() => setPollErrorStreak(0))
+        .catch((reason: unknown) => {
+          setPollErrorStreak((n) => n + 1);
+          setError(reason instanceof Error ? reason.message : '刷新状态失败');
+        });
     }, 1600);
 
     return () => window.clearInterval(timer);
-  }, [loadSession, session, sessionId]);
+  }, [loadSession, session, sessionId, pollStartedAt, pollGaveUp]);
 
   useEffect(() => {
     if (session?.has_parsed_profile && profile && !editorOpen) {
@@ -1354,6 +1373,38 @@ export function PublicResumeCopilot() {
   return (
     <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
       {sessionId === DEMO_SESSION_ID && <DemoBanner />}
+      {sessionId && pollErrorStreak >= POLL_ERROR_LIMIT && !pollGaveUp ? (
+        <div style={{ padding: '8px 12px', background: 'var(--soft-blue, #eef4ff)', border: '1px solid var(--border, #d8dde3)', borderRadius: 8, fontSize: 13, color: 'var(--ink, #2c3036)' }}>
+          连接不稳定（连续 {pollErrorStreak} 次失败）。
+          <button
+            type="button"
+            style={{ marginLeft: 8, color: 'var(--primary, #2563eb)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => {
+              setPollErrorStreak(0);
+              setError('');
+              if (sessionId) loadSession(sessionId).catch(() => {});
+            }}
+          >
+            重试
+          </button>
+        </div>
+      ) : null}
+      {pollGaveUp ? (
+        <div style={{ padding: '8px 12px', background: 'var(--soft-blue, #eef4ff)', border: '1px solid var(--border, #d8dde3)', borderRadius: 8, fontSize: 13, color: 'var(--ink, #2c3036)' }}>
+          刷新状态已停止（持续 5 分钟未完成）。
+          <button
+            type="button"
+            style={{ marginLeft: 8, color: 'var(--primary, #2563eb)', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={() => {
+              setPollGaveUp(false);
+              setPollStartedAt(Date.now());
+              setPollErrorStreak(0);
+            }}
+          >
+            恢复轮询
+          </button>
+        </div>
+      ) : null}
       <section className="grid min-h-screen lg:grid-cols-[minmax(560px,52vw)_minmax(0,1fr)]">
         <ResumeChatRail
           session={session}
@@ -1954,7 +2005,7 @@ function ResumeChatRail({
                           </div>
                         </div>
                         <div className="mt-2 text-[11px] leading-4 text-slate-400">
-                          Base {item.base_match_score || item.rule_score} · Enhanced {item.enhanced_score || item.final_score}
+                          规则分 {item.base_match_score} · 增强分 {item.enhanced_score} · 最终分 {item.final_score}
                           {item.company_priority_label ? ` · ${item.company_priority_label}` : ''}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1.5">

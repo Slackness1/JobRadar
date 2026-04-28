@@ -82,7 +82,7 @@ def _make_recs():
         ResumeRecommendationItem(
             job_id='job-1', company='Acme', job_title='后端', location='上海',
             objective_score=50, preference_score=30, base_job_score=40,
-            company_priority_score=10, rule_score=130, final_score=130,
+            company_priority_score=10, base_match_score=130, final_score=130,
         )
     ]
 

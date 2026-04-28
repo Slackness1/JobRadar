@@ -117,7 +117,6 @@ export interface ResumeRecommendationItem {
   company_priority_score: number;
   base_match_score: number;
   enhanced_score: number;
-  rule_score: number;
   final_score: number;
   matched_track_key: string;
   matched_track_label: string;

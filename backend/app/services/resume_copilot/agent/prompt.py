@@ -53,7 +53,7 @@ def _summarize_candidates(candidates: list[ResumeRecommendationItem]) -> str:
             'company': item.company,
             'job_title': item.job_title,
             'location': item.location,
-            'rule_score': item.base_match_score,
+            'base_match_score': item.base_match_score,
             'company_tier': item.company_priority_label or '',
             'need_enrichment': item.need_enrichment,
         }
