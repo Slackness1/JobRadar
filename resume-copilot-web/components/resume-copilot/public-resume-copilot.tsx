@@ -16,7 +16,6 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
-  Clock3,
   FileText,
   Github,
   Home,
@@ -210,14 +209,6 @@ function timeAgo(dateStr: string | null | undefined): string {
   if (ms < 7 * 86_400_000) return `${Math.floor(ms / 86_400_000)} 天前`;
   return new Date(dateStr).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
 }
-
-const workflowSteps = [
-  { key: 'upload', label: '上传简历', description: '校验 PDF 并抽取文本' },
-  { key: 'parse', label: 'AI 解析', description: '提取教育、实习、项目、技能' },
-  { key: 'confirm', label: '确认画像', description: '预览优先，需要时再编辑模块' },
-  { key: 'preferences', label: '求职偏好', description: '可填写，也可以全部跳过' },
-  { key: 'generate', label: '推荐反馈', description: '岗位匹配、重排、简历建议' },
-];
 
 function splitLines(value: string) {
   return value
@@ -500,29 +491,6 @@ function AgentThinkingPanel({
       </div>
     </div>
   );
-}
-
-function stepState(stepKey: string, session: ResumeCopilotSession | null) {
-  if (!session) return stepKey === 'upload' ? 'current' : 'pending';
-  if (stepKey === 'upload') return 'done';
-  if (stepKey === 'parse') {
-    if (session.has_parsed_profile) return 'done';
-    if (session.status === 'failed') return 'failed';
-    return 'current';
-  }
-  if (stepKey === 'confirm') {
-    if (session.has_confirmed_profile) return 'done';
-    if (session.has_parsed_profile) return 'current';
-    return 'pending';
-  }
-  if (stepKey === 'preferences') {
-    if (session.has_preferences) return 'done';
-    if (session.has_confirmed_profile) return 'current';
-    return 'pending';
-  }
-  if (session.has_recommendations || session.has_feedback) return 'done';
-  if (session.recommendation_status === 'running' || session.feedback_status === 'running') return 'current';
-  return 'pending';
 }
 
 function getProfileName(profile: ResumeProfilePayload) {
@@ -917,103 +885,8 @@ function LandingUploadGate({
   );
 }
 
-const PARSE_PHASES = [
-  { label: '提取 PDF 文本', durationMs: 1800, hints: ['正在读取 PDF 字节流…', '提取嵌入字体文本…', '清理换行与乱码…'] },
-  { label: '识别基本信息', durationMs: 2200, hints: ['定位姓名与联系方式…', '解析邮箱与电话…', '提取 GitHub 链接…'] },
-  { label: '解析教育背景', durationMs: 2800, hints: ['识别院校与学院…', '提取学历与专业…', '解析在校时间段…'] },
-  { label: '解析实习与工作', durationMs: 3500, hints: ['识别公司与职位…', '提取工作时间段…', '理解职责描述…', '评估工作经验深度…'] },
-  { label: '提取项目与技能', durationMs: 3000, hints: ['识别项目标题…', '提取技术栈关键词…', '归类语言与框架…'] },
-  { label: '生成结构化画像', durationMs: 99999, hints: ['整合全部字段…', '生成 JSON 画像…', '准备进入预览…'] },
-] as const;
-
-function ParseProgressPanel({ done }: { done: boolean }) {
-  const [phase, setPhase] = useState(0);
-  const [hintIdx, setHintIdx] = useState(0);
-  const [frameIdx, setFrameIdx] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setFrameIdx((f) => (f + 1) % SPINNER_FRAMES.length), 200);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Hint cycling restarts when phase changes (hintIdx reset happens in the phase-advance callback)
-  useEffect(() => {
-    const currentPhase = PARSE_PHASES[Math.min(phase, PARSE_PHASES.length - 1)];
-    const id = setInterval(() => setHintIdx((h) => (h + 1) % currentPhase.hints.length), 1400);
-    return () => clearInterval(id);
-  }, [phase]);
-
-  useEffect(() => {
-    if (done || phase >= PARSE_PHASES.length - 1) return;
-    const id = setTimeout(() => {
-      setPhase((p) => p + 1);
-      setHintIdx(0);
-    }, PARSE_PHASES[phase].durationMs);
-    return () => clearTimeout(id);
-  }, [phase, done]);
-
-  return (
-    <div>
-      <div className="space-y-2">
-        {PARSE_PHASES.map((p, i) => {
-          const isDone = done || i < phase;
-          const isActive = !done && i === phase;
-          const isPending = !done && i > phase;
-          const currentHint = isActive ? p.hints[hintIdx % p.hints.length] : '';
-          const spinnerChar = SPINNER_FRAMES[(frameIdx + i * 2) % SPINNER_FRAMES.length];
-
-          return (
-            <div
-              key={i}
-              className={cn(
-                'flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-300',
-                isDone && 'border-emerald-400/30 bg-emerald-400/10',
-                isActive && 'border-blue-300/30 bg-blue-400/[0.08]',
-                isPending && 'border-white/5 bg-white/[0.02] opacity-40',
-              )}
-            >
-              <span
-                className={cn(
-                  'w-5 shrink-0 text-center font-mono text-base',
-                  isDone && 'text-emerald-400',
-                  isActive && 'text-blue-300',
-                  isPending && 'text-slate-600',
-                )}
-              >
-                {isDone ? '✓' : isActive ? spinnerChar : '·'}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div
-                  className={cn(
-                    'text-sm font-semibold',
-                    isDone && 'text-emerald-100',
-                    isActive && 'text-slate-100',
-                    isPending && 'text-slate-500',
-                  )}
-                >
-                  {p.label}
-                </div>
-                {isActive && <div className="mt-0.5 truncate text-xs text-slate-400">{currentHint}</div>}
-                {isDone && <div className="mt-0.5 text-xs text-emerald-400/70">完成</div>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4 text-right font-mono text-xs text-slate-500">{elapsed}s</div>
-    </div>
-  );
-}
-
 function ParsingGate({
   session,
-  notice,
   error,
   onUpload,
   isUploading,
@@ -1026,63 +899,34 @@ function ParsingGate({
 }) {
   const failed = session?.status === 'failed';
 
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0d1217] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(96,165,250,0.24),transparent_28rem),radial-gradient(circle_at_80%_70%,rgba(34,197,94,0.14),transparent_22rem)]" />
-      <section className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-5 py-16">
-        <Badge className="mb-6 w-fit border-white/10 bg-white/10 text-slate-200 shadow-none">
-          {failed ? 'Parse failed' : 'Analyzing resume'}
-        </Badge>
-        <h1 className="max-w-3xl text-4xl font-black tracking-[-0.05em] text-white sm:text-6xl">
-          {failed ? '简历解析没有完成。' : '正在解析你的简历。'}
-        </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
-          {failed
-            ? '后端已经返回失败状态，不是页面卡住。你可以重新上传，或检查本地模型配置。'
-            : '完成后才会进入简历预览界面。现在先把 PDF 文本、教育、实习、项目和技能拆成结构化画像。'}
-        </p>
-
-        <div className="mt-10 rounded-[30px] border border-white/10 bg-[#10161b]/90 p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-          {failed ? (
-            <div className="grid gap-3">
-              {workflowSteps.slice(0, 3).map((step) => {
-                const state = stepState(step.key, session);
-                return (
-                  <div
-                    key={step.key}
-                    className={cn(
-                      'flex items-center gap-4 rounded-2xl border px-4 py-3',
-                      state === 'done' && 'border-emerald-400/30 bg-emerald-400/10',
-                      state === 'current' && 'border-blue-300/40 bg-blue-400/10',
-                      state === 'pending' && 'border-white/10 bg-white/[0.03]',
-                      state === 'failed' && 'border-red-400/30 bg-red-500/10',
-                    )}
-                  >
-                    <span className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/5">
-                      {state === 'done' ? <Check className="size-4 text-emerald-300" /> : <Clock3 className="size-4 text-blue-200" />}
-                    </span>
-                    <div>
-                      <div className="font-bold text-slate-100">{step.label}</div>
-                      <div className="text-sm text-slate-400">{step.description}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <ParseProgressPanel done={!!session?.has_parsed_profile} />
-          )}
+  if (failed) {
+    return (
+      <main className="hf min-h-screen hf-parchment-grid flex items-center justify-center px-6 py-16">
+        <div className="hf-card paper" style={{ padding: 28, borderRadius: 20, maxWidth: 480, textAlign: 'center' }}>
+          <div className="hf-h3" style={{ color: 'var(--crimson)', margin: 0, marginBottom: 8 }}>
+            解析未能完成
+          </div>
+          <div className="hf-body" style={{ marginBottom: 18, color: 'var(--ink-soft)' }}>
+            {error || '后端返回失败状态，请重新上传或检查模型配置。'}
+          </div>
+          <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white transition" style={{ background: 'var(--terracotta)' }}>
+            <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
+            {isUploading ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
+            重新上传
+          </label>
         </div>
+      </main>
+    );
+  }
 
-        {notice && <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">{notice}</div>}
-        {error && <div className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-100">{error}</div>}
-
-        <label className="mt-6 inline-flex w-fit cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15">
-          <input type="file" accept="application/pdf" className="hidden" onChange={onUpload} />
-          {isUploading ? <Loader2 className="size-4 animate-spin" /> : <UploadCloud className="size-4" />}
-          重新上传
-        </label>
-      </section>
+  return (
+    <main className="hf min-h-screen hf-parchment-grid flex items-center justify-center">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+        <span className="hf-spin" style={{ width: 28, height: 28, borderWidth: 2 }} />
+        <div className="hf-cap" style={{ color: 'var(--olive)' }}>
+          载入工作台…
+        </div>
+      </div>
     </main>
   );
 }

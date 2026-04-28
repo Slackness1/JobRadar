@@ -33,6 +33,24 @@ const STAGES: StageDef[] = [
   { key: 'ready', label: '准备就绪 · 字段预览', hint: '可进入工作台' },
 ];
 
+// Sub-steps shown under stage 2 while the LLM is extracting structured fields.
+// These are simulated front-end ticks (the backend runs one LLM call) — they exist
+// to make the wait feel transparent and surface what the parser is actually inferring.
+interface ParseSubstep {
+  key: string;
+  label: string;
+  detail: string;
+}
+
+const PARSE_SUBSTEPS: ParseSubstep[] = [
+  { key: 'tokens', label: '切分页面文本块', detail: 'tokenize · 段落归并' },
+  { key: 'basic', label: '识别姓名 · 联系方式 · 求职意向', detail: 'basic_info · contact' },
+  { key: 'edu', label: '解析教育经历（学校 · 学历 · 专业）', detail: 'education[]' },
+  { key: 'exp', label: '解析实习与项目经历', detail: 'internships[] · projects[]' },
+  { key: 'skill', label: '抽取技能与工具栈', detail: 'skills.technical · tools' },
+  { key: 'infer', label: '推断目标方向与岗位画像', detail: 'inferred_tracks · roles' },
+];
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 type PageState =
@@ -48,6 +66,7 @@ export function HFUpload() {
   const [progress, setProgress] = useState(0);
   const [stageIndex, setStageIndex] = useState(0);
   const [stageTimes, setStageTimes] = useState<number[]>([0, 0, 0]);
+  const [parseSubstep, setParseSubstep] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const stageStartRef = useRef<number>(performance.now());
@@ -104,6 +123,20 @@ export function HFUpload() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.kind === 'parsing' ? state.sessionId : null]);
+
+  // Substep ticker — advances through PARSE_SUBSTEPS while stage 2 is active.
+  // Holds at the last item until the real parse completes (then setState flips
+  // to 'done' and the AgentTrace renders all sub-steps as ✓).
+  useEffect(() => {
+    if (state.kind !== 'parsing') {
+      setParseSubstep(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setParseSubstep((idx) => Math.min(idx + 1, PARSE_SUBSTEPS.length - 1));
+    }, 1400);
+    return () => window.clearInterval(timer);
+  }, [state.kind]);
 
   const startStage = (idx: number) => {
     setStageIndex(idx);
@@ -255,6 +288,7 @@ export function HFUpload() {
           <AgentTrace
             stageIndex={stageIndex}
             stageTimes={stageTimes}
+            parseSubstep={parseSubstep}
             kind={state.kind}
             fileName={
               state.kind === 'uploading'
@@ -591,6 +625,7 @@ function FailedCard({ message, onRetry }: { message: string; onRetry: () => void
 interface AgentTraceProps {
   stageIndex: number;
   stageTimes: number[];
+  parseSubstep: number;
   kind: PageState['kind'];
   fileName: string;
   fileBytes: number;
@@ -599,7 +634,7 @@ interface AgentTraceProps {
   inferred: string;
 }
 
-function AgentTrace({ stageIndex, stageTimes, kind, fileName, fileBytes, pageCount, sessionId, inferred }: AgentTraceProps) {
+function AgentTrace({ stageIndex, stageTimes, parseSubstep, kind, fileName, fileBytes, pageCount, sessionId, inferred }: AgentTraceProps) {
   return (
     <div className="hf-card lift" style={{ padding: 22, borderRadius: 20, minHeight: 440, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -641,13 +676,20 @@ function AgentTrace({ stageIndex, stageTimes, kind, fileName, fileBytes, pageCou
           if (kind === 'failed' && i === stageIndex) stageState = 'failed';
 
           return (
-            <StageRow
-              key={s.key}
-              stage={s}
-              state={stageState}
-              index={i}
-              durationSec={stageTimes[i] || 0}
-            />
+            <div key={s.key} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <StageRow
+                stage={s}
+                state={stageState}
+                index={i}
+                durationSec={stageTimes[i] || 0}
+              />
+              {i === 1 && (stageState === 'active' || stageState === 'done') && (
+                <ParseSubstepList
+                  substepIndex={parseSubstep}
+                  allDone={stageState === 'done'}
+                />
+              )}
+            </div>
           );
         })}
       </div>
@@ -759,6 +801,91 @@ function StageRow({ stage, state, index, durationSec }: StageRowProps) {
       <span className="hf-mono-sm" style={{ color: 'var(--stone)', fontSize: 11 }}>
         {isDone && durationSec > 0 ? `${durationSec.toFixed(1)}s` : isActive ? '…' : '—'}
       </span>
+    </div>
+  );
+}
+
+// ── Parse sub-step list (under stage 2) ──────────────────────────────────────
+
+interface ParseSubstepListProps {
+  substepIndex: number;
+  allDone: boolean;
+}
+
+function ParseSubstepList({ substepIndex, allDone }: ParseSubstepListProps) {
+  return (
+    <div
+      style={{
+        marginLeft: 38,
+        paddingLeft: 14,
+        borderLeft: '1px dashed var(--border-warm)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      {PARSE_SUBSTEPS.map((sub, i) => {
+        const isDone = allDone || i < substepIndex;
+        const isActive = !allDone && i === substepIndex;
+        return (
+          <div
+            key={sub.key}
+            className={isActive ? 'hf-slide' : undefined}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              fontSize: 12.5,
+              color: isDone ? 'var(--ink-soft)' : isActive ? 'var(--ink)' : 'var(--stone)',
+              opacity: isDone || isActive ? 1 : 0.55,
+              transition: 'opacity .25s, color .25s',
+            }}
+          >
+            <span
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: 8,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: isDone
+                  ? 'var(--emerald)'
+                  : isActive
+                    ? 'var(--terracotta)'
+                    : 'var(--ivory)',
+                color: isDone || isActive ? '#fff' : 'var(--stone)',
+                boxShadow: isDone || isActive ? 'none' : '0 0 0 1px var(--border-warm)',
+                flexShrink: 0,
+              }}
+            >
+              {isDone ? (
+                I.check(10)
+              ) : isActive ? (
+                <span
+                  className="hf-spin"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderWidth: 1.2,
+                    borderColor: 'rgba(255,255,255,0.45)',
+                    borderTopColor: '#fff',
+                  }}
+                />
+              ) : (
+                <span style={{ width: 4, height: 4, borderRadius: 2, background: 'var(--stone)' }} />
+              )}
+            </span>
+            <span style={{ flex: 1 }}>{sub.label}</span>
+            <span
+              className="hf-mono-sm"
+              style={{ fontSize: 10.5, color: 'var(--stone)', letterSpacing: '0.02em' }}
+            >
+              {sub.detail}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

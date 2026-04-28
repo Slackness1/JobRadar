@@ -1,11 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DEMO_SESSION_ID, isGuestUser } from '@/components/resume-copilot/api';
 import { GuestLoginModal } from './guest-login-modal';
 import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp, useLiveCount } from './hifi-primitives';
+
+const GUEST_DISPLAY_NAME = 'guest1';
 
 // ── Hero data ────────────────────────────────────────────────────────────────
 
@@ -52,6 +54,14 @@ export function HFHero() {
   const [tickerPaused, setTickerPaused] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Hydration sync: sessionStorage is unavailable during SSR, so we read it
+    // once on mount. Subsequent updates flip via onLoginSuccess.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoggedIn(isGuestUser());
+  }, []);
 
   const companies = useCountUp(3486, 1600);
   const jobs = useCountUp(12834, 1800);
@@ -74,6 +84,7 @@ export function HFHero() {
 
   const onLoginSuccess = () => {
     setModalOpen(false);
+    setLoggedIn(true);
     if (pendingDestination) {
       router.push(pendingDestination);
       setPendingDestination(null);
@@ -86,9 +97,13 @@ export function HFHero() {
       <div className="hf-hero-page__nav">
         <HFLogo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <HFBtn variant="link" size="sm" onClick={handleLoginNav}>
-            登录
-          </HFBtn>
+          {loggedIn ? (
+            <UserBadge name={GUEST_DISPLAY_NAME} />
+          ) : (
+            <HFBtn variant="link" size="sm" onClick={handleLoginNav}>
+              登录
+            </HFBtn>
+          )}
         </div>
       </div>
 
@@ -238,6 +253,45 @@ export function HFHero() {
         }}
         onSuccess={onLoginSuccess}
       />
+    </div>
+  );
+}
+
+// ── User badge (top-right when logged in) ────────────────────────────────────
+
+function UserBadge({ name }: { name: string }) {
+  const initial = name.charAt(0).toUpperCase();
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '4px 12px 4px 4px',
+        borderRadius: 999,
+        background: 'var(--ivory)',
+        boxShadow: '0 0 0 1px var(--border-warm)',
+      }}
+    >
+      <span
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: 13,
+          background: 'var(--terracotta)',
+          color: '#fff',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 12,
+          fontWeight: 600,
+          letterSpacing: 0,
+        }}
+      >
+        {initial}
+      </span>
+      <span style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>{name}</span>
+      <span className="hf-cap" style={{ marginLeft: 2, color: 'var(--olive)' }}>体验账号</span>
     </div>
   );
 }
