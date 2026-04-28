@@ -8,9 +8,10 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.models import InterviewIntelKeyword, InterviewIntelPost, InterviewReport
+from app.database import SessionLocal, get_db
+from app.models import InterviewIntelKeyword, InterviewIntelPost, InterviewReport, InterviewTurn
 from app.services.interview.llm import stream_interview_turn
+from app.services.interview.orchestrator import process_turn_synchronous
 from app.services.interview.report import generate_interview_report
 from app.services.interview.voice.asr import AsrUnavailable, run_asr_session
 from app.services.interview.voice.avatar import AvatarUnavailable, create_avatar_session
@@ -28,7 +29,9 @@ class InterviewMessage(BaseModel):
 
 class InterviewTurnIn(BaseModel):
     target_job: str
+    session_id: str = ''  # frontend UUID
     messages: list[InterviewMessage]
+    asr_transcript: dict | None = None  # for the most-recent user answer (voice mode only)
 
 
 class InterviewReportIn(BaseModel):
@@ -43,21 +46,105 @@ def interview_turn(
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
-    messages = [{'role': m.role, 'content': m.content} for m in body.messages]
+    from app.services.interview.adaptive import NextQuestion, pick_next_question
+    from app.services.interview.weakness_profile import WeaknessProfile
 
-    def safe_stream():
+    chip = body.target_job  # 1:1 for now; later: derive from a chip lookup table
+    chip_summary = _load_chip_summary(db, chip)
+
+    # Determine turn index from existing rows
+    last_turn = (
+        db.query(InterviewTurn)
+        .filter(InterviewTurn.session_id == body.session_id)
+        .order_by(InterviewTurn.turn_index.desc())
+        .first()
+    )
+
+    is_first_turn = (last_turn is None) or not any(
+        m.role == 'user' for m in body.messages
+    )
+
+    if is_first_turn:
+        # Bootstrap: skeleton[0] picked offline (no LLM needed)
+        next_q = pick_next_question(
+            target_job=body.target_job,
+            chip=chip,
+            chip_summary=chip_summary,
+            weakness=WeaknessProfile(),
+            asked_questions=[],
+            turn_index=0,
+            llm=_NoopLLM(),  # never reached for skeleton index 0
+        )
+        next_turn_index = 0
+        # Persist first turn row
+        if last_turn is None:
+            db.add(InterviewTurn(
+                session_id=body.session_id,
+                user_key=x_resume_user_key,
+                turn_index=0,
+                target_job=body.target_job,
+                question=next_q.question,
+                question_source=next_q.source,
+            ))
+            db.commit()
+    else:
+        prev_user_msg = next(
+            (m for m in reversed(body.messages) if m.role == 'user'), None
+        )
+        prev_user_answer = prev_user_msg.content if prev_user_msg else ''
+        prev_turn_index = int(last_turn.turn_index)
+        next_turn_index = prev_turn_index + 1
+
         try:
-            yield from stream_interview_turn(body.target_job, messages, db=db)
+            next_q = process_turn_synchronous(
+                session_id=body.session_id,
+                user_key=x_resume_user_key,
+                target_job=body.target_job,
+                chip=chip,
+                chip_summary=chip_summary,
+                prev_turn_index=prev_turn_index,
+                prev_user_answer=prev_user_answer,
+                prev_asr_transcript=body.asr_transcript or {},
+                next_turn_index=next_turn_index,
+                session_factory=SessionLocal,
+            )
         except Exception as exc:
-            logger.exception('interview stream failed: %s', exc)
-            error_event = {'error': str(exc), 'type': type(exc).__name__}
-            yield f'data: {json.dumps(error_event, ensure_ascii=False)}\n\n'
+            logger.exception('process_turn failed: %s', exc)
+            next_q = NextQuestion(
+                question='请深入讲讲你最近完成的项目里你最自豪的一个细节。',
+                source='fallback',
+            )
+
+    def event_stream():
+        # Stream the next question text as chunks (so existing TTS-progress logic works).
+        # Yield as a single chunk so downstream SSE parsers can match substrings in delta.
+        yield f'data: {json.dumps({"type":"chunk","delta":next_q.question}, ensure_ascii=False)}\n\n'
+        yield (
+            f'data: {json.dumps({"type":"turn_complete","turn_index":next_turn_index,"question":next_q.question}, ensure_ascii=False)}\n\n'
+        )
 
     return StreamingResponse(
-        safe_stream(),
+        event_stream(),
         media_type='text/event-stream',
         headers={'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache'},
     )
+
+
+class _NoopLLM:
+    def chat_text(self, system, user, **_):
+        raise RuntimeError('NoopLLM.chat_text should never be reached')
+    def chat_json(self, system, user, **_):
+        raise RuntimeError('NoopLLM.chat_json should never be reached')
+
+
+def _load_chip_summary(db: Session, chip: str) -> str:
+    """Load nowcoder chip summary by exact match. Empty string if not found."""
+    row = (
+        db.query(InterviewIntelKeyword)
+        .filter(InterviewIntelKeyword.keyword == chip)
+        .first()
+    )
+    return str(row.summary_md or '') if row else ''
 
 
 @router.post('/report')
