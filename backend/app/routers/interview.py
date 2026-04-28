@@ -36,6 +36,7 @@ class InterviewTurnIn(BaseModel):
 
 class InterviewReportIn(BaseModel):
     target_job: str
+    session_id: str = ''
     messages: list[InterviewMessage]
     duration_seconds: int = 0
 
@@ -154,8 +155,24 @@ def interview_report(
     x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
+    from app.services.interview.report import build_report_aggregate
+    from app.services.interview.llm_helpers import build_interview_llm_client
+
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
     report = generate_interview_report(body.target_job, messages)
+
+    # New: aggregate from interview_turns + weekly plan
+    session_id = getattr(body, 'session_id', '') or ''
+    if session_id:
+        try:
+            llm = build_interview_llm_client()
+            aggregate = build_report_aggregate(session_id, body.target_job, db, llm)
+        except Exception as exc:
+            logger.warning('report aggregate failed: %s', exc)
+            aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
+    else:
+        aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
+
     row = InterviewReport(
         user_key=x_resume_user_key,
         target_job=body.target_job,
@@ -164,11 +181,20 @@ def interview_report(
         duration_seconds=body.duration_seconds,
         is_guest=1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0,
         created_at=datetime.utcnow(),
+        weakness_profile_json=json.dumps(aggregate['weakness_profile'], ensure_ascii=False) if aggregate['weakness_profile'] else None,
+        weekly_plan_md=aggregate['weekly_plan_md'],
+        turn_count=aggregate['turn_count'],
     )
     db.add(row)
     db.commit()
     db.refresh(row)
-    return {'id': row.id, 'report': report}
+    return {
+        'id': row.id,
+        'report': report,
+        'turn_count': row.turn_count,
+        'weakness_profile': aggregate['weakness_profile'],
+        'weekly_plan_md': row.weekly_plan_md,
+    }
 
 
 @router.post('/avatar/session')
@@ -324,6 +350,9 @@ def get_report(
         'report': json.loads(row.report_json or '{}'),
         'duration_seconds': row.duration_seconds,
         'created_at': row.created_at.isoformat() if row.created_at else '',
+        'turn_count': int(row.turn_count or 0),
+        'weakness_profile': json.loads(row.weakness_profile_json) if row.weakness_profile_json else None,
+        'weekly_plan_md': str(row.weekly_plan_md or ''),
     }
 
 

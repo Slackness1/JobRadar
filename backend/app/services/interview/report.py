@@ -1,7 +1,13 @@
 import json
+import logging
+from dataclasses import asdict
 from urllib import request as urllib_request
 
+from sqlalchemy.orm import Session
+
 from app.services.resume_copilot.llm import build_resume_llm_client
+
+logger = logging.getLogger(__name__)
 
 _REPORT_SYSTEM_PROMPT = """你是一位专业的面试评估官。根据以下面试记录，给出结构化的反馈报告。
 
@@ -83,3 +89,61 @@ def parse_report_json(raw: str) -> dict:
         'improvements': [str(i) for i in data.get('improvements', []) if i],
         'overall_comment': str(data.get('overall_comment', '')),
     }
+
+
+# ---------------------------------------------------------------------------
+# Report aggregation (Task 13): pull from interview_turns + weekly plan
+# ---------------------------------------------------------------------------
+
+_WEEKLY_PLAN_FALLBACK = (
+    "本次面试反馈已生成。建议针对评分较低的题目对照范例答案重做一遍，"
+    "并把每段经历都重新梳理一次量化结果与方法论。下次面试前对着镜子录音回听 2 次自我介绍。"
+)
+
+
+def build_report_aggregate(session_id: str, target_job: str, db: Session, llm) -> dict:
+    """Aggregate one interview session's turn data into the report payload.
+
+    Returns: {
+        'turn_count': int,
+        'weakness_profile': {...},
+        'weekly_plan_md': str,
+    }
+    """
+    from app.models import InterviewTurn
+    from app.services.interview.weakness_profile import compute_weakness
+
+    rows = (
+        db.query(InterviewTurn)
+        .filter(InterviewTurn.session_id == session_id)
+        .order_by(InterviewTurn.turn_index)
+        .all()
+    )
+
+    weakness = compute_weakness([r.score_json for r in rows])
+    weakness_dict = asdict(weakness)
+
+    weekly_plan_md = _generate_weekly_plan(target_job, weakness_dict, llm)
+
+    return {
+        'turn_count': len(rows),
+        'weakness_profile': weakness_dict,
+        'weekly_plan_md': weekly_plan_md,
+    }
+
+
+def _generate_weekly_plan(target_job: str, weakness_dict: dict, llm) -> str:
+    from app.services.interview.prompts import WEEKLY_PLAN_SYSTEM
+
+    user_payload = json.dumps({
+        'target_job': target_job,
+        'weakness_profile': weakness_dict,
+    }, ensure_ascii=False)
+    try:
+        raw = llm.chat_text(system=WEEKLY_PLAN_SYSTEM, user=user_payload)
+    except Exception as exc:
+        logger.warning('weekly plan LLM failed: %s', exc)
+        return _WEEKLY_PLAN_FALLBACK
+    if not isinstance(raw, str) or not raw.strip():
+        return _WEEKLY_PLAN_FALLBACK
+    return raw.strip()
