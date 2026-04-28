@@ -178,7 +178,6 @@ class ResumeRecommendationItem(BaseModel):
     company_priority_score: int = 0
     base_match_score: int = 0
     enhanced_score: int = 0
-    rule_score: int
     final_score: int
     matched_track_key: str = ''
     matched_track_label: str = ''

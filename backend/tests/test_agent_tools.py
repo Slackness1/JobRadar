@@ -14,7 +14,7 @@ def _make_candidate(job_id='J1', company='测试公司', job_title='数据分析
         job_id=job_id, company=company, job_title=job_title, location=location,
         objective_score=10, preference_score=5, base_job_score=20,
         company_priority_score=15, base_match_score=base_match_score,
-        enhanced_score=base_match_score, rule_score=base_match_score,
+        enhanced_score=base_match_score,
         final_score=base_match_score,
         company_priority_label=company_priority_label,
         company_priority_tier=company_priority_tier,

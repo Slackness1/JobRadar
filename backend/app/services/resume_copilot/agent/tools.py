@@ -55,7 +55,7 @@ def build_tools(
                 'company': i.company,
                 'job_title': i.job_title,
                 'location': i.location,
-                'rule_score': i.base_match_score,
+                'base_match_score': i.base_match_score,
                 'company_tier': i.company_priority_label or '',
                 'need_enrichment': i.need_enrichment,
             }

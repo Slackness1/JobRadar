@@ -112,7 +112,7 @@ def test_recommend_jobs_prefers_jobs_matching_skills_and_inferred_roles():
 
         assert [item.job_id for item in recommendations[:2]] == [strong_match.job_id, weak_match.job_id]
         assert recommendations[0].objective_score > recommendations[1].objective_score
-        assert recommendations[0].rule_score > recommendations[1].rule_score
+        assert recommendations[0].base_match_score > recommendations[1].base_match_score
         assert recommendations[0].used_ai is False
         assert '匹配方向：Backend Engineer' in recommendations[0].why_recommended
         assert isinstance(recommendations[0], ResumeRecommendationItem)
@@ -230,8 +230,8 @@ def test_existing_job_scores_contribute_base_signal():
         indexed = {item.job_id: item for item in recommendations}
         assert indexed[scored_job.job_id].base_job_score == 72
         assert indexed[unscored_job.job_id].base_job_score == 0
-        assert indexed[scored_job.job_id].rule_score > indexed[unscored_job.job_id].rule_score
-        assert indexed[scored_job.job_id].final_score == indexed[scored_job.job_id].rule_score
+        assert indexed[scored_job.job_id].base_match_score > indexed[unscored_job.job_id].base_match_score
+        assert indexed[scored_job.job_id].final_score == indexed[scored_job.job_id].base_match_score
     finally:
         db.close()
 
@@ -424,7 +424,7 @@ class _SuccessfulRecommendationProvider:
         top = list(items)
         top[0] = top[0].model_copy(
             update={
-                'final_score': top[0].rule_score + 9,
+                'final_score': top[0].base_match_score + 9,
                 'used_ai': True,
                 'why_recommended': ['Strong backend match'],
                 'strengths': ['Python'],
@@ -460,7 +460,7 @@ def test_ai_rerank_updates_top_items_when_provider_succeeds():
         assert recommendations[0].why_recommended == ['Strong backend match']
         assert recommendations[0].strengths == ['Python']
         assert recommendations[0].risks == ['Needs distributed systems depth']
-        assert recommendations[0].final_score > recommendations[0].rule_score
+        assert recommendations[0].final_score > recommendations[0].base_match_score
         assert recommendations[1].used_ai is False
     finally:
         db.close()
@@ -485,6 +485,6 @@ def test_ai_rerank_failure_falls_back_to_rule_only_recommendations():
         assert used_ai is False
         assert fallback_reason == 'rerank unavailable'
         assert all(item.used_ai is False for item in recommendations)
-        assert all(item.final_score == item.rule_score for item in recommendations)
+        assert all(item.final_score == item.base_match_score for item in recommendations)
     finally:
         db.close()

@@ -527,7 +527,6 @@ def recommend_jobs_for_profile(
                 company_priority_score=company_priority_score,
                 base_match_score=base_match_score,
                 enhanced_score=enhanced_score,
-                rule_score=base_match_score,
                 final_score=enhanced_score,
                 matched_track_key=matched_track_key,
                 matched_track_label=matched_track_label,

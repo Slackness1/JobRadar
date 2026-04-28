@@ -2110,7 +2110,7 @@ function ResumeChatRail({
                           </div>
                         </div>
                         <div className="mt-2 text-[11px] leading-4 text-slate-400">
-                          Base {item.base_match_score || item.rule_score} · Enhanced {item.enhanced_score || item.final_score}
+                          规则分 {item.base_match_score} · 增强分 {item.enhanced_score} · 最终分 {item.final_score}
                           {item.company_priority_label ? ` · ${item.company_priority_label}` : ''}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1.5">
