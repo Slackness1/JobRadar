@@ -46,6 +46,10 @@ from app.services.resume_copilot.workflow import run_resume_generate_workflow, r
 router = APIRouter(prefix='/api/resume-copilot', tags=['resume-copilot'])
 
 
+GUEST_SESSION_TTL = timedelta(hours=24)
+USER_SESSION_TTL = timedelta(days=7)
+
+
 def _assert_not_demo(session: ResumeCopilotSession) -> None:
     if str(getattr(session, 'user_key', '') or '') == '__demo__':
         raise HTTPException(
@@ -160,12 +164,14 @@ async def create_resume_copilot_session(
     except ResumeUploadError as exc:
         raise HTTPException(status_code=400, detail=exc.code) from exc
 
+    is_guest = 1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0
     session = ResumeCopilotSession(
         file_name=file.filename or '',
         user_key=x_resume_user_key,
         status=SessionStatus.PARSING_PROFILE.value,
         extracted_text=extracted_text,
-        is_guest=1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0,
+        is_guest=is_guest,
+        expires_at=datetime.utcnow() + (GUEST_SESSION_TTL if is_guest else USER_SESSION_TTL),
     )
     db.add(session)
     db.commit()
