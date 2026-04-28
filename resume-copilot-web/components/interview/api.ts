@@ -1,4 +1,4 @@
-import type { InterviewMessage, InterviewReport, InterviewReportRow, SavedReport } from './types';
+import type { InterviewMessage, InterviewReport, InterviewReportRow } from './types';
 
 const USER_KEY_STORAGE_KEY = 'jobradar.resumeCopilot.userKey';
 
@@ -11,6 +11,80 @@ function getUserKey(): string {
   }
   return key;
 }
+
+// ---------------------------------------------------------------------------
+// New typed payloads from the upgraded backend endpoints (Task 14)
+// ---------------------------------------------------------------------------
+
+export interface ScorePayload {
+  overall: number | null;
+  hits: string[];
+  misses: string[];
+  bonuses: string[];
+}
+
+export interface VoiceMetricsPayload {
+  filler_rate: number | null;
+  wpm: number | null;
+  pause_count: number | null;
+  response_latency_ms: number | null;
+  confidence_score: number | null;
+}
+
+export interface TurnPayload {
+  turn_index: number;
+  question: string;
+  user_answer: string;
+  reference_answer: string;
+  question_source: string;
+  score: ScorePayload | null;
+  voice_metrics: VoiceMetricsPayload | null;
+  created_at: string;
+}
+
+export interface LatestScorePayload {
+  turn_index: number;
+  hint: string;
+}
+
+export interface InterviewReportPayload {
+  id: number;
+  target_job: string;
+  transcript: { role: string; content: string }[];
+  report: Record<string, unknown>;
+  duration_seconds: number;
+  created_at: string;
+  turn_count: number;
+  weakness_profile: {
+    avg_score: number | null;
+    weak_topics: string[];
+    strong_topics: string[];
+    gap_warnings: string[];
+  } | null;
+  weekly_plan_md: string;
+}
+
+async function getJson<T>(url: string): Promise<T> {
+  const r = await fetch(url, {
+    headers: { 'X-Resume-User-Key': getUserKey() },
+  });
+  if (!r.ok) throw new Error(`${r.status} ${url}`);
+  return r.json();
+}
+
+export function getInterviewTurns(sessionId: string): Promise<TurnPayload[]> {
+  return getJson<TurnPayload[]>(`/api/interview/sessions/${sessionId}/turns`);
+}
+
+export function getLatestScore(sessionId: string): Promise<LatestScorePayload | null> {
+  return getJson<LatestScorePayload | null>(
+    `/api/interview/sessions/${sessionId}/turns/latest-score`,
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Streaming turn helper
+// ---------------------------------------------------------------------------
 
 /** Stream a single interview turn. Calls onToken for each text delta, onDone when stream ends. */
 export async function streamInterviewTurn(
@@ -87,7 +161,7 @@ export async function listInterviewReports(): Promise<InterviewReportRow[]> {
   return res.json();
 }
 
-export async function getInterviewReport(id: number): Promise<SavedReport> {
+export async function getInterviewReport(id: number): Promise<InterviewReportPayload> {
   const res = await fetch(`/api/interview/reports/${id}`, {
     headers: { 'X-Resume-User-Key': getUserKey() },
   });
