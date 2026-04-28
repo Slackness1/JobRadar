@@ -325,3 +325,78 @@ def get_report(
         'duration_seconds': row.duration_seconds,
         'created_at': row.created_at.isoformat() if row.created_at else '',
     }
+
+
+def _assert_session_owner_or_403(db: Session, session_id: str, user_key: str) -> None:
+    """Reject if any turn for this session has a non-empty user_key that doesn't match.
+    Empty user_key on existing turns → treated as legacy/orphan and accessible (Q5 hardening
+    for accidentally created rows during dev). Demo sessions don't apply to interviews."""
+    rows = (
+        db.query(InterviewTurn.user_key)
+        .filter(InterviewTurn.session_id == session_id)
+        .distinct()
+        .all()
+    )
+    for (existing_key,) in rows:
+        existing = str(existing_key or '')
+        if existing and existing != user_key:
+            raise HTTPException(status_code=403, detail='SESSION_FORBIDDEN')
+
+
+@router.get('/sessions/{session_id}/turns')
+def get_session_turns(
+    session_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    rows = (
+        db.query(InterviewTurn)
+        .filter(InterviewTurn.session_id == session_id)
+        .order_by(InterviewTurn.turn_index)
+        .all()
+    )
+    out = []
+    for r in rows:
+        out.append({
+            'turn_index': int(r.turn_index),
+            'question': str(r.question or ''),
+            'user_answer': str(r.user_answer or ''),
+            'reference_answer': str(r.reference_answer or ''),
+            'question_source': str(r.question_source or ''),
+            'score': json.loads(r.score_json) if r.score_json else None,
+            'voice_metrics': json.loads(r.voice_metrics) if r.voice_metrics else None,
+            'created_at': r.created_at.isoformat() if r.created_at else '',
+        })
+    return out
+
+
+@router.get('/sessions/{session_id}/turns/latest-score')
+def get_latest_score(
+    session_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    row = (
+        db.query(InterviewTurn)
+        .filter(
+            InterviewTurn.session_id == session_id,
+            InterviewTurn.score_json.isnot(None),
+        )
+        .order_by(InterviewTurn.turn_index.desc())
+        .first()
+    )
+    if row is None:
+        return None
+    try:
+        score = json.loads(row.score_json or '{}')
+    except json.JSONDecodeError:
+        return None
+    misses = score.get('misses') or []
+    if misses:
+        hint = f'📌 你这次没提到 {misses[0]}'
+    else:
+        hits = score.get('hits') or []
+        hint = f'✓ 这道答得不错，命中了 {hits[0]}' if hits else '本题已评分'
+    return {'turn_index': int(row.turn_index), 'hint': hint}
