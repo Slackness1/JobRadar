@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
-  Mic, MicOff, PhoneOff, Type, RotateCcw, Captions, Check,
+  Mic, MicOff, PhoneOff, Type, RotateCcw, Captions,
   MessageCircleQuestion,
 } from 'lucide-react';
 import type { InterviewMessage, InterviewReport as InterviewReportType, InterviewState } from '@/components/interview/types';
 import { streamInterviewTurn, saveInterviewReport } from '@/components/interview/api';
 import { LiveHintBar } from '@/components/interview/LiveHintBar';
+import { ProgressRail } from '@/components/interview/ProgressRail';
 import { InterviewReport } from '@/components/interview/InterviewReport';
 import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
 import { useRecorder } from '@/components/interview/voice/useRecorder';
@@ -16,14 +17,6 @@ import { TopBar, Pill, AIOrb, ListenWave } from '@/components/interview/primitiv
 
 const INTERVIEW_END_MARKER = '[INTERVIEW_END]';
 const LS_PREFIX = 'interview.';
-const PROGRESS_QUESTIONS = [
-  '自我介绍与来意',
-  '主导过的核心项目',
-  '关键技术 / 业务取舍',
-  '在不确定下的决策',
-  '为什么是这家公司',
-  '反问环节',
-];
 
 function loadSession(sessionId: string): { messages: InterviewMessage[]; targetJob: string } | null {
   if (typeof window === 'undefined') return null;
@@ -55,7 +48,10 @@ export default function InterviewSessionPage() {
     if (saved) {
       setTargetJob(saved.targetJob);
       setMessages(saved.messages);
-      setRound(saved.messages.filter((m) => m.role === 'assistant').length);
+      // round = turn_index of the question being currently asked (0-based).
+      // = (number of assistant messages) - 1, clamped to >= 0.
+      const assistantCount = saved.messages.filter((m) => m.role === 'assistant').length;
+      setRound(Math.max(0, assistantCount - 1));
     } else {
       setTargetJob(localStorage.getItem(`interview.pending.${sessionId}`) || '');
     }
@@ -154,7 +150,6 @@ export default function InterviewSessionPage() {
           setMessages(updated);
           setStreamingContent('');
           setIsTurning(false);
-          setRound((r) => r + 1);
           saveSession(sessionId, updated, job);
           if (hasEnd) triggerReport(job, updated);
         },
@@ -162,10 +157,9 @@ export default function InterviewSessionPage() {
           sessionId,
           asrTranscript,
           onTurnComplete: (turnIndex) => {
-            // Advance the progress rail to match the persisted turn index.
-            // turnIndex is 0-based (backend turn_index), round tracks how many
-            // assistant messages have been committed — keep them in sync.
-            setRound((r) => Math.max(r, turnIndex + 1));
+            // round = current question's turn_index (0-based, matches backend).
+            // turnIndex is the just-asked question's index, so it IS the current round.
+            setRound(turnIndex);
           },
         },
       );
@@ -214,7 +208,6 @@ export default function InterviewSessionPage() {
     setMessages(updated);
     setStreamingContent('');
     setIsTurning(false);
-    setRound((r) => r + 1);
     saveSession(sessionId, updated, meta.job);
     if (meta.hasEnd) triggerReport(meta.job, updated);
 
@@ -533,52 +526,12 @@ export default function InterviewSessionPage() {
           </div>
         )}
 
-        {/* PROGRESS RAIL — hidden < 1200px */}
-        <aside
-          className="absolute left-[28px] top-1/2 z-[3] hidden -translate-y-1/2 rounded-[18px] border border-[var(--border)] p-[16px_14px] xl:block"
-          style={{ background: 'var(--ivory)', boxShadow: 'var(--shadow-whisper)', width: 208 }}
-        >
-          <div className="mb-[12px] text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--olive)]">
-            本轮 6 问 · 进度
-          </div>
-          {PROGRESS_QUESTIONS.map((q, idx) => {
-            const status = idx < round ? 'done' : idx === round ? 'now' : 'todo';
-            return (
-              <div
-                key={idx}
-                className="-mx-[8px] flex items-start gap-[10px] rounded-[10px] p-[8px]"
-                style={{ background: status === 'now' ? '#fff2ec' : 'transparent' }}
-              >
-                <span
-                  className="grid h-[22px] w-[22px] flex-none place-items-center rounded-full border text-[11px]"
-                  style={{
-                    background: status === 'done' ? 'var(--emerald)' : status === 'now' ? 'var(--terracotta)' : 'var(--library-rail)',
-                    color: status === 'todo' ? 'var(--stone)' : '#fff',
-                    borderColor: status === 'done' ? 'var(--emerald)' : status === 'now' ? 'var(--terracotta)' : 'var(--border)',
-                    animation: status === 'now' ? 'itv-pulse-dot 1.2s ease-in-out infinite' : undefined,
-                    fontFamily: 'var(--font-mono)',
-                  }}
-                >
-                  {status === 'done' ? <Check size={12} strokeWidth={2.2} /> : idx + 1}
-                </span>
-                <span
-                  className="pt-[2px] text-[12.5px] leading-[1.45]"
-                  style={{ color: status === 'todo' ? 'var(--stone)' : 'var(--ink)' }}
-                >
-                  {q}
-                </span>
-              </div>
-            );
-          })}
-          <div
-            className="mt-[14px] flex items-center justify-between border-t border-dashed border-[var(--border)] pt-[12px] text-[11px] text-[var(--olive)]"
-          >
-            <span>已进行</span>
-            <span className="text-[13px] font-medium text-[var(--ink)]" style={{ fontFamily: 'var(--font-mono)' }}>
-              {fmtMMSS(elapsed)}
-            </span>
-          </div>
-        </aside>
+        {/* PROGRESS RAIL — hidden < 1200px. Polls /turns to show real skeleton + sub-questions. */}
+        <ProgressRail
+          sessionId={sessionId}
+          currentTurnIndex={round}
+          elapsedLabel={fmtMMSS(elapsed)}
+        />
 
         {/* CENTER — AI orb */}
         <div

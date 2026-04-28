@@ -322,6 +322,12 @@ def ensure_compatible_schema(engine: Engine) -> None:
         conn.execute(text(
             "CREATE INDEX IF NOT EXISTS ix_interview_turns_user_key ON interview_turns(user_key)"
         ))
+        # parent_turn_index — links follow-up sub-questions to their parent main question
+        existing_turn_cols = {
+            row[1] for row in conn.execute(text("PRAGMA table_info(interview_turns)")).fetchall()
+        }
+        if "parent_turn_index" not in existing_turn_cols:
+            conn.execute(text("ALTER TABLE interview_turns ADD COLUMN parent_turn_index INTEGER"))
 
         # interview_reports new columns — idempotent ALTER
         existing_report_cols = {

@@ -480,4 +480,5 @@ class InterviewTurn(Base):
     score_json = Column(Text, nullable=True)
     reference_answer = Column(Text, default="")
     question_source = Column(Text, default="skeleton")
+    parent_turn_index = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

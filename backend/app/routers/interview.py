@@ -393,6 +393,7 @@ def get_session_turns(
             'user_answer': str(r.user_answer or ''),
             'reference_answer': str(r.reference_answer or ''),
             'question_source': str(r.question_source or ''),
+            'parent_turn_index': int(r.parent_turn_index) if r.parent_turn_index is not None else None,
             'score': json.loads(r.score_json) if r.score_json else None,
             'voice_metrics': json.loads(r.voice_metrics) if r.voice_metrics else None,
             'created_at': r.created_at.isoformat() if r.created_at else '',

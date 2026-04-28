@@ -22,7 +22,12 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import InterviewTurn
-from app.services.interview.adaptive import NextQuestion, pick_next_question
+from app.services.interview.adaptive import (
+    NextQuestion,
+    SKELETON_QUESTIONS,
+    generate_followup_question,
+    pick_next_question,
+)
 from app.services.interview.llm_helpers import InterviewLLMClient
 from app.services.interview.reference_answer import generate_reference
 from app.services.interview.scoring import ScoreResult, score_answer
@@ -202,7 +207,7 @@ def process_turn_synchronous(
             except Exception as exc:
                 logger.warning("parallel turn task raised: %s", exc)
 
-    # Step 4: weakness profile from all turns so far
+    # Step 4: weakness profile from all turns so far + decide branch
     db = session_factory()
     try:
         all_turns = (
@@ -214,19 +219,82 @@ def process_turn_synchronous(
         score_jsons = [t.score_json for t in all_turns]
         weakness = compute_weakness(score_jsons)
         asked = [str(t.question or "") for t in all_turns if t.question]
+
+        # Identify the current main question (skeleton turn this thread belongs to).
+        # The just-answered turn (prev_turn_index) is either skeleton itself or a follow-up.
+        prev_turn = next((t for t in all_turns if t.turn_index == prev_turn_index), None)
+        if prev_turn is None:
+            current_main_index = None
+        elif prev_turn.question_source == "skeleton":
+            current_main_index = int(prev_turn.turn_index)
+        else:
+            current_main_index = (
+                int(prev_turn.parent_turn_index)
+                if prev_turn.parent_turn_index is not None
+                else None
+            )
+
+        # How many follow-ups already exist under this main question.
+        followups_under_current = sum(
+            1 for t in all_turns
+            if t.parent_turn_index is not None and int(t.parent_turn_index) == current_main_index
+        )
+
+        # How many skeleton turns asked so far → next skeleton index.
+        skeleton_count = sum(1 for t in all_turns if t.question_source == "skeleton")
+        skeleton_list = SKELETON_QUESTIONS.get(chip) or SKELETON_QUESTIONS["default"]
+
+        # Latest score for the just-answered turn — used to decide drill vs advance.
+        prev_score: dict | None = None
+        if prev_turn is not None and prev_turn.score_json:
+            try:
+                import json as _json
+                prev_score = _json.loads(prev_turn.score_json)
+            except Exception:
+                prev_score = None
     finally:
         db.close()
 
-    # Step 5: pick next question
-    next_q = pick_next_question(
-        target_job=target_job,
-        chip=chip,
-        chip_summary=chip_summary,
-        weakness=weakness,
-        asked_questions=asked,
-        turn_index=next_turn_index,
-        llm=llm,
+    # Step 5: decide follow-up vs advance vs final fallback
+    should_follow_up = (
+        current_main_index is not None
+        and followups_under_current < 2
+        and prev_score is not None
+        and (
+            (
+                prev_score.get("overall") is not None
+                and isinstance(prev_score["overall"], (int, float))
+                and prev_score["overall"] < 60
+            )
+            or len(prev_score.get("misses") or []) >= 1
+        )
     )
+
+    parent_for_next: int | None = None
+    if should_follow_up:
+        next_q = generate_followup_question(
+            target_job=target_job,
+            chip_summary=chip_summary,
+            weakness=weakness,
+            asked_questions=asked,
+            llm=llm,
+        )
+        parent_for_next = current_main_index
+    elif skeleton_count < len(skeleton_list):
+        # Advance to next planned main question.
+        next_q = NextQuestion(question=skeleton_list[skeleton_count], source="skeleton")
+        parent_for_next = None
+    else:
+        # All skeleton done and no drill triggered — keep going via follow-up so
+        # the interview is unbounded; user ends manually.
+        next_q = generate_followup_question(
+            target_job=target_job,
+            chip_summary=chip_summary,
+            weakness=weakness,
+            asked_questions=asked,
+            llm=llm,
+        )
+        parent_for_next = current_main_index
 
     # Step 6: persist next turn row
     db = session_factory()
@@ -242,6 +310,7 @@ def process_turn_synchronous(
                 target_job=target_job,
                 question=next_q.question,
                 question_source=next_q.source,
+                parent_turn_index=parent_for_next,
             ))
             db.commit()
     finally:

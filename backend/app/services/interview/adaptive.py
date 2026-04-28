@@ -80,6 +80,41 @@ def _skeleton_for(chip: str) -> list[str]:
     return SKELETON_QUESTIONS.get(chip) or SKELETON_QUESTIONS["default"]
 
 
+def generate_followup_question(
+    target_job: str,
+    chip_summary: str,
+    weakness: WeaknessProfile,
+    asked_questions: list[str],
+    llm: _LLMClient,
+) -> NextQuestion:
+    """Force-ask a follow-up sub-question via LLM, regardless of skeleton state.
+
+    Used when the orchestrator decides to drill deeper on the current main question
+    instead of advancing to the next skeleton item.
+    """
+    user_payload = json.dumps({
+        "target_job": target_job,
+        "chip_summary": chip_summary,
+        "weakness_profile": {
+            "avg_score": weakness.avg_score,
+            "weak_topics": weakness.weak_topics,
+            "strong_topics": weakness.strong_topics,
+        },
+        "asked_questions": asked_questions,
+    }, ensure_ascii=False)
+
+    try:
+        raw = llm.chat_text(system=FOLLOW_UP_SYSTEM, user=user_payload)
+    except Exception as exc:
+        logger.warning("follow-up LLM failed: %s", exc)
+        return NextQuestion(question=GENERIC_FALLBACK_QUESTION, source="fallback")
+
+    if not isinstance(raw, str) or not raw.strip():
+        return NextQuestion(question=GENERIC_FALLBACK_QUESTION, source="fallback")
+
+    return NextQuestion(question=raw.strip(), source="follow_up")
+
+
 def pick_next_question(
     target_job: str,
     chip: str,

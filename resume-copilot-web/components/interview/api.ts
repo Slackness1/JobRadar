@@ -37,6 +37,7 @@ export interface TurnPayload {
   user_answer: string;
   reference_answer: string;
   question_source: string;
+  parent_turn_index: number | null;
   score: ScorePayload | null;
   voice_metrics: VoiceMetricsPayload | null;
   created_at: string;
