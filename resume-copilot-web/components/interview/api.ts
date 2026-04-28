@@ -86,12 +86,72 @@ export function getLatestScore(sessionId: string): Promise<LatestScorePayload | 
 // Streaming turn helper
 // ---------------------------------------------------------------------------
 
+export interface StreamInterviewTurnOptions {
+  sessionId?: string;
+  asrTranscript?: string;
+}
+
+/**
+ * Parse a single raw SSE line and dispatch to the appropriate callback.
+ *
+ * New backend event types (Task 16):
+ *   { type: "chunk", delta: string }         — text delta to append
+ *   { type: "turn_complete", turn_index: number, question: string } — turn persisted
+ *   { type: "error", error: string }          — LLM-level error
+ *
+ * Legacy fallback: raw OpenAI-style `choices[0].delta.content` objects
+ * (kept so the handler works even if backend hasn't been updated yet).
+ */
+export function handleSSEMessage(
+  rawLine: string,
+  onChunk: (delta: string) => void,
+  onTurnComplete: (idx: number, q: string) => void,
+): void {
+  if (!rawLine.startsWith('data:')) return;
+  const payload = rawLine.slice(5).trim();
+  if (!payload || payload === '[DONE]') return;
+  try {
+    const event = JSON.parse(payload) as {
+      type?: string;
+      delta?: string;
+      turn_index?: number;
+      question?: string;
+      error?: string;
+      choices?: { delta?: { content?: string } }[];
+    };
+    if (event.type === 'chunk' && typeof event.delta === 'string') {
+      onChunk(event.delta);
+    } else if (
+      event.type === 'turn_complete' &&
+      typeof event.turn_index === 'number' &&
+      typeof event.question === 'string'
+    ) {
+      onTurnComplete(event.turn_index, event.question);
+    } else if (event.error) {
+      throw new Error(`LLM error: ${event.error}`);
+    } else {
+      // Legacy: OpenAI-style choices delta
+      const token: string = event?.choices?.[0]?.delta?.content ?? '';
+      if (token) onChunk(token);
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith('LLM error:')) {
+      throw err;
+    }
+    // Legacy: treat the whole payload as a chunk delta
+    onChunk(payload);
+  }
+}
+
 /** Stream a single interview turn. Calls onToken for each text delta, onDone when stream ends. */
 export async function streamInterviewTurn(
   targetJob: string,
   messages: InterviewMessage[],
   onToken: (token: string) => void,
   onDone: () => void,
+  options?: StreamInterviewTurnOptions & {
+    onTurnComplete?: (turnIndex: number, question: string) => void;
+  },
 ): Promise<void> {
   const response = await fetch('/api/interview/turn', {
     method: 'POST',
@@ -99,7 +159,12 @@ export async function streamInterviewTurn(
       'Content-Type': 'application/json',
       'X-Resume-User-Key': getUserKey(),
     },
-    body: JSON.stringify({ target_job: targetJob, messages }),
+    body: JSON.stringify({
+      target_job: targetJob,
+      messages,
+      ...(options?.sessionId ? { session_id: options.sessionId } : {}),
+      ...(options?.asrTranscript ? { asr_transcript: options.asrTranscript } : {}),
+    }),
   });
 
   if (!response.ok || !response.body) {
@@ -108,29 +173,14 @@ export async function streamInterviewTurn(
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
+  const onTurnComplete = options?.onTurnComplete ?? (() => {});
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     const chunk = decoder.decode(value, { stream: true });
     for (const line of chunk.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith('data:')) continue;
-      const data = trimmed.slice(5).trim();
-      if (data === '[DONE]') continue;
-      try {
-        const event = JSON.parse(data);
-        if (event?.error) {
-          throw new Error(`LLM error: ${event.error}`);
-        }
-        const token: string = event?.choices?.[0]?.delta?.content ?? '';
-        if (token) onToken(token);
-      } catch (err) {
-        if (err instanceof Error && err.message.startsWith('LLM error:')) {
-          throw err;
-        }
-        // skip malformed SSE lines
-      }
+      handleSSEMessage(line.trim(), onToken, onTurnComplete);
     }
   }
   onDone();

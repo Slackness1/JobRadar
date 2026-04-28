@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { InterviewMessage, InterviewReport as InterviewReportType, InterviewState } from '@/components/interview/types';
 import { streamInterviewTurn, saveInterviewReport } from '@/components/interview/api';
+import { LiveHintBar } from '@/components/interview/LiveHintBar';
 import { InterviewReport } from '@/components/interview/InterviewReport';
 import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
 import { useRecorder } from '@/components/interview/voice/useRecorder';
@@ -121,7 +122,7 @@ export default function InterviewSessionPage() {
   }, []);
 
   /* ───────────────────── LLM streaming turn ─────────────────────────────── */
-  const startTurn = useCallback(async (job: string, msgs: InterviewMessage[]) => {
+  const startTurn = useCallback(async (job: string, msgs: InterviewMessage[], asrTranscript?: string) => {
     let accumulated = '';
     try {
       await streamInterviewTurn(
@@ -156,6 +157,16 @@ export default function InterviewSessionPage() {
           setRound((r) => r + 1);
           saveSession(sessionId, updated, job);
           if (hasEnd) triggerReport(job, updated);
+        },
+        {
+          sessionId,
+          asrTranscript,
+          onTurnComplete: (turnIndex) => {
+            // Advance the progress rail to match the persisted turn index.
+            // turnIndex is 0-based (backend turn_index), round tracks how many
+            // assistant messages have been committed — keep them in sync.
+            setRound((r) => Math.max(r, turnIndex + 1));
+          },
         },
       );
     } catch (err) {
@@ -237,7 +248,7 @@ export default function InterviewSessionPage() {
   }, []);
 
   /* ───────────────────── Mic input bar (voice mode) ─────────────────────── */
-  const handleSend = useCallback((content: string) => {
+  const handleSend = useCallback((content: string, asrTranscript?: string) => {
     tts.stop();
     const userMsg: InterviewMessage = { role: 'user', content };
     const updated = [...messages, userMsg];
@@ -248,7 +259,7 @@ export default function InterviewSessionPage() {
     setState('interviewing');
     setTextDraft('');
     saveSession(sessionId, updated, targetJob);
-    startTurn(targetJob, updated);
+    startTurn(targetJob, updated, asrTranscript);
   }, [messages, sessionId, startTurn, targetJob, tts]);
 
   const startListening = useCallback(() => {
@@ -261,7 +272,8 @@ export default function InterviewSessionPage() {
     recorder.stop();
     const text = (recorder.finalText + recorder.partialText).trim();
     if (!text) return;
-    handleSend(text);
+    // Pass the ASR transcript for backend voice-metrics analysis.
+    handleSend(text, text);
   }, [recorder, handleSend]);
 
   // Tap-to-toggle space:
@@ -484,6 +496,9 @@ export default function InterviewSessionPage() {
             {/* Border Beam — show whenever AI is busy (streaming OR speaking),
                 not just during the brief LLM-streaming-before-TTS window. */}
             {turnInFlight && <div className="border-beam" style={{ borderRadius: 18 }} />}
+
+            {/* Live hint bar — polls /turns/latest-score, fades in after AI speaks */}
+            <LiveHintBar sessionId={sessionId} suppressed={turnInFlight} />
           </div>
         </div>
 
