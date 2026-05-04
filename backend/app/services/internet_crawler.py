@@ -10,6 +10,12 @@ from pathlib import Path
 from typing import Any, Iterable, Optional
 from urllib.parse import urlparse, urlunparse
 
+
+# Hard ceiling per target — if a single internet_official crawl exceeds this,
+# the Playwright context is force-closed from a watchdog thread so the run can
+# move on to the next target. Set high enough for ByteDance's ~110-min full pass.
+PER_TARGET_TIMEOUT_SEC = int(os.environ.get("INTERNET_TARGET_TIMEOUT_SEC", "1800"))
+
 import yaml
 from sqlalchemy.orm import Session
 
@@ -547,6 +553,12 @@ def crawl_internet_targets(
                                 effective_max_pages = max_pages or target.max_pages
                                 if effective_max_pages:
                                     runtime_target["max_pages"] = int(effective_max_pages)
+
+                                # Per-target deadline. Legacy crawlers that have
+                                # long page-loops (e.g. crawl_bytedance) check
+                                # this and break early when exceeded.
+                                import time as _time
+                                runtime_target["deadline_ts"] = _time.time() + PER_TARGET_TIMEOUT_SEC
 
                                 legacy_jobs = fn(page, runtime_target)
                                 fetched_count = 0

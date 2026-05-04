@@ -445,7 +445,11 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
     # reset the session and let the response interceptor pick up fresh API results.
     BYTEDANCE_SESSION_RESET_INTERVAL = 150
     empty_rounds = 0
+    deadline_ts = target.get('deadline_ts')
     for pg in range(2, pages_needed + 1):
+        if deadline_ts and time.time() > deadline_ts:
+            logger.warning(f'字节跳动: 超过 per-target deadline，终止于第 {pg} 页')
+            break
         before = len(jobs)
 
         # Periodic hard-reset: navigate directly to the current page number so the SPA

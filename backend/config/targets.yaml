@@ -22,8 +22,8 @@ targets:
   type: campus
   tier: 1
   status: completed
-  max_pages: 800
-  note: 分页点击爬取，total~7800，800页≈8000岗位，1s/page
+  max_pages: 600
+  note: 分页点击爬取，反爬上限约 5,590 条 (~559 页)，超过基本 0 new；600 页 buffer 一点点然后停
 - name: 美团
   url: https://zhaopin.meituan.com/web/campus
   type: campus
