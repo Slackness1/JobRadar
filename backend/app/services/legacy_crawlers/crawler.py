@@ -24,7 +24,7 @@ logger = logging.getLogger('job-crawler')
 
 PROXY = {'server': 'http://127.0.0.1:7890'}
 REQUEST_PROXIES = {'http': 'http://127.0.0.1:7890', 'https': 'http://127.0.0.1:7890'}
-UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+UA = ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36')
 MAX_PAGES = 20
 MAX_EMPTY_PAGES = 2
@@ -445,11 +445,7 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
     # reset the session and let the response interceptor pick up fresh API results.
     BYTEDANCE_SESSION_RESET_INTERVAL = 150
     empty_rounds = 0
-    deadline_ts = target.get('deadline_ts')
     for pg in range(2, pages_needed + 1):
-        if deadline_ts and time.time() > deadline_ts:
-            logger.warning(f'字节跳动: 超过 per-target deadline，终止于第 {pg} 页')
-            break
         before = len(jobs)
 
         # Periodic hard-reset: navigate directly to the current page number so the SPA
@@ -630,11 +626,125 @@ def crawl_meituan(page, target) -> List[JobInfo]:
 
 
 def crawl_ctrip(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '携程', 'https://job.ctrip.com',
-        selectors=['[class*="position"]', '[class*="job"]', 'tr[class*="row"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=2
-    )
+    """携程: hash-routed SPA. Job links render as `#/campus/job-detail/MJ-xxx`
+    after JS hydration; pagination is via numbered buttons inside the SPA.
+    Strategy: load page, wait for hydration, scroll/click-next until job count
+    plateaus, then read all job-detail anchors from DOM."""
+    from playwright.sync_api import TimeoutError as PWTimeoutError
+
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    url = target.get('url') or 'https://job.ctrip.com/#/campus/jobList'
+    base = 'https://job.ctrip.com'
+
+    try:
+        goto_and_wait(page, url, timeout=45000, extra_sleep=4)
+    except Exception as e:
+        logger.warning(f'携程页面加载失败: {e}')
+        return jobs
+
+    try:
+        page.wait_for_selector('a[href*="job-detail"]', timeout=20000)
+    except PWTimeoutError:
+        logger.warning('携程: 首屏未渲染 job-detail 链接')
+        return jobs
+
+    # Try clicking next-page buttons / scroll, collecting after each
+    max_pages = int(target.get('max_pages') or MAX_PAGES)
+    prev = 0
+    stagnant = 0
+
+    def _harvest():
+        try:
+            anchors = page.locator('a[href*="job-detail"]').all()
+        except Exception:
+            return 0
+        added = 0
+        for a in anchors:
+            try:
+                href = a.get_attribute('href') or ''
+                if 'job-detail' not in href:
+                    continue
+                jid_m = re.search(r'job-detail/([A-Za-z0-9]+)', href)
+                if not jid_m:
+                    continue
+                jid = jid_m.group(1)
+                if jid in seen:
+                    continue
+                full_url = href if href.startswith('http') else urljoin(base, href.lstrip('#'))
+                # Build a stable URL form
+                full_url = f'https://job.ctrip.com/#/campus/job-detail/{jid}'
+                text = (a.inner_text(timeout=400) or '').strip()
+                lines = [norm_text(x) for x in text.split('\n') if x.strip()]
+                # First line typically is the title; "查看职位" buttons are separate anchors
+                title = ''
+                meta = ''
+                for line in lines:
+                    if line == '查看职位':
+                        continue
+                    if not title:
+                        title = line
+                    else:
+                        meta = (meta + ' ' + line).strip() if meta else line
+                if not title or title == '查看职位':
+                    continue
+                location = ''
+                m_loc = re.search(r'(北京|上海|深圳|广州|杭州|成都|南京|苏州|西安|武汉|香港|新加坡|东京)', meta)
+                if m_loc:
+                    location = m_loc.group(1)
+                seen.add(jid)
+                jobs.append(JobInfo(
+                    id='', company='携程', title=title,
+                    location=location or '未知', department='',
+                    job_type=target.get('type', 'campus'),
+                    url=full_url, description=meta,
+                ))
+                added += 1
+            except Exception as exc:
+                logger.debug(f'携程 anchor 跳过: {exc}')
+        return added
+
+    _harvest()
+    logger.info(f'携程 第 1 页: {len(jobs)} 条')
+
+    for pg in range(2, max_pages + 1):
+        # Try clicking the SPA pagination "next" button
+        clicked = False
+        for sel in ['.ant-pagination-next:not(.ant-pagination-disabled)',
+                    'button:has-text("下一页")',
+                    '[class*="next"]:not([class*="disabled"])']:
+            try:
+                btn = page.locator(sel).first
+                if btn.count() > 0:
+                    btn.click(timeout=3000)
+                    clicked = True
+                    break
+            except Exception:
+                continue
+        if not clicked:
+            try:
+                page.mouse.wheel(0, 4000)
+            except Exception:
+                pass
+        try:
+            page.wait_for_timeout(1500)
+        except Exception:
+            break
+
+        before = len(jobs)
+        _harvest()
+        added = len(jobs) - before
+        logger.info(f'携程 第 {pg} 页: +{added} (total={len(jobs)})')
+        if added == 0:
+            stagnant += 1
+            if stagnant >= 2:
+                break
+        else:
+            stagnant = 0
+        prev = len(jobs)
+
+    logger.info(f'携程: 抓取 {len(jobs)} 条')
+    return jobs
 
 
 def crawl_xiaohongshu(page, target) -> List[JobInfo]:
@@ -785,72 +895,46 @@ def crawl_alibaba(page, target) -> List[JobInfo]:
 
 
 def crawl_baidu(page, target) -> List[JobInfo]:
-    """百度: Playwright Chromium gets a 200 + blank body (some bot-fingerprint issue),
-    but plain requests with a Windows-Chrome UA returns a fully SSR'd HTML page.
-    We bypass Playwright here and parse the SSR HTML for `post-item__` cards.
-    Pagination via `?current=N` works (1-based)."""
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    base_url = (target.get('url') or 'https://talent.baidu.com/jobs/list?search=').strip()
-    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
-
-    headers = {'User-Agent': UA, 'Accept-Language': 'zh-CN,zh;q=0.9'}
-    proxies = REQUEST_PROXIES or None
-
-    title_re = re.compile(r'<div class="post-title-content__[A-Za-z0-9_-]+">\s*<span>([^<]+)</span>')
-    meta_re = re.compile(r'<span class="post-subtitle-item__[A-Za-z0-9_-]+"[^>]*>([^<]*)</span>')
-    desc_re = re.compile(r'<div class="post-description__[A-Za-z0-9_-]+">(.*?)</div>', re.DOTALL)
-    card_re = re.compile(r'<div class="post-item__[A-Za-z0-9_-]+">(.*?)(?=<div class="post-item__|$)', re.DOTALL)
-
-    for page_no in range(1, max_page_limit + 1):
-        url = base_url
-        sep = '&' if '?' in url else '?'
-        if 'current=' in url:
-            url = re.sub(r'([?&]current=)\d+', rf'\g<1>{page_no}', url)
-        else:
-            url = f'{url}{sep}current={page_no}'
-
+    page.goto(target['url'], wait_until='domcontentloaded', timeout=30000)
+    selectors = ['[class*="post-item__"]', '[class^="post-item__"]', '[class*=" post-item__"]']
+    rows: List[Dict[str, Any]] = []
+    for selector in selectors:
         try:
-            resp = requests.get(url, headers=headers, proxies=proxies, timeout=15)
-        except Exception as e:
-            logger.warning(f'百度 第 {page_no} 页请求失败: {e}')
-            break
-        if resp.status_code != 200 or not resp.text:
-            logger.info(f'百度 第 {page_no} 页 HTTP {resp.status_code}, 终止')
-            break
-
-        cards = card_re.findall(resp.text)
-        if not cards:
-            logger.info(f'百度 第 {page_no} 页未找到 post-item 卡片，终止')
-            break
-
-        before = len(jobs)
-        for card_html in cards:
-            tm = title_re.search(card_html)
-            if not tm:
-                continue
-            title = norm_text(tm.group(1))
-            metas = [norm_text(x) for x in meta_re.findall(card_html)]
-            location = metas[0] if metas else '未知'
-            dept = metas[2] if len(metas) > 2 else (metas[1] if len(metas) > 1 else '')
-            desc_match = desc_re.search(card_html)
-            desc = norm_text(re.sub(r'<[^>]+>', ' ', desc_match.group(1))) if desc_match else ''
-            job = JobInfo(
-                id='', company='百度', title=title, location=location,
-                department=dept, job_type=target.get('type', 'campus'),
-                url=url, description=desc,
+            page.wait_for_selector(selector, timeout=5000)
+            rows = page.eval_on_selector_all(
+                selector,
+                """
+                (nodes) => nodes.map((node) => {
+                  const titleNode = node.querySelector('[class*="post-title-content__"] span');
+                  const metaNodes = Array.from(node.querySelectorAll('[class*="post-subtitle-item__"]'));
+                  const detailNode = node.querySelector('[class*="post-detail-text__"], [class*="post-title-content__"]');
+                  return {
+                    title: titleNode ? titleNode.textContent : '',
+                    meta: metaNodes.map((x) => x.textContent || ''),
+                    href: detailNode ? (detailNode.getAttribute('href') || '') : ''
+                  };
+                })
+                """
             )
-            if job.id in seen:
-                continue
+            if rows:
+                break
+        except Exception:
+            continue
+    for row in rows:
+        title = norm_text(row.get('title'))
+        meta = [norm_text(x) for x in (row.get('meta') or [])]
+        location = meta[0] if len(meta) > 0 else '未知'
+        job_tag = meta[2] if len(meta) > 2 else ''
+        href = norm_text(row.get('href'))
+        job = JobInfo(
+            id='', company='百度', title=title, location=location, department=job_tag,
+            job_type=target.get('type', 'campus'), url=abs_url('https://talent.baidu.com', href) or target['url']
+        )
+        if title and job.id not in seen:
             seen.add(job.id)
             jobs.append(job)
-
-        added = len(jobs) - before
-        logger.info(f'百度 第 {page_no} 页: +{added} (total={len(jobs)})')
-        if added == 0:
-            # consecutive same-page → end of list
-            break
-    logger.info(f'百度: 抓取 {len(jobs)} 条')
     return jobs
 
 
@@ -882,113 +966,12 @@ def crawl_huawei(page, target) -> List[JobInfo]:
 
 
 def crawl_didi(page, target) -> List[JobInfo]:
-    """滴滴 (MokaHR-hosted SPA): wire response is encrypted (data+necromancer
-    blob), so we let the browser decrypt and read the rendered DOM. Scroll
-    to drive infinite-scroll pagination."""
-    from playwright.sync_api import TimeoutError as PWTimeoutError
-    jobs: List[JobInfo] = []
-    seen: Set[str] = set()
-
-    url = target.get('url') or 'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs'
-    base = 'https://campus.didiglobal.com'
-
-    try:
-        goto_and_wait(page, url, timeout=45000, extra_sleep=4)
-    except Exception as e:
-        logger.warning(f'滴滴页面加载失败: {e}')
-        return jobs
-
-    try:
-        page.wait_for_selector('a[href*="#/job/"], [class*="JobItem"], [class*="ItemContent"]',
-                               timeout=20000)
-    except PWTimeoutError:
-        logger.warning('滴滴: 首屏未渲染 job 卡片')
-
-    total_hint = 0
-    try:
-        text = page.locator('body').inner_text(timeout=2000)
-        m = re.search(r'共\s*(\d{1,4})\s*个', text or '')
-        if m:
-            total_hint = int(m.group(1))
-            logger.info(f'滴滴: 页面 total={total_hint}')
-    except Exception:
-        pass
-
-    max_scrolls = int(target.get('max_pages') or MAX_PAGES) * 2
-    prev_count = 0
-    stagnant = 0
-    for _ in range(max_scrolls):
-        try:
-            page.mouse.wheel(0, 4000)
-            page.wait_for_timeout(900)
-            try:
-                btn = page.locator('button:has-text("加载更多"), button:has-text("更多")').first
-                if btn.is_visible(timeout=300):
-                    btn.click(timeout=1000)
-                    page.wait_for_timeout(900)
-            except Exception:
-                pass
-        except Exception:
-            break
-
-        cur = len(page.locator('a[href*="#/job/"]').all())
-        if cur <= prev_count:
-            stagnant += 1
-            if stagnant >= 3:
-                break
-        else:
-            stagnant = 0
-            prev_count = cur
-        if total_hint and cur >= total_hint:
-            break
-
-    try:
-        anchors = page.locator('a[href*="#/job/"]').all()
-    except Exception:
-        anchors = []
-
-    for a in anchors:
-        try:
-            href = a.get_attribute('href') or ''
-            if not href or '#/job/' not in href:
-                continue
-            # href looks like '#/job/{uuid}' — convert to a stable absolute URL
-            jid = href.split('#/job/')[-1].rstrip('/').split('?')[0]
-            full_url = f'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/job/{jid}'
-            if not jid or jid in seen:
-                continue
-            text = (a.inner_text(timeout=500) or '').strip()
-            if not text:
-                continue
-            lines = [norm_text(x) for x in text.split('\n') if x.strip()]
-            title = lines[0] if lines else ''
-            meta = ' · '.join(lines[1:]) if len(lines) > 1 else ''
-            if not title:
-                continue
-            location = ''
-            dept = ''
-            jtype = target.get('type', 'campus')
-            for token in re.split(r'[·•|\s]+', meta):
-                if not token:
-                    continue
-                if any(k in token for k in ('实习', '全职', '校招', '社招')):
-                    jtype = token
-                elif re.search(r'(北京|上海|深圳|广州|杭州|成都|南京|苏州|西安|武汉)', token):
-                    location = location or token
-                else:
-                    dept = dept or token
-            seen.add(jid)
-            jobs.append(JobInfo(
-                id='', company='滴滴', title=title,
-                location=location or '未知',
-                department=dept, job_type=jtype,
-                url=full_url, description=meta,
-            ))
-        except Exception as exc:
-            logger.debug(f'滴滴 DOM 解析跳过: {exc}')
-
-    logger.info(f'滴滴: 抓取 {len(jobs)} 条 (total_hint={total_hint})')
-    return jobs
+    return crawl_with_pagination(
+        page, target, '滴滴', 'https://campus.didiglobal.com',
+        selectors=['[class*="job-item"]', '[class*="position-item"]', 'li[class*="item"]', 'a[href*="job"]'],
+        timeout=30000, extra_sleep=2,
+        response_keywords=['position', 'job', 'api']
+    )
 
 
 def crawl_pingan(page, target) -> List[JobInfo]:
