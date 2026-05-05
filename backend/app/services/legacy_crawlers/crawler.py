@@ -24,7 +24,7 @@ logger = logging.getLogger('job-crawler')
 
 PROXY = {'server': 'http://127.0.0.1:7890'}
 REQUEST_PROXIES = {'http': 'http://127.0.0.1:7890', 'https': 'http://127.0.0.1:7890'}
-UA = ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36')
 MAX_PAGES = 20
 MAX_EMPTY_PAGES = 2
@@ -844,7 +844,7 @@ def crawl_didi(page, target) -> List[JobInfo]:
         return jobs
 
     try:
-        page.wait_for_selector('a[href*="/jobs/"], [class*="JobItem"], [class*="ItemContent"]',
+        page.wait_for_selector('a[href*="#/job/"], [class*="JobItem"], [class*="ItemContent"]',
                                timeout=20000)
     except PWTimeoutError:
         logger.warning('滴滴: 首屏未渲染 job 卡片')
@@ -876,7 +876,7 @@ def crawl_didi(page, target) -> List[JobInfo]:
         except Exception:
             break
 
-        cur = len(page.locator('a[href*="/jobs/"]').all())
+        cur = len(page.locator('a[href*="#/job/"]').all())
         if cur <= prev_count:
             stagnant += 1
             if stagnant >= 3:
@@ -888,17 +888,18 @@ def crawl_didi(page, target) -> List[JobInfo]:
             break
 
     try:
-        anchors = page.locator('a[href*="/jobs/"]').all()
+        anchors = page.locator('a[href*="#/job/"]').all()
     except Exception:
         anchors = []
 
     for a in anchors:
         try:
             href = a.get_attribute('href') or ''
-            if not href or '/jobs/' not in href:
+            if not href or '#/job/' not in href:
                 continue
-            full_url = href if href.startswith('http') else urljoin(base, href)
-            jid = full_url.rstrip('/').split('/')[-1].split('?')[0]
+            # href looks like '#/job/{uuid}' — convert to a stable absolute URL
+            jid = href.split('#/job/')[-1].rstrip('/').split('?')[0]
+            full_url = f'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/job/{jid}'
             if not jid or jid in seen:
                 continue
             text = (a.inner_text(timeout=500) or '').strip()
