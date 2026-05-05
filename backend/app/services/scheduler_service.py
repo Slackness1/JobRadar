@@ -13,7 +13,6 @@ from app.services.interview.nowcoder.refresh_job import (
     get_last_refresh_status as get_nowcoder_status,
     run_refresh as run_nowcoder_refresh,
 )
-from app.services.resume_copilot.retention import cleanup_expired_sessions
 from app.services.scorer import score_all_jobs
 
 scheduler = BackgroundScheduler()
@@ -30,8 +29,6 @@ TIER_CRAWL_JOB_ID = "daily_tier_crawl"
 DEFAULT_TIER_CRON = "0 9 * * *"
 DIGEST_JOB_ID = "daily_digest"
 DEFAULT_DIGEST_CRON = "35 9 * * *"
-RESUME_RETENTION_JOB_ID = "resume_retention"
-RESUME_RETENTION_CRON = "0 * * * *"  # hourly
 
 
 def _daily_crawl_job():
@@ -136,6 +133,14 @@ def _daily_tier_crawl_job():
             errors.append(f"consumer_foreign: {exc}")
             print(f"[TIER CRAWL ERROR][consumer_foreign] {exc}")
 
+        try:
+            from app.services.bank_tier_crawler import crawl_banks
+            new_count = crawl_banks(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"banks: {exc}")
+            print(f"[TIER CRAWL ERROR][banks] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"
@@ -172,18 +177,6 @@ def _daily_digest_job():
             persist_digest(db, text)
     except Exception as exc:
         print(f"[DIGEST ERROR] {exc}")
-    finally:
-        db.close()
-
-
-def _resume_retention_job():
-    db = SessionLocal()
-    try:
-        deleted = cleanup_expired_sessions(db)
-        if deleted:
-            print(f"[INFO] Resume retention deleted {deleted} expired session(s)")
-    except Exception as e:
-        print(f"[RETENTION ERROR] {e}")
     finally:
         db.close()
 
@@ -234,12 +227,6 @@ def start_scheduler():
             _nowcoder_intel_job,
             CronTrigger.from_crontab(NOWCODER_INTEL_CRON, timezone=SCHEDULER_TZ),
             id=NOWCODER_INTEL_JOB_ID,
-            replace_existing=True,
-        )
-        scheduler.add_job(
-            _resume_retention_job,
-            CronTrigger.from_crontab(RESUME_RETENTION_CRON, timezone=SCHEDULER_TZ),
-            id=RESUME_RETENTION_JOB_ID,
             replace_existing=True,
         )
         scheduler.start()

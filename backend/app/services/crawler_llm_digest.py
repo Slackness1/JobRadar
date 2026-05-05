@@ -33,6 +33,7 @@ _SOURCE_GROUP: dict[str, str] = {
     "securities_zhiye_legacy": "券商",
     "securities_hotjob": "券商",
     "securities_moka_embedded": "券商",
+    "bank_official": "银行",
 }
 
 
