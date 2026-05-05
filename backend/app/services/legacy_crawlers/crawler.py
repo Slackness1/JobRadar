@@ -895,46 +895,71 @@ def crawl_alibaba(page, target) -> List[JobInfo]:
 
 
 def crawl_baidu(page, target) -> List[JobInfo]:
+    """百度: Playwright Chromium gets a 200 + blank body (some bot fingerprint
+    issue), but plain requests with a Windows-Chrome UA returns a fully SSR'd
+    HTML page. Bypass Playwright entirely and parse SSR HTML for `post-item__`
+    cards. Pagination via `?current=N` (1-based)."""
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    page.goto(target['url'], wait_until='domcontentloaded', timeout=30000)
-    selectors = ['[class*="post-item__"]', '[class^="post-item__"]', '[class*=" post-item__"]']
-    rows: List[Dict[str, Any]] = []
-    for selector in selectors:
+    base_url = (target.get('url') or 'https://talent.baidu.com/jobs/list?search=').strip()
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+
+    headers = {'User-Agent': UA, 'Accept-Language': 'zh-CN,zh;q=0.9'}
+    proxies = REQUEST_PROXIES or None
+
+    title_re = re.compile(r'<div class="post-title-content__[A-Za-z0-9_-]+">\s*<span>([^<]+)</span>')
+    meta_re = re.compile(r'<span class="post-subtitle-item__[A-Za-z0-9_-]+"[^>]*>([^<]*)</span>')
+    desc_re = re.compile(r'<div class="post-description__[A-Za-z0-9_-]+">(.*?)</div>', re.DOTALL)
+    card_re = re.compile(r'<div class="post-item__[A-Za-z0-9_-]+">(.*?)(?=<div class="post-item__|$)', re.DOTALL)
+
+    for page_no in range(1, max_page_limit + 1):
+        url = base_url
+        sep = '&' if '?' in url else '?'
+        if 'current=' in url:
+            url = re.sub(r'([?&]current=)\d+', rf'\g<1>{page_no}', url)
+        else:
+            url = f'{url}{sep}current={page_no}'
+
         try:
-            page.wait_for_selector(selector, timeout=5000)
-            rows = page.eval_on_selector_all(
-                selector,
-                """
-                (nodes) => nodes.map((node) => {
-                  const titleNode = node.querySelector('[class*="post-title-content__"] span');
-                  const metaNodes = Array.from(node.querySelectorAll('[class*="post-subtitle-item__"]'));
-                  const detailNode = node.querySelector('[class*="post-detail-text__"], [class*="post-title-content__"]');
-                  return {
-                    title: titleNode ? titleNode.textContent : '',
-                    meta: metaNodes.map((x) => x.textContent || ''),
-                    href: detailNode ? (detailNode.getAttribute('href') || '') : ''
-                  };
-                })
-                """
+            resp = requests.get(url, headers=headers, proxies=proxies, timeout=15)
+        except Exception as e:
+            logger.warning(f'百度 第 {page_no} 页请求失败: {e}')
+            break
+        if resp.status_code != 200 or not resp.text:
+            logger.info(f'百度 第 {page_no} 页 HTTP {resp.status_code}, 终止')
+            break
+
+        cards = card_re.findall(resp.text)
+        if not cards:
+            logger.info(f'百度 第 {page_no} 页未找到 post-item 卡片，终止')
+            break
+
+        before = len(jobs)
+        for card_html in cards:
+            tm = title_re.search(card_html)
+            if not tm:
+                continue
+            title = norm_text(tm.group(1))
+            metas = [norm_text(x) for x in meta_re.findall(card_html)]
+            location = metas[0] if metas else '未知'
+            dept = metas[2] if len(metas) > 2 else (metas[1] if len(metas) > 1 else '')
+            desc_match = desc_re.search(card_html)
+            desc = norm_text(re.sub(r'<[^>]+>', ' ', desc_match.group(1))) if desc_match else ''
+            job = JobInfo(
+                id='', company='百度', title=title, location=location,
+                department=dept, job_type=target.get('type', 'campus'),
+                url=url, description=desc,
             )
-            if rows:
-                break
-        except Exception:
-            continue
-    for row in rows:
-        title = norm_text(row.get('title'))
-        meta = [norm_text(x) for x in (row.get('meta') or [])]
-        location = meta[0] if len(meta) > 0 else '未知'
-        job_tag = meta[2] if len(meta) > 2 else ''
-        href = norm_text(row.get('href'))
-        job = JobInfo(
-            id='', company='百度', title=title, location=location, department=job_tag,
-            job_type=target.get('type', 'campus'), url=abs_url('https://talent.baidu.com', href) or target['url']
-        )
-        if title and job.id not in seen:
+            if job.id in seen:
+                continue
             seen.add(job.id)
             jobs.append(job)
+
+        added = len(jobs) - before
+        logger.info(f'百度 第 {page_no} 页: +{added} (total={len(jobs)})')
+        if added == 0:
+            break
+    logger.info(f'百度: 抓取 {len(jobs)} 条')
     return jobs
 
 
