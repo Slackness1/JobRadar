@@ -827,12 +827,112 @@ def crawl_huawei(page, target) -> List[JobInfo]:
 
 
 def crawl_didi(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '滴滴', 'https://campus.didiglobal.com',
-        selectors=['[class*="job-item"]', '[class*="position-item"]', 'li[class*="item"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """滴滴 (MokaHR-hosted SPA): wire response is encrypted (data+necromancer
+    blob), so we let the browser decrypt and read the rendered DOM. Scroll
+    to drive infinite-scroll pagination."""
+    from playwright.sync_api import TimeoutError as PWTimeoutError
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    url = target.get('url') or 'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs'
+    base = 'https://campus.didiglobal.com'
+
+    try:
+        goto_and_wait(page, url, timeout=45000, extra_sleep=4)
+    except Exception as e:
+        logger.warning(f'滴滴页面加载失败: {e}')
+        return jobs
+
+    try:
+        page.wait_for_selector('a[href*="/jobs/"], [class*="JobItem"], [class*="ItemContent"]',
+                               timeout=20000)
+    except PWTimeoutError:
+        logger.warning('滴滴: 首屏未渲染 job 卡片')
+
+    total_hint = 0
+    try:
+        text = page.locator('body').inner_text(timeout=2000)
+        m = re.search(r'共\s*(\d{1,4})\s*个', text or '')
+        if m:
+            total_hint = int(m.group(1))
+            logger.info(f'滴滴: 页面 total={total_hint}')
+    except Exception:
+        pass
+
+    max_scrolls = int(target.get('max_pages') or MAX_PAGES) * 2
+    prev_count = 0
+    stagnant = 0
+    for _ in range(max_scrolls):
+        try:
+            page.mouse.wheel(0, 4000)
+            page.wait_for_timeout(900)
+            try:
+                btn = page.locator('button:has-text("加载更多"), button:has-text("更多")').first
+                if btn.is_visible(timeout=300):
+                    btn.click(timeout=1000)
+                    page.wait_for_timeout(900)
+            except Exception:
+                pass
+        except Exception:
+            break
+
+        cur = len(page.locator('a[href*="/jobs/"]').all())
+        if cur <= prev_count:
+            stagnant += 1
+            if stagnant >= 3:
+                break
+        else:
+            stagnant = 0
+            prev_count = cur
+        if total_hint and cur >= total_hint:
+            break
+
+    try:
+        anchors = page.locator('a[href*="/jobs/"]').all()
+    except Exception:
+        anchors = []
+
+    for a in anchors:
+        try:
+            href = a.get_attribute('href') or ''
+            if not href or '/jobs/' not in href:
+                continue
+            full_url = href if href.startswith('http') else urljoin(base, href)
+            jid = full_url.rstrip('/').split('/')[-1].split('?')[0]
+            if not jid or jid in seen:
+                continue
+            text = (a.inner_text(timeout=500) or '').strip()
+            if not text:
+                continue
+            lines = [norm_text(x) for x in text.split('\n') if x.strip()]
+            title = lines[0] if lines else ''
+            meta = ' · '.join(lines[1:]) if len(lines) > 1 else ''
+            if not title:
+                continue
+            location = ''
+            dept = ''
+            jtype = target.get('type', 'campus')
+            for token in re.split(r'[·•|\s]+', meta):
+                if not token:
+                    continue
+                if any(k in token for k in ('实习', '全职', '校招', '社招')):
+                    jtype = token
+                elif re.search(r'(北京|上海|深圳|广州|杭州|成都|南京|苏州|西安|武汉)', token):
+                    location = location or token
+                else:
+                    dept = dept or token
+            seen.add(jid)
+            jobs.append(JobInfo(
+                id='', company='滴滴', title=title,
+                location=location or '未知',
+                department=dept, job_type=jtype,
+                url=full_url, description=meta,
+            ))
+        except Exception as exc:
+            logger.debug(f'滴滴 DOM 解析跳过: {exc}')
+
+    logger.info(f'滴滴: 抓取 {len(jobs)} 条 (total_hint={total_hint})')
+    return jobs
 
 
 def crawl_pingan(page, target) -> List[JobInfo]:
