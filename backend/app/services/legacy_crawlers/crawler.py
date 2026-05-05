@@ -785,47 +785,18 @@ def crawl_alibaba(page, target) -> List[JobInfo]:
 
 
 def crawl_baidu(page, target) -> List[JobInfo]:
-    jobs: List[JobInfo] = []
-    seen: Set[str] = set()
-    page.goto(target['url'], wait_until='domcontentloaded', timeout=30000)
-    selectors = ['[class*="post-item__"]', '[class^="post-item__"]', '[class*=" post-item__"]']
-    rows: List[Dict[str, Any]] = []
-    for selector in selectors:
-        try:
-            page.wait_for_selector(selector, timeout=5000)
-            rows = page.eval_on_selector_all(
-                selector,
-                """
-                (nodes) => nodes.map((node) => {
-                  const titleNode = node.querySelector('[class*="post-title-content__"] span');
-                  const metaNodes = Array.from(node.querySelectorAll('[class*="post-subtitle-item__"]'));
-                  const detailNode = node.querySelector('[class*="post-detail-text__"], [class*="post-title-content__"]');
-                  return {
-                    title: titleNode ? titleNode.textContent : '',
-                    meta: metaNodes.map((x) => x.textContent || ''),
-                    href: detailNode ? (detailNode.getAttribute('href') || '') : ''
-                  };
-                })
-                """
-            )
-            if rows:
-                break
-        except Exception:
-            continue
-    for row in rows:
-        title = norm_text(row.get('title'))
-        meta = [norm_text(x) for x in (row.get('meta') or [])]
-        location = meta[0] if len(meta) > 0 else '未知'
-        job_tag = meta[2] if len(meta) > 2 else ''
-        href = norm_text(row.get('href'))
-        job = JobInfo(
-            id='', company='百度', title=title, location=location, department=job_tag,
-            job_type=target.get('type', 'campus'), url=abs_url('https://talent.baidu.com', href) or target['url']
-        )
-        if title and job.id not in seen:
-            seen.add(job.id)
-            jobs.append(job)
-    return jobs
+    return crawl_with_pagination(
+        page, target, '百度', 'https://talent.baidu.com',
+        selectors=[
+            '[class*="post-item__"]',
+            '[class^="post-item__"]',
+            '[class*=" post-item__"]',
+            'a[href*="/jobs/detail"]',
+            'a[href*="/jobs/list"]',
+        ],
+        timeout=30000, extra_sleep=3,
+        response_keywords=['getPostListNew', 'post', 'job', 'list'],
+    )
 
 
 def crawl_jd(page, target) -> List[JobInfo]:
