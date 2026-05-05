@@ -750,8 +750,11 @@ def crawl_ctrip(page, target) -> List[JobInfo]:
 def crawl_xiaohongshu(page, target) -> List[JobInfo]:
     return crawl_with_pagination(
         page, target, '小红书', 'https://job.xiaohongshu.com',
-        selectors=['[class*="position-item"]', '[class*="job-item"]', 'a[href*="position"]'],
-        scroll=True, timeout=30000, extra_sleep=2,
+        selectors=[
+            'a[href*="/campus/position/"]', 'a[href*="/social/position/"]',
+            '[class*="position-item"]', '[class*="job-item"]',
+        ],
+        scroll=True, timeout=30000, extra_sleep=3,
         response_keywords=['job', 'position', 'api']
     )
 
