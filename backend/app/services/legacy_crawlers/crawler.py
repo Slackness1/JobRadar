@@ -785,18 +785,73 @@ def crawl_alibaba(page, target) -> List[JobInfo]:
 
 
 def crawl_baidu(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '百度', 'https://talent.baidu.com',
-        selectors=[
-            '[class*="post-item__"]',
-            '[class^="post-item__"]',
-            '[class*=" post-item__"]',
-            'a[href*="/jobs/detail"]',
-            'a[href*="/jobs/list"]',
-        ],
-        timeout=30000, extra_sleep=3,
-        response_keywords=['getPostListNew', 'post', 'job', 'list'],
-    )
+    """百度: Playwright Chromium gets a 200 + blank body (some bot-fingerprint issue),
+    but plain requests with a Windows-Chrome UA returns a fully SSR'd HTML page.
+    We bypass Playwright here and parse the SSR HTML for `post-item__` cards.
+    Pagination via `?current=N` works (1-based)."""
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    base_url = (target.get('url') or 'https://talent.baidu.com/jobs/list?search=').strip()
+    max_page_limit = int(target.get('max_pages') or MAX_PAGES)
+
+    headers = {'User-Agent': UA, 'Accept-Language': 'zh-CN,zh;q=0.9'}
+    proxies = REQUEST_PROXIES or None
+
+    title_re = re.compile(r'<div class="post-title-content__[A-Za-z0-9_-]+">\s*<span>([^<]+)</span>')
+    meta_re = re.compile(r'<span class="post-subtitle-item__[A-Za-z0-9_-]+"[^>]*>([^<]*)</span>')
+    desc_re = re.compile(r'<div class="post-description__[A-Za-z0-9_-]+">(.*?)</div>', re.DOTALL)
+    card_re = re.compile(r'<div class="post-item__[A-Za-z0-9_-]+">(.*?)(?=<div class="post-item__|$)', re.DOTALL)
+
+    for page_no in range(1, max_page_limit + 1):
+        url = base_url
+        sep = '&' if '?' in url else '?'
+        if 'current=' in url:
+            url = re.sub(r'([?&]current=)\d+', rf'\g<1>{page_no}', url)
+        else:
+            url = f'{url}{sep}current={page_no}'
+
+        try:
+            resp = requests.get(url, headers=headers, proxies=proxies, timeout=15)
+        except Exception as e:
+            logger.warning(f'百度 第 {page_no} 页请求失败: {e}')
+            break
+        if resp.status_code != 200 or not resp.text:
+            logger.info(f'百度 第 {page_no} 页 HTTP {resp.status_code}, 终止')
+            break
+
+        cards = card_re.findall(resp.text)
+        if not cards:
+            logger.info(f'百度 第 {page_no} 页未找到 post-item 卡片，终止')
+            break
+
+        before = len(jobs)
+        for card_html in cards:
+            tm = title_re.search(card_html)
+            if not tm:
+                continue
+            title = norm_text(tm.group(1))
+            metas = [norm_text(x) for x in meta_re.findall(card_html)]
+            location = metas[0] if metas else '未知'
+            dept = metas[2] if len(metas) > 2 else (metas[1] if len(metas) > 1 else '')
+            desc_match = desc_re.search(card_html)
+            desc = norm_text(re.sub(r'<[^>]+>', ' ', desc_match.group(1))) if desc_match else ''
+            job = JobInfo(
+                id='', company='百度', title=title, location=location,
+                department=dept, job_type=target.get('type', 'campus'),
+                url=url, description=desc,
+            )
+            if job.id in seen:
+                continue
+            seen.add(job.id)
+            jobs.append(job)
+
+        added = len(jobs) - before
+        logger.info(f'百度 第 {page_no} 页: +{added} (total={len(jobs)})')
+        if added == 0:
+            # consecutive same-page → end of list
+            break
+    logger.info(f'百度: 抓取 {len(jobs)} 条')
+    return jobs
 
 
 def crawl_jd(page, target) -> List[JobInfo]:
