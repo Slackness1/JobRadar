@@ -309,12 +309,21 @@ def crawl_with_pagination(page, target: Dict[str, Any], company: str, base_url: 
     seen_ids: Set[str] = set()
     empty_rounds = 0
     current_url = target['url']
+    skip_goto = False
 
     page_limit = max_pages or int(target.get('max_pages') or MAX_PAGES)
 
     for page_no in range(1, page_limit + 1):
         logger.info(f'{company} - 第 {page_no}/{page_limit} 页')
-        goto_and_wait(page, current_url, timeout=timeout, extra_sleep=extra_sleep)
+        if not skip_goto:
+            goto_and_wait(page, current_url, timeout=timeout, extra_sleep=extra_sleep)
+        else:
+            try:
+                page.wait_for_load_state('networkidle', timeout=10000)
+            except Exception:
+                pass
+            time.sleep(extra_sleep)
+        skip_goto = False
         if scroll:
             scroll_until_stable(page)
 
@@ -335,10 +344,14 @@ def crawl_with_pagination(page, target: Dict[str, Any], company: str, base_url: 
         else:
             empty_rounds = 0
 
+        url_before_click = page.url
         next_clicked = click_next_page(page)
         if next_clicked:
             time.sleep(2)
-            current_url = page.url
+            if page.url == url_before_click:
+                skip_goto = True
+            else:
+                current_url = page.url
             continue
 
         parsed = urlparse(target['url'])
