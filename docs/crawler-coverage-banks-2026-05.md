@@ -12,11 +12,13 @@ T0 国有六大行 + T1 股份制商业银行（10 家）= 16 家。
 
 | 状态 | 计数 | 说明 |
 |---|---:|---|
-| ✅ healthy + 每日 cron | 5 | 中信 / 民生 / 中国 / 工商 / 兴业 |
-| 🌙 season-empty（在季节回归后预接） | 5 | 招商 / 邮储 / 浙商 / 浦发 / 光大 |
-| 🚧 待 Phase 1 内做 | 3 | 建设 / 农业 / 平安 |
+| ✅ healthy + 每日 cron | 6 | 中信 / 民生 / 中国 / 工商 / 兴业 / **建设** |
+| 🌙 season-empty（在季节回归后预接） | 6 | 招商 / 邮储 / 浙商 / 浦发 / 光大 / **农业** |
+| ⛔ 上游不在范围（不接） | 1 | **平安**（不在自家 ATS） |
 | 📦 backlog（T0 但优先级低） | 1 | 交通 |
 | ⚠ 不在 T0/T1 严格定义 | 2+ | 华夏 / 北京 等（看时间） |
+
+**Phase 1 净增**：3 → 6 家健康（+建设 4491 jobs/day），工商从 8 升到 45 条全集（+37）。
 
 ---
 
@@ -31,6 +33,7 @@ T0 国有六大行 + T1 股份制商业银行（10 家）= 16 家。
 | 中国银行 | `crawl_boc` | https://campus.chinahr.com/pages/boc-2026-Spring/ | 34 | chinahr SPA |
 | 工商银行 | `crawl_icbc` | https://job.icbc.com.cn/ | 8 | Playwright + announ XHR 捕获（home 页首屏 4+3+1+0；41 条全集 pagination 在 Phase 1 内尝试） |
 | 兴业银行 | `crawl_cib` | https://job.cib.com.cn/ | 165 | Playwright + ant-pagination next 循环 |
+| 建设银行 | `crawl_ccb` | https://job3.ccb.com/cn/job/plan_index.html?planType=XY | **4491** | Playwright + in-page fetch GET /tran/WCCMainPlatV5?TXCODE=NHR104；planType=XY 校招 + SX 实习；URL 必须含 (planId, planPost, orgId, secondOrgId) 否则 md5 dedup 误杀（笛卡尔积） |
 
 ---
 
@@ -102,27 +105,32 @@ T0 国有六大行 + T1 股份制商业银行（10 家）= 16 家。
 
 ---
 
-## 🚧 待 Phase 1 内做（3 家）
+## 🚧 Phase 1 内的最终结论
 
-> 当前 Phase 1 执行中，subagent 探索后写正式 crawler。
+### ✅ 建设银行（CCB）— 已 wire
 
-### 建设银行（CCB）
+- **入口 URL**：https://job3.ccb.com/cn/job/plan_index.html?planType=XY
+- **API**：`GET https://job3.ccb.com/tran/WCCMainPlatV5?TXCODE=NHR104&...`（plan_index 建立 session 后用 in-page fetch 调）
+- **真实数据**：planType=XY 校招 4491 条；planType=SX 实习 0（季节空）
+- **关键陷阱**：API 返回 (planPost × orgId × secondOrgId) 笛卡尔积；URL 必须 4 个 ID 全包含才能避免 md5 dedup 误杀（实测 100 行 → 5 unique 是因为缺 orgId+secondOrgId）
+- **状态**：✓ 已 ship，max_pages=100（覆盖 90 真实页 + 10 头）
 
-- **入口 URL**：https://job.ccb.com/（OPENSSL_CONF 后直连 200，body 较小，疑 SPA）
-- **状态**：Phase 1 探索中（subagent）
-- **目标**：写 `crawl_ccb` + repro ≥30 jobs（在季节）
+### 🌙 农业银行（ABC）— 进 backlog
 
-### 农业银行（ABC）
+- **入口 URL**：https://career.abchina.com/build/index.html#/99 (校招) / #/100 (社招) / #/103 (实习)
+- **真实状态 (2026-05-08)**：上游 total=0，校招/社招/实习全部"暂无最新招聘公告"——季节空档
+- **API 阻断**：候选接口 `/pron/getTopHotPronByRecruitType` 等 5 个端点全部走 RSA + SM3 加密：请求/响应都是 hex 密文，加密栈藏在 `main.189e5ef3.js`（带反调试 + devtools 检测）
+- **降级方案**：DOM-scrape ant-design `.csx-snotice` 容器（季节内有岗位时可用），不破解加密
+- **季节回归 trigger**：8-9 月起每周开 https://career.abchina.com/build/index.html#/99 看 `.csx-snotice` 是否有岗位 card；有了就用 DOM scrape 写正式 crawler
 
-- **入口 URL**：https://career.abchina.com/cn/home（verify=False 直连 200，body=2.7KB；SSL 证书有问题但内容可达）
-- **状态**：Phase 1 探索中（subagent）
-- **目标**：写 `crawl_abc` + repro ≥30 jobs
+### ⛔ 平安银行（PAB）— 上游不在范围
 
-### 平安银行（PAB）
-
-- **状态**：URL 不明（career.pingan.com / campus.pingan.com 都 DNS 解不开），subagent 在做 URL 发现
-- **风险**：可能不走自有官网而是走第三方 ATS（Moka / Workday / 北森）
-- **降级方案**：若 URL 找不到 / 全是第三方，标"上游不在范围"
+- **真实状态**：平安银行（深圳上市 SZDBK）**不在自家 ATS 招校招**
+  - 集团校招站 https://campus.pingan.com/ 的 `groupWecruitId=91f8...` 只列 4 个 sector（保险/资管/医疗/科技），无 银行
+  - https://campus.pingan.com/pab 路径存在但 `businessUnitId=SZDBK` 过滤后返回 0 条
+  - 校招实际走 WeChat 小程序 / 51job 重定向 / 智联渠道，无可爬 job index
+- **决议**：**不接 ACTIVE_BANKS**。若未来用户要 平安集团 整体（保险/资管/医疗/科技 共 808 jobs），可单独写 `crawl_pingan_group`，但已超出银行赛道范围
+- **legacy 函数**：`crawl_pingan` 在 crawler.py:1018，关键词过滤会拿 19 false-positive（来自 平安基金/寿险/证券）——不要用
 
 ---
 
