@@ -2,14 +2,17 @@
 same per-company-log + Playwright-context-per-target pattern used by
 internet_crawler. Persists rows under source='bank_official'.
 
-Currently active (verified working as of 2026-05-06):
+Currently active (verified working as of 2026-05-08):
   - 中信银行: API path, ~627 jobs (max_pages=45)
   - 民生银行: API path, ~66 jobs total
   - 中国银行: chinahr SPA, ~34 jobs
+  - 工商银行: announcement-list API capture, 8 announcements (校招+社招+实习
+    home page summary; full 41 校招 announcements behind paged 'more' button —
+    pagination TODO).
 
-Pending fixes (returned <10 jobs in smoke test, deferred):
-  - 招商银行 (crawl_cmb): crawl_with_pagination got 1 job
-  - 工商银行 (crawl_icbc): browser API capture got 8 jobs
+Out-of-scope this round:
+  - 招商银行: upstream campus list currently empty (total=0); 2026 校招应届生
+    not yet opened as of 2026-05-08. Re-evaluate in Sept-Oct.
 """
 from __future__ import annotations
 
@@ -38,12 +41,15 @@ class BankTarget:
     max_pages: int = 20
 
 
-# Only wire crawlers that pass smoke test ≥ 30 jobs. Sub-30 banks
-# (招商, 工商) need debugging — defer until P0-style DOM probe.
+# Wire crawlers that return >0 fetched in smoke test. Threshold relaxed from
+# the original "≥30" because some banks publish announcement-level postings
+# (one announcement covers many jobs). 工商: 8 announcements is the entire
+# home-page render of latest校招/社招/实习; better than 0 stale rows.
 ACTIVE_BANKS: list[BankTarget] = [
     BankTarget('中信银行', 'crawl_citic', 'https://job.citicbank.com/', max_pages=45),
     BankTarget('民生银行', 'crawl_cmbc',  'https://career.cmbc.com.cn/',  max_pages=10),
     BankTarget('中国银行', 'crawl_boc',   'https://campus.chinahr.com/pages/boc-2026-Spring/', max_pages=20),
+    BankTarget('工商银行', 'crawl_icbc',  'https://job.icbc.com.cn/',     max_pages=10),
 ]
 
 

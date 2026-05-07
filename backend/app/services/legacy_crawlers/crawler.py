@@ -2424,7 +2424,7 @@ def crawl_icbc(page, target) -> List[JobInfo]:
     def harvest_from_captured() -> int:
         total_count = 0
         for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api']):
+            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api', 'announ']):
                 continue
             payload = rec.get('data') or {}
             data = payload.get('data') or payload
@@ -2438,17 +2438,30 @@ def crawl_icbc(page, target) -> List[JobInfo]:
                 title = norm_text(item.get('positionName') or item.get('jobName') or item.get('title') or item.get('name') or '')
                 if not title:
                     continue
-                pid = item.get('positionId') or item.get('id') or item.get('jobId') or ''
-                url = f"https://job.icbc.com.cn/campus/detail?id={pid}" if pid else target['url']
-                location = norm_text(item.get('workLocation') or item.get('city') or item.get('location') or '') or '未知'
-                org = norm_text(item.get('department') or item.get('deptName') or '')
+                # ICBC announcement schema: announId + struName + projectType (R00301 校招 / R00302 社招 / R00303 实习)
+                announ_id = norm_text(item.get('announId') or '')
+                pid = announ_id or item.get('positionId') or item.get('id') or item.get('jobId') or ''
+                if announ_id:
+                    url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}"
+                elif pid:
+                    url = f"https://job.icbc.com.cn/campus/detail?id={pid}"
+                else:
+                    url = target['url']
+                location = norm_text(
+                    item.get('workLocation') or item.get('city') or item.get('location')
+                    or item.get('struName')  # ICBC announcement: 总行 / 工银澳门 / 新疆分行 / etc.
+                ) or '未知'
+                org = norm_text(item.get('department') or item.get('deptName') or item.get('struName') or '')
                 publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
-                deadline = norm_text(item.get('deadline') or item.get('endTime') or '')
+                deadline = norm_text(item.get('deadline') or item.get('endTime') or item.get('soldOutTime') or '')
+                # Map projectType R00301/2/3 → campus/social/intern. Default campus.
+                ptype = (item.get('projectType') or '')
+                job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
                 job = JobInfo(
                     id='', company='工商银行', title=title, location=location,
-                    department=org, job_type='campus', url=url,
+                    department=org, job_type=job_type, url=url,
                     publish_date=publish_date, deadline=deadline,
-                    description=norm_text(item.get('jobDescription') or item.get('description') or ''),
+                    description=norm_text(item.get('jobDescription') or item.get('description') or item.get('content') or ''),
                     requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
                 )
                 if job.id not in seen:
@@ -2459,9 +2472,9 @@ def crawl_icbc(page, target) -> List[JobInfo]:
     total_count = harvest_from_captured()
 
     if jobs:
-        logger.info(f'工商银行校招岗位: {len(jobs)} 条')
+        logger.info(f'工商银行招聘公告: {len(jobs)} 条 (含校招/社招/实习)')
     else:
-        logger.info('工商银行当前未获取到校招岗位（可能未开招或页面结构变化）')
+        logger.info('工商银行当前未获取到招聘公告（可能未开招或页面结构变化）')
 
     return jobs
 
