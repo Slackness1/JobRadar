@@ -48,12 +48,40 @@ def _run_alembic_upgrade() -> None:
     print('[INFO] alembic upgrade head OK')
 
 
+def _check_playwright_browsers() -> None:
+    # Best-effort: surface missing Chromium at boot instead of 09:00 tier-crawl.
+    # Incident 2026-05-07: cache wiped during VPS migration; only noticed 19h
+    # later when BrowserType.launch failed inside the daily cron.
+    try:
+        import json
+        import playwright
+        pw_dir = Path(playwright.__file__).parent
+        browsers_json = pw_dir / 'driver' / 'package' / 'browsers.json'
+        cache_dir = Path.home() / '.cache' / 'ms-playwright'
+        if not browsers_json.exists():
+            return
+        data = json.loads(browsers_json.read_text())
+        for b in data.get('browsers', []):
+            if b.get('name') == 'chromium-headless-shell' and b.get('installByDefault'):
+                expected = cache_dir / f"chromium_headless_shell-{b['revision']}"
+                if not expected.is_dir():
+                    print(
+                        f'[ERROR] Playwright Chromium headless shell missing at {expected} '
+                        f'— run: <venv>/bin/playwright install chromium'
+                    )
+                    return
+        print('[INFO] Playwright browsers OK')
+    except Exception as exc:
+        print(f'[WARN] Playwright browser check skipped: {exc}')
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create tables + schema patch + seed + scheduler
     Base.metadata.create_all(bind=engine)
     ensure_compatible_schema(engine)
     _run_alembic_upgrade()
+    _check_playwright_browsers()
 
     db = SessionLocal()
     try:
