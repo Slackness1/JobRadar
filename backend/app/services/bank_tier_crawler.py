@@ -9,6 +9,9 @@ Currently active (verified working as of 2026-05-08):
   - 工商银行: announcement-list API capture, 8 announcements (校招+社招+实习
     home page summary; full 41 校招 announcements behind paged 'more' button —
     pagination TODO).
+  - 兴业银行: SPA on job.cib.com.cn. Drives 校园招聘 click + ant-pagination
+    next loop, harvests recruitposition/portalPage XHRs from _captured_json.
+    Smoke-tested 165 jobs (full population at total=166 mid-May 2026).
 
 Out-of-scope this round:
   - 招商银行: upstream campus list currently empty (total=0); 2026 校招应届生
@@ -50,6 +53,7 @@ ACTIVE_BANKS: list[BankTarget] = [
     BankTarget('民生银行', 'crawl_cmbc',  'https://career.cmbc.com.cn/',  max_pages=10),
     BankTarget('中国银行', 'crawl_boc',   'https://campus.chinahr.com/pages/boc-2026-Spring/', max_pages=20),
     BankTarget('工商银行', 'crawl_icbc',  'https://job.icbc.com.cn/',     max_pages=10),
+    BankTarget('兴业银行', 'crawl_cib',   'https://job.cib.com.cn/',      max_pages=20),
 ]
 
 
