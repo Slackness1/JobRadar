@@ -1,24 +1,24 @@
+import hashlib
 import pathlib
 import random
 import threading
 import time
-from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Optional
 
 import yaml
 from sqlalchemy.orm import Session
 
+from app.database import SessionLocal
 from app.models import InterviewIntelKeyword, InterviewIntelPost
-from app.services.interview.nowcoder import scraper, summarizer, title_filter, quality_scorer
+from app.services.interview.nowcoder import scraper, summarizer, quality_scorer
 
 _KEYWORDS_PATH = pathlib.Path(__file__).parent / "keywords.yaml"
 _DEFAULT_LIMIT = 10
 _FETCH_FRESH_HOURS = 24
-# Nowcoder SSR caches search results across rapid consecutive requests; without
-# this gap, a query's HTML may be served as the response for the next query.
-# 5s empirically clears the bleed.
-_INTER_KEYWORD_SLEEP_SECONDS = 5.0
+_DEFAULT_MAX_WORKERS = 4
 _STATUS_LOCK = threading.Lock()
 _STATUS: dict = {}
 
@@ -30,6 +30,28 @@ class RefreshStats:
     keywords_failed: int = 0
     posts_fetched: int = 0
     last_error: str = ""
+
+
+@dataclass(slots=True)
+class _ChipResult:
+    chip: str
+    posts_fetched: int = 0
+    error: str = ""
+
+
+@dataclass(slots=True)
+class _PidCache:
+    """Per-run cross-chip cache: pid → PostDetail. Thread-safe."""
+    data: dict[str, scraper.PostDetail] = field(default_factory=dict)
+    lock: threading.Lock = field(default_factory=threading.Lock)
+
+    def get(self, pid: str) -> Optional[scraper.PostDetail]:
+        with self.lock:
+            return self.data.get(pid)
+
+    def set(self, pid: str, detail: scraper.PostDetail) -> None:
+        with self.lock:
+            self.data[pid] = detail
 
 
 def _load_keywords() -> list[dict]:
@@ -61,7 +83,10 @@ def _upsert_post(
     row.fetched_at = datetime.utcnow()
 
 
-def _upsert_keyword(db: Session, keyword: str, summary: str, source_count: int, error: str = "") -> None:
+def _upsert_keyword(
+    db: Session, keyword: str, summary: str, source_count: int,
+    error: str = "", posts_hash: str = "",
+) -> None:
     row = db.query(InterviewIntelKeyword).filter_by(keyword=keyword).one_or_none()
     if row is None:
         row = InterviewIntelKeyword(keyword=keyword)
@@ -70,6 +95,12 @@ def _upsert_keyword(db: Session, keyword: str, summary: str, source_count: int, 
     row.source_count = source_count
     row.generated_at = datetime.utcnow()
     row.last_error = error
+    row.posts_hash = posts_hash
+
+
+def _hash_pid_set(pids: list[str]) -> str:
+    joined = "\n".join(sorted(pids))
+    return hashlib.sha1(joined.encode("utf-8")).hexdigest()
 
 
 def _record_status(payload: dict) -> None:
@@ -113,30 +144,26 @@ def _collect_ok_posts_for_summary(db: Session, chip: str) -> list[scraper.PostDe
     ]
 
 
-def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) -> None:
+def _process_keyword(db: Session, chip: str, query: str, pid_cache: _PidCache) -> _ChipResult:
+    result = _ChipResult(chip=chip)
     metas = scraper.search(query, limit=_DEFAULT_LIMIT)
     if not metas:
-        return
+        return result
 
-    # title_filter is a soft gate — empirically the LLM is too restrictive on
-    # some chips (e.g. drops 直接命中 titles for 中国银行总行). If it returns
-    # < 30% of input, ignore its judgment and keep all titles; quality_scorer
-    # at the next layer is the real filter.
-    keep_idx = title_filter.filter_relevant_titles(chip, [m.title for m in metas])
-    if len(keep_idx) >= max(1, len(metas) * 3 // 10):
-        relevant = [metas[i] for i in keep_idx if 0 <= i < len(metas)]
-    else:
-        relevant = list(metas)
-
-    for meta in relevant:
+    for meta in metas:
         existing = db.query(InterviewIntelPost).filter_by(pid=meta.pid, keyword=chip).one_or_none()
         if _is_fresh(existing):
             continue
-        detail = scraper.fetch_post(meta.pid, title=meta.title)
+        cached = pid_cache.get(meta.pid)
+        if cached is not None:
+            detail = cached
+        else:
+            detail = scraper.fetch_post(meta.pid, title=meta.title)
+            pid_cache.set(meta.pid, detail)
+            time.sleep(random.uniform(0.4, 1.0))
         score = quality_scorer.score_post_quality(detail) if detail.parse_status == "ok" else 0
         _upsert_post(db, chip, detail, meta.title, quality_score=score)
-        stats.posts_fetched += 1
-        time.sleep(random.uniform(0.4, 1.0))
+        result.posts_fetched += 1
     db.commit()
 
     ok_posts = _collect_ok_posts_for_summary(db, chip)
@@ -146,15 +173,49 @@ def _process_keyword(db: Session, chip: str, query: str, stats: RefreshStats) ->
         if existing_kw is None:
             _upsert_keyword(db, chip, "", 0)
             db.commit()
-        return
+        return result
+
+    posts_hash = _hash_pid_set([p.pid for p in ok_posts])
+    existing_kw = db.query(InterviewIntelKeyword).filter_by(keyword=chip).one_or_none()
+    if (
+        existing_kw is not None
+        and existing_kw.posts_hash == posts_hash
+        and existing_kw.summary_md
+    ):
+        # Same pid set as last summary — skip the LLM call.
+        return result
 
     summary = summarizer.summarize_keyword(chip, ok_posts)
     if summary:
-        _upsert_keyword(db, chip, summary, len(ok_posts))
+        _upsert_keyword(db, chip, summary, len(ok_posts), posts_hash=posts_hash)
         db.commit()
+    return result
 
 
-def run_refresh(db: Session) -> RefreshStats:
+def _run_chip_in_worker(chip: str, query: str, pid_cache: _PidCache) -> _ChipResult:
+    db = SessionLocal()
+    try:
+        try:
+            return _process_keyword(db, chip, query, pid_cache)
+        except Exception as e:
+            try:
+                _upsert_keyword(db, chip, "", 0, error=str(e)[:500])
+                db.commit()
+            except Exception:
+                db.rollback()
+            return _ChipResult(chip=chip, error=str(e))
+    finally:
+        db.close()
+
+
+def run_refresh(db: Optional[Session] = None, *, max_workers: int = _DEFAULT_MAX_WORKERS) -> RefreshStats:
+    """Refresh nowcoder intel for all keywords.
+
+    - max_workers > 1 (default): parallel chip fan-out; each worker opens its
+      own SessionLocal. The `db` argument is ignored in this mode.
+    - max_workers == 1: serial path using the passed `db`. Used by tests with
+      in-memory SQLite (which is per-connection and not shareable across threads).
+    """
     stats = RefreshStats()
     started = datetime.utcnow()
     try:
@@ -165,21 +226,34 @@ def run_refresh(db: Session) -> RefreshStats:
         return stats
 
     stats.keywords_total = len(keywords)
-    for idx, entry in enumerate(keywords):
-        chip = entry["chip"]
-        query = entry["query"]
-        if idx > 0:
-            time.sleep(_INTER_KEYWORD_SLEEP_SECONDS)
-        try:
-            _process_keyword(db, chip, query, stats)
-            stats.keywords_ok += 1
-        except Exception as e:
-            stats.keywords_failed += 1
+    pid_cache = _PidCache()
+
+    if max_workers <= 1:
+        if db is None:
+            raise ValueError("serial run_refresh requires a db session")
+        for entry in keywords:
+            chip, query = entry["chip"], entry["query"]
             try:
-                _upsert_keyword(db, chip, "", 0, error=str(e)[:500])
-                db.commit()
-            except Exception:
-                db.rollback()
+                result = _process_keyword(db, chip, query, pid_cache)
+                stats.keywords_ok += 1
+                stats.posts_fetched += result.posts_fetched
+            except Exception as e:
+                stats.keywords_failed += 1
+                try:
+                    _upsert_keyword(db, chip, "", 0, error=str(e)[:500])
+                    db.commit()
+                except Exception:
+                    db.rollback()
+    else:
+        with ThreadPoolExecutor(max_workers=max_workers) as ex:
+            futures = [ex.submit(_run_chip_in_worker, e["chip"], e["query"], pid_cache) for e in keywords]
+            for fut in as_completed(futures):
+                result = fut.result()
+                if result.error:
+                    stats.keywords_failed += 1
+                else:
+                    stats.keywords_ok += 1
+                    stats.posts_fetched += result.posts_fetched
 
     overall_status = "ok"
     if stats.keywords_failed and stats.keywords_failed == stats.keywords_total:

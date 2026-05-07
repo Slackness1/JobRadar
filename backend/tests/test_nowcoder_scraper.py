@@ -1,6 +1,7 @@
 import pathlib
 from unittest.mock import patch
 
+import httpx
 import pytest
 
 from app.services.interview.nowcoder import scraper
@@ -95,6 +96,67 @@ def test_parse_company_from_title():
     ]
     for title, expected in cases:
         assert scraper.parse_company_from_title(title) == expected, f"failed on {title!r}"
+
+
+def _fake_response(status_code: int, text: str = "") -> httpx.Response:
+    return httpx.Response(
+        status_code=status_code,
+        text=text,
+        request=httpx.Request("GET", "https://example/x"),
+    )
+
+
+def test_fetch_retries_once_on_transient_500():
+    calls = {"n": 0}
+
+    def fake_get(url):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return _fake_response(503)
+        return _fake_response(200, "<html>ok</html>")
+
+    with (
+        patch.object(scraper._HTTP_CLIENT, "get", side_effect=fake_get),
+        patch("app.services.interview.nowcoder.scraper.time.sleep", return_value=None),
+    ):
+        body = scraper._fetch("https://example/x")
+    assert body == "<html>ok</html>"
+    assert calls["n"] == 2
+
+
+def test_fetch_does_not_retry_404():
+    calls = {"n": 0}
+
+    def fake_get(url):
+        calls["n"] += 1
+        return _fake_response(404)
+
+    with (
+        patch.object(scraper._HTTP_CLIENT, "get", side_effect=fake_get),
+        patch("app.services.interview.nowcoder.scraper.time.sleep", return_value=None),
+    ):
+        with pytest.raises(httpx.HTTPStatusError):
+            scraper._fetch("https://example/missing")
+    # 404 is not a transient code → must not retry.
+    assert calls["n"] == 1
+
+
+def test_fetch_retries_on_network_error():
+    calls = {"n": 0}
+
+    def fake_get(url):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise httpx.ConnectError("connection reset")
+        return _fake_response(200, "ok body")
+
+    with (
+        patch.object(scraper._HTTP_CLIENT, "get", side_effect=fake_get),
+        patch("app.services.interview.nowcoder.scraper.time.sleep", return_value=None),
+    ):
+        body = scraper._fetch("https://example/x")
+    assert body == "ok body"
+    assert calls["n"] == 2
 
 
 @pytest.mark.integration

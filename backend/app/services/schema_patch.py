@@ -259,10 +259,18 @@ def ensure_compatible_schema(engine: Engine) -> None:
                     summary_md TEXT DEFAULT '',
                     source_count INTEGER DEFAULT 0,
                     generated_at DATETIME,
-                    last_error TEXT DEFAULT ''
+                    last_error TEXT DEFAULT '',
+                    posts_hash TEXT DEFAULT ''
                 )
                 """
             ))
+        else:
+            kw_cols = {
+                row[1]
+                for row in conn.execute(text("PRAGMA table_info(interview_intel_keywords)")).fetchall()
+            }
+            if "posts_hash" not in kw_cols:
+                conn.execute(text("ALTER TABLE interview_intel_keywords ADD COLUMN posts_hash TEXT DEFAULT ''"))
 
         post_exists = conn.execute(
             text("SELECT name FROM sqlite_master WHERE type='table' AND name='interview_intel_posts'")

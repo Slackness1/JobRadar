@@ -48,13 +48,10 @@ def _daily_crawl_job():
 
 
 def _nowcoder_intel_job():
-    db = SessionLocal()
     try:
-        run_nowcoder_refresh(db)
+        run_nowcoder_refresh()
     except Exception as e:
         print(f"[NOWCODER INTEL ERROR] {e}")
-    finally:
-        db.close()
 
 
 def _daily_tier_crawl_job():

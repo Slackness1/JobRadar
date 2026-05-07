@@ -432,6 +432,7 @@ class InterviewIntelKeyword(Base):
     source_count = Column(Integer, default=0)
     generated_at = Column(DateTime, nullable=True)
     last_error = Column(Text, default="")
+    posts_hash = Column(Text, default="")
 
 
 class InterviewIntelPost(Base):

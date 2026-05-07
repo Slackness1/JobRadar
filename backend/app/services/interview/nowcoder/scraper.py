@@ -1,14 +1,29 @@
 import html
+import random
 import re
+import time
 import urllib.parse
-import urllib.request
 from dataclasses import dataclass
+
+import httpx
 
 _UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 _HEADERS = {"User-Agent": _UA, "Accept-Language": "zh-CN,zh;q=0.9"}
 _SEARCH_URL = "https://www.nowcoder.com/search/all?query={q}&type=all"
 _POST_URL = "https://www.nowcoder.com/discuss/{pid}"
 _TIMEOUT_SECONDS = 20
+_FETCH_MAX_ATTEMPTS = 2  # 1 initial + 1 retry
+_FETCH_BACKOFF_BASE_SECONDS = 2.0
+
+# Module-level persistent client: pools TCP/TLS connections across all
+# requests in this process. ThreadPoolExecutor workers share it safely
+# (httpx.Client is thread-safe). Saves ~150-300ms per request on the
+# nowcoder.com handshake — adds up to ~30s/run on a 160-request batch.
+_HTTP_CLIENT = httpx.Client(
+    headers=_HEADERS,
+    timeout=_TIMEOUT_SECONDS,
+    follow_redirects=True,
+)
 
 _SEARCH_LINK_RE = re.compile(
     r'href="/discuss/(\d+)\?sourceSSR=search"[^>]*>([^<]+)<'
@@ -33,9 +48,31 @@ class PostDetail:
 
 
 def _fetch(url: str) -> str:
-    req = urllib.request.Request(url, headers=_HEADERS)
-    with urllib.request.urlopen(req, timeout=_TIMEOUT_SECONDS) as r:
-        return r.read().decode("utf-8", errors="replace")
+    """Fetch URL with one retry on transient failures (network / 5xx / 429).
+
+    Uses module-level _HTTP_CLIENT so TCP/TLS connections are pooled across
+    requests. Backoff before retry is _FETCH_BACKOFF_BASE_SECONDS + jitter.
+    Re-raises the last exception after _FETCH_MAX_ATTEMPTS. 4xx (except 429)
+    fail fast — retrying a 404 is pointless.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(_FETCH_MAX_ATTEMPTS):
+        try:
+            r = _HTTP_CLIENT.get(url)
+        except httpx.HTTPError as e:  # network / timeout / protocol error
+            last_exc = e
+        else:
+            if r.status_code < 400:
+                return r.text
+            if r.status_code != 429 and not (500 <= r.status_code < 600):
+                r.raise_for_status()  # 4xx non-429 → raise immediately
+            last_exc = httpx.HTTPStatusError(
+                f"HTTP {r.status_code} from {url}", request=r.request, response=r,
+            )
+        if attempt + 1 < _FETCH_MAX_ATTEMPTS:
+            time.sleep(_FETCH_BACKOFF_BASE_SECONDS + random.uniform(0, 1.0))
+    assert last_exc is not None
+    raise last_exc
 
 
 _NOISE_TITLE_RE = re.compile(r'(求面经|求面试|求经验|求帮助|求大佬|求问|求指导|求建议|急求|求带|没人面|有没有人|有人面过|有谁面过|跪求)')
