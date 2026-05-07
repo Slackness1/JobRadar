@@ -2410,69 +2410,151 @@ def crawl_cebbank(page, target) -> List[JobInfo]:
 
 
 def crawl_icbc(page, target) -> List[JobInfo]:
-    """工商银行：通过浏览器访问并捕获 API 响应。"""
+    """工商银行：浏览器进入 SPA 后用 in-page fetch 翻 qryAnnounList 全集。
+
+    Home 页只触发 4 + 3 + 1 + 0 = 8 条（每类 default pageSize=4）。真实接口：
+        POST /icbc/trmo/announ/qryAnnounList
+        body = {"public":{"call_app":"F-TRM"},
+                "private":{"page":N, "pageSize":10, "projectType":"R0030X"}}
+    pageSize 服务端硬性 cap=10，必须翻页。projectType: R00301 校招 / R00302
+    社招 / R00303 实习 / R00304 乡村振兴专项。
+
+    page.request POST 因 OpenSSL legacy renegotiation 失败，但 page.evaluate
+    内置 fetch 共享 SPA 会话能成功。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
 
     try:
         goto_and_wait(page, target['url'], timeout=30000, extra_sleep=2)
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(2000)
+        # 走一次 SPA list 路由让 cookies/session 热起来
+        try:
+            page.goto(
+                "https://job.icbc.com.cn/pc/index.html#/main/school/home/announ",
+                wait_until='domcontentloaded', timeout=20000,
+            )
+            page.wait_for_timeout(3000)
+        except Exception:
+            pass
     except Exception as e:
         logger.warning(f'工商银行页面打开失败: {e}')
         return jobs
 
-    def harvest_from_captured() -> int:
-        total_count = 0
+    PROJECT_TYPES = [
+        ('R00301', 'campus'),
+        ('R00302', 'social'),
+        ('R00303', 'intern'),
+        ('R00304', 'campus'),  # 乡村振兴专项当前 0 条，回归时按校招类
+    ]
+    PAGE_SIZE = 10  # 服务端 cap
+    MAX_PAGES = 20  # 安全上限
+
+    def fetch_one(project_type: str, page_num: int) -> dict:
+        try:
+            return page.evaluate(
+                """async ({pt, pn, ps}) => {
+                    const r = await fetch('/icbc/trmo/announ/qryAnnounList', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/json'},
+                      credentials: 'include',
+                      body: JSON.stringify({
+                        public: {call_app: 'F-TRM'},
+                        private: {page: pn, pageSize: ps, projectType: pt},
+                      }),
+                    });
+                    const t = await r.text();
+                    try { return {status: r.status, body: JSON.parse(t)}; }
+                    catch (e) { return {status: r.status, raw: t.slice(0, 300)}; }
+                }""",
+                {'pt': project_type, 'pn': page_num, 'ps': PAGE_SIZE},
+            ) or {}
+        except Exception as exc:
+            logger.warning(f'工商银行 qryAnnounList {project_type} p{page_num} 失败: {exc}')
+            return {}
+
+    api_rows: List[dict] = []
+    for ptype, _label in PROJECT_TYPES:
+        first = fetch_one(ptype, 1)
+        body = first.get('body') if isinstance(first, dict) else None
+        if not isinstance(body, dict) or str(body.get('retCode')) not in ('0',):
+            logger.info(f'工商银行 {ptype} 首页响应异常: {first!r}')
+            continue
+        data = body.get('data') or {}
+        total = int(data.get('total') or 0)
+        rows = list(data.get('dataList') or [])
+        for r in rows:
+            r['projectType'] = ptype
+        api_rows.extend(rows)
+        pages = min(MAX_PAGES, (total + PAGE_SIZE - 1) // PAGE_SIZE) if total else 1
+        for pn in range(2, pages + 1):
+            page.wait_for_timeout(400)
+            r = fetch_one(ptype, pn)
+            d = (r.get('body') or {}).get('data') or {}
+            more = list(d.get('dataList') or [])
+            for rec in more:
+                rec['projectType'] = ptype
+            api_rows.extend(more)
+            if len(more) < PAGE_SIZE:
+                break
+
+    for item in api_rows:
+        title = norm_text(item.get('title') or item.get('positionName') or '')
+        if not title:
+            continue
+        announ_id = norm_text(item.get('announId') or '')
+        pid = announ_id or item.get('positionId') or item.get('id') or ''
+        if announ_id:
+            url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}"
+        elif pid:
+            url = f"https://job.icbc.com.cn/campus/detail?id={pid}"
+        else:
+            url = target['url']
+        location = norm_text(item.get('struName') or item.get('workLocation') or item.get('city') or '') or '未知'
+        org = norm_text(item.get('struName') or item.get('department') or '')
+        publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
+        deadline = norm_text(item.get('deadline') or item.get('endTime') or item.get('soldOutTime') or '')
+        ptype = item.get('projectType') or ''
+        job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
+        job = JobInfo(
+            id='', company='工商银行', title=title, location=location,
+            department=org, job_type=job_type, url=url,
+            publish_date=publish_date, deadline=deadline,
+            description=norm_text(item.get('jobDescription') or item.get('description') or item.get('content') or ''),
+            requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
+        )
+        if job.id not in seen:
+            seen.add(job.id)
+            jobs.append(job)
+
+    # API 路径失败时（反爬/SSL）从 _captured_json 兜底
+    if not jobs:
         for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api', 'announ']):
+            if not any(k in rec.get('url', '') for k in ['announ', 'job', 'position']):
                 continue
             payload = rec.get('data') or {}
             data = payload.get('data') or payload
-            rows = data.get('list') or data.get('items') or data.get('records') or data.get('dataList') or []
-            if isinstance(rows, dict):
-                rows = rows.get('list') or rows.get('items') or rows.get('records') or []
-            if not rows:
-                continue
-            total_count = max(total_count, int(data.get('total') or payload.get('total') or len(rows)))
+            rows = data.get('dataList') or data.get('list') or []
             for item in rows:
-                title = norm_text(item.get('positionName') or item.get('jobName') or item.get('title') or item.get('name') or '')
+                title = norm_text(item.get('title') or item.get('positionName') or '')
                 if not title:
                     continue
-                # ICBC announcement schema: announId + struName + projectType (R00301 校招 / R00302 社招 / R00303 实习)
                 announ_id = norm_text(item.get('announId') or '')
-                pid = announ_id or item.get('positionId') or item.get('id') or item.get('jobId') or ''
-                if announ_id:
-                    url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}"
-                elif pid:
-                    url = f"https://job.icbc.com.cn/campus/detail?id={pid}"
-                else:
-                    url = target['url']
-                location = norm_text(
-                    item.get('workLocation') or item.get('city') or item.get('location')
-                    or item.get('struName')  # ICBC announcement: 总行 / 工银澳门 / 新疆分行 / etc.
-                ) or '未知'
-                org = norm_text(item.get('department') or item.get('deptName') or item.get('struName') or '')
-                publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
-                deadline = norm_text(item.get('deadline') or item.get('endTime') or item.get('soldOutTime') or '')
-                # Map projectType R00301/2/3 → campus/social/intern. Default campus.
+                url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}" if announ_id else target['url']
+                location = norm_text(item.get('struName') or '') or '未知'
                 ptype = (item.get('projectType') or '')
                 job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
                 job = JobInfo(
                     id='', company='工商银行', title=title, location=location,
-                    department=org, job_type=job_type, url=url,
-                    publish_date=publish_date, deadline=deadline,
-                    description=norm_text(item.get('jobDescription') or item.get('description') or item.get('content') or ''),
-                    requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
+                    department=location, job_type=job_type, url=url,
+                    publish_date=norm_text(item.get('publishTime') or ''),
                 )
                 if job.id not in seen:
                     seen.add(job.id)
                     jobs.append(job)
-        return total_count
-
-    total_count = harvest_from_captured()
 
     if jobs:
-        logger.info(f'工商银行招聘公告: {len(jobs)} 条 (含校招/社招/实习)')
+        logger.info(f'工商银行招聘公告: {len(jobs)} 条 (含校招/社招/实习/专项)')
     else:
         logger.info('工商银行当前未获取到招聘公告（可能未开招或页面结构变化）')
 
@@ -2830,6 +2912,124 @@ def crawl_boc(page, target) -> List[JobInfo]:
     else:
         logger.info('中国银行当前未获取到校招岗位（可能未开招或需要更多交互）')
 
+    return jobs
+
+
+def crawl_ccb(page, target) -> List[JobInfo]:
+    """建设银行 (CCB)：通过 plan_index 建立 session，再 in-page fetch 翻
+    `/tran/WCCMainPlatV5?TXCODE=NHR104` 全量。
+
+    planType: XY=校园招聘, SX=实习生招聘, SH=社会招聘（本爬虫只取 XY+SX）。
+    上游 2026 春季招聘 XY 类目实测 TOTAL_REC=4491, TOTAL_PAGE=90 (PAGE_SIZE=50)。
+    服务端响应是文本前缀的 JSON：`\\n\\n{...}`，strip 后 json.loads。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    PLAN_TYPES = [('XY', 'campus'), ('SX', 'intern')]
+    PAGE_SIZE = 50
+    max_pages = int(target.get('max_pages') or MAX_PAGES)
+
+    try:
+        # 先访问 plan_index 建立 session/cookie
+        goto_and_wait(
+            page,
+            f"https://job3.ccb.com/cn/job/plan_index.html?planType=XY",
+            timeout=30000, extra_sleep=3,
+        )
+        page.wait_for_timeout(2000)
+    except Exception as e:
+        logger.warning(f'建设银行 plan_index 打开失败: {e}')
+        return jobs
+
+    def fetch_page(plan_type: str, page_num: int) -> dict:
+        url = (
+            "/tran/WCCMainPlatV5"
+            "?CCB_IBSVersion=V5&isAjaxRequest=true&SERVLET_NAME=WCCMainPlatV5"
+            f"&TXCODE=NHR104&keyWord=&planType={plan_type}"
+            f"&orgId=&planPostId=&planId="
+            f"&PAGE_JUMP={page_num}&REC_IN_PAGE={PAGE_SIZE}"
+            f"&_={int(time.time() * 1000)}"
+        )
+        try:
+            text = page.evaluate(
+                f"""async () => {{
+                  const r = await fetch({json.dumps(url)}, {{
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {{'X-Requested-With': 'XMLHttpRequest'}}
+                  }});
+                  return await r.text();
+                }}"""
+            )
+        except Exception as exc:
+            logger.warning(f'建设银行 NHR104 {plan_type} p{page_num} 失败: {exc}')
+            return {}
+        try:
+            return json.loads((text or '').strip()) or {}
+        except Exception as exc:
+            logger.warning(f'建设银行 NHR104 解析失败 ({plan_type} p{page_num}): {exc}; raw[:200]={text[:200]!r}')
+            return {}
+
+    for plan_type, label in PLAN_TYPES:
+        first = fetch_page(plan_type, 1)
+        if first.get('SUCCESS') != 'true':
+            logger.info(f'建设银行 {plan_type}: SUCCESS={first.get("SUCCESS")} busMsg={first.get("busMsg")}')
+            continue
+        total_rec = int(first.get('TOTAL_REC', 0) or 0)
+        total_page = int(first.get('TOTAL_PAGE', 0) or 0)
+        if total_rec == 0:
+            logger.info(f'建设银行 {plan_type}: 上游空档 total=0')
+            continue
+        logger.info(f'建设银行 {plan_type}: total_rec={total_rec} total_page={total_page}')
+
+        rows_iter = list(first.get('planPostList') or [])
+        # 限制：cron 一次最多 max_pages 页，避免单类拉太慢
+        cap = min(max_pages, total_page)
+        for pn in range(2, cap + 1):
+            page.wait_for_timeout(300)
+            r = fetch_page(plan_type, pn)
+            if r.get('SUCCESS') != 'true':
+                logger.info(f'建设银行 {plan_type} p{pn} 异常停: SUCCESS={r.get("SUCCESS")}')
+                break
+            more = list(r.get('planPostList') or [])
+            if not more:
+                break
+            rows_iter.extend(more)
+
+        for item in rows_iter:
+            title = norm_text(item.get('planPostName') or '')
+            if not title:
+                continue
+            plan_id = norm_text(item.get('planId') or '')
+            plan_post = norm_text(item.get('planPost') or '')
+            # CCB API 返回 (planPost × org × secondOrg) 笛卡尔积：4491 = 5 岗位类型 ×
+            # ~900 (分行 × 支行)。必须把 orgId + secondOrgId 全带进 URL，否则
+            # md5 dedup 把全部多分行同岗 collapse 成 5 条。验证：单页 50 行用
+            # (planPost, orgId, secondOrgId) tuple 是 50/50 unique。
+            org_id = norm_text(item.get('orgId') or '')
+            second_org_id = norm_text(item.get('secondOrgId') or '')
+            url = (
+                f"https://job3.ccb.com/cn/job/post_detail.html"
+                f"?planId={plan_id}&planPost={plan_post}&planType={plan_type}"
+                f"&orgId={org_id}&secondOrgId={second_org_id}"
+            ) if plan_id and plan_post else target['url']
+            location = norm_text(item.get('workPlace') or '') or '未知'
+            org = norm_text(item.get('secondOName') or item.get('orgName') or '')
+            publish_date = norm_text(item.get('postDate') or '')
+            deadline = norm_text(item.get('endDate') or '')
+            job = JobInfo(
+                id='', company='建设银行', title=title, location=location,
+                department=org, job_type=label, url=url,
+                publish_date=publish_date, deadline=deadline,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+
+    if jobs:
+        logger.info(f'建设银行: {len(jobs)} 条 (含校招/实习)')
+    else:
+        logger.info('建设银行当前未获取到岗位（上游可能空档或页面结构变化）')
     return jobs
 
 

@@ -12,10 +12,24 @@ Currently active (verified working as of 2026-05-08):
   - 兴业银行: SPA on job.cib.com.cn. Drives 校园招聘 click + ant-pagination
     next loop, harvests recruitposition/portalPage XHRs from _captured_json.
     Smoke-tested 165 jobs (full population at total=166 mid-May 2026).
+  - 建设银行: jQuery + WCCMainPlatV5 servlet (TXCODE=NHR104). Iterates
+    planType ∈ [XY校招, SX实习], pages 50/page. URL must include
+    (planId, planPost, orgId, secondOrgId) for unique md5 — upstream returns
+    (post × branch × sub-branch) cartesian product. 2026 春季实测 4491 rows
+    校招 (90 pages × 50/page).
+  - 工商银行: 升级到 in-page fetch + qryAnnounList 全集翻页（4 个 projectType
+    × pageSize=10 server-cap），实测 41+3+1+0 = 45 条公告（home 页只显示 8）。
+    增强：struName→location/dept；announId→detail URL；projectType→job_type。
 
 Out-of-scope this round:
   - 招商银行: upstream campus list currently empty (total=0); 2026 校招应届生
     not yet opened as of 2026-05-08. Re-evaluate in Sept-Oct.
+  - 平安银行: 平安银行（深圳上市行 SZDBK）不在 campus.pingan.com ATS 范围
+    内（umbrella + /pab 路径都返回保险/资管/医疗/科技 4 个 sector，无银行）；
+    校招走 WeChat 小程序/智联/51job 第三方平台。判定上游不在范围。
+  - 农业银行: 上游 total=0 季节空档（2026-05-08）；接口 RSA + SM3 加密 +
+    反调试，破解成本远超 ROI。等 8-9 月秋招开窗后再考虑 DOM-scrape SPA
+    路径（路由 #/99 校招 / #/100 社招 / #/103 实习）。
 """
 from __future__ import annotations
 
@@ -54,6 +68,7 @@ ACTIVE_BANKS: list[BankTarget] = [
     BankTarget('中国银行', 'crawl_boc',   'https://campus.chinahr.com/pages/boc-2026-Spring/', max_pages=20),
     BankTarget('工商银行', 'crawl_icbc',  'https://job.icbc.com.cn/',     max_pages=10),
     BankTarget('兴业银行', 'crawl_cib',   'https://job.cib.com.cn/',      max_pages=20),
+    BankTarget('建设银行', 'crawl_ccb',   'https://job3.ccb.com/cn/job/plan_index.html?planType=XY', max_pages=100),
 ]
 
 
