@@ -67,12 +67,13 @@ def _check_playwright_browsers() -> None:
                 if not expected.is_dir():
                     print(
                         f'[ERROR] Playwright Chromium headless shell missing at {expected} '
-                        f'— run: <venv>/bin/playwright install chromium'
+                        f'— run: <venv>/bin/playwright install chromium',
+                        flush=True,
                     )
                     return
-        print('[INFO] Playwright browsers OK')
+        print('[INFO] Playwright browsers OK', flush=True)
     except Exception as exc:
-        print(f'[WARN] Playwright browser check skipped: {exc}')
+        print(f'[WARN] Playwright browser check skipped: {exc}', flush=True)
 
 
 @asynccontextmanager
