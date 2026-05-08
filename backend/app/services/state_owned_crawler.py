@@ -208,6 +208,14 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+# 已知失效 URL 的代码层覆盖（CSV 在 .gitignore 内不便修，所以此处兜底）。
+# Phase 3 audit 发现的 7 failed 中 国网四川 的 renzi.yking.cc 为 NXDOMAIN
+# 永久死，新入口是国网总部聚合站 zhaopin.sgcc.com.cn。
+_URL_OVERRIDES = {
+    'renzi.yking.cc': 'https://zhaopin.sgcc.com.cn/sgcchr/static/unitPart.html?bullet_id=6abe334463934d4ea285b57597246b8c&particulars=flase',
+}
+
+
 def _normalize_url(url: str) -> str:
     text = (url or "").strip()
     if not text:
@@ -217,6 +225,10 @@ def _normalize_url(url: str) -> str:
     parsed = urlparse(text)
     if not parsed.netloc:
         return ""
+    # 命中 _URL_OVERRIDES 的 host 直接换成新 URL
+    for dead_host, replacement in _URL_OVERRIDES.items():
+        if dead_host in parsed.netloc.lower():
+            return replacement
     return urlunparse((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "", "", parsed.query, parsed.fragment))
 
 
@@ -600,7 +612,10 @@ def _crawl_generic(page: Any, target: StateOwnedTarget, max_pages: Optional[int]
             'a[href*="detail"]',
         ],
         scroll=True,
-        timeout=45000,
+        # 45s 不够：tobacco.gov.cn 系列偶发慢响应（北京市烟草 curl 60s 才回
+        # 301）；今早 09:00 cron 6/7 failed 就是 Page.goto 45s timeout 触发。
+        # 加倍到 90s 给慢站留余量；上游 200 OK 但 TTFB 慢的家就不再误报 failed。
+        timeout=90000,
         extra_sleep=3,
         response_keywords=["job", "position", "post", "recruit", "campus", "api", "annc"],
         max_pages=max_pages,
