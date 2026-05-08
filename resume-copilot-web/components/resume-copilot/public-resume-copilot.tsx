@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
+  Download,
   FileText,
   Github,
   Home,
@@ -36,6 +37,7 @@ import {
   DEMO_SESSION_ID,
   createResumeCopilotSession,
   deleteResumeCopilotSession,
+  downloadResumePdf,
   getChatMessages,
   getDirectionAnalysis,
   getResumeCopilotFeedback,
@@ -1287,6 +1289,22 @@ export function PublicResumeCopilot() {
     }
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+  const exportPdf = async () => {
+    if (!sessionId || isExporting) return;
+    setError('');
+    setNotice('');
+    setIsExporting(true);
+    try {
+      await downloadResumePdf(sessionId);
+      setNotice('已开始下载简历 PDF。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '导出 PDF 失败');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const skipPreferences = () => {
     const skipped = {
       ...EMPTY_PREFERENCES,
@@ -1445,6 +1463,9 @@ export function PublicResumeCopilot() {
           updateBasicInfo={updateBasicInfo}
           onSave={saveProfile}
           isSaving={isSaving}
+          onExport={exportPdf}
+          isExporting={isExporting}
+          canExport={Boolean(sessionId) && Boolean(session?.has_parsed_profile)}
         />
       </section>
     </main>
@@ -2130,12 +2151,18 @@ function EditableResumeCanvas({
   updateBasicInfo,
   onSave,
   isSaving,
+  onExport,
+  isExporting,
+  canExport,
 }: {
   profile: ResumeProfilePayload;
   updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
   updateBasicInfo: (key: string, value: string) => void;
   onSave: () => Promise<void>;
   isSaving: boolean;
+  onExport: () => Promise<void>;
+  isExporting: boolean;
+  canExport: boolean;
 }) {
   const [editMode, setEditMode] = useState(false);
   const [layoutSettings, setLayoutSettings] = useState<ResumeLayoutSettings>(DEFAULT_RESUME_LAYOUT);
@@ -2165,6 +2192,17 @@ function EditableResumeCanvas({
           <Button type="button" variant="secondary" size="sm" onClick={() => setEditMode((value) => !value)}>
             <PencilLine />
             {editMode ? '预览' : '编辑'}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onExport}
+            disabled={!canExport || isExporting}
+            title={canExport ? '导出 PDF 简历（中文楷体 + 英文 Times）' : '解析完成后可导出'}
+          >
+            {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
+            导出 PDF
           </Button>
           <Button type="button" size="sm" onClick={onSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="animate-spin" /> : <Check />}

@@ -51,3 +51,7 @@ Thumbs.db
 
 # Git worktrees for isolated branch review
 .worktrees/
+
+# Bundled PDF fonts (fetched by scripts/install_pdf_fonts.sh)
+backend/app/services/resume_copilot/fonts/*.ttf
+backend/app/services/resume_copilot/fonts/*.otf

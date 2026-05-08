@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Header, HTTPException, UploadFile, status
+from fastapi.responses import Response
+from urllib.parse import quote
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -40,6 +42,7 @@ from app.schemas_resume_copilot import (
 )
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
+from app.services.resume_copilot.pdf_export import FontsNotInstalledError, render_resume_pdf
 from app.services.resume_copilot.state import INFLIGHT_GUARD_SECONDS, RunStatus, SessionStatus
 from app.services.resume_copilot.workflow import run_resume_generate_workflow, run_resume_parse_workflow
 
@@ -286,6 +289,49 @@ def put_resume_copilot_confirmed_profile(
     session.updated_at = datetime.utcnow()
     db.commit()
     return ResumeConfirmedProfileOut(session_id=session_id, profile=payload.profile)
+
+
+@router.get('/sessions/{session_id}/export.pdf')
+def export_resume_pdf(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    confirmed = (
+        db.query(ResumeConfirmedProfile)
+        .filter(ResumeConfirmedProfile.session_id == session_id)
+        .first()
+    )
+    parsed = (
+        db.query(ResumeParsedProfile)
+        .filter(ResumeParsedProfile.session_id == session_id)
+        .first()
+    )
+    source = confirmed or parsed
+    if not source:
+        raise HTTPException(status_code=404, detail='No resume profile available to export')
+
+    profile_json: Any = getattr(source, 'profile_json', '{}') or '{}'
+    profile = ResumeProfilePayload.model_validate(json.loads(str(profile_json)))
+
+    try:
+        pdf_bytes = render_resume_pdf(profile)
+    except FontsNotInstalledError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    name = (profile.basic_info or {}).get('name', '').strip() or '简历'
+    filename = f'{name}-简历-{datetime.utcnow().strftime("%Y%m%d")}.pdf'
+    content_disposition = (
+        f"attachment; filename=resume.pdf; filename*=UTF-8''{quote(filename)}"
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type='application/pdf',
+        headers={'Content-Disposition': content_disposition},
+    )
 
 
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)

@@ -77,6 +77,39 @@ export function listResumeCopilotSessions() {
   return requestJson<ResumeCopilotSessionListItem[]>('/api/resume-copilot/sessions');
 }
 
+export async function downloadResumePdf(sessionId: number): Promise<void> {
+  const userKey = getOrCreateUserKey();
+  const headers: Record<string, string> = { 'X-Resume-User-Key': userKey };
+  if (isGuestUser()) headers['X-Guest'] = '1';
+  const response = await fetch(`/api/resume-copilot/sessions/${sessionId}/export.pdf`, { headers });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `导出失败 (${response.status})`);
+  }
+  const blob = await response.blob();
+  const disposition = response.headers.get('content-disposition') || '';
+  let filename = `resume-${sessionId}.pdf`;
+  const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  const plainMatch = disposition.match(/filename=("?)([^";]+)\1/i);
+  if (utf8Match) {
+    try {
+      filename = decodeURIComponent(utf8Match[1]);
+    } catch {
+      // fall through to plain or default
+    }
+  } else if (plainMatch) {
+    filename = plainMatch[2];
+  }
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export function createResumeCopilotSession(file: File) {
   const form = new FormData();
   form.append('file', file);
