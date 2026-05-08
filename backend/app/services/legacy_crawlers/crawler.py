@@ -2479,6 +2479,171 @@ def crawl_zhiye_campus(page, target) -> List[JobInfo]:
     return jobs
 
 
+def crawl_zhiye_table_campus(page, target) -> List[JobInfo]:
+    """zhiye.com 表格 / UL 列表变体（北森 BeiSen 老模板）通用爬虫。
+
+    适用于走 DOM 渲染（不返回 GetJobAdPageList JSON）的 zhiye 站点，例如
+    cssc.zhiye.com / cnnc.zhiye.com / hr.cnnc.com.cn (重定向到 cnnc.zhiye.com)。
+
+    支持两种 DOM 变体（同一 BeiSen 模板的不同皮肤）：
+      A. <table class="tabletitle"><tbody><tr>...</tr></tbody></table>
+         例：cnnc.zhiye.com — 4 列：职位名称 / 成员单位 / 招聘人数 / 发布时间
+      B. <div class="job-list"><ul><li>...</li></ul></div>
+         例：cssc.zhiye.com — 5 行（li.innerText 换行分隔）：
+            职位名称 / 成员单位 / 专业类别 / 工作地点 / 发布时间
+
+    锚点 a[jobadid] 永远存在，跨变体可作 anchor。我们走父链找到行容器（TR/LI），
+    再用 children innerText（TR 模板）或 li.innerText 按换行切分（UL 模板）抽列。
+
+    分页：底部 `<a class="next" href="...?PageIndex=N">下一页</a>`，直接 page.goto 翻页，
+    避免点击触发 SPA 路由问题。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    parsed = urlparse(target['url'])
+    base = f"{parsed.scheme}://{parsed.netloc}"
+    company = target['name']
+    max_pages = int(target.get('max_pages') or 20)
+    job_type = target.get('type', 'campus')
+
+    current_url = target['url']
+    for page_idx in range(1, max_pages + 1):
+        try:
+            page.goto(current_url, wait_until='domcontentloaded', timeout=45000)
+        except Exception as e:
+            logger.warning(f'{company} 第 {page_idx} 页 goto 失败: {e}')
+            break
+
+        # 等待数据渲染：要么 table tbody tr，要么 ul li 内 a[jobadid]
+        try:
+            page.wait_for_function(
+                "document.querySelectorAll('a[jobadid]').length > 0",
+                timeout=20000,
+            )
+        except Exception:
+            logger.warning(f'{company} 第 {page_idx} 页未检测到 a[jobadid]，停止翻页')
+            break
+        page.wait_for_timeout(800)
+
+        rows_data = page.evaluate("""() => {
+          const out = [];
+          const seenRowKey = new Set();
+          const anchors = Array.from(document.querySelectorAll('a[jobadid]'));
+          for (const a of anchors) {
+            const jid = a.getAttribute('jobadid') || '';
+            if (!jid) continue;
+            // 找行容器：先看是不是 a 自己就是标题（CNNC: a 在 td.joblsttitle 内）
+            // 否则向上找 LI（CSSC: a.apply 在 div.info > li 内）
+            let row = null;
+            let cur = a;
+            for (let i = 0; i < 8 && cur; i++) {
+              if (cur.tagName === 'TR' || cur.tagName === 'LI') { row = cur; break; }
+              cur = cur.parentElement;
+            }
+            if (!row) continue;
+            const key = row.tagName + ':' + jid;
+            if (seenRowKey.has(key)) continue;
+            seenRowKey.add(key);
+
+            let cols = [];
+            let detailHref = '';
+            let titleText = '';
+            // 优先取真正的标题锚点（href 指向详情，不是 javascript:void(0)）
+            const realTitleAnchor = row.querySelector('a[jobadid][href]:not([href^="javascript"])');
+            if (realTitleAnchor) {
+              titleText = (realTitleAnchor.innerText || '').replace(/\\s+/g, ' ').trim();
+              detailHref = realTitleAnchor.getAttribute('href') || '';
+            }
+
+            if (row.tagName === 'TR') {
+              cols = Array.from(row.children).map(c => (c.innerText || '').replace(/\\s+/g, ' ').trim());
+              if (!titleText && cols.length) titleText = cols[0];
+            } else {
+              // LI 变体：用 innerText 按换行切分（LI 内的 a.apply 是「立即申请」按钮，不是标题）
+              const raw = (row.innerText || '').split(/\\n+/).map(s => s.trim()).filter(Boolean);
+              cols = raw.filter(s => !/^立即申请$|^工作职责|^任职要求|^岗位要求|^点击查看/.test(s));
+              // li 第一行 = 标题（含 J 编号），后续 = 成员单位/专业类别/工作地点/发布时间
+              if (!titleText && cols.length) titleText = cols[0];
+            }
+            out.push({jobadid: jid, title: titleText, href: detailHref, cols});
+          }
+          return out;
+        }""")
+
+        page_added = 0
+        for r in rows_data:
+            jid = r.get('jobadid') or ''
+            cols = [norm_text(c) for c in (r.get('cols') or [])]
+            title = norm_text(r.get('title')) or (cols[0] if cols else '')
+            if not title or title == '立即申请':
+                # 标题取不到时跳过
+                continue
+            # 列映射（启发式）
+            #   5 列 = title / 成员单位 / 专业类别 / 工作地点 / 发布时间  (CSSC 系)
+            #   4 列 = title / 成员单位 / 人数 / 发布时间                  (CNNC 系)
+            department = ''
+            location = '未知'
+            publish_date = ''
+            if len(cols) >= 5:
+                department = cols[1]
+                location = cols[3] or '未知'
+                publish_date = cols[4]
+            elif len(cols) >= 4:
+                department = cols[1]
+                publish_date = cols[3]
+                # CNNC 列没有 location，从标题里抓括号（跳过 J 编号、届数、数字等无效内容）
+                for m in re.finditer(r'[（(]([^（()）]{1,15})[）)]', title):
+                    candidate = m.group(1).strip()
+                    if re.fullmatch(r'J\d+', candidate, re.IGNORECASE):
+                        continue
+                    if re.fullmatch(r'\d{4}届', candidate):
+                        continue
+                    if re.fullmatch(r'\d+', candidate):
+                        continue
+                    location = candidate
+                    break
+            elif len(cols) >= 2:
+                department = cols[1]
+
+            href = r.get('href') or ''
+            if href:
+                detail_url = urljoin(base + '/', href)
+            else:
+                detail_url = f'{base}/campusxq?jobId={jid}&class=2'
+
+            job = JobInfo(
+                id='', company=company, title=title, location=location or '未知',
+                department=department, job_type=job_type,
+                url=detail_url, publish_date=publish_date,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+                page_added += 1
+
+        logger.info(f'{company} 第 {page_idx} 页（DOM 表格/UL）: {page_added} 条')
+        if page_added == 0:
+            break
+
+        # 翻页：BeiSen 模板 `上一页`/`下一页` 都用 class="next"，必须按文本区分
+        # 末页时下一页变 <span> 或带 disabled，没有 href，循环自动结束
+        try:
+            next_href = page.evaluate("""() => {
+              const all = Array.from(document.querySelectorAll('a'));
+              const cands = all.filter(e => (e.innerText || '').trim() === '下一页'
+                                            && !(e.className || '').includes('disabled')
+                                            && (e.getAttribute('href') || '').includes('PageIndex='));
+              return cands.length ? cands[0].getAttribute('href') : null;
+            }""")
+        except Exception:
+            next_href = None
+        if not next_href:
+            break
+        current_url = urljoin(base + '/', next_href)
+
+    return jobs
+
+
 def crawl_cebbank(page, target) -> List[JobInfo]:
     """光大银行：北森系统，校园招聘 API。"""
     jobs: List[JobInfo] = []
@@ -3269,6 +3434,10 @@ SITE_MAP = {
     'hupu.zhiye.com': crawl_zhiye_campus,
     'cebbank.zhiye.com': crawl_cebbank,
     'shrcb.zhiye.com': crawl_zhiye_campus,
+    # 北森老模板 zhiye 站点：DOM 表格 / UL 渲染（不返回 JSON API）
+    'cssc.zhiye.com': crawl_zhiye_table_campus,
+    'cnnc.zhiye.com': crawl_zhiye_table_campus,
+    'hr.cnnc.com.cn': crawl_zhiye_table_campus,
     'job.bankcomm.com': crawl_generic_bank_site,
     'job.icbc.com.cn': crawl_icbc,
     'career.abchina.com': crawl_generic_bank_site,
