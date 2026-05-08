@@ -2422,12 +2422,16 @@ def crawl_czbank(page, target) -> List[JobInfo]:
 
 
 def crawl_zhiye_campus(page, target) -> List[JobInfo]:
-    """通用 zhiye 校招接口抓取（如 虎扑/光大）。"""
+    """通用 zhiye 校招接口抓取（如 虎扑/光大/中交集团/中铁十二局医院 等）。"""
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
     parsed = urlparse(target['url'])
     base = f"{parsed.scheme}://{parsed.netloc}"
-    max_pages = int(target.get('max_pages') or MAX_PAGES)
+    # MAX_PAGES=20 + PageSize=20 = 400 hard cap，对很多 zhiye host 来说太低：
+    # ccccltd.zhiye.com 真上游 2612, genertec.zhiye.com 1374 — Phase 3 audit
+    # 发现 5 家国央企 fetched=400 整都是这个 cap 触发的。改为默认 100 页
+    # （= 2000 items），覆盖 genertec 100%、ccccltd 76%。+3min cron 时间。
+    max_pages = int(target.get('max_pages') or 100)
 
     for current_page in range(max_pages):
         payload = {
