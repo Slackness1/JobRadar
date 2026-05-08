@@ -538,7 +538,10 @@ def crawl_internet_targets(
                     try:
                         with company_crawl_log(
                             db,
-                            source=target.source or "internet_official",
+                            # Always 'internet_official' so /api/sites and crawl_health_check
+                            # find these rows. target.source captures the discovery
+                            # provenance (targets.yaml / *.csv) — that's a different concept.
+                            source="internet_official",
                             company=target.company,
                             parent_log_id=parent_log_id,
                         ) as log:
