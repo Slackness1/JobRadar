@@ -6,6 +6,7 @@ system message into `resume_copilot_messages` so the user sees a contextual gree
 when they open the chat rail.
 """
 import json
+import re
 from typing import TYPE_CHECKING, Any, Protocol
 from urllib import request as urllib_request
 
@@ -166,6 +167,67 @@ class OpenAICompatibleChatLLMProvider:
         return json.loads(content)
 
 
+# --- Fabrication guard --------------------------------------------------------
+#
+# The system prompt forbids inventing numbers, but DeepSeek does it anyway
+# (verified in audit: "F1 0.83" → "回测中相关系数达 0.45", "开源" →
+# "GitHub 200+ stars"). The guard extracts every numeric token from the user's
+# entire profile and flags any number in the rewrite that has no anchor.
+#
+# We intentionally do NOT auto-strip — stripping might leave bullets ungrammatical
+# and the user could miss the issue silently. Surfacing a warning lets them
+# decide whether to apply, edit, or regenerate.
+
+_NUMERIC_PATTERN = re.compile(r'\d+(?:\.\d+)?%?')
+
+
+def _extract_numbers(text: str) -> set[str]:
+    return set(_NUMERIC_PATTERN.findall(text or ''))
+
+
+def _profile_anchor_numbers(profile_dict: dict) -> set[str]:
+    chunks: list[str] = []
+    chunks.append(str(profile_dict.get('candidate_summary', '') or ''))
+    for ed in profile_dict.get('education', []) or []:
+        if not isinstance(ed, dict):
+            continue
+        chunks.extend(str(ed.get(k, '') or '') for k in ('school', 'degree', 'major', 'start_date', 'end_date'))
+        chunks.extend(str(h or '') for h in (ed.get('highlights') or []))
+    for it in profile_dict.get('internships', []) or []:
+        if not isinstance(it, dict):
+            continue
+        chunks.extend(str(it.get(k, '') or '') for k in ('company', 'role', 'start_date', 'end_date'))
+        chunks.extend(str(b or '') for b in (it.get('bullets') or []))
+    for pr in profile_dict.get('projects', []) or []:
+        if not isinstance(pr, dict):
+            continue
+        chunks.extend(str(pr.get(k, '') or '') for k in ('name', 'role'))
+        chunks.extend(str(b or '') for b in (pr.get('bullets') or []))
+        chunks.extend(str(t or '') for t in (pr.get('tech_stack') or []))
+    return _extract_numbers(' '.join(chunks))
+
+
+def _detect_fabricated_numbers(improved: list[str], anchor: set[str]) -> set[str]:
+    found: set[str] = set()
+    for bullet in improved or []:
+        found.update(_extract_numbers(bullet))
+    return found - anchor
+
+
+def _annotate_fabrications(options: list[RewriteOption], profile_dict: dict) -> None:
+    anchor = _profile_anchor_numbers(profile_dict)
+    if not anchor:
+        return
+    for opt in options:
+        fabricated = _detect_fabricated_numbers(opt.improved, anchor)
+        if not fabricated:
+            continue
+        nums = '、'.join(sorted(fabricated))
+        opt.warning = (
+            f'此方案引入了原简历中没有的数字：{nums}。这些可能是 AI 估测的，应用前请核实是否符合你的真实情况。'
+        )
+
+
 def _load_profile_dict(session_id: int, db: Session) -> dict:
     confirmed = (
         db.query(ResumeConfirmedProfile)
@@ -238,6 +300,9 @@ def generate_chat_turn(
             options.append(RewriteOption.model_validate(item))
         except Exception:
             pass
+
+    if options:
+        _annotate_fabrications(options, profile_dict)
 
     assistant_msg = ResumeCopilotMessage(
         session_id=session_id,

@@ -80,21 +80,38 @@ class OpenAICompatibleDirectionAnalysisProvider:
         return json.loads(content).get('directions', [])
 
 
+# Picker roles map to their broader track concept so direction analysis does
+# not emit two near-identical entries (e.g. '投研实习生' vs '投研'). The track
+# label wins because that's the concept users reason about in the UI.
+_DIRECTION_CANONICAL: dict[str, str] = {
+    '投研实习生': '投研',
+    '咨询顾问': '咨询',
+    '数据分析师': '数据分析',
+    '后端工程师': '后端开发',
+    '产品经理': '产品运营',
+}
+
+
+def _canonical_direction(value: str) -> str:
+    cleaned = (value or '').strip()
+    return _DIRECTION_CANONICAL.get(cleaned, cleaned)
+
+
 def _collect_directions(
     profile: ResumeProfilePayload,
     preferences: ResumePreferencePayload | None,
 ) -> list[str]:
+    raw: list[str] = []
     if preferences and not preferences.all_skipped:
-        seen: dict[str, None] = {}
-        for d in preferences.preferred_roles + preferences.preferred_tracks:
-            seen[d] = None
-        directions = list(seen.keys())[:8]
-        if directions:
-            return directions
-    seen = {}
-    for d in profile.inferred_roles[:4] + profile.inferred_tracks[:4]:
-        seen[d] = None
-    return list(seen.keys())
+        raw.extend(preferences.preferred_tracks + preferences.preferred_roles)
+    if not raw:
+        raw.extend(profile.inferred_tracks[:4] + profile.inferred_roles[:4])
+    seen: dict[str, None] = {}
+    for d in raw:
+        canonical = _canonical_direction(d)
+        if canonical and canonical not in seen:
+            seen[canonical] = None
+    return list(seen.keys())[:8]
 
 
 def generate_direction_analysis(

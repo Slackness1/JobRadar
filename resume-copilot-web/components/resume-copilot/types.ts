@@ -205,6 +205,7 @@ export interface RewriteOption {
   original: string[];
   improved: string[];
   rationale: string;
+  warning?: string;
 }
 
 export interface CopilotMessage {

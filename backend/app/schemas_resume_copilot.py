@@ -237,6 +237,8 @@ class RewriteOption(BaseModel):
     original: list[str] = []        # all bullets of the targeted block
     improved: list[str] = []        # rewritten bullets for the same block
     rationale: str = ''
+    warning: str = ''               # set by the fabrication guard when `improved` introduces
+                                    # numeric values not present anywhere in the original profile
 
     @field_validator('original', 'improved', mode='before')
     @classmethod

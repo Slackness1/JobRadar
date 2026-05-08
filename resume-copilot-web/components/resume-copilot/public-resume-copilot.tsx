@@ -1539,6 +1539,7 @@ function RewriteOptionCard({
 }) {
   const originalLines = option.original ?? [];
   const improvedLines = option.improved ?? [];
+  const warning = option.warning?.trim() ?? '';
   return (
     <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
       <div className="flex items-start justify-between gap-3">
@@ -1550,6 +1551,12 @@ function RewriteOptionCard({
         </div>
         <Badge className="shrink-0 bg-slate-100 text-[10px] text-slate-500">{option.section || option.field_path}</Badge>
       </div>
+      {warning && (
+        <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-[11px] leading-5 text-amber-900">
+          <span aria-hidden className="mt-0.5 text-sm leading-none">⚠</span>
+          <span>{warning}</span>
+        </div>
+      )}
       {originalLines.length > 0 && (
         <div className="mt-2 rounded-lg bg-slate-50 px-2.5 py-2 text-xs leading-5 text-slate-500">
           <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">原文</div>
