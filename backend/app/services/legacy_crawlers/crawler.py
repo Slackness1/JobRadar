@@ -457,6 +457,10 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
     # same browser context, so we do a hard goto to the target page number every N pages to
     # reset the session and let the response interceptor pick up fresh API results.
     BYTEDANCE_SESSION_RESET_INTERVAL = 150
+    # Bumped from MAX_EMPTY_PAGES=2 to 6 — even with deterministic
+    # wait_for_response, async response handler ordering can still produce
+    # transient empty reads. 6 buys ~6s of slack before declaring exhaustion.
+    BYTEDANCE_MAX_EMPTY_PAGES = 6
     empty_rounds = 0
     for pg in range(2, pages_needed + 1):
         before = len(jobs)
@@ -472,7 +476,7 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
                 added = len(jobs) - before
                 if added == 0:
                     empty_rounds += 1
-                    if empty_rounds >= MAX_EMPTY_PAGES:
+                    if empty_rounds >= BYTEDANCE_MAX_EMPTY_PAGES:
                         logger.info(f'字节跳动: 会话重置后仍空，终止于第 {pg} 页')
                         break
                 else:
@@ -487,7 +491,20 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
                 logger.info(f'字节跳动: 第 {pg} 页找不到下一页按钮，终止')
                 break
             next_btn.click(timeout=5000)
-            time.sleep(1.0)
+            # 异步竞争修复 (2026-05-08)：原本用 time.sleep(1.0) 等 API 响应；
+            # 但 on_post_response 是 async 触发，sleep 完 fresh_posts 仍可能空
+            # → added=0 假阳性 → MAX_EMPTY_PAGES=2 提前 kill。
+            # 改成 deterministically wait_for_response 让 fresh_posts 必有数据
+            # 再读，然后 sleep 0.3 缓冲。subagent 实测：原版 38/600 页就 break
+            # (~349 jobs)；upstream 实际 7834 条。
+            try:
+                page.wait_for_response(
+                    lambda r: 'search/job/posts' in r.url,
+                    timeout=8000,
+                )
+                page.wait_for_timeout(300)  # tiny buffer for callback to fully drain
+            except Exception:
+                time.sleep(1.0)  # fallback if no API response captured
         except Exception as e:
             logger.warning(f'字节跳动第 {pg} 页点击失败: {e}，尝试 goto fallback')
             try:
@@ -505,8 +522,8 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
 
         if added == 0:
             empty_rounds += 1
-            if empty_rounds >= MAX_EMPTY_PAGES:
-                logger.info(f'字节跳动: 连续 {MAX_EMPTY_PAGES} 页空结果，终止于第 {pg} 页')
+            if empty_rounds >= BYTEDANCE_MAX_EMPTY_PAGES:
+                logger.info(f'字节跳动: 连续 {BYTEDANCE_MAX_EMPTY_PAGES} 页空结果，终止于第 {pg} 页')
                 break
         else:
             empty_rounds = 0
