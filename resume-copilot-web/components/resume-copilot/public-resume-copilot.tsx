@@ -1466,6 +1466,7 @@ export function PublicResumeCopilot() {
           onExport={exportPdf}
           isExporting={isExporting}
           canExport={Boolean(sessionId) && Boolean(session?.has_parsed_profile)}
+          isDemo={sessionId === DEMO_SESSION_ID}
         />
       </section>
     </main>
@@ -2154,6 +2155,7 @@ function EditableResumeCanvas({
   onExport,
   isExporting,
   canExport,
+  isDemo = false,
 }: {
   profile: ResumeProfilePayload;
   updateProfile: (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => void;
@@ -2163,6 +2165,7 @@ function EditableResumeCanvas({
   onExport: () => Promise<void>;
   isExporting: boolean;
   canExport: boolean;
+  isDemo?: boolean;
 }) {
   const [editMode, setEditMode] = useState(false);
   const [layoutSettings, setLayoutSettings] = useState<ResumeLayoutSettings>(DEFAULT_RESUME_LAYOUT);
@@ -2189,7 +2192,14 @@ function EditableResumeCanvas({
         <div className="text-sm text-slate-500">{editMode ? '模块编辑' : '简历预览'}</div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <ResumeLayoutControls value={layoutSettings} onChange={setLayoutSettings} />
-          <Button type="button" variant="secondary" size="sm" onClick={() => setEditMode((value) => !value)}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setEditMode((value) => !value)}
+            disabled={isDemo}
+            title={isDemo ? '示例只读 — 上传你自己的简历后可编辑' : undefined}
+          >
             <PencilLine />
             {editMode ? '预览' : '编辑'}
           </Button>
@@ -2204,7 +2214,13 @@ function EditableResumeCanvas({
             {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
             导出 PDF
           </Button>
-          <Button type="button" size="sm" onClick={onSave} disabled={isSaving}>
+          <Button
+            type="button"
+            size="sm"
+            onClick={onSave}
+            disabled={isSaving || isDemo}
+            title={isDemo ? '示例只读 — 上传你自己的简历后可保存' : undefined}
+          >
             {isSaving ? <Loader2 className="animate-spin" /> : <Check />}
             保存
           </Button>
