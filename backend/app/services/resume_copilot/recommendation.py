@@ -33,6 +33,48 @@ TRACK_CATEGORY_HINTS: dict[str, tuple[str, ...]] = {
 }
 
 
+# Picker label → alias substrings searched against `job_text`. Multi-character
+# labels like '产品经理' / '投研实习生' rarely appear verbatim in titles or JDs,
+# so we expand them into the keywords that actually occur in real postings.
+# Hits are counted per pref VALUE (any alias matches → one bonus), not per alias.
+PREF_ROLE_ALIASES: dict[str, tuple[str, ...]] = {
+    '数据分析师': ('数据分析', '数据科学', 'analyst', 'data analyst', '商业分析', '量化分析'),
+    '后端工程师': ('后端', 'backend', '服务端', '研发工程师', '后端开发'),
+    '产品经理': ('产品经理', '产品运营', '产品策划', '产品助理', 'product manager'),
+    '咨询顾问': ('咨询', 'consultant', '顾问'),
+    '投研实习生': ('投研', '研究员', '研究助理', '行研', '研究部', '股票研究', '债券研究', '固收研究', '投行'),
+}
+
+PREF_TRACK_ALIASES: dict[str, tuple[str, ...]] = {
+    '金融科技': ('金融科技', 'fintech', '量化', '金融工程', '风控'),
+    '咨询': ('咨询', 'consulting', 'consultant', '顾问'),
+    '数据分析': ('数据分析', '数据科学', '商业分析', '量化', 'analyst', 'data'),
+    '产品运营': ('产品', '运营', '策划'),
+    '后端开发': ('后端', 'backend', '服务端', '研发'),
+    '投研': ('投研', '研究员', '研究助理', '行研', '投行', '研究所', '股票研究', '债券研究', '固收研究'),
+}
+
+PREF_COMPANY_TYPE_ALIASES: dict[str, tuple[str, ...]] = {
+    '互联网': ('互联网',),
+    '金融机构': ('银行', '券商', '基金', '保险', '证券', '资管'),
+    '咨询公司': ('咨询',),
+    '外企': ('外企', '外资'),
+    '初创公司': ('初创', '创业', 'startup'),
+    '国央企': ('国央企', '央企', '国企'),
+}
+
+
+def _pref_value_matches(job_text: str, value: str, alias_map: dict[str, tuple[str, ...]]) -> bool:
+    cleaned = value.strip()
+    if not cleaned:
+        return False
+    aliases = alias_map.get(cleaned)
+    if aliases is None:
+        # Custom value not in the picker — fall back to the original literal match.
+        return cleaned.lower() in job_text
+    return any(alias.lower() in job_text for alias in aliases)
+
+
 @dataclass(frozen=True)
 class CompanyPriorityRule:
     category_key: str
@@ -310,23 +352,35 @@ def compute_preference_score(job: Job, preferences: ResumePreferencePayload | No
     score = 0
 
     score += sum(6 for location in preferences.preferred_locations if location and location.lower() in job_text)
-    score += sum(5 for role in preferences.preferred_roles if role and role.lower() in job_text)
-    score += sum(4 for track in preferences.preferred_tracks if track and track.lower() in job_text)
-    score += sum(4 for company_type in preferences.preferred_company_types if company_type and company_type.lower() in job_text)
+    score += sum(5 for role in preferences.preferred_roles if _pref_value_matches(job_text, role, PREF_ROLE_ALIASES))
+    score += sum(4 for track in preferences.preferred_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
+    score += sum(4 for company_type in preferences.preferred_company_types if _pref_value_matches(job_text, company_type, PREF_COMPANY_TYPE_ALIASES))
     return score
 
 
-def compute_base_job_score(job: Job, profile: ResumeProfilePayload | None = None) -> int:
+def compute_base_job_score(
+    job: Job,
+    profile: ResumeProfilePayload | None = None,
+    preferences: ResumePreferencePayload | None = None,
+) -> int:
     if not job.scores:
         return 0
 
-    inferred_tracks = _target_category_keys(profile, None) if profile else set()
-    raw_inferred_tracks = {
-        track.strip().lower()
-        for track in (profile.inferred_tracks if profile else [])
-        if track and track.strip()
-    }
-    if not inferred_tracks and not raw_inferred_tracks:
+    target_categories = _target_category_keys(profile, preferences) if profile else set()
+    raw_track_hints: set[str] = set()
+    if profile:
+        raw_track_hints.update(
+            track.strip().lower()
+            for track in profile.inferred_tracks
+            if track and track.strip()
+        )
+    if preferences and not preferences.all_skipped:
+        raw_track_hints.update(
+            track.strip().lower()
+            for track in preferences.preferred_tracks
+            if track and track.strip()
+        )
+    if not target_categories and not raw_track_hints:
         return max(int(score.score or 0) for score in job.scores)
 
     relevant_scores: list[int] = []
@@ -337,8 +391,8 @@ def compute_base_job_score(job: Job, profile: ResumeProfilePayload | None = None
             str(getattr(track, 'name', '') or '').strip().lower(),
         }
         track_text = ' '.join(track_keys)
-        aligned_category = any(category_key in track_text for category_key in inferred_tracks)
-        direct_match = bool(raw_inferred_tracks.intersection(track_keys))
+        aligned_category = any(category_key in track_text for category_key in target_categories)
+        direct_match = bool(raw_track_hints.intersection(track_keys))
         if aligned_category or direct_match:
             relevant_scores.append(int(score.score or 0))
 
@@ -434,7 +488,7 @@ def compute_rule_score(
 ) -> tuple[int, int, int, int, int]:
     objective_score = compute_objective_score(job, profile, profile_tokens=profile_tokens)
     preference_score = compute_preference_score(job, preferences)
-    base_job_score = compute_base_job_score(job, profile)
+    base_job_score = compute_base_job_score(job, profile, preferences)
     priority = compute_company_priority(job)
     student_priority_score = _student_priority_bonus(priority, target_category_keys or set())
     company_priority_score = priority.score + student_priority_score
