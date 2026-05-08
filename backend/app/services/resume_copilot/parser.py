@@ -114,7 +114,7 @@ class OpenAICompatibleResumeParserProvider:
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
-            'max_tokens': 2500,
+            'max_tokens': 8000,
             'stream': True,
             'messages': [
                 {
@@ -130,10 +130,13 @@ class OpenAICompatibleResumeParserProvider:
                         'core courses / GPA / honours). Do not leave school or dates blank '
                         'when the resume text contains them.\n'
                         'For every internship item output all of: company, role, start_date, '
-                        'end_date, bullets (list of up to 3 key achievement strings — concise, '
-                        'not verbatim, one sentence each).\n'
+                        'end_date, bullets (list of strings — copy each bullet from the resume '
+                        'verbatim, preserve every one of them, do not summarize, do not merge, '
+                        'do not cap the count).\n'
                         'For every project item output all of: name, role, tech_stack (list), '
-                        'bullets (list of up to 3 key detail strings — concise, one sentence each).\n'
+                        'bullets (list of strings — copy each bullet from the resume verbatim, '
+                        'preserve every one of them, do not summarize, do not merge, do not cap '
+                        'the count).\n'
                         'Dates should be in the resume original format (e.g. "2024.09 – 2025.12").\n'
                         'Do not put education, contact details, dates, projects, skills, '
                         'or work-history facts into candidate_summary. candidate_summary '
