@@ -7,22 +7,59 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 interface HFLogoProps {
   size?: 'sm' | 'md' | 'lg';
   dark?: boolean;
+  label?: string;
 }
 
-export function HFLogo({ size = 'md', dark = false }: HFLogoProps) {
+export function HFLogoMark({ size = 26, dark = false }: { size?: number; dark?: boolean }) {
   return (
-    <div className="hf-logo" style={dark ? { color: '#faf9f5' } : {}}>
-      <div className="hf-logo__mark" style={dark ? { background: '#faf9f5' } : {}} />
+    <span
+      className="hf-logo__mark"
+      style={{
+        width: size,
+        height: size,
+        background: dark ? '#f5f4ed' : undefined,
+      }}
+      aria-hidden
+    />
+  );
+}
+
+export function HFLogo({ size = 'md', dark = false, label = 'JobRadar' }: HFLogoProps) {
+  const markPx = size === 'lg' ? 32 : size === 'sm' ? 22 : 26;
+  const wordPx = size === 'lg' ? 22 : size === 'sm' ? 15 : 18;
+  return (
+    <div className="hf-logo">
+      <HFLogoMark size={markPx} dark={dark} />
       <span
         className="hf-logo__word"
         style={{
           color: dark ? '#faf9f5' : undefined,
-          fontSize: size === 'lg' ? 22 : size === 'sm' ? 15 : 18,
+          fontSize: wordPx,
         }}
       >
-        JobRadar
+        {label}
       </span>
     </div>
+  );
+}
+
+export function HFRadarPulse({ size = 24, color = '#c96442' }: { size?: number; color?: string }) {
+  return (
+    <svg
+      className="hf-radar-pulse"
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      aria-hidden
+    >
+      <circle cx="16" cy="16" r="13" stroke={color} strokeWidth="1.4" opacity="0.3" />
+      <circle cx="16" cy="16" r="8" stroke={color} strokeWidth="1.4" opacity="0.55" />
+      <circle className="hf-logo__ping hf-logo__ping--a" cx="16" cy="16" r="6" stroke={color} strokeWidth="1.6" />
+      <circle className="hf-logo__ping hf-logo__ping--b" cx="16" cy="16" r="6" stroke={color} strokeWidth="1.6" />
+      <line className="hf-logo__sweep" x1="16" y1="16" x2="26" y2="6" stroke={color} strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
+      <circle className="hf-logo__core" cx="16" cy="16" r="2.6" fill={color} />
+    </svg>
   );
 }
 

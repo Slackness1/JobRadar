@@ -70,6 +70,7 @@ import {
   type RewriteOption,
 } from './types';
 import { DemoBanner } from '@/components/hifi/demo-banner';
+import { HFLogo, HFRadarPulse } from '@/components/hifi/hifi-primitives';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -445,6 +446,7 @@ function AgentThinkingPanel({
     return (
       <div className="rounded-[18px] border border-[var(--border)] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(15,23,42,0.06)]">
         <div className="mb-2 flex items-center gap-2">
+          {running && <HFRadarPulse size={18} />}
           <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
             {running ? '代理思考中' : '代理编排完成'}
           </span>
@@ -481,6 +483,7 @@ function AgentThinkingPanel({
   return (
     <div className="rounded-[18px] border border-[var(--border)] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(15,23,42,0.06)]">
       <div className="mb-2 flex items-center gap-2">
+        {running && <HFRadarPulse size={18} />}
         <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
           {running ? 'AI 推理中' : '推理完成'}
         </span>
@@ -1564,31 +1567,6 @@ function RewriteOptionCard({
   );
 }
 
-function ResumeDuckLogo() {
-  return (
-    <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-[8px] border border-amber-200 bg-amber-50 shadow-sm">
-      <svg viewBox="0 0 36 36" className="size-8" aria-hidden="true">
-        <rect width="36" height="36" rx="8" fill="#fff7d6" />
-        <path
-          d="M10.2 21.4c.8-4.9 4.9-8.2 9.9-8.2 4.6 0 8.2 2.6 9.2 6.6.5 2.2-.5 4.4-2.6 5.4-2.2 1.1-5.6 1.6-9.6 1.3-4.8-.4-7.5-2.1-6.9-5.1Z"
-          fill="#f8d14f"
-          stroke="#1f2937"
-          strokeWidth="1.4"
-        />
-        <path
-          d="M8.3 16.8c.9-3.9 3.7-6.2 7.3-6.2 3.1 0 5.6 1.8 6.4 4.6.7 2.6-1.5 4.7-5.7 5.1-4.3.4-8.8.1-8-3.5Z"
-          fill="#ffe16f"
-          stroke="#1f2937"
-          strokeWidth="1.4"
-        />
-        <path d="M21.9 16.3 28 14.7c1.4-.4 2.4 1.3 1.3 2.3l-4.6 3.8" fill="#f59e0b" stroke="#1f2937" strokeWidth="1.3" />
-        <circle cx="15.5" cy="14.7" r="1.1" fill="#111827" />
-        <path d="M11.8 20.7c2.5 1.1 5.5 1.2 8.7.1" fill="none" stroke="#1f2937" strokeLinecap="round" strokeWidth="1.1" />
-        <path d="M23.5 22.2c1.8.2 3.7.1 5.5-.4" fill="none" stroke="#1f2937" strokeLinecap="round" strokeWidth="1.1" />
-      </svg>
-    </span>
-  );
-}
 
 function ResumeChatRail({
   session,
@@ -1713,8 +1691,7 @@ function ResumeChatRail({
           <aside className="resume-library-panel flex min-w-0 flex-col border-r border-slate-200 bg-[#f6f7fa]">
             <div className="resume-library-header flex h-[60px] items-center justify-between border-b border-slate-200 px-5">
               <div className="flex min-w-0 items-center gap-3">
-                <ResumeDuckLogo />
-                <div className="truncate text-[18px] font-semibold tracking-tight text-slate-950">简历鸭</div>
+                <HFLogo label="简历雷达" />
               </div>
               <button
                 type="button"

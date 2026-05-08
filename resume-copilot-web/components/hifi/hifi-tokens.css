@@ -133,11 +133,68 @@
 .hf-stack { display: flex; flex-direction: column; }
 .hf-between { justify-content: space-between; }
 
-/* BrandMark */
+/* BrandMark — static dark-square + terracotta dot.
+   Colors hardcoded (not var()) so the mark renders identically inside and
+   outside `.hf` scope. Tailwind 4 rewrites :root in imported CSS to `.hf`. */
 .hf-logo { display: inline-flex; align-items: center; gap: 8px; }
-.hf-logo__mark { width: 26px; height: 26px; border-radius: 8px; background: var(--deep-dark); position: relative; }
-.hf-logo__mark::after { content:''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--terracotta); top: 9px; left: 9px; box-shadow: 0 0 0 3px rgba(201,100,66,0.22); }
-.hf-logo__word { font-family: var(--font-serif); font-weight: 500; font-size: 18px; letter-spacing: -0.01em; color: var(--ink); }
+.hf-logo__mark {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #141413;
+  position: relative;
+}
+.hf-logo__mark::after {
+  content: '';
+  position: absolute;
+  width: 30%; height: 30%;
+  border-radius: 50%;
+  background: #c96442;
+  top: 35%; left: 35%;
+  box-shadow: 0 0 0 3px rgba(201, 100, 66, 0.22);
+}
+.hf-logo__word {
+  font-family: 'Fraunces', 'Noto Serif SC', ui-serif, Georgia, serif;
+  font-weight: 500; font-size: 18px; letter-spacing: -0.01em;
+  color: #141413;
+}
+
+/* Radar pulse — used in agent-thinking indicators */
+@keyframes hf-logo-ping {
+  0%   { transform: scale(0.45); opacity: 1;   }
+  70%  { transform: scale(2.0);  opacity: 0;   }
+  100% { transform: scale(2.0);  opacity: 0;   }
+}
+@keyframes hf-logo-core {
+  0%, 100% { opacity: 1;    transform: scale(1);   }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+@keyframes hf-logo-sweep {
+  0%   { transform: rotate(0deg);   }
+  100% { transform: rotate(360deg); }
+}
+.hf-logo__ping {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: hf-logo-ping 2s cubic-bezier(0.2, 0.6, 0.2, 1) infinite;
+}
+.hf-logo__ping--b { animation-delay: 1s; }
+.hf-logo__core {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: hf-logo-core 2s ease-in-out infinite;
+}
+.hf-logo__sweep {
+  transform-origin: 16px 16px;
+  transform-box: view-box;
+  animation: hf-logo-sweep 4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hf-logo__ping, .hf-logo__core, .hf-logo__sweep { animation: none; }
+  .hf-logo__ping { opacity: 0; }
+}
 
 /* Spinner */
 @keyframes hf-spin { to { transform: rotate(360deg); } }
