@@ -811,6 +811,9 @@ def crawl_hotjob_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 
+_KNOWN_ATS_FAMILIES = {"zhiye", "hotjob", "moka_embedded", "zhiye_legacy"}
+
+
 def crawl_configured_securities_targets(target_names: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
     targets = _load_securities_targets()
     if target_names:
@@ -820,6 +823,12 @@ def crawl_configured_securities_targets(target_names: Optional[List[str]] = None
     for target in targets:
         ats_family = target.get("ats_family")
         company = target["name"]
+        # Phase 4: ats_family='other' / 未知 → 跳过，不创建 company_crawl_log
+        # 行（之前会写出 fake-green status=success/fetched=0/14d max=0 的伪健
+        # 康，污染 /api/sites 面板）。yaml 里仍保留为未来目标，等真正写解析器
+        # 后改 ats_family 即可激活。详见 docs/crawler-coverage-securities-2026-05.md
+        if ats_family not in _KNOWN_ATS_FAMILIES:
+            continue
         if ats_family == "zhiye":
             crawled = crawl_zhiye_target(target)
         elif ats_family == "hotjob":
