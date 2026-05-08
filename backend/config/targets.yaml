@@ -89,7 +89,8 @@ targets:
   type: campus
   tier: 2
   status: completed
-  note: SPA，需要浏览器；已抓 28 条（仅校招，>2026-01）
+  max_pages: 5
+  note: SPA。上游仅 3 页 = ~27 条已是全量（2026-05-08 verified, 经 1c70ff0 SPA in-place pagination 修复 + 实测）；max_pages=5 节省爬取时间
 - name: 米哈游
   url: https://jobs.mihoyo.com/#/campus/position
   type: campus
