@@ -485,6 +485,12 @@ def _crawl_generic(page: Any, target: ConsumerTarget, max_pages: Optional[int] =
             'a[href*="position"]',
             'a[href*="career"]',
             'a[href*="detail"]',
+            # Phase 5: 亿滋等用 51job 校招页（campus.51job.com/2026mdlz/page.html）
+            # 锚点 href 是 xyz.51job.com/external/apply.aspx?jobid=...，
+            # 不含 job/position/career/detail 关键词。明确加上 apply.aspx pattern
+            # 才能命中。Title 解析仍弱（首层文字可能只是城市名）但至少 fetched > 0
+            # 让 dashboard 不再 fake-green。完整 51job-campus parser 进 backlog。
+            'a[href*="apply.aspx"]',
         ],
         scroll=True,
         timeout=45000,
