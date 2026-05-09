@@ -96,6 +96,21 @@ async def lifespan(app: FastAPI):
                     setattr(log, "error_message", "Interrupted by service restart")
             db.commit()
 
+        # 同样清理 company_crawl_logs 子表的 orphan running 行。Phase 5 故障
+        # 调查发现 2448 中铁特货物流 行 stuck "running" 4 天没人清，导致后续
+        # tier-crawl 写入争锁失败。
+        from app.models import CompanyCrawlLog  # local import to avoid circular
+        stale_company_logs = db.query(CompanyCrawlLog).filter(CompanyCrawlLog.status == "running").all()
+        if stale_company_logs:
+            for log in stale_company_logs:
+                setattr(log, "status", "failed")
+                setattr(log, "finished_at", datetime.utcnow())
+                existing = getattr(log, "error_message", "") or ""
+                if not existing:
+                    setattr(log, "error_message", "Interrupted by service restart")
+            db.commit()
+            print(f"[INFO] Cleaned {len(stale_company_logs)} stale company_crawl_logs orphans")
+
         mark_stale_running_tasks_failed(db)
 
         seeded = seed_from_yaml(db)
