@@ -2644,6 +2644,136 @@ def crawl_zhiye_table_campus(page, target) -> List[JobInfo]:
     return jobs
 
 
+# CNNC 子公司 → mobile API c2 ID 映射
+# 用途：class B (hr.cnnc.com.cn) 和 class C (cnnc.zhiye.com)
+# 没有 c2 in URL，但所有 jobs 在 cnnc.m.zhiye.com 上有数据。按 company name 查表得 c2。
+# c2 ID 来源：cnnc.m.zhiye.com/JobAd/_GetSearchItems jobclasses['对外显示招聘单位']
+CNNC_COMPANY_C2_MAP: Dict[str, str] = {
+    # class B (hr.cnnc.com.cn) — 5+ subsidiaries
+    '中核运维': '1_454',
+    '中核运维技术': '1_454',
+    '中核大唐庄河核电': '1_559',
+    '中核浙能': '1_28',
+    '中核苏能': '1_12',
+    '中核龙安': '1_451',
+    '中核龙安有限公司': '1_451',
+    '三门核电': '1_9',
+    '中核二四': '1_103',
+    '中国核电': '',  # 集团本部 jc=2 全量（fallback）
+    # class C (cnnc.zhiye.com)
+    '中核海洋': '1_26',
+    '中核光电': '1_465',
+    '中核光电科技(上海)有限公司': '1_465',
+    '中核光电科技（上海）有限公司': '1_465',
+    '中辐院，中国辐射防护研究院': '1_169',
+    '中国辐射防护研究院': '1_169',
+    '中国原子能科学研究院': '1_122',
+    # class A 备用（URL 已有 c2 时不会用到此 map）
+    '中核二三': '1_106',
+    '中核二二': '1_104',
+    '中核华泰': '1_101',
+    '中核四0四有限公司': '1_121',
+    '中核四0四': '1_121',
+    '中核五公司': '1_102',
+    '中核铀业': '1_457',
+    '中核（上海）供应链管理有限公司': '',  # jc=2 全量
+    '中国中原': '1_162',
+    '中国聚变能源有限公司': '1_680',
+    '中国聚变': '1_680',
+}
+
+
+def crawl_cnnc_mobile_api(page, target) -> List[JobInfo]:
+    """中核（CNNC）子公司专用爬虫 — 直接调用 cnnc.m.zhiye.com 移动端 JSON API。
+
+    背景：CNNC 旗下三组域名走同一套北森后台（TenantId=605932），但前端模板差异
+      - cnnc.m.zhiye.com (移动端)：URL 上带 c2=1_xxx 子公司筛选
+      - hr.cnnc.com.cn (桌面)：WAF 412 challenge，curl/Chromium/requests 全部被挡
+      - cnnc.zhiye.com (桌面)：landing page 仅 CMS 内容，无 jobadid DOM
+    Playwright/Chromium 对所有三组域名都 ERR_EMPTY_RESPONSE（TLS 指纹被挡）。
+    但 requests + iPhone UA 可以稳定访问 cnnc.m.zhiye.com 的 JSON API：
+      GET /JobAd/_SearchJobAd?pi=N&ps=20&jc=2&c1=-1&c2=<id>&ky=&c=-1&in=1
+      → {DataResult:[{JobAdId, JobAdName, LocIdName, Department, ToPostDate, Duty, ...}],
+         RowCount: <total>, PageCount, ...}
+
+    所以本函数：
+      1. 从 URL 解析 c2 参数（class A 直接拿到）
+      2. 否则按 target['name'] 查 CNNC_COMPANY_C2_MAP（class B/C）
+      3. 直接 requests 拉 mobile API；忽略 Playwright `page` 参数
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    company = target['name']
+    job_type = target.get('type', 'campus')
+    target_url = target.get('url', '')
+
+    # 解析 c2：先从 URL query string 找
+    c2 = ''
+    try:
+        parsed = urlparse(target_url)
+        qs = parse_qs(parsed.query or '')
+        c2_vals = qs.get('c2') or []
+        if c2_vals:
+            c2 = c2_vals[0].strip()
+    except Exception:
+        pass
+    # URL 没有 c2 → 按公司名查表
+    if not c2 or c2 in ('-1', ''):
+        c2 = CNNC_COMPANY_C2_MAP.get(company, '')
+    if not c2:
+        # 最后兜底用 -1（jc=2 全量），把整个 CNNC 校招岗位都拉下来
+        # 通常只在公司名未在 map 中时触发；返回数据后由 fetched/match 阶段去重
+        c2 = '-1'
+
+    api_base = 'https://cnnc.m.zhiye.com/JobAd/_SearchJobAd'
+    iphone_ua = ('Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) '
+                 'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1')
+    headers = {
+        'User-Agent': iphone_ua,
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Referer': f'https://cnnc.m.zhiye.com/joblist.html?jc=2&c2={c2}',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    max_pages = int(target.get('max_pages') or 30)  # 30 * 20 = 600 上限够 99% 子公司
+
+    for pi in range(1, max_pages + 1):
+        api_url = f'{api_base}?pi={pi}&ps=20&jc=2&c1=-1&c2={c2}&ky=&c=-1&in=1'
+        try:
+            resp = requests.get(api_url, headers=headers, proxies=REQUEST_PROXIES, timeout=30)
+            data = resp.json() if resp.status_code == 200 else {}
+        except Exception as e:
+            logger.warning(f'{company} CNNC mobile API 第 {pi} 页失败: {e}')
+            break
+        rows = data.get('DataResult') or []
+        page_added = 0
+        for item in rows:
+            jid = str(item.get('JobAdId') or '').strip()
+            title = norm_text(item.get('JobAdName'))
+            if not title or not jid:
+                continue
+            location = norm_text(item.get('LocIdName')) or '未知'
+            department = norm_text(item.get('Department') or item.get('OrgName') or '')
+            publish = norm_text(item.get('ToPostDate') or '')
+            deadline = norm_text(item.get('ToEndDate') or '')
+            description = norm_text(item.get('Duty') or '')
+            detail_url = f'https://cnnc.m.zhiye.com/cmpdetail.html?jobid={jid}&jc={item.get("CategoryId") or 2}'
+            job = JobInfo(
+                id='', company=company, title=title, location=location,
+                department=department, job_type=job_type,
+                url=detail_url, description=description,
+                publish_date=publish, deadline=deadline,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+                page_added += 1
+        logger.info(f'{company} CNNC mobile API 第 {pi} 页 (c2={c2}): {page_added} 条 (RowCount={data.get("RowCount")})')
+        if not rows or page_added == 0:
+            break
+    return jobs
+
+
 def crawl_cebbank(page, target) -> List[JobInfo]:
     """光大银行：北森系统，校园招聘 API。"""
     jobs: List[JobInfo] = []
@@ -3436,8 +3566,13 @@ SITE_MAP = {
     'shrcb.zhiye.com': crawl_zhiye_campus,
     # 北森老模板 zhiye 站点：DOM 表格 / UL 渲染（不返回 JSON API）
     'cssc.zhiye.com': crawl_zhiye_table_campus,
-    'cnnc.zhiye.com': crawl_zhiye_table_campus,
-    'hr.cnnc.com.cn': crawl_zhiye_table_campus,
+    # CNNC 三组域名共用同一后台（TenantId=605932），但 hr.cnnc.com.cn 走 WAF 412
+    # challenge，cnnc.zhiye.com 是 CMS landing page 没 jobadid DOM。统一改走
+    # cnnc.m.zhiye.com 的 mobile JSON API（curl/requests + iPhone UA 通），
+    # 按 c2 参数 / 公司名查表区分子公司。详见 crawl_cnnc_mobile_api。
+    'cnnc.m.zhiye.com': crawl_cnnc_mobile_api,
+    'cnnc.zhiye.com': crawl_cnnc_mobile_api,
+    'hr.cnnc.com.cn': crawl_cnnc_mobile_api,
     'job.bankcomm.com': crawl_generic_bank_site,
     'job.icbc.com.cn': crawl_icbc,
     'career.abchina.com': crawl_generic_bank_site,
