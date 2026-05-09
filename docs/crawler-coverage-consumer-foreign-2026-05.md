@@ -44,7 +44,7 @@
 
 | 公司 | 类别 | 处理 |
 |---|---|---|
-| **LVMH** | (d) 工程不可行 | Chromium HTTP/2 fingerprint 被 lvmh.cn / lvmh.com CDN 主动拒绝 (4 种 args 全部失败：`--disable-quic` / `--disable-features=HTTP2` / `--no-proxy-server`)。需换 Firefox 或 curl_cffi+TLS 指纹库。**短期不修，进 backlog** |
+| **LVMH** | (a) 上游真空 | **更正诊断（2026-05-09）**：Phase 5 当时把它定为"HTTP/2 fingerprint 被拒，工程不可行"。集中问题轮 subagent 用 `curl_cffi.requests.get(impersonate='chrome120')` **一次过 200 / 1.38MB HTML**——fingerprint 假说证伪。真因是 LVMH Prismic CMS 主动没配 job feed (`offersUrl: "$undefined"` for all locales)，Workday tenant 都已停服，SmartRecruiters 4 条全 Paris。**修法**：MANUAL_TARGETS["LVMH"] 清空让 crawler 跳过，不再创建永远失败的 log 行。秋季可季度复测 `/tmp/repro_lvmh.py` 看 `offersUrl` 是否解封。 |
 | **百胜** | (d) 上游真空 | 所有候选 URL 都死或空：`careers.yumchina.com` 502/empty / `careers.yum.com` NXDOMAIN / `careers.kfc.com.cn` 死 / `hr.yumchina.com` 死 / `join.yumchina.com` 死。唯一活的 `www.yumchina.com/careers` 是公司主页无岗位 DOM。2026 春招上游真空。**文档归档** |
 | **亿滋** | (c) 选择器漂 → ✓ **已修** | 51job 校招页 `campus.51job.com/2026mdlz/page.html` 实际有 **15 条岗位**，锚点 href 是 `xyz.51job.com/external/apply.aspx?jobid=170864801..`。原 selectors 不命中 `apply.aspx` pattern。Phase 5 commit 加 `'a[href*="apply.aspx"]'` selector 让 fetched > 0；title 解析仍弱（首层文本常是城市名）但解决 fake-green 问题。**完整 51job-campus parser（jobid 从 query 取 + title 从父级 tr 取）进 backlog** |
 | **雀巢** | (c) 部分 anti-bot + URL 过期 | `nestlecareers.cn/zh-hans/trainee-programme` Chromium 直连 Akamai 403 (`Sec-Fetch-*` headers missing)，加 headers 后 `requests` 200/76KB 能通；51job nestle_SalesAssociate_2026 活动结束页空；tupu360 重定向到微信扫码。**修法：** 给 Playwright context 加 `Sec-Fetch-{Site,Mode,Dest,User}` headers + 换 URL 主页递归。**进 backlog**（中等工作量）|

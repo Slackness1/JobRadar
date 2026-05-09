@@ -208,6 +208,18 @@ Backend voice stack (Aliyun NLS was replaced — see commits `4615a9e` / `7d2f8d
 
 Frontend deps notable for the interview pages: `lucide-react` for the icon set used by both the device check and interviewer pages.
 
+### Crawler 诊断方法论（避免 "工程不可行" 误判）
+
+2026-05-09 LVMH 反例：Phase 5 当时定为"Chromium HTTP/2 fingerprint 被 CDN 拒，需换 Firefox/curl_cffi 工程不可行"。后来 subagent 用 `curl_cffi.requests.get(impersonate='chrome120')` **一次过 200 / 1.38MB HTML**，证伪了 fingerprint 假说。**真因**是 LVMH 的 Prismic CMS 主动没配 job feed (`offersUrl: "$undefined"` for all locales)——是上游内容侧空，不是反爬。
+
+**规则**：在给某家 crawler 标 "工程不可行 / 反爬不可绕" 之前，**至少 1 个备选引擎实测**：
+- `curl_cffi.requests` with `impersonate='chrome120' / 'safari17_2'` （TLS+H2 fingerprint 模拟）
+- Playwright Firefox（`playwright install firefox` + `p.firefox.launch()`），fingerprint 跟 Chromium 完全不同
+- 直 `requests` + 仿真 headers（特别是 `Sec-Fetch-{Site,Mode,Dest,User}` —— Akamai 类常因为缺这几个 403）
+- 看 RSC payload / window.__NEXT_DATA__ / data.js 等 SSR 数据源（很多 SPA 真数据不在 DOM）
+
+如果 ≥2 个备选都拿不到，再标"工程不可行"。否则要分清：(a) 上游真空 vs (b) 反爬不可绕 vs (c) 选择器/接口漂——三种处理方式不同。
+
 ### Internet crawler coverage notes (`app/services/legacy_crawlers/crawler.py`)
 
 The t1 internet portals each have a quirk worth knowing before touching them:
@@ -224,11 +236,12 @@ The t1 internet portals each have a quirk worth knowing before touching them:
 
 The project runs on the user's VPS (`myvps`, 122.51.18.237) under systemd as the long-lived daily runtime. Connection setup lives in the `wsl2-ssh-to-vps` skill (cipher pinning works around WSL2's MTU bug).
 
+- **Timezone**: VPS clock = **CST (Asia/Shanghai = 北京时间 / UTC+8)**. User is also in 北京时间. SQLite stores `started_at`/`finished_at` in **naive UTC** (default). When querying use `datetime(started_at, 'localtime')` to get 北京时间. Don't manually subtract 8h — `'localtime'` 已经做对。APScheduler cron 表达式按 CST 解读（`0 9 * * *` = 北京时间 09:00）。
 - **Service**: `/etc/systemd/system/jobradar.service` on VPS — `sudo systemctl {status,restart,start,stop} jobradar`
 - **Working dir**: `/home/ubuntu/opencode-worktrees/jobrador-edit/backend` on `main` branch
 - **Bind**: uvicorn on `127.0.0.1:8000` only (no external exposure, no nginx)
 - **Scheduler**: APScheduler `daily_crawl` fires at `0 8 * * *` Asia/Shanghai. Verify with `curl http://127.0.0.1:8000/api/scheduler` on the VPS.
-- **Env**: systemd `EnvironmentFile=/home/ubuntu/opencode-worktrees/jobrador-edit/.env` — keeps `TATA_USERNAME` / `TATA_PASSWORD` in one place.
+- **Env**: systemd `EnvironmentFile=/home/ubuntu/opencode-worktrees/jobrador-edit/.env` — keeps `TATA_USERNAME` / `TATA_PASSWORD` in one place. Plus `Environment=PYTHONUNBUFFERED=1` (lifespan print 要进 journal) + `Environment=OPENSSL_CONF=/etc/ssl/openssl-legacy.cnf` (legacy TLS 银行/政府站需要 unsafe legacy renegotiation)。
 - **Logs**: `sudo journalctl -u jobradar --since "08:00"`
 
 Code that affects scheduler / lifespan / startup must be tested against this systemd unit. The VPS runs `main`, so cherry-pick crawler fixes from feature branches to `main` and push before expecting them to take effect there. When GitHub→VPS network is flaky, transfer commits via `git bundle` + `scp` instead of relying on `git fetch` from the VPS.
