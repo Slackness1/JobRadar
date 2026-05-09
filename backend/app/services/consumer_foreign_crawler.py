@@ -79,16 +79,21 @@ COMPANY_ALIASES = {
 
 MANUAL_TARGETS = {
     "雀巢": [
-        "https://www.nestlecareers.cn/zh-hans/trainee-programme",
+        # Phase 5 修复（2026-05-09）：之前指向 nestlecareers.cn 营销 SPA，
+        # 76KB HTML 但 0 条岗位 DOM。真 ATS 是 Moka，DOM scrape 实测 21 条。
+        "https://app.mokahr.com/campus-recruitment/nestlezgc/91899/#/jobs",
     ],
     "百胜": [
         "http://careers.yumchina.com",
         "http://campus.51job.com/yumchina",
     ],
-    "LVMH": [
-        "https://www.lvmh.cn/job-offers",
-        "https://www.lvmh.com/en/join-us/lvmh-graduate-programs/lvmh-china-retail-management-trainee-program",
-    ],
+    # LVMH — Phase 5 修复（2026-05-09）：subagent 用 curl_cffi chrome120
+    # 一次过 200，证明 Phase 5 当时"HTTP/2 fingerprint 拒绝"诊断错了。真因
+    # 是 LVMH Prismic CMS 主动没配 job feed (`offersUrl: undefined`)，所有
+    # locale 都空。Workday tenant 都已停服。SmartRecruiters 4 条全 Paris。
+    # 这是上游内容侧空，不是爬虫 bug。URL 清空让 crawler 跳过，不再创建
+    # 永远失败的 log 行污染 dashboard。秋季可季度复测 repro_lvmh.py。
+    "LVMH": [],
     "耐克": ["https://careers.nike.com/zh-cn/"],
     "资生堂": [],
     "默克": [
@@ -756,6 +761,20 @@ def crawl_consumer_targets(
             try:
                 for target in targets:
                     context, page = legacy.new_page(browser)
+                    # Phase 5 修复（2026-05-09）：Akamai 类 CDN（如 nestlecareers.cn）
+                    # 不带 Sec-Fetch 头会返 403。Chromium 顶层 navigation 会自动加，
+                    # 但 sub-request 不一定。提前 set_extra_http_headers 让所有请求
+                    # 都带上，给整个消费外企 tier 防御未来其他 CDN 站。
+                    try:
+                        context.set_extra_http_headers({
+                            "Sec-Fetch-Site": "none",
+                            "Sec-Fetch-Mode": "navigate",
+                            "Sec-Fetch-Dest": "document",
+                            "Sec-Fetch-User": "?1",
+                            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+                        })
+                    except Exception:
+                        pass  # best-effort
                     target_exc: Optional[Exception] = None
                     try:
                         with company_crawl_log(

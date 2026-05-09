@@ -3528,6 +3528,208 @@ def crawl_generic_bank_site(page, target) -> List[JobInfo]:
     )
 
 
+# 国家烟草专卖局 (www.tobacco.gov.cn / bj.tobacco.gov.cn) 系列 — Phase 5 故障
+# 集中点 #2 修复（2026-05-09）。
+# 8 家烟草子公司在 Playwright Chromium 走全部 ERR_EMPTY_RESPONSE/Timeout 90s，
+# 但 curl/requests 直连 0.13-0.18s 200 OK。Server fingerprint 检测 headless
+# Chromium 在 TCP 层就 drop。改用 requests + stdlib re 直接解 SSR HTML。
+_TOBACCO_ARTICLE_PATH_RE = re.compile(r"/gjyc/zpxx/\d{6}/[a-f0-9]+\.shtml")
+_TOBACCO_LIST_ANCHOR_RE = re.compile(
+    r'<a[^>]+href="(?P<href>[^"]*?/gjyc/zpxx/\d{6}/[a-f0-9]+\.shtml)"[^>]*?(?:title="(?P<title>[^"]*)")?[^>]*>(?P<body>.*?)</a>',
+    re.S,
+)
+_TOBACCO_TAG_STRIP_RE = re.compile(r"<[^>]+>")
+_TOBACCO_H1_RE = re.compile(r"<h1[^>]*>(.*?)</h1>", re.S)
+_TOBACCO_SOURCE_SPAN_RE = re.compile(r'<span class="source">(.*?)</span>', re.S)
+_TOBACCO_DATE_RE = re.compile(r"时间：\s*([\d\-]{8,10})")
+
+
+def _tobacco_strip_tags(html_fragment: str) -> str:
+    return _TOBACCO_TAG_STRIP_RE.sub("", html_fragment).strip()
+
+
+def crawl_tobacco_gov_cn(page, target) -> List[JobInfo]:
+    """国家烟草专卖局 SSR HTML 抓取（绕开 Chromium fingerprint 拦截）。"""
+    url = (target.get("url") or "").strip()
+    company = (target.get("name") or "").strip() or "国家烟草专卖局"
+    job_type = (target.get("type") or "campus").strip()
+    if not url:
+        return []
+    headers = {"User-Agent": UA, "Accept-Language": "zh-CN,zh;q=0.9"}
+    try:
+        resp = requests.get(url, headers=headers, timeout=12, proxies=REQUEST_PROXIES or None, allow_redirects=True)
+        resp.raise_for_status()
+        resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+        html = resp.text
+    except Exception:
+        # 真死站点（bj.tobacco.gov.cn 等）— re-raise 让 company_crawl_log 12s
+        # fail-fast 而不是 90s Playwright timeout
+        raise
+
+    base = "http://www.tobacco.gov.cn"
+    jobs: List[JobInfo] = []
+
+    if _TOBACCO_ARTICLE_PATH_RE.search(url):
+        # 单 article 页 — 1 JobInfo
+        h1 = _TOBACCO_H1_RE.search(html)
+        if not h1:
+            return []
+        title = _tobacco_strip_tags(h1.group(1))
+        if not title:
+            return []
+        src_match = _TOBACCO_SOURCE_SPAN_RE.search(html)
+        department = _tobacco_strip_tags(src_match.group(1)) if src_match else company
+        date_match = _TOBACCO_DATE_RE.search(html)
+        publish_date = date_match.group(1) if date_match else ''
+        return [JobInfo(
+            id='', company=company, title=title, location='未知', department=department,
+            job_type=job_type, url=url, publish_date=publish_date,
+        )]
+
+    # list 页 — 20 JobInfo
+    seen: Set[str] = set()
+    for m in _TOBACCO_LIST_ANCHOR_RE.finditer(html):
+        href = m.group("href")
+        title = (m.group("title") or "").strip() or _tobacco_strip_tags(m.group("body") or "")
+        if not href or not title:
+            continue
+        full_url = href if href.startswith("http") else (base + href)
+        if full_url in seen:
+            continue
+        seen.add(full_url)
+        jobs.append(JobInfo(
+            id='', company=company, title=title, location='未知', department=company,
+            job_type=job_type, url=full_url,
+        ))
+    logger.info(f'国烟[{company}]: {len(jobs)} 条')
+    return jobs
+
+
+# 51job 校招页 (campus.51job.com/<slug>) — Phase 5 故障集中点 #3 修复
+# (2026-05-09)。亿滋（campus.51job.com/2026mdlz）等校招页面是 SPA，岗位
+# 数据来自静态 JS 文件 js/data.js（var jobData=[...])，DOM selector 抓
+# 不到。直接 requests 拉 data.js 用 regex 解。
+_DATAJS_DEPT_BLOCK_RE = re.compile(
+    r"\{\s*(?:img\s*:[^,]*,)?\s*name\s*:\s*\"([^\"]+)\"(.*?)\}\s*,?\s*(?=\{|\];)",
+    re.DOTALL,
+)
+_DATAJS_LOCATION_RE = re.compile(r"location\s*:\s*\"([^\"]*)\"")
+_DATAJS_APPLY_ITEM_RE = re.compile(
+    r"\{\s*(?:title\s*:\s*['\"]([^'\"]*)['\"]\s*,?\s*)?"
+    r"(?:content\s*:\s*['\"](?:[^'\"\\]|\\.)*['\"]\s*,?\s*)?"
+    r"city\s*:\s*\"([^\"]*)\"\s*,\s*"
+    r"url\s*:\s*\"([^\"]*apply\.aspx[^\"]*)\"",
+    re.DOTALL,
+)
+_DATAJS_FALLBACK_APPLY_RE = re.compile(
+    r"\"(https?://[^\"]*apply\.aspx\?[^\"]*jobid=(\d+)[^\"]*)\"",
+    re.IGNORECASE,
+)
+
+
+def _51job_campus_root(url: str) -> str:
+    parsed = urlparse(url)
+    parts = [p for p in parsed.path.split("/") if p]
+    while parts and "." in parts[-1]:
+        parts.pop()
+    new_path = "/" + "/".join(parts) if parts else "/"
+    return f"{parsed.scheme}://{parsed.netloc}{new_path}"
+
+
+def _51job_extract_jobid(url: str) -> str:
+    try:
+        q = parse_qs(urlparse(url).query)
+        return (q.get("jobid") or q.get("jobId") or [""])[0]
+    except Exception:
+        return ""
+
+
+def crawl_51job_campus_data_js(page, target) -> List[JobInfo]:
+    """51job 校招专属页（campus.51job.com/<slug>）：抓 js/data.js + 解析。"""
+    company = target.get("name", "")
+    target_url = target.get("url", "")
+    job_type = target.get("type", "campus")
+    if not target_url:
+        return []
+    base = _51job_campus_root(target_url)
+    if not base.endswith("/"):
+        base += "/"
+    candidates = [base + "js/data.js", base + "data.js", base + "js/jobData.js"]
+
+    text = ""
+    for url in candidates:
+        try:
+            resp = requests.get(url, headers={"User-Agent": UA, "Referer": base}, timeout=20)
+            if resp.status_code == 200 and ("jobData" in resp.text or "applyLinks" in resp.text or "apply.aspx" in resp.text):
+                text = resp.text
+                logger.info(f"51job-campus[{company}]: data.js hit at {url} ({len(text)} bytes)")
+                break
+        except Exception as exc:
+            logger.debug(f"51job-campus[{company}]: probe {url} failed: {exc}")
+
+    if not text:
+        try:
+            resp = requests.get(base + "page.html", headers={"User-Agent": UA}, timeout=20)
+            if resp.status_code == 200 and "apply.aspx" in resp.text:
+                text = resp.text
+        except Exception:
+            pass
+
+    if not text:
+        logger.warning(f"51job-campus[{company}]: no data.js found under {base}")
+        return []
+
+    jobs: List[JobInfo] = []
+    seen_ids: Set[str] = set()
+
+    # 结构化 path：按 department 块走
+    for dept_match in _DATAJS_DEPT_BLOCK_RE.finditer(text):
+        dept_name = dept_match.group(1).strip()
+        body = dept_match.group(2)
+        loc_match = _DATAJS_LOCATION_RE.search(body)
+        dept_location = loc_match.group(1).strip() if loc_match else ""
+        for apply_match in _DATAJS_APPLY_ITEM_RE.finditer(body):
+            sub_title = (apply_match.group(1) or "").strip()
+            city = (apply_match.group(2) or "").strip()
+            url = (apply_match.group(3) or "").strip()
+            jobid = _51job_extract_jobid(url)
+            if not jobid or jobid in seen_ids:
+                continue
+            seen_ids.add(jobid)
+            title_parts = [dept_name]
+            if sub_title:
+                title_parts.append(sub_title)
+            if city:
+                title_parts.append(city)
+            jobs.append(JobInfo(
+                id=jobid, company=company, title=" - ".join(title_parts),
+                location=city or dept_location or "未知",
+                department=dept_name, job_type=job_type, url=url,
+            ))
+
+    # Fallback: 任何 apply.aspx 链接，用近邻 city/name 上下文兜底 title
+    for fb in _DATAJS_FALLBACK_APPLY_RE.finditer(text):
+        url = fb.group(1)
+        jobid = fb.group(2)
+        if jobid in seen_ids:
+            continue
+        seen_ids.add(jobid)
+        start = max(0, fb.start() - 240)
+        ctx = text[start:fb.start()]
+        city_match = re.findall(r"city\s*:\s*\"([^\"]+)\"", ctx)
+        name_match = re.findall(r"name\s*:\s*\"([^\"]+)\"", text[:fb.start()])
+        city = city_match[-1].strip() if city_match else ""
+        dept = name_match[-1].strip() if name_match else company
+        title = " - ".join(p for p in [dept, city] if p) or f"{company} 岗位 {jobid}"
+        jobs.append(JobInfo(
+            id=jobid, company=company, title=title,
+            location=city or "未知", department=dept, job_type=job_type, url=url,
+        ))
+
+    logger.info(f"51job-campus[{company}]: {len(jobs)} 条")
+    return jobs
+
+
 SITE_MAP = {
     'bytedance': crawl_bytedance,
     'meituan': crawl_meituan,
@@ -3618,6 +3820,9 @@ SITE_MAP = {
     'hxb.hotjob.cn': crawl_hxb,
     'wecruit.hotjob.cn': crawl_hxb,
     'zp.czbank.com.cn': crawl_czbank,
+    # Phase 5 集中问题修复 (2026-05-09)：
+    'tobacco.gov.cn': crawl_tobacco_gov_cn,        # 国家烟草专卖局 SSR HTML（绕开 Chromium 拦截）
+    'campus.51job.com': crawl_51job_campus_data_js,  # 51job 校招页 data.js 解析（亿滋 + 类似 51job 模板）
 }
 
 
