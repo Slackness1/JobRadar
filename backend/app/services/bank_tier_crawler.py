@@ -64,11 +64,13 @@ class BankTarget:
 # home-page render of latest校招/社招/实习; better than 0 stale rows.
 ACTIVE_BANKS: list[BankTarget] = [
     BankTarget('中信银行', 'crawl_citic', 'https://job.citicbank.com/', max_pages=45),
-    BankTarget('民生银行', 'crawl_cmbc',  'https://career.cmbc.com.cn/',  max_pages=10),
-    BankTarget('中国银行', 'crawl_boc',   'https://campus.chinahr.com/pages/boc-2026-Spring/', max_pages=20),
+    BankTarget('民生银行', 'crawl_cmbc',  'https://career.cmbc.com.cn/',  max_pages=10),  # +民生理财
+    BankTarget('中国银行', 'crawl_boc',   'https://campus.chinahr.com/pages/boc-2026-Spring/', max_pages=20),  # +中银理财
     BankTarget('工商银行', 'crawl_icbc',  'https://job.icbc.com.cn/',     max_pages=10),
-    BankTarget('兴业银行', 'crawl_cib',   'https://job.cib.com.cn/',      max_pages=20),
+    BankTarget('兴业银行', 'crawl_cib',   'https://job.cib.com.cn/',      max_pages=20),  # +兴银理财
     BankTarget('建设银行', 'crawl_ccb',   'https://job3.ccb.com/cn/job/plan_index.html?planType=XY', max_pages=100),
+    # Phase 6 (2026-05-10) — 加 浦发顺带覆盖 浦银理财（subagent 实测今天 8 jobs）
+    BankTarget('浦发银行', 'crawl_spdb',  'https://job.spdb.com.cn/campusJob', max_pages=15),  # +浦银理财
 ]
 
 

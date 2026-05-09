@@ -1,0 +1,174 @@
+# Top-25 公募基金 招聘入口 (Phase 6 task #1).
+# ats_family ∈ {hotjob, zhiye, moka_embedded, zhiye_beisen_cms, other}
+# - hotjob:                wecruit.hotjob.cn 标准 listPosition API (复用 securities_crawler.crawl_hotjob_target)
+# - zhiye:                 现代 zhiye.com /api/Jobad/GetJobAdPageList (复用 securities_crawler.crawl_zhiye_target)
+# - moka_embedded:         app.mokahr.com 页面内嵌 init-data jobs payload (复用 crawl_moka_embedded_target)
+# - zhiye_beisen_cms:      <slug>.zhiye.com Beisen CMS Portal /zpdetail/<id> HTML 解析 (新 parser)
+# - other:                 跳过 (不入库不写 company_crawl_log，避免 fake-green)
+sites:
+  # ---- Moka 系 (3 家公开有岗位 + 6 家 stub-tenant 列入 backlog) ----
+  - name: 嘉实基金
+    entry_url: https://app.mokahr.com/campus_apply/jsfund/43906
+    ats_family: moka_embedded
+    category: 头部公募
+    moka_org_id: jsfund
+    moka_site_id: "43906"
+    note: 2026-05-08 init-data payload 公开 15 条 2027 校招 (股票/量化/信用/交易等)。
+
+  - name: 富国基金
+    entry_url: https://app.mokahr.com/campus_apply/fullgoal/68109
+    ats_family: moka_embedded
+    category: 头部公募
+    moka_org_id: fullgoal
+    moka_site_id: "68109"
+    note: 2026-05-08 init-data 公开 15 条岗位。
+
+  - name: 银华基金
+    entry_url: https://app.mokahr.com/campus_apply/yhfund/78005
+    ats_family: moka_embedded
+    category: 头部公募
+    moka_org_id: yhfund
+    moka_site_id: "78005"
+    note: 2026-05-08 Moka 真实租户，当前公开 0 条 (季节性)；上线时即可自动收。
+
+  # ---- Hotjob 系 (1 家确认入口) ----
+  - name: 南方基金
+    entry_url: https://wecruit.hotjob.cn/SU6138665dbef57c3b63841399/pb/school.html
+    ats_family: hotjob
+    category: 头部公募
+    hotjob_suite: SU6138665dbef57c3b63841399
+    recruit_types: ["1", "3"]
+    max_pages: 20
+    note: 2026-05-08 listPosition API 公开可用 (rt=2 当前 25 条，校招/实习季节性)。
+
+  # ---- Beisen-CMS zhiye 系 (9 家) ----
+  - name: 华夏基金
+    entry_url: https://chinaamc.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+    note: 2026-05-08 Beisen CMS Portal，/campus 当前 12 条 26 应届。
+
+  - name: 海富通基金
+    entry_url: https://hftfund.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+    note: 2026-05-08 当前 7 条 2027 校招。
+
+  - name: 建信基金
+    entry_url: https://ccbfund.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+    note: 2026-05-08 Beisen CMS，列表 0 条 (季节性)；订阅入口可工作。
+
+  - name: 国泰基金
+    entry_url: https://gtfund.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  - name: 长盛基金
+    entry_url: https://csfunds.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  - name: 中欧基金
+    entry_url: https://zofund.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  - name: 万家基金
+    entry_url: https://wjasset.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  - name: 华安基金
+    entry_url: https://huaan.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  - name: 招商基金
+    entry_url: https://cmfchina.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+
+  # ---- BACKLOG (ats_family=other → 跳过)。每条都有真实 portal，只是当前公开
+  # 数据为 0 或需要新写 SPA parser，不值得在 90 min 内硬刚。 ----
+  - name: 易方达基金
+    entry_url: https://www.efunds.com.cn/
+    ats_family: other
+    category: 头部公募
+    note: 2026-05-08 官网首页可访问但无独立 ATS；招聘信息以邮件为主，无公开 listing。
+
+  - name: 广发基金
+    entry_url: https://www.gffunds.com.cn/
+    ats_family: other
+    category: 头部公募
+    note: 自家 SPA，未发现 ATS 嵌入；待用户提供真实校招入口再激活。
+
+  - name: 汇添富基金
+    entry_url: https://www.99fund.com/
+    ats_family: other
+    category: 头部公募
+    note: 自家 SPA 体量大但无外露 ATS 路径，backlog。
+
+  - name: 博时基金
+    entry_url: https://www.bosera.com/
+    ats_family: other
+    category: 头部公募
+    note: 官网 column/index.do 当前空响应 (53 bytes)，backlog。
+
+  - name: 工银瑞信基金
+    entry_url: https://www.icbccs.com.cn/cn/index/Recruit/RecruitList.shtml
+    ats_family: other
+    category: 头部公募
+    note: 官网 RecruitList.shtml 200 但 247 bytes，疑似空 SPA shell，backlog。
+
+  - name: 兴证全球基金
+    entry_url: https://www.xqfunds.com/
+    ats_family: other
+    category: 头部公募
+    note: 兴证全球官网新域名 xqfunds.com，未发现外露 ATS，backlog。
+
+  - name: 鹏华基金
+    entry_url: https://www.phfund.com.cn/about/recruit/recruit_index.shtml
+    ats_family: other
+    category: 头部公募
+    note: 自家招聘静态页 2.5kB，无 listing，backlog。
+
+  - name: 大成基金
+    entry_url: https://www.dcfund.com.cn/
+    ats_family: other
+    category: 头部公募
+    note: 官网首页 1.5kB shell，backlog。
+
+  - name: 国投瑞银基金
+    entry_url: http://www.ubssdic.com/
+    ats_family: other
+    category: 头部公募
+    note: HTTPS SSL UNEXPECTED_EOF；HTTP 首页 16kB 无 ATS 链接，backlog。
+
+  - name: 摩根资产管理
+    entry_url: https://www.cifm.com/
+    ats_family: other
+    category: 头部公募
+    note: cifm.com 大型 SPA，未抓到 ATS 钩子；上投摩根/JPMorgan 改名后官网整合中，backlog。
+
+  - name: 摩根士丹利华鑫基金
+    entry_url: https://www.morganstanleyfunds.com.cn/
+    ats_family: other
+    category: 头部公募
+    note: 官网首页 99kB 但 /about/recruit 404，backlog。
+
+  - name: 浦银安盛基金
+    entry_url: http://www.spdbaxa.com/
+    ats_family: other
+    category: 头部公募
+    note: 官网当前 502，backlog。

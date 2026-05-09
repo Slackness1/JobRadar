@@ -138,6 +138,24 @@ def _daily_tier_crawl_job():
             errors.append(f"banks: {exc}")
             print(f"[TIER CRAWL ERROR][banks] {exc}")
 
+        # Phase 6 — 金融扩展
+        try:
+            from app.services.insurance_tier_crawler import crawl_insurers
+            new_count = crawl_insurers(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"insurance: {exc}")
+            print(f"[TIER CRAWL ERROR][insurance] {exc}")
+
+        try:
+            from app.services.funds_crawler import run_configured_funds_crawl
+            existing = {j.job_id: j for j in db.query(Job).all() if j.job_id}
+            new_count, _, _ = run_configured_funds_crawl(db, existing, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"funds: {exc}")
+            print(f"[TIER CRAWL ERROR][funds] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"
