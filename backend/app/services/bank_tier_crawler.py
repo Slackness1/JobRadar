@@ -71,6 +71,13 @@ ACTIVE_BANKS: list[BankTarget] = [
     BankTarget('建设银行', 'crawl_ccb',   'https://job3.ccb.com/cn/job/plan_index.html?planType=XY', max_pages=100),
     # Phase 6 (2026-05-10) — 加 浦发顺带覆盖 浦银理财（subagent 实测今天 8 jobs）
     BankTarget('浦发银行', 'crawl_spdb',  'https://job.spdb.com.cn/campusJob', max_pages=15),  # +浦银理财
+    # Phase 7 (2026-05-10) — 招行 SPA 直调 /api/campusRecruitmentWebsite/job/getList，
+    # 实测 137 条；含招银理财（按 title 含"理财"二次贴标）。
+    BankTarget('招商银行', 'crawl_cmb',    'https://career.cmbchina.com/',  max_pages=10),  # +招银理财
+    # Phase 7 (2026-05-10) — 平安集团 zztj-recruit-talent-webserver/rctt REST，
+    # 实测 positionType=1 totalCount=738 + positionType=2 数十；businessUnitName
+    # 跨平安银行/证券/寿险/产险/科技/基金/租赁/陆控/普惠。
+    BankTarget('平安集团', 'crawl_pingan', 'https://campus.pingan.com/',    max_pages=20),
 ]
 
 

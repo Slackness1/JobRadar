@@ -1144,37 +1144,131 @@ def crawl_didi(page, target) -> List[JobInfo]:
 
 
 def crawl_pingan(page, target) -> List[JobInfo]:
-    """平安银行：仅保留银行相关校招岗位，过滤集团泛岗位与社招。"""
-    batch = crawl_with_pagination(
-        page, target, '平安银行', 'https://campus.pingan.com',
-        selectors=['[class*="job-item"]', '[class*="position-item"]', '[class*="card"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """平安集团：zztj-recruit-talent-webserver REST。
 
-    social_keywords = ['社招', '社会招聘', '社会人才', '成熟人才', '高层次人才']
-    bank_keywords = ['银行', '平安银行']
-    cleaned: List[JobInfo] = []
+    Phase 7（2026-05-10）逆向 SPA chunk_freshStudent~chunk_internStudent~chunk_position：
+        Step 1 (拿 wecruitId):
+          POST /zztj-recruit-talent-webserver/rctt/candidate/officialWebsite/selectGroupOfficial
+          body = {websiteType:'3', published:'Y'}
+          返回 {data: '<wecruitId 32位 hex>'}
+        Step 2 (查岗位):
+          POST /zztj-recruit-talent-webserver/rctt/candidate/position/campus/positionSearch/queryPositionPage
+          body = {wecruitId, PageNum, pageSize, positionType:'1', wecruitPlatform:true,
+                  businessUnitId:'', keyWord:'', positionCategoryId:'',
+                  workCity:'', interviewCity:''}
+          返回 {data: {list, pageNo, pageSize, totalCount, totalPage}}
+    positionType=1 全职校招（实测 totalCount=738），positionType=2 实习（数十条）。
+    businessUnitName 含 平安银行/平安证券/平安寿险/平安产险/平安科技/平安基金/平安租赁/陆控/平安普惠。
+    """
+    jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    for job in batch:
-        title = norm_text(job.title)
-        desc = norm_text(job.description or '')
-        url = norm_text(job.url)
-        if not url:
-            continue
-        text = f"{title} {desc}"
-        if any(k in text for k in social_keywords):
-            continue
-        if 'social' in url.lower() or 'socialjob' in url.lower():
-            continue
-        if not any(k in text for k in bank_keywords):
-            continue
-        if job.id in seen:
-            continue
-        seen.add(job.id)
-        cleaned.append(job)
 
-    return cleaned
+    base = 'https://campus.pingan.com/zztj-recruit-talent-webserver/rctt'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://campus.pingan.com',
+        'Referer': 'https://campus.pingan.com/',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+
+    # Step 1: wecruitId
+    try:
+        r = requests.post(
+            f'{base}/candidate/officialWebsite/selectGroupOfficial',
+            json={'websiteType': '3', 'published': 'Y'},
+            headers=headers, proxies=REQUEST_PROXIES, timeout=15, verify=False,
+        )
+        wj = r.json() or {}
+    except Exception as exc:
+        logger.warning(f'平安集团 selectGroupOfficial 失败: {exc}')
+        return jobs
+
+    if str(wj.get('responseCode') or '') != '10001':
+        logger.info(f'平安集团 selectGroupOfficial 非 10001: {wj}')
+        return jobs
+    wecruit_id = wj.get('data') or ''
+    if not wecruit_id:
+        logger.info('平安集团 selectGroupOfficial 未返回 wecruitId')
+        return jobs
+
+    PAGE_SIZE = 50
+    max_pages_cfg = int(target.get('max_pages') or 20) if isinstance(target, dict) else 20
+    list_url = f'{base}/candidate/position/campus/positionSearch/queryPositionPage'
+
+    def fetch_page(position_type: str, page_num: int) -> Optional[dict]:
+        body = {
+            'PageNum': page_num,
+            'pageSize': PAGE_SIZE,
+            'wecruitId': wecruit_id,
+            'positionType': position_type,
+            'wecruitPlatform': True,
+            'businessUnitId': '',
+            'keyWord': '',
+            'positionCategoryId': '',
+            'workCity': '',
+            'interviewCity': '',
+        }
+        try:
+            resp = requests.post(
+                list_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            data = resp.json() or {}
+        except Exception as exc:
+            logger.warning(f'平安集团 queryPositionPage type={position_type} p{page_num} 失败: {exc}')
+            return None
+        if str(data.get('responseCode') or '') != '10001':
+            logger.info(f'平安集团 queryPositionPage 非 10001: {data.get("responseCode")} {data.get("responseMsg")}')
+            return None
+        return data.get('data') or {}
+
+    for ptype, label in [('1', 'campus'), ('2', 'intern')]:
+        first = fetch_page(ptype, 1)
+        if not first:
+            continue
+        total = int(first.get('totalCount') or 0)
+        rows = list(first.get('list') or [])
+        if total > PAGE_SIZE and len(rows) < total:
+            pages = min(max_pages_cfg, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+            for pn in range(2, pages + 1):
+                time.sleep(0.3)
+                d = fetch_page(ptype, pn)
+                if not d:
+                    break
+                extra = list(d.get('list') or [])
+                if not extra:
+                    break
+                rows.extend(extra)
+
+        for item in rows:
+            pid = norm_text(item.get('idPosition') or item.get('positionCode') or '')
+            title = norm_text(item.get('positionName') or '')
+            if not pid or not title:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            biz = norm_text(item.get('businessUnitName') or '')
+            dept = norm_text(item.get('deptShowName') or item.get('deptName') or biz)
+            loc = norm_text(item.get('workCity') or item.get('interviewCity') or '') or '未知'
+            publish_date = norm_text(item.get('publishDate') or item.get('createdDate') or '')
+            duty = norm_text(item.get('duty') or '')
+            qualif = norm_text(item.get('qualification') or '')
+            url = f'https://campus.pingan.com/position/positionDetail?id={pid}&type={ptype}'
+            company_label = biz if biz else '平安集团'
+            jobs.append(JobInfo(
+                id='', company=company_label, title=title, location=loc,
+                department=dept, job_type=label, url=url,
+                publish_date=publish_date, deadline='',
+                description=duty, requirements=qualif,
+            ))
+
+    if jobs:
+        logger.info(f'平安集团 zztj API: {len(jobs)} 条（含银行/证券/寿险/产险/科技等子公司）')
+    else:
+        logger.info('平安集团当前无开放校招岗位')
+    return jobs
 
 
 def crawl_pdd(page, target) -> List[JobInfo]:
@@ -1272,12 +1366,111 @@ def crawl_pdd(page, target) -> List[JobInfo]:
 
 
 def crawl_cmb(page, target) -> List[JobInfo]:
-    jobs = crawl_with_pagination(
-        page, target, '招商银行', 'https://career.cmbchina.com',
-        selectors=['[class*="position"]', '[class*="job"]', 'table tbody tr', 'li[class*="item"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """招商银行（career.cmbchina.com）：直调 /api/campusRecruitmentWebsite REST。
+
+    SPA webpack chunk 188 中暴露:
+        POST /api/campusRecruitmentWebsite/job/getList
+        body = {orgIdList:[], keywords:"", locationIdList:[],
+                pageIndex:N, pageSize:50, recruitmentTypeId:GUID}
+    返回 {body:{total, data:[{publishGID, jobDisplay, branchCodeName,
+                              locationName, expiredOn}, ...]}}.
+
+    Phase 7（2026-05-10）探查：3 个 recruitmentTypeId 中 96574F8D=7（春招宁波）、
+    DF94FD6D=130（春招全行 + 招银理财）、48E013CF=0。pageSize 服务端无硬性 cap，
+    单页 50 拿全 130。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    RECRUITMENT_TYPE_IDS = [
+        '48E013CF-A9DE-4FA4-9CEE-4967B162CAEF',
+        '96574F8D-C7ED-4772-AE7C-BAC896D190C1',
+        'DF94FD6D-26D3-4A19-9E69-577C4BA1DE82',
+    ]
+    PAGE_SIZE = 50
+    api_url = 'https://career.cmbchina.com/api/campusRecruitmentWebsite/job/getList'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://career.cmbchina.com',
+        'Referer': 'https://career.cmbchina.com/',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'X-B3-BusinessId': 'LZ4101CMBRecruitmentPCFront',
+        'Accept': 'application/json',
+    }
+
+    def fetch_page(rtype: str, page_idx: int) -> Optional[dict]:
+        body = {
+            'orgIdList': [],
+            'keywords': '',
+            'locationIdList': [],
+            'pageIndex': page_idx,
+            'pageSize': PAGE_SIZE,
+            'recruitmentTypeId': rtype,
+        }
+        try:
+            resp = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            data = resp.json() or {}
+        except Exception as exc:
+            logger.warning(f'招商银行 getList rtype={rtype} p{page_idx} 失败: {exc}')
+            return None
+        if str(data.get('returnCode') or '') != 'SUC0000':
+            logger.info(f'招商银行 rtype={rtype} 返回非 SUC0000: {data.get("returnCode")} {data.get("errorMsg")}')
+            return None
+        return (data.get('body') or {})
+
+    max_pages_cfg = int(target.get('max_pages') or 5) if isinstance(target, dict) else 5
+
+    for rtype in RECRUITMENT_TYPE_IDS:
+        first = fetch_page(rtype, 1)
+        if first is None:
+            continue
+        total = int(first.get('total') or 0)
+        if total <= 0:
+            continue
+        rows = list(first.get('data') or [])
+        if total > PAGE_SIZE:
+            pages = min(max_pages_cfg, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+            for pn in range(2, pages + 1):
+                more = fetch_page(rtype, pn)
+                if not more:
+                    break
+                page_rows = list(more.get('data') or [])
+                if not page_rows:
+                    break
+                rows.extend(page_rows)
+
+        for item in rows:
+            pid = norm_text(item.get('publishGID') or '')
+            title = norm_text(item.get('jobDisplay') or '')
+            if not pid or not title:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            org = norm_text(item.get('branchCodeName') or '')
+            loc = norm_text(item.get('locationName') or '') or '未知'
+            deadline = norm_text(item.get('expiredOn') or '')
+            url = (
+                f'https://career.cmbchina.com/positionDetail/school?publishId={pid}'
+                f'&recruitmentTypeID={rtype}'
+            )
+            company_label = '招商银行'
+            if '理财' in (title + org):
+                company_label = '招银理财'
+            jobs.append(JobInfo(
+                id='', company=company_label, title=title, location=loc,
+                department=org, job_type='campus', url=url,
+                publish_date='', deadline=deadline,
+                description='', requirements='',
+            ))
+
+    if jobs:
+        logger.info(f'招商银行 API: {len(jobs)} 条（含招银理财）')
+    else:
+        logger.info('招商银行当前无开放校招岗位（3 个 recruitmentTypeId 总计 0）')
     return jobs
 
 
@@ -2837,92 +3030,73 @@ def crawl_cebbank(page, target) -> List[JobInfo]:
 
 
 def crawl_icbc(page, target) -> List[JobInfo]:
-    """工商银行：浏览器进入 SPA 后用 in-page fetch 翻 qryAnnounList 全集。
+    """工商银行：qryAnnounList REST。
 
-    Home 页只触发 4 + 3 + 1 + 0 = 8 条（每类 default pageSize=4）。真实接口：
-        POST /icbc/trmo/announ/qryAnnounList
-        body = {"public":{"call_app":"F-TRM"},
-                "private":{"page":N, "pageSize":10, "projectType":"R0030X"}}
-    pageSize 服务端硬性 cap=10，必须翻页。projectType: R00301 校招 / R00302
-    社招 / R00303 实习 / R00304 乡村振兴专项。
-
-    page.request POST 因 OpenSSL legacy renegotiation 失败，但 page.evaluate
-    内置 fetch 共享 SPA 会话能成功。
+    Phase 7（2026-05-10）发现服务端 pageSize 实际无 hard cap：pageSize=50 单次
+    返回 total=41 returned=41。改用 stdlib requests + verify=False 直连，省去
+    Playwright in-page fetch 路径（旧实现因 OpenSSL renegotiation 走 page.evaluate）。
+    保留 4 个 projectType 遍历：R00301 校招 / R00302 社招 / R00303 实习 / R00304 乡村振兴。
     """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
 
-    try:
-        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=2)
-        page.wait_for_timeout(2000)
-        # 走一次 SPA list 路由让 cookies/session 热起来
-        try:
-            page.goto(
-                "https://job.icbc.com.cn/pc/index.html#/main/school/home/announ",
-                wait_until='domcontentloaded', timeout=20000,
-            )
-            page.wait_for_timeout(3000)
-        except Exception:
-            pass
-    except Exception as e:
-        logger.warning(f'工商银行页面打开失败: {e}')
-        return jobs
-
+    api_url = 'https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList'
     PROJECT_TYPES = [
         ('R00301', 'campus'),
         ('R00302', 'social'),
         ('R00303', 'intern'),
-        ('R00304', 'campus'),  # 乡村振兴专项当前 0 条，回归时按校招类
+        ('R00304', 'campus'),
     ]
-    PAGE_SIZE = 10  # 服务端 cap
-    MAX_PAGES = 20  # 安全上限
+    PAGE_SIZE = 50
+    MAX_PAGES = 20
 
-    def fetch_one(project_type: str, page_num: int) -> dict:
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://job.icbc.com.cn',
+        'Referer': 'https://job.icbc.com.cn/pc/index.html',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+
+    def fetch_one(ptype: str, pn: int) -> Optional[dict]:
+        body = {'public': {'call_app': 'F-TRM'},
+                'private': {'page': pn, 'pageSize': PAGE_SIZE, 'projectType': ptype}}
         try:
-            return page.evaluate(
-                """async ({pt, pn, ps}) => {
-                    const r = await fetch('/icbc/trmo/announ/qryAnnounList', {
-                      method: 'POST',
-                      headers: {'Content-Type': 'application/json'},
-                      credentials: 'include',
-                      body: JSON.stringify({
-                        public: {call_app: 'F-TRM'},
-                        private: {page: pn, pageSize: ps, projectType: pt},
-                      }),
-                    });
-                    const t = await r.text();
-                    try { return {status: r.status, body: JSON.parse(t)}; }
-                    catch (e) { return {status: r.status, raw: t.slice(0, 300)}; }
-                }""",
-                {'pt': project_type, 'pn': page_num, 'ps': PAGE_SIZE},
-            ) or {}
+            r = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            return r.json() or {}
         except Exception as exc:
-            logger.warning(f'工商银行 qryAnnounList {project_type} p{page_num} 失败: {exc}')
-            return {}
+            logger.warning(f'工商银行 qryAnnounList {ptype} p{pn} 失败: {exc}')
+            return None
 
     api_rows: List[dict] = []
     for ptype, _label in PROJECT_TYPES:
         first = fetch_one(ptype, 1)
-        body = first.get('body') if isinstance(first, dict) else None
-        if not isinstance(body, dict) or str(body.get('retCode')) not in ('0',):
-            logger.info(f'工商银行 {ptype} 首页响应异常: {first!r}')
+        if not first or str(first.get('retCode') or '') != '0':
+            logger.info(f'工商银行 {ptype} 异常: {first!r}'[:200])
             continue
-        data = body.get('data') or {}
+        data = first.get('data') or {}
         total = int(data.get('total') or 0)
         rows = list(data.get('dataList') or [])
         for r in rows:
             r['projectType'] = ptype
         api_rows.extend(rows)
-        pages = min(MAX_PAGES, (total + PAGE_SIZE - 1) // PAGE_SIZE) if total else 1
+        if len(rows) >= total or total <= PAGE_SIZE:
+            continue
+        pages = min(MAX_PAGES, (total + PAGE_SIZE - 1) // PAGE_SIZE)
         for pn in range(2, pages + 1):
-            page.wait_for_timeout(400)
-            r = fetch_one(ptype, pn)
-            d = (r.get('body') or {}).get('data') or {}
-            more = list(d.get('dataList') or [])
-            for rec in more:
+            time.sleep(0.4)
+            more = fetch_one(ptype, pn)
+            if not more:
+                break
+            d = more.get('data') or {}
+            extra = list(d.get('dataList') or [])
+            for rec in extra:
                 rec['projectType'] = ptype
-            api_rows.extend(more)
-            if len(more) < PAGE_SIZE:
+            api_rows.extend(extra)
+            if len(extra) < PAGE_SIZE:
                 break
 
     for item in api_rows:
@@ -2936,15 +3110,16 @@ def crawl_icbc(page, target) -> List[JobInfo]:
         elif pid:
             url = f"https://job.icbc.com.cn/campus/detail?id={pid}"
         else:
-            url = target['url']
+            url = target['url'] if isinstance(target, dict) else 'https://job.icbc.com.cn/'
         location = norm_text(item.get('struName') or item.get('workLocation') or item.get('city') or '') or '未知'
         org = norm_text(item.get('struName') or item.get('department') or '')
         publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
         deadline = norm_text(item.get('deadline') or item.get('endTime') or item.get('soldOutTime') or '')
         ptype = item.get('projectType') or ''
         job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
+        company_label = '工银理财' if '工银理财' in title else '工商银行'
         job = JobInfo(
-            id='', company='工商银行', title=title, location=location,
+            id='', company=company_label, title=title, location=location,
             department=org, job_type=job_type, url=url,
             publish_date=publish_date, deadline=deadline,
             description=norm_text(item.get('jobDescription') or item.get('description') or item.get('content') or ''),
@@ -2954,37 +3129,10 @@ def crawl_icbc(page, target) -> List[JobInfo]:
             seen.add(job.id)
             jobs.append(job)
 
-    # API 路径失败时（反爬/SSL）从 _captured_json 兜底
-    if not jobs:
-        for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['announ', 'job', 'position']):
-                continue
-            payload = rec.get('data') or {}
-            data = payload.get('data') or payload
-            rows = data.get('dataList') or data.get('list') or []
-            for item in rows:
-                title = norm_text(item.get('title') or item.get('positionName') or '')
-                if not title:
-                    continue
-                announ_id = norm_text(item.get('announId') or '')
-                url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}" if announ_id else target['url']
-                location = norm_text(item.get('struName') or '') or '未知'
-                ptype = (item.get('projectType') or '')
-                job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
-                job = JobInfo(
-                    id='', company='工商银行', title=title, location=location,
-                    department=location, job_type=job_type, url=url,
-                    publish_date=norm_text(item.get('publishTime') or ''),
-                )
-                if job.id not in seen:
-                    seen.add(job.id)
-                    jobs.append(job)
-
     if jobs:
-        logger.info(f'工商银行招聘公告: {len(jobs)} 条 (含校招/社招/实习/专项)')
+        logger.info(f'工商银行招聘公告: {len(jobs)} 条（4 类 projectType 合计）')
     else:
-        logger.info('工商银行当前未获取到招聘公告（可能未开招或页面结构变化）')
-
+        logger.info('工商银行当前未获取到招聘公告')
     return jobs
 
 
