@@ -2557,60 +2557,118 @@ def crawl_hxb(page, target) -> List[JobInfo]:
 
 
 def crawl_czbank(page, target) -> List[JobInfo]:
-    """浙商银行：仅抓校园招聘（不混入社会招聘）。"""
+    """浙商银行：先抓校招（zpType=1），空则回退社招（zpType=2 / postType=SH）。
+
+    Phase 8 (2026-05-10) 探查更新：
+      - getPost.mvc API GBK 编码（既有 fn 走 .json()，requests 走系统默认 UTF-8 解码
+        在很多公告文本里会失败；改用 .content.decode('gbk') + json.loads）。
+      - postTotalRow 字段长期返回 None，仅 postTotalPage 可信。
+      - zpType=1（校招/管培/实习）当前空（季节空档）。zpType=2 = 社招（postType=SH）
+        18 pages × 6（默认 pageSize=6） → 服务端 pageSize=50 实测 OK。
+      - 既有 fn 写死 zpType=1 → 长期 fetched=0；改成 校招优先 + 社招回退（job_type=
+        social），公司列按 title 含 '理财' 二次贴标 浙银理财。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    current_page = 1
-    page_size = 6
-    total_pages = 1
-    max_pages = int(target.get('max_pages') or MAX_PAGES)
+
+    base_url = 'https://zp.czbank.com.cn/zpweb/planController/getPost.mvc'
     headers = {
         'User-Agent': UA,
         'Referer': 'https://zp.czbank.com.cn/zpweb/planController/gotoIndex.mvc?pageType=2',
         'Accept': 'application/json, text/plain, */*',
         'X-Requested-With': 'XMLHttpRequest',
     }
-    while current_page <= total_pages and current_page <= max_pages:
-        start = (current_page - 1) * page_size
-        end = current_page * page_size
-        resp = requests.get(
-            'https://zp.czbank.com.cn/zpweb/planController/getPost.mvc?pageType=2',
-            headers=headers, proxies=REQUEST_PROXIES, timeout=30,
-            params={'start': start, 'end': end, 'depid': '', 'educ': '', 'orgId': '', 'postName': '', 'workYear': '', 'location': '', 'zpType': '1'},
-        )
-        body = (resp.json() or {}).get('body') or []
-        payload = body[0] if body else {}
-        rows = payload.get('dataList') or []
-        total_pages = int(payload.get('postTotalPage') or 1)
+    PAGE_SIZE = 50  # 服务端实测无 cap
+    max_pages_cfg = int(target.get('max_pages') or 20) if isinstance(target, dict) else 20
+
+    def fetch(zp_type: str, pn: int):
+        start = (pn - 1) * PAGE_SIZE
+        end = pn * PAGE_SIZE
+        try:
+            resp = requests.get(
+                base_url, headers=headers, proxies=REQUEST_PROXIES, timeout=30,
+                params={
+                    'pageType': '2', 'zpType': zp_type,
+                    'start': start, 'end': end,
+                    'depid': '', 'educ': '', 'orgId': '', 'postName': '',
+                    'workYear': '', 'location': '',
+                },
+            )
+            text = resp.content.decode('gbk', errors='replace')
+            import json as _json
+            return _json.loads(text)
+        except Exception as exc:
+            logger.warning(f'浙商银行 zpType={zp_type} p{pn} 失败: {exc}')
+            return None
+
+    plans = [('1', 'campus'), ('2', 'social')]
+    for zp_type, label in plans:
+        first = fetch(zp_type, 1)
+        if not first:
+            continue
+        body = (first.get('body') or [{}])[0]
+        rows = list(body.get('dataList') or [])
+        total_pages = int(body.get('postTotalPage') or 1)
+        if not rows:
+            logger.info(f'浙商银行 zpType={zp_type}（{label}）当前 0 页')
+            continue
+        if total_pages > 1:
+            for pn in range(2, min(total_pages, max_pages_cfg) + 1):
+                time.sleep(0.3)
+                more = fetch(zp_type, pn)
+                if not more:
+                    break
+                bm = (more.get('body') or [{}])[0]
+                extra = list(bm.get('dataList') or [])
+                if not extra:
+                    break
+                rows.extend(extra)
+
         page_added = 0
         for item in rows:
             title = norm_text(item.get('name'))
             if not title:
                 continue
             pid = item.get('postId')
-            desc = '\n'.join(x for x in [norm_text(item.get('baseCond')), norm_text(item.get('postCond'))] if x)
-            req = ' / '.join(x for x in [norm_text(item.get('eduCond')), norm_text(item.get('majorCond')), norm_text(item.get('workYear'))] if x)
+            if pid in seen:
+                continue
+            seen.add(pid)
+            desc = '\n'.join(x for x in [
+                norm_text(item.get('baseCond')), norm_text(item.get('postCond'))
+            ] if x)
+            req = ' / '.join(x for x in [
+                norm_text(item.get('eduCond')), norm_text(item.get('majorCond')),
+                norm_text(item.get('workYear') or item.get('workYears')),
+            ] if x)
+            org = norm_text(
+                item.get('needDept') or item.get('needOrg') or item.get('mgrOrg') or ''
+            )
+            company = '浙银理财' if '理财' in (title + org) else '浙商银行'
             job = JobInfo(
-                id='', company='浙商银行', title=title,
+                id='', company=company, title=title,
                 location=norm_text(item.get('locationName') or item.get('location')) or '未知',
-                department=norm_text(item.get('needDept') or item.get('needOrg') or item.get('mgrOrg') or ''),
-                job_type='campus',
-                url=f'https://zp.czbank.com.cn/zpweb/zpPostController/jobDetailPage.mvc?postId={pid}' if pid else target['url'],
+                department=org,
+                job_type=label,
+                url=(
+                    f'https://zp.czbank.com.cn/zpweb/zpPostController/jobDetailPage.mvc?postId={pid}'
+                    if pid else target['url']
+                ),
                 publish_date=norm_text(item.get('createTime') or item.get('zpStartDate') or ''),
                 deadline=norm_text(item.get('zpEndDate') or item.get('applyEndDate') or ''),
-                description=desc,
-                requirements=req,
+                description=desc, requirements=req,
             )
-            if job.id not in seen:
-                seen.add(job.id)
-                jobs.append(job)
-                page_added += 1
-        logger.info(f'浙商银行（校招）API 第 {current_page} 页: {page_added} 条 / total_pages={total_pages}')
-        if not rows:
+            jobs.append(job)
+            page_added += 1
+        logger.info(
+            f'浙商银行 {label} (zpType={zp_type}): fetched {len(rows)} 条 / '
+            f'totalPages={total_pages} added={page_added}'
+        )
+        # 校招命中即可，不必再走社招；校招空才走社招回退
+        if jobs and zp_type == '1':
             break
-        current_page += 1
+
     if not jobs:
-        logger.info('浙商银行当前未获取到校招岗位（可能未开招）')
+        logger.info('浙商银行当前无开放岗位（校招/社招均空）')
     return jobs
 
 
@@ -3137,58 +3195,225 @@ def crawl_icbc(page, target) -> List[JobInfo]:
 
 
 def crawl_psbc(page, target) -> List[JobInfo]:
-    """邮储银行：智联招聘专题页，通过浏览器捕获 API 响应。"""
+    """邮储银行：抓主域 https://www.psbc.com/cn/gyyc/rczp/{xyzp,shzp}/ 公告列表。
+
+    Phase 8 (2026-05-10) 重写：
+      - 既有 fn 走 psbc.zhaopin.com 通道，403 forbidden（zhaopin 反爬已升级）；
+        psbc 不开放任何 list API，只剩主域官网 announcement 模式。
+      - 主域校园招聘 9 条公告（多 stale，最新 2023-06）；社会招聘 10 条（latest
+        2025-11）。announcement-style 同 ICBC / 渤海，每条公告作 1 个 JobInfo。
+      - 链接形如 ./202511/t20251107_375690.html，相对 子页面 url 拼接。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
 
-    try:
-        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=3)
-        page.wait_for_timeout(3000)
-    except Exception as e:
-        logger.warning(f'邮储银行页面打开失败: {e}')
-        return jobs
+    BASE = 'https://www.psbc.com'
+    PAGES = [
+        ('校园招聘', f'{BASE}/cn/gyyc/rczp/xyzp/', 'campus'),
+        ('社会招聘', f'{BASE}/cn/gyyc/rczp/shzp/', 'social'),
+    ]
+    headers = {
+        'User-Agent': UA,
+        'Referer': f'{BASE}/cn/index.html',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
 
-    def harvest_from_captured() -> int:
-        total_count = 0
-        for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api']):
-                continue
-            payload = rec.get('data') or {}
-            data = payload.get('data') or payload
-            rows = data.get('list') or data.get('items') or data.get('records') or []
-            if isinstance(rows, dict):
-                rows = rows.get('list') or rows.get('items') or []
-            if not rows:
-                continue
-            total_count = max(total_count, int(data.get('total') or payload.get('total') or len(rows)))
-            for item in rows:
-                title = norm_text(item.get('jobName') or item.get('positionName') or item.get('title') or '')
-                if not title:
-                    continue
-                pid = item.get('jobId') or item.get('positionId') or item.get('id') or ''
-                url = f"https://psbc.zhaopin.com/job?id={pid}" if pid else target['url']
-                location = norm_text(item.get('cityName') or item.get('city') or item.get('workLocation') or '') or '未知'
-                org = norm_text(item.get('department') or item.get('deptName') or '')
-                publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
-                job = JobInfo(
-                    id='', company='邮储银行', title=title, location=location,
-                    department=org, job_type='campus', url=url,
-                    publish_date=publish_date,
-                    description=norm_text(item.get('jobDescription') or item.get('description') or ''),
-                    requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
-                )
-                if job.id not in seen:
-                    seen.add(job.id)
-                    jobs.append(job)
-        return total_count
+    item_re = re.compile(
+        r'<a[^>]+href="((?:\.{1,2}/)+[^"]+t\d+_\d+\.html)"[^>]*>([^<]+)</a>'
+    )
+    date_path_re = re.compile(r'/(20\d{2})(\d{2})/t(20\d{2})(\d{2})(\d{2})_')
 
-    total_count = harvest_from_captured()
+    for label, url, job_type in PAGES:
+        try:
+            r = requests.get(url, headers=headers, proxies=REQUEST_PROXIES, timeout=20, verify=False)
+            text = r.content.decode('utf-8', errors='replace')
+        except Exception as exc:
+            logger.warning(f'邮储银行 {label} 列表抓取失败: {exc}')
+            continue
+
+        page_added = 0
+        for m in item_re.finditer(text):
+            href = m.group(1).strip()
+            title = norm_text(m.group(2))
+            if not title or title in ('校园招聘', '社会招聘', '人才招聘'):
+                continue
+            full_url = urljoin(url, href)
+            if full_url in seen:
+                continue
+            seen.add(full_url)
+
+            pubd = ''
+            pm = date_path_re.search(full_url)
+            if pm:
+                pubd = f'{pm.group(3)}-{pm.group(4)}-{pm.group(5)}'
+
+            job = JobInfo(
+                id='', company='邮储银行', title=title,
+                location='全国' if '总行' in title else '未知',
+                department='', job_type=job_type, url=full_url,
+                publish_date=pubd, deadline='',
+                description='', requirements='',
+            )
+            jobs.append(job)
+            page_added += 1
+        logger.info(f'邮储银行 {label}: 收 {page_added} 条公告')
 
     if jobs:
-        logger.info(f'邮储银行校招岗位: {len(jobs)} 条')
+        logger.info(f'邮储银行招聘公告: {len(jobs)} 条（announcement-style 校招+社招）')
     else:
-        logger.info('邮储银行当前未获取到校招岗位（可能未开招或需要人工验证）')
+        logger.info('邮储银行当前未获取到招聘公告')
 
+    return jobs
+
+
+def crawl_cgb(page, target) -> List[JobInfo]:
+    """广发银行：经 chinalife.zhiye.com /custom/gfcampus（中国人寿 Beisen 多租户）。
+
+    Phase 8 (2026-05-10) 探查：
+      - 主站 www.cgbchina.com.cn /Channel/11581868（人才招聘）跳转
+        chinalife.zhiye.com/custom/gfcampus?hideMenu=1（即广发借中国人寿的 Beisen
+        租户发布岗位）。
+      - GetJobAdPageList API 不区分租户（所有 chinalife-Beisen tenants 共用），需
+        KeyWords="广发" + 客户端 Org 过滤（contains "广发"）。
+      - 实测 113 条 社招岗位，pageSize=50 时 3 页（pidx=0,1,2）即收完；pidx=3 起 0 条。
+      - 全为 社招（Category="社会招聘"），公司列 = 广发银行。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    api_url = 'https://chinalife.zhiye.com/api/Jobad/GetJobAdPageList'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://chinalife.zhiye.com',
+        'Referer': 'https://chinalife.zhiye.com/custom/gfcampus',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json, text/plain, */*',
+    }
+    PAGE_SIZE = 50
+    max_pages_cfg = int(target.get('max_pages') or 10) if isinstance(target, dict) else 10
+
+    def fetch(pidx: int):
+        body = {
+            'PageIndex': pidx, 'PageSize': PAGE_SIZE,
+            'KeyWords': '广发', 'SpecialType': 0, 'PortalId': '',
+            'Category': [],
+            'DisplayFields': ['Category', 'Kind', 'LocId', 'Org', 'PostDate'],
+        }
+        try:
+            r = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            return list((r.json() or {}).get('Data') or [])
+        except Exception as exc:
+            logger.warning(f'广发银行 GetJobAdPageList p{pidx} 失败: {exc}')
+            return []
+
+    for pidx in range(max_pages_cfg):
+        rows = fetch(pidx)
+        if not rows:
+            break
+        cgb_rows = [r for r in rows if '广发' in (r.get('Org') or '')]
+        if not cgb_rows and pidx > 1:
+            break
+        for item in cgb_rows:
+            title = norm_text(item.get('JobAdName'))
+            if not title:
+                continue
+            jid = norm_text(item.get('Id') or item.get('JobAdId'))
+            if jid in seen:
+                continue
+            seen.add(jid)
+            org = norm_text(item.get('Org') or '')
+            loc = norm_text(','.join(item.get('LocNames') or [])) or '未知'
+            cat = norm_text(item.get('Category') or '')
+            jt = 'campus' if any(k in cat + title for k in ['校园', '管培', '实习']) else 'social'
+            url = (
+                f'https://chinalife.zhiye.com/job/{jid}'
+                if jid else 'https://chinalife.zhiye.com/custom/gfcampus'
+            )
+            jobs.append(JobInfo(
+                id='', company='广发银行', title=title, location=loc,
+                department=org, job_type=jt, url=url,
+                publish_date=norm_text(item.get('PostDate') or ''),
+                deadline=norm_text(item.get('EndTime') or ''),
+                description=norm_text(item.get('Duty') or ''),
+                requirements=norm_text(item.get('Require') or ''),
+            ))
+        logger.info(
+            f'广发银行 chinalife 第 {pidx + 1} 页: 收 {len(cgb_rows)}/{len(rows)} 广发条'
+        )
+
+    if jobs:
+        logger.info(f'广发银行 chinalife API: {len(jobs)} 条（KeyWords=广发 + Org 过滤）')
+    else:
+        logger.info('广发银行当前未获取到开放岗位')
+    return jobs
+
+
+def crawl_cbhb(page, target) -> List[JobInfo]:
+    """渤海银行：抓主域 https://www.cbhb.com.cn/cbhbank/jrwm/zpxx/index.shtml 公告列表。
+
+    Phase 8 (2026-05-10) 探查：
+      - 主域 announcement-list 单页 10 条公告（latest 2026-04-02 武汉社招）；
+        index_2.shtml 等续页 404，全公告挤在单页。
+      - announcement-style 同 ICBC / 邮储 / 工商；每条公告作 1 个 JobInfo。
+      - 公司列 = 渤海银行；按 title 含 '渤银理财' 二次贴标。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    BASE = 'https://www.cbhb.com.cn'
+    LIST_URL = f'{BASE}/cbhbank/jrwm/zpxx/index.shtml'
+    headers = {
+        'User-Agent': UA,
+        'Referer': f'{BASE}/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
+    try:
+        r = requests.get(
+            LIST_URL, headers=headers, proxies=REQUEST_PROXIES,
+            timeout=20, verify=False,
+        )
+        text = r.content.decode('utf-8', errors='replace')
+    except Exception as exc:
+        logger.warning(f'渤海银行 公告列表抓取失败: {exc}')
+        return jobs
+
+    item_re = re.compile(
+        r'<a[^>]+href="(/cbhbank/(\d{4})-(\d{2})/(\d{2})/article_\d+\.shtml)"[^>]*>([^<]+)</a>'
+    )
+    for m in item_re.finditer(text):
+        href, yy, mm, dd, title = m.groups()
+        title = norm_text(title)
+        if not title or title in ('招聘信息', '人才招聘'):
+            continue
+        full_url = BASE + href
+        if full_url in seen:
+            continue
+        seen.add(full_url)
+
+        if any(k in title for k in ['校园', '管培', '应届', '实习', '校招']):
+            jt = 'campus'
+        else:
+            jt = 'social'
+        company = '渤银理财' if '渤银理财' in title else '渤海银行'
+
+        jobs.append(JobInfo(
+            id='', company=company, title=title,
+            location='未知',
+            department='', job_type=jt, url=full_url,
+            publish_date=f'{yy}-{mm}-{dd}', deadline='',
+            description='', requirements='',
+        ))
+
+    if jobs:
+        logger.info(f'渤海银行 公告: {len(jobs)} 条（announcement-style 单页）')
+    else:
+        logger.info('渤海银行 当前未获取到公告')
     return jobs
 
 

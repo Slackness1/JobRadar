@@ -21,15 +21,29 @@ Currently active (verified working as of 2026-05-08):
     × pageSize=10 server-cap），实测 41+3+1+0 = 45 条公告（home 页只显示 8）。
     增强：struName→location/dept；announId→detail URL；projectType→job_type。
 
+Phase 8 (2026-05-10) additions: 华夏 / 浙商 / 广发 / 渤海 / 邮储 — 5 家。
+  - 华夏银行: hotjob/wecruit listPosition recruitType=2 社招 (~315 jobs)。
+  - 浙商银行: zp.czbank.com.cn GBK API；校招空 → 社招回退（postType=SH ~900 条）。
+  - 广发银行: chinalife.zhiye.com 多租户 Beisen，KeyWords=广发 113 条社招。
+  - 渤海银行: 主域 announcement-list 单页 10 条公告。
+  - 邮储银行: 主域 /cn/gyyc/rczp/{xyzp,shzp}/ announcement scrape (校招 9 + 社招 10)。
+
 Out-of-scope this round:
   - 招商银行: upstream campus list currently empty (total=0); 2026 校招应届生
     not yet opened as of 2026-05-08. Re-evaluate in Sept-Oct.
   - 平安银行: 平安银行（深圳上市行 SZDBK）不在 campus.pingan.com ATS 范围
     内（umbrella + /pab 路径都返回保险/资管/医疗/科技 4 个 sector，无银行）；
     校招走 WeChat 小程序/智联/51job 第三方平台。判定上游不在范围。
-  - 农业银行: 上游 total=0 季节空档（2026-05-08）；接口 RSA + SM3 加密 +
-    反调试，破解成本远超 ROI。等 8-9 月秋招开窗后再考虑 DOM-scrape SPA
-    路径（路由 #/99 校招 / #/100 社招 / #/103 实习）。
+  - 农业银行: 上游 total=0 季节空档；接口 RSA + SM3 加密 + 反调试，破解成本
+    远超 ROI。Phase 8 重新评估 (2026-05-10)：career.abchina.com/build/index.html
+    仍是 jsencrypt + sm3 + 重度 obfuscated anti-debug，POST 空 body 返 Empty
+    reply；无低成本绕过。等 8-9 月秋招开窗后再考虑 Playwright + JS 钩子方案。
+  - 交通银行: 主域 SSL legacy renegotiation 全失败；首页/m 站均无公开 jobs
+    通道；51job/chinahr 通道无 2026 batch。判定无公开 web 接口。
+  - 光大银行: cebbank.zhiye.com 站点已下线（all paths → 404）；www.cebbank.com
+    主域 412 + WAF JS challenge；51job 通道锁 2024 老批次。
+  - 恒丰银行: www.hfbank.com.cn 返 412 + JS challenge（同 ABC 模式 $_ts.cd 加密
+    cookie）；career/hr/zp 子域 SSL 全失败。绕需浏览器执行 anti-bot JS。
 """
 from __future__ import annotations
 
@@ -78,6 +92,21 @@ ACTIVE_BANKS: list[BankTarget] = [
     # 实测 positionType=1 totalCount=738 + positionType=2 数十；businessUnitName
     # 跨平安银行/证券/寿险/产险/科技/基金/租赁/陆控/普惠。
     BankTarget('平安集团', 'crawl_pingan', 'https://campus.pingan.com/',    max_pages=20),
+    # Phase 8 (2026-05-10) — 华夏银行 hotjob/wecruit listPosition recruitType=2 社招
+    # 实测 75/page × 21 pages = 1500+ 社招；rt=1 校招仅 2 条（华银基金管培）。
+    BankTarget('华夏银行', 'crawl_hxb',     'https://wecruit.hotjob.cn/SU645b0d18bef57c0907e9fbc8/pb/social.html', max_pages=20),
+    # Phase 8 (2026-05-10) — 浙商银行 zp.czbank.com.cn API（GBK），校招空 → 回退社招
+    # zpType=2 postType=SH，~900 条（18 pages × pageSize=50）。
+    BankTarget('浙商银行', 'crawl_czbank',  'https://zp.czbank.com.cn/zpweb/planController/gotoIndex.mvc?pageType=2', max_pages=20),
+    # Phase 8 (2026-05-10) — 广发银行 chinalife.zhiye.com Beisen 多租户，
+    # KeyWords=广发 + Org 过滤，113 条社招。
+    BankTarget('广发银行', 'crawl_cgb',     'https://chinalife.zhiye.com/custom/gfcampus', max_pages=10),
+    # Phase 8 (2026-05-10) — 渤海银行 主域 announcement-list 单页 10 条公告
+    # （latest 2026-04-02），announcement-style 同 ICBC。
+    BankTarget('渤海银行', 'crawl_cbhb',    'https://www.cbhb.com.cn/cbhbank/jrwm/zpxx/index.shtml', max_pages=1),
+    # Phase 8 (2026-05-10) — 邮储银行 改抓主域 announcement-list；既有 zhilian 通道
+    # 403 已废。校招 9 条（多 stale）+ 社招 10 条（latest 2025-11）。
+    BankTarget('邮储银行', 'crawl_psbc',    'https://www.psbc.com/cn/gyyc/rczp/', max_pages=2),
 ]
 
 
