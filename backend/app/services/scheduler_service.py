@@ -156,6 +156,15 @@ def _daily_tier_crawl_job():
             errors.append(f"funds: {exc}")
             print(f"[TIER CRAWL ERROR][funds] {exc}")
 
+        # Phase 7 wave-3 — PE/VC (源码资本/鼎晖/黑石/KKR)
+        try:
+            from app.services.pe_vc_tier_crawler import crawl_pe_vc
+            new_count = crawl_pe_vc(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"pe_vc: {exc}")
+            print(f"[TIER CRAWL ERROR][pe_vc] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"
