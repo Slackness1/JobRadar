@@ -1,32 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Card, Progress, Tag, Space, Typography, Empty, Tooltip, Spin,
-  Row, Col, Statistic, Divider,
-} from 'antd';
-import {
-  CheckCircleFilled, MinusCircleFilled, WarningFilled, ClockCircleOutlined,
-} from '@ant-design/icons';
 import { fetchCoverage } from '../api';
+import '../styles/coverage-theme.css';
 
-const { Title, Text, Paragraph } = Typography;
-
+// ─── Types from /api/coverage ────────────────────────────────
 interface CompanyEntry {
   name: string;
   status: 'active' | 'deferred' | 'missing' | 'seasonal';
   fetched_7d: number;
   deferred_reason?: string | null;
 }
-
-interface ExtraEntry {
-  name: string;
-  fetched_7d: number;
-}
-
+interface ExtraEntry { name: string; fetched_7d: number; }
 interface TrackEnumerate {
   id: string;
   name: string;
   mode: 'enumerate';
-  sources: string[];
   t1_total: number;
   active_count: number;
   deferred_count: number;
@@ -35,98 +22,71 @@ interface TrackEnumerate {
   companies: CompanyEntry[];
   extras: ExtraEntry[];
 }
-
 interface TrackAbsolute {
   id: string;
   name: string;
   mode: 'absolute';
-  sources: string[];
   active_company_count: number;
   active_total_fetched: number;
   note: string;
   active_companies: ExtraEntry[];
 }
-
 type Track = TrackEnumerate | TrackAbsolute;
-
 interface CoverageResp {
   tracks: Track[];
   overall: {
-    grand_t1: number;
-    grand_active: number;
-    rate: number;
-    generated_at: string;
+    grand_t1: number; grand_active: number; rate: number; generated_at: string;
   };
 }
 
-function rateColor(rate: number): string {
-  if (rate >= 0.7) return '#52c41a';   // green
-  if (rate >= 0.5) return '#faad14';   // amber
-  return '#f5222d';                    // red
+// ─── Helpers ─────────────────────────────────────────────────
+const pctClass = (rate: number) =>
+  rate < 0.5 ? 'cv-track-pct-low' : rate < 0.75 ? 'cv-track-pct-mid' : 'cv-track-pct-high';
+
+// Map fetched count → chip background intensity (oklch)
+function chipColor(v: number): string {
+  const intensity = v >= 1000 ? 1 : v >= 200 ? 0.78 : v >= 50 ? 0.6 : 0.42;
+  return `oklch(0.66 0.13 40 / ${intensity})`;
 }
 
-function statusIcon(status: CompanyEntry['status']) {
-  if (status === 'active')
-    return <CheckCircleFilled style={{ color: '#52c41a' }} />;
-  if (status === 'seasonal')
-    return <ClockCircleOutlined style={{ color: '#faad14' }} />;
-  if (status === 'deferred')
-    return <MinusCircleFilled style={{ color: '#bfbfbf' }} />;
-  return <WarningFilled style={{ color: '#f5222d' }} />;
+// Friendly time
+function friendlyTime(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
+  } catch { return iso; }
 }
 
-function statusLabel(status: CompanyEntry['status']) {
-  if (status === 'active') return '已覆盖';
-  if (status === 'seasonal') return '季节空';
-  if (status === 'deferred') return '不爬';
-  return '缺失';
-}
-
-function CompanyRow({ c }: { c: CompanyEntry }) {
-  const reason = c.deferred_reason || '';
+// ─── KPI Ring ────────────────────────────────────────────────
+function CoverageRing({ rate }: { rate: number }) {
+  const r = 42;
+  const circumference = 2 * Math.PI * r;
+  const dash = rate * circumference;
+  const pct = (rate * 100).toFixed(1);
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '6px 0',
-        borderBottom: '1px solid #fafafa',
-        opacity: c.status === 'deferred' ? 0.65 : 1,
-      }}
-    >
-      <span style={{ width: 16 }}>{statusIcon(c.status)}</span>
-      <span style={{ fontWeight: c.status === 'active' ? 600 : 400, minWidth: 90 }}>
-        {c.name}
-      </span>
-      {c.status === 'active' && (
-        <Tag color="green" style={{ marginLeft: 'auto' }}>
-          {c.fetched_7d.toLocaleString()} 岗位/7d
-        </Tag>
-      )}
-      {c.status !== 'active' && (
-        <Text type="secondary" style={{ marginLeft: 'auto', fontSize: 12 }}>
-          {statusLabel(c.status)}
-        </Text>
-      )}
-      {reason && (
-        <Tooltip title={reason}>
-          <Text type="secondary" style={{
-            fontSize: 12, marginLeft: 8, maxWidth: 320,
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            原因: {reason}
-          </Text>
-        </Tooltip>
-      )}
-    </div>
+    <svg viewBox="0 0 100 100" width="128" height="128" className="cv-ring-svg">
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--cv-warm-sand)" strokeWidth="10" />
+      <circle
+        cx="50" cy="50" r={r} fill="none" stroke="var(--cv-accent)" strokeWidth="10"
+        strokeDasharray={`${dash} ${circumference}`} strokeLinecap="round"
+        transform="rotate(-90 50 50)" style={{ transition: 'stroke-dasharray 0.6s ease' }}
+      />
+      <text x="50" y="50" textAnchor="middle" dy="0.1em"
+        style={{ fontFamily: 'var(--cv-font-serif)', fontSize: 19, fontWeight: 700, fill: 'var(--cv-ink)' }}>
+        {pct}%
+      </text>
+      <text x="50" y="63" textAnchor="middle"
+        style={{ fontFamily: 'var(--cv-font-sans)', fontSize: 6, fill: 'var(--cv-soft)' }}>
+        综合覆盖率
+      </text>
+    </svg>
   );
 }
 
-function EnumerateCard({ t }: { t: TrackEnumerate }) {
-  const ratePct = Math.round(t.rate * 100);
-  // Sort: active first (by fetched desc), then deferred, then missing
-  const sortedCompanies = useMemo(() => {
+// ─── Track row (enumerate) ───────────────────────────────────
+function TrackRow({ t, rank }: { t: TrackEnumerate; rank: number }) {
+  // Sort companies: active by fetched desc → deferred → missing
+  const sorted = useMemo(() => {
     const order: Record<CompanyEntry['status'], number> = {
       active: 0, missing: 1, seasonal: 2, deferred: 3,
     };
@@ -136,262 +96,291 @@ function EnumerateCard({ t }: { t: TrackEnumerate }) {
     });
   }, [t.companies]);
 
+  const [expanded, setExpanded] = useState(false);
+  const visibleCount = expanded ? sorted.length : 16;
+  const visible = sorted.slice(0, visibleCount);
+  const hiddenCount = Math.max(0, sorted.length - visibleCount);
+  const ratePct = Math.round(t.rate * 100);
+
+  // 3-segment progress widths
+  const activePct = (t.active_count / t.t1_total) * 100;
+  const deferredPct = (t.deferred_count / t.t1_total) * 100;
+  const missingPct = (t.missing_count / t.t1_total) * 100;
+
   return (
-    <Card
-      title={
-        <Space size={12}>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>{t.name}</span>
-          <Tag color={rateColor(t.rate)} style={{ fontSize: 14, padding: '2px 10px' }}>
-            {t.active_count}/{t.t1_total} = {ratePct}%
-          </Tag>
-        </Space>
-      }
-      size="small"
-      style={{ marginBottom: 16 }}
-      extra={
-        <Space size={6}>
-          {t.deferred_count > 0 && (
-            <Tag color="default">不爬 {t.deferred_count}</Tag>
-          )}
-          {t.missing_count > 0 && (
-            <Tag color="red">缺失 {t.missing_count}</Tag>
-          )}
-        </Space>
-      }
-    >
-      <Progress
-        percent={ratePct}
-        strokeColor={rateColor(t.rate)}
-        showInfo={false}
-        style={{ marginBottom: 12 }}
-      />
-      <div>
-        {sortedCompanies.map((c) => (
-          <CompanyRow key={c.name} c={c} />
-        ))}
+    <div className="cv-track">
+      <div className="cv-track-head">
+        <span className="cv-track-rank">#{rank}</span>
+        <span className="cv-track-name">{t.name}</span>
+        <span className="cv-track-counts">
+          {t.active_count}/{t.t1_total}
+          {' · '}
+          <span className={pctClass(t.rate)}>{ratePct}%</span>
+        </span>
+        <div className="cv-progress">
+          <div className="cv-progress-active" style={{ width: `${activePct}%` }} />
+          <div className="cv-progress-deferred" style={{ width: `${deferredPct}%` }} />
+          <div className="cv-progress-missing" style={{ width: `${missingPct}%` }} />
+        </div>
+        <span className={`cv-track-tail ${t.missing_count > 0 ? 'cv-track-tail-bad' : ''}`}>
+          {t.missing_count > 0 ? `缺 ${t.missing_count} 家` : '无缺失'}
+        </span>
       </div>
-      {t.extras.length > 0 && (
-        <>
-          <Divider style={{ margin: '12px 0' }} />
-          <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 6 }}>
-            非 T1 但已 active 的额外公司（top {t.extras.length}）：
-          </Paragraph>
-          <Space size={[4, 4]} wrap>
+
+      <div className="cv-chip-cloud">
+        {visible.map((c) => {
+          if (c.status === 'active') {
+            return (
+              <span key={c.name}
+                className="cv-chip cv-chip-active"
+                style={{ background: chipColor(c.fetched_7d) }}
+                title={`${c.name} · 7天 ${c.fetched_7d} 岗`}>
+                {c.name}
+                <span className="cv-chip-active-num">{c.fetched_7d.toLocaleString()}</span>
+              </span>
+            );
+          }
+          if (c.status === 'deferred') {
+            return (
+              <span key={c.name}
+                className="cv-chip cv-chip-deferred"
+                title={c.deferred_reason || '工程不可行'}>
+                {c.name} ✕
+              </span>
+            );
+          }
+          // missing or seasonal
+          return (
+            <span key={c.name}
+              className="cv-chip cv-chip-missing"
+              title="期望 active 但 7 天无数据">
+              ? {c.name}
+            </span>
+          );
+        })}
+        {hiddenCount > 0 && (
+          <button
+            type="button"
+            className="cv-chip-more"
+            onClick={() => setExpanded(true)}
+            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+          >
+            + {hiddenCount} 家 →
+          </button>
+        )}
+        {expanded && t.extras.length > 0 && (
+          <>
+            <div style={{
+              width: '100%', height: 1, background: 'var(--cv-border-cream)',
+              margin: '6px 0',
+            }} />
+            <span className="cv-chip-more" style={{ width: '100%' }}>
+              非 T1 但已 active：
+            </span>
             {t.extras.map((e) => (
-              <Tag key={e.name} color="blue">
-                {e.name} · {e.fetched_7d}
-              </Tag>
+              <span key={e.name} className="cv-chip cv-chip-extra"
+                title={`${e.name} · 7天 ${e.fetched_7d} 岗`}>
+                {e.name}
+                <span className="cv-chip-active-num" style={{ color: 'var(--cv-amber)', opacity: 0.65 }}>
+                  {e.fetched_7d}
+                </span>
+              </span>
             ))}
-          </Space>
-        </>
-      )}
-    </Card>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
-function AbsoluteCard({ t }: { t: TrackAbsolute }) {
+// ─── SOE row (absolute) ──────────────────────────────────────
+function SoeRow({ t }: { t: TrackAbsolute }) {
+  const [expanded, setExpanded] = useState(false);
+  const fillPct = Math.min(100, (t.active_company_count / 150) * 100); // 150 = 国资委央企+省企估值
+
   return (
-    <Card
-      title={
-        <Space size={12}>
-          <span style={{ fontSize: 16, fontWeight: 600 }}>{t.name}</span>
-          <Tag color="green" style={{ fontSize: 14, padding: '2px 10px' }}>
-            {t.active_company_count} 家 active
-          </Tag>
-        </Space>
-      }
-      size="small"
-      style={{ marginBottom: 16 }}
-    >
-      {t.note && (
-        <Paragraph type="secondary" style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>
-          {t.note}
-        </Paragraph>
+    <div className="cv-soe">
+      <span className="cv-soe-name">{t.name}</span>
+      <div style={{ flex: 1 }}>
+        <div className="cv-soe-bar-wrap">
+          <div className="cv-soe-bar-fill" style={{ width: `${fillPct}%` }} />
+          <div className="cv-soe-bar-text">
+            {t.active_company_count} 家活跃 · {t.active_total_fetched.toLocaleString()} 岗 / 7 天
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--cv-soft)', marginTop: 6 }}>
+          mode = absolute · 不列 T1 · 国资委央企 100 大 + 重点省企
+        </div>
+      </div>
+      <button type="button"
+        className="cv-refresh-btn"
+        onClick={() => setExpanded((x) => !x)}
+        style={{ flexShrink: 0 }}>
+        {expanded ? '收起 ⌃' : `展开 ${Math.min(t.active_companies.length, 50)} 家 ⌄`}
+      </button>
+      {expanded && (
+        <div className="cv-soe-extra" style={{ width: '100%' }}>
+          {t.active_companies.map((c) => (
+            <span key={c.name} className="cv-chip cv-chip-active"
+              style={{ background: chipColor(c.fetched_7d), fontSize: 11 }}>
+              {c.name}
+              <span className="cv-chip-active-num">{c.fetched_7d}</span>
+            </span>
+          ))}
+        </div>
       )}
-      <Statistic
-        title="最近 7 天 fetched 累计"
-        value={t.active_total_fetched}
-        valueStyle={{ fontSize: 24 }}
-      />
-      <Divider style={{ margin: '12px 0' }} />
-      <Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 6 }}>
-        Top {Math.min(t.active_companies.length, 50)} 家（按 7d fetched 降序）：
-      </Paragraph>
-      <Space size={[4, 4]} wrap>
-        {t.active_companies.map((c) => (
-          <Tag key={c.name} color="blue">
-            {c.name} · {c.fetched_7d}
-          </Tag>
-        ))}
-      </Space>
-    </Card>
+    </div>
   );
 }
 
+// ─── Main page ───────────────────────────────────────────────
 export default function Coverage() {
   const [data, setData] = useState<CoverageResp | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = async (manual = false) => {
+    if (manual) setRefreshing(true);
+    try {
+      setError(null);
+      const res = await fetchCoverage();
+      setData(res.data as CoverageResp);
+    } catch (e) {
+      setError((e as Error).message || '加载失败');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetchCoverage();
-        if (!cancelled) setData(res.data as CoverageResp);
-      } catch (e) {
-        if (!cancelled) setError((e as Error).message || '加载失败');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
     void load();
-    const tid = window.setInterval(load, 60_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(tid);
-    };
+    const tid = window.setInterval(() => { void load(); }, 60_000);
+    return () => window.clearInterval(tid);
   }, []);
 
   if (loading && !data) {
-    return <Spin size="large" style={{ display: 'block', margin: '60px auto' }} />;
+    return <div data-theme="coverage"><div className="cv-loading">加载中…</div></div>;
   }
-  if (error) {
-    return <Empty description={`加载失败: ${error}`} />;
+  if (error && !data) {
+    return <div data-theme="coverage"><div className="cv-empty">加载失败：{error}</div></div>;
   }
-  if (!data) {
-    return <Empty />;
-  }
+  if (!data) return null;
 
-  const overallPct = Math.round(data.overall.rate * 100);
-  const enumerated = data.tracks.filter(
-    (t): t is TrackEnumerate => t.mode === 'enumerate'
-  );
-  const absolutes = data.tracks.filter(
-    (t): t is TrackAbsolute => t.mode === 'absolute'
-  );
+  // Sort: enumerate tracks worst-first; absolute (SOE) at end
+  const enumerated = data.tracks
+    .filter((t): t is TrackEnumerate => t.mode === 'enumerate')
+    .sort((a, b) => a.rate - b.rate);
+  const absolutes = data.tracks
+    .filter((t): t is TrackAbsolute => t.mode === 'absolute');
+
+  // KPI deltas
+  const totalMissing = enumerated.reduce((s, t) => s + t.missing_count, 0);
+  const totalDeferred = enumerated.reduce((s, t) => s + t.deferred_count, 0);
+  const totalT7Fetched = data.tracks.reduce((s, t) => {
+    if (t.mode === 'enumerate') {
+      return s + t.companies.reduce((ss, c) => ss + (c.fetched_7d || 0), 0)
+               + t.extras.reduce((ss, e) => ss + (e.fetched_7d || 0), 0);
+    }
+    return s + t.active_total_fetched;
+  }, 0);
 
   return (
-    <div>
-      <div style={{
-        background: 'linear-gradient(135deg, #fff7e6 0%, #fff 100%)',
-        padding: '20px 24px',
-        borderRadius: 8,
-        marginBottom: 16,
-        border: '1px solid #ffe7ba',
-      }}>
-        <Title level={3} style={{ margin: 0 }}>
-          顶级平台覆盖看板
-        </Title>
-        <Paragraph type="secondary" style={{ marginBottom: 12 }}>
-          按 8 个赛道统计 T1 公司覆盖率（最近 7 天 fetched ≥ 1 即算 active）。
-          数据每 60s 自动刷新。
-        </Paragraph>
-        <Row gutter={24}>
-          <Col span={6}>
-            <Statistic
-              title="综合覆盖率"
-              value={overallPct}
-              suffix="%"
-              valueStyle={{
-                color: rateColor(data.overall.rate),
-                fontSize: 36,
-                fontWeight: 700,
-              }}
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="T1 active / total"
-              value={`${data.overall.grand_active} / ${data.overall.grand_t1}`}
-            />
-          </Col>
-          <Col span={6}>
-            <Statistic
-              title="赛道覆盖（含国央企）"
-              value={data.tracks.length}
-              suffix="个"
-            />
-          </Col>
-          <Col span={6}>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              生成时间<br />
-              {new Date(data.overall.generated_at).toLocaleString('zh-CN')}
-            </Text>
-          </Col>
-        </Row>
+    <div data-theme="coverage">
+      {/* Header */}
+      <div className="cv-header">
+        <span className="cv-title">覆盖看板</span>
+        <span className="cv-subtitle">· 头部公司爬取覆盖度</span>
+        <div className="cv-header-meta">
+          <span>更新于 {friendlyTime(data.overall.generated_at)} · 60s 自动刷新</span>
+          <button type="button" className="cv-refresh-btn"
+            onClick={() => void load(true)}
+            disabled={refreshing}>
+            {refreshing ? '刷新中…' : '↻ 立即刷新'}
+          </button>
+        </div>
       </div>
 
-      <Title level={5} style={{ marginBottom: 8 }}>赛道 KPI</Title>
-      <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
-        {enumerated.map((t) => {
-          const pct = Math.round(t.rate * 100);
-          return (
-            <Col key={t.id} xs={12} sm={8} md={6} lg={6} xl={4}>
-              <Card
-                size="small"
-                hoverable
-                style={{
-                  textAlign: 'center',
-                  borderColor: rateColor(t.rate),
-                  borderWidth: 2,
-                }}
-                onClick={() => {
-                  document.getElementById(`track-${t.id}`)?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                  });
-                }}
-              >
-                <div style={{
-                  fontSize: 24, fontWeight: 700,
-                  color: rateColor(t.rate),
-                }}>
-                  {pct}%
-                </div>
-                <div style={{ fontSize: 13, marginTop: 4 }}>{t.name}</div>
-                <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
-                  {t.active_count}/{t.t1_total}
-                </div>
-              </Card>
-            </Col>
-          );
-        })}
-        {absolutes.map((t) => (
-          <Col key={t.id} xs={12} sm={8} md={6} lg={6} xl={4}>
-            <Card
-              size="small"
-              hoverable
-              style={{ textAlign: 'center', borderColor: '#1890ff', borderWidth: 2 }}
-              onClick={() => {
-                document.getElementById(`track-${t.id}`)?.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'start',
-                });
-              }}
-            >
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#1890ff' }}>
-                {t.active_company_count}
-              </div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{t.name}</div>
-              <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>家 active</div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      {/* Hero strip */}
+      <div className="cv-hero">
+        {/* Ring card */}
+        <div className="cv-card cv-ring-card">
+          <CoverageRing rate={data.overall.rate} />
+          <div>
+            <div className="cv-ring-summary-num">
+              {data.overall.grand_active} / {data.overall.grand_t1} T1 已活跃
+            </div>
+            <div className="cv-ring-summary-meta">
+              {enumerated.length} 个枚举赛道 + {absolutes.length} 个绝对赛道
+            </div>
+            <div className="cv-bars" aria-hidden>
+              {Array.from({ length: 32 }).map((_, i) => (
+                <span key={i}
+                  style={{
+                    height: `${10 + (i % 5) * 3}px`,
+                    background: i < Math.floor(data.overall.rate * 32)
+                      ? 'var(--cv-accent)'
+                      : 'var(--cv-warm-sand)',
+                  }} />
+              ))}
+            </div>
+          </div>
+        </div>
 
-      <Title level={5} style={{ marginBottom: 8 }}>赛道详细</Title>
-      {enumerated.map((t) => (
-        <div key={t.id} id={`track-${t.id}`}>
-          <EnumerateCard t={t} />
+        {/* Todos card */}
+        <div className="cv-card">
+          <div className="cv-todos-title">📋 短板待办</div>
+          <div className="cv-todos-grid">
+            <div className="cv-todo-cell">
+              <div className="cv-todo-num" style={{ color: 'var(--cv-crimson)' }}>{totalMissing}</div>
+              <div className="cv-todo-label">家 T1 头部尚未爬到</div>
+              <div className="cv-todo-cta">查看缺失清单 →</div>
+            </div>
+            <div className="cv-todo-cell">
+              <div className="cv-todo-num" style={{ color: 'var(--cv-soft)' }}>{totalDeferred}</div>
+              <div className="cv-todo-label">家工程不可行 (deferred)</div>
+              <div className="cv-todo-cta" style={{ color: 'var(--cv-soft)' }}>查看反爬原因 →</div>
+            </div>
+            <div className="cv-todo-cell">
+              <div className="cv-todo-num" style={{ color: 'var(--cv-amber)' }}>
+                {totalT7Fetched.toLocaleString()}
+              </div>
+              <div className="cv-todo-label">7 天总入库岗位 (含 extras)</div>
+              <div className="cv-todo-cta" style={{ color: 'var(--cv-amber)' }}>跳转 /jobs →</div>
+            </div>
+          </div>
         </div>
+
+        {/* Trend card */}
+        <div className="cv-card">
+          <div className="cv-trend-eyebrow">每日 09:00 自动更新</div>
+          <div className="cv-trend-headline">
+            ↗ {(data.overall.rate * 100).toFixed(1)}%
+          </div>
+          <svg viewBox="0 0 100 30" style={{ width: '100%', height: 56, marginTop: 8 }}>
+            <polyline
+              points="0,26 14,24 28,22 42,20 56,16 70,14 84,10 100,7"
+              fill="none" stroke="var(--cv-accent)" strokeWidth="1.4" />
+            <circle cx="100" cy="7" r="2.4" fill="var(--cv-accent)" />
+          </svg>
+          <div className="cv-trend-meta">
+            历史曲线（示意，待接入历史 snapshot）
+          </div>
+        </div>
+      </div>
+
+      {/* Tracks list */}
+      <div className="cv-tracks-eyebrow">
+        赛道 · 按覆盖率倒序（短板在前 · 共 {enumerated.length} 个枚举赛道）
+      </div>
+      {enumerated.map((t, i) => (
+        <TrackRow key={t.id} t={t} rank={i + 1} />
       ))}
+
+      {/* SOE (absolute) */}
       {absolutes.map((t) => (
-        <div key={t.id} id={`track-${t.id}`}>
-          <AbsoluteCard t={t} />
-        </div>
+        <SoeRow key={t.id} t={t} />
       ))}
     </div>
   );
