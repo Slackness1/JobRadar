@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>JobRadar · 高保真原型 · Hero + 上传 + 工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="hifi-tokens.css"/>
+<style>
+  body { margin: 0; background: #f0eee6; font-family: 'Inter','Noto Sans SC', system-ui, sans-serif; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#f5f4ed"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="#c96442" stroke-width="2"/>
+    <circle cx="50" cy="50" r="10" fill="none" stroke="#c96442" stroke-width="2"/>
+    <circle cx="50" cy="50" r="3" fill="#c96442"/>
+  </svg>
+</template>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="hifi-primitives.jsx"></script>
+<script type="text/babel" src="hifi-hero.jsx"></script>
+<script type="text/babel" src="hifi-upload.jsx"></script>
+<script type="text/babel" src="hifi-workspace.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#c96442",
+  "density": "comfy"
+}/*EDITMODE-END*/;
+
+function App() {
+  const tweaks = window.useTweaks(TWEAK_DEFAULTS);
+  const t = tweaks.values;
+
+  React.useEffect(() => {
+    if (t.accent) document.documentElement.style.setProperty('--terracotta', t.accent);
+  }, [t.accent]);
+
+  return (
+    <>
+      <DesignCanvas>
+        <DCSection id="hero" title="01 · Hero · 落地页" subtitle="Warm parchment + live ticker + animated metrics · 产品预览卡">
+          <DCArtboard id="hero-a" label="Hero · hi-fi 交互版" width={1280} height={820}>
+            <div data-screen-label="01 Hero" style={{ width: 1280, height: 820 }}>
+              <window.HFHero />
+            </div>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="upload" title="02 · 上传 + 解析流程" subtitle="拖拽上传 → 传输进度 → Agent 结构化解析 → 推断目标岗位 · 全流程交互">
+          <DCArtboard id="upload-a" label="Upload · 交互全流程 (拖文件或点按钮进入)" width={1280} height={820}>
+            <div data-screen-label="02 Upload" style={{ width: 1280, height: 820 }}>
+              <window.HFUpload />
+            </div>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="workspace" title="03 · 三栏工作台" subtitle="Library rail · AI 对话 + 偏好卡 · 简历预览 · 可输入可发送">
+          <DCArtboard id="workspace-a" label="Workspace · 三栏交互版" width={1280} height={820}>
+            <div data-screen-label="03 Workspace" style={{ width: 1280, height: 820 }}>
+              <window.HFWorkspace />
+            </div>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <window.TweaksPanel title="Tweaks" onValuesChange={tweaks.set}>
+        <window.TweakSection title="品牌">
+          <window.TweakColor label="主色 (terracotta)" pathKey="accent" value={t.accent} onChange={tweaks.setKey}/>
+        </window.TweakSection>
+        <window.TweakSection title="说明">
+          <div style={{ fontSize: 12, color: '#5e5d59', lineHeight: 1.55 }}>
+            · 拖动画布平移 / 滚轮缩放<br/>
+            · 右上 <b>↗</b> 放大全屏<br/>
+            · Upload 面可拖拽文件或点按钮演示<br/>
+            · Workspace 面的 composer 可输入发送
+          </div>
+        </window.TweakSection>
+      </window.TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

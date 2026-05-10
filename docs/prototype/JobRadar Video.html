@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>JobRadar · 产品介绍视频</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  html, body { margin: 0; padding: 0; background: #141413; height: 100%; overflow: hidden; }
+  body { font-family: 'Inter','Noto Sans SC', system-ui, sans-serif; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" src="animations.jsx"></script>
+<script type="text/babel" src="video-primitives.jsx"></script>
+<script type="text/babel" src="video-scenes-a.jsx"></script>
+<script type="text/babel" src="video-scenes-b.jsx"></script>
+<script type="text/babel" src="video-scenes-c.jsx"></script>
+
+<script type="text/babel">
+const { Stage, Sprite } = window;
+const {
+  SceneIntro, SceneProblem, SceneHero,
+  SceneUpload, SceneWorkspace,
+  SceneValue, SceneHow, SceneOutro,
+} = window;
+
+// Timeline (seconds) — total ≈ 150s (2:30)
+//  0 - 8       Intro
+//  8 - 22      Problem (14s)
+// 22 - 42      Hero (20s)
+// 42 - 68      Upload (26s)
+// 68 - 98      Workspace (30s)
+// 98 - 118     Value (20s)
+// 118 - 143    How (25s)
+// 143 - 150    Outro (7s)
+
+const DURATION = 150;
+
+function Video() {
+  return (
+    <Stage width={1920} height={1080} duration={DURATION} background="#141413" fps={60}>
+      <Sprite start={0}   end={8}>   <SceneIntro /></Sprite>
+      <Sprite start={8}   end={22}>  <SceneProblem /></Sprite>
+      <Sprite start={22}  end={42}>  <SceneHero /></Sprite>
+      <Sprite start={42}  end={68}>  <SceneUpload /></Sprite>
+      <Sprite start={68}  end={98}>  <SceneWorkspace /></Sprite>
+      <Sprite start={98}  end={118}> <SceneValue /></Sprite>
+      <Sprite start={118} end={143}> <SceneHow /></Sprite>
+      <Sprite start={143} end={150}> <SceneOutro /></Sprite>
+    </Stage>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Video />);
+</script>
+
+</body>
+</html>

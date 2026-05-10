@@ -1,0 +1,180 @@
+/* ============================================================
+   JobRadar wireframe sketch styles
+   Low-fi: handwritten-friendly fonts, b&w with single terracotta
+   ============================================================ */
+
+:root {
+  --ink: #1a1a1a;
+  --paper: #fbfaf5;
+  --line: #2a2a28;
+  --soft: #8a8a86;
+  --muted: #b8b6ae;
+  --hair: #d9d6cc;
+  --accent: #c96442;
+  --accent-soft: #f5d8c8;
+  --grid: rgba(40,40,36,0.045);
+  --note: #e8a94d;
+}
+
+.sk-paper {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Caveat', 'Kalam', 'Comic Neue', 'Patrick Hand', ui-sans-serif, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+.sk-paper.sk-grid {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Hand-drawn box: slightly irregular border via SVG filter */
+.sk-box {
+  border: 1.6px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  position: relative;
+}
+.sk-box.thin { border-width: 1.2px; }
+.sk-box.soft { border-color: var(--soft); }
+.sk-box.hair { border-color: var(--hair); }
+.sk-box.accent { border-color: var(--accent); }
+.sk-box.filled-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sk-box.filled-soft { background: #efede4; border-color: var(--hair); }
+.sk-box.filled-dark { background: var(--ink); color: #f5f4ed; border-color: var(--ink); }
+.sk-box.dashed { border-style: dashed; }
+.sk-box.ticket {
+  /* little perforation vibe */
+  background-image: radial-gradient(circle at 0 50%, transparent 5px, var(--paper) 5px),
+                    radial-gradient(circle at 100% 50%, transparent 5px, var(--paper) 5px);
+}
+
+/* Scribble fill — diagonal hatching via repeating gradient */
+.sk-hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 6px,
+    var(--hair) 6px,
+    var(--hair) 7px
+  );
+}
+.sk-hatch-dense {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 3px,
+    var(--hair) 3px,
+    var(--hair) 4.2px
+  );
+}
+
+/* Pill (chip) */
+.sk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border: 1.3px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.2;
+  background: var(--paper);
+}
+.sk-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sk-pill.amber  { background: #f6f0d9; border-color: #d9cc8a; color: #7a5a0a; }
+.sk-pill.soft   { background: #efede4; border-color: var(--hair); color: var(--soft); }
+
+/* Handwritten labels */
+.sk-hw  { font-family: 'Caveat', cursive; font-weight: 500; }
+.sk-hw-b{ font-family: 'Caveat', cursive; font-weight: 700; }
+.sk-serif { font-family: 'Fraunces','Noto Serif SC', ui-serif, Georgia, serif; font-weight: 500; }
+.sk-sans  { font-family: 'Inter','Noto Sans SC', ui-sans-serif, system-ui, sans-serif; }
+.sk-mono  { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+
+/* Squiggly underline (decorative, e.g. title underline) */
+.sk-squiggle {
+  position: relative;
+  display: inline-block;
+}
+.sk-squiggle::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: -6px; height: 6px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 6' preserveAspectRatio='none'><path d='M0 3 Q 5 0, 10 3 T 20 3 T 30 3 T 40 3' fill='none' stroke='%23c96442' stroke-width='1.6'/></svg>");
+  background-repeat: repeat-x;
+}
+
+/* Placeholder text line (gray bar) */
+.sk-line {
+  height: 7px; border-radius: 3px; background: var(--hair); display: block;
+}
+.sk-line.lg  { height: 10px; }
+.sk-line.xl  { height: 14px; }
+.sk-line.dark{ background: var(--soft); }
+.sk-line.accent { background: var(--accent); }
+
+/* X mark for placeholder image */
+.sk-img {
+  background: #efede4;
+  border: 1.3px dashed var(--soft);
+  border-radius: 8px;
+  position: relative;
+}
+.sk-img::before, .sk-img::after {
+  content: ''; position: absolute; inset: 0;
+}
+.sk-img::before {
+  background: linear-gradient(to top right, transparent calc(50% - 0.7px), var(--soft) 50%, transparent calc(50% + 0.7px));
+}
+.sk-img::after {
+  background: linear-gradient(to bottom right, transparent calc(50% - 0.7px), var(--soft) 50%, transparent calc(50% + 0.7px));
+}
+
+/* arrow */
+.sk-arrow { stroke: var(--line); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sk-arrow.accent { stroke: var(--accent); }
+
+/* Tiny note card (for annotations) */
+.sk-note {
+  position: absolute;
+  background: #fff4cf;
+  border: 1px solid #e8cf7c;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  color: #6a4a00;
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.04);
+  z-index: 5;
+  max-width: 220px;
+  line-height: 1.25;
+  transform: rotate(-1.5deg);
+}
+.sk-note.r  { transform: rotate(1.5deg); }
+.sk-note::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 12px;
+  width: 10px; height: 10px;
+  background: #e8cf7c;
+  border-radius: 50%;
+}
+
+/* Caption at top of each artboard */
+.sk-caption {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: var(--soft);
+}
+
+/* Hand drawn rough border — used as wrapper for entire mock */
+.sk-rough {
+  filter: url(#sk-rough-filter);
+}
+
+/* Utility tiny dot (brand dot) */
+.sk-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 999px; display:inline-block; }
+
+/* Scroll inside artboards should NOT happen; artboards are static frames */

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>JobRadar · 线框草图</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<link rel="stylesheet" href="sketch.css"/>
+<style>
+  body { margin: 0; background: #f0eee9; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#f5f4ed"/>
+    <g stroke="#c96442" stroke-width="2" fill="none" stroke-linecap="round">
+      <rect x="25" y="25" width="20" height="15" rx="2"/>
+      <rect x="55" y="25" width="20" height="15" rx="2"/>
+      <rect x="25" y="55" width="20" height="15" rx="2"/>
+      <rect x="55" y="55" width="20" height="15" rx="2"/>
+    </g>
+    <circle cx="50" cy="50" r="4" fill="#c96442"/>
+  </svg>
+</template>
+</head>
+<body>
+
+<!-- SVG filter for hand-drawn roughness (optional) -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="sk-rough-filter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="4"/>
+    <feDisplacementMap in="SourceGraphic" scale="1.2"/>
+  </filter>
+</svg>
+
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="sketch-primitives.jsx"></script>
+<script type="text/babel" src="wf-landing.jsx"></script>
+<script type="text/babel" src="wf-upload.jsx"></script>
+<script type="text/babel" src="wf-workspace.jsx"></script>
+<script type="text/babel" src="wf-prefs.jsx"></script>
+<script type="text/babel" src="wf-results.jsx"></script>
+<script type="text/babel" src="wf-mobile.jsx"></script>
+<script type="text/babel" src="wf-core.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard, DCPostIt } = window;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "showAnnotations": true,
+  "showGrid": true,
+  "sketchy": true
+}/*EDITMODE-END*/;
+
+function App() {
+  const tweaks = window.useTweaks(TWEAK_DEFAULTS);
+  const t = tweaks.values;
+
+  // Apply tweaks via body classes + CSS vars
+  React.useEffect(() => {
+    document.body.classList.toggle('hide-notes', !t.showAnnotations);
+    document.body.classList.toggle('hide-grid', !t.showGrid);
+    document.body.classList.toggle('typeset-mode', !t.sketchy);
+  }, [t.showAnnotations, t.showGrid, t.sketchy]);
+
+  const surfaces = [
+    {
+      id: 'landing',
+      title: '登录 / 落地页',
+      subtitle: 'Landing · 3 directions — hero + login + magazine',
+      variants: [
+        { id: 'a', label: 'A · Hero 双栏 (近现状)', Comp: window.Landing_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 登录为主 + 实时数字', Comp: window.Landing_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 编辑部封面感', Comp: window.Landing_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'upload',
+      title: '上传 + 解析流程',
+      subtitle: 'Upload → PDF parse · 3 directions',
+      variants: [
+        { id: 'a', label: 'A · 双栏前后对照', Comp: window.Upload_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 全屏深色解析（签名戏剧感）', Comp: window.Upload_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 三步 Stepper', Comp: window.Upload_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'workspace',
+      title: '三栏工作台',
+      subtitle: 'Resume Copilot · chat + preview + sidebar',
+      variants: [
+        { id: 'a', label: 'A · 现状精修版', Comp: window.Workspace_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 简历为主角', Comp: window.Workspace_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · Agent 剧场', Comp: window.Workspace_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'prefs',
+      title: '修改目标岗位',
+      subtitle: 'Preferences editor · 3 directions',
+      variants: [
+        { id: 'a', label: 'A · 药片选择 (现状)', Comp: window.Prefs_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 对话式采集', Comp: window.Prefs_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 权重滑块', Comp: window.Prefs_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'results',
+      title: 'Top 5 推荐 + Agent Trace',
+      subtitle: 'Results view · 3 directions',
+      variants: [
+        { id: 'a', label: 'A · 清理现状', Comp: window.Results_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · Trace 固定 + 分数解释', Comp: window.Results_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 雷达地图 (实验)', Comp: window.Results_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'mobile',
+      title: '移动端伴侣',
+      subtitle: 'Mobile companion — 3 paired-screen directions',
+      variants: [
+        { id: 'a', label: 'A · 发现流 + 详情', Comp: window.Mobile_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 收件箱 + 终端', Comp: window.Mobile_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 仪表盘 + 追踪', Comp: window.Mobile_C, w: 1280, h: 820 },
+      ],
+    },
+    {
+      id: 'core',
+      title: 'JobRadar 核心后台',
+      subtitle: 'Scraper · sites · filters · admin',
+      variants: [
+        { id: 'a', label: 'A · 岗位库 (运营向)', Comp: window.Core_A, w: 1280, h: 820 },
+        { id: 'b', label: 'B · 节点图谱', Comp: window.Core_B, w: 1280, h: 820 },
+        { id: 'c', label: 'C · 健康面板 (投资人)', Comp: window.Core_C, w: 1280, h: 820 },
+      ],
+    },
+  ];
+
+  return (
+    <>
+      <DesignCanvas>
+        {surfaces.map((s, si) => (
+          <DCSection key={s.id} id={s.id} title={`${String(si+1).padStart(2,'0')} · ${s.title}`} subtitle={s.subtitle}>
+            {s.variants.map(v => (
+              <DCArtboard key={v.id} id={`${s.id}-${v.id}`} label={v.label} width={v.w} height={v.h}>
+                <div data-screen-label={`${s.id}-${v.id}`} style={{ width: v.w, height: v.h }}>
+                  <v.Comp />
+                </div>
+              </DCArtboard>
+            ))}
+          </DCSection>
+        ))}
+      </DesignCanvas>
+
+      <window.TweaksPanel title="Tweaks" onValuesChange={tweaks.set}>
+        <window.TweakSection title="视图">
+          <window.TweakToggle label="标注便签" pathKey="showAnnotations" value={t.showAnnotations} onChange={tweaks.setKey}/>
+          <window.TweakToggle label="网格纸背景" pathKey="showGrid" value={t.showGrid} onChange={tweaks.setKey}/>
+          <window.TweakToggle label="手绘风格 (关 = 排版模式)" pathKey="sketchy" value={t.sketchy} onChange={tweaks.setKey}/>
+        </window.TweakSection>
+        <window.TweakSection title="使用说明">
+          <div style={{ fontSize: 12, color: '#6a675f', lineHeight: 1.5 }}>
+            · 拖动画布平移 / 滚轮缩放<br/>
+            · 每块草图右上角 <b>↗</b> 放大全屏<br/>
+            · 7 个产品面，每面 3 个方向
+          </div>
+        </window.TweakSection>
+      </window.TweaksPanel>
+    </>
+  );
+}
+
+// Tweaks-driven styles
+const style = document.createElement('style');
+style.textContent = `
+  body.hide-notes [data-note="1"] { display: none !important; }
+  body.hide-notes .sk-note { display: none !important; }
+  body.hide-grid .sk-grid { background-image: none !important; }
+  body.typeset-mode .sk-hw,
+  body.typeset-mode .sk-hw-b,
+  body.typeset-mode .sk-caption { font-family: 'Inter','Noto Sans SC', sans-serif !important; font-weight: 400; }
+  body.typeset-mode .sk-hw-b { font-weight: 600; }
+`;
+document.head.appendChild(style);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

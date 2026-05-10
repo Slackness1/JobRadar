@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>AI 面试官 · 模拟面试 · JobRadar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="ds/colors_and_type.css"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+  .stage {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* ── Top bar ─────────────────────── */
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(245,244,237,0.92);
+    backdrop-filter: blur(10px);
+  }
+  .brand {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 17px; letter-spacing: -0.02em; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .brand-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--primary); }
+  .job-title {
+    font-size: 13px; color: var(--ink); font-weight: 600;
+    padding-left: 14px; margin-left: 4px;
+    border-left: 1px solid var(--border-strong);
+    line-height: 1.35;
+  }
+  .job-title .sub { font-weight: 400; font-size: 11px; color: var(--stone); display:block; }
+  .spacer { flex: 1; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--muted);
+    background: var(--library-rail); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 999px;
+  }
+  .pill .d { width: 6px; height: 6px; border-radius: 999px; background: var(--emerald); }
+
+  .mode-tabs {
+    display: inline-flex; background: var(--library-rail);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 3px;
+  }
+  .mode-tabs button {
+    all: unset; cursor: pointer;
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    padding: 6px 12px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .mode-tabs button.on {
+    background: #fff; color: var(--ink);
+    box-shadow: 0 0 0 1px var(--border-strong), 0 1px 2px rgba(0,0,0,0.03);
+  }
+
+  .btn-end {
+    all: unset; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 10px;
+    background: #fff; color: var(--crimson);
+    border: 1px solid #e8cdcd;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-end:hover { background: #fdf4f4; }
+
+  /* ── Main stage ─────────────────── */
+  .main {
+    position: relative;
+    overflow: hidden;
+    background: var(--parchment);
+  }
+
+  /* AI captions (the big black banner in the wireframe) */
+  .captions {
+    position: absolute;
+    top: 26px; left: 50%; transform: translateX(-50%);
+    max-width: 960px; width: calc(100% - 56px);
+    background: var(--deep-dark);
+    color: #faf9f5;
+    border-radius: 18px;
+    padding: 18px 26px 20px;
+    box-shadow: 0 20px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.04);
+    z-index: 5;
+  }
+  .cap-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+    font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--warm-silver);
+    font-weight: 600;
+  }
+  .cap-row .orb {
+    position: relative;
+    width: 18px; height: 18px; border-radius: 999px;
+    background: var(--primary);
+    box-shadow: 0 0 0 0 rgba(201,100,66,0.55);
+    animation: breathe 1.8s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,100,66,0.45); transform: scale(1); }
+    50% { box-shadow: 0 0 0 8px rgba(201,100,66,0); transform: scale(1.08); }
+  }
+  .cap-row .q { color: var(--warm-silver); font-weight: 500; letter-spacing: 0.12em; }
+  .cap-row .spacer { flex: 1; }
+  .cap-row .meta { font-family: var(--font-mono); font-size: 11px; color: var(--warm-silver); letter-spacing: 0; text-transform: none; }
+
+  .cap-text {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+    color: #faf9f5;
+    min-height: 68px;
+  }
+  .cap-text .cursor {
+    display: inline-block;
+    width: 10px; height: 1.1em;
+    vertical-align: -0.15em;
+    background: var(--primary);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .cap-tools {
+    display: flex; gap: 6px; align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 11px; color: var(--warm-silver);
+  }
+  .cap-tools .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 9px; border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px; font-weight: 500;
+  }
+  .cap-tools .chip.now { background: rgba(201,100,66,0.18); border-color: rgba(201,100,66,0.4); color: #faf9f5; }
+  .cap-tools .spacer { flex: 1; }
+  .cap-tools .trans { text-decoration: underline; cursor: pointer; color: var(--warm-silver); }
+
+  /* Transcript (hidden by default, shown via toggle) */
+  .transcript {
+    position: absolute;
+    top: 230px; left: 50%; transform: translateX(-50%);
+    max-width: 960px; width: calc(100% - 56px);
+    max-height: calc(100vh - 420px);
+    overflow-y: auto;
+    z-index: 4;
+    display: none;
+    padding: 16px 26px;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow-whisper);
+  }
+  .transcript.open { display: block; }
+  .ts-row { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .ts-row:last-child { border: 0; }
+  .ts-who { flex: 0 0 64px; font-size: 11px; color: var(--stone); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; padding-top: 2px; }
+  .ts-row.ai .ts-who { color: var(--primary-strong); }
+  .ts-row.me .ts-who { color: var(--ink); }
+  .ts-text { font-size: 14px; color: var(--ink); line-height: 1.6; flex: 1; }
+  .ts-time { font-family: var(--font-mono); font-size: 11px; color: var(--stone); flex: 0 0 44px; text-align: right; }
+
+  /* Side rail — question progress */
+  .progress-rail {
+    position: absolute;
+    left: 28px; top: 50%; transform: translateY(-50%);
+    z-index: 3;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 14px;
+    box-shadow: var(--shadow-whisper);
+    width: 208px;
+  }
+  .pr-head {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .pr-q {
+    display: flex; gap: 10px; padding: 8px 8px; margin: 0 -8px;
+    border-radius: 10px;
+    align-items: flex-start;
+  }
+  .pr-q .n {
+    flex: 0 0 22px; height: 22px; border-radius: 999px;
+    background: var(--library-rail); color: var(--stone);
+    font-family: var(--font-mono); font-size: 11px;
+    display: grid; place-items: center;
+    border: 1px solid var(--border);
+  }
+  .pr-q.done .n { background: var(--emerald); color: #fff; border-color: var(--emerald); }
+  .pr-q.now { background: #fff2ec; }
+  .pr-q.now .n { background: var(--primary); color: #fff; border-color: var(--primary); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 4px rgba(201,100,66,0.12); } }
+  .pr-q .l { font-size: 12.5px; color: var(--ink); line-height: 1.45; padding-top: 2px; }
+  .pr-q.todo .l { color: var(--stone); }
+
+  .pr-time {
+    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border);
+    font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pr-time .t { font-family: var(--font-mono); font-size: 13px; color: var(--ink); font-weight: 500; }
+
+  /* AI "interviewer" portrait card */
+  .ai-card {
+    position: absolute;
+    left: 28px; bottom: 110px;
+    width: 236px;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-whisper);
+    z-index: 3;
+    display: none; /* we keep it lower-left, but stack with rail; show instead of rail when tight */
+  }
+
+  /* Candidate self-view */
+  .self-view {
+    position: absolute;
+    right: 28px; bottom: 110px;
+    width: 220px;
+    background: #1c1c1b;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18), 0 0 0 1px var(--border);
+    z-index: 3;
+  }
+  .self-view video {
+    width: 100%; aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1);
+    background: #1c1c1b;
+  }
+  .self-placeholder {
+    width: 100%; aspect-ratio: 4/3;
+    display: grid; place-items: center;
+    color: var(--warm-silver);
+    font-size: 12px;
+    gap: 6px;
+    background: repeating-linear-gradient(135deg, #1c1c1b, #1c1c1b 14px, #232321 14px, #232321 28px);
+  }
+  .self-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: #1c1c1b; color: #faf9f5;
+    border-top: 1px solid #30302e;
+    font-size: 11px;
+  }
+  .self-bar .mic-blips {
+    display: inline-flex; gap: 2px; align-items: end; height: 12px; margin-left: auto;
+  }
+  .self-bar .mic-blips span {
+    width: 3px; background: var(--emerald); border-radius: 1px; animation: bl 1.2s ease-in-out infinite;
+  }
+  .self-bar .mic-blips span:nth-child(1) { height: 4px; animation-delay: 0s; }
+  .self-bar .mic-blips span:nth-child(2) { height: 8px; animation-delay: 0.1s; }
+  .self-bar .mic-blips span:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+  .self-bar .mic-blips span:nth-child(4) { height: 7px; animation-delay: 0.3s; }
+  @keyframes bl { 0%,100% { opacity: .35; transform: scaleY(0.5); } 50% { opacity: 1; transform: scaleY(1); } }
+
+  /* Center stage — shows AI avatar while speaking, nothing while listening */
+  .ai-stage {
+    position: absolute; inset: 240px 0 160px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px;
+    pointer-events: none;
+  }
+  .ai-orb-wrap {
+    position: relative;
+    width: 220px; height: 220px;
+    display: grid; place-items: center;
+  }
+  .ai-orb-wrap .ring {
+    position: absolute; inset: 0;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+  }
+  .ai-orb-wrap .ring.r2 { inset: 24px; border-color: var(--border); }
+  .ai-orb-wrap .ring.r3 { inset: 48px; border-color: var(--border); }
+  .ai-orb-wrap .pulse {
+    position: absolute; inset: 30px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 30%, #e38066 0%, var(--primary) 45%, var(--primary-strong) 100%);
+    box-shadow: 0 20px 50px rgba(201,100,66,0.28);
+    animation: orb 2.4s ease-in-out infinite;
+  }
+  @keyframes orb {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.045); filter: brightness(1.08); }
+  }
+  .ai-orb-wrap .sparkle {
+    position: absolute; inset: 30px;
+    border-radius: 999px;
+    display: grid; place-items: center;
+    color: #faf9f5;
+  }
+  .ai-orb-wrap .sparkle [data-lucide] { width: 38px; height: 38px; stroke-width: 1.4; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+
+  .ai-name {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 22px; color: var(--ink); letter-spacing: -0.01em;
+  }
+  .ai-status {
+    font-size: 12px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 4px;
+  }
+  .ai-status .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--primary); animation: pulse 1.2s ease-in-out infinite; }
+
+  /* Listening waveform (shown when candidate speaks) */
+  .listen-wave {
+    display: none;
+    gap: 3px; align-items: center; height: 36px;
+  }
+  .listen-wave.on { display: inline-flex; }
+  .listen-wave .w {
+    width: 3px; background: var(--emerald); border-radius: 2px;
+    animation: lw 1s ease-in-out infinite;
+  }
+  .listen-wave .w:nth-child(1) { animation-delay: 0s; }
+  .listen-wave .w:nth-child(2) { animation-delay: 0.1s; }
+  .listen-wave .w:nth-child(3) { animation-delay: 0.2s; }
+  .listen-wave .w:nth-child(4) { animation-delay: 0.3s; }
+  .listen-wave .w:nth-child(5) { animation-delay: 0.4s; }
+  .listen-wave .w:nth-child(6) { animation-delay: 0.5s; }
+  .listen-wave .w:nth-child(7) { animation-delay: 0.6s; }
+  @keyframes lw {
+    0%, 100% { height: 6px; opacity: 0.45; }
+    50% { height: 30px; opacity: 1; }
+  }
+
+  /* ── Footer — the mic input bar (mirrors the wireframe) ── */
+  .foot {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    background: var(--library-rail);
+  }
+  .mic-btn {
+    all: unset; cursor: pointer;
+    width: 46px; height: 46px; border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    display: grid; place-items: center;
+    color: var(--ink);
+    transition: .2s;
+  }
+  .mic-btn:hover { background: var(--warm-sand); }
+  .mic-btn.rec {
+    background: var(--primary); color: #faf9f5;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(201,100,66,0.16), 0 0 0 8px rgba(201,100,66,0.06);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .input-shell {
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    min-height: 52px;
+  }
+  .input-shell .hint {
+    font-size: 13px; color: var(--stone);
+    flex: 1;
+  }
+  .input-shell .hint.listening { color: var(--ink); }
+  .input-shell .hint.listening::after { content: '｜'; color: var(--primary); animation: blink 1s step-end infinite; }
+
+  .foot-actions { display: flex; align-items: center; gap: 8px; }
+  .iconbtn {
+    all: unset; cursor: pointer;
+    width: 40px; height: 40px; border-radius: 10px;
+    display: grid; place-items: center;
+    color: var(--muted);
+    border: 1px solid transparent;
+  }
+  .iconbtn:hover { background: #fff; border-color: var(--border); color: var(--ink); }
+  .iconbtn .tip {
+    position: absolute;
+    background: var(--deep-dark); color: #faf9f5;
+    font-size: 11px; padding: 4px 8px; border-radius: 6px;
+    white-space: nowrap;
+    transform: translateY(-36px);
+    display: none;
+  }
+  .iconbtn:hover .tip { display: block; }
+
+  .foot-hint {
+    font-size: 11px; color: var(--stone);
+    font-family: var(--font-mono);
+  }
+
+  /* Icon sizes */
+  [data-lucide] { width: 18px; height: 18px; stroke-width: 1.6; }
+  .mic-btn [data-lucide] { width: 22px; height: 22px; }
+
+  /* Question marker — the "第1问" style tag from wireframe */
+  .qmarker {
+    position: absolute;
+    top: 68px; left: 28px;
+    font-size: 11px;
+    color: var(--stone);
+    letter-spacing: 0.08em;
+    z-index: 2;
+  }
+  .qmarker b { color: var(--ink); font-weight: 600; font-size: 12px; margin-right: 6px; }
+
+  /* ── Toasts ── */
+  .toast {
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    bottom: 120px;
+    background: var(--deep-dark); color: #faf9f5;
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 12.5px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+    display: flex; align-items: center; gap: 8px;
+    animation: toastIn 0.4s ease-out;
+    z-index: 10;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .toast .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--emerald); }
+
+  @media (max-width: 1200px) {
+    .progress-rail { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <span class="brand"><span class="brand-dot"></span>JobRadar</span>
+    <div class="job-title">大模型应用全栈开发实习生 · 巨量星图
+      <span class="sub">北京抖音信息服务有限公司 · AI 面试官 · 姜老师</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="pill"><span class="d"></span>已连接 · 48 kHz</span>
+    <div class="mode-tabs">
+      <button id="mVoice" class="on"><i data-lucide="mic"></i>语音模式</button>
+      <button id="mText"><i data-lucide="type"></i>文本模式</button>
+    </div>
+    <button class="btn-end"><i data-lucide="phone-off"></i>结束面试</button>
+  </header>
+
+  <!-- Main -->
+  <section class="main">
+
+    <div class="qmarker"><b>第 1 问</b>项目主导度 · 技术取舍</div>
+
+    <!-- AI captions (streaming) -->
+    <div class="captions">
+      <div class="cap-row">
+        <span class="orb"></span>
+        <span>AI 面试官 · 正在讲</span>
+        <span class="q">· Question 1 / 6</span>
+        <span class="spacer"></span>
+        <span class="meta" id="capTimer">00:08 / ~00:22</span>
+      </div>
+      <div class="cap-text" id="capText"></div>
+      <div class="cap-tools">
+        <span class="chip now"><i data-lucide="message-circle-question" style="width:12px;height:12px;"></i> 开场 · 项目深挖</span>
+        <span class="chip">参考：RAG 问答系统 · 简历 §3</span>
+        <span class="spacer"></span>
+        <span class="trans" id="toggleTs">查看全文逐字稿</span>
+      </div>
+    </div>
+
+    <!-- Transcript (toggle) -->
+    <div class="transcript" id="transcript">
+      <div class="ts-row ai">
+        <div class="ts-who">面试官</div>
+        <div class="ts-text">你好，欢迎参加本次模拟面试。我们一共会聊 6 个问题，约 20 分钟。每个问题你都可以自由展开，我不会打断。</div>
+        <div class="ts-time">00:00</div>
+      </div>
+      <div class="ts-row me">
+        <div class="ts-who">你</div>
+        <div class="ts-text">好的，我准备好了。</div>
+        <div class="ts-time">00:18</div>
+      </div>
+      <div class="ts-row ai">
+        <div class="ts-who">面试官</div>
+        <div class="ts-text" id="tsCurrent"></div>
+        <div class="ts-time">00:23</div>
+      </div>
+    </div>
+
+    <!-- Progress rail (left) -->
+    <aside class="progress-rail">
+      <div class="pr-head">本轮 6 问 · 进度</div>
+
+      <div class="pr-q done">
+        <span class="n"><i data-lucide="check" style="width:12px;height:12px;"></i></span>
+        <span class="l">自我介绍与来意</span>
+      </div>
+      <div class="pr-q now">
+        <span class="n">1</span>
+        <span class="l">聊聊你主导的 RAG 项目，以及其中的取舍</span>
+      </div>
+      <div class="pr-q todo">
+        <span class="n">2</span>
+        <span class="l">Agent 工具选择如何做评估</span>
+      </div>
+      <div class="pr-q todo">
+        <span class="n">3</span>
+        <span class="l">排障：生产环境里检索质量下降</span>
+      </div>
+      <div class="pr-q todo">
+        <span class="n">4</span>
+        <span class="l">为什么想加入巨量星图</span>
+      </div>
+      <div class="pr-q todo">
+        <span class="n">5</span>
+        <span class="l">反问环节</span>
+      </div>
+
+      <div class="pr-time">
+        <span>已进行</span><span class="t" id="totalTime">02:14</span>
+      </div>
+    </aside>
+
+    <!-- Center AI orb -->
+    <div class="ai-stage">
+      <div class="ai-orb-wrap">
+        <div class="ring"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="pulse"></div>
+        <div class="sparkle"><i data-lucide="sparkles"></i></div>
+      </div>
+      <div style="text-align:center;">
+        <div class="ai-name">姜老师 · AI 面试官</div>
+        <div class="ai-status" id="aiStatus">
+          <span class="dot"></span>
+          <span id="aiStatusText">正在讲第 1 个问题…</span>
+        </div>
+        <div class="listen-wave" id="listenWave">
+          <span class="w"></span><span class="w"></span><span class="w"></span><span class="w"></span>
+          <span class="w"></span><span class="w"></span><span class="w"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Self view -->
+    <div class="self-view">
+      <video id="selfVideo" autoplay muted playsinline></video>
+      <div class="self-placeholder" id="selfPh">
+        <i data-lucide="user" style="width:22px;height:22px;"></i>
+        摄像头预览
+      </div>
+      <div class="self-bar">
+        <i data-lucide="mic" style="width:12px;height:12px;"></i>
+        <span>你 · 麦克风打开</span>
+        <span class="mic-blips"><span></span><span></span><span></span><span></span></span>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" style="display:none;">
+      <span class="dot"></span>
+      <span id="toastText">已记录回答 · 进入下一问</span>
+    </div>
+  </section>
+
+  <!-- Footer — mic input bar -->
+  <footer class="foot">
+    <button class="mic-btn" id="micBtn" title="按住说话 / 点击切换">
+      <i data-lucide="mic"></i>
+    </button>
+
+    <div class="input-shell">
+      <span class="hint" id="inputHint">点击麦克风开始语音作答 · 或按住空格键说话</span>
+    </div>
+
+    <div class="foot-actions">
+      <button class="iconbtn" title="静音"><i data-lucide="mic-off"></i></button>
+      <button class="iconbtn" title="重复问题" id="repeatBtn"><i data-lucide="rotate-ccw"></i></button>
+      <button class="iconbtn" title="思考 30 秒"><i data-lucide="clock"></i></button>
+      <button class="iconbtn" title="切换逐字稿"><i data-lucide="captions"></i></button>
+    </div>
+
+    <span class="foot-hint">Space 说话 · Enter 提交 · Esc 结束</span>
+  </footer>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  // ── Attach camera if available ──
+  (async () => {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+      document.getElementById('selfVideo').srcObject = s;
+      document.getElementById('selfPh').style.display = 'none';
+    } catch(e) {}
+  })();
+
+  // ── Streaming caption ──
+  const question = '那我们正式开始。先请你挑一个你主导过的、和大模型应用相关的项目，说说当时的业务背景、你在其中扮演的角色，以及最终取得的效果。重点是：有哪些技术上的取舍是你拍板的？';
+  const capText = document.getElementById('capText');
+  const tsCurrent = document.getElementById('tsCurrent');
+  const aiStatusText = document.getElementById('aiStatusText');
+
+  let i = 0;
+  let streaming = true;
+  function stream() {
+    if (!streaming) return;
+    if (i <= question.length) {
+      capText.innerHTML = question.slice(0, i) + '<span class="cursor"></span>';
+      tsCurrent.textContent = question.slice(0, i);
+      i++;
+      // variable delays — punctuation holds a bit
+      const ch = question[i-1];
+      const delay = ch === '，' || ch === '。' || ch === '：' || ch === '？' || ch === '；' ? 260
+                  : ch === ' ' ? 140
+                  : 48 + Math.random() * 40;
+      setTimeout(stream, delay);
+    } else {
+      capText.innerHTML = question;
+      tsCurrent.textContent = question;
+      aiStatusText.textContent = '讲完了 · 等你作答';
+      document.getElementById('inputHint').textContent = '点击麦克风开始语音作答 · 或按住空格键说话';
+    }
+  }
+  stream();
+
+  // ── Transcript toggle ──
+  const ts = document.getElementById('transcript');
+  document.getElementById('toggleTs').onclick = () => {
+    ts.classList.toggle('open');
+    document.getElementById('toggleTs').textContent = ts.classList.contains('open') ? '收起逐字稿' : '查看全文逐字稿';
+  };
+
+  // ── Mic button ──
+  const micBtn = document.getElementById('micBtn');
+  const listenWave = document.getElementById('listenWave');
+  const inputHint = document.getElementById('inputHint');
+  let recording = false;
+  function setRec(on) {
+    recording = on;
+    micBtn.classList.toggle('rec', on);
+    listenWave.classList.toggle('on', on);
+    if (on) {
+      inputHint.classList.add('listening');
+      inputHint.textContent = '正在聆听你的回答';
+      aiStatusText.textContent = '听你说…';
+      document.querySelector('.ai-status .dot').style.background = 'var(--emerald)';
+    } else {
+      inputHint.classList.remove('listening');
+      inputHint.textContent = '点击麦克风开始语音作答 · 或按住空格键说话';
+      aiStatusText.textContent = '讲完了 · 等你作答';
+      document.querySelector('.ai-status .dot').style.background = 'var(--primary)';
+    }
+  }
+  micBtn.onclick = () => setRec(!recording);
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !e.repeat) { e.preventDefault(); setRec(true); }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); setRec(false); }
+  });
+
+  // ── Repeat ──
+  document.getElementById('repeatBtn').onclick = () => {
+    streaming = false;
+    setTimeout(() => { i = 0; streaming = true; stream(); }, 40);
+  };
+
+  // ── Mode tabs ──
+  document.getElementById('mVoice').onclick = () => {
+    document.getElementById('mVoice').classList.add('on');
+    document.getElementById('mText').classList.remove('on');
+  };
+  document.getElementById('mText').onclick = () => {
+    document.getElementById('mText').classList.add('on');
+    document.getElementById('mVoice').classList.remove('on');
+    inputHint.textContent = '输入回答…（文本模式）';
+  };
+
+  // ── Timer ──
+  let t0 = 134;
+  setInterval(() => {
+    t0++;
+    const m = String(Math.floor(t0/60)).padStart(2,'0');
+    const s = String(t0%60).padStart(2,'0');
+    document.getElementById('totalTime').textContent = m + ':' + s;
+  }, 1000);
+
+  // Caption timer
+  let ct = 8;
+  const capTimer = document.getElementById('capTimer');
+  const capInt = setInterval(() => {
+    ct++;
+    if (ct > 22) { clearInterval(capInt); return; }
+    capTimer.textContent = '00:' + String(ct).padStart(2,'0') + ' / ~00:22';
+  }, 1000);
+</script>
+</body>
+</html>

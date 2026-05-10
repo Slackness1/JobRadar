@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>JobRadar · 交互原型集合</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --terracotta: #c96442;
+    --parchment: #f5f4ed;
+    --ink: #2a2825;
+    --muted: #6b665e;
+    --border: #e3dfd2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 80px 32px 96px; }
+  h1 {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: 48px;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  h1 em {
+    color: var(--terracotta);
+    font-style: normal;
+  }
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 0 56px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  a.card {
+    display: block;
+    padding: 24px 24px 28px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  a.card:hover {
+    transform: translateY(-2px);
+    border-color: var(--terracotta);
+    box-shadow: 0 8px 24px -12px rgba(201,100,66,0.35);
+  }
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--terracotta);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .card h2 {
+    font-family: 'Fraunces', 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin: 0 0 8px;
+  }
+  .card p { margin: 0; font-size: 14px; color: var(--muted); }
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  footer a { color: var(--terracotta); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>JobRadar · <em>交互原型集合</em></h1>
+  <p class="lede">
+    AI 校招岗位雷达的设计稿与可交互原型。所有原型均使用 React + Babel runtime
+    渲染，可在浏览器内直接查看与操作。
+  </p>
+
+  <div class="grid">
+    <a class="card" href="JobRadar%20HiFi.html">
+      <span class="tag">高保真原型</span>
+      <h2>HiFi Prototype</h2>
+      <p>落地页 + 上传流程 + 工作台三段核心交互，含全套设计 token。</p>
+    </a>
+
+    <a class="card" href="JobRadar%20Wireframes.html">
+      <span class="tag">线框稿</span>
+      <h2>Wireframes</h2>
+      <p>Web 与移动端关键页面的低保真线框，包含设计推演过程。</p>
+    </a>
+
+    <a class="card" href="JobRadar%20Case%20Study.html">
+      <span class="tag">案例研究</span>
+      <h2>Case Study</h2>
+      <p>从用户痛点到产品决策的完整复盘，含定量信号与设计权衡。</p>
+    </a>
+
+    <a class="card" href="JobRadar%20Video.html">
+      <span class="tag">动效分镜</span>
+      <h2>Video Storyboard</h2>
+      <p>产品演示视频的逐镜分解，展示叙事节奏与动效细节。</p>
+    </a>
+
+    <a class="card" href="Mock%20Interview%20%C2%B7%20Device%20Check.html">
+      <span class="tag">模拟面试</span>
+      <h2>Device Check</h2>
+      <p>模拟面试启动前的设备检测页 — 麦克风 / 摄像头 / 扬声器三段流程。</p>
+    </a>
+
+    <a class="card" href="Mock%20Interview%20%C2%B7%20AI%20Interviewer.html">
+      <span class="tag">模拟面试</span>
+      <h2>AI Interviewer</h2>
+      <p>沉浸式面试舞台 — 终端 caption + AI 球体 + 推流声纹反馈。</p>
+    </a>
+  </div>
+
+  <footer>
+    在线 Demo: <a href="https://jobcopilot.top">jobcopilot.top</a>
+    · 仓库: <a href="https://github.com/Slackness1/JobRadar">Slackness1/JobRadar</a>
+    · GitHub: <a href="https://github.com/Slackness1">@Slackness1</a>
+  </footer>
+</div>
+</body>
+</html>

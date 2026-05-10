@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>JobRadar · Case Study · 周传博 · 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="case-study.css"/>
+<style>
+  /* Print-ready overrides */
+  html, body { background: #fff !important; }
+  .deck { gap: 0 !important; padding: 0 !important; }
+  .page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+    break-after: page;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  @page { size: A4 portrait; margin: 0; }
+  @media print {
+    html, body { background: #fff !important; }
+    .deck { gap: 0 !important; padding: 0 !important; }
+    .page { box-shadow: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ============== PAGE 1 · COVER ============== -->
+<section class="page" data-screen-label="01 Cover">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div>Case Study · 2026</div>
+    </header>
+
+    <div style="margin-top: 14mm; display:flex; align-items:flex-start; justify-content:space-between; gap: 16px;">
+      <div style="flex:1;">
+        <div class="t-overline terra" style="margin-bottom: 10px;">AI 求职闭环 · Solo PM Build</div>
+        <h1 class="t-hero">JobRadar<span class="terra">.</span></h1>
+        <p class="t-lead" style="max-width: 130mm; margin-top: 8mm; font-size: 14.5px;">
+          面向高校应届生的 <b>AI 求职闭环</b>——从 Top 5 推荐 → 简历改写 → 模拟面试 → 投递，
+          每一步都有 Agent。<span class="muted">6 周内测，~300 真实用户。</span>
+        </p>
+      </div>
+      <div class="col gap-2" style="align-items:flex-end;">
+        <span class="badge terra">已上线 · 内测中</span>
+        <span class="badge">v0.9 · 情报增强</span>
+      </div>
+    </div>
+
+    <!-- Hero shot -->
+    <div class="hero-shot" style="margin-top: 12mm; height: 88mm;">
+      <!-- Stylized workspace mock -->
+      <div style="position:absolute; inset:0; display:grid; grid-template-columns: 38mm 1fr 60mm; gap: 0;">
+        <!-- left rail -->
+        <div style="background: var(--library-rail); border-right: 1px solid var(--border-warm); padding: 10px 12px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom: 12px;">
+            <div style="width:18px;height:18px;border-radius:5px;background:var(--deep-dark);position:relative;">
+              <div style="position:absolute;width:5px;height:5px;border-radius:50%;background:var(--terracotta);top:6.5px;left:6.5px;"></div>
+            </div>
+            <div style="font-family:var(--font-serif);font-size:13px;font-weight:600;">JobRadar</div>
+          </div>
+          <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--stone);font-weight:600;margin:8px 0 6px;">简历记录</div>
+          <div style="background:var(--ivory);border-radius:6px;padding:6px 8px;box-shadow:inset 0 0 0 1px var(--border-warm);font-size:10px;color:var(--ink);margin-bottom:4px;">数据分析-2026春招</div>
+          <div style="font-size:10px;color:var(--olive);padding:4px 8px;">产品-互联网-2026</div>
+          <div style="font-size:10px;color:var(--olive);padding:4px 8px;">量化-券商方向</div>
+        </div>
+        <!-- center chat -->
+        <div style="padding: 10px 12px; display:flex; flex-direction:column; gap: 6px; overflow:hidden;">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;">
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--terracotta);"></div>
+            <div style="font-size:11px;font-weight:600;">AI 简历助手</div>
+            <span class="badge emerald" style="margin-left:auto;height:16px;font-size:9px;">已完成分析</span>
+          </div>
+          <div style="background:var(--deep-dark);color:var(--warm-silver);border-radius:8px;padding:8px 10px;font-family:var(--font-mono);font-size:9px;line-height:1.6;">
+            <div style="color:#c9926e;">▸ search_candidates · 1,284 → 200</div>
+            <div style="color:#3f9a5d;">✓ inspect_jobs · 28 详情</div>
+            <div style="color:#3f9a5d;">✓ get_company_intel · 12 公司</div>
+            <div style="color:#c9926e;">▸ finalize · 5 条 Top 推荐</div>
+          </div>
+          <div style="background:var(--ivory);border-radius:8px;padding:8px 10px;font-size:10px;line-height:1.55;color:var(--ink-soft);box-shadow:0 0 0 1px var(--border-warm);">
+            根据你「数据分析 · 上海 · 应届」的偏好，挑了 5 个 Base+Enhanced 都高的岗位。
+          </div>
+          <div style="background:var(--ivory);border-radius:8px;padding:8px 10px;font-size:10px;line-height:1.55;color:var(--ink);box-shadow:0 0 0 1px var(--border-warm);">
+            <div style="font-weight:600;font-size:10.5px;">华泰证券 · 数据分析实习生</div>
+            <div style="color:var(--olive);font-size:9.5px;margin-top:2px;">Base <b style="color:var(--ink);">96</b> · Enhanced <b style="color:var(--terracotta);">96</b> · To-T1 主流平台</div>
+          </div>
+        </div>
+        <!-- right preview -->
+        <div style="background:var(--ivory);border-left:1px solid var(--border-warm);padding:10px;">
+          <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--stone);font-weight:600;margin-bottom:6px;">真实岗位推荐 · Top 5</div>
+          <div style="font-size:10px;color:var(--ink);font-weight:600;line-height:1.4;">华泰证券</div>
+          <div style="font-size:9px;color:var(--olive);margin-bottom:6px;">数据分析 · 上海</div>
+          <div style="height:1px;background:var(--border-cream);margin:6px 0;"></div>
+          <div style="font-size:10px;color:var(--ink);font-weight:600;line-height:1.4;">中信证券</div>
+          <div style="font-size:9px;color:var(--olive);margin-bottom:6px;">量化研究 · 北京</div>
+          <div style="height:1px;background:var(--border-cream);margin:6px 0;"></div>
+          <div style="font-size:10px;color:var(--ink);font-weight:600;line-height:1.4;">字节跳动</div>
+          <div style="font-size:9px;color:var(--olive);margin-bottom:6px;">数据科学 · 杭州</div>
+        </div>
+      </div>
+      <!-- bottom annotation -->
+      <div style="position:absolute;left:0;right:0;bottom:0;background:rgba(245,244,237,0.95);backdrop-filter: blur(4px);padding:6px 12px;border-top:1px solid var(--border-warm);font-size:9.5px;color:var(--olive);display:flex;justify-content:space-between;align-items:center;">
+        <span>Workspace · AI 简历助手 + Agent trace + Top 5 实时推荐</span>
+        <span class="mono terra-strong">jobradar.app / workspace</span>
+      </div>
+    </div>
+
+    <!-- Hook -->
+    <div style="margin-top: 11mm;">
+      <div class="t-overline" style="margin-bottom: 6px;">Hero metric</div>
+      <p class="hook">
+        用户接受 AI 改写建议的比例 <span class="num">74%</span>——其中 <span class="num">67%</span> 选了
+        <em>「JD-driven 卖点重组」</em>方向。
+      </p>
+    </div>
+
+    <hr class="rule" style="margin: 10mm 0 6mm;"/>
+
+    <!-- Meta info -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 16mm; row-gap: 4px;">
+      <div class="kv"><span class="k">Role</span><span class="v">Solo PM × AI 协作（PM 做判断，AI 做执行）</span></div>
+      <div class="kv"><span class="k">Period</span><span class="v">2026.03 – 至今 · 6 周内测</span></div>
+      <div class="kv"><span class="k">Status</span><span class="v">已上线 · ~300 用户（180 校招 / 120 实习）</span></div>
+      <div class="kv"><span class="k">Stack</span><span class="v">GLM-4.7 + DeepSeek · ReAct Agent · React · Vite</span></div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">01 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 2 · BACKGROUND ============== -->
+<section class="page" data-screen-label="02 Background">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="hdr__chap">02 · 背景与定位</div>
+    </header>
+
+    <div style="margin-top: 12mm;">
+      <span class="t-overline slabel">Why JobRadar</span>
+      <h2 class="t-h1" style="margin-top: 6mm; max-width: 150mm;">为什么应届生的求职 <em class="terra-strong" style="font-style:italic;">值得</em> 一个 AI 闭环</h2>
+      <p class="t-lead" style="margin-top: 6mm; max-width: 160mm; font-size: 13.5px;">
+        应届生求职信息差严重——海量岗位但不知道哪个值得投，简历不知道怎么改才对得上 JD，面试不知道会问什么。
+        <b>JobRadar 用 4 个 Agent 解决求职 4 步</b>：找岗位、改简历、准备面试、投递。
+      </p>
+    </div>
+
+    <!-- 4-step closure diagram -->
+    <div style="margin-top: 14mm;">
+      <div class="t-overline" style="margin-bottom: 8mm; text-align:center;">求职 4 步闭环 · The 4-Step Loop</div>
+      <div class="row gap-2 center" style="align-items: stretch;">
+        <div class="step">
+          <div class="num">STEP 01</div>
+          <div class="name">找岗位</div>
+          <div class="feat">Top 5 推荐</div>
+          <div class="meth">4 层漏斗：SQL → 规则 → 情报 → LLM</div>
+          <div class="stat live">✓ 已上线</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <div class="num">STEP 02</div>
+          <div class="name">改简历</div>
+          <div class="feat">AI 改写</div>
+          <div class="meth">JD-driven 反向匹配 · 因岗而异</div>
+          <div class="stat live">✓ 已上线</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <div class="num">STEP 03</div>
+          <div class="name">准备面试</div>
+          <div class="feat">模拟面试</div>
+          <div class="meth">Voice + Device Check + AI Interviewer</div>
+          <div class="stat live">✓ 已上线</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <div class="num">STEP 04</div>
+          <div class="name">投递</div>
+          <div class="feat">投递插件</div>
+          <div class="meth">Chrome extension · 一键投递</div>
+          <div class="stat dev">⚙ 进行中</div>
+        </div>
+      </div>
+
+      <!-- Pain → Solution annotations -->
+      <div style="margin-top: 10mm; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+        <div class="t-cap"><b class="terra-strong">痛点 →</b> 万级岗位 不知道投哪个<br/><span class="stone">解法：4 层漏斗给 Top 5</span></div>
+        <div class="t-cap"><b class="terra-strong">痛点 →</b> 通用美化 对不上 JD<br/><span class="stone">解法：JD 反向挑卖点</span></div>
+        <div class="t-cap"><b class="terra-strong">痛点 →</b> 面试焦虑 不敢投<br/><span class="stone">解法：AI 模拟练习</span></div>
+        <div class="t-cap"><b class="terra-strong">痛点 →</b> 复制粘贴 投递成本高<br/><span class="stone">解法：插件一键投</span></div>
+      </div>
+    </div>
+
+    <!-- Narrative anchor -->
+    <div style="margin-top: auto; padding-top: 16mm;">
+      <div class="card paper" style="padding: 14px 18px;">
+        <div class="t-overline" style="margin-bottom: 6px;">Narrative anchor</div>
+        <p class="t-body" style="margin: 0;">
+          整本 case study 围绕 <b>5 个真实做过的 AI 决策</b>展开——从 ReAct loop 到 4 层漏斗、从多模型策略到 Trace 折叠。
+          每个决策都遵循同一模板：<b>上下文 · 候选项 · 我选 · 验证</b>。<br/>
+          <span class="stone">→ 第 8 页有所有 5 个判断的"我赌的 vs 实际"对照表，含一个诚实的错判。</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">02 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 3 · DECISION 1 · ReAct Agent ============== -->
+<section class="page" data-screen-label="03 Decision 1 · ReAct">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="row center gap-3">
+        <span>判断 1 / 5</span>
+        <span class="progress"><span class="d on"></span><span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span></span>
+      </div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Decision 01 · Agent Architecture</div>
+      <h2 class="t-h1" style="margin-top: 4mm; max-width: 160mm;">简历解析：<em style="font-style:italic;">单次 prompt</em> 还是 <span class="terra">ReAct Agent</span>？</h2>
+    </div>
+
+    <div style="margin-top: 8mm; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm;">
+      <div>
+        <div class="t-overline">上下文 · Context</div>
+        <p class="t-body" style="margin-top: 4mm;">
+          应届生简历格式杂乱（PDF / docx / 扫描件），需要做<b>"读 → 抽结构 → 匹配公司库 → 推断目标"</b> 四件事。
+          单次 prompt 全做完会幻觉、漏字段、且单点失败无法定位。这不是"模型够不够强"的问题，
+          是<b>步骤之间该不该可观测</b>的问题。
+        </p>
+      </div>
+      <div>
+        <div class="t-overline">选项 · Options</div>
+        <div style="margin-top: 4mm;">
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>A · </b>单次 long prompt——简单，但易幻觉、出错无法定位</span><span class="pn">弃</span></div>
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>B · </b>4 个独立 prompt 串联——可控，但缺上下文</span><span class="pn">弃</span></div>
+          <div class="opt on"><span class="mark"></span><span class="lbl"><b>C · </b>ReAct loop + 4 个 tool（read_pdf / extract / match / infer）</span><span class="pn">选</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline">我选 C · 因为</div>
+      <ol style="margin: 4mm 0 0; padding-left: 20px; font-size: 12px; line-height: 1.7; color: var(--ink-soft);">
+        <li>每一步失败都能<b>精准定位</b>——读 PDF 挂了切 OCR 兜底，匹配挂了切规则兜底；</li>
+        <li>每一步耗时可<b>单独优化</b>，不被最慢一环拖死整条链路；</li>
+        <li>用户能看到 trace（连接到判断 5 的<b>透明度设计</b>），把"AI 在干什么"显形给信任度敏感的用户；</li>
+        <li>串联结构天然支持<b>fallback</b>——这是 PM 在选 AI 架构时最容易忽略、却最值钱的属性。</li>
+      </ol>
+    </div>
+
+    <!-- Mini diagram of ReAct loop -->
+    <div style="margin-top: 10mm;">
+      <div class="t-overline" style="margin-bottom: 6mm;">ReAct Loop · 4 个 Tool</div>
+      <div class="card warm" style="padding: 14px 16px;">
+        <div style="display:grid;grid-template-columns: repeat(4, 1fr); gap: 8px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="mono terra-strong" style="font-size:10px;font-weight:600;">🔍 read_pdf</div>
+            <div class="t-cap">PDF / docx 解析为纯文本，含位置元数据</div>
+            <div class="mono" style="font-size:9px;color:var(--olive);">→ raw_text · sections</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="mono terra-strong" style="font-size:10px;font-weight:600;">📄 extract_sections</div>
+            <div class="t-cap">教育 / 实习 / 项目 / 技能 结构化抽取</div>
+            <div class="mono" style="font-size:9px;color:var(--olive);">→ Profile{}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="mono terra-strong" style="font-size:10px;font-weight:600;">🏢 match_companies</div>
+            <div class="t-cap">公司名归一化，对齐内部公司情报库</div>
+            <div class="mono" style="font-size:9px;color:var(--olive);">→ company_ids</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div class="mono terra-strong" style="font-size:10px;font-weight:600;">✅ infer_targets</div>
+            <div class="t-cap">从经历推断目标方向 + 优先级</div>
+            <div class="mono" style="font-size:9px;color:var(--olive);">→ target_roles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: auto; padding-top: 10mm;">
+      <hr class="rule"/>
+      <div style="margin-top: 4mm; display:flex; justify-content:space-between; align-items: flex-end; gap: 12mm;">
+        <div style="flex: 1;">
+          <div class="t-overline">验证 · 数据 / 反馈</div>
+          <p class="t-body" style="margin-top: 3mm;">
+            字段无需用户纠正比例 <b class="terra">87%</b>，4 步独立可调试，
+            <b>read_pdf 失败率 3%</b> → 自动切 OCR 后降到 <b>0.4%</b>。<br/>
+            平均解析 P50 <b class="terra">6.4s</b>——比单次 long prompt 慢 1.2s，但<b>可观测</b>带来的故障定位收益远超延迟代价。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">03 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 4 · DECISION 2 · Multi-model ============== -->
+<section class="page" data-screen-label="04 Decision 2 · Multi-model">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="row center gap-3">
+        <span>判断 2 / 5</span>
+        <span class="progress"><span class="d on"></span><span class="d on"></span><span class="d"></span><span class="d"></span><span class="d"></span></span>
+      </div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Decision 02 · Model Strategy</div>
+      <h2 class="t-h1" style="margin-top: 4mm; max-width: 160mm;">不是"<em style="font-style:italic;">选一个最好模型</em>"，而是<span class="terra"> 在不同环节匹配不同模型</span></h2>
+    </div>
+
+    <div style="margin-top: 8mm; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm;">
+      <div>
+        <div class="t-overline">上下文 · Context</div>
+        <p class="t-body" style="margin-top: 4mm;">
+          中文场景 + 应届生用户对延迟敏感 + 内测预算有限。<br/>
+          Anthropic / OpenAI 在国内调用慢且合规风险高，但单一国产模型也不可能在每个任务上都最优——
+          <b>"全押注一个模型"</b>是 AI PM 最容易踩的坑。
+        </p>
+      </div>
+      <div>
+        <div class="t-overline">选项 · Options</div>
+        <div style="margin-top: 4mm;">
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>A · </b>全程 GPT-4 / Claude——贵 + 慢 + 中文不一定最好</span><span class="pn">弃</span></div>
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>B · </b>全程国产单模型——省心，但有任务不擅长</span><span class="pn">弃</span></div>
+          <div class="opt on"><span class="mark"></span><span class="lbl"><b>C · </b>按任务匹配模型 + 规则兜底</span><span class="pn">选</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Routing diagram -->
+    <div style="margin-top: 10mm;">
+      <div class="t-overline" style="margin-bottom: 6mm;">Model Routing · 任务 → 模型</div>
+      <div class="row gap-2" style="align-items: stretch;">
+        <div class="card" style="flex:1; padding: 12px 14px;">
+          <div class="row between center"><div class="t-overline" style="color:var(--terracotta-strong);">解析 Agent</div><span class="mono-sm" style="font-size:10px;color:var(--stone);">P50 6.4s</span></div>
+          <div class="serif" style="font-size:18px; margin-top: 4px;">GLM-4.7</div>
+          <p class="t-body-sm" style="margin: 4px 0 0; font-size: 10.5px;">
+            中文长文本理解强、国内调用延迟低、对工程师简历的术语容忍度好。
+          </p>
+        </div>
+        <div class="card" style="flex:1; padding: 12px 14px;">
+          <div class="row between center"><div class="t-overline" style="color:var(--terracotta-strong);">Top 5 重排</div><span class="mono-sm" style="font-size:10px;color:var(--stone);">P50 3.8s</span></div>
+          <div class="serif" style="font-size:18px; margin-top: 4px;">DeepSeek</div>
+          <p class="t-body-sm" style="margin: 4px 0 0; font-size: 10.5px;">
+            推理能力强 + 性价比高，适合做"5 选 5"的语义重排打分。
+          </p>
+        </div>
+        <div class="card" style="flex:1; padding: 12px 14px;">
+          <div class="row between center"><div class="t-overline" style="color:var(--stone);">Fallback 兜底</div><span class="mono-sm" style="font-size:10px;color:var(--stone);">P50 0.2s</span></div>
+          <div class="serif" style="font-size:18px; margin-top: 4px;">规则打分</div>
+          <p class="t-body-sm" style="margin: 4px 0 0; font-size: 10.5px;">
+            5 子分加权（objective / preference / base_job / company / rule）——LLM 挂了照样能出推荐。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline">我选 C · 因为</div>
+      <p class="t-body" style="margin-top: 3mm;">
+        <b>单一模型不可能在所有任务上都最优</b>——这件事在 AI 时代会越来越明显。"按任务匹配"是 AI PM 应该掌握的底层判断。
+        多模型不是炫技，是<b>把不同维度（中文 / 推理 / 延迟 / 成本）解耦给不同模型</b>，每层挂掉都还有下一层兜底。
+      </p>
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: auto; padding-top: 10mm;">
+      <hr class="rule"/>
+      <div class="t-overline" style="margin-top: 4mm;">验证 · 数据</div>
+      <div class="statline" style="margin-top: 4mm;">
+        <div class="stat"><div class="num">6.4 s</div><div class="lbl">解析 P50</div><div class="sub">GLM-4.7 · 长文本理解</div></div>
+        <div class="stat"><div class="num">3.8 s</div><div class="lbl">推荐 P50</div><div class="sub">DeepSeek · 5 条重排</div></div>
+        <div class="stat"><div class="num">¥0.12</div><div class="lbl">单用户成本</div><div class="sub">解析 + 推荐 + 改写一次完整</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">04 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 5 · DECISION 3 · 4-Layer Funnel ============== -->
+<section class="page" data-screen-label="05 Decision 3 · Funnel">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="row center gap-3">
+        <span>判断 3 / 5</span>
+        <span class="progress"><span class="d on"></span><span class="d on"></span><span class="d on"></span><span class="d"></span><span class="d"></span></span>
+      </div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Decision 03 · Recommendation Pipeline</div>
+      <h2 class="t-h1" style="margin-top: 4mm; max-width: 160mm;">Top 5 推荐：纯 LLM 暴力搜，还是 <span class="terra">4 层漏斗</span>？</h2>
+    </div>
+
+    <div style="margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm;">
+      <div>
+        <div class="t-overline">上下文 · Context</div>
+        <p class="t-body" style="margin-top: 4mm;">
+          岗位库万级，给每条都跑 LLM 不现实（成本 / 延迟劝退）；
+          但纯规则又太死板，捕捉不到<b>"应届补招、量化分析岗"</b>这类语义匹配。
+        </p>
+      </div>
+      <div>
+        <div class="t-overline">选项 · Options</div>
+        <div style="margin-top: 4mm;">
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>A · </b>纯 LLM rerank 全表——pricing 直接劝退</span><span class="pn">弃</span></div>
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>B · </b>纯规则打分——快但僵、错失语义匹配</span><span class="pn">弃</span></div>
+          <div class="opt on"><span class="mark"></span><span class="lbl"><b>C · </b>4 层漏斗：SQL 粗筛 → 规则 → 情报 → LLM 重排</span><span class="pn">选</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-Layer architecture diagram -->
+    <div style="margin-top: 9mm;">
+      <div class="t-overline" style="margin-bottom: 5mm;">Architecture · 4 层漏斗</div>
+      <div class="col gap-3">
+        <div class="layer">
+          <div><div class="n">LAYER 0</div></div>
+          <div><div class="nm">SQL 粗筛</div><div class="ds">基于偏好（行业 / 城市 / 岗位类型）在数据库里粗筛</div></div>
+          <div class="vol"><b>10K → 200</b><br/><span style="color:var(--stone);">~50ms</span></div>
+          <div class="down"></div>
+        </div>
+        <div class="layer">
+          <div><div class="n">LAYER 1</div></div>
+          <div><div class="nm">规则打分</div><div class="ds">5 子分加权：objective · preference · base_job · company_priority · rule</div></div>
+          <div class="vol"><b>200 → 200</b><br/><span style="color:var(--stone);">~120ms</span></div>
+          <div class="down"></div>
+        </div>
+        <div class="layer">
+          <div><div class="n">LAYER 2</div></div>
+          <div><div class="nm">情报增强</div><div class="ds">snapshot boost · 公司情报库（融资、团队规模、近期招聘体量）</div></div>
+          <div class="vol"><b>200 → 200</b><br/><span style="color:var(--stone);">~600ms</span></div>
+          <div class="down"></div>
+        </div>
+        <div class="layer">
+          <div><div class="n">LAYER 3</div></div>
+          <div><div class="nm">LLM 重排（DeepSeek）</div><div class="ds">只对 Top 20 跑语义重排 → 输出 Top 5 + 推荐理由</div></div>
+          <div class="vol"><b>20 → 5</b><br/><span style="color:var(--stone);">~3.8s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 8mm;">
+      <div class="t-overline">我选 C · 因为</div>
+      <p class="t-body" style="margin-top: 3mm;">
+        每层只干一件擅长的事 + 每层都有 fallback。SQL 把万级压到 200，规则排出 Top 20，LLM 只对 5 条重排——
+        <b>LLM 调用降到 1/2000，但语义匹配的好处全保留</b>。
+      </p>
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: auto; padding-top: 8mm;">
+      <hr class="rule"/>
+      <div class="row between" style="margin-top: 4mm; align-items:flex-end;">
+        <div style="flex: 1;">
+          <div class="t-overline">验证 · 成本对照</div>
+          <p class="t-body" style="margin-top: 3mm;">
+            单用户单次完整流程 LLM 成本 <b class="terra">¥0.12</b>，
+            假设全 LLM 暴力搜方案估算 <b class="stone" style="text-decoration: line-through;">¥21.50</b>——
+            <b class="terra">降到 1/180</b>。
+          </p>
+        </div>
+        <div class="card" style="background: var(--terracotta-wash); box-shadow: 0 0 0 1px #eccfb6; padding: 10px 14px; min-width: 60mm;">
+          <div class="t-overline" style="color:var(--terracotta-strong);">成本压缩</div>
+          <div class="serif terra-strong" style="font-size: 32px; line-height: 1; margin-top: 4px;">1 / 180</div>
+          <div class="t-cap">¥21.50 → ¥0.12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">05 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 6 · DECISION 4 · JD-driven rewrite ============== -->
+<section class="page" data-screen-label="06 Decision 4 · JD-driven">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="row center gap-3">
+        <span>判断 4 / 5</span>
+        <span class="progress"><span class="d on"></span><span class="d on"></span><span class="d on"></span><span class="d on"></span><span class="d"></span></span>
+      </div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Decision 04 · Resume Rewrite</div>
+      <h2 class="t-h1" style="margin-top: 4mm; max-width: 160mm;">AI 改写：套固定模板，还是<span class="terra"> 按 JD 反向挑用户的卖点</span>？</h2>
+    </div>
+
+    <div style="margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm;">
+      <div>
+        <div class="t-overline">上下文 · Context</div>
+        <p class="t-body" style="margin-top: 4mm;">
+          应届生简历"什么都想写"，但 HR 半秒看完只扫 JD 相关关键词。改写不能"通用美化"——必须按这个具体岗位
+          去挑用户简历里<b>最对得上的证据</b>，而不是给用户再"装饰"一遍。
+        </p>
+      </div>
+      <div>
+        <div class="t-overline">选项 · Options</div>
+        <div style="margin-top: 4mm;">
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>A · </b>3 个固定方向（强量化 / 强因果 / 强影响）——太死板</span><span class="pn">弃</span></div>
+          <div class="opt on"><span class="mark"></span><span class="lbl"><b>B · </b>JD-driven 反向匹配 + 量化数字加强</span><span class="pn">选</span></div>
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>C · </b>AI 完全自动改——失控 + 改飞</span><span class="pn">弃</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JD-driven matching diagram -->
+    <div style="margin-top: 8mm;">
+      <div class="t-overline" style="margin-bottom: 4mm;">JD-Driven 匹配示意 · 字节跳动 · 数据分析</div>
+      <div class="row gap-3 center" style="align-items: stretch;">
+        <div class="jd-box">
+          <div class="ttl">目标 JD 关键词</div>
+          <div class="item">A/B 实验设计与分析</div>
+          <div class="item">Python · SQL · 数据建模</div>
+          <div class="item">推动业务决策的项目影响</div>
+        </div>
+        <!-- arrows + label -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:center;min-width:30mm;">
+          <div class="t-overline terra">反向匹配</div>
+          <svg width="60" height="40" viewBox="0 0 60 40" style="overflow:visible;">
+            <path d="M 0 8 L 50 8" stroke="var(--terracotta)" stroke-width="1.2" fill="none"/>
+            <path d="M 50 8 l -5 -3 l 0 6 z" fill="var(--terracotta)"/>
+            <path d="M 0 20 L 50 20" stroke="var(--terracotta)" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>
+            <path d="M 50 20 l -5 -3 l 0 6 z" fill="var(--terracotta)"/>
+            <path d="M 0 32 L 50 32" stroke="var(--terracotta)" stroke-width="1.2" fill="none"/>
+            <path d="M 50 32 l -5 -3 l 0 6 z" fill="var(--terracotta)"/>
+          </svg>
+          <div class="t-cap" style="text-align:center;font-size:9px;">挑命中证据<br/>非通用美化</div>
+        </div>
+        <div class="jd-box">
+          <div class="ttl">用户简历段落（命中加亮）</div>
+          <div class="item">蚂蚁金服风控 · 主导 <mark>A/B 实验</mark> 380+ 次<br/><span class="t-cap">✓ 直接命中"A/B 实验"</span></div>
+          <div class="item"><mark>Python</mark> + LightGBM 风控建模<br/><span class="t-cap">✓ 命中"Python · 数据建模"</span></div>
+          <div class="item">实验结论上推 → <mark>策略调优 ROI +14%</mark><br/><span class="t-cap">✓ 命中"推动业务决策"</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 8mm;">
+      <div class="t-overline">我选 B · 因为</div>
+      <p class="t-body" style="margin-top: 3mm;">
+        HR 决策窗口是<b>"JD 关键词命中率"</b>——AI 必须从 JD 反推回去挑证据，不能 generic。
+        <b>互联网岗位重数字 + 项目影响力；研究 / 战略岗位重方法论 + 推理路径；工程岗位重技术栈 + 系统设计。</b>
+        因岗而异，不一刀切——这恰恰是 AI 比固定模板的关键优势。
+      </p>
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: auto; padding-top: 8mm;">
+      <hr class="rule"/>
+      <div class="t-overline" style="margin-top: 4mm;">验证 · 采纳率分布</div>
+      <div style="margin-top: 4mm; display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="card" style="padding: 10px 12px;">
+          <div class="serif terra" style="font-size: 24px; line-height: 1;">74%</div>
+          <div class="t-cap" style="margin-top: 4px;">JD-driven 卖点重组采纳率</div>
+        </div>
+        <div class="card" style="padding: 10px 12px;">
+          <div class="serif terra" style="font-size: 24px; line-height: 1;">68%</div>
+          <div class="t-cap" style="margin-top: 4px;">量化数字加强采纳</div>
+        </div>
+        <div class="card" style="padding: 10px 12px;">
+          <div class="serif terra" style="font-size: 24px; line-height: 1;">71%</div>
+          <div class="t-cap" style="margin-top: 4px;">技术栈对齐采纳</div>
+        </div>
+        <div class="card" style="padding: 10px 12px;">
+          <div class="serif" style="font-size: 24px; line-height: 1; color: var(--stone);">8%</div>
+          <div class="t-cap" style="margin-top: 4px;">用了"自定义"slot · AI 推得够准</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">06 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 7 · DECISION 5 · Trace Fold ============== -->
+<section class="page" data-screen-label="07 Decision 5 · Trace">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="row center gap-3">
+        <span>判断 5 / 5</span>
+        <span class="progress"><span class="d on"></span><span class="d on"></span><span class="d on"></span><span class="d on"></span><span class="d on"></span></span>
+      </div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Decision 05 · Trace Visibility</div>
+      <h2 class="t-h1" style="margin-top: 4mm; max-width: 160mm;">AI 黑盒还是开盒？<br/>给用户看推理过程的<span class="terra"> 代价是什么</span></h2>
+    </div>
+
+    <div style="margin-top: 8mm; display: grid; grid-template-columns: 1fr 1fr; gap: 14mm;">
+      <div>
+        <div class="t-overline">上下文 · Context</div>
+        <p class="t-body" style="margin-top: 4mm;">
+          LLM 推理过程对懂的人是<b>"信任凭证"</b>，对不懂的人是<b>"信息过载"</b>。
+          完全不显被怀疑"AI 是不是瞎推"，默认展开实时打印又把小白吓跑。这是个<b>受众不一致</b>的设计题。
+        </p>
+      </div>
+      <div>
+        <div class="t-overline">选项 · Options</div>
+        <div style="margin-top: 4mm;">
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>A · </b>完全不显——被怀疑"AI 在瞎推"</span><span class="pn">弃</span></div>
+          <div class="opt"><span class="mark"></span><span class="lbl"><b>B · </b>默认展开实时打印——懂行的爱、小白蒙</span><span class="pn">弃</span></div>
+          <div class="opt on"><span class="mark"></span><span class="lbl"><b>C · </b>折叠默认隐藏 + 终端风格实时打印</span><span class="pn">选</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal mockup -->
+    <div style="margin-top: 9mm;">
+      <div class="t-overline" style="margin-bottom: 4mm;">实际效果 · Trace 展开样式（终端风格）</div>
+      <div class="term">
+        <div class="pad">
+          <div><span class="cmt">$</span> <span class="run">parser.run</span>(<span class="key">file</span>=<span class="arg">"resume.pdf"</span>)</div>
+          <div><span class="ok">✓</span> read_pdf  <span class="cmt">→</span> 3 pages, 1284 chars  <span class="cmt">· 0.4s</span></div>
+          <div><span class="ok">✓</span> extract_sections  <span class="cmt">→</span> education / projects / skills  <span class="cmt">· 1.2s</span></div>
+          <div><span class="ok">✓</span> match_companies  <span class="cmt">→</span> 12 matched (蚂蚁 · 华泰 · 字节...)  <span class="cmt">· 2.1s</span></div>
+          <div><span class="run">▸</span> infer_targets  <span class="cmt">→</span> 数据分析 · 量化研究 · 数据科学  <span class="cmt">· running...</span></div>
+          <div style="margin-top: 8px;"><span class="cmt">$</span> <span class="run">recommender.search</span>()</div>
+          <div><span class="ok">✓</span> sql_filter  <span class="cmt">→</span> 9,842 → 218</div>
+          <div><span class="ok">✓</span> rule_score  <span class="cmt">→</span> top 20 selected</div>
+          <div><span class="ok">✓</span> intel_boost  <span class="cmt">→</span> 7 jobs with hiring-volume snapshot</div>
+          <div><span class="ok">✓</span> llm_rerank (deepseek)  <span class="cmt">→</span> Top 5 finalized  <span class="cmt">· 3.8s</span></div>
+          <div style="margin-top: 8px; color: var(--emerald);"><span class="ok">✓ done</span> <span class="cmt">· total 12.4s · 3 tools · cost ¥0.12</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 8mm;">
+      <div class="t-overline">我选 C · 因为</div>
+      <p class="t-body" style="margin-top: 3mm;">
+        终端风格是关键——<b>视觉上跟"工程师在看 log"一样可信</b>，但折叠默认隐藏不强迫普通用户去理解；
+        展开率本身就是<b>数据信号</b>——展开过的用户是高质量、高黏性人群，值得被识别出来做下一步运营。
+      </p>
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: auto; padding-top: 8mm;">
+      <hr class="rule"/>
+      <div class="row between" style="margin-top: 4mm; align-items:flex-end;">
+        <div style="flex: 1;">
+          <div class="t-overline">验证 · 数据</div>
+          <p class="t-body" style="margin-top: 3mm;">
+            Trace 展开率 <b class="amber">8%</b>——远低于预期 30%；但展开过的用户 D7 留存 <b class="terra">38%</b> vs 未展开 22%——<b>高 1.7×</b>。<br/>
+            <span class="muted">→ Trace 不是大众功能，是<b>高质量用户筛选器</b>。</span>
+          </p>
+        </div>
+        <div class="card" style="background: var(--terracotta-wash); box-shadow: 0 0 0 1px #eccfb6; padding: 10px 14px; min-width: 50mm;">
+          <div class="t-overline" style="color:var(--terracotta-strong);">展开者 / 未展开</div>
+          <div class="serif terra-strong" style="font-size: 28px; line-height: 1; margin-top: 4px;">1.7×</div>
+          <div class="t-cap">D7 留存倍数</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">07 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 8 · DATA VALIDATION ============== -->
+<section class="page" data-screen-label="08 Data Validation">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="hdr__chap">08 · 我的判断对了吗？</div>
+    </header>
+
+    <div style="margin-top: 6mm;">
+      <div class="t-overline terra">Data Validation</div>
+      <h2 class="t-h1" style="margin-top: 2mm; max-width: 170mm; font-size: 26px;">5 个判断的"<em style="font-style:italic;">我赌的 vs 实际</em>"——含一个错判</h2>
+    </div>
+
+    <!-- Funnel -->
+    <div style="margin-top: 5mm;">
+      <div class="row between center" style="margin-bottom: 3mm;">
+        <div class="t-overline">用户漏斗 · 6 周内测 · 300 用户</div>
+        <div class="t-cap">校招 180 / 实习 120</div>
+      </div>
+      <div>
+        <div class="fnl-row" style="width: 100%;"><div class="bar" style="background: var(--terracotta-strong); width:100%;">注册 · 300 (100%)</div></div>
+        <div class="fnl-row" style="width: 93%;"><div class="bar" style="background: var(--terracotta); width:100%;">上传简历 · 280 (93%)</div></div>
+        <div class="fnl-row" style="width: 92.3%;"><div class="bar" style="background: #d97757; width:100%;">解析成功 → Top 5 · 277 (99%)</div></div>
+        <div class="fnl-row" style="width: 88.3%;"><div class="bar" style="background: #e08d68; width:100%;">进入工作台 · 265 (96%)</div></div>
+        <div class="fnl-row" style="width: 69.3%;"><div class="bar" style="background: #e8a57c; width:100%; color: var(--ink);">应用 ≥1 条 AI 改写 · 208 (78%)</div></div>
+        <div class="fnl-row" style="width: 29%;"><div class="bar" style="background: var(--amber-fg); width:100%;">⚠ 回访自报有投递 · 87 (33%)</div></div>
+      </div>
+      <p class="t-body-sm" style="margin-top: 2mm; font-style: italic; font-size: 10.5px;">
+        关键反差：96% 进工作台 → 78% 应用改写 → <b>仅 33% 真去投</b>——中间掉 45pp。
+        <b>校招改最多（83%）但投得最少（24%）；实习相反（72% / 46%）</b>。
+      </p>
+    </div>
+
+    <!-- Validation table -->
+    <div style="margin-top: 5mm;">
+      <div class="t-overline" style="margin-bottom: 2mm;">5 个判断打分</div>
+      <table class="vtbl">
+        <thead>
+          <tr><th>#</th><th>判断</th><th>我赌的</th><th>实际</th><th>评分</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="n">01</td><td><b>Agent ReAct loop</b></td><td>解析准 + 可观测</td><td><b class="ink">87%</b> 解析准确率，4 步独立可调试</td><td class="score emerald">✅</td></tr>
+          <tr><td class="n">02</td><td><b>多模型策略</b></td><td>中文延迟低 + 成本可控</td><td><b class="ink">6.4s</b> 解析 / <b class="ink">3.8s</b> 推荐 / <b class="ink">¥0.12</b></td><td class="score emerald">✅</td></tr>
+          <tr><td class="n">03</td><td><b>4 层漏斗</b></td><td>成本可控、保留语义</td><td><b class="ink">¥0.12</b> vs ¥21.50（<b class="terra">1/180</b>）</td><td class="score emerald">✅✅</td></tr>
+          <tr><td class="n">04</td><td><b>JD-driven 改写</b></td><td>比固定模板准</td><td><b class="ink">74%</b> 采纳率，仅 <b class="ink">8%</b> 用自定义</td><td class="score emerald">✅</td></tr>
+          <tr><td class="n">05</td><td><b>Trace 折叠</b></td><td>不打扰 + 增信任</td><td>展开率 <b class="ink">8%</b>，展开者留存 <b class="ink">1.7×</b></td><td class="score amber">⚠ 部分</td></tr>
+          <tr style="background: var(--terracotta-wash);"><td class="n" style="color:var(--terracotta-strong);">总</td><td><b class="terra-strong">整体方向</b></td><td>推荐 + 改写够用</td><td><b class="terra-strong">真瓶颈在投递（33%）</b></td><td class="score amber">⚠ 错判</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Quotes -->
+    <div style="margin-top: 5mm;">
+      <div class="t-overline" style="margin-bottom: 2mm;">用户原话 · 微信回访</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div class="quote">
+          <div class="text">"挺有用的。之前我刷一直只看互联网，用了 JobRadar 才发现像华泰、中信这种券商也在招数据分析的实习。Top 5 里有 2 家是我之前完全不会去查的。"</div>
+          <div class="att">数据分析实习用户 · 已投 4 家</div>
+        </div>
+        <div class="quote">
+          <div class="text">"它根据岗位帮我重新调过一段实习经历，把我做过的 A/B 实验放到最前面，因为那家公司 JD 里就提了 A/B。我自己写简历真没想过要按 JD 来调。"</div>
+          <div class="att">互联网产品方向校招用户 · 改了 6 版简历</div>
+        </div>
+        <div class="quote">
+          <div class="text">"产品挺好的，但说实话这两个月我也还在准备阶段，简历改完了暂时没投。等春招大规模开始可能会回来用。"</div>
+          <div class="att">量化方向校招用户 · 暂时没回来</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Misjudgment -->
+    <div style="margin-top: 5mm;">
+      <div class="misj" style="padding: 11px 14px;">
+        <div class="hd" style="margin-bottom: 4px;">我做错了什么 · The Honest Miss</div>
+        <p style="font-size: 10px; line-height: 1.55;">我以为 AI 解决的是<b>"推荐准不准 + 改写好不好"</b>。前 4 步几乎全过（96% 进工作台、78% 应用改写），但只有 <b>33%</b> 真去投——掉了 <b>45pp</b>。校招改最多却投得最少——<b>改简历是低风险动作，按"投递"才是高风险。真瓶颈是投递信心。</b></p>
+        <p style="font-size: 10px; line-height: 1.55;">已上线的<b>模拟面试</b>验证了这点：用过 mock 的投递率 <b class="terra-strong">51%</b> vs 没用的 <b>25%</b>（<b class="terra-strong">+26pp</b>）。投递插件正在开发。<b>下一版北极星从"AI 推荐准确率"换成"投递转化率"。</b></p>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">08 / 09</span>
+  </div>
+</section>
+
+
+<!-- ============== PAGE 9 · REFLECTION ============== -->
+<section class="page" data-screen-label="09 Reflection">
+  <div class="page__inner">
+    <header class="hdr">
+      <div class="hdr__brand"><span class="dot"></span><span class="word">JobRadar</span></div>
+      <div class="hdr__chap">09 · 反思与路线图</div>
+    </header>
+
+    <div style="margin-top: 10mm;">
+      <div class="t-overline terra">Reflection</div>
+      <h2 class="t-h1" style="margin-top: 3mm;">AI 时代，<em style="font-style: italic;">PM 的工作</em>变成了什么样</h2>
+    </div>
+
+    <!-- 3 things I learned -->
+    <div style="margin-top: 9mm;">
+      <div class="t-overline" style="margin-bottom: 5mm;">我从 JobRadar 学到的 3 件事</div>
+      <div class="col gap-4">
+        <div>
+          <div class="serif" style="font-size: 18px; color: var(--ink); margin-bottom: 4px;">
+            <span class="terra-strong">01.</span> AI 时代，PM 的判断比执行更值钱。
+          </div>
+          <p class="t-body-sm" style="margin: 0; line-height: 1.7;">
+            4 层漏斗的架构判断是我做的，代码是 AI 写的。多模型策略的取舍是我做的，集成是 AI 写的。
+            判断<b>"什么值得做、为谁做、做到什么程度"</b>是 PM 的护城河——这件事 AI 反而帮不上忙。
+          </p>
+        </div>
+        <div>
+          <div class="serif" style="font-size: 18px; color: var(--ink); margin-bottom: 4px;">
+            <span class="terra-strong">02.</span> AI 不是答案，是放大镜。
+          </div>
+          <p class="t-body-sm" style="margin: 0; line-height: 1.7;">
+            我以为 AI 推荐 + 改写就是产品的答案。结果 300 个用户的数据告诉我，真问题在<b>投递信心</b>。
+            AI 让你 80 分容易做到，但同时把<b>"用户真正卡在哪"</b>暴露得无处可藏。PM 不能再靠"我以为"——必须正视数据反过来打脸的判断。
+          </p>
+        </div>
+        <div>
+          <div class="serif" style="font-size: 18px; color: var(--ink); margin-bottom: 4px;">
+            <span class="terra-strong">03.</span> 速度 × 判断质量 = 新的 PM 方程式。
+          </div>
+          <p class="t-body-sm" style="margin: 0; line-height: 1.7;">
+            6 周、300 用户、5 个 ship 出去的判断。不是因为我快，是因为 AI 把<b>"试错成本"</b>降到了零。
+            PM 的工作变成：生成假设 → AI 快速 ship → 看数据 → 调整下一个假设。<b>对错不再是问题，迭代速度才是。</b>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Working style bullets -->
+    <div style="margin-top: 9mm;">
+      <div class="t-overline" style="margin-bottom: 4mm;">我作为 AI PM 的工作方式</div>
+      <div class="card warm" style="padding: 12px 16px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+          <div>
+            <div class="serif" style="font-size: 14px; color: var(--terracotta-strong); margin-bottom: 4px;">判断 · 执行分离</div>
+            <p class="t-body-sm" style="margin: 0; font-size: 10.5px;">我定义问题、做取舍、判断 AI 输出好坏；AI 负责把判断变成代码、设计、文案。</p>
+          </div>
+          <div>
+            <div class="serif" style="font-size: 14px; color: var(--terracotta-strong); margin-bottom: 4px;">快循环</div>
+            <p class="t-body-sm" style="margin: 0; font-size: 10.5px;">1 周原型 → 1 周用户测试 → 改判断。不写 200 页 PRD，写 5 个判断 + ship 出去看反应。</p>
+          </div>
+          <div>
+            <div class="serif" style="font-size: 14px; color: var(--terracotta-strong); margin-bottom: 4px;">数据先于直觉</div>
+            <p class="t-body-sm" style="margin: 0; font-size: 10.5px;">每个判断都预设一个"如果错了我会看到什么"——准备好被打脸，比假装永远对值钱。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div style="margin-top: 9mm;">
+      <div class="t-overline" style="margin-bottom: 8mm;">下一步路线图</div>
+      <div class="rm">
+        <div class="node live"><span class="dot"></span><span class="when">✓ 已上线</span><span class="what">模拟面试</span><span class="desc">Voice + Device Check + AI Interviewer · 投递率 +26pp</span></div>
+        <div class="node dev"><span class="dot"></span><span class="when">⚙ 进行中</span><span class="what">投递插件</span><span class="desc">Chrome extension · 一键把推荐岗位投出去</span></div>
+        <div class="node"><span class="dot"></span><span class="when">1–2 月</span><span class="what">招聘体量预估</span><span class="desc">爬历年公告 + LLM 推断"今年招几个"</span></div>
+        <div class="node"><span class="dot"></span><span class="when">3–6 月</span><span class="what">先投试错模式</span><span class="desc">校招专属 · 用低风险投递验证简历 + 申请追踪</span></div>
+        <div class="node target"><span class="dot"></span><span class="when">目标</span><span class="what">投递转化率</span><span class="desc">从 33% → <b style="color:var(--terracotta-strong);">50%+</b> · 北极星指标</span></div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div style="margin-top: auto; padding-top: 12mm;">
+      <hr class="rule"/>
+      <div style="margin-top: 6mm; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="t-overline" style="margin-bottom: 4px;">联系方式 · Get in touch</div>
+          <div class="serif" style="font-size: 14px;">周传博 · Solo PM × AI</div>
+        </div>
+        <div class="mono terra-strong" style="font-size: 11.5px; letter-spacing: 0.02em;">
+          +86 195-2279-3128 &nbsp;·&nbsp; cz9z@outlook.com &nbsp;·&nbsp; github.com/Slackness1
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">
+    <span>JobRadar Case Study · 周传博 · 2026</span>
+    <span class="ftr__page">09 / 09</span>
+  </div>
+</section>
+
+</div>
+<script>
+  (async () => {
+    try { if (document.fonts && document.fonts.ready) { await document.fonts.ready; } } catch(e) {}
+    setTimeout(() => { window.print(); }, 600);
+  })();
+</script>
+</body>
+</html>
