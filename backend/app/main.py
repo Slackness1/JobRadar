@@ -14,6 +14,7 @@ from app.middleware.readonly_guest import ReadOnlyGuestMiddleware
 from app.models import CrawlLog
 from app.routers import (
     company_recrawl,
+    coverage,
     crawl,
     exclude,
     export,
@@ -156,6 +157,7 @@ app.include_router(job_intel.router)
 app.include_router(resume_copilot.router)
 app.include_router(interview.router)
 app.include_router(sites.router)
+app.include_router(coverage.router)
 
 
 @app.get("/api/health")

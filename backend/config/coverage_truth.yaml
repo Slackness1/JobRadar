@@ -1,0 +1,274 @@
+# JobRadar 顶级平台覆盖看板 — 真值表
+#
+# 用途：
+#   /api/coverage 读取此文件，按 (track × T1 公司) 维度计算覆盖率。
+#   "Active" 判定来自 company_crawl_logs 最近 7 天 fetched_count > 0。
+#
+# 字段：
+#   tracks[].id              内部 id
+#   tracks[].name            显示名（赛道名）
+#   tracks[].source_match    company_crawl_logs.source 字段匹配的值列表
+#   tracks[].mode            'enumerate' = 列 T1 计算覆盖率
+#                            'absolute'  = 不列 T1，仅显示 active 绝对数（国央企用）
+#   tracks[].t1_companies[]  T1 公司清单（mode=enumerate 时必填）
+#     name              T1 显示名
+#     aliases           可选，DB company 字段实际匹配的别名（默认就是 name）
+#     deferred_reason   可选，明确标 deferred 的原因；不填 = 期望 active
+
+tracks:
+
+  # ─────────────────────────── 互联网 ─────────────────────────────
+  - id: internet
+    name: 互联网
+    source_match: [internet_official]
+    mode: enumerate
+    t1_companies:
+      - name: 字节跳动
+      - name: 阿里巴巴
+      - name: 腾讯
+      - name: 美团
+      - name: 拼多多
+      - name: 百度
+      - name: 京东
+      - name: 网易
+      - name: 滴滴
+      - name: 蚂蚁集团
+      - name: 快手
+      - name: 哔哩哔哩
+      - name: 小红书
+      - name: 携程
+      - name: 米哈游
+      - name: 得物
+      - name: BOSS直聘
+      - name: 小米
+        deferred_reason: 北森反爬 + 反 debug；ROI 偏低，待秋招重测
+      - name: 华为
+        deferred_reason: 北森系反爬强度同小米；招聘走 OD/海外子站，公开列表不全
+      - name: 知乎
+        deferred_reason: SPA 强反爬 + 校招岗位极少（≤10/年）
+
+  # ─────────────────────────── 银行 ───────────────────────────────
+  - id: banks
+    name: 银行 (T0+T1)
+    source_match: [bank_official]
+    mode: enumerate
+    t1_companies:
+      # T0 国有六大
+      - name: 工商银行
+      - name: 中国银行
+      - name: 建设银行
+      - name: 农业银行
+        deferred_reason: career.abchina.com SPA = jsencrypt + sm3 + 重度 obfuscated anti-debug；POST 空 body 返 Empty reply。秋招开窗后再 Playwright + JS 钩子方案
+      - name: 交通银行
+        deferred_reason: 主域 SSL legacy renegotiation 才通；首页/m 站均无公开 jobs 通道；走 WeChat 小程序/微招聘
+      - name: 邮储银行
+      # T1 股份制 12
+      - name: 招商银行
+      - name: 浦发银行
+      - name: 中信银行
+      - name: 兴业银行
+      - name: 民生银行
+      - name: 平安银行
+        aliases: [平安集团, 平安银行]
+      - name: 华夏银行
+      - name: 浙商银行
+      - name: 广发银行
+      - name: 渤海银行
+      - name: 光大银行
+        deferred_reason: cebbank.zhiye.com 站点已下线 (404)；www.cebbank.com 主域 412 + WAF JS challenge；51job 通道锁 2024 老批次
+      - name: 恒丰银行
+        deferred_reason: 412 + JS challenge ($_ts.cd 加密 cookie 同 ABC)；career/hr/zp 子域 SSL 全失败
+
+  # ─────────────────────────── 保险 ───────────────────────────────
+  - id: insurance
+    name: 保险
+    source_match: [insurance_official]
+    mode: enumerate
+    t1_companies:
+      - name: 中国人寿
+      - name: 中国人保
+      - name: 中国太平
+      - name: 中国平安
+        aliases: [平安集团, 中国平安, 平安保险]
+        deferred_reason: 通过 平安集团 covered (走 bank_official source)，子公司 businessUnitName 自然区分
+      - name: 中国太保
+        deferred_reason: cpic.zhiye.com 404；DNS 部分不解析。秋招开窗再评估
+      - name: 新华保险
+        deferred_reason: m API 当前 rows=0，季节空；秋招开窗再 wire
+      - name: 泰康保险
+        deferred_reason: 无独立 ATS（WeChat 小程序为主）
+      - name: 友邦保险
+        deferred_reason: AIA 历史用 Workday，需要 HK-IP
+
+  # ─────────────────────────── 券商 ───────────────────────────────
+  - id: securities
+    name: 券商 T1
+    source_match:
+      - securities_zhiye
+      - securities_zhiye_legacy
+      - securities_moka_embedded
+      - securities_hotjob
+    mode: enumerate
+    t1_companies:
+      - name: 中信证券
+        deferred_reason: Playwright SPA 反爬强；待重写 crawler
+      - name: 中金公司
+      - name: 华泰证券
+      - name: 国泰君安
+        deferred_reason: 自家 SPA 校招页 token 鉴权
+      - name: 海通证券
+        deferred_reason: 主域 SSL 异常 + 校招走 WeChat
+      - name: 招商证券
+      - name: 广发证券
+      - name: 中信建投
+      - name: 申万宏源
+      - name: 东方证券
+        deferred_reason: 自家 SPA + token 鉴权
+      - name: 平安证券
+        aliases: [平安集团, 平安证券]
+        deferred_reason: 通过 平安集团 covered
+      - name: 银河证券
+        deferred_reason: 校招走 WeChat
+      - name: 兴业证券
+      - name: 国信证券
+      - name: 长江证券
+      - name: 中泰证券
+      - name: 东吴证券
+      - name: 安信证券
+      - name: 国盛证券
+      - name: 浙商证券
+      - name: 国金证券
+      - name: 天风证券
+
+  # ─────────────────────────── 公募基金 ──────────────────────────
+  - id: funds
+    name: 公募基金 (top-15 by AUM)
+    source_match:
+      - funds_hotjob
+      - funds_zhiye
+      - funds_moka_embedded
+      - funds_zhiye_beisen_cms
+      - funds_wintalent_sc
+    mode: enumerate
+    t1_companies:
+      - name: 易方达基金
+        deferred_reason: 自家 SPA，无外露 ATS
+      - name: 华夏基金
+      - name: 嘉实基金
+      - name: 广发基金
+        deferred_reason: Feishu Hire (gffunds.jobs.feishu.cn)，endpoint 在 webpack chunk 后段，待逆向
+      - name: 南方基金
+        deferred_reason: 暂未探查
+      - name: 工银瑞信
+        deferred_reason: hotjob engine 通但当前 dataCount=0 季节空
+      - name: 博时基金
+      - name: 招商基金
+        deferred_reason: 暂未探查
+      - name: 富国基金
+      - name: 兴证全球基金
+      - name: 鹏华基金
+        deferred_reason: 整站 SPA 重定向到 Aplus 钱包 app
+      - name: 汇添富基金
+        deferred_reason: 域名不响应
+      - name: 海富通基金
+      - name: 大成基金
+        deferred_reason: 老 Beisen CmsPortal，当前 0 岗位
+      - name: 银华基金
+        deferred_reason: 暂未探查
+
+  # ─────────────────────────── PE / VC ──────────────────────────
+  - id: pe_vc
+    name: PE / VC (top 头部)
+    source_match: [pe_vc_official]
+    mode: enumerate
+    t1_companies:
+      # 公开有 API 的（已 active 或将 active）
+      - name: 源码资本
+      - name: 鼎晖投资
+      - name: 黑石集团
+      - name: KKR
+      # 公开但工程不可行的
+      - name: 高瓴投资
+        deferred_reason: WordPress /zhaopin/ 页空
+      - name: 红杉中国
+        deferred_reason: jobs.sequoiacap.com 是 portfolio 公司 board，不是红杉 HQ
+      - name: IDG资本
+        deferred_reason: campus.idgcapital.com SPA + token 鉴权
+      - name: 凯雷投资
+        deferred_reason: cloudflare 403；中国岗极少
+      # 几乎完全 WeChat / LinkedIn 的（结构性不可爬）
+      - name: 经纬创投
+        deferred_reason: 静态形象站，全 WeChat 公众号
+      - name: 启明创投
+        deferred_reason: 域名出售页
+      - name: 君联资本
+        deferred_reason: 静态站
+      - name: 真格基金
+        deferred_reason: 全 WeChat 公众号
+      - name: 今日资本
+        deferred_reason: 静态形象站
+      - name: 华兴资本
+        deferred_reason: 投行风格，仅 LinkedIn
+      - name: 北极光创投
+        deferred_reason: 主页无招聘
+      - name: 达晨创投
+        deferred_reason: DNS 不稳
+
+  # ─────────────────────────── 消费外企 ──────────────────────────
+  - id: consumer_foreign
+    name: 消费外企 (top)
+    source_match: [consumer_foreign_official]
+    mode: enumerate
+    t1_companies:
+      # T0 (重点投递目标)
+      - name: 宝洁
+      - name: 联合利华
+      - name: 欧莱雅
+      - name: 玛氏
+      - name: 雅诗兰黛
+      # T1
+      - name: 亿滋
+      - name: 雀巢
+      - name: 强生
+      - name: 百胜
+      - name: LVMH
+        deferred_reason: Prismic CMS upstream offersUrl=$undefined 空
+      - name: 耐克
+      - name: 可口可乐
+      - name: 达能
+      - name: 资生堂
+        deferred_reason: 暂未探查
+      - name: 高露洁
+      - name: 金佰利
+      - name: 默克
+      # 上海重点
+      - name: Wayfair
+      - name: 索尼
+      - name: 宜家
+      - name: 乐高
+      - name: 爱立信
+      - name: 沃尔沃
+      # 其他常见 T1（用户 follow-up 关注）
+      - name: 阿迪达斯
+        deferred_reason: 暂未探查
+      - name: 麦当劳
+        deferred_reason: 暂未探查
+      - name: 星巴克
+        deferred_reason: 暂未探查
+      - name: 阿斯利康
+        deferred_reason: 暂未探查
+      - name: 3M
+        deferred_reason: 暂未探查
+      - name: 霍尼韦尔
+        deferred_reason: 暂未探查
+
+  # ─────────────────────────── 国央企 ────────────────────────────
+  # mode=absolute：太多，不列 T1，只显示 active 绝对数
+  - id: state_owned
+    name: 国央企
+    source_match: [state_owned_official]
+    mode: absolute
+    note: |
+      国资委央企 100 大集团 + 重点省企 ~50 + 上市国企众多。
+      不列 T1 名册，仅显示最近 7 天 active 公司绝对数。
+      当前 ~119 家有效活跃，覆盖国资委 100 大的 ~60%（部分子公司散落在不同 source）。

@@ -104,4 +104,6 @@ export const triggerSiteRecrawl = (company: string) =>
   api.post<SiteRecrawlOut>(`/sites/${encodeURIComponent(company)}/recrawl`);
 export const fetchSitesDigest = () => api.get<SitesDigest>('/sites/digest');
 
+export const fetchCoverage = () => api.get('/coverage');
+
 export default api;
