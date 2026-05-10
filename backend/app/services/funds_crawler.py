@@ -137,15 +137,154 @@ def crawl_zhiye_beisen_cms_target(target: Dict[str, Any]) -> List[Dict[str, Any]
     return records
 
 
+# ---- Wintalent (sc.hotjob.cn / sc.wintalent.cn 自助站) ---------------------
+
+WINTALENT_SC_BASE = "https://sc.hotjob.cn"
+
+
+def _wintalent_hash_id(company: str, post_id: Any, recruit_type: Any) -> str:
+    key = f"funds_wintalent_sc|{company}|{post_id}|{recruit_type}"
+    return hashlib.md5(key.encode("utf-8")).hexdigest()[:24]
+
+
+def _wintalent_parse_dt(s: Optional[str]) -> Optional[datetime]:
+    s = (s or "").strip()
+    if not s or s.startswith("3000"):
+        return None
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(s[:19], fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _wintalent_infer_stage(recruit_type: int, title: str, post_type: str) -> str:
+    if recruit_type == 12:
+        return "internship"
+    if recruit_type == 1:
+        return "campus"
+    blob = f"{title} {post_type}"
+    if "实习" in blob:
+        return "internship"
+    if any(k in blob for k in ("校招", "校园", "应届", "26届", "27届", "campus")):
+        return "campus"
+    return "other"
+
+
+def crawl_wintalent_sc_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """sc.hotjob.cn/wt/<COID>/ 自助站 (Wintalent / 北森自助 ATS)。
+
+    target 必填:
+      name, wintalent_coid (站点 slug 如 'bosera', 'AIFMC')
+      recruit_types: [1,2,12] 子集；默认 [1,2,12] (校招/社招/实习)
+      max_pages: 每个 recruitType 最大翻页数；默认 20
+    """
+    coid = target["wintalent_coid"]
+    recruit_types: List[int] = target.get("recruit_types") or [1, 2, 12]
+    max_pages = int(target.get("max_pages") or 20)
+    base = f"{WINTALENT_SC_BASE}/wt/{coid}"
+    referer = f"{base}/web/index"
+    list_url = f"{base}/web/json/position/list"
+
+    records: List[Dict[str, Any]] = []
+    seen_post_ids: set = set()
+
+    for rt in recruit_types:
+        for page in range(1, max_pages + 1):
+            try:
+                resp = requests.post(
+                    list_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0",
+                        "Referer": referer,
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Accept": "application/json, text/plain, */*",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    data={
+                        "page": str(page),
+                        "pageSize": "10",
+                        "recruitType": str(rt),
+                        "brandCode": "1",
+                        "trademark": "1",
+                        "lanType": "1",
+                    },
+                    proxies=REQUEST_PROXIES,
+                    timeout=30,
+                )
+                resp.raise_for_status()
+                data = resp.json() or {}
+            except Exception:
+                break
+
+            posts = data.get("postList") or []
+            page_count = int(data.get("pageCount") or 1)
+            if not posts:
+                break
+
+            added_this_page = 0
+            for item in posts:
+                post_id = item.get("postId")
+                if post_id is None:
+                    continue
+                key = (post_id, rt)
+                if key in seen_post_ids:
+                    continue
+                seen_post_ids.add(key)
+
+                title = (item.get("postName") or "").strip()
+                if not title:
+                    continue
+                location = (item.get("workPlace") or "").strip() or "未知"
+                post_type = (item.get("postType") or "").strip()
+                dept = (item.get("deptOrgName") or item.get("orgName") or target["name"]).strip()
+                publish = _wintalent_parse_dt(item.get("publishDateTime") or item.get("publishDate"))
+                deadline = _wintalent_parse_dt(item.get("endDate"))
+                token = item.get("postIdToken") or post_id
+                detail_url = f"{base}/web/templates/v1/companyfile/companyfileTemplate.html?postIdEnc={token}"
+
+                records.append({
+                    "job_id": _wintalent_hash_id(target["name"], post_id, rt),
+                    "source": "funds_wintalent_sc",
+                    "company": target["name"],
+                    "company_type_industry": "公募基金",
+                    "company_tags": post_type or "校园招聘",
+                    "department": dept,
+                    "job_title": title,
+                    "location": location,
+                    "major_req": "",
+                    "job_req": (item.get("serviceCondition") or "").strip(),
+                    "job_duty": (item.get("workContent") or "").strip(),
+                    "application_status": "待申请",
+                    "job_stage": _wintalent_infer_stage(int(rt), title, post_type),
+                    "source_config_id": f"funds_api:{target['name']}:{post_id}:{rt}",
+                    "publish_date": publish,
+                    "deadline": deadline,
+                    "detail_url": detail_url,
+                    "scraped_at": datetime.utcnow(),
+                })
+                added_this_page += 1
+
+            if added_this_page == 0:
+                break
+            if page >= page_count:
+                break
+            time.sleep(0.4)
+
+    return records
+
+
 # ---- Tagging helpers for source sub-strings --------------------------------
 
-_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms"}
+_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc"}
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "hotjob":            "funds_hotjob",
     "zhiye":             "funds_zhiye",
     "moka_embedded":     "funds_moka_embedded",
     "zhiye_beisen_cms":  "funds_zhiye_beisen_cms",
+    "wintalent_sc":      "funds_wintalent_sc",
 }
 
 
@@ -188,6 +327,8 @@ def crawl_configured_funds_targets(
             crawled = crawl_moka_embedded_target(target)
         elif family == "zhiye_beisen_cms":
             crawled = crawl_zhiye_beisen_cms_target(target)
+        elif family == "wintalent_sc":
+            crawled = crawl_wintalent_sc_target(target)
         else:
             crawled = []
         _override_source(crawled, family)

@@ -120,10 +120,13 @@ sites:
     note: 自家 SPA 体量大但无外露 ATS 路径，backlog。
 
   - name: 博时基金
-    entry_url: https://www.bosera.com/
-    ats_family: other
+    entry_url: https://sc.hotjob.cn/wt/bosera/web/index
+    ats_family: wintalent_sc
     category: 头部公募
-    note: 官网 column/index.do 当前空响应 (53 bytes)，backlog。
+    wintalent_coid: bosera
+    recruit_types: [1, 2, 12]
+    max_pages: 10
+    note: 2026-05-10 Wintalent 自助站 sc.hotjob.cn/wt/bosera/，校招/社招/实习全开放，~60 条。
 
   - name: 工银瑞信基金
     entry_url: https://www.icbccs.com.cn/cn/index/Recruit/RecruitList.shtml
@@ -132,10 +135,13 @@ sites:
     note: 官网 RecruitList.shtml 200 但 247 bytes，疑似空 SPA shell，backlog。
 
   - name: 兴证全球基金
-    entry_url: https://www.xqfunds.com/
-    ats_family: other
+    entry_url: https://sc.hotjob.cn/wt/AIFMC/web/index/campus
+    ats_family: wintalent_sc
     category: 头部公募
-    note: 兴证全球官网新域名 xqfunds.com，未发现外露 ATS，backlog。
+    wintalent_coid: AIFMC
+    recruit_types: [1, 2, 12]
+    max_pages: 10
+    note: 2026-05-10 Wintalent 自助站 sc.hotjob.cn/wt/AIFMC/ (slug=AIFMC)；校招+社招+实习+储备 ~23+ 条。原 xqfunds.com SPA 无 ATS hook。
 
   - name: 鹏华基金
     entry_url: https://www.phfund.com.cn/about/recruit/recruit_index.shtml
