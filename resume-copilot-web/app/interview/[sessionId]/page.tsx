@@ -7,7 +7,7 @@ import {
   MessageCircleQuestion,
 } from 'lucide-react';
 import type { InterviewMessage, InterviewReport as InterviewReportType, InterviewState } from '@/components/interview/types';
-import { streamInterviewTurn, saveInterviewReport } from '@/components/interview/api';
+import { streamInterviewTurn, saveInterviewReport, getInterviewSkeleton } from '@/components/interview/api';
 import { LiveHintBar } from '@/components/interview/LiveHintBar';
 import { ProgressRail } from '@/components/interview/ProgressRail';
 import { InterviewReport } from '@/components/interview/InterviewReport';
@@ -41,6 +41,18 @@ export default function InterviewSessionPage() {
   const [targetJob, setTargetJob] = useState('');
   const [messages, setMessages] = useState<InterviewMessage[]>([]);
   const [round, setRound] = useState(0);
+  // Topic labels for the 6-question skeleton, fetched from backend once we know
+  // targetJob. Drives both ProgressRail's labels and the caption "topic chip".
+  // Falls back to default labels (matches backend SKELETON_TOPIC_LABELS) if fetch fails.
+  const [topicLabels, setTopicLabels] = useState<string[]>([
+    '自我介绍与来意', '主导过的核心项目', '关键技术 / 业务取舍',
+    '在不确定下的决策', '为什么是这家公司', '反问环节',
+  ]);
+
+  // Synthesized JD context from the recommendation card (target_direction +
+  // topic_summary + enrichment + why/strengths/risks). Sent to backend so the
+  // interview drills on 岗位特定 考察点 instead of just generic track questions.
+  const [jdContent, setJdContent] = useState('');
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -55,8 +67,28 @@ export default function InterviewSessionPage() {
     } else {
       setTargetJob(localStorage.getItem(`interview.pending.${sessionId}`) || '');
     }
+    try {
+      setJdContent(localStorage.getItem(`interview.jd.${sessionId}`) || '');
+    } catch { /* ignore */ }
   }, [sessionId]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Fetch authoritative topic labels from backend whenever target job changes.
+  // Backend is the single source of truth — eliminates the prior bug where
+  // ProgressRail showed "为什么是这家公司" while backend was asking "团队冲突".
+  useEffect(() => {
+    if (!targetJob) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getInterviewSkeleton(targetJob);
+        if (!cancelled && Array.isArray(data.topic_labels) && data.topic_labels.length > 0) {
+          setTopicLabels(data.topic_labels);
+        }
+      } catch { /* keep fallback labels */ }
+    })();
+    return () => { cancelled = true; };
+  }, [targetJob]);
 
   /* ───────────────────── Stream / state ─────────────────────────────────── */
   const [streamingContent, setStreamingContent] = useState('');
@@ -156,6 +188,7 @@ export default function InterviewSessionPage() {
         {
           sessionId,
           asrTranscript,
+          jdContent: jdContent || undefined,
           onTurnComplete: (turnIndex) => {
             // round = current question's turn_index (0-based, matches backend).
             // turnIndex is the just-asked question's index, so it IS the current round.
@@ -168,7 +201,7 @@ export default function InterviewSessionPage() {
       setIsTurning(false);
       setStreamError(err instanceof Error ? err.message : '网络错误，请重试。');
     }
-  }, [sessionId, triggerReport]);
+  }, [sessionId, triggerReport, jdContent]);
 
   /* ───────────────────── Kick off the first turn on first visit ─────────── */
   useEffect(() => {
@@ -390,10 +423,12 @@ export default function InterviewSessionPage() {
 
       {/* MAIN STAGE */}
       <section className="relative overflow-hidden">
-        {/* Question marker */}
+        {/* Question marker — derives topic label from backend's authoritative
+            skeleton, not a hardcoded "项目深挖" string. Past the skeleton (turn
+            >= labels.length) it's a generated follow-up so we just say 深挖追问. */}
         <div className="absolute left-[28px] top-[68px] z-[2] text-[11px] tracking-[0.08em] text-[var(--stone)]">
           <b className="mr-[6px] text-[12px] font-semibold text-[var(--ink)]">第 {round + 1} 问</b>
-          {round === 0 ? '开场 · 自我介绍' : '深挖追问'}
+          {round < topicLabels.length ? topicLabels[round] : '深挖追问'}
         </div>
 
         {/* CAPTIONS — Border Beam wraps the entire box during thinking */}
@@ -466,7 +501,7 @@ export default function InterviewSessionPage() {
                 }}
               >
                 <MessageCircleQuestion size={12} strokeWidth={1.8} />
-                {round === 0 ? '开场 · 自我介绍' : '项目深挖'}
+                {round < topicLabels.length ? topicLabels[round] : '深挖追问'}
               </span>
               <span
                 className="inline-flex items-center gap-[5px] rounded-full px-[9px] py-[4px] text-[11px] font-medium"
@@ -526,9 +561,12 @@ export default function InterviewSessionPage() {
           </div>
         )}
 
-        {/* PROGRESS RAIL — hidden < 1200px. Polls /turns to show real skeleton + sub-questions. */}
+        {/* PROGRESS RAIL — hidden < 1200px. Polls /turns to show real skeleton + sub-questions.
+            topicLabels comes from backend; ProgressRail uses them as the rail's
+            section names so the labels never lie about what's actually being asked. */}
         <ProgressRail
           sessionId={sessionId}
+          topicLabels={topicLabels}
           currentTurnIndex={round}
           elapsedLabel={fmtMMSS(elapsed)}
         />

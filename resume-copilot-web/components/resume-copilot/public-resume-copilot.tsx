@@ -1705,8 +1705,32 @@ function ResumeChatRail({
     const targetJob = [item.job_title, item.company].filter(Boolean).join(' · ');
     if (!targetJob) return;
     const sessionId = crypto.randomUUID();
+    // Build JD-equivalent context from recommendation fields so the backend can
+    // derive 2-3 岗位特定考察点 (instead of just generic-track questions).
+    // Fields are JD-adjacent: target_direction + topic summaries + matched track
+    // + structured why/strengths/risks. The backend truncates to 1.5KB.
+    const jdParts: string[] = [];
+    if (item.target_direction) jdParts.push(`方向：${item.target_direction}`);
+    if (item.matched_track_label) jdParts.push(`赛道：${item.matched_track_label}`);
+    if (item.location) jdParts.push(`地点：${item.location}`);
+    if (item.topic_summary) jdParts.push(`岗位概述：${item.topic_summary}`);
+    if (item.quick_enrichment_profile?.summary) {
+      jdParts.push(`公开情报：${item.quick_enrichment_profile.summary}`);
+    }
+    if (item.quick_enrichment_profile?.likely_department) {
+      jdParts.push(`所在部门：${item.quick_enrichment_profile.likely_department}`);
+    }
+    if (item.why_recommended?.length) {
+      jdParts.push(`推荐理由：${item.why_recommended.join('；')}`);
+    }
+    if (item.strengths?.length) jdParts.push(`你的优势：${item.strengths.join('；')}`);
+    if (item.risks?.length) jdParts.push(`风险点：${item.risks.join('；')}`);
+    const jdContent = jdParts.join('\n');
     try {
       window.localStorage.setItem(`interview.pending.${sessionId}`, targetJob);
+      if (jdContent) {
+        window.localStorage.setItem(`interview.jd.${sessionId}`, jdContent);
+      }
     } catch {
       /* localStorage unavailable — interview page will fall back to empty target */
     }

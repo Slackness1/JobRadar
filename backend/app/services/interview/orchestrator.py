@@ -152,6 +152,7 @@ def process_turn_synchronous(
     session_factory: Callable[[], Session] = SessionLocal,
     llm: InterviewLLMClient | None = None,
     candidate_summary: str = "",
+    jd_content: str = "",
 ) -> NextQuestion:
     """Process one full turn cycle.
 
@@ -278,6 +279,9 @@ def process_turn_synchronous(
             weakness=weakness,
             asked_questions=asked,
             llm=llm,
+            jd_content=jd_content,
+            current_main_question=prev_question if current_main_index is not None else "",
+            current_main_answer=prev_user_answer if current_main_index is not None else "",
         )
         parent_for_next = current_main_index
     elif skeleton_count < len(skeleton_list):
@@ -293,6 +297,9 @@ def process_turn_synchronous(
             weakness=weakness,
             asked_questions=asked,
             llm=llm,
+            jd_content=jd_content,
+            current_main_question=prev_question if current_main_index is not None else "",
+            current_main_answer=prev_user_answer if current_main_index is not None else "",
         )
         parent_for_next = current_main_index
 

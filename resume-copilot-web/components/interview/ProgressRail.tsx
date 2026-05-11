@@ -6,7 +6,9 @@ import { getInterviewTurns, type TurnPayload } from './api';
 
 const POLL_INTERVAL_MS = 2500;
 
-const SKELETON_LABELS = [
+// Fallback used only if /skeleton endpoint is unreachable. 与后端
+// SKELETON_TOPIC_LABELS 保持一致；后端是真相源。
+const SKELETON_LABELS_FALLBACK = [
   '自我介绍与来意',
   '主导过的核心项目',
   '关键技术 / 业务取舍',
@@ -25,7 +27,7 @@ interface RailItem {
 /** Build a flat ordered render list with skeleton items + their nested follow-ups.
  *  Skeleton placeholders fill empty slots so the user always sees the planned 6.
  */
-function buildRail(turns: TurnPayload[]): RailItem[] {
+function buildRail(turns: TurnPayload[], labels: string[]): RailItem[] {
   const items: RailItem[] = [];
   const skeletonTurns = turns.filter((t) => t.question_source === 'skeleton')
     .sort((a, b) => a.turn_index - b.turn_index);
@@ -38,11 +40,11 @@ function buildRail(turns: TurnPayload[]): RailItem[] {
     }
   }
 
-  for (let i = 0; i < SKELETON_LABELS.length; i++) {
+  for (let i = 0; i < labels.length; i++) {
     const skel = skeletonTurns[i];
     items.push({
       turnIndex: skel ? skel.turn_index : null,
-      label: SKELETON_LABELS[i],
+      label: labels[i],
       source: 'skeleton',
       parent: null,
     });
@@ -78,15 +80,20 @@ function buildRail(turns: TurnPayload[]): RailItem[] {
 
 export function ProgressRail({
   sessionId,
+  topicLabels,
   currentTurnIndex,
   elapsedLabel,
 }: {
   sessionId: string;
+  /** Authoritative topic labels (from backend /api/interview/skeleton).
+   * Parent page fetches them once and shares with caption + rail. */
+  topicLabels?: string[];
   /** turn_index of the question being currently asked / answered. */
   currentTurnIndex: number;
   elapsedLabel: string;
 }) {
   const [turns, setTurns] = useState<TurnPayload[]>([]);
+  const labels = topicLabels && topicLabels.length > 0 ? topicLabels : SKELETON_LABELS_FALLBACK;
 
   useEffect(() => {
     let cancelled = false;
@@ -101,7 +108,7 @@ export function ProgressRail({
     return () => { cancelled = true; clearInterval(id); };
   }, [sessionId]);
 
-  const items = buildRail(turns);
+  const items = buildRail(turns, labels);
 
   return (
     <aside

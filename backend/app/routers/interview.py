@@ -32,6 +32,7 @@ class InterviewTurnIn(BaseModel):
     session_id: str = ''  # frontend UUID
     messages: list[InterviewMessage]
     asr_transcript: dict | None = None  # for the most-recent user answer (voice mode only)
+    jd_content: str | None = None  # 可选 — 来自岗位 JD，用于定制考察重点
 
 
 class InterviewReportIn(BaseModel):
@@ -39,6 +40,7 @@ class InterviewReportIn(BaseModel):
     session_id: str = ''
     messages: list[InterviewMessage]
     duration_seconds: int = 0
+    jd_content: str | None = None
 
 
 @router.post('/turn')
@@ -52,6 +54,7 @@ def interview_turn(
 
     chip = body.target_job  # 1:1 for now; later: derive from a chip lookup table
     chip_summary = _load_chip_summary(db, chip)
+    jd_content = body.jd_content or ''
 
     # Determine turn index from existing rows
     last_turn = (
@@ -75,6 +78,7 @@ def interview_turn(
             asked_questions=[],
             turn_index=0,
             llm=_NoopLLM(),  # never reached for skeleton index 0
+            jd_content=jd_content,
         )
         next_turn_index = 0
         # Persist first turn row
@@ -108,6 +112,7 @@ def interview_turn(
                 prev_asr_transcript=body.asr_transcript or {},
                 next_turn_index=next_turn_index,
                 session_factory=SessionLocal,
+                jd_content=jd_content,
             )
         except Exception as exc:
             logger.exception('process_turn failed: %s', exc)
@@ -205,6 +210,25 @@ def avatar_session():
     except AvatarUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     return rtc_params
+
+
+@router.get('/skeleton')
+def get_skeleton(chip: str = ''):
+    """Return the planned topic labels + questions for a chip.
+
+    Frontend ProgressRail calls this so its labels are always in sync with the
+    backend skeleton — eliminates the previous bug where the rail showed
+    '为什么是这家公司' but the backend was asking '团队冲突' starting at turn 4.
+    """
+    from app.services.interview.adaptive import SKELETON_QUESTIONS, SKELETON_TOPIC_LABELS
+    skeleton = SKELETON_QUESTIONS.get(chip) or SKELETON_QUESTIONS['default']
+    matched = chip in SKELETON_QUESTIONS
+    return {
+        'chip': chip,
+        'matched': matched,
+        'topic_labels': SKELETON_TOPIC_LABELS,
+        'questions': skeleton,
+    }
 
 
 @router.get('/intel-status')

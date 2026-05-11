@@ -77,6 +77,17 @@ export function getInterviewTurns(sessionId: string): Promise<TurnPayload[]> {
   return getJson<TurnPayload[]>(`/api/interview/sessions/${sessionId}/turns`);
 }
 
+export interface SkeletonPayload {
+  chip: string;
+  matched: boolean;
+  topic_labels: string[];
+  questions: string[];
+}
+
+export function getInterviewSkeleton(chip: string): Promise<SkeletonPayload> {
+  return getJson<SkeletonPayload>(`/api/interview/skeleton?chip=${encodeURIComponent(chip)}`);
+}
+
 export function getLatestScore(sessionId: string): Promise<LatestScorePayload | null> {
   return getJson<LatestScorePayload | null>(
     `/api/interview/sessions/${sessionId}/turns/latest-score`,
@@ -90,6 +101,7 @@ export function getLatestScore(sessionId: string): Promise<LatestScorePayload | 
 export interface StreamInterviewTurnOptions {
   sessionId?: string;
   asrTranscript?: string;
+  jdContent?: string;
 }
 
 /**
@@ -165,6 +177,7 @@ export async function streamInterviewTurn(
       messages,
       ...(options?.sessionId ? { session_id: options.sessionId } : {}),
       ...(options?.asrTranscript ? { asr_transcript: options.asrTranscript } : {}),
+      ...(options?.jdContent ? { jd_content: options.jdContent } : {}),
     }),
   });
 
