@@ -67,7 +67,7 @@ docker compose up --build
 
 **Entry point:** `main.py` — FastAPI app with a lifespan that: creates all tables, runs `ensure_compatible_schema()` (ad-hoc DDL patcher), seeds from YAML configs, calls `ensure_demo_session(db)` to (re)hydrate the shared demo session, and starts an APScheduler daily crawl at 08:00 Asia/Shanghai + an hourly guest-cleanup interval job.
 
-**Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`, `interview`, `sites`. Each router is a file under `app/routers/`.
+**Routers:** `jobs`, `tracks`, `scoring`, `exclude`, `crawl`, `export`, `scheduler`, `system_config`, `company_recrawl`, `job_intel`, `resume_copilot`, `interview`, `sites`, `coverage`, `review_queue`, `system_health`. Each router is a file under `app/routers/`.
 
 **Database:** Single SQLite file at `backend/data/jobradar.db`. WAL mode and `busy_timeout=5000` are set via a SQLAlchemy `@event.listens_for(engine, 'connect')` hook. Models are in `app/models.py`. Schema evolution: starting 2026-04-28, new schema changes go through Alembic (`backend/alembic/versions/`); legacy `app/services/schema_patch.py` still runs at startup for safety during transition. To add a migration: `cd backend && PYTHONPATH=. .venv/bin/alembic revision --autogenerate -m "<name>"`, review the generated file, then `alembic upgrade head` (also runs automatically in lifespan). On a brand-new VPS DB, after first deploy run `cd /home/ubuntu/opencode-worktrees/jobrador-edit/backend && PYTHONPATH=. .venv/bin/alembic stamp head` once before any code that calls `alembic upgrade head`.
 
@@ -113,7 +113,7 @@ docker compose up --build
 
 > **Cron schedule**: three daily APScheduler jobs.
 > - **08:00 Asia/Shanghai** — `_daily_crawl_job` calls `run_crawl()` (Tata API + Haitou + recrawl-queue). Fast, ~5 min.
-> - **09:00 Asia/Shanghai** — `_daily_tier_crawl_job` runs the 4 tier orchestrators (internet / state_owned / securities / consumer_foreign) sequentially with error isolation per tier. Populates `company_crawl_logs`. Slow, ~30 min, Playwright-heavy. Each tier wrapped so one failure doesn't stop the others; a parent `CrawlLog` row with `source='tier-crawl'` aggregates the run.
+> - **09:00 Asia/Shanghai** — `_daily_tier_crawl_job` runs the tier orchestrators sequentially with error isolation per block. Populates `company_crawl_logs`. Slow, ~30-40 min, Playwright-heavy. Each block wrapped so one failure doesn't stop the others; a parent `CrawlLog` row with `source='tier-crawl'` aggregates the run. **9 blocks (Phase order)**: `internet` → `state_owned` → `securities` → `consumer_foreign` → `insurance` (Phase 6) → `funds` (Phase 6) → `pe_vc` (Phase 7) → `hedge_funds` (Phase 9) → `foreign_ibs` (Phase 10). foreign_ibs alone runs ~4.5 min (Citi+MS via Workday `searchText` filter; full pagination of 2000 global jobs would be ~10 min).
 > - **09:35 Asia/Shanghai** — `_daily_digest_job` runs LLM digest (V4-Flash) over today's `company_crawl_logs` rows. Gated by `CRAWLER_LLM_DIGEST_ENABLED`. Persisted to `system_config` row `key='sites_daily_digest'`, served via `GET /api/sites/digest`.
 
 - New table `company_crawl_logs` — per-company run record, parent-linked to `crawl_logs.id` for the daily batch. `suggested_fix` column holds optional LLM-3 markdown diagnosis text.
@@ -125,11 +125,32 @@ docker compose up --build
 - Alert level rule (`alert_level(runs, now)`, pure): empty=`unknown`; last failed + prev failed=`red`; last failed alone=`yellow`; last success + no new in `ALERT_STALE_DAYS`=`yellow`; else `green`.
 - `_shanghai_today_start()` returns Asia/Shanghai today 00:00 expressed as naive UTC. Fixed +08:00 offset (Asia/Shanghai never observes DST).
 - `_build_site_rows` is N+1 by design: 2N+1 queries per `/api/sites` call. Acceptable at current scale (~30 companies, SQLite WAL); revisit if registry grows past ~50.
-- **UI** (`/frontend/src/pages/Sites.tsx` + `components/sites/*` + `styles/{hifi-tokens,sites-theme}.css`): `/sites` route. HiFi terracotta scoped via `<div className="hf" data-theme="sites">` — does not bleed into other AntD admin pages. Adaptive polling (8s default, 2s while any recrawl is in flight). Source→group bucketing maps `internet_official` / `securities_*` / `state_owned_official` / `consumer_foreign_official` onto 4 visible categories (互联网官网 / 券商 / 国央企 / 消费外企). Components: `SitesSummaryBar` (KPI pills + alert banner), `CategoryGroup` → `CompanyCard`, `SiteDetailPanel` → `RunSparkline` + `RecrawlButton` + LLM-3 diagnosis block (`MarkdownLite` for `**bold**` / `` `code` `` / numbered lists), `ToastHost` for recrawl feedback. 41 vitest unit + integration tests, no Playwright e2e.
+- **UI** (`/frontend/src/pages/Sites.tsx` + `components/sites/*` + `styles/{hifi-tokens,sites-theme}.css`): `/sites` route. HiFi terracotta scoped via `<div className="hf" data-theme="sites">` — does not bleed into other AntD admin pages. Adaptive polling (8s default, 2s while any recrawl is in flight). Source→group bucketing maps `internet_official` / `securities_*` / `state_owned_official` / `consumer_foreign_official` onto 4 visible categories (互联网官网 / 券商 / 国央企 / 消费外企). Components: `SitesSummaryBar` (KPI pills + alert banner), `CategoryGroup` → `CompanyCard`, `SiteDetailPanel` → `RunSparkline` + `RecrawlButton` + LLM-3 diagnosis block (`MarkdownLite` for `**bold**` / `` `code` `` / numbered lists), `ToastHost` for recrawl feedback. 41 vitest unit + integration tests, no Playwright e2e. **`/sites` is no longer in the sidebar menu** (replaced by `/system-health` which embeds the company-level table) but the route + all endpoints stay live for direct linking and embed reuse.
+
+**Coverage dashboard** (`app/routers/coverage.py` + `frontend/src/pages/Coverage.tsx` + `components/CoverageStarmap.tsx` + `styles/coverage-theme.css`): `/coverage` route. Reads `backend/config/coverage_truth.yaml` (the **truth table** of which T1 companies belong to each track) and joins with `company_crawl_logs` last-N-day data to render coverage rate per track. **13 tracks** currently: internet / banks (T0+T1) / insurance / securities T1 / 公募基金 / PE/VC / 消费外企 / 国央企 / hedge_funds / foreign_ibs / asset_mgmt / trust / futures.
+
+Three track modes — each maps to a different SQL query in `_query_active_by_source` vs `_query_active_by_company_keywords`:
+- `enumerate` — explicit T1 company list with `aliases` + `deferred_reason` per entry. Active = company appears in `company_crawl_logs` with `fetched_count > 0` in last 7 days. Coverage rate = `active / t1_total`.
+- `absolute` — no T1 list, just shows top-N active companies + total count. Used by 国央企 (~119 firms, too many to enumerate).
+- `derived_company` — query `jobs` table directly by company-name keyword (e.g., `LIKE '%理财%'`) instead of `company_crawl_logs`. Used for 资管 / 信托 / 期货 because those subsidiaries get captured by other crawlers (parent group portals) rather than having dedicated ATS. Optional `window_days` override (default 30, not 7, since derived data lags by parent crawler cadence).
+
+The frontend has two views toggleable via header pill: **公司星图** (default) and **排行榜**.
+- **星图** (`CoverageStarmap.tsx`) renders an SVG canvas (900×600) with each track as a halo cluster, every T1 company as a dot inside the halo using **golden-ratio spiral placement** (137.5° angle). Dot kind: `active` = filled terracotta sized by `log(fetched_7d)`, `deferred` = open gray circle, `missing` = red dashed circle with `?`. Hover a dot updates the right sidebar (company detail + 7d count or deferred reason). Cluster positions hand-tuned in `CLUSTER_LAYOUT` constant — when adding new tracks, edit this map. Track id must match yaml `id`.
+- **排行榜** is the older row-based view: 3-segment progress bar (active terracotta / deferred sand / missing dashed) + chip cloud below each row. Expand button shows hidden companies + extras (non-T1 actives).
+
+`/api/coverage` returns `{tracks: [...], overall: {grand_t1, grand_active, rate, generated_at}}`. New tracks land instantly on yaml edit (router reads yaml at request time); no DB migration needed.
+
+**Admin pages — Review queue + System health** (`app/routers/{review_queue,system_health}.py` + `frontend/src/pages/{ReviewQueue,SystemHealth}.tsx` + `styles/{review,health}-theme.css`):
+
+- `/review-queue` surfaces jobs that the crawler LLM left ambiguous (`quality_label IN ('', 'low_signal')` OR `track_predicted == ''`) in the last 30 days. UI is wireframe variant C (high-density table with batch select). Backend endpoints: `GET /api/review-queue`, `POST /api/review-queue/{id}/{approve|reject|retrack}`, `POST /api/review-queue/batch`. `track_predicted` (freeform LLM output) is re-bucketed into 3 coarse columns (FinTech / 纯金融 / 其他) for kanban view — see `_bucket()` mapping in `review_queue.py`. Retrack writes a real `track_predicted` value (any of 8 keys: internet/banks/securities/funds/pe_vc/insurance/state_owned/consumer_foreign/FinTech).
+
+- `/system-health` **absorbs `/sites`** — wraps service-status tiles (uvicorn / SQLite / APScheduler / 爬虫节点 / Resume Copilot / Sentry placeholder) on top of the embedded per-company crawler table. Auto-refreshes every 30s. Backend endpoint: `GET /api/system-health` returns `{headline, services, scheduler, sites, events}`. The events stream mixes recent CompanyCrawlLog failures (last 7d) + CrawlLog batch finishes. Reads from existing data — no separate metrics infra.
+
+Both pages use **per-page HiFi terracotta theme files** (`review-theme.css` scoped to `[data-theme="review"]`, `health-theme.css` scoped to `[data-theme="health"]`) — same pattern as `coverage-theme.css`. The scoping prevents bleed into AntD pages.
 
 ### Frontend (`frontend/src/`)
 
-Vite + React 19 + React Router 7 + Ant Design 6. All API calls go through an Axios instance with `baseURL: '/api'`, proxied to the backend by Vite (`vite.config.ts`). Pages: `Jobs`, `JobIntel`, `Tracks`, `Scoring`, `Exclude`, `Crawl`, `Scheduler`, `Sites`, `Login`. There are no SSR concerns. The `/sites` page deliberately doesn't use AntD components — it's HiFi-styled (Fraunces serif, terracotta on parchment) — see "Sites monitor" subsection above.
+Vite + React 19 + React Router 7 + Ant Design 6. All API calls go through an Axios instance with `baseURL: '/api'`, proxied to the backend by Vite (`vite.config.ts`). Pages: `Jobs`, `JobIntel`, `Tracks`, `Scoring`, `Exclude`, `Crawl`, `Scheduler`, `Sites`, `Coverage`, `ReviewQueue`, `SystemHealth`, `CompanyExpand`, `Login`. There are no SSR concerns. The HiFi-styled pages (`/sites`, `/coverage`, `/review-queue`, `/system-health`) deliberately don't use AntD components — they use scoped `[data-theme="<page>"]` CSS files with Fraunces serif on terracotta parchment.
 
 ### Resume Copilot Web (`resume-copilot-web/`)
 
@@ -229,6 +250,29 @@ The t1 internet portals each have a quirk worth knowing before touching them:
 - **蚂蚁集团**: `_crawl_antgroup_one_type` runs two passes (`campus_graduates` + `campus_interns`) because the portal segregates them.
 - **腾讯**: `join.qq.com` is dead (kept commented out in `targets.yaml`); only `careers.tencent.com` works. `merge_job_fields` upsert previously didn't update the `source` column — `crawl_internet_targets()` now force-promotes source when an internet_official fetch matches a non-internet_official DB row.
 - **`max_pages` propagation**: The `InternetCrawlTarget` dataclass carries `max_pages` from `targets.yaml` through `_add_candidate()` to per-company crawl functions. Without this, yaml-configured caps were silently ignored.
+
+### Finance tier crawlers (`app/services/{insurance,bank,securities,funds,pe_vc,hedge_funds,foreign_ibs}_tier_crawler.py`)
+
+Each tier crawler follows the same template: load yaml config → dispatch to an `ats_family` handler primitive → wrap each company call in `company_crawl_log(source=...)` → stamp records with track-specific `source` prefix so /sites + /coverage bucket them correctly.
+
+**Handler primitives** live in `securities_crawler.py` and `funds_crawler.py` and are shared across tier crawlers:
+- `crawl_zhiye_target` — Beisen zhiye-campus JSON API at `<host>/api/Jobad/GetJobAdPageList`. Used by 中国人寿 / 中国人保 / 中国太平 / 衍复投资 / many securities.
+- `crawl_zhiye_beisen_cms_target` — Beisen zhiye-CMS HTML scrape with row regex. Used by 大成基金 / chinaamc / hftfund / ccbfund / gtfund.
+- `crawl_moka_embedded_target` — Moka campus board, parses `<input id="init-data">` JSON from `app.mokahr.com/campus_apply/<tenant>/<board>`. Used by 九坤投资 / 幻方量化 (board 4604, the `/apply/` variant) / 海通证券 / many internet firms.
+- `crawl_hotjob_target` — `wecruit.hotjob.cn/wecruit/positionInfo/listPosition/<suite>` POST with form-encoded body. Used by 高毅资产-deprecated path (host pattern was wrong; switch to wintalent_sc) / many banks.
+- `crawl_wintalent_sc_target` — `sc.hotjob.cn/wt/<COID>/...` (self-host Wintalent), POST form with `page/pageSize/recruitType/brandCode`. Used by 兴证全球基金 / 高毅资产 / 博时基金.
+
+**Workday CXS** is implemented separately in `pe_vc_tier_crawler._fetch_workday` (used by 黑石) and **`foreign_ibs_tier_crawler._fetch_workday_filtered`** (different — uses `searchText` server-side to avoid paginating 2000 global jobs). Workday hard-caps `limit≤20` — `25+` returns 400. Many tenants (Goldman / JPM / UBS / HSBC) return 422 to minimal payloads even with `searchText + appliedFacets` — likely need per-tenant facets/session prep.
+
+**Source prefix convention** — each tier crawler overrides records to a track-prefix variant so /sites monitor can bucket them:
+- `insurance_official` / `bank_official` / `state_owned_official` / `consumer_foreign_official` — single-source per track
+- `securities_zhiye` / `securities_zhiye_legacy` / `securities_moka_embedded` / `securities_hotjob` — multi-source 券商
+- `funds_hotjob` / `funds_zhiye` / `funds_moka_embedded` / `funds_zhiye_beisen_cms` / `funds_wintalent_sc` — multi-source 公募
+- `hedge_funds_*` — same family suffix as funds (Phase 9)
+- `pe_vc_official` — single source (Phase 7)
+- `foreign_ibs_official` — single source (Phase 10)
+
+`coverage_truth.yaml`'s `source_match` lists per track must match these prefixes — adding a new finance source means updating both the crawler AND the yaml in one commit.
 
 ---
 
