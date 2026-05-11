@@ -20,11 +20,37 @@ import yaml
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from sqlalchemy import or_
+
 from app.database import get_db
-from app.models import CompanyCrawlLog
+from app.models import CompanyCrawlLog, Job
 
 
 router = APIRouter(prefix="/api/coverage", tags=["coverage"])
+
+
+def _query_active_by_company_keywords(
+    db: Session, include: list[str], exclude: list[str], days: int = 7
+) -> dict[str, int]:
+    """For `derived_company` mode: pull from jobs table directly by company-name
+    keyword, since these companies are surfaced through other crawlers (banks /
+    insurers / etc) rather than having dedicated CompanyCrawlLog rows.
+    Returns {company: count_in_window}.
+    """
+    if not include:
+        return {}
+    since = datetime.utcnow() - timedelta(days=days)
+    filters = [Job.company.like(f"%{kw}%") for kw in include]
+    q = db.query(Job.company).filter(or_(*filters), Job.created_at >= since)
+    if exclude:
+        for kw in exclude:
+            q = q.filter(~Job.company.like(f"%{kw}%"))
+    out: dict[str, int] = {}
+    for (company,) in q.all():
+        if not company:
+            continue
+        out[company] = out.get(company, 0) + 1
+    return out
 
 
 _CONFIG_PATH = (
@@ -93,10 +119,29 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
     grand_active = 0
 
     for track in tracks_in:
+        mode = track.get("mode", "enumerate")
+
+        if mode == "derived_company":
+            include = track.get("company_keywords_include") or []
+            exclude = track.get("company_keywords_exclude") or []
+            active_map = _query_active_by_company_keywords(db, include, exclude)
+            tracks_out.append({
+                "id": track["id"],
+                "name": track["name"],
+                "mode": "absolute",   # frontend renders identically to absolute
+                "sources": [],
+                "active_company_count": len(active_map),
+                "active_total_fetched": sum(active_map.values()),
+                "note": track.get("note", "").strip(),
+                "active_companies": [
+                    {"name": k, "fetched_7d": v}
+                    for k, v in sorted(active_map.items(), key=lambda x: -x[1])[:60]
+                ],
+            })
+            continue
+
         sources = track.get("source_match") or []
         active_map = _query_active_by_source(db, sources)
-
-        mode = track.get("mode", "enumerate")
         if mode == "absolute":
             tracks_out.append({
                 "id": track["id"],
