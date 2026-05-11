@@ -26,6 +26,7 @@ from app.routers import (
     scoring,
     sites,
     system_config,
+    teacher_entry,
     tracks,
 )
 from app.services.company_recrawl_queue import mark_stale_running_tasks_failed
@@ -158,6 +159,7 @@ app.include_router(resume_copilot.router)
 app.include_router(interview.router)
 app.include_router(sites.router)
 app.include_router(coverage.router)
+app.include_router(teacher_entry.router)
 
 
 @app.get("/api/health")

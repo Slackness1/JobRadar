@@ -4,6 +4,7 @@ import { fetchSiteRuns, fetchSites, fetchSitesSummary, fetchSitesDigest } from '
 import CategoryGroup from '../components/sites/CategoryGroup';
 import SiteDetailPanel from '../components/sites/SiteDetailPanel';
 import SitesSummaryBar from '../components/sites/SitesSummaryBar';
+import TeacherEntryPanel from '../components/sites/TeacherEntryPanel';
 import { ToastHost, useToast } from '../components/sites/ToastHost';
 import type { SiteRecrawlOut, SiteRow, SiteRun, SitesSummary, SitesDigest } from '../components/sites/types';
 
@@ -135,8 +136,9 @@ function SitesInner() {
     return (
       <div className="hf" data-theme="sites">
         <div className="sites-shell">
+          <TeacherEntryPanel />
           <div className="sites-empty">
-            <h1 className="sites-empty__title">等首次跑完再回来看</h1>
+            <h1 className="sites-empty__title">爬虫还没跑过</h1>
             <p className="sites-empty__sub">
               明天 09:00 自动跑全量 tier crawl，
               或现在去 <a href="/crawl">触发爬取</a> 手动跑一次。
@@ -156,6 +158,7 @@ function SitesInner() {
         {summary ? (
           <SitesSummaryBar summary={summary} rows={rows ?? []} digest={digest} onJumpToCompany={setSelectedCompany} />
         ) : null}
+        <TeacherEntryPanel />
         <div className="sites-content">
           <div>
             {groupedRows.map((g) => (

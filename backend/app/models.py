@@ -484,3 +484,33 @@ class InterviewTurn(Base):
     question_source = Column(Text, default="skeleton")
     parent_turn_index = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class JobDraft(Base):
+    """Teacher quick-entry: one job draft (link / OCR / JD-text input → parsed → review queue)."""
+
+    __tablename__ = "job_drafts"
+
+    id = Column(Integer, primary_key=True)
+    teacher_user_key = Column(Text, default="", index=True)
+    teacher_name = Column(Text, default="")
+    teacher_dept = Column(Text, default="")
+    source_type = Column(Text, default="link")           # link | ocr | text
+    source_payload = Column(Text, default="")             # raw URL / OCR text / pasted JD
+    parse_confidence = Column(Float, default=0)           # 0–100
+    parsed_title = Column(Text, default="")
+    parsed_company = Column(Text, default="")
+    parsed_location = Column(Text, default="")
+    parsed_jd_summary = Column(Text, default="")
+    parsed_deadline = Column(Text, default="")            # keep as text; varied formats
+    parsed_salary = Column(Text, default="")
+    parsed_detail_url = Column(Text, default="")
+    track = Column(Text, default="other")                 # finance | fintech | other
+    tags_json = Column(Text, default="[]")                # JSON list[str]
+    teacher_note = Column(Text, default="")
+    status = Column(Text, default="draft", index=True)    # draft | pending | approved | rejected
+    reject_reason = Column(Text, default="")
+    submitted_at = Column(DateTime, nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow)

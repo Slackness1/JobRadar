@@ -122,3 +122,10 @@ TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 
 # Path to legacy config.yaml for initial import
 LEGACY_CONFIG_PATH = BASE_DIR.parent / "config.yaml"
+
+# Teacher-entry admin gate (Phase 3 — pre-launch).
+# Default value works for local demo; SAIF prod must override via env.
+TEACHER_ENTRY_ADMIN_TOKEN = os.environ.get(
+    "TEACHER_ENTRY_ADMIN_TOKEN",
+    "jobradar-admin-dev-token-change-me",
+)

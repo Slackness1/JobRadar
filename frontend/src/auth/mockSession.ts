@@ -18,6 +18,24 @@ const PREVIEW_ACCOUNTS = new Map([
   ['guest', '123456'],
 ]);
 
+// Phase 3 admin gate. Only the owner ('slackness') can approve/reject teacher
+// drafts. Guest accounts can view the dashboard but write actions return 401.
+//
+// Token must match backend env TEACHER_ENTRY_ADMIN_TOKEN. For prod we'll wire
+// this through a real session/JWT — for the demo we ship the dev token in the
+// frontend bundle since the gate is just to keep curious viewers from clicking.
+const ADMIN_USERNAME = 'slackness';
+const ADMIN_TOKEN_DEV = 'jobradar-admin-dev-token-change-me';
+
+export function isAdminUser(): boolean {
+  const session = readMockSession();
+  return session?.username === ADMIN_USERNAME;
+}
+
+export function getAdminToken(): string | null {
+  return isAdminUser() ? ADMIN_TOKEN_DEV : null;
+}
+
 function isMockSession(value: unknown): value is MockSession {
   if (!value || typeof value !== 'object') {
     return false;

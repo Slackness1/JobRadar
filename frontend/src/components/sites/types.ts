@@ -49,3 +49,59 @@ export interface SitesDigest {
   text: string;
   generated_at: string | null;
 }
+
+// ─── Teacher entry (admin view) ───
+export type TeacherDraftStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type TeacherSourceType = 'link' | 'ocr' | 'text';
+
+export interface TeacherDraftRow {
+  id: number;
+  teacher_name: string;
+  teacher_dept: string;
+  source_type: TeacherSourceType;
+  source_payload: string;
+  parse_confidence: number;
+  parsed_title: string;
+  parsed_company: string;
+  parsed_location: string;
+  parsed_jd_summary: string;
+  parsed_deadline: string;
+  parsed_salary: string;
+  parsed_detail_url: string;
+  track: string;
+  tags: string[];
+  teacher_note: string;
+  status: TeacherDraftStatus;
+  reject_reason: string;
+  submitted_at: string | null;
+  created_at: string;
+}
+
+export interface TeacherDraftBucket {
+  draft: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  total: number;
+}
+
+export interface TeacherSourceCount {
+  source_type: string;
+  count: number;
+}
+
+export interface TeacherTopTeacher {
+  teacher_user_key: string;
+  teacher_name: string;
+  teacher_dept: string;
+  count: number;
+}
+
+export interface TeacherEntrySummary {
+  today: TeacherDraftBucket;
+  week: TeacherDraftBucket;
+  all_time: TeacherDraftBucket;
+  by_source_today: TeacherSourceCount[];
+  top_teachers_week: TeacherTopTeacher[];
+  pending_oldest_age_minutes: number;
+}

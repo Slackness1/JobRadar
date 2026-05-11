@@ -1,7 +1,24 @@
 import axios from 'axios';
-import type { SitesSummary, SiteRow, SiteRun, SiteRecrawlOut, SitesDigest } from '../components/sites/types';
+import { getAdminToken } from '../auth/mockSession';
+import type {
+  SitesSummary, SiteRow, SiteRun, SiteRecrawlOut, SitesDigest,
+  TeacherDraftRow, TeacherEntrySummary,
+} from '../components/sites/types';
 
 const api = axios.create({ baseURL: '/api', timeout: 60000 });
+
+// Attach admin token to teacher-entry write endpoints when caller is admin.
+// Read endpoints don't need the token but it's harmless to send it.
+api.interceptors.request.use((cfg) => {
+  if (cfg.url?.includes('/teacher-entry/admin/')) {
+    const token = getAdminToken();
+    if (token) {
+      cfg.headers = cfg.headers ?? {};
+      (cfg.headers as Record<string, string>)['X-Admin-Token'] = token;
+    }
+  }
+  return cfg;
+});
 
 // Jobs
 export const getJobs = (params: Record<string, unknown>) => api.get('/jobs/', { params });
@@ -104,6 +121,22 @@ export const triggerSiteRecrawl = (company: string) =>
   api.post<SiteRecrawlOut>(`/sites/${encodeURIComponent(company)}/recrawl`);
 export const fetchSitesDigest = () => api.get<SitesDigest>('/sites/digest');
 
+// Coverage dashboard
 export const fetchCoverage = () => api.get('/coverage');
+
+// Teacher entry (admin view)
+export const fetchTeacherEntrySummary = () =>
+  api.get<TeacherEntrySummary>('/teacher-entry/admin/summary');
+export const fetchTeacherEntryDrafts = (params?: { status?: string; source_type?: string; limit?: number; offset?: number }) =>
+  api.get<TeacherDraftRow[]>('/teacher-entry/admin/drafts', { params });
+export const approveTeacherDraft = (draftId: number) =>
+  api.post<{ draft_id: number; draft_status: string; job_id: number; job_external_id: string; scores_written: number }>(
+    `/teacher-entry/admin/drafts/${draftId}/approve`,
+  );
+export const rejectTeacherDraft = (draftId: number, reason: string) =>
+  api.post<TeacherDraftRow>(
+    `/teacher-entry/admin/drafts/${draftId}/reject`,
+    { reason },
+  );
 
 export default api;
