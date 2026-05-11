@@ -165,6 +165,15 @@ def _daily_tier_crawl_job():
             errors.append(f"pe_vc: {exc}")
             print(f"[TIER CRAWL ERROR][pe_vc] {exc}")
 
+        # Phase 9 — 头部私募 (幻方/九坤/高毅/衍复)
+        try:
+            from app.services.hedge_funds_tier_crawler import crawl_hedge_funds
+            new_count, _, _ = crawl_hedge_funds(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"hedge_funds: {exc}")
+            print(f"[TIER CRAWL ERROR][hedge_funds] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"

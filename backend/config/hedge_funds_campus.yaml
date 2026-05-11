@@ -1,0 +1,36 @@
+# Top 头部私募 (hedge funds) — 金融高薪深耕
+#
+# Phase 9 — 2026-05-11
+# Subagent-scouted ATS endpoints (see commit message).
+# All four targets verified live as of the scout report.
+#
+# Handlers reused from securities_crawler / funds_crawler primitives.
+
+sites:
+  - name: 幻方量化
+    entry_url: https://app.mokahr.com/apply/high-flyer/4604
+    ats_family: moka_embedded
+    category: 量化私募
+    note: 杭州量化 (DeepSeek 母公司). 实际入口是 /apply/4604 (subagent 报告写的 4605 是错的)；当前 board 空，秋招开窗时自动恢复。
+
+  - name: 九坤投资
+    entry_url: https://app.mokahr.com/campus_apply/ubiquantrecruit/37031
+    ats_family: moka_embedded
+    category: 量化私募
+    note: 北京千亿量化「梧桐计划」. Moka tenant=ubiquantrecruit board=37031.
+
+  - name: 高毅资产
+    entry_url: https://gyasset.hotjob.cn/wt/gyasset/web/index
+    ats_family: wintalent_sc
+    category: 主观多头私募
+    wintalent_coid: gyasset
+    recruit_types: [1, 2, 12]
+    max_pages: 10
+    note: 深圳主观多头. Wintalent SC tenant=gyasset (gyasset.hotjob.cn), 校招 + 社招 + 实习.
+
+  - name: 衍复投资
+    entry_url: https://yanfuinvestments1.zhiye.com/
+    ats_family: zhiye
+    category: 量化私募
+    max_pages: 10
+    note: 上海量化. zhiye JSON API (/api/Jobad/GetJobAdPageList) 直出，比 Beisen-CMS 的 HTML 抓更稳。

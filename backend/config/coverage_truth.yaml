@@ -176,6 +176,37 @@ tracks:
       - name: 银华基金
         deferred_reason: 暂未探查
 
+  # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
+  - id: hedge_funds
+    name: 头部私募 (Hedge Funds)
+    source_match:
+      - hedge_funds_hotjob
+      - hedge_funds_zhiye
+      - hedge_funds_moka_embedded
+      - hedge_funds_zhiye_beisen_cms
+      - hedge_funds_wintalent_sc
+    mode: enumerate
+    t1_companies:
+      # 公开 ATS 已 wired (Phase 9, 2026-05-11) — 实测分别 9/15/2/25 岗
+      - name: 幻方量化
+      - name: 九坤投资
+      - name: 高毅资产
+      - name: 衍复投资
+      # 公开但需要新 engine family
+      - name: 明汯投资
+        deferred_reason: Feishu/Bytedance ATS — 需要逆向 gfdatav1 endpoint，backlog
+      - name: 灵均投资
+        deferred_reason: hr.lingjuninvest.com Moka-CNAME 待验证；可能 flip 到 easy
+      # 结构性 (relationship-driven / no public ATS)
+      - name: 景林资产
+        deferred_reason: 主观多头 — 复旦/清北校友办 + 海投 listings，无 ATS
+      - name: 淡水泉
+        deferred_reason: springs-capital.com 无 careers 页；公众号 + 校园宣讲
+      - name: 礼仁投资
+        deferred_reason: 高瓴 Hillhouse PE 子. Gllue ATS (hillhouse.gllue.com)，新 engine family
+      - name: 进化论资产
+        deferred_reason: 牛客网招聘 + 公众号，当前 0 岗 (out of season)
+
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc
     name: PE / VC (top 头部)
