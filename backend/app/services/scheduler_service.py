@@ -174,6 +174,15 @@ def _daily_tier_crawl_job():
             errors.append(f"hedge_funds: {exc}")
             print(f"[TIER CRAWL ERROR][hedge_funds] {exc}")
 
+        # Phase 10 — 外资投行 (Citi / Morgan Stanley)
+        try:
+            from app.services.foreign_ibs_tier_crawler import crawl_foreign_ibs
+            new_count, _, _ = crawl_foreign_ibs(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"foreign_ibs: {exc}")
+            print(f"[TIER CRAWL ERROR][foreign_ibs] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"

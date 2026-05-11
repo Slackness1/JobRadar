@@ -32,15 +32,17 @@ type Track = TrackEnumerate | TrackAbsolute;
 // Hand-tuned cluster positions for 8 tracks on a 900×600 SVG canvas.
 // SOE sits in the center (smaller halo, denser) per wireframe.
 const CLUSTER_LAYOUT: Record<string, { cx: number; cy: number; r: number; short: string }> = {
-  internet:         { cx: 220, cy: 180, r: 92, short: '互联网' },
-  securities:       { cx: 440, cy: 130, r: 84, short: '券商' },
-  banks:            { cx: 640, cy: 200, r: 92, short: '银行' },
-  consumer_foreign: { cx: 760, cy: 400, r: 100, short: '消费外企' },
-  funds:            { cx: 540, cy: 480, r: 78, short: '公募' },
-  insurance:        { cx: 300, cy: 470, r: 62, short: '保险' },
-  pe_vc:            { cx: 130, cy: 380, r: 76, short: 'PE/VC' },
+  internet:         { cx: 200, cy: 175, r: 86, short: '互联网' },
+  hedge_funds:      { cx: 360, cy:  70, r: 48, short: '私募' },
+  securities:       { cx: 440, cy: 170, r: 78, short: '券商' },
+  banks:            { cx: 650, cy: 175, r: 88, short: '银行' },
+  foreign_ibs:      { cx: 840, cy: 100, r: 48, short: '外资行' },
+  consumer_foreign: { cx: 770, cy: 400, r: 96, short: '消费外企' },
+  funds:            { cx: 530, cy: 480, r: 76, short: '公募' },
+  insurance:        { cx: 290, cy: 470, r: 60, short: '保险' },
+  pe_vc:            { cx: 120, cy: 370, r: 72, short: 'PE/VC' },
   // SOE: bigger halo + capped to top-N (less trypophobic), placed in center
-  state_owned:      { cx: 470, cy: 300, r: 78, short: '国央企' },
+  state_owned:      { cx: 470, cy: 300, r: 70, short: '国央企' },
 };
 
 // Cap SOE rendered dots — 50 in a small halo was a sea-of-dots; top-20 reads

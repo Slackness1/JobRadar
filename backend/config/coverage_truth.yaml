@@ -207,6 +207,37 @@ tracks:
       - name: 进化论资产
         deferred_reason: 牛客网招聘 + 公众号，当前 0 岗 (out of season)
 
+  # ─────────────────────────── 外资投行 (Bulge Bracket) ─────────
+  - id: foreign_ibs
+    name: 外资投行 (Bulge Bracket China)
+    source_match: [foreign_ibs_official]
+    mode: enumerate
+    t1_companies:
+      # Workday CXS 已 wired (Phase 10, 2026-05-11)
+      - name: Citi
+      - name: Morgan Stanley
+      # Workday CXS 422 — endpoint 存在但拒绝最小 payload，待 per-tenant facets 调试
+      - name: Goldman Sachs
+        deferred_reason: goldmansachs.wd1.myworkdayjobs.com Workday 422，需 per-tenant facets/session prep
+      - name: JP Morgan
+        deferred_reason: jpmc.wd5.myworkdayjobs.com Workday 422
+      - name: UBS
+        deferred_reason: ubs.wd3.myworkdayjobs.com Workday 422
+      - name: HSBC
+        deferred_reason: hsbc.wd3.myworkdayjobs.com Workday 422；mycareer.hsbc.com 已迁站
+      - name: Bank of America
+        deferred_reason: bankofamerica.wd1.myworkdayjobs.com Workday 422
+      - name: BNP Paribas
+        deferred_reason: bnpparibas.wd3.myworkdayjobs.com Workday 422
+      - name: Standard Chartered
+        deferred_reason: sc.wd3 / standardchartered.wd3 双域 Workday 422
+      - name: Nomura
+        deferred_reason: nomura.wd3.myworkdayjobs.com Workday 422
+      - name: Deutsche Bank
+        deferred_reason: db.wd3.myworkdayjobs.com 多个 site path 都返 404，可能已迁站
+      - name: Barclays
+        deferred_reason: barclays.wd3.myworkdayjobs.com 404；search.jobs.barclays 302 自定义 portal
+
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc
     name: PE / VC (top 头部)

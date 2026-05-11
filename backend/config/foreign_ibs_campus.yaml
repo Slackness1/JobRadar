@@ -1,0 +1,31 @@
+# 外资投行 (Bulge Bracket China offices) — 金融高薪深耕 Phase 10
+#
+# 2026-05-11
+# All Workday CXS endpoints — same handler as Blackstone/KKR from PE/VC.
+# Asia location filter applied client-side (location keyword whitelist).
+#
+# 422-blocked tenants (Goldman / JPM / UBS / HSBC / BofA / BNP / Standard
+# Chartered / Nomura / Daiwa CM) live in coverage_truth.yaml as deferred —
+# their CXS endpoints exist but reject our minimal payload. Likely need
+# additional facets or per-tenant session prep.
+
+sites:
+  # Workday CXS 强制 limit≤20 (实测 25/50 返 400)。用 searchText 服务端过滤
+  # 而非翻全局 100 页 — 每个公司 4 query × 8 page = 64 请求，~30s。
+  - name: Citi
+    handler: workday
+    endpoint: https://citi.wd5.myworkdayjobs.com/wday/cxs/citi/2/jobs
+    portal_url: https://citi.wd5.myworkdayjobs.com/en-US/2
+    page_size: 20
+    max_pages_per_query: 8
+    search_queries: ["China", "Hong Kong", "Singapore", "Tokyo"]
+    note: 2026-05-11 Citi 各 Asia 区岗位数 — HK:167 SG:307 China:63 Tokyo:53
+
+  - name: Morgan Stanley
+    handler: workday
+    endpoint: https://ms.wd5.myworkdayjobs.com/wday/cxs/ms/External/jobs
+    portal_url: https://ms.wd5.myworkdayjobs.com/en-US/External
+    page_size: 20
+    max_pages_per_query: 8
+    search_queries: ["China", "Hong Kong", "Singapore", "Tokyo"]
+    note: 2026-05-11 MS 全球 1488 岗，Asia 区类似规模
