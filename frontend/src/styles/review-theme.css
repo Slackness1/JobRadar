@@ -1,0 +1,248 @@
+/* ============================================================
+   /review-queue HiFi terracotta theme — scoped to [data-theme="review"]
+   ============================================================ */
+
+[data-theme="review"] {
+  --rv-parchment:    #f5f4ed;
+  --rv-ivory:        #faf9f5;
+  --rv-paper:        #fbfaf2;
+  --rv-warm-sand:    #e8e6dc;
+  --rv-hair:         #ece9dd;
+  --rv-border-warm:  #e8e6dc;
+  --rv-border-cream: #f0eee6;
+  --rv-ink:          #141413;
+  --rv-soft:         #87867f;
+  --rv-accent:       #c96442;
+  --rv-accent-soft:  #f8ecd9;
+  --rv-emerald:      #2f7a3a;
+  --rv-amber:        #a16207;
+  --rv-amber-bg:     #f6f0d9;
+  --rv-crimson:      #b53333;
+  --rv-blue:         #5b7fa8;
+  --rv-blue-soft:    #e6ecf3;
+
+  --rv-font-serif: 'Fraunces','Noto Serif SC', ui-serif, Georgia, serif;
+  --rv-font-sans:  'Inter','Noto Sans SC', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --rv-font-mono:  'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  background: var(--rv-parchment);
+  color: var(--rv-ink);
+  font-family: var(--rv-font-sans);
+  -webkit-font-smoothing: antialiased;
+  margin: -20px;
+  padding: 24px 28px 40px;
+  border-radius: 8px;
+}
+[data-theme="review"] *,
+[data-theme="review"] *::before,
+[data-theme="review"] *::after { box-sizing: border-box; }
+
+/* ─── Header ─────────────────────────────────────────────── */
+[data-theme="review"] .rv-header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
+}
+[data-theme="review"] .rv-title {
+  font-family: var(--rv-font-serif); font-weight: 600; font-size: 30px;
+  letter-spacing: -0.02em; color: var(--rv-ink);
+}
+[data-theme="review"] .rv-subtitle { color: var(--rv-soft); font-size: 14px; }
+[data-theme="review"] .rv-header-actions {
+  margin-left: auto; display: flex; gap: 8px; align-items: center;
+}
+[data-theme="review"] .rv-selected-count {
+  font-size: 13px; color: var(--rv-soft); margin-right: 6px;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+[data-theme="review"] .rv-btn {
+  font-size: 13px; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--rv-border-warm); background: var(--rv-ivory);
+  color: var(--rv-ink); transition: all 0.15s; font-family: var(--rv-font-sans);
+}
+[data-theme="review"] .rv-btn:hover:not(:disabled) {
+  border-color: var(--rv-accent); color: var(--rv-accent);
+}
+[data-theme="review"] .rv-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+[data-theme="review"] .rv-btn-accent {
+  background: var(--rv-accent); color: white; border-color: var(--rv-accent);
+}
+[data-theme="review"] .rv-btn-accent:hover:not(:disabled) {
+  background: #a84f34; border-color: #a84f34; color: white;
+}
+[data-theme="review"] .rv-btn-danger {
+  color: var(--rv-crimson); border-color: var(--rv-crimson);
+}
+[data-theme="review"] .rv-btn-danger:hover:not(:disabled) {
+  background: #fbe9e9; color: var(--rv-crimson); border-color: var(--rv-crimson);
+}
+
+/* ─── Tier overview strip ────────────────────────────────── */
+[data-theme="review"] .rv-tier-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 12px; margin-bottom: 18px;
+}
+@media (max-width: 1000px) {
+  [data-theme="review"] .rv-tier-strip { grid-template-columns: repeat(3, 1fr); }
+  [data-theme="review"] .rv-sla-cell { display: none; }
+}
+[data-theme="review"] .rv-tier-card {
+  background: var(--rv-ivory); border: 1px solid var(--rv-border-warm);
+  border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+}
+[data-theme="review"] .rv-tier-card-stripe {
+  width: 6px; height: 36px; border-radius: 3px; flex-shrink: 0;
+}
+[data-theme="review"] .rv-tier-card-name {
+  font-family: var(--rv-font-sans); font-weight: 700; font-size: 14px;
+}
+[data-theme="review"] .rv-tier-card-desc {
+  font-size: 11px; color: var(--rv-soft); margin-top: 2px;
+}
+[data-theme="review"] .rv-tier-card-numbers { text-align: right; margin-left: auto; }
+[data-theme="review"] .rv-tier-card-queue {
+  font-family: var(--rv-font-serif); font-size: 26px; font-weight: 600; line-height: 1;
+  letter-spacing: -0.02em;
+}
+[data-theme="review"] .rv-tier-card-live {
+  font-size: 11px; color: var(--rv-soft); margin-top: 4px;
+}
+[data-theme="review"] .rv-sla-cell {
+  background: var(--rv-paper); border: 1px dashed var(--rv-border-warm);
+  border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; min-width: 120px;
+}
+[data-theme="review"] .rv-sla-cell-label { font-size: 11px; color: var(--rv-soft); }
+[data-theme="review"] .rv-sla-cell-value {
+  font-family: var(--rv-font-serif); font-size: 22px; font-weight: 600;
+  color: var(--rv-emerald);
+}
+
+/* ─── Tier color pills ─────────────────────────────────── */
+[data-theme="review"] .rv-pill {
+  font-size: 11px; padding: 3px 9px; border-radius: 999px; display: inline-block;
+  font-family: var(--rv-font-sans);
+}
+[data-theme="review"] .rv-pill-fintech {
+  background: var(--rv-accent-soft); color: var(--rv-accent);
+}
+[data-theme="review"] .rv-pill-pure {
+  background: var(--rv-blue-soft); color: var(--rv-blue);
+}
+[data-theme="review"] .rv-pill-other {
+  background: var(--rv-warm-sand); color: var(--rv-soft);
+}
+
+/* ─── Bucket tabs ──────────────────────────────────────── */
+[data-theme="review"] .rv-tabs {
+  display: flex; gap: 6px; margin-bottom: 12px; align-items: center;
+}
+[data-theme="review"] .rv-tab {
+  font-size: 13px; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--rv-border-warm); background: transparent;
+  color: var(--rv-ink); font-family: var(--rv-font-sans);
+}
+[data-theme="review"] .rv-tab.is-active {
+  background: var(--rv-ink); color: var(--rv-ivory); border-color: var(--rv-ink);
+}
+[data-theme="review"] .rv-tab-count {
+  margin-left: 4px; opacity: 0.6; font-size: 11px;
+  font-family: var(--rv-font-mono);
+}
+
+/* ─── Table ─────────────────────────────────────────────── */
+[data-theme="review"] .rv-table {
+  background: var(--rv-ivory); border: 1px solid var(--rv-border-warm);
+  border-radius: 12px; overflow: hidden;
+}
+[data-theme="review"] .rv-table-head,
+[data-theme="review"] .rv-table-row {
+  display: grid;
+  grid-template-columns: 36px 36px 2.2fr 1.2fr 0.9fr 110px 100px 130px;
+  padding: 10px 14px; align-items: center; gap: 6px;
+}
+[data-theme="review"] .rv-table-head {
+  background: var(--rv-paper); border-bottom: 1px solid var(--rv-border-warm);
+  font-size: 11px; color: var(--rv-soft); font-weight: 600;
+  font-family: var(--rv-font-sans); text-transform: uppercase; letter-spacing: 0.06em;
+}
+[data-theme="review"] .rv-table-row {
+  border-bottom: 1px dashed var(--rv-border-cream);
+  transition: background 0.1s;
+}
+[data-theme="review"] .rv-table-row:last-child { border-bottom: none; }
+[data-theme="review"] .rv-table-row:hover { background: var(--rv-paper); }
+[data-theme="review"] .rv-table-row.is-selected { background: #fdf6f2; }
+
+[data-theme="review"] .rv-cell-source { font-size: 16px; text-align: center; }
+[data-theme="review"] .rv-cell-title {
+  font-size: 13px; font-weight: 600; color: var(--rv-ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+[data-theme="review"] .rv-cell-company {
+  font-size: 12px; color: var(--rv-soft); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+[data-theme="review"] .rv-cell-meta {
+  font-size: 11px; color: var(--rv-soft); font-family: var(--rv-font-mono);
+}
+[data-theme="review"] .rv-cell-loc {
+  font-size: 12px; color: var(--rv-ink);
+}
+[data-theme="review"] .rv-cell-conf {
+  font-family: var(--rv-font-mono); font-size: 12px;
+}
+[data-theme="review"] .rv-cell-conf.is-warn { color: var(--rv-amber); }
+[data-theme="review"] .rv-cell-conf.is-bad { color: var(--rv-crimson); }
+[data-theme="review"] .rv-cell-actions {
+  display: flex; gap: 8px; align-items: center; justify-content: flex-end;
+}
+[data-theme="review"] .rv-icon-approve {
+  color: var(--rv-emerald); cursor: pointer; font-size: 16px;
+  width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+}
+[data-theme="review"] .rv-icon-reject {
+  color: var(--rv-crimson); cursor: pointer; font-size: 16px;
+  width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+}
+[data-theme="review"] .rv-icon-approve:hover { background: #e8f0e6; }
+[data-theme="review"] .rv-icon-reject:hover { background: #fbe9e9; }
+[data-theme="review"] .rv-icon-detail {
+  font-size: 11px; color: var(--rv-accent); cursor: pointer; padding: 2px 6px;
+}
+
+[data-theme="review"] .rv-checkbox { cursor: pointer; accent-color: var(--rv-accent); }
+
+[data-theme="review"] .rv-loading,
+[data-theme="review"] .rv-empty {
+  text-align: center; padding: 80px 0; color: var(--rv-soft);
+  font-family: var(--rv-font-sans);
+}
+
+/* ─── Retrack modal (lightweight inline panel) ─────────── */
+[data-theme="review"] .rv-modal-back {
+  position: fixed; inset: 0; background: rgba(20,20,19,0.36);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+[data-theme="review"] .rv-modal {
+  background: var(--rv-ivory); border-radius: 14px; padding: 22px 24px;
+  min-width: 360px; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+}
+[data-theme="review"] .rv-modal h3 {
+  margin: 0 0 12px; font-family: var(--rv-font-serif);
+  font-size: 18px; font-weight: 600;
+}
+[data-theme="review"] .rv-modal-tracks {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+}
+[data-theme="review"] .rv-track-opt {
+  padding: 8px 12px; border: 1px solid var(--rv-border-warm); border-radius: 8px;
+  cursor: pointer; background: white; font-size: 13px;
+}
+[data-theme="review"] .rv-track-opt:hover { border-color: var(--rv-accent); }
+[data-theme="review"] .rv-track-opt.is-selected {
+  background: var(--rv-accent-soft); border-color: var(--rv-accent); color: var(--rv-accent);
+}
+[data-theme="review"] .rv-modal-actions {
+  display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px;
+}

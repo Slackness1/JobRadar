@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchCoverage } from '../api';
+import CoverageStarmap from '../components/CoverageStarmap';
 import '../styles/coverage-theme.css';
 
 // ─── Types from /api/coverage ────────────────────────────────
@@ -100,6 +101,8 @@ function TrackRow({ t, rank }: { t: TrackEnumerate; rank: number }) {
   const visibleCount = expanded ? sorted.length : 16;
   const visible = sorted.slice(0, visibleCount);
   const hiddenCount = Math.max(0, sorted.length - visibleCount);
+  const hasExtras = t.extras.length > 0;
+  const canExpand = hiddenCount > 0 || hasExtras;
   const ratePct = Math.round(t.rate * 100);
 
   // 3-segment progress widths
@@ -125,6 +128,16 @@ function TrackRow({ t, rank }: { t: TrackEnumerate; rank: number }) {
         <span className={`cv-track-tail ${t.missing_count > 0 ? 'cv-track-tail-bad' : ''}`}>
           {t.missing_count > 0 ? `缺 ${t.missing_count} 家` : '无缺失'}
         </span>
+        {canExpand && (
+          <button type="button" className="cv-refresh-btn cv-track-expand"
+            onClick={() => setExpanded((x) => !x)}>
+            {expanded
+              ? '收起 ⌃'
+              : hiddenCount > 0
+                ? `展开 ${hiddenCount} 家 ⌄`
+                : `展开 +${t.extras.length} 非 T1 ⌄`}
+          </button>
+        )}
       </div>
 
       <div className="cv-chip-cloud">
@@ -158,16 +171,6 @@ function TrackRow({ t, rank }: { t: TrackEnumerate; rank: number }) {
             </span>
           );
         })}
-        {hiddenCount > 0 && (
-          <button
-            type="button"
-            className="cv-chip-more"
-            onClick={() => setExpanded(true)}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-          >
-            + {hiddenCount} 家 →
-          </button>
-        )}
         {expanded && t.extras.length > 0 && (
           <>
             <div style={{
@@ -239,6 +242,7 @@ export default function Coverage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [view, setView] = useState<'rank' | 'star'>('star');
 
   const load = async (manual = false) => {
     if (manual) setRefreshing(true);
@@ -293,6 +297,18 @@ export default function Coverage() {
         <span className="cv-title">覆盖看板</span>
         <span className="cv-subtitle">· 头部公司爬取覆盖度</span>
         <div className="cv-header-meta">
+          <div className="cv-view-toggle">
+            <button type="button"
+              className={`cv-view-toggle-btn ${view === 'star' ? 'is-active' : ''}`}
+              onClick={() => setView('star')}>
+              ✦ 公司星图
+            </button>
+            <button type="button"
+              className={`cv-view-toggle-btn ${view === 'rank' ? 'is-active' : ''}`}
+              onClick={() => setView('rank')}>
+              ☰ 排行榜
+            </button>
+          </div>
           <span>更新于 {friendlyTime(data.overall.generated_at)} · 60s 自动刷新</span>
           <button type="button" className="cv-refresh-btn"
             onClick={() => void load(true)}
@@ -302,6 +318,11 @@ export default function Coverage() {
         </div>
       </div>
 
+      {view === 'star' && (
+        <CoverageStarmap tracks={data.tracks} overallRate={data.overall.rate} />
+      )}
+
+      {view === 'rank' && <>
       {/* Hero strip */}
       <div className="cv-hero">
         {/* Ring card */}
@@ -382,6 +403,7 @@ export default function Coverage() {
       {absolutes.map((t) => (
         <SoeRow key={t.id} t={t} />
       ))}
+      </>}
     </div>
   );
 }

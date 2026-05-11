@@ -10,6 +10,8 @@ import {
   ClockCircleOutlined,
   TeamOutlined,
   CheckCircleOutlined,
+  AuditOutlined,
+  HeartOutlined,
 } from '@ant-design/icons';
 
 import Jobs from './pages/Jobs';
@@ -22,6 +24,8 @@ import Scheduler from './pages/Scheduler';
 import Sites from './pages/Sites';
 import Coverage from './pages/Coverage';
 import CompanyExpand from './pages/CompanyExpand';
+import ReviewQueue from './pages/ReviewQueue';
+import SystemHealth from './pages/SystemHealth';
 
 const { Sider, Content, Header } = Layout;
 
@@ -35,8 +39,9 @@ const menuItems = [
   { key: '/scoring', icon: <BarChartOutlined />, label: <Link to="/scoring">评分设置</Link> },
   { key: '/crawl', icon: <BugOutlined />, label: <Link to="/crawl">爬取管理</Link> },
   { key: '/scheduler', icon: <ClockCircleOutlined />, label: <Link to="/scheduler">定时任务</Link> },
-  { key: '/sites', icon: <ClockCircleOutlined />, label: <Link to="/sites">站点节点视图</Link> },
   { key: '/coverage', icon: <BarChartOutlined />, label: <Link to="/coverage">覆盖看板</Link> },
+  { key: '/review-queue', icon: <AuditOutlined />, label: <Link to="/review-queue">审核队列</Link> },
+  { key: '/system-health', icon: <HeartOutlined />, label: <Link to="/system-health">系统健康</Link> },
 ];
 
 const PAGE_TITLES: Record<string, string> = {
@@ -51,6 +56,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/scheduler': '定时任务',
   '/sites': '站点节点视图',
   '/coverage': '覆盖看板',
+  '/review-queue': '审核队列',
+  '/system-health': '系统健康',
 };
 
 export default function AppLayout() {
@@ -120,6 +127,8 @@ export default function AppLayout() {
             <Route path="/scheduler" element={<Scheduler />} />
             <Route path="/sites" element={<Sites />} />
             <Route path="/coverage" element={<Coverage />} />
+            <Route path="/review-queue" element={<ReviewQueue />} />
+            <Route path="/system-health" element={<SystemHealth />} />
           </Routes>
         </Content>
       </Layout>
