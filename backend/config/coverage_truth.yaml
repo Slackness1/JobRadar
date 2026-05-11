@@ -346,6 +346,38 @@ tracks:
       ___财富管理 实体。已有数据样例：浙银理财 / 中邮理财 / 交银理财 /
       复星财富管理 / 五矿资本 / 越秀资本 / 银河德睿资本 / 中化资本。
 
+  # ─────────────────────────── 信托 ──────────────────────────────
+  # mode=derived_company：信托子公司基本走母公司 portal (中信集团/平安集团/
+  # 华能集团/国投/浦发/五矿)，已经被其它 crawler 顺带抓到。subagent
+  # scout 后单独 wire 华润信托 (Wintalent crc.wintalent.cn) 作为 standalone
+  # 补充，写入时仍命中 keyword=信托，所以也会在派生表里出现。
+  - id: trust
+    name: 信托
+    mode: derived_company
+    company_keywords_include:
+      - 信托
+    company_keywords_exclude: []
+    note: |
+      派生赛道。已知数据：交银国际信托 / 中国对外经济贸易信托 / 云南国际信托
+      / 中粮信托 / 平安信托 / 国投泰康信托 / 华润深国投信托 / 光大兴陇信托
+      / 中建投信托 / 中信信托 等 10+ 家。
+
+  # ─────────────────────────── 期货 ──────────────────────────────
+  # mode=derived_company：期货子公司基本走母公司证券 portal (中信/国泰君安/
+  # 平安/五矿等)，期货机构本身规模小，无独立 ATS 必要。已有 80+ 岗位。
+  - id: futures
+    name: 期货
+    mode: derived_company
+    company_keywords_include:
+      - 期货
+    company_keywords_exclude:
+      - 期货交易所     # 上期所 / 中金所 等监管机构非买方
+      - 信息技术       # 上海金融期货信息技术 = 系统厂商，不算前台
+    note: |
+      派生赛道。已知数据：中信期货 21 / 五矿期货 20 / 国泰君安期货 13 /
+      中泰期货 7 / 平安期货 5 / 南华期货 3 / 中信建投期货 3 / 永安期货 1
+      / 中国金融期货交易所 1 等。
+
   # ─────────────────────────── 国央企 ────────────────────────────
   # mode=absolute：太多，不列 T1，只显示 active 绝对数
   - id: state_owned

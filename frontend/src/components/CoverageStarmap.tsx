@@ -43,8 +43,10 @@ const CLUSTER_LAYOUT: Record<string, { cx: number; cy: number; r: number; short:
   pe_vc:            { cx: 120, cy: 370, r: 72, short: 'PE/VC' },
   // SOE: bigger halo + capped to top-N (less trypophobic), placed in center
   state_owned:      { cx: 470, cy: 300, r: 70, short: '国央企' },
-  // Phase 11: 资管 / 理财派生 — 当前活跃度低，安排小晕圈
+  // Phase 11-12: 派生赛道（资管 / 信托 / 期货）— 活跃度低，小晕圈
   asset_mgmt:       { cx: 410, cy: 555, r: 36, short: '资管' },
+  trust:            { cx: 565, cy: 560, r: 30, short: '信托' },
+  futures:          { cx: 695, cy: 545, r: 28, short: '期货' },
 };
 
 // Cap SOE rendered dots — 50 in a small halo was a sea-of-dots; top-20 reads

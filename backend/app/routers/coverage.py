@@ -124,7 +124,13 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
         if mode == "derived_company":
             include = track.get("company_keywords_include") or []
             exclude = track.get("company_keywords_exclude") or []
-            active_map = _query_active_by_company_keywords(db, include, exclude)
+            # Default 30d for derived tracks: parent crawlers re-pull weekly
+            # at best, and futures/trust seasonal cycles mean 7d misses 90% of
+            # data. 30d strikes the right balance.
+            window_days = int(track.get("window_days") or 30)
+            active_map = _query_active_by_company_keywords(
+                db, include, exclude, days=window_days
+            )
             tracks_out.append({
                 "id": track["id"],
                 "name": track["name"],
@@ -137,6 +143,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
                     {"name": k, "fetched_7d": v}
                     for k, v in sorted(active_map.items(), key=lambda x: -x[1])[:60]
                 ],
+                "window_days": window_days,
             })
             continue
 
