@@ -1,18 +1,21 @@
 """Review queue router.
 
-Surfaces jobs whose LLM enrichment left them ambiguous so a human can
-quality-check / re-track / dismiss them.
+Two parallel sources of "needs review" surface here:
 
-Selection rule for "needs review":
-    quality_label IN ('', 'low_signal') OR
-    (track_predicted == '' AND created_at within last 30d)
+1. Crawler-LLM uncertain jobs (`Job` rows with empty/low_signal quality_label)
+   — bucketed FinTech / 纯金融 / 其他 for kanban.
+2. Teacher-uploaded drafts (`JobDraft` rows with status='pending') from the
+   /teacher OCR/text-paste flow. Reviewed via the proxy endpoints below which
+   delegate to /api/teacher-entry/admin/drafts/{id}/{approve|reject}.
 
-Approve  -> quality_label = 'good'
-Reject   -> quality_label = 'spam'
-Retrack  -> track_predicted = <new>; quality_label = 'good'
+Approve  -> quality_label = 'good' (for jobs) or status='approved' + promote
+            to jobs (for drafts).
+Reject   -> quality_label = 'spam' / status='rejected'.
+Retrack  -> track_predicted = <new>; quality_label = 'good' (jobs only).
 """
 from __future__ import annotations
 
+import json
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -22,7 +25,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Job
+from app.models import Job, JobDraft
 
 
 router = APIRouter(prefix="/api/review-queue", tags=["review-queue"])
@@ -65,6 +68,34 @@ def _serialize(job: Job) -> dict:
     }
 
 
+def _serialize_draft(d: JobDraft) -> dict:
+    """Teacher-uploaded draft pending admin review."""
+    try:
+        tags = json.loads(getattr(d, "tags_json", "") or "[]")
+    except json.JSONDecodeError:
+        tags = []
+    return {
+        "id": d.id,
+        "kind": "draft",
+        "teacher_name": d.teacher_name or "",
+        "teacher_dept": d.teacher_dept or "",
+        "source_type": d.source_type or "",   # link | ocr | text
+        "parse_confidence": float(d.parse_confidence or 0),
+        "title": d.parsed_title or "",
+        "company": d.parsed_company or "",
+        "location": d.parsed_location or "",
+        "track": d.track or "",
+        "tags": tags,
+        "jd_excerpt": (d.parsed_jd_summary or "")[:240],
+        "deadline": d.parsed_deadline or "",
+        "salary": d.parsed_salary or "",
+        "detail_url": d.parsed_detail_url or "",
+        "status": d.status or "",
+        "submitted_at": d.submitted_at.isoformat() if d.submitted_at else None,
+        "created_at": d.created_at.isoformat() if d.created_at else None,
+    }
+
+
 @router.get("")
 def list_queue(
     bucket: Optional[str] = None,
@@ -102,6 +133,17 @@ def list_queue(
     for tp, ct in live_rows:
         live_counts[_bucket(tp or "")] = live_counts.get(_bucket(tp or ""), 0) + int(ct)
 
+    # Teacher-uploaded drafts pending admin review (parallel review surface)
+    draft_q = db.query(JobDraft).filter(JobDraft.status == "pending")
+    teacher_drafts = [
+        _serialize_draft(d)
+        for d in draft_q.order_by(
+            JobDraft.submitted_at.desc().nullslast(),
+            JobDraft.created_at.desc(),
+        ).limit(200).all()
+    ]
+    teacher_pending_total = draft_q.count()
+
     return {
         "items": items,
         "summary": {
@@ -110,6 +152,8 @@ def list_queue(
             "其他":     {"queue": bucket_counts["其他"],     "live": live_counts["其他"]},
         },
         "total_pending": base.count(),
+        "teacher_drafts": teacher_drafts,
+        "teacher_pending_total": teacher_pending_total,
         "generated_at": datetime.utcnow().isoformat() + "Z",
     }
 
@@ -178,3 +222,69 @@ def batch_action(body: BatchBody, db: Session = Depends(get_db)) -> dict:
             j.quality_label = "good"
     db.commit()
     return {"updated": len(jobs), "action": body.action}
+
+
+# ─── Teacher draft proxies ─────────────────────────────────────────
+# These run server-side against the in-process teacher_entry admin code so
+# the admin UI doesn't need to manage the TEACHER_ENTRY_ADMIN_TOKEN secret.
+
+class TeacherRejectBody(BaseModel):
+    reason: str = ""
+
+
+@router.post("/teacher-drafts/{draft_id}/approve")
+def teacher_draft_approve(draft_id: int, db: Session = Depends(get_db)) -> dict:
+    """Approve a teacher-uploaded draft → promote to a Job row.
+    Delegates to teacher_entry.admin_approve_draft logic (no token forwarded —
+    the admin gate exists for cross-origin clients, not for same-process UI)."""
+    from app.routers.teacher_entry import _promote_draft_to_job
+    from app.services.scorer import score_all_jobs
+
+    draft = db.query(JobDraft).filter(JobDraft.id == draft_id).first()
+    if not draft:
+        raise HTTPException(404, f"draft {draft_id} not found")
+    cur = draft.status or ""
+    if cur not in {"pending", "draft"}:
+        raise HTTPException(409, f"draft 当前状态 {cur} 不能 approve")
+
+    job = _promote_draft_to_job(db, draft)
+    draft.status = "approved"
+    draft.reviewed_at = datetime.utcnow()
+    draft.updated_at = datetime.utcnow()
+    db.commit()
+
+    scores_written = 0
+    try:
+        scores_written = score_all_jobs(db, job_ids=[int(job.id)])
+    except Exception:
+        pass
+
+    return {
+        "draft_id": draft_id,
+        "draft_status": "approved",
+        "job_id": int(job.id),
+        "job_external_id": str(job.job_id),
+        "scores_written": scores_written,
+    }
+
+
+@router.post("/teacher-drafts/{draft_id}/reject")
+def teacher_draft_reject(
+    draft_id: int, body: TeacherRejectBody, db: Session = Depends(get_db)
+) -> dict:
+    draft = db.query(JobDraft).filter(JobDraft.id == draft_id).first()
+    if not draft:
+        raise HTTPException(404, f"draft {draft_id} not found")
+    cur = draft.status or ""
+    if cur in {"approved", "rejected"}:
+        raise HTTPException(409, f"draft 已是终态 {cur}，不能再 reject")
+    draft.status = "rejected"
+    draft.reject_reason = (body.reason or "")[:500]
+    draft.reviewed_at = datetime.utcnow()
+    draft.updated_at = datetime.utcnow()
+    db.commit()
+    return {
+        "draft_id": draft_id,
+        "draft_status": "rejected",
+        "reject_reason": draft.reject_reason,
+    }

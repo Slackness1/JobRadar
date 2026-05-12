@@ -18,12 +18,46 @@ interface ReviewItem {
   job_req_excerpt: string;
 }
 
+interface TeacherDraft {
+  id: number;
+  kind: 'draft';
+  teacher_name: string;
+  teacher_dept: string;
+  source_type: 'link' | 'ocr' | 'text' | string;
+  parse_confidence: number;
+  title: string;
+  company: string;
+  location: string;
+  track: string;
+  tags: string[];
+  jd_excerpt: string;
+  deadline: string;
+  salary: string;
+  detail_url: string;
+  status: string;
+  submitted_at: string | null;
+  created_at: string | null;
+}
+
 interface ReviewResp {
   items: ReviewItem[];
   summary: Record<'FinTech' | '纯金融' | '其他', { queue: number; live: number }>;
   total_pending: number;
+  teacher_drafts: TeacherDraft[];
+  teacher_pending_total: number;
   generated_at: string;
 }
+
+const SOURCE_TYPE_ICON: Record<string, string> = {
+  link: '🔗',
+  ocr: '📷',
+  text: '📝',
+};
+const SOURCE_TYPE_LABEL: Record<string, string> = {
+  link: '链接',
+  ocr: 'OCR 截图',
+  text: '文本粘贴',
+};
 
 const BUCKET_DESC: Record<string, string> = {
   FinTech: '金融 × 科技',
@@ -69,14 +103,17 @@ function friendlyTime(iso: string | null): string {
   } catch { return iso; }
 }
 
+type Bucket = 'all' | 'FinTech' | '纯金融' | '其他' | 'teacher';
+
 export default function ReviewQueue() {
   const [data, setData] = useState<ReviewResp | null>(null);
   const [loading, setLoading] = useState(true);
-  const [bucket, setBucket] = useState<'all' | 'FinTech' | '纯金融' | '其他'>('all');
+  const [bucket, setBucket] = useState<Bucket>('all');
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [retrackOpen, setRetrackOpen] = useState<{ ids: number[] } | null>(null);
   const [retrackChoice, setRetrackChoice] = useState<string>('');
   const [toast, setToast] = useState<string>('');
+  const [draftActing, setDraftActing] = useState<Set<number>>(new Set());
 
   async function load() {
     setLoading(true);
@@ -98,6 +135,43 @@ export default function ReviewQueue() {
     const s = data?.summary ?? { FinTech: { queue: 0, live: 0 }, 纯金融: { queue: 0, live: 0 }, 其他: { queue: 0, live: 0 } };
     return s;
   }, [data]);
+
+  const drafts = useMemo<TeacherDraft[]>(() => data?.teacher_drafts ?? [], [data]);
+  const draftPendingTotal = data?.teacher_pending_total ?? 0;
+
+  async function approveDraft(id: number) {
+    if (draftActing.has(id)) return;
+    setDraftActing(s => new Set(s).add(id));
+    try {
+      const resp = await api.post(`/review-queue/teacher-drafts/${id}/approve`);
+      flash(`已通过 · 教师录入 → jobs.id=${resp.data.job_id}`);
+      load();
+    } catch (e) {
+      console.error(e);
+      flash(`通过失败 · ${id}`);
+    } finally {
+      setTimeout(() => {
+        setDraftActing(s => { const n = new Set(s); n.delete(id); return n; });
+      }, 600);
+    }
+  }
+  async function rejectDraft(id: number) {
+    if (draftActing.has(id)) return;
+    const reason = window.prompt('驳回原因（可空）：') ?? '';
+    setDraftActing(s => new Set(s).add(id));
+    try {
+      await api.post(`/review-queue/teacher-drafts/${id}/reject`, { reason });
+      flash(`已驳回 · 教师录入 ${id}`);
+      load();
+    } catch (e) {
+      console.error(e);
+      flash(`驳回失败 · ${id}`);
+    } finally {
+      setTimeout(() => {
+        setDraftActing(s => { const n = new Set(s); n.delete(id); return n; });
+      }, 600);
+    }
+  }
 
   function flash(msg: string) {
     setToast(msg);
@@ -227,14 +301,88 @@ export default function ReviewQueue() {
             </button>
           );
         })}
+        <span style={{ width: 1, height: 16, background: 'var(--rv-border-warm)', alignSelf: 'center', margin: '0 2px' }} />
+        <button
+          className={`rv-tab ${bucket === 'teacher' ? 'is-active' : ''}`}
+          onClick={() => setBucket('teacher')}
+          title="教师端 OCR / 链接 / 文本录入的草稿"
+        >
+          ✏️ 教师录入<span className="rv-tab-count">{draftPendingTotal}</span>
+        </button>
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: 12, color: 'var(--rv-soft)' }}>
-          {items.length > 0 && `显示 ${items.length} 条`}
+          {bucket === 'teacher'
+            ? (drafts.length > 0 && `显示 ${drafts.length} 条草稿`)
+            : (items.length > 0 && `显示 ${items.length} 条`)}
         </span>
       </div>
 
-      {/* Table */}
-      {loading ? (
+      {/* Teacher drafts view */}
+      {bucket === 'teacher' ? (
+        loading ? (
+          <div className="rv-loading">加载中…</div>
+        ) : drafts.length === 0 ? (
+          <div className="rv-empty">📭 暂无教师待审录入</div>
+        ) : (
+          <div className="rv-table">
+            <div className="rv-table-head" style={{ gridTemplateColumns: '50px 90px 2fr 1.2fr 0.9fr 90px 90px 130px' }}>
+              <div>来源</div>
+              <div>教师</div>
+              <div>岗位 / 公司</div>
+              <div>JD 摘要</div>
+              <div>城市</div>
+              <div>赛道</div>
+              <div>置信度</div>
+              <div style={{ textAlign: 'right' }}>操作</div>
+            </div>
+            {drafts.map(d => {
+              const acting = draftActing.has(d.id);
+              const conf = Math.round(d.parse_confidence || 0);
+              const confBucket = conf >= 80 ? 'ok' : conf >= 50 ? 'warn' : 'bad';
+              return (
+                <div key={d.id} className="rv-table-row" style={{ gridTemplateColumns: '50px 90px 2fr 1.2fr 0.9fr 90px 90px 130px' }}>
+                  <div className="rv-cell-source" title={SOURCE_TYPE_LABEL[d.source_type] || d.source_type}>
+                    {SOURCE_TYPE_ICON[d.source_type] || '📄'}
+                  </div>
+                  <div className="rv-cell-meta">
+                    {d.teacher_name || '老师'}<br />
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>{d.teacher_dept || ''}</span>
+                  </div>
+                  <div>
+                    <div className="rv-cell-title">{d.title || '(无标题)'}</div>
+                    <div className="rv-cell-company">{d.company || '—'}</div>
+                  </div>
+                  <div className="rv-cell-meta" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={d.jd_excerpt}>
+                    {d.jd_excerpt || '—'}
+                  </div>
+                  <div className="rv-cell-loc">{d.location || '—'}</div>
+                  <div>
+                    <span className={PILL_CLS[d.track === 'finance' ? '纯金融' : d.track === 'fintech' ? 'FinTech' : '其他']}>
+                      {d.track === 'finance' ? '纯金融' : d.track === 'fintech' ? 'FinTech' : '其他'}
+                    </span>
+                  </div>
+                  <div className={`rv-cell-conf ${confBucket === 'bad' ? 'is-bad' : confBucket === 'warn' ? 'is-warn' : ''}`}>
+                    {confBucket === 'bad' && '⚠ '}{conf}%
+                  </div>
+                  <div className="rv-cell-actions">
+                    <span className={`rv-icon-approve ${acting ? 'is-disabled' : ''}`}
+                          title="通过 → 进 jobs 表 + 自动评分"
+                          onClick={() => !acting && approveDraft(d.id)}>
+                      {acting ? '…' : '✓'}
+                    </span>
+                    <span className={`rv-icon-reject ${acting ? 'is-disabled' : ''}`}
+                          title="驳回"
+                          onClick={() => !acting && rejectDraft(d.id)}>×</span>
+                    {d.detail_url && (
+                      <a className="rv-icon-detail" href={d.detail_url} target="_blank" rel="noreferrer">↗</a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      ) : loading ? (
         <div className="rv-loading">加载中…</div>
       ) : items.length === 0 ? (
         <div className="rv-empty">🎉 当前没有待审岗位</div>

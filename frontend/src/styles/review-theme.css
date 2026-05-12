@@ -207,6 +207,8 @@
 }
 [data-theme="review"] .rv-icon-approve:hover { background: #e8f0e6; }
 [data-theme="review"] .rv-icon-reject:hover { background: #fbe9e9; }
+[data-theme="review"] .rv-icon-approve.is-disabled,
+[data-theme="review"] .rv-icon-reject.is-disabled { opacity: 0.4; cursor: not-allowed; }
 [data-theme="review"] .rv-icon-detail {
   font-size: 11px; color: var(--rv-accent); cursor: pointer; padding: 2px 6px;
 }
