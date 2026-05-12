@@ -70,6 +70,7 @@ tracks:
       - name: 民生银行
       - name: 平安银行
         aliases: [平安集团, 平安银行]
+        jobs_company_match: [平安银行]      # 含 平安银行 + 平安银行股份有限公司
       - name: 华夏银行
       - name: 浙商银行
       - name: 广发银行
@@ -90,7 +91,10 @@ tracks:
       - name: 中国太平
       - name: 中国平安
         aliases: [平安集团, 中国平安, 平安保险]
-        deferred_reason: 通过 平安集团 covered (走 bank_official source)，子公司 businessUnitName 自然区分
+        # 平安集团 portal 一锅烩，但 jobs.company 已按子实体拆开（平安寿险/产险/
+        # 人寿/财产/养老/健康）。用 jobs_company_match 让 coverage.py 走 jobs 表
+        # backup 查询，从而在 insurance track 里也能看到 平安 active。
+        jobs_company_match: [平安寿险, 平安产险, 平安人寿, 平安财产保险, 平安养老, 平安健康]
       - name: 中国太保
         deferred_reason: cpic.zhiye.com 404；DNS 部分不解析。秋招开窗再评估
       - name: 新华保险
@@ -126,7 +130,8 @@ tracks:
         deferred_reason: 自家 SPA + token 鉴权
       - name: 平安证券
         aliases: [平安集团, 平安证券]
-        deferred_reason: 通过 平安集团 covered
+        # 同 平安保险 — 走 jobs_company_match 从 jobs 表回查
+        jobs_company_match: [平安证券]
       - name: 银河证券
         deferred_reason: 校招走 WeChat
       - name: 兴业证券
@@ -318,7 +323,8 @@ tracks:
       - name: 星巴克
         deferred_reason: 暂未探查
       - name: 阿斯利康
-        deferred_reason: 暂未探查
+        # Phase 13 (2026-05-12): Workday CXS `astrazeneca.wd3` 200 OK
+        # searchText=China 单查询返 539 命中 → 已 wire 进 consumer_foreign_workday_crawler
       - name: 3M
         deferred_reason: 暂未探查
       - name: 霍尼韦尔

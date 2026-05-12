@@ -1,0 +1,24 @@
+# 消费外企 / 医药外企 — Workday CXS 系列
+#
+# Phase 13 — 2026-05-12
+# 之前被标 "暂未探查" 的 7 家消费外企里，二次探查发现阿斯利康使用 Workday CXS
+# 且 endpoint 直接 200 + 539 China 岗。先 wire 这一家。
+#
+# 其它消费外企的 Workday tenant 状态：
+#   - 阿迪达斯 adidas.wd3 / adidas-group.wd3:      422
+#   - 霍尼韦尔 honeywell.wd3:                       422
+#   - 资生堂 shiseido：corp.shiseido.com 200 但无 Workday tenant 暴露
+#   - 麦当劳 / 星巴克：客制 portal，非 Workday
+#
+# 阿斯利康是消费外企里**第一个 Workday 通的**，后续二次探查时如有其它通的
+# 再追加进来。
+
+sites:
+  - name: 阿斯利康
+    handler: workday
+    endpoint: https://astrazeneca.wd3.myworkdayjobs.com/wday/cxs/astrazeneca/Careers/jobs
+    portal_url: https://astrazeneca.wd3.myworkdayjobs.com/en-US/Careers
+    page_size: 20
+    max_pages_per_query: 8
+    search_queries: ["China", "Hong Kong", "Shanghai", "Beijing"]
+    note: 2026-05-12 全球 ~16000 岗，searchText=China 单查询返 539 命中

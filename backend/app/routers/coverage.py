@@ -20,7 +20,7 @@ import yaml
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 
 from app.database import get_db
 from app.models import CompanyCrawlLog, Job
@@ -91,9 +91,34 @@ def _query_active_by_source(
 
 
 def _resolve_status(
-    company_def: dict[str, Any], active_map: dict[str, int]
+    company_def: dict[str, Any],
+    active_map: dict[str, int],
+    db: Optional[Session] = None,
+    since: Optional[datetime] = None,
 ) -> tuple[str, int, Optional[str]]:
-    """Returns (status, fetched_max, matched_alias)."""
+    """Returns (status, fetched, matched_alias).
+
+    Two layers of lookup:
+    1. PRIMARY — `jobs_company_match` keyword list against `jobs.company` if
+       provided. Used when a T1 entity hides inside a parent group portal
+       (e.g. 平安证券 / 平安寿险 are crawled as 'company=平安集团 source=
+       bank_official' in CompanyCrawlLog but the actual `Job` rows have
+       `company='平安证券' / '平安寿险' / ...`).
+    2. SECONDARY — `aliases` against CompanyCrawlLog `active_map`. This is
+       the original behaviour for cleanly-separated crawl targets.
+    """
+    keywords = company_def.get("jobs_company_match") or []
+    if keywords and db is not None and since is not None:
+        filters = [Job.company.like(f"%{kw}%") for kw in keywords]
+        count = (
+            db.query(func.count(Job.id))
+            .filter(or_(*filters), Job.created_at >= since)
+            .scalar()
+            or 0
+        )
+        if count > 0:
+            return "active", int(count), keywords[0]
+
     aliases = company_def.get("aliases") or [company_def["name"]]
     matched_alias: Optional[str] = None
     fetched_max = 0
@@ -172,9 +197,11 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
         active_count = 0
         deferred_count = 0
         missing_count = 0
+        # 7-day window for jobs_company_match fallback (matches active_map default)
+        since = datetime.utcnow() - timedelta(days=7)
 
         for c in track.get("t1_companies") or []:
-            status, fetched, _alias = _resolve_status(c, active_map)
+            status, fetched, _alias = _resolve_status(c, active_map, db=db, since=since)
             if status == "active":
                 active_count += 1
             elif status == "deferred":

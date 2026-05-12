@@ -183,6 +183,15 @@ def _daily_tier_crawl_job():
             errors.append(f"foreign_ibs: {exc}")
             print(f"[TIER CRAWL ERROR][foreign_ibs] {exc}")
 
+        # Phase 13 — 消费外企 Workday 补充（阿斯利康等）
+        try:
+            from app.services.consumer_foreign_workday_crawler import crawl_consumer_foreign_workday
+            new_count, _, _ = crawl_consumer_foreign_workday(db, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"consumer_foreign_workday: {exc}")
+            print(f"[TIER CRAWL ERROR][consumer_foreign_workday] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"

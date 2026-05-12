@@ -59,6 +59,9 @@ def _fetch_workday_filtered(
     queries: List[str],
     page_size: int = 20,
     max_pages_per_query: int = 8,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
 ) -> List[Dict[str, Any]]:
     """Pagination with server-side searchText filter — much faster than
     crawling the entire global jobs board."""
@@ -115,11 +118,11 @@ def _fetch_workday_filtered(
                     if ext_path.startswith("/") else portal_url
                 )
                 out.append({
-                    "job_id": _hash_id("foreign_ibs_official", company, jid),
-                    "source": "foreign_ibs_official",
+                    "job_id": _hash_id(source, company, jid),
+                    "source": source,
                     "company": company,
-                    "company_type_industry": "外资投行",
-                    "company_tags": "foreign_ib",
+                    "company_type_industry": industry,
+                    "company_tags": tags,
                     "department": "",
                     "job_title": title,
                     "location": location or "未知",
@@ -128,7 +131,7 @@ def _fetch_workday_filtered(
                     "job_duty": "",
                     "application_status": "待申请",
                     "job_stage": "social",
-                    "source_config_id": f"foreign_ibs:workday:{company}",
+                    "source_config_id": f"{source}:workday:{company}",
                     "publish_date": _parse_dt(it.get("postedOn")),
                     "deadline": None,
                     "detail_url": detail,
