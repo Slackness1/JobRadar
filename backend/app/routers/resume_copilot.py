@@ -18,10 +18,13 @@ from app.models import (
     ResumeRecommendationRun,
 )
 from app.schemas_resume_copilot import (
+    AgentActionIn,
     ApplyRewriteIn,
     ApplyRewriteOut,
     ChatMessageIn,
     DirectionTierResult,
+    PlanStartIn,
+    PlanStateOut,
     ResumeAgentTraceItem,
     ResumeConfirmedProfileIn,
     ResumeConfirmedProfileOut,
@@ -117,6 +120,8 @@ def _build_session_out(session: ResumeCopilotSession) -> ResumeCopilotSessionOut
         has_recommendations=session.recommendation_run is not None,
         has_feedback=session.feedback_run is not None,
         has_direction_analysis=session.direction_analysis_run is not None,
+        plan_status=str(getattr(session, 'plan_status', '') or 'idle'),
+        has_plan=bool(getattr(session, 'plan_json', None)),
         created_at=getattr(session, 'created_at', None),
         updated_at=getattr(session, 'updated_at', None),
         finished_at=getattr(session, 'finished_at', None),
@@ -547,3 +552,219 @@ def post_apply_rewrite(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     return ApplyRewriteOut(profile=updated_profile, applied=True)
+
+
+# ─── Plan-mode endpoints ────────────────────────────────────────────────────
+
+def _load_plan(session: ResumeCopilotSession):
+    from app.services.resume_copilot.plan import PlanState
+    raw = getattr(session, 'plan_json', None)
+    if not raw:
+        return None
+    return PlanState.model_validate_json(raw)
+
+
+def _save_plan(session: ResumeCopilotSession, plan) -> None:
+    session.plan_json = plan.model_dump_json()
+    session.plan_status = plan.status.value
+
+
+def _parsed_counts_from_profile(session: ResumeCopilotSession) -> dict[str, int]:
+    """Derive ItemKind-keyed counts from the parsed profile JSON.
+
+    Falls back to zeros if parse is missing — template still produces
+    self_intro + skill items, so the plan is usable even on a near-empty
+    upload."""
+    if session.parsed_profile is None:
+        return {}
+    try:
+        data = json.loads(session.parsed_profile.profile_json or '{}')
+    except json.JSONDecodeError:
+        return {}
+    return {
+        'education':       len(data.get('education', []) or []),
+        'internship':      len(data.get('internships', []) or []),
+        'project':         len(data.get('projects', []) or []),
+        'campus_activity': 0,  # not in current profile schema; LLM tag pass will fill later
+        'award':           len(data.get('awards', []) or []),
+    }
+
+
+@router.post('/sessions/{session_id}/plan/start', response_model=PlanStateOut)
+def post_plan_start(
+    session_id: int,
+    _: PlanStartIn = PlanStartIn(),
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Bootstrap the plan from the fixed template + parsed counts.
+
+    Returns 409 if a plan already exists (clients should call GET first).
+    Lands the session in ``plan_status=awaiting_plan_approval`` — user
+    reviews/edits, then calls /plan/approve to enter the clarify loop."""
+    from app.services.resume_copilot.plan import init_plan_from_template
+    from app.services.resume_copilot.tag_extractor import attach_parsed_evidence
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    if getattr(session_obj, 'plan_json', None):
+        raise HTTPException(
+            status_code=409,
+            detail='PLAN_ALREADY_EXISTS — call GET /plan or DELETE first',
+        )
+
+    counts = _parsed_counts_from_profile(session_obj)
+    plan = init_plan_from_template(counts)
+
+    parsed_dict: dict = {}
+    if session_obj.parsed_profile is not None:
+        try:
+            parsed_dict = json.loads(session_obj.parsed_profile.profile_json or '{}')
+        except json.JSONDecodeError:
+            parsed_dict = {}
+    if parsed_dict:
+        plan = attach_parsed_evidence(plan, parsed_dict)
+
+    _save_plan(session_obj, plan)
+    db.commit()
+    db.refresh(session_obj)
+    return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.get('/sessions/{session_id}/plan', response_model=PlanStateOut)
+def get_plan(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN — call POST /plan/start first')
+    return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.post('/sessions/{session_id}/plan/approve', response_model=PlanStateOut)
+def post_plan_approve(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Transition awaiting_plan_approval → clarifying. After this the agent
+    loop is allowed to call /plan/actions to drive the conversation."""
+    from app.services.resume_copilot.plan import PlanStatus
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN')
+    if plan.status != PlanStatus.AWAITING_PLAN_APPROVAL:
+        raise HTTPException(
+            status_code=409,
+            detail=f'PLAN_NOT_AWAITING_APPROVAL (current: {plan.status.value})',
+        )
+    plan.status = PlanStatus.CLARIFYING
+    plan.version += 1
+    _save_plan(session_obj, plan)
+    db.commit()
+    db.refresh(session_obj)
+    return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.post('/sessions/{session_id}/plan/turn', response_model=PlanStateOut)
+def post_plan_turn(
+    session_id: int,
+    payload: ChatMessageIn,
+    target_item_id: str | None = None,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """One LLM-driven plan-mode turn.
+
+    Persists the user's chat message, asks the agent for one AgentAction,
+    applies it (auto-converting failed writes into clarifying asks), and
+    returns the new PlanState. The chat message log doubles as a
+    conversation rail; the plan_json remains the source of truth."""
+    from app.services.resume_copilot.agent.builder import NoMoreItems
+    from app.services.resume_copilot.plan_turn import run_plan_turn
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    if not getattr(session_obj, 'plan_json', None):
+        raise HTTPException(status_code=404, detail='NO_PLAN — call POST /plan/start first')
+
+    try:
+        new_plan, _action = run_plan_turn(
+            db=db,
+            session_id=session_id,
+            user_message=payload.content,
+            target_item_id=target_item_id,
+        )
+    except NoMoreItems as exc:
+        raise HTTPException(status_code=409, detail=f'PLAN_TERMINAL: {exc}') from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    return PlanStateOut(**new_plan.model_dump(mode='json'))
+
+
+@router.post('/sessions/{session_id}/plan/actions', response_model=PlanStateOut)
+def post_plan_action(
+    session_id: int,
+    payload: AgentActionIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Apply one AgentAction. Single mutation entrypoint for plan-mode.
+
+    409 on stale version, 422 on illegal transition or audit failure."""
+    from app.services.resume_copilot.plan import (
+        AgentAction,
+        EvidenceAuditFailed,
+        IllegalTransition,
+        StaleVersion,
+        apply_action,
+    )
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN')
+
+    try:
+        action = AgentAction.model_validate(
+            {'action': payload.action, 'item_id': payload.item_id, 'payload': payload.payload}
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f'INVALID_ACTION: {exc}') from exc
+
+    try:
+        new_plan = apply_action(plan, action, expected_version=payload.expected_version)
+    except StaleVersion as exc:
+        raise HTTPException(status_code=409, detail=f'STALE_VERSION: {exc}') from exc
+    except IllegalTransition as exc:
+        raise HTTPException(status_code=422, detail=f'ILLEGAL_TRANSITION: {exc}') from exc
+    except EvidenceAuditFailed as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                'code': 'EVIDENCE_AUDIT_FAILED',
+                'flags': [f.model_dump() for f in exc.flags],
+            },
+        ) from exc
+
+    _save_plan(session_obj, new_plan)
+    db.commit()
+    db.refresh(session_obj)
+    return PlanStateOut(**new_plan.model_dump(mode='json'))

@@ -113,6 +113,8 @@ class ResumeCopilotSessionOut(BaseModel):
     has_recommendations: bool
     has_feedback: bool
     has_direction_analysis: bool = False
+    plan_status: str = 'idle'
+    has_plan: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
     finished_at: datetime | None = None
@@ -273,3 +275,39 @@ class ApplyRewriteIn(BaseModel):
 class ApplyRewriteOut(BaseModel):
     profile: 'ResumeProfilePayload'
     applied: bool = True
+
+
+# ─── Plan-mode I/O ──────────────────────────────────────────────────────────
+
+class PlanStartIn(BaseModel):
+    """Body for POST /sessions/{id}/plan/start. Currently empty — derived
+    counts come from the persisted parsed profile. Reserved for future
+    template overrides."""
+    pass
+
+
+class AgentActionIn(BaseModel):
+    """Request body for POST /sessions/{id}/plan/actions.
+
+    Mirrors ``AgentAction`` in services.resume_copilot.plan but is a separate
+    type so the router layer can validate / version-check before crossing
+    into the service module."""
+    action: str
+    item_id: str | None = None
+    payload: dict = {}
+    expected_version: int | None = None
+
+
+class PlanStateOut(BaseModel):
+    """Wire-level view of PlanState.
+
+    The service-layer ``PlanState`` already serializes via Pydantic, but the
+    router returns a dict directly (``state.model_dump(mode='json')``) so the
+    router doesn't have to depend on the service module's enum classes."""
+    version: int
+    status: str
+    current_item_id: str | None = None
+    items: list[dict] = []
+    replan_count: int = 0
+    created_at: datetime | None = None
+    updated_at: datetime | None = None

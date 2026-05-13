@@ -103,6 +103,8 @@ class ResumeCopilotSession(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
     finished_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True, index=True)
+    plan_json = Column(Text, nullable=True)
+    plan_status = Column(Text, default="idle", index=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
