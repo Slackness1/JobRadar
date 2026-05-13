@@ -19,7 +19,11 @@ import sqlalchemy as sa
 
 
 revision: str = '0003_session_plan_json'
-down_revision: Union[str, Sequence[str], None] = '744a2a8b79fd'
+# chain off c3f87a1e9b42 (student_experiences) so the linear chain stays valid
+# in prod where that migration was already stamped before plan-mode landed.
+# c3f87a1e9b42 itself is idempotent (table exists check), so re-running it
+# on fresh DBs is safe.
+down_revision: Union[str, Sequence[str], None] = 'c3f87a1e9b42'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
