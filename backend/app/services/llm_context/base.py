@@ -50,6 +50,14 @@ class ContextProvider(Protocol):
     name: stable identifier used for logging and ENV-flag toggling.
     applies_to: cheap pre-check (no I/O); returns False to skip silently.
     fetch: do the actual retrieval + formatting; return "" to contribute nothing.
+
+    A provider may return either:
+        - str: plain block content (most providers)
+        - tuple[str, bool]: (block, terminate). terminate=True signals the
+          registry to stop running further providers for this request — used
+          by SensitiveTopicProvider so other providers don't pile context
+          on top of an already-fired sensitive-topic template.
+
     Failures inside fetch are caught by the registry — never bubble up.
     """
 
@@ -57,4 +65,4 @@ class ContextProvider(Protocol):
 
     def applies_to(self, req: ContextRequest) -> bool: ...
 
-    def fetch(self, req: ContextRequest) -> str: ...
+    def fetch(self, req: ContextRequest) -> "str | tuple[str, bool]": ...

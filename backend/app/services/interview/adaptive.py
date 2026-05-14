@@ -110,6 +110,7 @@ def _build_followup_user_payload(
     jd_content: str = "",
     current_main_question: str = "",
     current_main_answer: str = "",
+    recalled_experiences: list[dict] | None = None,
 ) -> str:
     payload: dict = {
         "target_job": target_job,
@@ -137,6 +138,15 @@ def _build_followup_user_payload(
         }
     if jd_content and jd_content.strip():
         payload["jd_content"] = jd_content.strip()[:_JD_PROMPT_TRUNCATE]
+    if recalled_experiences:
+        payload["recalled_experiences"] = {
+            "items": recalled_experiences,
+            "instruction": (
+                "以上是该候选人过往会话里登记过的真实经历摘要。可以**引用其中一段**作为"
+                "follow-up 的切入口（例如：'你之前提到过 X 项目，能不能聊一下当时的 Y'），"
+                "但绝不要照抄 raw_excerpt 原话。如果没有合适的钩子，就忽略这个字段。"
+            ),
+        }
     return json.dumps(payload, ensure_ascii=False)
 
 
@@ -149,6 +159,7 @@ def generate_followup_question(
     jd_content: str = "",
     current_main_question: str = "",
     current_main_answer: str = "",
+    recalled_experiences: list[dict] | None = None,
 ) -> NextQuestion:
     """Force-ask a follow-up sub-question via LLM, regardless of skeleton state.
 
@@ -162,6 +173,7 @@ def generate_followup_question(
         target_job, chip_summary, weakness, asked_questions, jd_content,
         current_main_question=current_main_question,
         current_main_answer=current_main_answer,
+        recalled_experiences=recalled_experiences,
     )
 
     try:

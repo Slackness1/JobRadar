@@ -42,6 +42,10 @@ def fetch_blocks(req: ContextRequest, *, allow: set[str] | None = None) -> list[
 
     A provider that raises is silently logged and skipped — context is best-effort
     and must never break the gateway LLM call.
+
+    A provider may return ``(block, terminate=True)`` to short-circuit the
+    pipeline (used by SensitiveTopicProvider). When that happens the block is
+    appended and remaining providers are skipped.
     """
     out: list[str] = []
     for p in _PROVIDERS:
@@ -50,12 +54,19 @@ def fetch_blocks(req: ContextRequest, *, allow: set[str] | None = None) -> list[
         try:
             if not p.applies_to(req):
                 continue
-            block = p.fetch(req)
+            result = p.fetch(req)
         except Exception as exc:
             logger.warning("provider %s fetch failed: %s", p.name, exc)
             continue
+        if isinstance(result, tuple):
+            block, terminate = result
+        else:
+            block, terminate = result, False
         if block and block.strip():
             out.append(block)
+        if terminate:
+            logger.info("provider %s requested early-terminate; skipping remaining providers", p.name)
+            break
     return out
 
 

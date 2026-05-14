@@ -28,6 +28,10 @@ from app.services.interview.adaptive import (
     generate_followup_question,
     pick_next_question,
 )
+from app.services.interview.subagents.recaller import (
+    ExperienceRecaller,
+    RecallerInput,
+)
 from app.services.interview.llm_helpers import InterviewLLMClient
 from app.services.interview.reference_answer import generate_reference
 from app.services.interview.scoring import ScoreResult, score_answer
@@ -105,6 +109,45 @@ def _reference_task(
     except Exception as exc:
         logger.warning("reference_task failed: %s", exc)
         db.rollback()
+    finally:
+        db.close()
+
+
+def _recall_experiences(
+    session_factory: Callable[[], Session],
+    user_key: str,
+    target_job: str,
+    transcript: list[dict],
+    max_results: int = 3,
+) -> list[dict]:
+    """Run ExperienceRecaller synchronously and return its experiences list.
+
+    The Recaller is async-shaped (asyncio.to_thread internally) but does pure
+    SQL/Python work — we drive it from the sync orchestrator via asyncio.run.
+    Failures are non-fatal: returns [] so the follow-up branch falls through
+    to its existing behavior without recalled hints.
+    """
+    import asyncio
+    if not (user_key or "").strip():
+        return []
+    db = session_factory()
+    try:
+        try:
+            result = asyncio.run(
+                ExperienceRecaller().invoke(RecallerInput(
+                    db=db,
+                    user_key=user_key,
+                    target_job=target_job,
+                    transcript_so_far=transcript,
+                    max_results=max_results,
+                ))
+            )
+        except Exception as exc:
+            logger.warning("ExperienceRecaller invoke failed: %s", exc)
+            return []
+        if not result.is_usable:
+            return []
+        return list(result.summary.get("experiences") or [])
     finally:
         db.close()
 
@@ -273,6 +316,18 @@ def process_turn_synchronous(
 
     parent_for_next: int | None = None
     if should_follow_up:
+        # Recall experiences from account_memory before generating follow-up so
+        # the LLM can ground sub-questions in real candidate history.
+        transcript = [
+            {"role": "assistant", "content": str(t.question or "")}
+            for t in all_turns if t.question
+        ] + [
+            {"role": "user", "content": str(t.user_answer or "")}
+            for t in all_turns if t.user_answer
+        ]
+        recalled = _recall_experiences(
+            session_factory, user_key, target_job, transcript,
+        )
         next_q = generate_followup_question(
             target_job=target_job,
             chip_summary=chip_summary,
@@ -282,6 +337,7 @@ def process_turn_synchronous(
             jd_content=jd_content,
             current_main_question=prev_question if current_main_index is not None else "",
             current_main_answer=prev_user_answer if current_main_index is not None else "",
+            recalled_experiences=recalled,
         )
         parent_for_next = current_main_index
     elif skeleton_count < len(skeleton_list):
@@ -291,6 +347,16 @@ def process_turn_synchronous(
     else:
         # All skeleton done and no drill triggered — keep going via follow-up so
         # the interview is unbounded; user ends manually.
+        transcript = [
+            {"role": "assistant", "content": str(t.question or "")}
+            for t in all_turns if t.question
+        ] + [
+            {"role": "user", "content": str(t.user_answer or "")}
+            for t in all_turns if t.user_answer
+        ]
+        recalled = _recall_experiences(
+            session_factory, user_key, target_job, transcript,
+        )
         next_q = generate_followup_question(
             target_job=target_job,
             chip_summary=chip_summary,
@@ -300,6 +366,7 @@ def process_turn_synchronous(
             jd_content=jd_content,
             current_main_question=prev_question if current_main_index is not None else "",
             current_main_answer=prev_user_answer if current_main_index is not None else "",
+            recalled_experiences=recalled,
         )
         parent_for_next = current_main_index
 

@@ -36,24 +36,41 @@ def bootstrap() -> None:
 
     Each provider import + register is independent — failing to register one
     must not block the others. New features add their registration here.
+
+    Registration order is meaningful: SensitiveTopicProvider runs first because
+    a hit triggers early-terminate and skips the rest (薪酬/通过率/offer 承诺
+    must not get factual context piled on top of the safe template).
     """
+    import logging
+    log = logging.getLogger(__name__)
+
+    # 1. Sensitive-topic guardrail FIRST (early-terminate on chat hits).
+    try:
+        from app.services.knowledge_pack.sensitive_provider import SensitiveTopicProvider
+        register(SensitiveTopicProvider())
+    except Exception as exc:
+        log.warning(f"SensitiveTopicProvider register failed: {exc}")
+
+    # 2. Public 智库 (Tencent) — track-perspective rubrics + verbatim quotes.
+    try:
+        from app.services.knowledge_pack.tencent_provider import TencentTrackProvider
+        register(TencentTrackProvider())
+    except Exception as exc:
+        log.warning(f"TencentTrackProvider register failed: {exc}")
+
+    # 3. Per-student private memory — read-side of unified-memory store.
+    try:
+        from app.services.memory.provider import StudentMemoryProvider
+        register(StudentMemoryProvider())
+    except Exception as exc:
+        log.warning(f"StudentMemoryProvider register failed: {exc}")
+
+    # 4. Podcast RAG (existing).
     try:
         from app.services.podcasts.provider import PodcastContextProvider
         register(PodcastContextProvider())
     except Exception as exc:
-        import logging
-        logging.getLogger(__name__).warning(f"PodcastContextProvider register failed: {exc}")
-
-    # Future:
-    # try:
-    #     from app.services.memory.provider import StudentMemoryProvider
-    #     register(StudentMemoryProvider())
-    # except Exception: pass
-    #
-    # try:
-    #     from app.services.knowledge_pack.tencent_provider import TencentTrackProvider
-    #     register(TencentTrackProvider())
-    # except Exception: pass
+        log.warning(f"PodcastContextProvider register failed: {exc}")
 
 
 __all__ = [
