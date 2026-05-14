@@ -14,7 +14,6 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowUpRight,
-  Brain,
   Check,
   ChevronDown,
   Download,
@@ -74,7 +73,6 @@ import {
 } from './types';
 import { DemoBanner } from '@/components/hifi/demo-banner';
 import { HFLogo, HFRadarPulse } from '@/components/hifi/hifi-primitives';
-import { StudentKbDrawer } from './student-kb-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -960,7 +958,6 @@ export function PublicResumeCopilot() {
   const [isSendingChat, setIsSendingChat] = useState(false);
   const [applyingOption, setApplyingOption] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [kbDrawerOpen, setKbDrawerOpen] = useState(false);
   const [resumeHistory, setResumeHistory] = useState<ResumeHistoryItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -1397,7 +1394,6 @@ export function PublicResumeCopilot() {
   return (
     <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
       {sessionId === DEMO_SESSION_ID && <DemoBanner />}
-      <StudentKbDrawer open={kbDrawerOpen} onClose={() => setKbDrawerOpen(false)} />
       {sessionId && pollErrorStreak >= POLL_ERROR_LIMIT && !pollGaveUp ? (
         <div style={{ padding: '8px 12px', background: 'var(--soft-blue, #eef4ff)', border: '1px solid var(--border, #d8dde3)', borderRadius: 8, fontSize: 13, color: 'var(--ink, #2c3036)' }}>
           连接不稳定（连续 {pollErrorStreak} 次失败）。
@@ -1460,7 +1456,6 @@ export function PublicResumeCopilot() {
           applyRewriteOption={applyRewriteOption}
           isSendingChat={isSendingChat}
           applyingOption={applyingOption}
-          onOpenKb={() => setKbDrawerOpen(true)}
         />
         <EditableResumeCanvas
           profile={currentProfile}
@@ -1631,7 +1626,6 @@ function ResumeChatRail({
   applyRewriteOption,
   isSendingChat,
   applyingOption,
-  onOpenKb,
 }: {
   session: ResumeCopilotSession | null;
   notice: string;
@@ -1661,7 +1655,6 @@ function ResumeChatRail({
   applyRewriteOption: (messageId: number, optionId: string) => Promise<void>;
   isSendingChat: boolean;
   applyingOption: string | null;
-  onOpenKb?: () => void;
 }) {
   const [draft, setDraft] = useState('');
   const [targetOpen, setTargetOpen] = useState(false);
@@ -1919,24 +1912,11 @@ function ResumeChatRail({
                 <div className="mt-0.5 text-xs leading-tight text-slate-500">AI 简历助手</div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {currentSessionId !== DEMO_SESSION_ID && onOpenKb && (
-                <button
-                  type="button"
-                  onClick={onOpenKb}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                  title="我的求职档案 — 跨会话的经历库"
-                >
-                  <Brain className="size-3.5 text-[var(--primary)]" />
-                  我的档案
-                </button>
-              )}
-              {sessionIsActive(session) ? (
-                <Loader2 className="size-4 animate-spin text-[var(--primary)]" />
-              ) : (
-                <Check className="size-4 text-emerald-500" />
-              )}
-            </div>
+            {sessionIsActive(session) ? (
+              <Loader2 className="size-4 animate-spin text-[var(--primary)]" />
+            ) : (
+              <Check className="size-4 text-emerald-500" />
+            )}
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
