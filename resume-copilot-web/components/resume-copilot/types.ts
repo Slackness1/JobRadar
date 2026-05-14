@@ -68,6 +68,9 @@ export interface ResumeCopilotSession {
   has_recommendations: boolean;
   has_feedback: boolean;
   has_direction_analysis: boolean;
+  recommendations_stale?: boolean;
+  plan_status?: string;
+  has_plan?: boolean;
   created_at: string | null;
   updated_at: string | null;
   finished_at: string | null;

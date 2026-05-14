@@ -45,6 +45,10 @@ from app.services.resume_copilot.plan import (
     StaleVersion,
     apply_action,
 )
+from app.services.resume_copilot.plan_sync import (
+    newly_finalized_item_ids,
+    sync_plan_to_profile,
+)
 
 
 def _load_profile(session_obj: ResumeCopilotSession) -> ResumeProfilePayload:
@@ -178,6 +182,16 @@ def run_plan_turn(
 
     session_obj.plan_json = new_plan.model_dump_json()
     session_obj.plan_status = new_plan.status.value
+
+    if newly_finalized_item_ids(plan, new_plan):
+        synced = sync_plan_to_profile(new_plan, profile)
+        confirmed = session_obj.confirmed_profile
+        if confirmed is None:
+            confirmed = ResumeConfirmedProfile(session_id=session_id)
+            db.add(confirmed)
+        confirmed.profile_json = json.dumps(synced.model_dump())
+        session_obj.recommendations_stale = 1
+
     db.commit()
     db.refresh(session_obj)
     return new_plan, action

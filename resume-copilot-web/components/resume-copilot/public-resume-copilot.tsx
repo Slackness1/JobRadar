@@ -1289,6 +1289,26 @@ export function PublicResumeCopilot() {
     }
   };
 
+  // Refresh recommendations using the backend's already-synced confirmed
+  // profile (e.g. after Plan-mode finalized new bullets). Skips the profile
+  // re-save so we don't overwrite the synced bullets with the React state's
+  // stale parsed-profile copy.
+  const regenerateFromSyncedProfile = async () => {
+    if (!sessionId) return;
+    setError('');
+    setNotice('');
+    setIsGenerating(true);
+    try {
+      await postResumeCopilotGenerate(sessionId);
+      await loadSession(sessionId);
+      setNotice('已用 Plan-mode 的新版简历重新生成推荐。');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : '重新生成失败');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const [isExporting, setIsExporting] = useState(false);
   const exportPdf = async () => {
     if (!sessionId || isExporting) return;
@@ -1437,6 +1457,7 @@ export function PublicResumeCopilot() {
           savePreferences={savePreferences}
           skipPreferences={skipPreferences}
           generate={generate}
+          regenerateFromSyncedProfile={regenerateFromSyncedProfile}
           isSaving={isSaving}
           isGenerating={isGenerating}
           recommendations={recommendations}
@@ -1607,6 +1628,7 @@ function ResumeChatRail({
   savePreferences,
   skipPreferences,
   generate,
+  regenerateFromSyncedProfile,
   isSaving,
   isGenerating,
   recommendations,
@@ -1636,6 +1658,7 @@ function ResumeChatRail({
   savePreferences: () => Promise<void>;
   skipPreferences: () => void;
   generate: () => Promise<void>;
+  regenerateFromSyncedProfile: () => Promise<void>;
   isSaving: boolean;
   isGenerating: boolean;
   recommendations: ResumeRecommendationResult | null;
@@ -1948,6 +1971,46 @@ function ResumeChatRail({
                     <Loader2 className="size-3.5 animate-spin" />
                     AI 思考中…
                   </span>
+                </div>
+              )}
+
+              {session?.recommendations_stale && session?.has_recommendations && (
+                <div
+                  className="max-w-[92%]"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    padding: '10px 14px',
+                    borderRadius: 12,
+                    border: '1px solid #fde68a',
+                    background: '#fffbeb',
+                    color: '#7c2d12',
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <span>
+                    <strong>简历已更新。</strong> 你在 Plan-mode 写完了新 bullet —— 当前推荐基于旧版简历，重新生成可以让排序匹配新简历。
+                  </span>
+                  <button
+                    onClick={regenerateFromSyncedProfile}
+                    disabled={isGenerating}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 8,
+                      border: '1px solid #d97706',
+                      background: isGenerating ? '#fde68a' : '#f59e0b',
+                      color: '#1c1917',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: isGenerating ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isGenerating ? '生成中…' : '重新推荐'}
+                  </button>
                 </div>
               )}
 

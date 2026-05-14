@@ -105,6 +105,7 @@ class ResumeCopilotSession(Base):
     expires_at = Column(DateTime, nullable=True, index=True)
     plan_json = Column(Text, nullable=True)
     plan_status = Column(Text, default="idle", index=True)
+    recommendations_stale = Column(Integer, default=0)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
