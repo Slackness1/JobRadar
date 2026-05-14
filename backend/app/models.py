@@ -659,3 +659,181 @@ class PodcastInsight(Base):
     corroboration_json = Column(Text, default="[]")
     embedding = Column(LargeBinary, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ---------------------------------------------------------------------------
+# Knowledge pack — public 智库 layer (per-employer rubric/quote/example bank)
+# Sourced from skill packs like tencent-recruit-pack/. Read by
+# TencentTrackProvider / SensitiveTopicProvider via fetch_blocks().
+# ---------------------------------------------------------------------------
+
+
+class KnowledgeEmployer(Base):
+    """Lookup row per public-knowledge owner. Use 'tencent' for tencent-recruit-pack
+    and '__generic__' for cross-employer methodology (STAR, group-interview rubrics)."""
+
+    __tablename__ = "knowledge_employers"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, unique=True, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    description = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class KnowledgeTrack(Base):
+    """Per-employer track lookup (技术 / 产品 / 游戏 / 市场 ...)."""
+
+    __tablename__ = "knowledge_tracks"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    aliases_json = Column(Text, default="[]")
+    description = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "track_key", name="uq_knowledge_track"),
+    )
+
+
+class KnowledgeFile(Base):
+    """Source-of-truth .md content. Hash-based dedup so re-ingest is idempotent."""
+
+    __tablename__ = "knowledge_files"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    file_path = Column(Text, nullable=False)
+    content_md = Column(Text, default="")
+    content_hash = Column(Text, default="", index=True)
+    version = Column(Integer, default=1)
+    ingested_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "file_path", name="uq_knowledge_file_path"),
+    )
+
+
+class TrackResumeRubric(Base):
+    """Per-(employer, track) resume scoring dimension with high/low signals."""
+
+    __tablename__ = "track_resume_rubrics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    dimension = Column(Text, default="")
+    high_signal = Column(Text, default="")
+    low_signal = Column(Text, default="")
+    examples_json = Column(Text, default="[]")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class TrackInterviewRubric(Base):
+    """Per-(employer, track, stage) interview rubric. group/1v1/hr/ai_screen.
+
+    For 群面 (group), scoring_dimensions_json carries the dual-axis spec:
+        {"speak_quality": [...], "collaboration": [...]}
+    """
+
+    __tablename__ = "track_interview_rubrics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    interview_stage = Column(Text, default="", index=True)
+    scoring_dimensions_json = Column(Text, default="{}")
+    rubric_md = Column(Text, default="")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class InterviewerQuote(Base):
+    """VERBATIM quotes from real interviewers — paraphrasing forbidden.
+
+    quote_verbatim must be a substring of the source file at ingest time;
+    the ingest script drops candidates that fail substring verification.
+    """
+
+    __tablename__ = "interviewer_quotes"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, default="", index=True)
+    interview_stage = Column(Text, default="", index=True)
+    quote_verbatim = Column(Text, nullable=False)
+    attribution = Column(Text, default="")
+    context_topic = Column(Text, default="")
+    source_file = Column(Text, default="")
+    source_excerpt = Column(Text, default="")
+    quote_hash = Column(Text, default="", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "quote_hash", name="uq_interviewer_quote_hash"),
+    )
+
+
+class TrackExampleBank(Base):
+    """good_answer / bad_answer / star_example / group_interview_full_run / ..."""
+
+    __tablename__ = "track_example_bank"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, default="", index=True)
+    example_type = Column(Text, default="", index=True)
+    title = Column(Text, default="")
+    content_md = Column(Text, default="")
+    rubric_score_json = Column(Text, default="{}")
+    commentary = Column(Text, default="")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class OutputConstraint(Base):
+    """Cross-cutting output rules. scope='global' applies to everything;
+    'employer' / 'track' narrow it. SensitiveTopicProvider may early-terminate
+    based on the highest-priority match."""
+
+    __tablename__ = "output_constraints"
+
+    id = Column(Integer, primary_key=True)
+    scope = Column(Text, default="global", index=True)
+    employer_key = Column(Text, default="", index=True)
+    track_key = Column(Text, default="", index=True)
+    rule = Column(Text, nullable=False)
+    explanation = Column(Text, default="")
+    softening_phrases_json = Column(Text, default="[]")
+    forbidden_phrases_json = Column(Text, default="[]")
+    priority = Column(Integer, default=50, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class SensitiveTopic(Base):
+    """8 categories per Tencent sensitive-topics.md. SensitiveTopicProvider
+    matches user_question against typical_phrasings_json and, on hit,
+    returns response_template + an early-terminate sentinel so other
+    providers don't append further context."""
+
+    __tablename__ = "sensitive_topics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    topic_key = Column(Text, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    typical_phrasings_json = Column(Text, default="[]")
+    response_template = Column(Text, default="")
+    can_say_json = Column(Text, default="[]")
+    cannot_say_json = Column(Text, default="[]")
+    severity = Column(Text, default="block", index=True)
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "topic_key", name="uq_sensitive_topic"),
+    )
