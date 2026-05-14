@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -516,3 +516,44 @@ class JobDraft(Base):
     reviewed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PodcastEpisode(Base):
+    __tablename__ = "podcast_episodes"
+
+    id = Column(Integer, primary_key=True)
+    eid = Column(Text, unique=True, nullable=False, index=True)
+    show = Column(Text, default="")
+    title = Column(Text, default="")
+    duration_sec = Column(Integer, default=0)
+    topic_one_liner = Column(Text, default="")
+    summary_500 = Column(Text, default="")
+    audience = Column(Text, default="")
+    guests_json = Column(Text, default="[]")
+    hot_takes_json = Column(Text, default="[]")
+    covers_role_json = Column(Text, default="[]")
+    covers_company_json = Column(Text, default="[]")
+    covers_sector_json = Column(Text, default="[]")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PodcastInsight(Base):
+    __tablename__ = "podcast_insights"
+
+    id = Column(Integer, primary_key=True)
+    insight_id = Column(Text, unique=True, nullable=False, index=True)
+    source_eid = Column(Text, nullable=False, index=True)
+    type_json = Column(Text, default="[]")
+    primary_type = Column(Text, default="", index=True)
+    role_target_json = Column(Text, default="[]")
+    company_target_json = Column(Text, default="[]")
+    sector_target_json = Column(Text, default="[]")
+    content = Column(Text, nullable=False)
+    source_quote = Column(Text, default="")
+    speaker = Column(Text, default="unknown")
+    confidence = Column(Text, default="med", index=True)
+    corroboration_json = Column(Text, default="[]")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
