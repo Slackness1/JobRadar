@@ -512,6 +512,7 @@ def get_chat_messages(
 def post_chat_message(
     session_id: int,
     payload: ChatMessageIn,
+    background_tasks: BackgroundTasks,
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -527,9 +528,37 @@ def post_chat_message(
         raise HTTPException(status_code=409, detail='DIRECTION_ANALYSIS_NOT_READY')
 
     try:
-        return generate_chat_turn(session_id, payload.content, db)
+        response = generate_chat_turn(session_id, payload.content, db)
     except Exception as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    # Student KB passive capture — flag-gated, guest/demo-skipped inside the task.
+    # Runs after response returns so chat latency is unaffected.
+    background_tasks.add_task(
+        _dispatch_student_kb_extraction,
+        session_id=session_id,
+        user_content=payload.content,
+    )
+    return response
+
+
+def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> None:
+    """BackgroundTasks entry point. Opens own SessionLocal because the request
+    DB session is closed by the time this runs."""
+    from app.database import SessionLocal
+    from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
+
+    db = SessionLocal()
+    try:
+        extract_for_chat_turn(db, session_id=session_id, user_content=user_content)
+    except Exception:
+        # Memory extraction failures must never surface to the user — log and drop.
+        import logging
+        logging.getLogger(__name__).exception(
+            "student_kb extraction failed for session_id=%s", session_id
+        )
+    finally:
+        db.close()
 
 
 @router.post('/sessions/{session_id}/chat/apply-rewrite', response_model=ApplyRewriteOut)

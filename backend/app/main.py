@@ -26,6 +26,7 @@ from app.routers import (
     scheduler,
     scoring,
     sites,
+    student_kb,
     system_config,
     system_health,
     teacher_entry,
@@ -164,6 +165,7 @@ app.include_router(coverage.router)
 app.include_router(teacher_entry.router)
 app.include_router(review_queue.router)
 app.include_router(system_health.router)
+app.include_router(student_kb.router)
 
 
 @app.get("/api/health")

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -486,6 +486,108 @@ class InterviewTurn(Base):
     question_source = Column(Text, default="skeleton")
     parent_turn_index = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class StudentExperience(Base):
+    """Cross-session personal knowledge base for one student (keyed on user_key).
+
+    Schema aligned with Claude Code's memory file design — see CLAUDE.md "Student KB"
+    section for rationale. Each row is one "experience" or related fact extracted
+    from the resume-copilot chat rail and re-usable in mock interview prompts.
+    """
+
+    __tablename__ = "student_experiences"
+
+    id = Column(Integer, primary_key=True)
+    user_key = Column(Text, nullable=False, index=True)
+    source_session_id = Column(
+        Integer,
+        ForeignKey("resume_copilot_sessions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    name = Column(Text, default="")                    # ≤20 char human-readable
+    summary = Column(Text, default="")                 # ≤30 char, lives in always-on index
+    summary_hash = Column(Text, default="", index=True)  # dedup key
+    category = Column(Text, default="experience")      # experience | skill_claim | preference | identity_fact
+    star_dimensions_json = Column(Text, default="[]")  # JSON list[str], retrieval index for category=experience
+    behavioral_hook = Column(Text, default="")         # STAR-structured template the interview LLM reuses verbatim
+    quantified_json = Column(Text, default="{}")       # JSON dict (team_size, duration_months, outcome, ...)
+    raw_excerpt = Column(Text, default="")             # original chat substring — anti-hallucination + audit trail
+    confidence = Column(Float, default=0.0)            # LLM self-rated 0-1
+    user_confirmed = Column(Boolean, default=False, index=True)
+
+    # 3-anchor flags — for category='experience', all three must be True or the row is rejected at extraction time.
+    has_temporal_anchor = Column(Boolean, default=False)
+    has_concrete_action = Column(Boolean, default=False)
+    has_outcome = Column(Boolean, default=False)
+
+    # Time / staleness — mirrors Claude Code's "memory is N days old" injection.
+    captured_at = Column(DateTime, default=datetime.utcnow, index=True)
+    last_verified_at = Column(DateTime, default=datetime.utcnow)
+    last_used_at = Column(DateTime, nullable=True)
+    use_count = Column(Integer, default=0)
+
+    # User-driven lifecycle
+    is_archived = Column(Boolean, default=False)       # user marked outdated / superseded
+
+    __table_args__ = (
+        UniqueConstraint("user_key", "summary_hash", name="uq_student_experience_user_summary"),
+    )
+
+
+class AccountMemory(Base):
+    """Unified account-scoped memory layer — single table, category-discriminated.
+
+    Replaces piecemeal stores (student_experiences, plan_json-embedded Evidence)
+    with one row-per-fact design. See docs/unified-memory-and-plan-mode-2026-05-13.md
+    for full rationale and the 8 categories' payload schemas.
+
+    Provenance is a first-class concept: every row remembers which module produced
+    it (`source_module`), which session and which message inside that session
+    (`source_session_id` / `source_message_id`), and the original raw text
+    (`raw_excerpt`) for anti-hallucination audit. Mirrors Claude Code memory's
+    `originSessionId` + verify-before-recommend pattern.
+    """
+
+    __tablename__ = "account_memory"
+
+    id = Column(Integer, primary_key=True)
+
+    # Identity + discriminator
+    user_key = Column(Text, nullable=False, index=True)
+    category = Column(Text, nullable=False, index=True)
+    # one of: evidence | experience | skill_claim | preference |
+    #         identity_fact | goal | commitment | weakness_signal
+
+    # Content
+    summary = Column(Text, default="")               # short, always-on index field
+    payload_json = Column(Text, default="{}")        # category-specific (pydantic-validated)
+    summary_hash = Column(Text, default="", index=True)  # dedup key
+
+    # Provenance
+    source_module = Column(Text, default="")         # chat | plan | parser | interview | manual
+    source_session_id = Column(Integer, nullable=True)
+    source_message_id = Column(Integer, nullable=True)
+    raw_excerpt = Column(Text, default="")           # source citation, anti-hallucination anchor
+
+    # Confidence + user-confirmation
+    confidence = Column(Float, default=0.0)
+    user_confirmed = Column(Boolean, default=False, index=True)
+
+    # Lifecycle
+    captured_at = Column(DateTime, default=datetime.utcnow, index=True)
+    last_verified_at = Column(DateTime, default=datetime.utcnow)
+    last_used_at = Column(DateTime, nullable=True)
+    use_count = Column(Integer, default=0)
+
+    # Evolution (versioning via supersession chain)
+    superseded_by_id = Column(Integer, nullable=True)   # FK-shaped but not enforced (intra-table)
+    is_archived = Column(Boolean, default=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("user_key", "summary_hash", name="uq_account_memory_user_summary"),
+    )
 
 
 class JobDraft(Base):
