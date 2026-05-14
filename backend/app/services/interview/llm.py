@@ -126,6 +126,20 @@ def build_interview_system_prompt(
                 + f"\n\n（参考 {intel.source_count} 条牛客网公开面经）"
             )
 
+        # Pluggable knowledge sources (podcast / future memory / future tencent…).
+        # Strangler-fig: lives alongside the hardcoded blocks above, doesn't
+        # replace them. New sources register via app.services.llm_context.bootstrap.
+        try:
+            from app.services.llm_context import ContextRequest, fetch_blocks
+            from app.services.llm_context.base import PURPOSE_INTERVIEW_QUESTION
+            blocks.extend(fetch_blocks(ContextRequest(
+                purpose=PURPOSE_INTERVIEW_QUESTION,
+                db=db,
+                target_job=target_job,
+            )))
+        except Exception:
+            pass  # context layer must never break interview prompt build
+
     return '\n\n'.join(blocks)
 
 

@@ -257,19 +257,46 @@ def generate_chat_turn(
 
     profile_dict = _load_profile_dict(session_id, db)
 
-    messages_payload: list[dict] = [
+    # Pull preferences once — providers receive them via ContextRequest.preferences.
+    pref_dict: dict = {}
+    try:
+        from app.models import ResumePreferenceProfile
+        pref_row = (
+            db.query(ResumePreferenceProfile)
+            .filter(ResumePreferenceProfile.session_id == session_id)
+            .first()
+        )
+        if pref_row:
+            pref_dict = json.loads(str(pref_row.preferences_json or '{}'))
+    except Exception:
+        pref_dict = {}
+
+    system_content = _CHAT_SYSTEM_PROMPT + '\n\n候选人简历摘要：\n' + json.dumps(
         {
-            'role': 'system',
-            'content': _CHAT_SYSTEM_PROMPT + '\n\n候选人简历摘要：\n' + json.dumps(
-                {
-                    'internships': profile_dict.get('internships', []),
-                    'projects': profile_dict.get('projects', []),
-                    'candidate_summary': profile_dict.get('candidate_summary', ''),
-                },
-                ensure_ascii=False,
-            ),
-        }
-    ]
+            'internships': profile_dict.get('internships', []),
+            'projects': profile_dict.get('projects', []),
+            'candidate_summary': profile_dict.get('candidate_summary', ''),
+        },
+        ensure_ascii=False,
+    )
+
+    # Pluggable knowledge sources (podcast / future memory / future tencent…).
+    try:
+        from app.services.llm_context import ContextRequest, fetch_blocks
+        from app.services.llm_context.base import PURPOSE_CHAT
+        extras = fetch_blocks(ContextRequest(
+            purpose=PURPOSE_CHAT,
+            db=db,
+            user_question=user_content,
+            profile=profile_dict,
+            preferences=pref_dict,
+        ))
+        if extras:
+            system_content += '\n\n' + '\n\n'.join(extras)
+    except Exception:
+        pass
+
+    messages_payload: list[dict] = [{'role': 'system', 'content': system_content}]
     for msg in history:
         messages_payload.append({
             'role': 'user' if msg.role == 'user' else 'assistant',
