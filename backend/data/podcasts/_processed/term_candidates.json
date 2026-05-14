@@ -1,0 +1,530 @@
+{
+  "companies": [
+    {
+      "canonical": "安信证券",
+      "aliases": [
+        "安信"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "摩根士丹利",
+      "aliases": [
+        "摩根"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "中信证券",
+      "aliases": [
+        "中信"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "申银万国",
+      "aliases": [
+        "申万",
+        "申银万国证券"
+      ],
+      "freq_seen": 5
+    },
+    {
+      "canonical": "万国证券",
+      "aliases": [
+        "万国"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "君安证券",
+      "aliases": [
+        "君安",
+        "君源证券"
+      ],
+      "freq_seen": 4
+    },
+    {
+      "canonical": "华夏证券",
+      "aliases": [
+        "华夏"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "中金公司",
+      "aliases": [
+        "中金"
+      ],
+      "freq_seen": 4
+    },
+    {
+      "canonical": "富国基金",
+      "aliases": [
+        "富国"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "YY评级",
+      "aliases": [
+        "外评",
+        "歪评级"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "标普",
+      "aliases": [],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "穆迪",
+      "aliases": [
+        "募迪"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "惠誉",
+      "aliases": [],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "美林证券",
+      "aliases": [
+        "美林"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "德意志银行",
+      "aliases": [
+        "德银"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "民生银行",
+      "aliases": [
+        "民生"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "恒大",
+      "aliases": [],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "新世纪",
+      "aliases": [
+        "新世纪评级"
+      ],
+      "freq_seen": 2
+    },
+    {
+      "canonical": "南方证券",
+      "aliases": [
+        "南方"
+      ],
+      "freq_seen": 2
+    }
+  ],
+  "roles": [
+    {
+      "canonical": "机构销售",
+      "aliases": [
+        "机构销售老师",
+        "销售"
+      ],
+      "freq_seen": 30
+    },
+    {
+      "canonical": "投资经理",
+      "aliases": [
+        "基金经理",
+        "PM",
+        "投资总监"
+      ],
+      "freq_seen": 15
+    },
+    {
+      "canonical": "卖方分析师",
+      "aliases": [
+        "行业分析师",
+        "卖方研究员",
+        "分析师"
+      ],
+      "freq_seen": 20
+    },
+    {
+      "canonical": "买方分析师",
+      "aliases": [
+        "买方研究员"
+      ],
+      "freq_seen": 5
+    },
+    {
+      "canonical": "信评分析师",
+      "aliases": [
+        "信评",
+        "信用分析师",
+        "评级分析师",
+        "信品",
+        "细品"
+      ],
+      "freq_seen": 15
+    },
+    {
+      "canonical": "投行承揽",
+      "aliases": [
+        "承揽",
+        "MD"
+      ],
+      "freq_seen": 10
+    },
+    {
+      "canonical": "投行承做",
+      "aliases": [
+        "承做",
+        "乘坐"
+      ],
+      "freq_seen": 8
+    },
+    {
+      "canonical": "渠道销售",
+      "aliases": [
+        "渠道"
+      ],
+      "freq_seen": 10
+    },
+    {
+      "canonical": "研究员",
+      "aliases": [],
+      "freq_seen": 10
+    },
+    {
+      "canonical": "策略分析师",
+      "aliases": [
+        "策略研究员"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "宏观分析师",
+      "aliases": [
+        "宏观研究员"
+      ],
+      "freq_seen": 3
+    },
+    {
+      "canonical": "合规",
+      "aliases": [
+        "合规岗"
+      ],
+      "freq_seen": 5
+    }
+  ],
+  "sectors": [
+    {
+      "canonical": "投行",
+      "aliases": [
+        "投行部",
+        "IBD",
+        "投资银行"
+      ]
+    },
+    {
+      "canonical": "卖方研究",
+      "aliases": [
+        "卖方",
+        "研究所"
+      ]
+    },
+    {
+      "canonical": "买方",
+      "aliases": [
+        "买方机构"
+      ]
+    },
+    {
+      "canonical": "信评",
+      "aliases": [
+        "信用评级",
+        "评级行业",
+        "信用研究"
+      ]
+    },
+    {
+      "canonical": "资管",
+      "aliases": [
+        "资产管理",
+        "券商资管"
+      ]
+    },
+    {
+      "canonical": "公募基金",
+      "aliases": [
+        "公募"
+      ]
+    },
+    {
+      "canonical": "私募",
+      "aliases": [
+        "私募基金"
+      ]
+    },
+    {
+      "canonical": "VC",
+      "aliases": [
+        "风险投资"
+      ]
+    },
+    {
+      "canonical": "PE",
+      "aliases": [
+        "私募股权"
+      ]
+    },
+    {
+      "canonical": "金租",
+      "aliases": [
+        "金融租赁"
+      ]
+    },
+    {
+      "canonical": "保险",
+      "aliases": [
+        "保险资管",
+        "险资"
+      ]
+    },
+    {
+      "canonical": "四大",
+      "aliases": [
+        "Big4",
+        "四大会计师事务所"
+      ]
+    },
+    {
+      "canonical": "固收",
+      "aliases": [
+        "固定收益",
+        "债券"
+      ]
+    },
+    {
+      "canonical": "Fintech",
+      "aliases": [
+        "金融科技"
+      ]
+    }
+  ],
+  "acronyms": [
+    {
+      "en": "IBD",
+      "zh": "投行部",
+      "context_freq": 5
+    },
+    {
+      "en": "PM",
+      "zh": "投资经理/基金经理",
+      "context_freq": 10
+    },
+    {
+      "en": "ER",
+      "zh": "卖方研究",
+      "context_freq": 3
+    },
+    {
+      "en": "MD",
+      "zh": "董事总经理",
+      "context_freq": 8
+    },
+    {
+      "en": "DCM",
+      "zh": "债券资本市场",
+      "context_freq": 3
+    },
+    {
+      "en": "ECM",
+      "zh": "股票资本市场",
+      "context_freq": 3
+    },
+    {
+      "en": "SVP",
+      "zh": "高级副总裁",
+      "context_freq": 2
+    },
+    {
+      "en": "VC",
+      "zh": "风险投资",
+      "context_freq": 3
+    },
+    {
+      "en": "PE",
+      "zh": "私募股权",
+      "context_freq": 3
+    },
+    {
+      "en": "ABS",
+      "zh": "资产证券化",
+      "context_freq": 2
+    },
+    {
+      "en": "CFA",
+      "zh": "注册金融分析师",
+      "context_freq": 2
+    },
+    {
+      "en": "ESG",
+      "zh": "环境、社会和治理",
+      "context_freq": 3
+    },
+    {
+      "en": "FA",
+      "zh": "财务顾问",
+      "context_freq": 2
+    },
+    {
+      "en": "REITs",
+      "zh": "房地产投资信托基金",
+      "context_freq": 2
+    }
+  ],
+  "asr_errors": [
+    {
+      "original": "细品",
+      "suggested": "信评",
+      "confidence": "high",
+      "context_example": "细品行业，细品分析师"
+    },
+    {
+      "original": "细频",
+      "suggested": "信评",
+      "confidence": "high",
+      "context_example": "细频分析师，细频行业"
+    },
+    {
+      "original": "新品",
+      "suggested": "信评",
+      "confidence": "high",
+      "context_example": "新品的报告，新品行业"
+    },
+    {
+      "original": "性品",
+      "suggested": "信评",
+      "confidence": "high",
+      "context_example": "性品岗"
+    },
+    {
+      "original": "品级公司",
+      "suggested": "评级公司",
+      "confidence": "high",
+      "context_example": "品级公司的老板"
+    },
+    {
+      "original": "巴比U",
+      "suggested": "IPO?",
+      "confidence": "med",
+      "context_example": "做巴比U"
+    },
+    {
+      "original": "埃批O",
+      "suggested": "IPO",
+      "confidence": "high",
+      "context_example": "做埃批O，做埃批U"
+    },
+    {
+      "original": "埃鼻D",
+      "suggested": "IBD",
+      "confidence": "high",
+      "context_example": "去做埃鼻D"
+    },
+    {
+      "original": "乘坐",
+      "suggested": "承做",
+      "confidence": "high",
+      "context_example": "乘坐就坐飞镖"
+    },
+    {
+      "original": "成揽",
+      "suggested": "承揽",
+      "confidence": "high",
+      "context_example": "成揽业务"
+    },
+    {
+      "original": "成销费",
+      "suggested": "承销费",
+      "confidence": "high",
+      "context_example": "成销费很多"
+    },
+    {
+      "original": "威埃批",
+      "suggested": "VIP",
+      "confidence": "high",
+      "context_example": "威埃批加牛马模式"
+    },
+    {
+      "original": "萧娇",
+      "suggested": "销售交易",
+      "confidence": "high",
+      "context_example": "萧娇也比他强"
+    },
+    {
+      "original": "枭交",
+      "suggested": "销售交易",
+      "confidence": "high",
+      "context_example": "现在枭交确实是招聘比较多"
+    },
+    {
+      "original": "募集给中国主权",
+      "suggested": "穆迪给中国主权",
+      "confidence": "high",
+      "context_example": "前几天募集给中国主权，一叫这个财政部"
+    },
+    {
+      "original": "陈兵在云端",
+      "suggested": "承揽在云端",
+      "confidence": "low",
+      "context_example": "听海观心，三口六兵飞天又遁地"
+    },
+    {
+      "original": "细仿",
+      "suggested": "模仿",
+      "confidence": "high",
+      "context_example": "一帧一帧的模仿的这个东西，细仿"
+    },
+    {
+      "original": "批R部门",
+      "suggested": "PR部门",
+      "confidence": "high",
+      "context_example": "地方政府和地方上市公司的批R部门"
+    },
+    {
+      "original": "皮R",
+      "suggested": "PR",
+      "confidence": "high",
+      "context_example": "你在那个皮R领域"
+    },
+    {
+      "original": "批加测",
+      "suggested": "PR",
+      "confidence": "med",
+      "context_example": "品牌侧，在批加测"
+    },
+    {
+      "original": "研发罚",
+      "suggested": "研究发",
+      "confidence": "med",
+      "context_example": "已经我们推影师罚了七个offer了吧"
+    },
+    {
+      "original": "销授罚",
+      "suggested": "销售发",
+      "confidence": "med",
+      "context_example": "销授罚了三个"
+    }
+  ]
+}
