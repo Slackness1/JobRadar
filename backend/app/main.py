@@ -20,6 +20,7 @@ from app.routers import (
     interview,
     job_intel,
     jobs,
+    podcast_rag,
     resume_copilot,
     scheduler,
     scoring,
@@ -97,6 +98,7 @@ app.include_router(job_intel.router)
 app.include_router(resume_copilot.router)
 app.include_router(interview.router)
 app.include_router(sites.router)
+app.include_router(podcast_rag.router)
 
 
 @app.get("/api/health")
