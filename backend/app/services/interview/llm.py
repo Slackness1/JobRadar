@@ -5,6 +5,8 @@ from urllib import request as urllib_request
 from sqlalchemy.orm import Session
 
 from app.services.interview.nowcoder import intel_provider
+from app.services.llm_context import ContextRequest, fetch_blocks
+from app.services.llm_context.base import PURPOSE_INTERVIEW_QUESTION
 from app.services.resume_copilot.llm import build_resume_llm_client
 
 INTERVIEW_END_MARKER = '[INTERVIEW_END]'
@@ -30,16 +32,26 @@ def build_interview_system_prompt(target_job: str, db: Optional[Session] = None)
     if db is None:
         return base
 
-    intel = intel_provider.get_intel_for_target_job(db, target_job)
-    if intel is None or not intel.summary_md.strip():
-        return base
+    extras = []
 
-    return (
-        base
-        + "\n\n## 最近公开面经的高频考察方向\n"
-        + intel.summary_md.strip()
-        + f"\n\n（以上方向参考了 {intel.source_count} 条来自牛客网的公开面经，作为出题灵感，不要直接复述原题。）"
-    )
+    intel = intel_provider.get_intel_for_target_job(db, target_job)
+    if intel and intel.summary_md.strip():
+        extras.append(
+            "## 最近公开面经的高频考察方向\n"
+            + intel.summary_md.strip()
+            + f"\n\n（以上方向参考了 {intel.source_count} 条来自牛客网的公开面经，作为出题灵感，不要直接复述原题。）"
+        )
+
+    # Pluggable context layer (podcast / future memory / future skills...).
+    extras.extend(fetch_blocks(ContextRequest(
+        purpose=PURPOSE_INTERVIEW_QUESTION,
+        db=db,
+        target_job=target_job,
+    )))
+
+    if not extras:
+        return base
+    return base + "\n\n" + "\n\n".join(extras)
 
 
 def stream_interview_turn(

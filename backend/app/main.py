@@ -69,6 +69,15 @@ async def lifespan(app: FastAPI):
 
     start_scheduler()
     print("[INFO] Scheduler started")
+
+    # Register pluggable LLM context providers (podcast / future memory / future skills…).
+    try:
+        from app.services.llm_context import bootstrap as bootstrap_llm_context, registered_names
+        bootstrap_llm_context()
+        print(f"[INFO] LLM context providers: {registered_names()}")
+    except Exception as exc:
+        print(f"[WARN] llm_context bootstrap failed: {exc}")
+
     yield
 
 

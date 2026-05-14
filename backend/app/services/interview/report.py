@@ -1,6 +1,11 @@
 import json
+from typing import Optional
 from urllib import request as urllib_request
 
+from sqlalchemy.orm import Session
+
+from app.services.llm_context import ContextRequest, fetch_blocks
+from app.services.llm_context.base import PURPOSE_INTERVIEW_SCORE
 from app.services.resume_copilot.llm import build_resume_llm_client
 
 _REPORT_SYSTEM_PROMPT = """你是一位专业的面试评估官。根据以下面试记录，给出结构化的反馈报告。
@@ -20,17 +25,31 @@ _REPORT_SYSTEM_PROMPT = """你是一位专业的面试评估官。根据以下�
 }"""
 
 
-def generate_interview_report(target_job: str, messages: list[dict]) -> dict:
+def generate_interview_report(
+    target_job: str, messages: list[dict], db: Optional[Session] = None
+) -> dict:
     transcript = '\n'.join(
         f"{'面试官' if m['role'] == 'assistant' else '候选人'}：{m['content']}"
         for m in messages
     )
+
+    system_prompt = _REPORT_SYSTEM_PROMPT
+    if db is not None:
+        # Pluggable context layer (podcast / future memory / future skills...).
+        blocks = fetch_blocks(ContextRequest(
+            purpose=PURPOSE_INTERVIEW_SCORE,
+            db=db,
+            target_job=target_job,
+        ))
+        if blocks:
+            system_prompt += '\n\n' + '\n\n'.join(blocks)
+
     client = build_resume_llm_client()
     payload = {
         'model': client.model,
         'response_format': {'type': 'json_object'},
         'messages': [
-            {'role': 'system', 'content': _REPORT_SYSTEM_PROMPT},
+            {'role': 'system', 'content': system_prompt},
             {'role': 'user', 'content': f'目标岗位：{target_job}\n\n面试记录：\n{transcript}'},
         ],
     }

@@ -11,12 +11,14 @@ from urllib import request as urllib_request
 
 from sqlalchemy.orm import Session
 
-from app.models import ResumeConfirmedProfile, ResumeCopilotMessage
+from app.models import ResumeConfirmedProfile, ResumeCopilotMessage, ResumePreferenceProfile
 from app.schemas_resume_copilot import (
     ResumeProfilePayload,
     ResumeCopilotMessageOut,
     RewriteOption,
 )
+from app.services.llm_context import ContextRequest, fetch_blocks
+from app.services.llm_context.base import PURPOSE_CHAT
 from app.services.resume_copilot.llm import build_resume_llm_client
 
 if TYPE_CHECKING:
@@ -134,6 +136,11 @@ field_path 规则（dot-notation）：
 }
 
 硬约束：如果输出 rewrite_options，长度必须是 2，且两个选项的 field_path、target_title、original 完全一致。
+
+如果系统消息附带「来自播客知识库的相关洞察」，请把它们当作一手行业实践参考：
+- 在 `content` 里**自然地引用**（不要堆砌）— 例如 "参考《大力如山》某嘉宾的观点：..."
+- 引用时**必须保留出处**（书名号 + 节目集名）
+- 改写文案时可借鉴洞察里的金融术语 / 描述方式 / 量化思路，但**禁止编造**洞察里没说的具体数字
 """
 
 
@@ -195,19 +202,40 @@ def generate_chat_turn(
 
     profile_dict = _load_profile_dict(session_id, db)
 
-    messages_payload: list[dict] = [
+    # Pull preferences once — providers receive them via ContextRequest.preferences.
+    pref_row = (
+        db.query(ResumePreferenceProfile)
+        .filter(ResumePreferenceProfile.session_id == session_id)
+        .first()
+    )
+    pref_dict: dict = {}
+    if pref_row:
+        try:
+            pref_dict = json.loads(str(pref_row.preferences_json or '{}'))
+        except Exception:
+            pref_dict = {}
+
+    system_content = _CHAT_SYSTEM_PROMPT + '\n\n候选人简历摘要：\n' + json.dumps(
         {
-            'role': 'system',
-            'content': _CHAT_SYSTEM_PROMPT + '\n\n候选人简历摘要：\n' + json.dumps(
-                {
-                    'internships': profile_dict.get('internships', []),
-                    'projects': profile_dict.get('projects', []),
-                    'candidate_summary': profile_dict.get('candidate_summary', ''),
-                },
-                ensure_ascii=False,
-            ),
-        }
-    ]
+            'internships': profile_dict.get('internships', []),
+            'projects': profile_dict.get('projects', []),
+            'candidate_summary': profile_dict.get('candidate_summary', ''),
+        },
+        ensure_ascii=False,
+    )
+
+    # Pluggable context layer: each enabled provider contributes one block.
+    context_blocks = fetch_blocks(ContextRequest(
+        purpose=PURPOSE_CHAT,
+        db=db,
+        user_question=user_content,
+        profile=profile_dict,
+        preferences=pref_dict,
+    ))
+    if context_blocks:
+        system_content += '\n\n' + '\n\n'.join(context_blocks)
+
+    messages_payload: list[dict] = [{'role': 'system', 'content': system_content}]
     for msg in history:
         messages_payload.append({
             'role': 'user' if msg.role == 'user' else 'assistant',

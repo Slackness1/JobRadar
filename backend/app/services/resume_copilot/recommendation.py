@@ -17,6 +17,12 @@ from app.schemas_resume_copilot import (
     ResumeProfilePayload,
     ResumeRecommendationItem,
 )
+from app.services.llm_context import (
+    ContextRequest,
+    fetch_blocks_for_jobs,
+    format_per_job_aggregated,
+)
+from app.services.llm_context.base import PURPOSE_RERANK_JOB
 from app.services.resume_copilot.llm import build_resume_llm_client
 from app.services.resume_copilot.redact import redact_profile_for_llm
 
@@ -60,6 +66,7 @@ class ResumeRecommendationProvider(Protocol):
         profile: ResumeProfilePayload,
         preferences: ResumePreferencePayload | None,
         items: list[ResumeRecommendationItem],
+        per_job_context: str = "",
     ) -> Any: ...
 
 
@@ -72,17 +79,25 @@ class OpenAICompatibleResumeRecommendationProvider:
         profile: ResumeProfilePayload,
         preferences: ResumePreferencePayload | None,
         items: list[ResumeRecommendationItem],
+        per_job_context: str = "",
     ) -> Any:
+        system_msg = (
+            'Rerank the candidate recommendation items. Return JSON with key items. '
+            'Each item must include job_id, final_score, why_recommended, strengths, risks.'
+        )
+        if per_job_context:
+            system_msg += (
+                '\n\n' + per_job_context +
+                '\n\n请在 strengths/risks/why_recommended 中**自然引用**上述洞察的关键判断'
+                '（如"基于《...》提到的趋势..."），但**禁止编造**洞察里没说的具体数字或公司细节。'
+            )
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
             'messages': [
                 {
                     'role': 'system',
-                    'content': (
-                        'Rerank the candidate recommendation items. Return JSON with key items. '
-                        'Each item must include job_id, final_score, why_recommended, strengths, risks.'
-                    ),
+                    'content': system_msg,
                 },
                 {
                     'role': 'user',
@@ -578,8 +593,32 @@ def recommend_jobs_for_profile(
                     provider = None
                     fallback_reason = str(exc)
             if provider is not None:
+                # Pluggable per-job context (podcast / future memory / future skills...).
+                jobs_for_ctx = [
+                    {
+                        "id": item.job_id,
+                        "company": item.company,
+                        "title": item.job_title,
+                        "track_label": item.matched_track_label or item.matched_role_family,
+                    }
+                    for item in ai_slice
+                ]
+                base_req = ContextRequest(
+                    purpose=PURPOSE_RERANK_JOB,
+                    db=db,
+                    profile=profile.model_dump() if hasattr(profile, "model_dump") else None,
+                    preferences=preferences.model_dump() if preferences else None,
+                )
+                blocks_by_job = fetch_blocks_for_jobs(base_req, jobs_for_ctx)
+                per_job_ctx = format_per_job_aggregated(
+                    blocks_by_job,
+                    header="每个岗位附带的相关洞察 — 用来辅助 final_score / strengths / risks 的判断",
+                )
                 try:
-                    reranked_items = provider.rerank_recommendations(profile, preferences, ai_slice)
+                    reranked_items = provider.rerank_recommendations(
+                        profile, preferences, ai_slice,
+                        per_job_context=per_job_ctx,
+                    )
                     if isinstance(reranked_items, dict):
                         reranked_items = reranked_items.get('items', [])
                     base_items_by_job_id = {item.job_id: item for item in ai_slice}

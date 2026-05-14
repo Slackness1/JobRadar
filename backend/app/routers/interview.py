@@ -68,7 +68,7 @@ def interview_report(
     db: Session = Depends(get_db),
 ):
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
-    report = generate_interview_report(body.target_job, messages)
+    report = generate_interview_report(body.target_job, messages, db=db)
     row = InterviewReport(
         user_key=x_resume_user_key,
         target_job=body.target_job,
