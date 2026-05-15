@@ -36,6 +36,7 @@ from tests.eval.judge import (
     judge_followup_quality,
     judge_track_relevance,
 )
+from tests.eval.multi_turn import simulate_full_interview
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -49,7 +50,27 @@ ALL_METRICS = (
     "fit_explanation_quality",
     "evidence_groundedness",
     "followup_quality",
+    "multi_turn_quality",
 )
+
+
+# Multi-turn fixture 配置 — 几个代表性 (student, chip, jd) 组合,跑完整模拟面试
+MULTI_TURN_FIXTURES = [
+    {
+        "student_id": "students/01_finance_undergrad",
+        "chip": "公募基金",
+        "chip_summary": "公募基金研究方向",
+        "target_job": "公募基金 行业研究员",
+        "jd_id": "jds/01_mutual_fund_research",
+    },
+    {
+        "student_id": "students/04_quant_master",
+        "chip": "量化研究",
+        "chip_summary": "量化私募研究方向",
+        "target_job": "九坤投资 量化研究员",
+        "jd_id": "jds/05_quant_research",
+    },
+]
 
 
 # ── fixture 加载 ───────────────────────────────────────────────────────────
@@ -367,6 +388,83 @@ def run_followup_quality(sut, judge, fixtures) -> list[dict]:
     return results
 
 
+def run_multi_turn_quality(sut, simulator, judge, students, jds) -> list[dict]:
+    """跑完整模拟面试,评估每个 follow-up 的质量 + interest_decider 决策。
+
+    每个 fixture combo (student × chip × jd) 跑 1 次完整面试 (~6 skel × 0-3 follow-up
+    each = up to 24 turns)。结果展开成多条 result,每个 follow-up turn 一条。
+    """
+    student_by_id = {s.get("id"): s for s in students}
+    jd_by_id = {j.get("id"): j for j in jds}
+    results = []
+
+    for combo in MULTI_TURN_FIXTURES:
+        student = student_by_id.get(combo["student_id"])
+        jd = jd_by_id.get(combo["jd_id"])
+        if student is None or jd is None:
+            logger.warning("multi_turn skip: missing %s or %s", combo["student_id"], combo["jd_id"])
+            continue
+        logger.info("multi_turn · %s × chip=%s", combo["student_id"], combo["chip"])
+        try:
+            session = simulate_full_interview(
+                sut=sut,
+                simulator=simulator,
+                judge=judge,
+                student=student,
+                chip=combo["chip"],
+                chip_summary=combo["chip_summary"],
+                target_job=combo["target_job"],
+                jd_content=(jd.get("job") or {}).get("description", ""),
+            )
+        except Exception as exc:
+            logger.exception("multi_turn failed: %s", combo["student_id"])
+            results.append({
+                "metric": "multi_turn_quality",
+                "student_id": combo["student_id"],
+                "chip": combo["chip"],
+                "score": None,
+                "reasoning": f"<error {type(exc).__name__}: {str(exc)[:200]}>",
+                "concerns": ["multi_turn_error"],
+            })
+            continue
+
+        followup_count = len(session.followup_turns)
+        scored = [t for t in session.followup_turns if isinstance(t.judge_score, int)]
+        avg_score = sum(t.judge_score for t in scored) / len(scored) if scored else None
+
+        # 整场聚合 1 条
+        results.append({
+            "metric": "multi_turn_quality",
+            "student_id": combo["student_id"],
+            "chip": combo["chip"],
+            "n_followups": followup_count,
+            "avg_followup_score": avg_score,
+            "score": int(round(avg_score)) if avg_score is not None else None,
+            "reasoning": f"完整面试 {len(session.turns)} turn (含 {followup_count} 个 follow-up); "
+                        f"avg follow-up judge_score = {avg_score:.2f}" if avg_score is not None else
+                        "完整面试无 follow-up 触发",
+            "concerns": [],
+            "sut_output": session.to_dict(),
+        })
+
+        # 每个 follow-up turn 单独 1 条 (方便 inspect 哪个 turn 出问题)
+        for t in session.followup_turns:
+            results.append({
+                "metric": "multi_turn_quality_per_turn",
+                "student_id": combo["student_id"],
+                "chip": combo["chip"],
+                "turn_index": t.turn_index,
+                "parent_main_index": t.parent_main_index,
+                "score": t.judge_score,
+                "reasoning": t.judge_reason[:300],
+                "concerns": [],
+                "decision_reason": t.decision_reason[:300],
+                "sut_output": {"question": t.question, "answer": t.candidate_answer[:300]},
+            })
+
+    return results
+
+
 def _error_result(metric: str, student_id, jd_id, exc, fixture_id=None) -> dict:
     return {
         "metric": metric,
@@ -433,6 +531,10 @@ def main() -> int:
 
     if "followup_quality" in metrics:
         all_results.extend(run_followup_quality(sut, judge, answers))
+
+    if "multi_turn_quality" in metrics:
+        simulator = build_simulator_client()
+        all_results.extend(run_multi_turn_quality(sut, simulator, judge, students, jds))
 
     # 落盘
     summary = _summarize(all_results)

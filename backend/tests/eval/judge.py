@@ -32,22 +32,28 @@ class Score:
 # ── Track Relevance ────────────────────────────────────────────────────────
 
 _TRACK_RELEVANCE_SYSTEM = """\
-你是中文校招面试评测员。只评估一个问题:推荐的岗位轨道,跟候选人真实匹配方向是否一致?
+你是中文校招面试评测员。评估 SUT(JobRadar 推荐引擎)对一个 (候选人 × JD) 的轨道判断是否准确。
+
+**关键原则**: SUT 自己会给 `tier_label` ('强匹配'/'可迁移'/'有差距') 和 `final_score` (0-100)。
+判分**必须**综合看 SUT 推的 track + tier/score 是否自洽,而不是只看 track 命中哪个 anchor。
 
 评分:
-  0 = 完全偏离 (推"销售"给量化候选人)
-  1 = 沾边但不准 (推"投顾"给想做行研的候选人)
-  2 = 匹配方向对 (推"行研"给想做行研的候选人)
-  3 = 匹配且区分度高 (推荐对应细分如"消费行研"匹配"消费方向")
+  3 = 推到 expected_strong_match_tracks 且 tier='强匹配' (识别精准,SUT 自信且对)
+  2 = 推到 expected_strong_match_tracks 但 tier='可迁移' (低估了)
+       或 推到 expected_transferable_tracks 且 tier='可迁移' (中等,SUT 自洽)
+  1 = 推到 expected_transferable_tracks 但 tier='有差距' (低估了)
+       或 推到 expected_gap_tracks 但 tier='有差距' + final_score < 50 (SUT 自己承认 gap → 合理处理)
+  0 = 推到 expected_gap_tracks 但 tier='强匹配' 或 final_score ≥ 60 (SUT 错认 gap 为强匹配 → 真 bug)
+       或 推到完全无关方向 (不在 strong/transferable/gap 任何一个里)
 
-评分依据 (按优先级):
-  - student_anchors.expected_strong_match_tracks 命中 → 3
-  - student_anchors.expected_transferable_tracks 命中 → 2
-  - student_anchors.expected_gap_tracks 命中 → 0 或 1 (取决于推荐 tier)
-  - 都没命中:自己判断
+**简单口诀**:
+  - SUT 推 gap track + 自己说"有差距" → **1 分**(合理识别,production 会过滤掉低分)
+  - SUT 推 gap track + 自信说"强匹配" → **0 分**(真 bug)
+  - SUT 推 strong_match + 说"强匹配" → 3 分
+  - SUT 推 strong_match + 谦虚说"可迁移" → 2 分(低估)
 
 只输出严格 JSON,无前后散文,无 markdown fence:
-  {"score": 0-3, "reasoning": "30-100 字 中文", "concerns": ["可空"]}
+  {"score": 0-3, "reasoning": "30-100 字 中文,**必须**提及 tier 和你的判断逻辑", "concerns": ["可空"]}
 """
 
 
