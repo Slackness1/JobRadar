@@ -1,0 +1,1168 @@
+{
+  "metadata": {
+    "models": {
+      "sut": "deepseek-v4-pro",
+      "judge": "mimo-v2.5-pro"
+    },
+    "n_students": 5,
+    "n_jds": 5,
+    "n_interview_answers": 5,
+    "metrics_run": [
+      "track_relevance",
+      "fit_explanation_quality",
+      "evidence_groundedness",
+      "followup_quality"
+    ]
+  },
+  "summary": {
+    "track_relevance": {
+      "mean": 1.4090909090909092,
+      "n": 22,
+      "errors": 3,
+      "hist": [
+        8,
+        2,
+        7,
+        5
+      ]
+    },
+    "fit_explanation_quality": {
+      "mean": 2.4545454545454546,
+      "n": 22,
+      "errors": 3,
+      "hist": [
+        2,
+        2,
+        2,
+        16
+      ]
+    },
+    "evidence_groundedness": {
+      "mean": 2.2,
+      "n": 5,
+      "errors": 0,
+      "hist": [
+        0,
+        0,
+        4,
+        1
+      ]
+    },
+    "followup_quality": {
+      "mean": 2.4,
+      "n": 5,
+      "errors": 0,
+      "hist": [
+        1,
+        0,
+        0,
+        4
+      ]
+    }
+  },
+  "results": [
+    {
+      "metric": "track_relevance",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 3,
+      "reasoning": "推荐的行业研究员-消费方向与学生锚定的强匹配轨道（公募基金/研究）完全一致，且细分方向匹配，区分度高。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "行业研究员-消费方向",
+        "final_score": 75,
+        "tier_label": "可迁移",
+        "why_recommended": [
+          "卖方研究实习深度覆盖新能源行业，独立撰写多篇深度报告和盈利预测，研究方法论可直接迁移至消费行业",
+          "头部券商研究所经历符合JD偏好，CFA一级通过、财务建模与Wind/iFinD熟练使用等技能高度匹配",
+          "具备量化分析与数据处理能力（Python、因子复现），能为消费行业研究提供差异化视角"
+        ],
+        "strengths": [
+          "研究功底扎实：3篇深度报告+12篇点评，获所内优秀报告，熟悉从行业跟踪到报告产出的全流程",
+          "财务建模能力强：熟练搭建DCF估值模型，参与盈利预测更新，能满足维护财务模型与季度预测的要求",
+          "综合素质突出：金融专业、CFA一级、数学建模获奖，学习能力与抗压能力可适应高强度投研工作"
+        ],
+        "risks": [
+          "消费行业无直接经验，需从头积累行业认知与公司覆盖，初期产出效率可能受影响",
+          "本科学历（即便可破格）在硕士为主的竞争中可能处于劣势，需证明破格录取的独特价值"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/02_securities_research",
+      "score": 3,
+      "reasoning": "推荐轨道与候选人强匹配轨迹完全一致，且具体到新能源组细分领域，与候选人证据关键词高度吻合，区分度高。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "券商研究所",
+        "final_score": 95,
+        "tier_label": "强匹配",
+        "why_recommended": [
+          "实习经历直接匹配：已在中信证券研究所新能源组实习，熟悉公司研究流程与报告撰写，与岗位无缝衔接",
+          "深度报告能力突出：独立撰写的深度报告获所内优秀，具备助理分析师核心输出能力",
+          "金融专业基础扎实+技能匹配：CFA一级通过，熟练使用Wind/iFinD/Choice，满足岗位全部工具要求"
+        ],
+        "strengths": [
+          "已有同团队实习经验，上手快，减少培训成本",
+          "同时具备卖方研究（中信）与量化研究（国君自营）复合背景，分析维度更全面",
+          "深度报告写作能力已验证，6篇行业调研+3篇深度报告，产出效率高"
+        ],
+        "risks": [
+          "本科学历在头部券商研究部竞争中可能稍处劣势，同批候选人硕士居多",
+          "新能源行业涉及技术迭代，纯金融背景对技术细节理解可能需额外学习成本"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 2,
+      "reasoning": "推荐的'买方基本面研究'与候选人的'二级市场买方'可迁移方向一致，方向匹配。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "买方基本面研究",
+        "final_score": 62,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "拥有头部券商研究所深度报告产出经验，独立覆盖8家上市公司并获所内优秀报告，证明扎实的基本面研究功底",
+          "兼具量化自营实习经历，能运用Python进行因子复现与回测，提供基本面与量化结合的独特视角",
+          "上交大金融本科背景与CFA一级通过，具备扎实的金融理论框架和估值建模能力"
+        ],
+        "strengths": [
+          "输出过完整行业深度报告与公司估值模型，具备独立研究能力，直接匹配岗位核心职责",
+          "具备新能源产业链研究经验，且通过量化手段验证了ROE加速度、毛利率边际改善等基本因子的有效性，可迁移至其他行业覆盖",
+          "积极参与投资协会行业研究，组织外部访谈，展示出强烈的主动研究意愿与沟通协调能力"
+        ],
+        "risks": [
+          "学历要求为硕士及以上，候选人为本科在读，可能被系统初筛过滤",
+          "CFA仅通过一级，岗位优先要求CFA二级，且缺乏买方实习经验，对业绩归因、组合管理讨论等实际工作熟悉度不足"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/04_pe_primary",
+      "score": 0,
+      "reasoning": "推荐岗位轨道是'PE投资'，这直接命中了候选人的expected_gap_tracks，表明存在明显差距而非匹配。该推荐完全偏离了候选人预期的强匹配方向（公募基金/研究、券商研究所）。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "PE投资",
+        "final_score": 72,
+        "tier_label": "可迁移",
+        "why_recommended": [
+          "扎实的行业研究功底：在中信证券研究所独立撰写深度报告，方法论可迁移至消费赛道研究",
+          "成熟的财务建模能力：掌握DCF与相对估值，具备向LBO模型延伸的扎实基础",
+          "量化思维赋能：量化实习经历强化了数据驱动分析能力，可辅助消费行业的数据验证与洞察"
+        ],
+        "strengths": [
+          "头部券商研究所实习，产出获月度优秀报告，研究质量高",
+          "CFA一级通过，财务分析基本功扎实",
+          "跨领域研究经验（新能源+量化），展现快速学习与适应能力"
+        ],
+        "risks": [
+          "缺乏消费行业直接积累，对食品饮料、美护等细分赛道洞察不足",
+          "无PE/IBD实习经历，不熟悉一级市场尽调、LBO建模及投后管理流程"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/05_quant_research",
+      "score": null,
+      "reasoning": "<skipped — SUT 返回空 matched_track_label>",
+      "concerns": [
+        "sut_invalid_output"
+      ],
+      "sut_output": {
+        "recommendation": {
+          "matched_track_label": "量化研究员（中低频策略组）",
+          "final_score": 65,
+          "tier_label": "有差距",
+          "why_recommended": [
+            "曾在国泰君安自营从事量化研究，具备因子复现和回测经验",
+            "金融学背景可辅助基本面Alpha信号挖掘",
+            "Python编程和数据处理能力满足日常工作需求"
+          ],
+          "strengths": [
+            "实习经历涵盖卖方行业研究和买方量化研究，视角多元",
+            "扎实的金融理论基础和估值建模能力",
+            "编程工具链熟练（Python, SQL, 常用数据终端）"
+          ],
+          "risks": [
+            "学历为本科，不符合岗位要求的硕士及以上学历",
+            "数理基础偏向金融而非纯理工，面对复杂模型时可能吃力"
+          ]
+        }
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 1,
+      "reasoning": "推荐岗位为行业研究员（消费方向），属于券商研究所/公募基金研究范畴，但候选人期望差距轨道明确包含此类，且可迁移轨道仅财富管理/经纪。虽岗位方向与期望强匹配轨道无关，但未完全偏离。",
+      "concerns": [
+        "推荐岗位在候选人明确列出的差距轨道中，但 tier 标注为有差距，说明系统已识别不匹配"
+      ],
+      "sut_output": {
+        "matched_track_label": "行业研究员（消费方向）",
+        "final_score": 35,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "具备基础财务与市场调研能力，与消费研究存在技能交集",
+          "拥有券商实习经历，对二级市场有初步认知",
+          "对泛投研方向有明确兴趣，可塑性较强"
+        ],
+        "strengths": [
+          "工商管理专业背景，系统学习过财务管理与投资学，具备财务分析基础",
+          "证券营业部实习中接触客户档案与CRM系统，了解经纪业务逻辑",
+          "校园调研项目经历，展示了基本的数据收集与分析能力（问卷、SPSS）"
+        ],
+        "risks": [
+          "学历未达硕士要求，且无头部研究所或公募实习经历，竞争力严重不足",
+          "缺乏深度行业研究、财务建模及独立撰写研报经验，短期内难以胜任深度研究工作"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/02_securities_research",
+      "score": 0,
+      "reasoning": "候选人背景指向财富管理方向，而推荐岗位为券商研究所行研，属于expected_gap_tracks，且推荐tier为'有差距'，表明匹配度低。",
+      "concerns": [
+        "推荐岗位与候选人预期方向严重不符，可能误导求职。"
+      ],
+      "sut_output": {
+        "matched_track_label": "行业研究（新能源）",
+        "final_score": 25,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "工商管理背景涵盖财务管理、投资学等课程，具备行业研究所需的基础金融知识",
+          "校园调研项目展示了数据收集、分析与报告撰写能力，可迁移至行业研究",
+          "券商营业部实习经历了解证券业务生态，对市场有一定敏感度"
+        ],
+        "strengths": [
+          "具备财务管理、投资学等商科理论基础",
+          "有券商实习经历，了解证券业务场景",
+          "校园调研中运用SPSS进行数据分析，具备基础数据处理能力"
+        ],
+        "risks": [
+          "缺乏行业研究/深度报告撰写经验，无法提供独立研报样稿",
+          "Wind仅学生版，英语仅CET-4，未达岗位要求的熟练使用Wind和CET-6"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 0,
+      "reasoning": "推荐岗位轨道'财富管理/经纪'，与候选人真实目标方向'二级市场买方'存在明显偏离，后者明确列在预期差距轨道中。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "财富管理 / 经纪",
+        "final_score": 15,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "具备券商营业部实习经验，了解经纪业务基本流程",
+          "校内的市场调研项目展现了数据处理和报告撰写的基础能力",
+          "对二级市场投资有兴趣，职业方向有一定关联性"
+        ],
+        "strengths": [
+          "熟悉 Excel 和 PPT，能处理基础数据与制作汇报材料",
+          "具备 SPSS 入门分析和市场调研经验",
+          "有团队协作和课堂展示的高分经历，沟通表达能力较好"
+        ],
+        "risks": [
+          "学历仅为本科，未达到岗位要求的硕士及以上学历，且学校背景非顶尖院校",
+          "缺乏行业研究、公司深度报告撰写经验，无头部机构实习，与岗位核心要求差距大"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/04_pe_primary",
+      "score": 0,
+      "reasoning": "推荐的'券商支持/财富管理'岗位与候选人明确期望的'一级PE'方向完全不符，属于预期差距轨道，且与候选人经验关键词（营业部、市场调研）的关联性也很弱。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "券商支持 / 财富管理",
+        "final_score": 12,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "具备金融行业基础认知，熟悉经纪业务和客户服务流程",
+          "有校园调研和基础数据分析经验，可辅助初级行业研究",
+          "工商管理专业背景涉及财务和营销知识，可提供商业分析支撑"
+        ],
+        "strengths": [
+          "沟通与客户服务能力：通过券商营业部实习和客户档案整理，展现细致和客户意识",
+          "团队协作与执行：在小组项目中配合完成问卷发放和数据分析，按时交付成果",
+          "基础工具应用：熟练使用Excel、PPT和SPSS，能处理简单数据并制作报告"
+        ],
+        "risks": [
+          "院校背景与学历不达标：非顶尖院校本科，与要求的硕士及以上及清北复交/海外top20差距显著",
+          "缺乏核心投研实习与建模能力：无头部PE/IBD/咨询经历，未展示DCF、LBO等建模经验，且英语水平未达工作语言要求"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/05_quant_research",
+      "score": null,
+      "reasoning": "<skipped — SUT 返回空 matched_track_label>",
+      "concerns": [
+        "sut_invalid_output"
+      ],
+      "sut_output": {
+        "recommendation": {
+          "matched_track_label": "量化研究",
+          "final_score": 10,
+          "tier_label": "有差距",
+          "why_recommended": [
+            "具备基础统计分析能力（SPSS交叉分析），可为因子数据预处理提供支持",
+            "参与过券商营业部实习，对金融市场有初步认知，能够理解交易数据场景",
+            "有主动研究精神（校园市场调研项目），具备从数据中提炼洞察的潜力"
+          ],
+          "strengths": [
+            "具备基础数据处理与分析能力（Excel、SPSS）",
+            "团队协作能力强，能够参与项目合作",
+            "对金融行业有基础了解，通过券商实习接触业务端"
+          ],
+          "risks": [
+            "无任何量化策略研究或编程经验，无法满足Python/C++因子回测要求",
+            "学历背景与院校要求差距大（普通本科非顶尖院校硕士，且专业不相关）"
+          ]
+        }
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 2,
+      "reasoning": "推荐'行业研究员（消费方向）'与候选人预期可迁移轨道'公募基金/研究'匹配，方向对。但候选人强匹配为量化方向，消费行研非其强项，故未达高区分度。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "行业研究员（消费方向）",
+        "final_score": 42,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "金融双学位提供了必要的经济与金融理论基础，可迁移至消费行业研究",
+          "扎实的编程与数据处理能力（Python/SQL）可高效构建财务模型与数据跟踪体系",
+          "已掌握Wind终端使用，能快速适应买方研究的数据需求"
+        ],
+        "strengths": [
+          "复旦大学计算机与金融双学位，兼具数理逻辑与金融知识",
+          "头部量化私募实习经历，展示了严谨的数据分析与策略思维",
+          "Python/SQL/Wind等工具链熟练，可独立完成数据处理与财务预测"
+        ],
+        "risks": [
+          "无消费行业研究经验，缺少公司深度报告撰写与财务建模实操",
+          "本科学历，与岗位要求的硕士及以上存在差距，破格录用在竞争激烈环境下风险较高"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/02_securities_research",
+      "score": 2,
+      "reasoning": "推荐岗位为行业分析师助理（新能源），属于券商研究所行研方向，落在学生可迁移轨道“公募基金/研究”中，方向匹配但非最优强匹配。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "行业分析师助理（新能源）",
+        "final_score": 45,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "复旦计算机+金融双学位，学术背景优秀，符合知名院校要求",
+          "具备扎实的量化分析和编程能力，可快速上手数据分析和模型维护",
+          "熟练使用Wind等金融数据终端，有相关工具使用经验"
+        ],
+        "strengths": [
+          "顶尖高校背景，理工+金融复合知识结构",
+          "强大的数据处理和编程能力（Python, SQL, Wind）",
+          "量化策略实习经历，体现研究分析潜力"
+        ],
+        "risks": [
+          "缺少独立完成的行业或公司深度报告，无法满足岗位核心要求",
+          "实习经历集中在量化策略，与基本面研究方法和内容差异显著，缺乏行业认知"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 2,
+      "reasoning": "推荐的'基本面研究'属于二级市场买方研究范畴，与学生expected_transferable_tracks中的'公募基金/研究'、'二级市场买方'方向一致，但非其强匹配的量化方向。",
+      "concerns": [
+        "推荐岗位为基本面方向，与学生量化背景存在技术栈差异，属于可转移但非最优匹配。"
+      ],
+      "sut_output": {
+        "matched_track_label": "基本面研究",
+        "final_score": 25,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "扎实的计算机与金融双学科背景，数理基础好，具备快速学习基本面分析框架的潜力",
+          "头部量化私募实习证明较强的数据敏感性和编程能力，可迁移至财务建模与数据驱动研究",
+          "本科毕设及竞赛经历体现独立研究与问题解决能力，对二级市场有持续关注"
+        ],
+        "strengths": [
+          "复旦大学顶尖院校背景，GPA 优秀，计算机+金融复合知识结构",
+          "编程（Python/C++/PyTorch）与机器学习能力突出，可用于高效数据处理和量化辅助",
+          "数学建模国一、ACM 银牌，逻辑思维与建模能力强，利于行业与公司深度分析"
+        ],
+        "risks": [
+          "岗位硬性要求硕士及以上学历，当前为本科，简历关极可能被筛选掉",
+          "缺乏任何基本面投研实习经历，未产出过公司深度报告，直接胜任研究员难度大"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/04_pe_primary",
+      "score": 0,
+      "reasoning": "推荐的“PE投资分析师”岗位轨道属于“一级PE”，而该方向被明确标记为候选人的gap tracks（期望差距方向），推荐完全偏离候选人的真实匹配方向。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "PE投资分析师",
+        "final_score": 30,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "复旦顶级本科+金融双学位，具备基础金融知识框架，对估值、财务有一定了解",
+          "量化实习中锻炼的数据处理与建模能力可迁移至估值建模与商业分析",
+          "英语流利，满足工作语言要求，且竞赛获奖体现快速学习能力"
+        ],
+        "strengths": [
+          "顶尖院校背景（复旦计算机+金融双学位，GPA高）",
+          "强量化分析能力（Python/C++，机器学习，数学建模国一）",
+          "有买方实习经历（宽德投资），对投资研究流程有初步认知"
+        ],
+        "risks": [
+          "缺乏消费行业认知和投资研究深度，无行业研究或财务尽调经验",
+          "职业锚定量化研究，与PE投资分析师长期发展路径不匹配"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/05_quant_research",
+      "score": 3,
+      "reasoning": "推荐岗位'量化研究员-中低频策略'与候选人的强匹配轨道'量化研究'完全一致，且细分方向明确，区分度高。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "量化研究员-中低频策略",
+        "final_score": 75,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "复旦计算机本科+金融双学位，具备扎实的编程与量化理论基础，与中低频策略的因子研究高度匹配",
+          "宽德投资量化策略实习经历，直接参与中频信号生成与论文复现，有成熟的因子开发和回测经验",
+          "深度学习预测股票收益项目展现独立研究能力，Transformer模型获得优于基线结果，并有开源影响力，契合岗位对新方法论探索的需求"
+        ],
+        "strengths": [
+          "技术栈无缝对接：精通Python/C++，熟悉PyTorch/SQL，掌握Wind、BackTrader等量化工具",
+          "顶级竞赛经历：ACM-ICPC银牌和数学建模国一，证明优秀的算法设计和数学建模能力",
+          "实习产出扎实：复现因子IR1.2，参与策略组合优化，具备量化研究闭环实践经验"
+        ],
+        "risks": [
+          "学历门槛不满足：岗位明确要求硕士及以上学历，本科生在简历筛选阶段可能直接被淘汰",
+          "研究深度有限：毕设项目虽创新但相对基础，缺乏在头部机构全职策略开发的经验，策略实盘跟踪能力待验证"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 0,
+      "reasoning": "推荐岗位属'公募基金/研究'，恰在expected_gap_tracks中，且tier为'有差距'，表明推荐与候选人量化方向完全不符。",
+      "concerns": [
+        "岗位方向错误，易误导候选人"
+      ],
+      "sut_output": {
+        "matched_track_label": "基本面研究 / 消费行业研究",
+        "final_score": 28,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "顶尖数理背景（复旦数学本+哥大金工硕）符合硬性学历要求，且智力密集岗位学习能力强",
+          "有高华证券跨资产策略经验，具备一定的研究框架与报告撰写能力（2篇外汇专题）",
+          "Citadel return offer 证明顶尖机构的认可，若愿转换赛道有潜力快速补充行业知识"
+        ],
+        "strengths": [
+          "极强的数学与量化功底，可迁移至财务建模与数据处理（Python/KDB/Excel）",
+          "名校+头部实习背书，简历通过筛选概率高",
+          "英文与信息搜集能力强，适合需要大量阅读海外消费品公司资料的需求"
+        ],
+        "risks": [
+          "完全无消费行业/个股研究经验，无深度报告产出，与岗位核心要求严重不匹配",
+          "求职目标与过往经历均为量化交易/衍生品，转做基本面研究的动机和稳定性存疑"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/02_securities_research",
+      "fixture_id": null,
+      "score": null,
+      "reasoning": "<error JSONDecodeError: Expecting value: line 1 column 1 (char 0)>",
+      "concerns": [
+        "sut_or_judge_error"
+      ]
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 1,
+      "reasoning": "推荐“基本面投资研究”属于研究方向，但与候选人量化研究的强匹配方向不符，属于可迁移但不够精准的推荐。",
+      "concerns": [
+        "候选背景高度量化，推荐基本面研究方向存在错配风险。"
+      ],
+      "sut_output": {
+        "matched_track_label": "基本面投资研究",
+        "final_score": 32,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "顶尖院校理工科背景符合学历要求，复旦数学+哥大金工学术能力突出",
+          "对二级市场有强烈兴趣，Citadel return offer 证明其在高竞争环境中的优秀表现",
+          "具备快速学习能力和数据分析功底，可迁移至财务模型和行业研究"
+        ],
+        "strengths": [
+          "数学与编程基础扎实，擅长定量分析，可辅助搭建盈利预测模型",
+          "有跨资产策略研究经验，对宏观与市场联动有一定理解",
+          "英语流利，可高效对接海外上市公司调研"
+        ],
+        "risks": [
+          "缺乏基本面投研经验，未展示行业研究、公司深度报告产出能力",
+          "实习集中在量化交易，与岗位要求的买方研究、组合管理讨论存在较大差异"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/04_pe_primary",
+      "score": 0,
+      "reasoning": "候选人背景（量化研究、对冲基金）与一级PE岗位方向完全不符，且该方向在gap_tracks中被明确排除。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "PE投资",
+        "final_score": 45,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "顶尖院校背景（复旦+哥大），学习能力突出，可快速补齐财务与商业分析知识",
+          "Citadel等顶级公司实习证明高压环境下的执行力和责任感",
+          "扎实的数理与编程基础有助于掌握复杂估值模型和数据分析"
+        ],
+        "strengths": [
+          "量化建模与编程能力突出（Python/C++/KDB）",
+          "头部做市商return offer，业内认可度高",
+          "名校数学+金工双背景，数理功底深厚"
+        ],
+        "risks": [
+          "缺乏PE/投行/咨询等相关实习，对消费行业与投资流程无直接经验",
+          "无财务建模、DCF/LBO估值实操经历，可能难以应对IC材料撰写"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/05_quant_research",
+      "score": 3,
+      "reasoning": "推荐岗位轨道'量化研究'与候选人'expected_strong_match_tracks'完全一致，且细分领域（中低频策略）匹配度高，直接命中强匹配项。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "量化研究",
+        "final_score": 98,
+        "tier_label": "强匹配",
+        "why_recommended": [
+          "复旦数学+哥大金工顶级学术背景，完全符合九坤对顶尖院校的要求",
+          "Citadel Securities量化研究实习证明量化研究实力，且已有return offer，能力经过头部做市商验证",
+          "数学功底深厚，随机过程、凸优化、Putnam竞赛等直接满足岗位对数学与竞赛的偏好"
+        ],
+        "strengths": [
+          "学术背景顶尖：复旦数学本科高GPA + 哥大金工硕士，专业课覆盖随机过程、凸优化等岗位所需数学工具",
+          "实习高度相关：Citadel期权做市实习涉及vol surface建模，数据处理与模型优化能力强，可迁移至中低频因子研究",
+          "竞赛与编程：Putnam全美前200，Python/C++/KDB熟练，满足因子实现与回测的开发需求"
+        ],
+        "risks": [
+          "实习经历偏向期权高频做市，与中低频Alpha策略研究方向略有差异，需快速适应因子挖掘方法论",
+          "已手握Citadel return offer，可能影响签约意愿，需确认候选人长期回国发展决心"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 2,
+      "reasoning": "推荐的'行业研究员（消费方向）'属于'公募基金/研究'轨道，是候选人expected_strong_match_tracks之一，方向完全匹配。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "行业研究员（消费方向）",
+        "final_score": 82,
+        "tier_label": "可迁移",
+        "why_recommended": [
+          "拥有高盛与中金两大头部投行的实习经历，且在中金期间专注大消费行业（白酒、调味品），行业认知与项目经验直接对口消费研究。",
+          "财务建模与估值功底扎实（DCF/可比公司/可比交易），已通过CFA二级，能快速适应盈利预测与模型维护工作。",
+          "北大光华金融前5%且获贝恩杯案例冠军，证明逻辑分析与商业洞察力强，具备买方研究所需的独立思考与研究潜力。"
+        ],
+        "strengths": [
+          "清北复交级院校背景，GPA前5%，CFA二级，学习能力与专业基础突出。",
+          "外资+内资头部IBD经验，完整参与IPO与尽调流程，搭建过完整的估值模型，财务分析能力远超同业入门候选人。",
+          "消费行业覆盖经验：在中金深度跟踪白酒与调味品赛道，熟悉行业分析框架与上市公司研究基础。"
+        ],
+        "risks": [
+          "无券商研究所或公募基金实习经历，可能缺乏独立撰写深度报告与持续跟踪股票的经验。",
+          "本科学历，岗位要求硕士及以上，虽可破格但可能在简历筛选环节面临劣势。"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/02_securities_research",
+      "score": 2,
+      "reasoning": "推荐岗位'卖方研究/行业研究'与候选人期望的'券商研究所'方向一致，但未命中最佳匹配（公募基金/研究等），也未命中量化研究等偏离方向。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "卖方研究/行业研究",
+        "final_score": 70,
+        "tier_label": "可迁移",
+        "why_recommended": [
+          "顶尖投行IBD实习扎实验练财务建模、估值与商业分析能力，可迁移至研究岗基本面分析",
+          "北大光华金融背景+CFA二级通过，具备扎实的金融理论功底与快速学习行业的能力",
+          "具备撰写行业研究报告的基础（TMT pitch行业章节被MD采用），证明有能力输出深度分析材料"
+        ],
+        "strengths": [
+          "财务建模与估值：精通DCF、可比交易、可比公司等，有M&A和IPO建模实操经验",
+          "数据与工具：熟练使用Wind、Bloomberg、Capital IQ等研究必备工具",
+          "抗压与产出：高盛IBD暑期实习证明高强度下的执行力与高质量材料交付能力"
+        ],
+        "risks": [
+          "无新能源行业认知：实习与课程集中在TMT/消费，缺乏新能源产业链基础积累",
+          "缺乏独立深度研究报告样本：JD要求至少1篇独立完成的研究报告，目前突出的是IBD团队材料而非个人主导的完整研究报告"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 2,
+      "reasoning": "推荐岗位轨道'二级市场买方'与候选人expected_strong_match_tracks中的'二级市场买方'完全一致，属于强匹配方向。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "二级市场买方",
+        "final_score": 72,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "CFA Level 2 已通过，满足岗位优先条件",
+          "两段顶级投行实习，财务分析与估值建模功底扎实",
+          "TMT 与大消费行业研究经验可迁移至买方深度研究"
+        ],
+        "strengths": [
+          "头部投行 IBD 实习经历，熟练掌握 DCF、可比分析等估值方法",
+          "具备独立搭建财务模型和撰写行业 Pitch book 的能力",
+          "对二级市场投资有明确职业规划，且已取得 CFA L2 证书"
+        ],
+        "risks": [
+          "学历硬伤：JD 明确要求硕士及以上，本科学历可能无法通过简历筛选",
+          "缺乏直接买方研究经验，需时间适应从投行执行到买方思想领导的角色转变"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/04_pe_primary",
+      "score": 3,
+      "reasoning": "推荐岗位轨道'PE 投资分析师（大消费组）'与候选人预期强匹配轨道'一级 PE'完全一致，且精准细分到消费领域。",
+      "concerns": [],
+      "sut_output": {
+        "matched_track_label": "PE 投资分析师（大消费组）",
+        "final_score": 92,
+        "tier_label": "强匹配",
+        "why_recommended": [
+          "北大光华金融顶尖背景，高盛+中金IBD两段头部投行实习，完全符合学历与经历门槛",
+          "中金大消费组实习直接覆盖白酒、调味品等赛道，与高瓴大消费组高度对口，行业洞察可复用",
+          "扎实的DCF、可比公司、LBO建模能力，以及CFA二级，满足强财务建模与估值要求"
+        ],
+        "strengths": [
+          "两段顶级投行实习经历，展现出色的财务分析、项目执行与抗压能力",
+          "大消费行业研究深耕：在中金独立搭建白酒行业财务模型，完成可比分析，输出投资thesis潜力",
+          "熟练使用Wind、Bloomberg、Capital IQ等工具，模型与PPT技能直接适配PE投决材料"
+        ],
+        "risks": [
+          "仅有本科学历，虽可破格但在头部PE校招中可能面临硕士候选人竞争",
+          "无直接PE/买方实习经验，需快速适应买方思维、项目筛选及投后管理的角色转换"
+        ]
+      }
+    },
+    {
+      "metric": "track_relevance",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/05_quant_research",
+      "score": 0,
+      "reasoning": "推荐岗位为'量化研究员'，属于候选人的expected_gap_tracks，且匹配得分低(30分)、tier为'有差距'，说明推荐完全偏离其核心方向。",
+      "concerns": [
+        "量化研究在候选人的差距列表中，可能不适合推荐。"
+      ],
+      "sut_output": {
+        "matched_track_label": "量化研究员（中低频策略组）",
+        "final_score": 30,
+        "tier_label": "有差距",
+        "why_recommended": [
+          "本科院校背景突出，北京大学光华管理学院金融学专业，认可度高，符合顶尖院校要求",
+          "金融实习经历丰富，具备扎实的财务建模和行业研究能力，对基本面因子理解有潜在价值",
+          "通过CFA二级，学习能力强，可尝试补充量化技能后进入赛道"
+        ],
+        "strengths": [
+          "北大光华金融前5%，学术能力突出，案例大赛冠军，具备快速学习潜力",
+          "高盛、中金IBD实习，擅长财务数据和行业基本面分析，可为基本面Alpha信号研究提供独特视角",
+          "熟练使用Wind、Bloomberg等金融数据终端，对数据结构化处理有一定基础"
+        ],
+        "risks": [
+          "缺失量化硬技能：未掌握Python、C++，无量化回测、机器学习项目经验，与岗位核心要求差距大",
+          "学历背景不符：岗位要求硕士及以上，且专业为数学/物理/CS/统计/金工，金融本科教育缺乏随机过程、优化等数理训练"
+        ]
+      }
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 3,
+      "reasoning": "推荐理由明确引用了实习经历中的具体事实：独立撰写3篇深度报告、12篇点评，搭建DCF估值模型，复现2个选股因子，并区分了“可迁移”（研究方法论）和“需积累”（消费行业认知）。风险指出“本科学历在硕士竞争中可能劣势”，并提出需证明“破格录取价值”，具体而有针对性。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/02_securities_research",
+      "score": 3,
+      "reasoning": "推荐理由紧扣 profile：提及中信实习、独立深度报告获月度优秀、CFA一级等具体事实。优势区分了强匹配（同团队实习减少培训）、可迁移（量化背景提供多维度分析）和具体产出（3篇深度报告）。风险精准指出本科在头部券商的竞争劣势，以及新能源行业技术理解的学习成本，均非万能话术。",
+      "concerns": [
+        "风险部分‘技术细节理解可能需额外学习成本’稍显宽泛，可更具体指向光伏/储能等细分技术领域。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 3,
+      "reasoning": "推荐理由明确引用了profile中的具体事实：1) 中信研究所独立撰写3篇深度报告并获优秀实习生报告；2) 国泰君安量化实习复现因子并回测；3) 上交大背景、DCF估值能力、CFA一级、投资协会经历。理由区分了“强匹配”（研究输出能力）、“可迁移”（量化视角）、“差距”（学历、CFA级别、买方经验），并解释了因果关系。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/04_pe_primary",
+      "score": 3,
+      "reasoning": "推荐理由引用了profile中至少5个具体事实：独立撰写3篇深度报告+12篇点评、DCF估值模型搭建、Python复现选股因子回测、月度优秀实习生报告、量化自营实习。区分了强匹配（研究功底）、可迁移（财务建模向LBO延伸、量化思维）和差距（消费行业缺失、无PE经验），并给出了因果解释。",
+      "concerns": [
+        "CFA一级在strengths中被引用但未出现在profile_summary的明确字段中，可视为合理推断。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/01_finance_undergrad",
+      "jd_id": "jds/05_quant_research",
+      "score": null,
+      "reasoning": "<skipped — 复用的 SUT recommendation 为空>",
+      "concerns": [
+        "sut_invalid_output"
+      ],
+      "sut_output": {
+        "recommendation": {
+          "matched_track_label": "量化研究员（中低频策略组）",
+          "final_score": 65,
+          "tier_label": "有差距",
+          "why_recommended": [
+            "曾在国泰君安自营从事量化研究，具备因子复现和回测经验",
+            "金融学背景可辅助基本面Alpha信号挖掘",
+            "Python编程和数据处理能力满足日常工作需求"
+          ],
+          "strengths": [
+            "实习经历涵盖卖方行业研究和买方量化研究，视角多元",
+            "扎实的金融理论基础和估值建模能力",
+            "编程工具链熟练（Python, SQL, 常用数据终端）"
+          ],
+          "risks": [
+            "学历为本科，不符合岗位要求的硕士及以上学历",
+            "数理基础偏向金融而非纯理工，面对复杂模型时可能吃力"
+          ]
+        }
+      }
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 0,
+      "reasoning": "推荐理由完全空泛，未引用profile_summary中的任何具体事实（如中泰证券实习、校园调研项目、具体技能）。理由如“具备基础财务与市场调研能力”和“可塑性较强”缺乏具体支撑，属于万能套话。风险部分虽指出了“缺乏深度行业研究经验”，但同样没有结合候选人具体的实习或项目细节进行说明，未达到具体引用事实的水平。",
+      "concerns": [
+        "推荐理由与候选人Profile的具体事实脱节，评分依据为整体内容空泛，未达到引用具体事实的标准。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/02_securities_research",
+      "score": 3,
+      "reasoning": "推荐理由具体引用了profile中的三个事实：1) 工商管理背景的财务管理、投资学课程；2) 校园新茶饮市场调研项目的数据收集与分析能力；3) 中泰证券营业部实习经历。这些引用均来自原始材料，并区分了强匹配（课程理论）、可迁移（调研项目）和差距（缺乏行业研究经验），给出了因果解释（如调研能力可迁移至行业研究）。",
+      "concerns": [
+        "建议补充风险中关于Wind和英语的具体差距，以增强说服力。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 3,
+      "reasoning": "推荐理由、优势和风险均引用了profile_summary中的具体事实：券商实习、校园调研项目、Excel/SPSS技能、三好学生、学历背景。风险部分明确指出了学历（本科vs要求硕士）、学校背景（非顶尖）、缺乏行业研究经验等具体差距，而非泛泛之谈。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/04_pe_primary",
+      "score": 0,
+      "reasoning": "推荐理由和优势部分引用的具体事实（如券商实习、校园调研、Excel/PPT）均来自profile_summary，但这些内容与目标岗位（PE投资分析师）的核心要求（深度行业研究、财务建模）严重脱节。推荐理由声称“可辅助初级行业研究”，但profile中无任何行业研究相关证据，属于空泛推测。风险部分正确指出了学历和建模能力的差距，但推荐理由本身未能体现任何实质性匹配点。",
+      "concerns": [
+        "推荐理由与岗位要求严重不匹配，缺乏针对性分析"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/02_business_noname",
+      "jd_id": "jds/05_quant_research",
+      "score": null,
+      "reasoning": "<skipped — 复用的 SUT recommendation 为空>",
+      "concerns": [
+        "sut_invalid_output"
+      ],
+      "sut_output": {
+        "recommendation": {
+          "matched_track_label": "量化研究",
+          "final_score": 10,
+          "tier_label": "有差距",
+          "why_recommended": [
+            "具备基础统计分析能力（SPSS交叉分析），可为因子数据预处理提供支持",
+            "参与过券商营业部实习，对金融市场有初步认知，能够理解交易数据场景",
+            "有主动研究精神（校园市场调研项目），具备从数据中提炼洞察的潜力"
+          ],
+          "strengths": [
+            "具备基础数据处理与分析能力（Excel、SPSS）",
+            "团队协作能力强，能够参与项目合作",
+            "对金融行业有基础了解，通过券商实习接触业务端"
+          ],
+          "risks": [
+            "无任何量化策略研究或编程经验，无法满足Python/C++因子回测要求",
+            "学历背景与院校要求差距大（普通本科非顶尖院校硕士，且专业不相关）"
+          ]
+        }
+      }
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 2,
+      "reasoning": "引用了‘金融双学位’和‘Python/SQL’具体技能，以及‘头部量化私募实习’经历，但未区分强匹配/可迁移/差距。风险点‘无消费行业经验’基于JD，但‘本科学历’的差距并非从profile直接推导（profile未明确学历层次）。",
+      "concerns": [
+        "风险‘本科学历’未在profile中明确，推测成分较高。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/02_securities_research",
+      "score": 2,
+      "reasoning": "strengths 提到量化实习经历和编程能力，引用了 profile 中的具体技能（Python, SQL），但未提及实习的具体内容（如复现论文、维护脚本）。risks 指出了实习经历与基本面研究的差异，这是具体 gap，但未引用 profile 中的具体项目或报告缺失。",
+      "concerns": [
+        "why_recommended 中提到的'Wind等金融数据终端'在 profile 中未明确体现",
+        "risks 中'缺乏行业认知'略显泛泛，可更具体指向新能源相关知识的空白"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 3,
+      "reasoning": "推荐理由引用了 profile 中至少 4 个具体事实：复旦计算机+金融双学位、头部量化私募（宽德投资）实习、本科毕设（深度学习预测股票收益）、数学建模国一/ACM银牌。同时，明确区分了强匹配（院校、复合背景）、可迁移（编程/机器学习能力迁移至财务建模）和差距（本科学历、缺乏基本面投研经验），并给出了因果解释。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/04_pe_primary",
+      "score": 1,
+      "reasoning": "推荐理由提及了复旦双学位、量化实习中的数据建模能力、英语和竞赛获奖，但仅泛泛提及，未引用profile中具体的公司/项目/技能/奖项。风险部分指出缺乏消费行业认知和职业路径不匹配，这是针对JD的合理差距，但未引用具体事实支撑。",
+      "concerns": [
+        "推荐理由未具体引用profile中的'宽德投资实习'、'SSRN论文复现'、'ACM-ICPC银牌'等具体事实"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/03_cs_to_finance",
+      "jd_id": "jds/05_quant_research",
+      "score": 3,
+      "reasoning": "推荐理由引用了多个具体事实，如“复旦计算机本科+金融双学位”、“宽德投资实习（中频组）”、“复现SSRN论文IR1.2”、“深度学习预测股票收益项目”、“Transformer模型优于基线”。并明确区分了强匹配（如技术栈、实习经历）、可迁移（如竞赛能力）与差距（如学历门槛、研究深度不足），解释了因果。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 3,
+      "reasoning": "推荐理由、优势、风险均引用了profile_summary中的具体事实：复旦数学本+哥大金工硕、高华证券跨资产策略经验（2篇外汇专题）、Citadel return offer（SVI模型优化、RMSE降18%）、Python/KDB/Excel等技能。并清晰区分了强匹配（硬性学历、智力）、可迁移技能（技术栈、报告能力）和核心差距（无消费行业经验、动机不匹配），因果解释充分。",
+      "concerns": [
+        "无"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/02_securities_research",
+      "score": null,
+      "reasoning": "<skipped — 复用的 SUT recommendation 为空>",
+      "concerns": [
+        "sut_invalid_output"
+      ],
+      "sut_output": null
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 1,
+      "reasoning": "推荐理由仅泛泛提及院校背景和学习能力，未引用 profile 中的具体项目或技能；风险虽指出缺乏基本面经验，但未结合具体事实进行对比分析。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/04_pe_primary",
+      "score": 3,
+      "reasoning": "推荐理由引用了 profile 中多个具体事实：复旦+哥大院校背景、Citadel 实习及 return offer、数理编程能力（Python/C++/KDB）。 strengths 清晰区分了强匹配项（量化建模、return offer）和可迁移项（数理基础）。 risks 明确指出了与 PE 要求的差距（缺乏相关实习、无财务建模经验），而非泛泛而谈。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/04_quant_master",
+      "jd_id": "jds/05_quant_research",
+      "score": 3,
+      "reasoning": "理由充分引用了 profile 中的具体事实（复旦数学、哥大金工、Citadel期权做市实习及return offer、SVI模型优化RMSE降18%、Putnam竞赛、Python/C++/KDB技能），并明确区分了强匹配（学术、数学、编程）与风险（实习方向差异、return offer影响）。解释清晰，因果逻辑强。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/01_mutual_fund_research",
+      "score": 3,
+      "reasoning": "推荐理由具体引用了高盛IBD、中金大消费组、白酒调味品行业覆盖、DCF估值建模、CFA二级、贝恩杯冠军等多个profile事实，并清晰区分了强匹配（消费行业经验）、可迁移技能（建模能力）和明确差距（缺乏研究所经历、学历）。",
+      "concerns": [
+        "candidate_summary中并未明确提及CFA二级，推荐理由中该项引用来源存疑。"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/02_securities_research",
+      "score": 3,
+      "reasoning": "推荐理由引用了高盛IBD、中金IBD具体实习经历、DCF等估值技能、TMT pitch book被MD采用等具体事实。strengths区分了财务建模、数据工具、抗压能力等维度并具体说明。risks明确指出了缺乏新能源行业认知和独立研究报告这两个真实差距，而非泛泛建议。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/03_buy_side_secondary",
+      "score": 3,
+      "reasoning": "推荐理由引用了高盛/中金两段实习、TMT/大消费行业经验、DCF估值、Pitch book被MD采用等≥3个具体事实。风险指出本科学历与JD硕士要求冲突（硬伤），以及从投行执行到买方思想领导的角色转变挑战，均为真实gap而非万能话。",
+      "concerns": [
+        "JD要求硕士及以上，本科背景确实存在简历筛选风险"
+      ]
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/04_pe_primary",
+      "score": 3,
+      "reasoning": "推荐理由和优势引用了北大光华、高盛/中金IBD实习、中金大消费组覆盖白酒/调味品、搭建财务模型、DCF/可比公司估值等至少3个具体事实，并区分了强匹配（行业对口、技能适配）与可迁移（投行经验）。风险指出了‘仅有本科’和‘无买方实习’的具体差距，而非泛泛之谈。",
+      "concerns": []
+    },
+    {
+      "metric": "fit_explanation_quality",
+      "student_id": "students/05_ib_intern_strong",
+      "jd_id": "jds/05_quant_research",
+      "score": 3,
+      "reasoning": "推荐理由与风险评估均高度引用了profile中的具体事实，如北大光华、高盛/中金IBD实习、DCF建模、Wind使用、Bain案例大赛冠军等，并明确区分了强匹配（学术能力、基本面分析可迁移）、可迁移（Wind技能）与核心差距（量化硬技能、学历/数理背景不符），解释了因果关系。",
+      "concerns": []
+    },
+    {
+      "metric": "evidence_groundedness",
+      "student_id": "students/01_finance_undergrad",
+      "score": 2,
+      "reasoning": "改写后的bullets完整保留了原profile中的所有关键evidence（如8家上市公司、3篇深度报告、DCF模型、政策数据库、优秀报告等），并在此基础上优化了表达逻辑（如加入“系统化跟踪框架”、“主导”、“直接纳入”等词），使成果描述更具体、影响更清晰，但未引入任何profile中不存在的新事实或数字。",
+      "concerns": [],
+      "sut_output": {
+        "field_path": "internships.0.bullets",
+        "target_title": "中信证券研究所·电力新能源行业组·实习研究员",
+        "original": [
+          "覆盖电力新能源行业 8 家上市公司，3 个月内独立撰写 3 篇深度报告 + 12 篇点评",
+          "搭建 DCF 估值模型，参与 2 家公司盈利预测的季度更新",
+          "整理行业政策数据库（光伏 / 风电 / 储能），月更 15+ 条政策快报供分析师晨会",
+          "1 篇深度报告获所内月度优秀实习生报告"
+        ],
+        "improved": [
+          "独立覆盖8家新能源上市公司，3个月内产出3篇深度研究报告与12篇即时点评，形成系统化跟踪框架，支撑团队对细分赛道的持续研判",
+          "独立搭建DCF估值模型，主导2家公司的季度盈利预测更新，模型被直接应用于分析师正式报告中的财务假设",
+          "从零建立光伏/风电/储能政策数据库，按月提炼并输出15+条政策快报，直接纳入分析师晨会素材，提升团队政策响应速度",
+          "主笔的深度报告在所内月度评选中获优秀实习生报告，研究成果质量获得研究所层面认可"
+        ],
+        "rationale": "在保留原事实（8家、3篇深度、12篇点评、DCF、2家公司、15+政策、月度优秀）的基础上，通过加入“独立”“主导”“从零建立”等动词强化主动性，用“支撑团队研判”“直接纳入晨会素材”等说明业务影响，使成果更具量化与可衡量性。"
+      }
+    },
+    {
+      "metric": "evidence_groundedness",
+      "student_id": "students/02_business_noname",
+      "score": 2,
+      "reasoning": "改写保留了原始证据如‘中泰证券’、‘营业部’、‘60+ 份客户档案’、‘CRM 系统’、‘周会’、‘经纪业务考核流程’等关键词，并未引入新事实或数字。改写使 bullets 更流畅、更具体地描述了任务目的和影响，但未利用 profile 中其他部分的证据（如‘立信’、‘市场调研’），因此符合保留原证据并优化表达的标准。",
+      "concerns": [],
+      "sut_output": {
+        "field_path": "internships.0.bullets",
+        "target_title": "中泰证券 上海某营业部·业务支持 实习生",
+        "original": [
+          "协助客户经理整理客户档案 60+ 份，录入 CRM 系统",
+          "参与营业部周会，旁听经纪业务考核流程"
+        ],
+        "improved": [
+          "在客户经理指导下，高效完成 60+ 份客户档案的整理与 CRM 录入，确保档案完整准确，支撑后续客户服务与业务分析",
+          "全程参与营业部周会，系统学习经纪业务考核流程，理解考核指标对业务推动的作用，为团队流程优化提供认知基础"
+        ],
+        "rationale": "量化成果从单纯数字转化为业务支撑的表达；将被动‘旁听’转变为主动‘学习理解’，突出主动性和对业务逻辑的掌握，不添加虚构内容。"
+      }
+    },
+    {
+      "metric": "evidence_groundedness",
+      "student_id": "students/03_cs_to_finance",
+      "score": 2,
+      "reasoning": "改进版保留了所有原始证据（如5个信号、中证800、IR 1.2、3次会议），并优化了语言流畅度，使其更专业。没有引入新数字或事实。",
+      "concerns": [],
+      "sut_output": {
+        "field_path": "internships.0.bullets",
+        "target_title": "宽德投资·量化策略 · 实习生（中频组）",
+        "original": [
+          "用 Python + C++ 维护 5 个中频信号的日更脚本",
+          "复现一篇 SSRN 论文（盘中订单流不平衡），在 2020-2024 中证 800 样本上回测 IR 1.2",
+          "协助 PM 做策略组合优化，参与 3 次策略评审会议"
+        ],
+        "improved": [
+          "开发并维护 5 个中频信号的日度更新程序，保障每日信号生成的稳定性和时效性",
+          "独立复现论文策略，完成数据清洗、模型实现与回测，在 2020-2024 中证 800 样本上取得 IR 1.2，验证因子有效性",
+          "支持 PM 进行策略组合优化，并参与 3 次策略评审会议，提供因子表现分析与组合改进建议"
+        ],
+        "rationale": "强化主导性与业务影响：将“维护”升级为“开发并维护”，凸显工程贡献；明确回测全流程（数据、模型、回测），强调独立完成；细化协助内容为策略评审中的分析建议，突出主动参与。"
+      }
+    },
+    {
+      "metric": "evidence_groundedness",
+      "student_id": "students/04_quant_master",
+      "score": 3,
+      "reasoning": "改写后的bullets保留了所有关键证据（Citadel、ETF数量、SVI模型、RMSE降低18%、return offer），并调用了profile中别处的证据（'做市报价准确性与风控能力'融入了岗位职责），使表述更专业扎实，未引入任何新事实或数字。",
+      "concerns": [],
+      "sut_output": {
+        "field_path": "internships.0.bullets",
+        "target_title": "Citadel Securities·Quantitative Research Intern",
+        "original": [
+          "在期权做市部门，为 5 个 ETF 期权链优化 implied vol surface fitting",
+          "用 SVI 模型替换团队原 polynomial fit，在 SPY / QQQ 上 RMSE 降 18%",
+          "成果合入产品 codebase，已收到 return offer"
+        ],
+        "improved": [
+          "主导5个ETF期权链的隐含波动率曲面拟合优化，提升做市报价准确性与风控能力",
+          "设计并实现SVI参数化模型，替代团队原有的多项式拟合，在SPY/QQQ上实现RMSE降低18%",
+          "推动优化成果集成至产品实盘交易codebase，直接支撑做市决策，因此获得return offer"
+        ],
+        "rationale": "强化主导性与业务影响，突出SVI模型设计与RMSE降低的量化成果，并将codebase集成与return offer的因果关系明确化。"
+      }
+    },
+    {
+      "metric": "evidence_groundedness",
+      "student_id": "students/05_ib_intern_strong",
+      "score": 2,
+      "reasoning": "改写后的bullets保留了原始简历中的所有关键证据（高盛、TMT、DCF、白酒、中金等关键词均涵盖），未引入任何profile中没有的新数字或事实。改写在保留原意的基础上优化了表述，如将'参与'改为'深度参与'，'搭建'改为'独立搭建'，使描述更具体、更有力度，但未添加未提及的细节。",
+      "concerns": [],
+      "sut_output": {
+        "field_path": "internships.0.bullets",
+        "target_title": "高盛（北京）IBD - TMT 组 Summer Analyst",
+        "original": [
+          "参与 1 单互联网公司 H 股 IPO + 1 单半导体行业 M&A 尽调",
+          "搭建可比公司估值表（DCF / 可比交易 / 可比公司），参与定价路演材料",
+          "撰写 3 份 TMT 行业 pitch book 章节，被 MD 直接采用"
+        ],
+        "improved": [
+          "深度参与 1 单互联网公司 H 股 IPO 和 1 单半导体行业 M&A 尽职调查，覆盖财务与业务尽调核心环节，直接输出尽调纪要及异常项分析",
+          "独立搭建可比公司估值分析模型（DCF / 可比交易 / 可比公司），输出估值区间，作为定价路演材料的核心假设基础",
+          "主导撰写 3 份 TMT 行业 pitch book 行业与公司分析章节，内容获 MD 直接采用并用于客户会议，确保交付质量与 deadlines"
+        ],
+        "rationale": "通过用‘深度参与’‘独立搭建’‘主导撰写’突出主导性；加入‘输出尽调纪要’‘估值区间作为核心假设’‘用于客户会议’强化业务影响和结果；保留原有数字和事实，未引入额外信息。"
+      }
+    },
+    {
+      "metric": "followup_quality",
+      "fixture_id": "interview_answers/01_zhangnuo_project_lead",
+      "score": 3,
+      "reasoning": "精准击中 expected_followup_targets 中的‘供需平衡表的关键假设’，且追问了假设变化对结论的稳健性影响，完全紧扣当前项目细节。",
+      "concerns": [],
+      "sut_output": "你搭的这个供需平衡表里，最关键的假设变量是什么？比如硅料扩产节奏或需求增速，如果这个假设变化10%，2025Q3见底的结论还稳健吗？"
+    },
+    {
+      "metric": "followup_quality",
+      "fixture_id": "interview_answers/02_zhouhai_valuation_tradeoff",
+      "score": 3,
+      "reasoning": "Follow-up 精准命中 expected_followup_targets 中的 \"WACC 11.5% 怎么拆 — 无风险利率 / beta / ERP\"。问题具体且深入,要求候选人解释 11.5% 的构成（股权成本与债权成本）及其合理性,而非泛泛而谈。",
+      "concerns": [],
+      "sut_output": "你提到 WACC 取 11.5%、客户追问了很多次,能具体拆一下这个 11.5% 是怎么来的吗?比如股权成本和债权成本的假设,以及为什么是这个数字而不是 10% 或 12%。"
+    },
+    {
+      "metric": "followup_quality",
+      "fixture_id": "interview_answers/03_wangzhe_industry_view",
+      "score": 3,
+      "reasoning": "Follow-up 精准命中 expected_followup_targets 中的第一项「回测的 rebalance 频率是多少,有没有算交易成本」,问题具体且紧扣候选人当前讲的回测细节,追问了量化维度中的关键参数。",
+      "concerns": [],
+      "sut_output": "你那个简单回测是按月还是按周做 rebalance 的？交易成本这部分怎么估的，考虑冲击成本了吗？"
+    },
+    {
+      "metric": "followup_quality",
+      "fixture_id": "interview_answers/04_liyutong_weak_project",
+      "score": 3,
+      "reasoning": "问题紧扣当前调研项目，追问了样本量、回收方法以及面对回收率低时的具体取舍决策，精准命中了量化样本（350份样本的发放/偏差风险）和取舍维度，属于对漏讲关键维度的深度挖掘。",
+      "concerns": [],
+      "sut_output": "问卷样本量多大、怎么收回来的？回收率低时你们做了哪些取舍来保证结论能用？"
+    },
+    {
+      "metric": "followup_quality",
+      "fixture_id": "interview_answers/05_chenrui_reverse_question",
+      "score": 0,
+      "reasoning": "候选人当前问题是对面试官/团队的提问，项目背景是“反问环节”。面试官的 follow-up 应针对候选人的反问进行回应或收尾，但该问题却转向了探究候选人个人动机和偏好，属于“反问候选人:你为什么问这个问题”，这正是 must_avoid 的模式。",
+      "concerns": [
+        "命中 must_avoid"
+      ],
+      "sut_output": "你刚才特别提到中频策略框架是否从纯量价转向基本面，这是出于你观察到纯量价信号近期衰减，还是你自己更偏好这类信号的研究？"
+    }
+  ]
+}

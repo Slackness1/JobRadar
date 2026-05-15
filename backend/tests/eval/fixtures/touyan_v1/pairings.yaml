@@ -1,0 +1,24 @@
+# Student × JD 配对预期 (B 部分)
+#
+# 默认逻辑：judge 拿 student.eval_anchors.expected_*_tracks 跟 jd.expected_track 比对
+# - 命中 expected_strong_match_tracks → 期望"强匹配"
+# - 命中 expected_transferable_tracks → 期望"可迁移"
+# - 命中 expected_gap_tracks            → 期望"有差距"
+# - 都没命中 → 自由判定 (不扣分,只看 final_score 排序合理即可)
+#
+# 这个文件登记的是显式 override —— 单边 anchor 没覆盖到、或者跟 default 推理矛盾的特殊配对。
+# Phase 1 先空,跑完 baseline 看哪些 (student, jd) pair 的 judge 评分跟期望对不上,再回填。
+
+pairings: []
+
+# 示例填法 (跑出 baseline 之后再回来加):
+# pairings:
+#   - student_id: students/02_business_noname
+#     jd_id: jds/04_pe_primary
+#     expected_tier: "有差距"
+#     reason: "GPA + 院校层次 + 实习层级都不达标,即使 expected_gap_tracks 没显式标 PE 也算 gap"
+#
+#   - student_id: students/03_cs_to_finance
+#     jd_id: jds/02_securities_research
+#     expected_tier: "可迁移"
+#     reason: "卖方研究跟量化思路差异大,inferred_tracks 没标但实际是可迁移而非强匹配"

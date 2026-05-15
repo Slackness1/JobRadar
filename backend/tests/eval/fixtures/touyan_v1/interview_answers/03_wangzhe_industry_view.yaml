@@ -1,0 +1,36 @@
+id: interview_answers/03_wangzhe_industry_view
+target_job: "九坤投资 量化研究员"
+chip: "量化研究"
+chip_summary: "量化私募研究方向"
+student_id: students/04_quant_master
+
+# 王哲答"行业观点"题。量化背景下应从因子 / 风格切入,不是基本面分析师式。
+# 测 follow-up 会不会落到因子构造细节,而不是要他讲基本面观点。
+transcript:
+  - role: assistant
+    content: "请简短自我介绍。"
+  - role: user
+    content: "我是王哲,复旦数学本,哥大金工硕在读,Citadel Securities 期权做市暑期实习,已收到 return offer。求职目标是回国进顶级量化私募。"
+  - role: assistant
+    content: "讲讲你怎么看 A 股小盘股最近的行情 — 从你的视角。"
+  - role: user
+    content: "我从因子视角看。最近半年 SmallCap (中证 2000) 跑赢 LargeCap (沪深 300) 20+ pp,主要驱动是 Size factor 在 2025 H2 出现强 momentum,叠加微盘股流动性溢价(turnover 翻倍但 free float 没变)。我做了个简单回测 — 如果 2024 中开始 long 中证 2000 short 沪深 300,夏普 1.6 但 max drawdown 22%,主要痛点在 2025 Q3 国九条出台前那波回撤。这种风格行情的 risk 是流动性踩踏 + 监管收紧,我个人会减仓不会 chase。"
+
+current_main_question: "讲讲你怎么看 A 股小盘股最近的行情 — 从你的视角。"
+current_main_answer: "我从因子视角看。最近半年 SmallCap (中证 2000) 跑赢 LargeCap (沪深 300) 20+ pp,主要驱动是 Size factor 在 2025 H2 出现强 momentum,叠加微盘股流动性溢价(turnover 翻倍但 free float 没变)。我做了个简单回测 — 如果 2024 中开始 long 中证 2000 short 沪深 300,夏普 1.6 但 max drawdown 22%,主要痛点在 2025 Q3 国九条出台前那波回撤。这种风格行情的 risk 是流动性踩踏 + 监管收紧,我个人会减仓不会 chase。"
+
+weakness:
+  avg_score: 82
+  weak_topics: ["回测细节(rebalance 频率 / 交易成本)", "Size factor 的 alpha vs beta 拆解"]
+  strong_topics: ["因子框架清晰", "风险意识强"]
+
+expected_followup_targets:
+  - "回测的 rebalance 频率是多少,有没有算交易成本"
+  - "Size factor 这波 outperform 是 alpha 还是 beta(能不能 risk-adjust)"
+  - "如果用更细的 factor model (Fama-French 5 factor 或 Barra),能解释多少超额"
+  - "国九条之后 micro-cap 流动性恶化,你的风险模型怎么 capture"
+
+expected_followup_targets_must_avoid:
+  - "你 Citadel 实习是做什么的"   # 跳到另一段经历
+  - "你为什么想回国"               # 偏离主题
+  - "讲讲你的数学背景"

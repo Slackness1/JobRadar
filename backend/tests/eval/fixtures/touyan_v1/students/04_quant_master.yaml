@@ -1,0 +1,79 @@
+id: students/04_quant_master
+display_name: "王哲 · 复旦数学 + 哥大金工硕 + Citadel return offer"
+profile:
+  basic_info:
+    name: "王哲"
+    headline: "复旦数学本科 / 哥伦比亚大学金融工程硕士在读 / Citadel return offer"
+    email: "wangzhe@columbia.edu"
+    location: "纽约（毕业回国）"
+  education:
+    - school: "Columbia University · MS Financial Engineering"
+      degree: "硕士"
+      major: "金融工程（Financial Engineering）"
+      start_date: "2025-09"
+      end_date: "2026-12"
+      highlights:
+        - "课程：随机过程 / 随机最优控制 / 高频交易 / ML for Trading"
+        - "MFE 专业排名第 3"
+    - school: "复旦大学 数学科学学院"
+      degree: "本科"
+      major: "数学与应用数学（基础数学方向）"
+      start_date: "2021-09"
+      end_date: "2025-06"
+      highlights:
+        - "GPA 3.92/4.0 · 数学竞赛保送录取"
+        - "毕业论文：高维概率不等式在风险测度中的应用（优秀）"
+  internships:
+    - company: "Citadel Securities"
+      role: "Quantitative Research Intern"
+      start_date: "2025-06"
+      end_date: "2025-08"
+      bullets:
+        - "在期权做市部门，为 5 个 ETF 期权链优化 implied vol surface fitting"
+        - "用 SVI 模型替换团队原 polynomial fit，在 SPY / QQQ 上 RMSE 降 18%"
+        - "成果合入产品 codebase，已收到 return offer"
+    - company: "高华证券（北京）"
+      role: "策略研究 · 实习生（Cross-Asset）"
+      start_date: "2024-06"
+      end_date: "2024-09"
+      bullets:
+        - "维护 G10 货币 carry 策略 backtester，Python + KDB"
+        - "撰写 2 篇外汇专题报告，内部分发"
+  projects: []
+  skills:
+    technical: ["Python", "C++", "KDB/Q", "MATLAB", "随机过程", "凸优化", "期权定价"]
+    tools: ["Bloomberg", "Refinitiv", "Git", "kdb+"]
+    languages: ["中文（母语）", "英文（TOEFL 115 / GRE 333）"]
+  languages: ["中文", "英文"]
+  awards:
+    - "复旦数学竞赛特等奖学金（本科四年）"
+    - "Putnam 数学竞赛全美前 200"
+  candidate_summary: "复旦数学 + 哥大金工背景，头部做市商已有 return offer。求职目标：国内顶级量化私募 / 公募量化部 / 卖方衍生品做市。"
+  inferred_roles:
+    - "量化研究员"
+    - "衍生品交易"
+    - "做市策略"
+  inferred_tracks:
+    - "量化研究"
+    - "对冲基金 / 量化私募"
+    - "卖方衍生品"
+
+eval_anchors:
+  expected_strong_match_tracks:
+    - "量化研究"
+    - "对冲基金 / 量化私募"
+  expected_transferable_tracks:
+    - "卖方衍生品"
+    - "公募基金/量化"
+  expected_gap_tracks:
+    - "公募基金/研究"
+    - "一级 PE"
+  evidence_keywords:
+    - "Citadel"
+    - "高华"
+    - "implied vol"
+    - "SVI"
+    - "复旦数学"
+    - "Columbia"
+  fabrication_traps:
+    - "RMSE 数值"

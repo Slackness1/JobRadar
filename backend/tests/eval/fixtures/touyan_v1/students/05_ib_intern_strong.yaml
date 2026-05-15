@@ -1,0 +1,71 @@
+id: students/05_ib_intern_strong
+display_name: "周海 · 北大光华 + 高盛/中金 IBD + 想转买方研究"
+profile:
+  basic_info:
+    name: "周海"
+    headline: "北大光华金融 / 高盛 IBD + 中金 IBD 两段实习 / 想转买方研究"
+    email: "zhouhai@pku.edu.cn"
+    location: "北京"
+  education:
+    - school: "北京大学 光华管理学院"
+      degree: "本科"
+      major: "金融学"
+      start_date: "2022-09"
+      end_date: "2026-06"
+      highlights:
+        - "GPA 3.85/4.0 · 光华金融前 5%"
+        - "CFA Level 2 通过 (2025)"
+        - "课程：公司金融 / 估值 / 兼并收购 / 行业经济学"
+  internships:
+    - company: "高盛（北京）IBD - TMT 组"
+      role: "IBD Summer Analyst"
+      start_date: "2025-06"
+      end_date: "2025-08"
+      bullets:
+        - "参与 1 单互联网公司 H 股 IPO + 1 单半导体行业 M&A 尽调"
+        - "搭建可比公司估值表（DCF / 可比交易 / 可比公司），参与定价路演材料"
+        - "撰写 3 份 TMT 行业 pitch book 章节，被 MD 直接采用"
+    - company: "中金公司 投行部（北京）- 大消费组"
+      role: "实习分析师"
+      start_date: "2024-12"
+      end_date: "2025-04"
+      bullets:
+        - "覆盖白酒 + 调味品行业，协助 3 个项目尽调"
+        - "搭建白酒行业财务模型，5 家公司可比分析"
+        - "1 个项目最终申报，已获交易所受理"
+  projects: []
+  skills:
+    technical: ["DCF / 可比公司 / 可比交易估值", "财务建模（LBO / M&A）", "Wind", "Excel 高级"]
+    tools: ["Wind", "Bloomberg", "Capital IQ", "S&P Global", "PowerPoint"]
+    languages: ["中文（母语）", "英文（托福 110，工作语言）"]
+  languages: ["中文", "英文"]
+  awards:
+    - "2024 北大光华-Bain 案例大赛 全国冠军"
+    - "2023 北大三好学生标兵"
+  candidate_summary: "北大光华金融，已有高盛 IBD + 中金 IBD 两段头部投行实习，财务建模 + 行业研究功底扎实。希望转买方做基本面研究，偏 TMT / 大消费方向。"
+  inferred_roles:
+    - "买方行业研究员"
+    - "投资经理助理"
+    - "买方研究"
+  inferred_tracks:
+    - "公募基金/研究"
+    - "二级市场买方"
+    - "一级 PE"
+
+eval_anchors:
+  expected_strong_match_tracks:
+    - "公募基金/研究"
+    - "一级 PE"
+    - "二级市场买方"
+  expected_transferable_tracks:
+    - "券商研究所"
+  expected_gap_tracks:
+    - "量化研究"
+  evidence_keywords:
+    - "高盛"
+    - "中金"
+    - "TMT"
+    - "DCF"
+    - "白酒"
+    - "光华"
+  fabrication_traps: []

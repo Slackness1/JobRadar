@@ -1,0 +1,81 @@
+id: students/01_finance_undergrad
+display_name: "张诺 · 上交金融本科 + 卖方实习"
+# Schema 对齐 backend/app/schemas_resume_copilot.py 的 ResumeProfilePayload
+# 用于 Track Relevance / Fit Explanation Quality / Evidence Groundedness 三项评测
+profile:
+  basic_info:
+    name: "张诺"
+    headline: "上交金融本科 · 中信证券研究所实习"
+    email: "zhangnuo@sjtu.edu.cn"
+    phone: "138****8888"
+    location: "上海"
+  education:
+    - school: "上海交通大学 安泰经济与管理学院"
+      degree: "本科"
+      major: "金融学"
+      start_date: "2022-09"
+      end_date: "2026-06"
+      highlights:
+        - "GPA 3.7/4.0 · 专业排名 12/85"
+        - "CFA Level 1 通过 (2025)"
+        - "课程：公司金融 / 计量经济学 / 衍生品定价 / 行业研究方法"
+  internships:
+    - company: "中信证券研究所"
+      role: "电力新能源行业组 · 实习研究员"
+      start_date: "2025-06"
+      end_date: "2025-09"
+      bullets:
+        - "覆盖电力新能源行业 8 家上市公司，3 个月内独立撰写 3 篇深度报告 + 12 篇点评"
+        - "搭建 DCF 估值模型，参与 2 家公司盈利预测的季度更新"
+        - "整理行业政策数据库（光伏 / 风电 / 储能），月更 15+ 条政策快报供分析师晨会"
+        - "1 篇深度报告获所内月度优秀实习生报告"
+    - company: "国泰君安自营部"
+      role: "量化研究 · 实习生"
+      start_date: "2024-12"
+      end_date: "2025-03"
+      bullets:
+        - "用 Python 复现 2 个低频选股因子（ROE 加速度 / 毛利率边际改善），2018-2024 A 股全样本回测 IR 0.8 / 0.6"
+        - "维护因子库的日更脚本，协助 2 位 PM 监控 alpha 稳定性"
+  projects:
+    - name: "上交大投资协会 · 行业研究小组"
+      role: "组长"
+      tech_stack: ["Wind", "iFinD", "Excel"]
+      bullets:
+        - "带 4 人小组每月输出 1 篇行业调研，累计输出 6 篇（新能源车 / 创新药 / AI 算力）"
+        - "组织外部访谈 8 次（覆盖卖方分析师 / 行业一线 PM）"
+  skills:
+    technical: ["Python (pandas, statsmodels)", "SQL", "R", "DCF / 相对估值"]
+    tools: ["Wind", "iFinD", "Choice", "Bloomberg", "Excel / PowerPoint"]
+    languages: ["中文（母语）", "英文（CET-6 / 雅思 7.0）"]
+  languages: ["中文", "英文"]
+  awards:
+    - "2024 上海市数学建模竞赛 一等奖"
+    - "2023 上交大优秀学生奖学金"
+  candidate_summary: "金融学本科生，有卖方研究（新能源行业组）+ 量化自营两段实习。定位行业研究员 / 投研助理 — 研究方法论扎实，能独立产出深度报告；量化基础足够支持模型搭建 + 因子复现。"
+  inferred_roles:
+    - "行业研究员"
+    - "投研助理"
+    - "量化研究员"
+  inferred_tracks:
+    - "公募基金/研究"
+    - "券商研究所"
+    - "二级市场买方"
+
+# Eval 用的 ground truth 锚点（不是 ResumeProfilePayload 的一部分,judge 拿来判分）
+eval_anchors:
+  expected_strong_match_tracks:   # 应当被推为"强匹配"的方向
+    - "公募基金/研究"
+    - "券商研究所"
+  expected_transferable_tracks:   # 应当被推为"可迁移"
+    - "二级市场买方"
+    - "量化研究"
+  expected_gap_tracks:            # 应当被推为"有差距"
+    - "一级 PE"                   # 缺少一级市场尽调经验
+  fabrication_traps: []           # 用于 Evidence Groundedness — 故意留白让 LLM 容易编造的字段
+  evidence_keywords:              # 改写要求引用这些事实才算 grounded
+    - "中信证券"
+    - "电力新能源"
+    - "DCF"
+    - "国泰君安"
+    - "因子复现"
+    - "上交大"

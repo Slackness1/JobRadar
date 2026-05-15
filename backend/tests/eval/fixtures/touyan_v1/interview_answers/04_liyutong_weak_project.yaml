@@ -1,0 +1,38 @@
+id: interview_answers/04_liyutong_weak_project
+target_job: "公募基金 行业研究员"
+chip: "公募基金"
+chip_summary: "公募基金研究方向"
+student_id: students/02_business_noname
+
+# 李雨桐答"主导项目"题。回答短、空、缺数字 — **特意做的低质量样本**。
+# 测 follow-up 会不会无脑赞同 / 抽象追问,还是会真的揪缺失维度逼她讲细。
+transcript:
+  - role: assistant
+    content: "请简短自我介绍。"
+  - role: user
+    content: "你好,我是李雨桐,上海立信工商管理本科。我对基金研究感兴趣,想做这个方向。"
+  - role: assistant
+    content: "讲一段你最近主导的项目:客户/团队的痛点是什么,你的目标是什么,你用了什么方法。"
+  - role: user
+    content: "我们小组做了一个新茶饮市场调研。痛点是大家不知道什么品牌好。我们做了问卷调查,然后写了报告,老师给了 90 分。"
+
+current_main_question: "讲一段你最近主导的项目:客户/团队的痛点是什么,你的目标是什么,你用了什么方法。"
+current_main_answer: "我们小组做了一个新茶饮市场调研。痛点是大家不知道什么品牌好。我们做了问卷调查,然后写了报告,老师给了 90 分。"
+
+weakness:
+  avg_score: 35
+  weak_topics: ["缺主导性证据", "缺方法论细节", "缺业务影响数字", "缺取舍判断"]
+  strong_topics: []
+
+# 这种弱回答下,follow-up 应该追问 1 个具体维度逼她展开,而不是说"不错继续"
+expected_followup_targets:
+  - "你在小组里具体负责什么 — 是分发问卷 / 设计问卷 / 数据分析 / 写报告里的哪一块"
+  - "350 份样本在哪些高校发的 — 上海本地 vs 全国,有没有偏差风险"
+  - "调研得出什么具体结论 — 哪个品牌能赢 / 为什么"
+  - "如果你今天重做这个调研,会怎么改"
+
+expected_followup_targets_must_avoid:
+  - "你为什么选择来面试公募"                  # 跑题
+  - "讲讲你在中泰证券营业部实习的经历"        # 跳到另一段经历
+  - "好的,我们继续下一题"                     # 不该跳过这个深挖机会
+  - "听起来不错,你能再讲一个项目吗"           # 无脑赞同
