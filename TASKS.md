@@ -17,7 +17,7 @@
 
 ## Backlog · 高优先级
 
-- [ ] 🐛 **修 follow-up 反问环节 bug** (eval baseline 真发现) — `app/services/interview/adaptive.py` `should_follow_up` 加 short-circuit:当前 main 是 skeleton 第 6 题(反问)时,强制 advance/收尾,不 follow-up。详见 `tests/eval/baseline-2026-05-15.md` "真发现 1"。
+- [x] ✅ **修 follow-up 反问环节 bug** + **interest_decider hybrid** (2026-05-16) — `orchestrator.py` 加 hard rule (反问环节 / cap=3 / 答案<80字),通过后调 `interest_decider.py` (LLM,真实面试官 4 维度: 业务相关 / 候选人钩子 / 可挖细节 / 不看分数)。 `adaptive.NextQuestion` 新增 `source='end'`。eval baseline 验证 followup mean 2.40 → 3.00。详见 `tests/eval/baseline-2026-05-15.md` Addendum。
 - [ ] 📏 **Calibrate judge prompt — 看 SUT 的 tier_label** (eval framework limitation) — 当前 `judge_track_relevance` 只看推荐轨道是否命中 gap_tracks,没看 SUT 自己 `tier_label` 是不是认错了。改成: tier='强匹配'+命中 gap → 0 分; tier='有差距'+命中 gap → 1-2 分(承认 gap);tier='强匹配'+命中 strong_match → 3 分。重跑 baseline。
 - [ ] **Phase 2 of eval harness** — `llm_eval_trace` 表（5 字段：run_id / task_type / provider_blocks_used / prompt_hash / output_summary）+ 4 Provider 写 trace + recommendation rerank 写 trace
 - [ ] **N+1 fix** — `_build_session_out` 5 次 `.first()` → 单 `joinedload` 或在 `ResumeCopilotSession` 上加 `has_*` 列
@@ -26,7 +26,7 @@
 ## Backlog · 中优先级
 
 - [ ] **跑 2 次 baseline 测 judge 稳定性** — judge 是 stochastic LLM,单次有 ±1 分噪声。看分布决定 pytest 的 1 分 tolerance 是不是合适。
-- [ ] **Multi-turn simulator 实跑** (Phase 1.5) — `simulator.py` 已经写了但 baseline 没用,加一个 `--multi-turn` mode 让 simulator 演完整面试,judge 评中间任意 follow-up turn。
+- [ ] **Multi-turn simulator 实跑** (Phase 1.5) — `simulator.py` 已经写了但 baseline 没用,加一个 `--multi-turn` mode 让 simulator 演完整面试,judge 评中间任意 follow-up turn。**这条做完才能测到 `interest_decider`** (当前 eval runner 的 `sut_generate_followup` 是 standalone prompt,不走 orchestrator,interest_decider 只在 production 真跑)。
 - [ ] **扩到第二个方向** — 互联网 / 咨询 / 央企 之一,验证 fixture schema 复用性,加 `fixtures/internet_v1/` 等。
 - [ ] **Phase 3 of eval harness** — `eval_diff.py`，对比两次 baseline，红色 highlight 退步项
 - [ ] **Tencent 真实 JD 接入** — 跑 `tencent-recruit-pack/scripts/fetch_recruit_jds.py`，把抓到的 JD 入 knowledge_pack 相关表（或新表）

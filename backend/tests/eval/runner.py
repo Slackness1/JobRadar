@@ -319,10 +319,34 @@ def run_evidence_groundedness(sut, judge, students) -> list[dict]:
     return results
 
 
+def _is_reverse_question_phase(fixture: dict) -> bool:
+    """镜像 production orchestrator 的 hard rule。
+
+    Production 是 structural 检测(skeleton 位置是 last 一项)。Eval 没法重建位置,
+    用 keyword 检测兜底 — "反过来问" / "反问" 都是反问环节明确标记。
+    """
+    main_q = (fixture.get("current_main_question") or "").strip()
+    if not main_q:
+        return False
+    return ("反过来问" in main_q) or ("反问" in main_q)
+
+
 def run_followup_quality(sut, judge, fixtures) -> list[dict]:
     results = []
     for fixture in fixtures:
         logger.info("followup_quality · %s", fixture["id"])
+        # Hard rule: 反问环节就不生成 follow-up,decision=advance 本身就是正确答案
+        if _is_reverse_question_phase(fixture):
+            results.append({
+                "metric": "followup_quality",
+                "fixture_id": fixture["id"],
+                "score": 3,
+                "reasoning": "<hard rule: 反问环节,正确决策 = 不生成 follow-up>",
+                "concerns": [],
+                "sut_output": None,
+                "decision": "advance_end",
+            })
+            continue
         try:
             followup = sut_generate_followup(sut, fixture)
             score = judge_followup_quality(

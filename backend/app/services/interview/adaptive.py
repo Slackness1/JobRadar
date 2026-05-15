@@ -88,7 +88,7 @@ GENERIC_FALLBACK_QUESTION = "请详细讲讲你最近完成的项目里，你最
 @dataclass(slots=True)
 class NextQuestion:
     question: str
-    source: str  # 'skeleton' | 'follow_up' | 'fallback'
+    source: str  # 'skeleton' | 'follow_up' | 'fallback' | 'end'
 
 
 class _LLMClient(Protocol):
