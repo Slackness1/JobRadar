@@ -13,6 +13,7 @@ from app.schemas_resume_copilot import (
     ResumeSkillsPayload,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
+from app.services.taxonomy import canonicalize_track
 
 
 EMAIL_PATTERN = re.compile(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}')
@@ -37,6 +38,23 @@ ROLE_KEYWORDS = [
     '后端开发', '前端开发', '全栈开发', '数据分析', '数据工程', '算法工程师', '产品经理', '运营',
 ]
 TRACK_KEYWORDS = ['Internet', 'AI', 'Finance', '互联网', 'AI', '金融']
+
+
+def _canonicalize_track_list(values: list[str]) -> list[str]:
+    """Phase C (2026-05-16): 把 inferred_tracks 里的 free-text 跑 canonicalize_track
+    映到 8 canonical(无 mapping 的保留原值,e.g. '互联网' / 'AI' 不属 8 canonical
+    但也别丢)。Dedupe 保序。
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for v in values:
+        if not v:
+            continue
+        canon = canonicalize_track(v) or v
+        if canon and canon not in seen:
+            seen.add(canon)
+            out.append(canon)
+    return out
 SECTION_ALIASES = {
     'summary': {'个人介绍', '个人简介', '自我介绍', '自我评价', 'Profile', 'Summary'},
     'education': {'教育背景', '教育经历', '教育'},
@@ -722,7 +740,9 @@ def _merge_profile_with_heuristics(raw_profile: Any, heuristic_profile: ResumePr
         candidate_summary=_candidate_summary_or_empty(str(raw_dict.get('candidate_summary', '') or ''), basic_info)
         or heuristic_profile.candidate_summary,
         inferred_roles=_normalize_string_list(raw_dict.get('inferred_roles', [])) or heuristic_profile.inferred_roles,
-        inferred_tracks=_normalize_string_list(raw_dict.get('inferred_tracks', [])) or heuristic_profile.inferred_tracks,
+        inferred_tracks=_canonicalize_track_list(
+            _normalize_string_list(raw_dict.get('inferred_tracks', [])) or heuristic_profile.inferred_tracks
+        ),
     )
     return profile
 
@@ -749,7 +769,9 @@ def build_heuristic_resume_profile(resume_text: str) -> ResumeProfilePayload:
     lowered_text = resume_text.lower()
     technical_skills = [skill for skill in KNOWN_TECH_SKILLS if skill.lower() in lowered_text]
     inferred_roles = _dedupe_preserve_order([role for role in ROLE_KEYWORDS if role.lower() in lowered_text])[:3]
-    inferred_tracks = _dedupe_preserve_order([track for track in TRACK_KEYWORDS if track.lower() in lowered_text])[:3]
+    inferred_tracks = _canonicalize_track_list(
+        _dedupe_preserve_order([track for track in TRACK_KEYWORDS if track.lower() in lowered_text])[:3]
+    )
 
     summary = _sanitize_candidate_summary('\n'.join(sections['summary']))
     technical_from_section, tools_from_section, languages = _parse_skills_section(sections['skills'])

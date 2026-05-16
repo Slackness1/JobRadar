@@ -181,7 +181,20 @@ const RESUME_LAYOUT_CONTROL_META: Record<
   },
 };
 
-const TRACK_OPTIONS = ['金融科技', '咨询', '数据分析', '产品运营', '后端开发', '投研'];
+// Phase C (2026-05-16): 8 canonical finance tracks 跟 backend
+// app.services.taxonomy.CANONICAL_FINANCE_TRACKS 对齐。SAIF audience 主要金融。
+// 用户老 preference 里可能存了 '咨询' / '数据分析' 等非 canonical 值,picker 用
+// union 渲染保留可点性 — 看 OptionPills 调用处。
+const TRACK_OPTIONS = [
+  '二级买方·基本面',
+  '量化',
+  '一级市场',
+  '卖方研究·S&T',
+  '银行·总行核心',
+  '监管·体制内',
+  '金融科技',
+  '金融咨询',
+];
 const LOCATION_OPTIONS = ['上海', '北京', '深圳', '杭州', '广州', '远程'];
 const ROLE_OPTIONS = ['数据分析师', '后端工程师', '产品经理', '咨询顾问', '投研实习生'];
 const COMPANY_OPTIONS = ['互联网', '金融机构', '咨询公司', '外企', '初创公司', '国央企'];
@@ -2146,7 +2159,7 @@ function ResumeChatRail({
                   <div className="text-xs leading-5 text-slate-400">岗位大类、目标岗位、地点和公司类型会影响后续推荐排序。</div>
                   <OptionPills
                     label="目标赛道"
-                    options={TRACK_OPTIONS}
+                    options={Array.from(new Set([...TRACK_OPTIONS, ...preferences.preferred_tracks]))}
                     values={preferences.preferred_tracks}
                     onChange={(values) => setPreferences((previous) => ({ ...previous, preferred_tracks: values, all_skipped: false }))}
                   />
