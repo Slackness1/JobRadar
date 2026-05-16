@@ -178,6 +178,9 @@ app.include_router(system_health.router)
 app.include_router(podcast_rag.router)
 app.include_router(student_kb.router)
 
+from app.routers import auth as _auth_router  # noqa: E402
+app.include_router(_auth_router.router)
+
 
 @app.get("/api/health")
 def health():

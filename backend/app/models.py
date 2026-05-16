@@ -837,3 +837,64 @@ class SensitiveTopic(Base):
     __table_args__ = (
         UniqueConstraint("employer_key", "topic_key", name="uq_sensitive_topic"),
     )
+
+
+# ── 账号系统 (alpha-1 内测,邀请码 gated) ───────────────────────────────────
+
+
+class InviteCode(Base):
+    """邀请码。已用过的 code consumed_at != null。"""
+
+    __tablename__ = "invite_codes"
+
+    id = Column(Integer, primary_key=True)
+    code = Column(Text, nullable=False, unique=True, index=True)
+    note = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    consumed_at = Column(DateTime, nullable=True, index=True)
+    consumed_by_user_key = Column(Text, nullable=True)  # 不上 FK,跟 users 解耦
+    expires_at = Column(DateTime, nullable=True, index=True)
+
+
+class User(Base):
+    """邮箱注册账号。email_verified_at != null 才能正常使用。"""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(Text, nullable=False, unique=True, index=True)
+    password_hash = Column(Text, nullable=False)
+    invite_code_id = Column(Integer, ForeignKey("invite_codes.id"), nullable=True)
+    email_verified_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_login_at = Column(DateTime, nullable=True)
+
+
+class EmailVerification(Base):
+    """6 位数字邮箱验证码,10 分钟有效。一个 user 多条历史记录(防 race)。"""
+
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    code = Column(Text, nullable=False)
+    purpose = Column(Text, default="register", index=True)  # register | reset_password | ...
+    sent_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    verified_at = Column(DateTime, nullable=True)
+    attempts = Column(Integer, default=0)
+
+
+class UserSession(Base):
+    """登录 session token。30 天有效。前端用 Bearer header 携带。"""
+
+    __tablename__ = "user_sessions"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    token = Column(Text, nullable=False, unique=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    revoked_at = Column(DateTime, nullable=True)
+    ua = Column(Text, nullable=True)
+    ip = Column(Text, nullable=True)
