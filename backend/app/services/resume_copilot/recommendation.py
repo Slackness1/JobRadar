@@ -19,199 +19,18 @@ from app.schemas_resume_copilot import (
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
 from app.services.resume_copilot.redact import redact_profile_for_llm
+from app.services.taxonomy import (
+    CANONICAL_FINANCE_TRACKS,
+    LOW_QUALITY_PENALTY,
+    canonicalize_track,
+    is_low_quality_role,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 PRIORITY_CONFIG_PATH = PROJECT_ROOT / 'backend' / 'config' / 'resume_copilot_priority.yaml'
 HIGH_AMBIGUITY_ROLE_KEYWORDS = ('管培', '储备', '综合', '项目管理', '客户经理', '运营', '战略', '研究', '投研')
 
-# 红线 — 命中即认为是低质量岗位(详见 docs/finance-tracks-2026-overview.md "红线"段)。
-# 严格控制误杀: 只放置基本无歧义的销售/基层关键词。"客户经理" 单独不放(歧义太大,
-# 可能是"机构客户经理" 或 "对公客户经理"); 但"远程/零售/网点/个人客户经理" 那种限定
-# 词加进去就是基层零售岗。
-_LOW_QUALITY_ROLE_PATTERNS: tuple[str, ...] = (
-    '柜员', '大堂经理', '柜面服务',
-    '客户服务', '客服',
-    '渠道销售', '渠道经理', '渠道岗',
-    '营销岗', '营销专员', '财富营销', '零售营销',
-    '保险代理', '寿险销售', '财险销售', '保险顾问', '代理人',
-    '理财经理', '理财顾问',
-    '财富顾问', '投资顾问',     # 营业部级别为主
-    'FOF销售', '基金销售', '产品销售',
-    '远程客户经理', '个人客户经理', '零售客户经理', '网点客户经理',
-)
 
-_LOW_QUALITY_PENALTY = 50    # 命中扣分,把 final_score 拉到推荐底部
-
-
-def _is_low_quality_role(job_title: str) -> str | None:
-    """返回命中的关键词,没命中返 None。
-
-    用 substring 直接匹配 — 没用 regex 因为模式都是普通中文短语。"""
-    if not job_title:
-        return None
-    for pat in _LOW_QUALITY_ROLE_PATTERNS:
-        if pat in job_title:
-            return pat
-    return None
-
-
-# 8 个 canonical 金融赛道 — 跟 docs/finance-tracks-2026-overview.md 对齐。
-# 用作:
-#   1. _matched_track 输出的 track_label 标准化 (避免 "公募基金" / "公募/研究" 等变体)
-#   2. LLM rerank prompt 里的赛道 enum 上下文
-CANONICAL_FINANCE_TRACKS: tuple[str, ...] = (
-    '二级买方·基本面',
-    '量化',
-    '一级市场',
-    '卖方研究·S&T',
-    '银行·总行核心',
-    '监管·体制内',
-    '金融科技',
-    '金融咨询',
-)
-
-# 别名 → canonical 映射 (大小写 / 中英 / 常见变体)。
-# 命中规则: alias 跟 input 任一方是另一方子串则匹配。
-_TRACK_ALIASES: dict[str, str] = {
-    # 二级买方·基本面
-    '公募': '二级买方·基本面',
-    '公募基金': '二级买方·基本面',
-    '公募基金/研究': '二级买方·基本面',
-    '公募/研究': '二级买方·基本面',
-    '主动基金': '二级买方·基本面',
-    '私募': '二级买方·基本面',
-    '阳光私募': '二级买方·基本面',
-    '对冲基金': '二级买方·基本面',
-    '二级市场买方': '二级买方·基本面',
-    '基本面研究': '二级买方·基本面',
-    '行业研究员': '二级买方·基本面',
-    '行业研究': '二级买方·基本面',
-    '银行理财子': '二级买方·基本面',
-    '理财子': '二级买方·基本面',
-    '保险资管': '二级买方·基本面',
-    '资产管理': '二级买方·基本面',
-    '信托': '二级买方·基本面',
-    '信托公司': '二级买方·基本面',
-
-    # 量化
-    '量化': '量化',
-    '量化研究': '量化',
-    '量化私募': '量化',
-    'quant': '量化',
-    'quantitative': '量化',
-    '做市': '量化',
-    'market making': '量化',
-    '高频交易': '量化',
-
-    # 一级市场
-    'pe': '一级市场',
-    'vc': '一级市场',
-    'ibd': '一级市场',
-    '投行': '一级市场',
-    '投资银行': '一级市场',
-    'fa': '一级市场',
-    '财务顾问': '一级市场',
-    '一级 pe': '一级市场',
-    '一级市场': '一级市场',
-    'm&a': '一级市场',
-    '兼并收购': '一级市场',
-    '外资投行': '一级市场',
-
-    # 卖方研究·S&T
-    '卖方': '卖方研究·S&T',
-    '卖方研究': '卖方研究·S&T',
-    '券商研究所': '卖方研究·S&T',
-    '研究所': '卖方研究·S&T',
-    's&t': '卖方研究·S&T',
-    '销售交易': '卖方研究·S&T',
-    'sales and trading': '卖方研究·S&T',
-    'ficc': '卖方研究·S&T',        # FICC desk 主要在 sell-side / 外资行 S&T,不是 banking
-
-    # 银行·总行核心
-    '银行': '银行·总行核心',
-    '银行总行': '银行·总行核心',
-    '总行': '银行·总行核心',
-    '总行管培': '银行·总行核心',
-    'fmt': '银行·总行核心',         # bank financial markets trainee
-    '国有大行': '银行·总行核心',
-    '股份制银行': '银行·总行核心',
-    '城商行': '银行·总行核心',
-    '城商': '银行·总行核心',
-    '农商行': '银行·总行核心',
-    '外资行': '银行·总行核心',
-    '私行': '银行·总行核心',       # 私人银行,跟营业部理财顾问区分(那个是低质量,被红线兜)
-    'pwm': '银行·总行核心',
-
-    # 监管·体制内
-    '监管': '监管·体制内',
-    '证监会': '监管·体制内',
-    '央行': '监管·体制内',
-    '人民银行': '监管·体制内',
-    '银保监': '监管·体制内',
-    '金融监管局': '监管·体制内',
-    '交易所': '监管·体制内',
-    '上交所': '监管·体制内',
-    '深交所': '监管·体制内',
-    '国央企': '监管·体制内',
-    '国企': '监管·体制内',
-    '央企': '监管·体制内',
-    '体制内': '监管·体制内',
-    '国开': '监管·体制内',
-    '中投': '监管·体制内',
-    '社保理事会': '监管·体制内',
-
-    # 金融科技
-    '金融科技': '金融科技',
-    'fintech': '金融科技',
-    '金科': '金融科技',        # 学生口语缩写
-    '互金': '金融科技',
-    '互联网金融': '金融科技',
-    '蚂蚁': '金融科技',
-    '微众': '金融科技',
-    '京东数科': '金融科技',
-    '京东金融': '金融科技',
-    '度小满': '金融科技',
-    '跨境支付': '金融科技',
-    'wind': '金融科技',
-    '同花顺': '金融科技',
-    '东方财富': '金融科技',
-
-    # 金融咨询
-    '咨询': '金融咨询',
-    'mbb': '金融咨询',
-    '麦肯锡': '金融咨询',
-    'bcg': '金融咨询',
-    'bain': '金融咨询',
-    '四大': '金融咨询',
-    '审计': '金融咨询',
-    '战略咨询': '金融咨询',
-    '财务咨询': '金融咨询',
-}
-
-
-def _canonicalize_track(label: str) -> str:
-    """把任意 track 文本映射到 8 个 canonical 之一。映射不到就原样返回。
-
-    映射规则:
-      1. label 跟某 alias 完全相等(忽略大小写) → canon
-      2. label 是某 alias 的子串,或 alias 是 label 的子串 → canon
-      3. 都不命中 → 原样返回 label (不强制改)
-    """
-    if not label:
-        return ''
-    label_l = label.lower().strip()
-    if not label_l:
-        return ''
-    # 1. exact match
-    for alias, canon in _TRACK_ALIASES.items():
-        if alias.lower() == label_l:
-            return canon
-    # 2. substring (双向)
-    for alias, canon in _TRACK_ALIASES.items():
-        a_l = alias.lower()
-        if a_l in label_l or label_l in a_l:
-            return canon
-    return label
 TRACK_CATEGORY_HINTS: dict[str, tuple[str, ...]] = {
     'internet': ('互联网', 'internet', 'tech', '算法', '开发', '产品', '数据', '前端', '后端'),
     'securities': ('券商', '证券', '研究所', '投研', '投行', '行研', '机构销售'),
@@ -748,7 +567,7 @@ def recommend_jobs_for_profile(
     snapshots_by_job_id = _latest_snapshots_by_job_id(db)
     recommendations: list[ResumeRecommendationItem] = []
     matched_track_key, matched_track_label = _matched_track(profile, preferences)
-    matched_track_label = _canonicalize_track(matched_track_label)
+    matched_track_label = canonicalize_track(matched_track_label)
     matched_role_family = _matched_role_family(profile, preferences)
     target_category_keys = _target_category_keys(profile, preferences)
 
@@ -773,8 +592,8 @@ def recommend_jobs_for_profile(
         topic_key = _topic_key(job, matched_role_family)
         # 低质量岗位红线 (柜员/客户经理/渠道销售类) → final_score 扣 50 拉到底部 +
         # 加 risk note 告诉 user 为啥被降级。详见 docs/finance-tracks-2026-overview.md。
-        low_quality_hit = _is_low_quality_role(str(job.job_title or ''))
-        final_score_value = enhanced_score - (_LOW_QUALITY_PENALTY if low_quality_hit else 0)
+        low_quality_hit = is_low_quality_role(str(job.job_title or ''))
+        final_score_value = enhanced_score - (LOW_QUALITY_PENALTY if low_quality_hit else 0)
         recommendations.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id or ''),
