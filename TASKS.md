@@ -1,23 +1,24 @@
 # TASKS
 
-> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-16 晚.**
+> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-16 深夜.**
 
-## 暂停中 (2026-05-16 晚)
+## 收官 ✅ (2026-05-16 深夜)
 
-刚收尾 taxonomy **Phase F** (commit `2c39590`) — coverage_truth + Track DB 接 canonical key,additive 不破坏现有 dashboard。下次决定接 Phase B / C / D-0 / D / E 中哪个。
+**Taxonomy 项目级铺线 sprint 全部完成** —— 6 phase 全 ship,8 canonical 贯穿 backend model + parser + provider + scoring,frontend picker,eval fixtures + judge prompt,DB jobs + tracks 全模块。142 unit tests pass。
 
-## Active sprint — Taxonomy 项目级铺线 (8 canonical 贯穿全模块)
+## Active sprint (空) — 等用户指派下一段
 
-**起点**:8 canonical tracks + 红线词已经 ship 到 `app.services.taxonomy/`,等下游接入。
-**总盘**:跟另一个 Claude session 提的 phase 计划对齐,文件域分两人 (M = 后端 infra, P = 数据+前端)。
+详见 `HANDOFF.md` "下次会话建议接什么"。
 
-- [x] ✅ **Phase A** (2026-05-16, M) — taxonomy module 抽出,recommendation.py 改 import。66 unit tests pass。
-- [ ] 🔵 **Phase B** (M owner) — Alembic 加 `Job.canonical_track` 列 + 10+ tier crawler 落库时调 `canonicalize_track(job)` 自动打标。需要 backfill 已存在的 91465 行。
-- [ ] 🔵 **Phase C** (P owner: 前端 / parser) — `parser.py` 把 `inferred_tracks` 跑 canonicalize;前端 preference picker UI 用 8 canonical 项 (旧字符串 backward-compat 自动映射)。
-- [ ] 🔵 **Phase D-0** (P owner) — `tracks.yaml` 写满 8 个 track 的 knowledge field:典型雇主 / 典型岗位 / 高质量信号词 / 低质量信号词 / 1-2 个 STAR 示例 / 典型 follow-up 模板。**纯数据,跟 A 后任何 phase 都 0 冲突,P 可以立刻开干。**
-- [ ] 🔵 **Phase D** (M owner) — `track_knowledge_provider.py` 5th ContextProvider。**budget 已实测安全** (chat 现 <2% / 加完 <5%),详见 `commits[token trace]`。注:仍要再测 interview_question / interview_score 等其他 purpose。
-- [ ] 🔵 **Phase E** (M+P) — eval fixtures 加 `canonical_track` field;eval runner 的 SUT/judge prompt 引用 8 canonical;改 chat.py rewrite 拿 user canonical track 调改写口径。
-- [x] ✅ **Phase F** (2026-05-16 晚, M, additive) — coverage_truth.yaml 每条加 `canonical_tracks: [...]` (允许 1:N,e.g. hedge_funds = [量化, 二级买方·基本面]);Track DB 加 `canonical_track` Text 列 + Alembic 0004 + 9 行 backfill (other_foreign 留 NULL)。`/api/coverage` + `/api/tracks` 双双 surface。82 测试通过 (66 旧 + 16 新)。**不动** dashboard 计算/keyword scoring 逻辑。下游 UI 可按 canonical 二级聚合。
+## ✅ Taxonomy sprint 已完成(7 commits)
+
+- [x] ✅ **Phase A** (`631e13b`) — taxonomy module 抽出,recommendation.py 改 import。
+- [x] ✅ **Phase F** (`2c39590`) — coverage_truth.yaml + Track DB 加 canonical_tracks。additive。
+- [x] ✅ **Phase B** (`1de7f81`) — Alembic 0005 加 `Job.canonical_track` + `before_insert` 自动派生 + 29592 行 backfill (29.9%)。新 source_map.py。
+- [x] ✅ **Phase C** (`36cd29c`) — parser inferred_tracks 跑 canonicalize + 前端 TRACK_OPTIONS 8 canonical + 老值 union 向后兼容。
+- [x] ✅ **Phase D-0** (`ce11b15`) — `tracks.yaml` 8 canonical 的 knowledge data。
+- [x] ✅ **Phase D** (`991342c`) — 5th ContextProvider `TrackKnowledgeProvider` (taxonomy/provider.py),注册 bootstrap 第 5 位。
+- [x] ✅ **Phase E** (`697cb37`) — JD fixtures + judge.py 引用 8 canonical。chat.py rewrite 口径调整未做(backlog)。
 
 ## Backlog · 高优先级 (Eval / Recommendation / 性能)
 

@@ -2,13 +2,13 @@
 
 > 上一段工作结束时的现状速记。冷启动接上必读。
 
-**Last updated: 2026-05-16 (深夜)**
+**Last updated: 2026-05-16 (深夜) — Taxonomy sprint 收官 + push**
 
 ## 现在在哪儿
 
-刚收尾 **taxonomy Phase F** (commit `2c39590`) —— additive 接通 canonical key:`coverage_truth.yaml` 13 条都加 `canonical_tracks: [...]` 字段(允许 1:N,e.g. `hedge_funds → [量化, 二级买方·基本面]`);Track DB 加 `canonical_track` Text 列 + Alembic `0004` + backfill 9 行(`other_foreign` 留 NULL,跨业态太杂)。`/api/coverage` + `/api/tracks` 都 surface 新字段。**不动 dashboard 计算/keyword scoring 逻辑**。82 unit tests pass (66 旧 + 16 新 wiring 契约)。
+🎯 **Taxonomy 项目级铺线 sprint 全部完成**。**6 phase 全 ship** (A/F/B/C/D-0/D/E,7 commits),8 canonical 贯穿 backend model + parser + provider + scoring,frontend picker,eval fixtures + judge prompt,DB jobs + tracks 全模块。**142 unit tests pass**。详见 `CHANGELOG.md` 顶部 W20 段。
 
-分支 `main`,本地比 `origin/main` 领先 ~13 个 commit(没 push)。
+分支 `main`,准备 push 到 origin。
 
 ## 本次 session 干了什么 (按时间倒序)
 
@@ -96,30 +96,35 @@ DeepSeek 64K context 当前 chat 用 **<2%**。**5th provider 加 800-1500 token
 - ❌ 两人同时跑 eval baseline + commit baseline.json — baseline 是单 owner (建议 M,因为有 eval harness 上下文)
 - ❌ commit message 不带前缀 `[wM]` / `[wP]` — 对方 git log 看不懂
 
-## 下次会话最适合接的 3 件事 (任选)
+## 下次会话最适合接的几件事 (任选)
 
-| 优先级 | Phase | 工作量 | 风险 |
+Taxonomy sprint 已收官,backlog 高优先级里挑:
+
+| 优先级 | 任务 | 工作量 | 备注 |
 |---|---|---|---|
-| 🥇 | **B** (alembic `Job.canonical_track` + crawler ingest + 91465 行 backfill) | ~3-4h | 中 — 10+ crawler 都要改 + alembic |
-| 🥈 | **D-0** (P 干) 写 8 个 track 的 yaml knowledge | ~3-5h | 低 — 纯数据 |
-| 🥉 | **C** (P 干:parser canonicalize + 前端 preference picker 用 8 canonical) | ~2-3h | 低 |
+| 🥇 | **chat.py rewrite 按 canonical 调口径** (Phase E 留的 backlog) | ~1-2h | 小但 LLM regression 风险要跑 baseline 验证 |
+| 🥈 | **legacy source LLM enrich** — tatawangshen/haitou 这些 catchall(占 70227 NULL 中的大头)跑 LLM 提 Job.canonical_track 覆盖率 (现 29.9% → 目标 60%+) | ~3-4h | 花 LLM 钱;可只跑 top company 样本 |
+| 🥉 | **SUT tier_label 太保守 bug** (multi-turn baseline 发现) | ~2h | 直接体感 |
+| 🏅 | **N+1 fix** `_build_session_out` | ~1h | 降 polling cost |
+| 🏅 | **Recommendation prefilter** scoring 前按 prefs 硬过滤 | ~2h | 91465 行全 scoring 在 active session 会卡 |
 
-P 应该立刻去搞 D-0 (零阻塞,纯写作),我等 M 指令再启 B / D。
-
-**Phase F 已 done (2026-05-16 晚)** —— additive 接通,不动 dashboard/scorer。详见 commit `2c39590`。
+详见 `TASKS.md` Backlog 高/中优先级段。
 
 ## 待 user 确认 / 暂搁置的事
 
 - 删 `HANDOFF_NEXT_SESSION.md` (root,陈旧)?
 - 删 `backend/data/jobradar.db.bak.20260428` (旧备份)?
 - `docs/decisions.md` (lowercase) 标 legacy 还是真删?
-- 是否要 push 到 origin?当前比 origin/main 领先 ~13 commits 没 push
 
 ## 不要随便动的事
 
-- ContextProvider 注册顺序 (sensitive_topic first 必须) — 看 `DECISIONS.md` D-05
+- ContextProvider 注册顺序 — `SensitiveTopicProvider` first;`TrackKnowledgeProvider` 第 5 位 (Phase D 加的)。看 `DECISIONS.md` D-05
 - Demo session (`session_id=1` & `user_key='__demo__'`) write-disable 守卫
 - `voice/avatar.py` Lingmou 代码 (dormant 状态但难复原)
 - Force-push `main` / amend 已推 commit
-- **改 taxonomy patterns 不跑 `pytest tests/test_recommendation_blacklist.py` 就 commit** — 66 个测试是 contract,先跑再改
-- **(新) 改 coverage_truth.yaml 或 Track DB 不跑 `pytest tests/test_phase_f_canonical_wiring.py` 就 commit** — 16 个测试钉死 canonical_track wiring 契约
+- **改 taxonomy patterns 不跑 `pytest tests/test_recommendation_blacklist.py` 就 commit** — 66 个 contract test
+- **改 coverage_truth.yaml 或 Track DB 不跑 `pytest tests/test_phase_f_canonical_wiring.py`** — 16 个 wiring 契约
+- **(新) 改 Job 模型 / source_map.py 不跑 `pytest tests/test_phase_b_job_canonical.py`** — 15 个钉死 before_insert listener 行为
+- **(新) 改 parser inferred_tracks 路径不跑 `pytest tests/test_phase_c_parser_canonical.py`** — 5 个钉死 _canonicalize_track_list 契约
+- **(新) 改 tracks.yaml 不跑 `pytest tests/test_phase_d_track_knowledge.py`** — 28 个钉死 provider + yaml 结构
+- **(新) 改 eval/judge.py 或 JD fixtures 不跑 `pytest tests/test_phase_e_eval_canonical.py`** — 12 个钉死 canonical 引用

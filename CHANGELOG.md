@@ -4,8 +4,14 @@
 
 ## 2026-W20 (May 11-17) · 后半周大爆发
 
-(2026-05-16 这一天连发 13+ commits,本周差不多干完了 SAIF 内测前的所有 alpha 准备)
+(2026-05-16 这一天连发 19+ commits,本周差不多干完了 SAIF 内测前的所有 alpha 准备)
 
+- **🎯 taxonomy 项目级铺线 sprint 收官 (2026-05-16 深夜)** —— 6 phase 全 ship,8 canonical 贯穿 backend model + parser + provider + scoring,frontend picker,eval fixtures + judge prompt,DB jobs + tracks 全模块。**142 unit tests pass**。7 commits (`A 631e13b` / `F 2c39590` / `B 1de7f81` / `C 36cd29c` / `D-0 ce11b15` / `D 991342c` / `E 697cb37`)。关键产出:
+  - **Phase B (`1de7f81`)** — Alembic 0005 加 `Job.canonical_track` Text + index;**SQLAlchemy `before_insert` event listener** 集中派生,避免改 20+ Job() 调用点;99113 行 backfill (29592 hit / 29.9% — 余下主要是 tatawangshen/legacy catchall 无信号 source);新 source_map.py 复用 Phase F coverage_truth.yaml 1:1 source 映射。
+  - **Phase C (`36cd29c`)** — parser inferred_tracks (LLM + heuristic 两路) 跑 canonicalize;前端 TRACK_OPTIONS 改 8 canonical + 老值 union 渲染保留向后兼容。
+  - **Phase D-0 (`ce11b15`)** — `tracks.yaml` 写满 8 canonical knowledge data (typical_employers / roles / high_quality_signals / low_quality_signals / star_examples / followup_templates)。
+  - **Phase D (`991342c`)** — 5th ContextProvider `TrackKnowledgeProvider` 在 taxonomy/provider.py,优先级 preferences > inferred > target_job > user_question,返 ~600-1000 chars 紧凑 block (top-5 雇主 + top-5 信号 + 1 STAR + 2 followup),注册 bootstrap 第 5 位。
+  - **Phase E (`697cb37`)** — 5 JD fixture + judge.py system prompt 引用 8 canonical + judge payload 含 jd_canonical_track。
 - **taxonomy Phase F 落地 (2026-05-16 晚)** — `coverage_truth.yaml` 13 条每条加 `canonical_tracks: [...]` (允许 1:N,e.g. hedge_funds = [量化, 二级买方·基本面]); Track DB 加 `canonical_track` Text 列 + Alembic `0004_track_canonical_track` + 9 行 backfill (other_foreign 留 NULL,跨业态太杂)。`/api/coverage` + `/api/tracks` 都 surface 新字段。**additive 不破坏** —— dashboard 计算逻辑/keyword scoring 0 改动。82 unit tests pass (66 旧 + 16 新 wiring 契约)。
 - **taxonomy module Phase A 落地 (2026-05-16)** — `app/services/taxonomy/` 抽出 8 canonical tracks + 65+ aliases + 22 红线词 patterns,从 `recommendation.py` 解耦。66 unit tests pass。下游 phase B-F (crawler ingest / parser canonicalize / preferences UI / 5th ContextProvider / scoring 重命名) 已规划。
 - **8 canonical 金融赛道总览 doc** — `docs/finance-tracks-2026-overview.md` (~250 行) 写满 8 个赛道 × 平台 × 岗位 + ★ 评级 (★★★ 香饽饽 / ✗ 低质量) + 红线清单 + JobRadar 接入建议。数据混源:个人通识 + 4 次 web search + 1 次 XHS crawl(n=8 帖,46 评论)。
