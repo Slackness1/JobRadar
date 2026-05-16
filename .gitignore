@@ -66,3 +66,7 @@ backend/data/podcasts/_processed/_debug/
 backend/data/podcasts/_processed/episode_summaries.jsonl
 backend/data/podcasts/_processed/insights.jsonl
 backend/data/podcasts/_processed/insights_dedup.jsonl
+
+# Private docs (SAIF 沟通细节 / 老师反馈 / 学生名单 等敏感文档)
+# Clone Slackness1/JobRadar-private into docs/_private/ to populate.
+docs/_private/
