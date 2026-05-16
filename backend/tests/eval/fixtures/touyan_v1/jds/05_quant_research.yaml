@@ -1,5 +1,6 @@
 id: jds/05_quant_research
 expected_track: "量化研究"
+canonical_track: "量化"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
 job:
   company: "九坤投资"
   job_title: "量化研究员（中低频策略组）· 2026 校招"

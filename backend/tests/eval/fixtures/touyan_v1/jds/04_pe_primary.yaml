@@ -1,5 +1,6 @@
 id: jds/04_pe_primary
 expected_track: "一级 PE"
+canonical_track: "一级市场"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
 job:
   company: "高瓴 Hillhouse"
   job_title: "PE 投资分析师（大消费组）· 2026 校招"

@@ -1,5 +1,6 @@
 id: jds/03_buy_side_secondary
 expected_track: "二级市场买方"
+canonical_track: "二级买方·基本面"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
 job:
   company: "高毅资产"
   job_title: "研究员 / 投资经理助理（基本面方向）· 2026 校招"

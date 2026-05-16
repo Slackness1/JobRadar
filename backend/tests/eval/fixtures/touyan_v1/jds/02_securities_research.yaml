@@ -1,5 +1,6 @@
 id: jds/02_securities_research
 expected_track: "券商研究所"
+canonical_track: "卖方研究·S&T"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
 job:
   company: "中信证券研究部"
   job_title: "行业分析师助理（新能源组）· 2026 校招"
