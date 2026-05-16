@@ -72,6 +72,14 @@ def bootstrap() -> None:
     except Exception as exc:
         log.warning(f"PodcastContextProvider register failed: {exc}")
 
+    # 5. Track knowledge (Phase D, 2026-05-16) — 8 canonical 的 employers /
+    #    signals / STAR / follow-up 模板。tracks.yaml 在 taxonomy module 里。
+    try:
+        from app.services.taxonomy.provider import TrackKnowledgeProvider
+        register(TrackKnowledgeProvider())
+    except Exception as exc:
+        log.warning(f"TrackKnowledgeProvider register failed: {exc}")
+
 
 __all__ = [
     "ContextProvider",
