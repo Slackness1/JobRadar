@@ -45,6 +45,7 @@ def import_tracks_json_full_replace(db, payload: TrackImportIn) -> TrackImportOu
                 weight=track_in.weight,
                 min_score=track_in.min_score,
                 sort_order=track_in.sort_order if track_in.sort_order is not None else index,
+                canonical_track=(track_in.canonical_track or '').strip() or None,
             )
             db.add(track)
             db.flush()

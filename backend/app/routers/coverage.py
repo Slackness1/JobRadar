@@ -159,6 +159,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
             tracks_out.append({
                 "id": track["id"],
                 "name": track["name"],
+                "canonical_tracks": list(track.get("canonical_tracks") or []),
                 "mode": "absolute",   # frontend renders identically to absolute
                 "sources": [],
                 "active_company_count": len(active_map),
@@ -178,6 +179,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
             tracks_out.append({
                 "id": track["id"],
                 "name": track["name"],
+                "canonical_tracks": list(track.get("canonical_tracks") or []),
                 "mode": "absolute",
                 "sources": sources,
                 "active_company_count": len(active_map),
@@ -235,6 +237,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
         tracks_out.append({
             "id": track["id"],
             "name": track["name"],
+            "canonical_tracks": list(track.get("canonical_tracks") or []),
             "mode": "enumerate",
             "sources": sources,
             "t1_total": t1_total,

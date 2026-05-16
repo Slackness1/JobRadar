@@ -37,6 +37,7 @@ class TrackOut(BaseModel):
     weight: float
     min_score: int
     sort_order: int
+    canonical_track: Optional[str] = None
     groups: list[KeywordGroupOut] = []
     model_config = {"from_attributes": True}
 
@@ -47,6 +48,7 @@ class TrackIn(BaseModel):
     weight: float = 1.0
     min_score: int = 10
     sort_order: int = 0
+    canonical_track: Optional[str] = None
 
 
 class TrackUpdate(BaseModel):
@@ -54,6 +56,7 @@ class TrackUpdate(BaseModel):
     weight: Optional[float] = None
     min_score: Optional[int] = None
     sort_order: Optional[int] = None
+    canonical_track: Optional[str] = None
 
 
 class TrackImportGroupIn(BaseModel):
@@ -68,6 +71,7 @@ class TrackImportTrackIn(BaseModel):
     weight: float = 1.0
     min_score: int = 10
     sort_order: int = 0
+    canonical_track: Optional[str] = None
     groups: list[TrackImportGroupIn] = []
 
 

@@ -285,6 +285,10 @@ class Track(Base):
     weight = Column(Float, default=1.0)
     min_score = Column(Integer, default=10)
     sort_order = Column(Integer, default=0)
+    # Phase F (2026-05-16): 映射到 app.services.taxonomy 的 canonical key。
+    # nullable — Track 是 keyword tier-scoring 的桶,不一定能对应到 8 canonical
+    # 任一项 (e.g. other_foreign 太杂)。空 = 不归属。
+    canonical_track = Column(Text, nullable=True)
 
     groups = relationship("KeywordGroup", back_populates="track", cascade="all, delete-orphan",
                           order_by="KeywordGroup.sort_order")
