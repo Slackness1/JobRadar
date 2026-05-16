@@ -98,3 +98,17 @@
 **备选**：信第一次 Chromium 失败的诊断。
 **为什么**：2026-05-09 LVMH 反例 — Phase 5 当时定为 "Chromium HTTP/2 fingerprint 被 CDN 拒，工程不可行"。subagent 用 `curl_cffi.requests.get(impersonate='chrome120')` 一次过 200 / 1.38MB HTML。真因是 Prismic CMS `offersUrl: "$undefined"`（上游内容真空），不是反爬。要分清 (a) 上游真空 vs (b) 反爬不可绕 vs (c) 选择器/接口漂 — 三种处理方式不同。
 **位置**：详见 `docs/crawlers-notes.md` "诊断方法论"
+
+## D-14 · 2026-05-16 · Job.canonical_track 走 SQLAlchemy `before_insert` 自动派生
+
+**决策**:在 `app/models.py` Job 类后挂 `@event.listens_for(Job, 'before_insert')` + `before_update` listener,自动从 `(source, job_title)` 派生 `canonical_track`。已显式赋值的不覆盖(尊重 review_queue 等 caller 意图)。**不**改 20+ 个 `Job(...)` 调用点。
+**备选**:(a) 改每个 crawler 显式 `Job(canonical_track=canonicalize_job(...))`;(b) 让 caller 在 `db.add` 之前手动调 helper。
+**为什么**:99113 行历史数据靠 Alembic 0005 backfill 一次性搞定 (29.9% 覆盖);新增 Job 行如果用 (a),要 audit 20+ crawler 文件,任何漏掉的(legacy / 新加的 crawler)就是污染源。Event listener 是单点保证 —— "凡是 Job 行写进 DB,都必须过这一关"。已显式赋值不覆盖防止 review_queue 改 track 被 wipe。模式跟 `database.py` 已有的 `@event.listens_for(engine, 'connect')` (PRAGMA WAL) 一致,team familiar。
+**位置**:`backend/app/models.py` Job 类下方 `_populate_job_canonical_track`;tests/test_phase_b_job_canonical.py 15 个契约 (含 before_update 也 fill)。
+
+## D-15 · 2026-05-16 · `SOURCE_TO_CANONICAL` 只接受 1:1,1:N 留 NULL
+
+**决策**:`source_map.py` 的 `SOURCE_TO_CANONICAL` dict **只装** coverage_truth.yaml 里 `len(canonical_tracks) == 1` 的 source。1:N source (e.g. `hedge_funds_hotjob` → [量化, 二级买方·基本面])**不强行映射**,让 `canonicalize_job(source, job_title)` 兜底走 job_title alias,无 alias 命中则返 None,canonical_track 留 NULL。
+**备选**:(a) 1:N 取第一个 canonical;(b) 1:N 全部 join 成 "量化/二级买方·基本面" 字符串;(c) 1:N 也 NULL,但走 LLM 兜底。
+**为什么**:(a) 武断 — 高毅(基本面)和幻方(量化)都进 hedge_funds source,选首个会错一半;(b) 破坏 enum 约束,downstream group-by 全乱;(c) LLM 兜底成本高。NULL + job_title fallback 是"诚实":能从 title 推就推,推不出就留给下游 LLM rerank 或 review_queue 人工处理。29.9% backfill 覆盖率 (29592/99113) 在没花 LLM 钱情况下已经把 internet/bank/insurance/funds/state_owned 大头吃满,1:N source 走 title 也能补一部分 (e.g. 394 量化 / 264 卖方,基本来自 title 推断)。
+**位置**:`backend/app/services/taxonomy/source_map.py`;tests/test_phase_b_job_canonical.py `test_source_map_skips_ambiguous`。
