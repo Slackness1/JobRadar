@@ -57,7 +57,7 @@ tracks:
   - id: banks
     name: 银行 (T0+T1)
     canonical_tracks: [银行·总行核心]   # 理财子另走 asset_mgmt
-    source_match: [bank_official]
+    source_match: [bank_official, bank-legacy-csv]   # legacy CSV 也归 银行 桶
     mode: enumerate
     t1_companies:
       # T0 国有六大

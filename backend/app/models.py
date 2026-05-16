@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary
+from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary, event
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -272,8 +272,29 @@ class Job(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     track_predicted = Column(Text, nullable=False, default="")
     quality_label = Column(Text, nullable=False, default="")
+    # Phase B (2026-05-16): canonicalize_job(source, job_title) 的结果,
+    # 自动通过 before_insert/before_update event listener (database.py 里挂)
+    # 写入。None = 1:N 歧义 source 且 job_title 无信号,留给下游 LLM rerank。
+    # 与 track_predicted (LLM 自由文本) 平级,canonical_track 是 enum-constrained。
+    canonical_track = Column(Text, nullable=True, index=True)
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
+
+
+# Phase B (2026-05-16): 自动派生 canonical_track。
+# 挂 model 上而不是 20+ 个 Job() 调用点 — 改一处生效,新增 crawler 不会漏。
+# 已经显式设过的不覆盖(尊重 caller 意图,e.g. review_queue 改 track,或
+# backfill 直接赋值)。import taxonomy 在函数里做,避免循环 import / 启动开销。
+@event.listens_for(Job, 'before_insert')
+@event.listens_for(Job, 'before_update')
+def _populate_job_canonical_track(_mapper, _conn, target: 'Job') -> None:
+    if getattr(target, 'canonical_track', None):
+        return
+    from app.services.taxonomy import canonicalize_job
+    target.canonical_track = canonicalize_job(
+        getattr(target, 'source', '') or '',
+        getattr(target, 'job_title', '') or '',
+    )
 
 
 class Track(Base):

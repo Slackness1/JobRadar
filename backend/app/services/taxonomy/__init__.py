@@ -24,6 +24,10 @@ from app.services.taxonomy.quality import (
     LOW_QUALITY_ROLE_PATTERNS,
     is_low_quality_role,
 )
+from app.services.taxonomy.source_map import (
+    SOURCE_TO_CANONICAL,
+    canonicalize_job,
+)
 
 __all__ = [
     'CANONICAL_FINANCE_TRACKS',
@@ -31,4 +35,6 @@ __all__ = [
     'LOW_QUALITY_ROLE_PATTERNS',
     'LOW_QUALITY_PENALTY',
     'is_low_quality_role',
+    'SOURCE_TO_CANONICAL',
+    'canonicalize_job',
 ]
