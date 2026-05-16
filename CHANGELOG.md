@@ -4,8 +4,9 @@
 
 ## 2026-W20 (May 11-17) · 后半周大爆发
 
-(2026-05-16 这一天连发 12+ commits,本周差不多干完了 SAIF 内测前的所有 alpha 准备)
+(2026-05-16 这一天连发 13+ commits,本周差不多干完了 SAIF 内测前的所有 alpha 准备)
 
+- **taxonomy Phase F 落地 (2026-05-16 晚)** — `coverage_truth.yaml` 13 条每条加 `canonical_tracks: [...]` (允许 1:N,e.g. hedge_funds = [量化, 二级买方·基本面]); Track DB 加 `canonical_track` Text 列 + Alembic `0004_track_canonical_track` + 9 行 backfill (other_foreign 留 NULL,跨业态太杂)。`/api/coverage` + `/api/tracks` 都 surface 新字段。**additive 不破坏** —— dashboard 计算逻辑/keyword scoring 0 改动。82 unit tests pass (66 旧 + 16 新 wiring 契约)。
 - **taxonomy module Phase A 落地 (2026-05-16)** — `app/services/taxonomy/` 抽出 8 canonical tracks + 65+ aliases + 22 红线词 patterns,从 `recommendation.py` 解耦。66 unit tests pass。下游 phase B-F (crawler ingest / parser canonicalize / preferences UI / 5th ContextProvider / scoring 重命名) 已规划。
 - **8 canonical 金融赛道总览 doc** — `docs/finance-tracks-2026-overview.md` (~250 行) 写满 8 个赛道 × 平台 × 岗位 + ★ 评级 (★★★ 香饽饽 / ✗ 低质量) + 红线清单 + JobRadar 接入建议。数据混源:个人通识 + 4 次 web search + 1 次 XHS crawl(n=8 帖,46 评论)。
 - **低质量岗位红线落地** — `_LOW_QUALITY_ROLE_PATTERNS` (22 词:柜员/客户经理/渠道销售类) + 命中 `final_score -50` + risk note。在真实 91465 jobs 表上扫描:命中 4251 (4.6%),top 50 零命中,bottom 50 全命中。误杀率 ≈ 0%。

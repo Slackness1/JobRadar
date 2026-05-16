@@ -1,11 +1,10 @@
 # TASKS
 
-> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-16.**
+> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-16 晚.**
 
-## 暂停中 (2026-05-16)
+## 暂停中 (2026-05-16 晚)
 
-刚收尾 taxonomy Phase A,等下次会话决定接 Phase B / C / D-0 / F 中哪个。
-详见 `HANDOFF.md` 的 "Phase 化作战计划"。
+刚收尾 taxonomy **Phase F** (commit `2c39590`) — coverage_truth + Track DB 接 canonical key,additive 不破坏现有 dashboard。下次决定接 Phase B / C / D-0 / D / E 中哪个。
 
 ## Active sprint — Taxonomy 项目级铺线 (8 canonical 贯穿全模块)
 
@@ -18,7 +17,7 @@
 - [ ] 🔵 **Phase D-0** (P owner) — `tracks.yaml` 写满 8 个 track 的 knowledge field:典型雇主 / 典型岗位 / 高质量信号词 / 低质量信号词 / 1-2 个 STAR 示例 / 典型 follow-up 模板。**纯数据,跟 A 后任何 phase 都 0 冲突,P 可以立刻开干。**
 - [ ] 🔵 **Phase D** (M owner) — `track_knowledge_provider.py` 5th ContextProvider。**budget 已实测安全** (chat 现 <2% / 加完 <5%),详见 `commits[token trace]`。注:仍要再测 interview_question / interview_score 等其他 purpose。
 - [ ] 🔵 **Phase E** (M+P) — eval fixtures 加 `canonical_track` field;eval runner 的 SUT/judge prompt 引用 8 canonical;改 chat.py rewrite 拿 user canonical track 调改写口径。
-- [ ] 🔵 **Phase F** (M owner) — `coverage_truth.yaml` + job scoring service 的 `track.key` 全部用 canonical key。scoring service 需要数据迁移。
+- [x] ✅ **Phase F** (2026-05-16 晚, M, additive) — coverage_truth.yaml 每条加 `canonical_tracks: [...]` (允许 1:N,e.g. hedge_funds = [量化, 二级买方·基本面]);Track DB 加 `canonical_track` Text 列 + Alembic 0004 + 9 行 backfill (other_foreign 留 NULL)。`/api/coverage` + `/api/tracks` 双双 surface。82 测试通过 (66 旧 + 16 新)。**不动** dashboard 计算/keyword scoring 逻辑。下游 UI 可按 canonical 二级聚合。
 
 ## Backlog · 高优先级 (Eval / Recommendation / 性能)
 

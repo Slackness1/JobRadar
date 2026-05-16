@@ -2,18 +2,20 @@
 
 > 上一段工作结束时的现状速记。冷启动接上必读。
 
-**Last updated: 2026-05-16 (晚)**
+**Last updated: 2026-05-16 (深夜)**
 
 ## 现在在哪儿
 
-刚收尾 **taxonomy Phase A** —— 把 `CANONICAL_FINANCE_TRACKS` / `TRACK_ALIASES` / `LOW_QUALITY_ROLE_PATTERNS` 等从 `recommendation.py` 抽到 `app/services/taxonomy/`。66 unit tests pass,**纯 refactor 零行为改动**。用户说"暂停一下"。
+刚收尾 **taxonomy Phase F** (commit `2c39590`) —— additive 接通 canonical key:`coverage_truth.yaml` 13 条都加 `canonical_tracks: [...]` 字段(允许 1:N,e.g. `hedge_funds → [量化, 二级买方·基本面]`);Track DB 加 `canonical_track` Text 列 + Alembic `0004` + backfill 9 行(`other_foreign` 留 NULL,跨业态太杂)。`/api/coverage` + `/api/tracks` 都 surface 新字段。**不动 dashboard 计算/keyword scoring 逻辑**。82 unit tests pass (66 旧 + 16 新 wiring 契约)。
 
-分支 `main`,本地比 `origin/main` 领先 N 个 commit(没 push)。
+分支 `main`,本地比 `origin/main` 领先 ~13 个 commit(没 push)。
 
 ## 本次 session 干了什么 (按时间倒序)
 
 | Commit | 内容 |
 |---|---|
+| `feat(taxonomy): Phase F` (`2c39590`) | coverage_truth.yaml + Track DB 接 canonical key,additive 不破坏。`/api/coverage` + `/api/tracks` 都 surface。16 新契约 test |
+| `docs(meta): 收尾 checkpoint` (`58118ab`) | 写 TASKS/HANDOFF/CHANGELOG/DECISIONS 的 phase 计划 |
 | `refactor(taxonomy): Phase A` | 抽 taxonomy module,递归换名 underscore → public,66 tests 仍 pass |
 | `feat(taxonomy): 补 15 alias + token trace 排雷 phase D` | XHS 8 帖扫 alias 补 15 个 + fetch_blocks token 测量 |
 | `feat(recommendation): 8 canonical 赛道 + UI risk warning` | LLM rerank prompt 加 8 enum + 前端 risks 红/琥珀角标 |
@@ -98,18 +100,20 @@ DeepSeek 64K context 当前 chat 用 **<2%**。**5th provider 加 800-1500 token
 
 | 优先级 | Phase | 工作量 | 风险 |
 |---|---|---|---|
-| 🥇 | **F** (scoring service + coverage_truth.yaml 用 canonical) | ~2-3h | 中 — 改 yaml + 数据迁移 |
-| 🥈 | **B** (alembic Job.canonical_track + crawler ingest + 91465 行 backfill) | ~3-4h | 中 — 10+ crawler 都要改 + alembic |
-| 🥉 | **D-0** (P 干) 写 8 个 track 的 yaml knowledge | ~3-5h | 低 — 纯数据 |
+| 🥇 | **B** (alembic `Job.canonical_track` + crawler ingest + 91465 行 backfill) | ~3-4h | 中 — 10+ crawler 都要改 + alembic |
+| 🥈 | **D-0** (P 干) 写 8 个 track 的 yaml knowledge | ~3-5h | 低 — 纯数据 |
+| 🥉 | **C** (P 干:parser canonicalize + 前端 preference picker 用 8 canonical) | ~2-3h | 低 |
 
-P 应该立刻去搞 D-0 (零阻塞,纯写作),我等 M 指令再启 B / F / D。
+P 应该立刻去搞 D-0 (零阻塞,纯写作),我等 M 指令再启 B / D。
+
+**Phase F 已 done (2026-05-16 晚)** —— additive 接通,不动 dashboard/scorer。详见 commit `2c39590`。
 
 ## 待 user 确认 / 暂搁置的事
 
 - 删 `HANDOFF_NEXT_SESSION.md` (root,陈旧)?
 - 删 `backend/data/jobradar.db.bak.20260428` (旧备份)?
 - `docs/decisions.md` (lowercase) 标 legacy 还是真删?
-- 是否要 push 到 origin?当前比 origin/main 领先 ~12 commits 没 push
+- 是否要 push 到 origin?当前比 origin/main 领先 ~13 commits 没 push
 
 ## 不要随便动的事
 
@@ -117,4 +121,5 @@ P 应该立刻去搞 D-0 (零阻塞,纯写作),我等 M 指令再启 B / F / D�
 - Demo session (`session_id=1` & `user_key='__demo__'`) write-disable 守卫
 - `voice/avatar.py` Lingmou 代码 (dormant 状态但难复原)
 - Force-push `main` / amend 已推 commit
-- **(新) 改 taxonomy patterns 不跑 `pytest tests/test_recommendation_blacklist.py` 就 commit** — 66 个测试是 contract,先跑再改
+- **改 taxonomy patterns 不跑 `pytest tests/test_recommendation_blacklist.py` 就 commit** — 66 个测试是 contract,先跑再改
+- **(新) 改 coverage_truth.yaml 或 Track DB 不跑 `pytest tests/test_phase_f_canonical_wiring.py` 就 commit** — 16 个测试钉死 canonical_track wiring 契约
