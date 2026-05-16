@@ -9,8 +9,10 @@ from __future__ import annotations
 import pytest
 
 from app.services.resume_copilot.recommendation import (
+    CANONICAL_FINANCE_TRACKS,
     _LOW_QUALITY_PENALTY,
     _LOW_QUALITY_ROLE_PATTERNS,
+    _canonicalize_track,
     _is_low_quality_role,
 )
 
@@ -96,3 +98,69 @@ def test_no_bare_customer_manager_in_patterns() -> None:
     会大量误杀. 必须始终带限定词(远程/零售/网点/个人)。"""
     assert '客户经理' not in _LOW_QUALITY_ROLE_PATTERNS, \
         '不要单独加"客户经理"到红线 — 歧义太大会误杀机构客户经理'
+
+
+# ── _canonicalize_track ────────────────────────────────────────────────────
+
+
+TRACK_CANONICAL_CASES: list[tuple[str, str]] = [
+    # 二级买方·基本面
+    ('公募基金', '二级买方·基本面'),
+    ('公募基金/研究', '二级买方·基本面'),
+    ('阳光私募', '二级买方·基本面'),
+    ('银行理财子', '二级买方·基本面'),
+    ('保险资管', '二级买方·基本面'),
+    # 量化
+    ('量化', '量化'),
+    ('quantitative research', '量化'),
+    ('Quant', '量化'),
+    # 一级市场
+    ('PE', '一级市场'),
+    ('VC', '一级市场'),
+    ('IBD', '一级市场'),
+    ('投行', '一级市场'),
+    ('M&A', '一级市场'),
+    # 卖方
+    ('券商研究所', '卖方研究·S&T'),
+    ('卖方研究', '卖方研究·S&T'),
+    ('S&T', '卖方研究·S&T'),
+    # 银行
+    ('银行总行', '银行·总行核心'),
+    ('总行管培', '银行·总行核心'),
+    # 监管体制
+    ('证监会', '监管·体制内'),
+    ('央行', '监管·体制内'),
+    ('国央企', '监管·体制内'),
+    # 金融科技
+    ('蚂蚁', '金融科技'),
+    ('Fintech', '金融科技'),
+    ('跨境支付', '金融科技'),
+    # 咨询
+    ('MBB', '金融咨询'),
+    ('麦肯锡', '金融咨询'),
+    ('四大', '金融咨询'),
+]
+
+
+@pytest.mark.parametrize('raw,canon', TRACK_CANONICAL_CASES, ids=lambda v: str(v)[:30])
+def test_canonicalize_track_hits(raw: str, canon: str) -> None:
+    assert _canonicalize_track(raw) == canon
+
+
+def test_canonicalize_unmapped_returns_input() -> None:
+    """映射不到 — 原样返回,不强制改 (避免误改用户自定义 track)。"""
+    assert _canonicalize_track('我自创的赛道') == '我自创的赛道'
+
+
+def test_canonicalize_empty_input() -> None:
+    assert _canonicalize_track('') == ''
+    assert _canonicalize_track(None) == ''  # type: ignore[arg-type]
+
+
+def test_canonical_tracks_no_duplicates() -> None:
+    assert len(CANONICAL_FINANCE_TRACKS) == len(set(CANONICAL_FINANCE_TRACKS))
+
+
+def test_canonical_tracks_count() -> None:
+    """文档说 8 个,跟代码绑死防意外增删。"""
+    assert len(CANONICAL_FINANCE_TRACKS) == 8

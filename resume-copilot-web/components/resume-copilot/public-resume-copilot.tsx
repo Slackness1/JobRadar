@@ -2068,6 +2068,22 @@ function ResumeChatRail({
                             {enrichmentStatusLabel(item.topic_cache_status, item.need_enrichment)}
                           </Badge>
                         </div>
+                        {item.risks && item.risks.length > 0 && (
+                          <div className="mt-1.5 flex flex-col gap-1">
+                            {item.risks.map((risk, idx) => {
+                              const isLowQuality = risk.includes('低质量');
+                              const cls = isLowQuality
+                                ? 'flex items-start gap-1 rounded border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] leading-4 text-rose-700'
+                                : 'flex items-start gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] leading-4 text-amber-800';
+                              return (
+                                <div key={`risk-${idx}`} className={cls}>
+                                  <span className="shrink-0">{isLowQuality ? '🚫' : '⚠️'}</span>
+                                  <span className="leading-tight">{risk}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {item.detail_url && (
                             <a
