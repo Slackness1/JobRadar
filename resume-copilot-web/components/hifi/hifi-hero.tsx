@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { DEMO_SESSION_ID, isGuestUser } from '@/components/resume-copilot/api';
-import { GuestLoginModal } from './guest-login-modal';
+import { DEMO_SESSION_ID, getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
+import { AuthModal } from './auth-modal';
 import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp, useLiveCount } from './hifi-primitives';
 
 const GUEST_DISPLAY_NAME = 'guest1';
@@ -57,10 +57,10 @@ export function HFHero() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Hydration sync: sessionStorage is unavailable during SSR, so we read it
-    // once on mount. Subsequent updates flip via onLoginSuccess.
+    // Hydration sync: sessionStorage / localStorage 在 SSR 不可用,挂载后读一次。
+    // 后续 flip 走 onLoginSuccess。账号 (isAuthenticated) 优先于 guest 态。
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoggedIn(isGuestUser());
+    setLoggedIn(isAuthenticated() || isGuestUser());
   }, []);
 
   const companies = useCountUp(3486, 1600);
@@ -68,7 +68,7 @@ export function HFHero() {
   const daily = useLiveCount(1087, 1400);
 
   const handleCTA = (destination: string) => {
-    if (isGuestUser()) {
+    if (isAuthenticated() || isGuestUser()) {
       router.push(destination);
       return;
     }
@@ -77,7 +77,7 @@ export function HFHero() {
   };
 
   const handleLoginNav = () => {
-    if (isGuestUser()) return;
+    if (isAuthenticated() || isGuestUser()) return;
     setPendingDestination(null);
     setModalOpen(true);
   };
@@ -98,7 +98,7 @@ export function HFHero() {
         <HFLogo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {loggedIn ? (
-            <UserBadge name={GUEST_DISPLAY_NAME} />
+            <UserBadge name={getAuthUser()?.email ?? GUEST_DISPLAY_NAME} />
           ) : (
             <HFBtn variant="link" size="sm" onClick={handleLoginNav}>
               登录
@@ -245,7 +245,7 @@ export function HFHero() {
         </span>
       </div>
 
-      <GuestLoginModal
+      <AuthModal
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);

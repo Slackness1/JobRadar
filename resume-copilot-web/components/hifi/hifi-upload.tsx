@@ -8,6 +8,7 @@ import {
   createResumeCopilotSession,
   getResumeCopilotParsedProfile,
   getResumeCopilotSession,
+  isAuthenticated,
   isGuestUser,
 } from '@/components/resume-copilot/api';
 import type {
@@ -71,9 +72,9 @@ export function HFUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const stageStartRef = useRef<number>(performance.now());
 
-  // Guard: must be logged in
+  // Guard: 必须登录 (账号 或 guest 任一)
   useEffect(() => {
-    if (!isGuestUser()) {
+    if (!isAuthenticated() && !isGuestUser()) {
       router.replace('/');
     }
   }, [router]);
