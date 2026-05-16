@@ -16,6 +16,27 @@ The frontend and resume-copilot-web are separate apps that both proxy `/api/*` t
 
 ---
 
+## Why this exists — SAIF 秋招试点 (2026 fall)
+
+This is not a generic resume-AI demo. The project is being piloted for **2026 autumn recruitment** at **SAIF (Shanghai Advanced Institute of Finance, 上交大高金)** targeting MF + MBA students.
+
+Full proposal (with stakeholder names, student headcount, internal commitments) is stored in a **separate private repo** `Slackness1/JobRadar-private`, cloned into `docs/_private/` locally. The path is gitignored in this public repo — clone the private repo to populate it:
+
+```bash
+git clone https://github.com/Slackness1/JobRadar-private.git docs/_private
+```
+
+Then read `docs/_private/saif-proposal-v0.1.md` before making product-shape decisions.
+
+- **Audience**: MF (buy-side: 公募投研 / 券商自营 / 资管子 / 头部私募) + MBA (转金融, 卖方研究 / 上市公司 IR / 消费产业).
+- **What the school wants**: "看得见的反馈" — given a real student resume + a real job, AI must produce **到位** rewrite suggestions and a **像样** mock interview with iterative feedback. The school is **explicitly desensitized to "DeepSeek 套壳" products** — depth > breadth.
+- **Implications for code decisions**:
+  - The 13 finance tracks (公募 / 私募 / 外资行 / 资管 / 信托 / 期货 etc.) are not arbitrary — they map to where SAIF students actually go. Generic resume-AI features without finance-specific validation are deprioritized.
+  - **LLM Context Registry + Unified Memory + Knowledge Pack + Podcast RAG** (see Backend Architecture below) are the four pillars serving **可证伪的反馈**, not surface polish. When in doubt, prefer depth over breadth.
+- **Stakeholders & pilot scope**: see private proposal. Faculty directly inspect AI output as the primary success metric.
+
+---
+
 ## Commands
 
 ### Backend
@@ -99,6 +120,28 @@ docker compose up --build
 - `POST /api/interview/tts` — returns `audio/wav` stream.
 - `WS   /api/interview/asr` — bi-directional: client sends PCM frames, server sends transcript events.
 - `GET  /api/interview/reports` and `GET /api/interview/reports/{id}` — history + detail. Filtered by `X-Resume-User-Key`.
+
+**LLM Context Registry** (`app/services/llm_context/`): pluggable prompt-context system — **strangler-fig over hardcoded prompt builders**. `ContextRegistry` is populated at startup via `bootstrap_llm_context()` in `app/main.py` lifespan (wrapped in try/except so bootstrap failure doesn't kill the app; logs `registered_names()`). At request time callers build `ContextRequest(purpose=, db=, user_question=, target_job=, user_key=, job=)` and `registry.fetch_blocks(req)` walks registered providers in order. A provider can return `terminate=True` to short-circuit downstream providers (used by `SensitiveTopicProvider` when a sensitive substring matches at `block` level).
+
+Four `purpose` values: `CHAT` / `RERANK_JOB` / `INTERVIEW_QUESTION` / `INTERVIEW_SCORE`. Currently 4 providers registered:
+- `StudentMemoryProvider` (`app/services/memory/provider.py`) — top-K rows from `account_memory` by use_count; blocks reserved keys (`__demo__` / `__guest__` / empty).
+- `TencentTrackProvider` (`app/services/knowledge_pack/tencent_provider.py`) — detects 腾讯 + track alias, joins `knowledge_tracks` + `track_interview_rubrics` + `interviewer_quotes` into one block.
+- `SensitiveTopicProvider` (`app/services/knowledge_pack/sensitive_provider.py`) — substring matches `sensitive_topics`; `block` level returns `terminate=True` to stop downstream providers from poisoning the prompt with normal context.
+- `PodcastContextProvider` (`app/services/podcasts/provider.py`) — RAG retrieval over podcast insights with purpose-tuned counts.
+
+Toggle individual providers via `LLM_CONTEXT_PROVIDERS` env var for tests / A-B.
+
+**Unified Memory** (`app/services/memory/`): single `account_memory` table with `category` discriminator + JSON `payload_json`. 8 categories: `evidence` / `experience` / `skill_claim` / `preference` / `identity_fact` / `goal` / `commitment` / `weakness_signal`. UniqueConstraint(`user_key`, `summary_hash`) prevents duplicates; `superseded_by_id` tracks evolution; `is_archived` soft-deletes; reserved keys blocked at dispatcher. **Writers**: chat extractor (3-anchor rule: temporal + concrete action + outcome — all three required for `experience`), resume parser, Plan finalize. **Readers**: `ExperienceRecaller` subagent (mock interview private hints), Plan Mode evidence gate (anti-hallucination), recommendation boost, `StudentMemoryProvider` (above).
+
+Strangler-fig dual-write off `STUDENT_KB_ENABLED` (legacy `student_experiences`) + `UNIFIED_MEMORY_ENABLED` (new `account_memory`) — both default OFF makes flag-OFF state byte-identical to pre-feature. Subagent base in `app/services/interview/subagents/base.py`: `Subagent.invoke()` **never raises** (timeout/exception → `SubagentResult(status="failed"/"timeout")`). `ExperienceRecaller` (`recaller.py`) scores rows by `confidence × exp(-age_days/90) × (1.5 if use_count==0 else 1.0)`. Design docs: `docs/interview-subagent-design-2026-05-13.md` / `docs/unified-memory-and-plan-mode-2026-05-13.md` / `docs/unified-memory-brainstorm-2026-05-13.md`.
+
+**Knowledge Pack — Tencent校招 data layer** (`app/services/knowledge_pack/` + `tencent-recruit-pack/` vendored source materials): public-knowledge layer driving Tencent mock interview. **9 new tables**: `knowledge_employers`, `knowledge_tracks`, `knowledge_files` (source-of-truth ledger with `content_hash` for idempotent re-ingest — only `content_hash` mismatch triggers re-extraction), `track_resume_rubrics` (29 dims at first ingest), `track_interview_rubrics` (11 dims), `interviewer_quotes` (8 quotes — **strict substring-validation; prohibition on rewriting these downstream**), `track_example_bank`, `output_constraints` (5 rules), `sensitive_topics` (8 topics). Ingest via `extractor.py` — 5 LLM extractors over markdown. Powers `TencentTrackProvider` + `SensitiveTopicProvider`.
+
+**Podcast RAG knowledge layer** (`app/services/podcasts/` + `backend/data/podcasts/`): xiaoyu 小宇宙 transcription pipeline producing a finance-recruiting insight base — used by mock interview question generation and answer scoring as a reference standard (not directly shown to user).
+
+Pipeline: xiaoyu link → DashScope `paraformer-v2` ASR → **5-pass post-process** (Pass 1 `term_dict` 纠正 / Pass 2 episode summary / Pass 3 typed insight extraction in 5 buckets `role` / `resume` / `interview` / `company` / `industry` / Pass 3.5 dedup + signal boost). Hand-curated `_processed/term_dict.json` is small and **committed**; raw transcripts and intermediate jsonls are `.gitignored` and re-generatable via `scripts/podcast_pass*.py`.
+
+Storage: `PodcastEpisode` + `PodcastInsight` tables, each insight carries a DashScope `text-embedding-v3` 4KB BLOB. Retrieval is in-memory cosine over all loaded embeddings — acceptable at current scale. `PodcastContextProvider` returns purpose-tuned block counts: 3 for `CHAT` + refinement prompt, 2 for `RERANK_JOB`, 5 for `INTERVIEW_QUESTION` with anti-copy directive, 4 for `INTERVIEW_SCORE` as reference 标准.
 
 **Config** (`app/config.py`): reads `.env.local` from `backend/` then root, then OS env. Key groups:
 - `RESUME_COPILOT_*` — LLM base URL, API key, model name, timeouts
