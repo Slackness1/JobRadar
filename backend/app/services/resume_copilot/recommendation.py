@@ -23,6 +23,36 @@ from app.services.resume_copilot.redact import redact_profile_for_llm
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 PRIORITY_CONFIG_PATH = PROJECT_ROOT / 'backend' / 'config' / 'resume_copilot_priority.yaml'
 HIGH_AMBIGUITY_ROLE_KEYWORDS = ('管培', '储备', '综合', '项目管理', '客户经理', '运营', '战略', '研究', '投研')
+
+# 红线 — 命中即认为是低质量岗位(详见 docs/finance-tracks-2026-overview.md "红线"段)。
+# 严格控制误杀: 只放置基本无歧义的销售/基层关键词。"客户经理" 单独不放(歧义太大,
+# 可能是"机构客户经理" 或 "对公客户经理"); 但"远程/零售/网点/个人客户经理" 那种限定
+# 词加进去就是基层零售岗。
+_LOW_QUALITY_ROLE_PATTERNS: tuple[str, ...] = (
+    '柜员', '大堂经理', '柜面服务',
+    '客户服务', '客服',
+    '渠道销售', '渠道经理', '渠道岗',
+    '营销岗', '营销专员', '财富营销', '零售营销',
+    '保险代理', '寿险销售', '财险销售', '保险顾问', '代理人',
+    '理财经理', '理财顾问',
+    '财富顾问', '投资顾问',     # 营业部级别为主
+    'FOF销售', '基金销售', '产品销售',
+    '远程客户经理', '个人客户经理', '零售客户经理', '网点客户经理',
+)
+
+_LOW_QUALITY_PENALTY = 50    # 命中扣分,把 final_score 拉到推荐底部
+
+
+def _is_low_quality_role(job_title: str) -> str | None:
+    """返回命中的关键词,没命中返 None。
+
+    用 substring 直接匹配 — 没用 regex 因为模式都是普通中文短语。"""
+    if not job_title:
+        return None
+    for pat in _LOW_QUALITY_ROLE_PATTERNS:
+        if pat in job_title:
+            return pat
+    return None
 TRACK_CATEGORY_HINTS: dict[str, tuple[str, ...]] = {
     'internet': ('互联网', 'internet', 'tech', '算法', '开发', '产品', '数据', '前端', '后端'),
     'securities': ('券商', '证券', '研究所', '投研', '投行', '行研', '机构销售'),
@@ -577,6 +607,10 @@ def recommend_jobs_for_profile(
         )
         enhanced_score = base_match_score + enhanced_boost
         topic_key = _topic_key(job, matched_role_family)
+        # 低质量岗位红线 (柜员/客户经理/渠道销售类) → final_score 扣 50 拉到底部 +
+        # 加 risk note 告诉 user 为啥被降级。详见 docs/finance-tracks-2026-overview.md。
+        low_quality_hit = _is_low_quality_role(str(job.job_title or ''))
+        final_score_value = enhanced_score - (_LOW_QUALITY_PENALTY if low_quality_hit else 0)
         recommendations.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id or ''),
@@ -590,7 +624,7 @@ def recommend_jobs_for_profile(
                 company_priority_score=company_priority_score,
                 base_match_score=base_match_score,
                 enhanced_score=enhanced_score,
-                final_score=enhanced_score,
+                final_score=final_score_value,
                 matched_track_key=matched_track_key,
                 matched_track_label=matched_track_label,
                 matched_role_family=matched_role_family,
@@ -613,7 +647,13 @@ def recommend_jobs_for_profile(
                     if value
                 ],
                 strengths=[],
-                risks=['岗位信息较模糊，建议进入情报增强'] if need_enrichment else [],
+                risks=[
+                    *(['岗位信息较模糊，建议进入情报增强'] if need_enrichment else []),
+                    *(
+                        [f'岗位类型偏低质量（命中"{low_quality_hit}"），SAIF 同学慎选']
+                        if low_quality_hit else []
+                    ),
+                ],
             )
         )
 
