@@ -69,6 +69,29 @@
 **为什么**：user 说要把更大的提议精简。最高 ROI 是"我改了 prompt 之后有没有让别的 case 退步"的回归检测 — 这个需要 fixtures + diff，**不**需要 trace。单方向（投研）让 LLM judge 对 rubric 期待能写得很具体；之后加 互联网 / 咨询 是 copy-paste schema。
 **位置**：`docs/eval-touyan-v1-design.md`
 
+## D-11 · 2026-05-16 · 8 canonical 金融赛道 + taxonomy 模块化
+
+**决策**:抽 `app/services/taxonomy/` 作为项目级 single source of truth。8 个 canonical track (二级买方·基本面 / 量化 / 一级市场 / 卖方研究·S&T / 银行·总行核心 / 监管·体制内 / 金融科技 / 金融咨询) + 65+ alias + 22 个低质量红线词。下游模块 (recommendation / parser / preferences UI / interview / eval / scoring) 全部 import 用,**不再各自维护 ad-hoc 字符串**。
+**备选**:(a) 保持各模块各自定义 (现状); (b) 用更细的 12-15 track。
+**为什么**:之前各模块 taxonomy 完全散落 (crawler 自己有 tier map / parser LLM 自由发挥 inferred_tracks / preferences raw 字符串 / interview 完全没 track 意识),导致跨模块上下文不通。8 track 是 sweet spot:覆盖 SAIF 校招 95% 路径,再多 (12+) 会让下游 eval coverage 摊薄 + alias 库爆炸。**少而能 expand 比多而平铺好**。
+**位置**:`backend/app/services/taxonomy/` (`canonical.py` + `quality.py` + `__init__.py`) · 66 unit tests in `backend/tests/test_recommendation_blacklist.py` · doc `docs/finance-tracks-2026-overview.md` · Phase 化迁移计划在 `TASKS.md` "Active sprint"。
+
+## D-12 · 2026-05-16 · 项目级红线词列表:严控误杀
+
+**决策**:`LOW_QUALITY_ROLE_PATTERNS` 只放**基本无歧义**的销售/基层关键词 (22 个:柜员/大堂经理/营销岗/渠道销售/寿险销售/远程客户经理 等)。命中 → `final_score -50` + risk note。
+**关键约束**:**单独"客户经理"不放红线** (歧义太大,可能是"机构对公"/"私行")。只放限定形式 ("远程客户经理"/"零售客户经理"/"网点客户经理"/"个人客户经理")。
+**备选**:(a) 大红线 (`'客户经理'`,'经理'... 50+ 词,激进过滤);(b) 不要红线 (现状)。
+**为什么**:在 91465 jobs 真实表上扫描后,(a) 大红线会把"机构客户经理 · 中信证券对公"误降级 (年薪 60w+ 真投行下属岗);(c) 没红线推荐顶部会被"杭州银行综合柜员"挤掉。22 词的小红线 = top 50 零命中 + bottom 50 全命中,误杀率 ≈ 0%。
+**位置**:`backend/app/services/taxonomy/quality.py` + 单测 `tests/test_recommendation_blacklist.py` 显式断言 `assert '客户经理' not in LOW_QUALITY_ROLE_PATTERNS`。
+
+## D-13 · 2026-05-16 · ContextProvider budget 解锁:5th provider 安全可加
+
+**决策**:Phase D 的 5th provider (track_knowledge) 可以放心加 — 不受 prompt budget 限制。
+**备选**:(a) 把 tencent_track 泛化吃掉 5th 职责; (b) 不加,扔到别处。
+**为什么**:D-05 写过"4 provider 已经撑满 prompt budget"的担心,2026-05-16 实测推翻 — chat 场景实际只用 600 tokens (DeepSeek 64K context 的 <2%),5th provider 加 1000-1500 tokens 仍 <5%。
+**条件**:(1) `LLM_CTX_TRACE=1` 开关已落地,生产想测随时打开。(2) 还要测 `interview_question` / `interview_score` / `resume_chat` 等其他 purpose 的负载,目前只测了 chat。
+**位置**:`backend/app/services/llm_context/registry.py` `fetch_blocks()` + 3-case smoke 测试输出 (在 commits log)。
+
 ## D-10 · 2026-05-09 · Crawler "工程不可行"判定要至少 1 个备选引擎实测
 
 **决策**：在给某家 crawler 标 "工程不可行 / 反爬不可绕" 之前，至少要用 1 个备选引擎跑过 — 候选：`curl_cffi.requests` (impersonate=chrome120/safari17_2) / Playwright Firefox / 直 `requests` 加全 `Sec-Fetch-*` headers / 找 RSC payload 或 `window.__NEXT_DATA__` 等 SSR 数据源。≥2 个备选都拿不到再判工程不可行。

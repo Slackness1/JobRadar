@@ -2,8 +2,20 @@
 
 > 最近 shipped 工作的轻量摘要。最新在上，按周分组。详细 entry 在 commit message 里。
 
-## 2026-W20 (May 11-17)
+## 2026-W20 (May 11-17) · 后半周大爆发
 
+(2026-05-16 这一天连发 12+ commits,本周差不多干完了 SAIF 内测前的所有 alpha 准备)
+
+- **taxonomy module Phase A 落地 (2026-05-16)** — `app/services/taxonomy/` 抽出 8 canonical tracks + 65+ aliases + 22 红线词 patterns,从 `recommendation.py` 解耦。66 unit tests pass。下游 phase B-F (crawler ingest / parser canonicalize / preferences UI / 5th ContextProvider / scoring 重命名) 已规划。
+- **8 canonical 金融赛道总览 doc** — `docs/finance-tracks-2026-overview.md` (~250 行) 写满 8 个赛道 × 平台 × 岗位 + ★ 评级 (★★★ 香饽饽 / ✗ 低质量) + 红线清单 + JobRadar 接入建议。数据混源:个人通识 + 4 次 web search + 1 次 XHS crawl(n=8 帖,46 评论)。
+- **低质量岗位红线落地** — `_LOW_QUALITY_ROLE_PATTERNS` (22 词:柜员/客户经理/渠道销售类) + 命中 `final_score -50` + risk note。在真实 91465 jobs 表上扫描:命中 4251 (4.6%),top 50 零命中,bottom 50 全命中。误杀率 ≈ 0%。
+- **前端 UI risk warning** — 推荐卡 enrichment badge 下加 risks 渲染,含"低质量"红底 🚫,其它琥珀底 ⚠️。
+- **XHS crawler 验证 + 注入 session** — 用户提供 3 套 cookie (旧 A 已封 / 新 A 可用 / B 冷藏),用户新 A 的 web_session 已注入 `tools/xhs_post_comment_crawler/profiles/default/`。smoke-test:搜"校招" → 20 结果,抓 18 评论。
+- **token trace 排雷 phase D** — `LLM_CTX_TRACE=1` 开关 + `fetch_blocks` 结构化日志。实测当前 chat 用 600 tokens (<2% context),5th provider 加 1000-1500 仍 <5%。**D-05 担心的"budget 撑满"被证伪**,5th provider 安全。
+- **账号系统 alpha-1 内测** — 4 张新表 (invite_codes / users / email_verifications / user_sessions) + 6 endpoints + bcrypt + QQ SMTP (`smtp.qq.com:465` SSL) + AuthModal (登录+邀请码注册+verify 三步) + 自动签 30 天 token。5 个邀请码,1 个已用。
+- **interview hybrid follow-up 决策 (interest_decider)** — 替代旧的"`prev_score.overall < 60`" 系统视角。新 `interest_decider.py` LLM 按真实面试官 4 维度判断 (业务相关 / 候选人钩子 / 可挖细节 / 不看分数)。加 hard rule:反问环节强制 advance + cap=3 + 答案<80字 advance。eval baseline 验证 followup mean **2.40 → 3.00**,case 05 反问 bug `0 → 3` 修了。
+- **judge calibration 看 SUT tier_label** — `judge_track_relevance` 重写,SUT 推 gap+tier='有差距' → 1 分(合理);SUT 推 gap+tier='强匹配' → 0 分(真 bug)。0 分案例从 **11 → 3**,1 分从 **2 → 13**。
+- **Multi-turn simulator (Phase 1.5)** — `tests/eval/multi_turn.py` 接 `interest_decider`,跑完整 19-turn 模拟面试。2 fixture mean=2.50。interest_decider 行为完全按业务对齐 (e.g., "光伏项目与 JD 大消费板块缺乏业务关联" → advance)。
 - **Meta-doc 重组 (2026-05-15)** — slim 了 CLAUDE.md（320→~180 行），新增 root 级 `PROJECT_STATE.md` / `TASKS.md` / `HANDOFF.md` / `DECISIONS.md` / `CHANGELOG.md`，eval 设计落 `docs/eval-touyan-v1-design.md`，crawler 细节搬到 `docs/crawlers-notes.md`。
 - 把 `tencent-recruit-pack/` 整个 vendor 进 repo（单学院部署，无授权顾虑）。
 - 4 ContextProviders 接入 interview orchestrator：`sensitive_topic` / `tencent_track` / `student_memory` / `podcast`，按序注册 + sensitive 命中时短路。
