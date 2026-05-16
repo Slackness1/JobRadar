@@ -98,7 +98,10 @@ export function HFHero() {
         <HFLogo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {loggedIn ? (
-            <UserBadge name={getAuthUser()?.email ?? GUEST_DISPLAY_NAME} />
+            <UserBadge
+              name={getAuthUser()?.email ?? GUEST_DISPLAY_NAME}
+              badgeLabel={isAuthenticated() ? '内测账号' : '游客试用'}
+            />
           ) : (
             <HFBtn variant="link" size="sm" onClick={handleLoginNav}>
               登录
@@ -259,7 +262,7 @@ export function HFHero() {
 
 // ── User badge (top-right when logged in) ────────────────────────────────────
 
-function UserBadge({ name }: { name: string }) {
+function UserBadge({ name, badgeLabel }: { name: string; badgeLabel: string }) {
   const initial = name.charAt(0).toUpperCase();
   return (
     <div
@@ -291,7 +294,7 @@ function UserBadge({ name }: { name: string }) {
         {initial}
       </span>
       <span style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>{name}</span>
-      <span className="hf-cap" style={{ marginLeft: 2, color: 'var(--olive)' }}>体验账号</span>
+      <span className="hf-cap" style={{ marginLeft: 2, color: 'var(--olive)' }}>{badgeLabel}</span>
     </div>
   );
 }
