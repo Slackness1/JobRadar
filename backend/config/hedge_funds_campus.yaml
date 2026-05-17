@@ -34,3 +34,10 @@ sites:
     category: 量化私募
     max_pages: 10
     note: 上海量化. zhiye JSON API (/api/Jobad/GetJobAdPageList) 直出，比 Beisen-CMS 的 HTML 抓更稳。
+
+  - name: 鸣石投资
+    entry_url: https://mingshiim.zhiye.com/campus
+    ats_family: zhiye
+    category: 量化私募
+    max_pages: 10
+    note: 2026-05-17 上海量化 (mingshiim.zhiye.com),通用 /api/Jobad endpoint 实测 7 records。其余 SAIF 量化清单 (明汯/灵均/千象/宁泉/聚宽/宽德/因诺/思勰/金锝/盘京/衡量/玖瀛) 均无公开 ATS,backlog。
