@@ -69,7 +69,7 @@ export default function InterviewSetupPage() {
         </p>
         {intelTotal !== null && (
           <p className="mb-5 text-[12px] text-[var(--muted)]">
-            🧠 数据基座：{intelTotal} 个岗位已积累真实面经摘要 · 角标显示每个岗位参考的牛客面经数
+            🧠 数据基座：{intelTotal} 个岗位已积累真实面经摘要 · 角标显示每个岗位已抓到的牛客面经数
           </p>
         )}
 
@@ -82,7 +82,7 @@ export default function InterviewSetupPage() {
                 {g.items.map((item) => {
                   const active = targetJob === item;
                   const intel = intelByChip[item];
-                  const count = intel?.has_summary ? intel.source_count : 0;
+                  const count = intel?.has_summary ? intel.post_count : 0;
                   return (
                     <button
                       key={item}
@@ -94,7 +94,7 @@ export default function InterviewSetupPage() {
                           : 'border-[var(--border)] text-[var(--ink)] hover:border-[var(--primary)] hover:bg-[var(--soft)]'
                       }`}
                       title={count > 0
-                        ? `单击填入，双击直接开始 · 已参考 ${count} 条牛客真实面经`
+                        ? `单击填入，双击直接开始 · 已积累 ${count} 条牛客真实面经`
                         : '单击填入，双击直接开始'}
                     >
                       <span>{item}</span>
