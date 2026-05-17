@@ -73,6 +73,47 @@ MULTI_TURN_FIXTURES = [
 ]
 
 
+# Phase 1 (real-JD) — 5 顶级公募真实在招岗位 × 最匹配学生,canonical=二级买方·基本面
+# JD 来源:backend/data/jobradar.db Job 表,id 见 fixture source 字段
+MULTI_TURN_REAL_FIXTURES = [
+    {
+        "student_id": "students/05_ib_intern_strong",
+        "chip": "公募基金",
+        "chip_summary": "公募基金股票行业研究方向(嘉实头部)",
+        "target_job": "嘉实基金 股票行业分析师 (2027校招)",
+        "jd_id": "jds_real/06_jiashi_industry_analyst",
+    },
+    {
+        "student_id": "students/01_finance_undergrad",
+        "chip": "公募基金",
+        "chip_summary": "公募基金行业研究方向(景顺长城深圳)",
+        "target_job": "景顺长城 行业研究员",
+        "jd_id": "jds_real/07_invesco_industry_research",
+    },
+    {
+        "student_id": "students/04_quant_master",
+        "chip": "公募基金",
+        "chip_summary": "公募宏观研究 + AI 赋能 FICC 投研",
+        "target_job": "华夏基金 宏观研究员实习",
+        "jd_id": "jds_real/08_chinaamc_macro_research",
+    },
+    {
+        "student_id": "students/02_business_noname",
+        "chip": "公募基金",
+        "chip_summary": "公募基金产品研究/产品经理方向",
+        "target_job": "富国基金 产品研究员-产品经理(公募) 暑期",
+        "jd_id": "jds_real/09_fullgoal_product_research",
+    },
+    {
+        "student_id": "students/03_cs_to_finance",
+        "chip": "公募基金",
+        "chip_summary": "公募基金信用研究 / 固收方向",
+        "target_job": "嘉实基金 信用研究员 (2027校招)",
+        "jd_id": "jds_real/10_jiashi_credit_research",
+    },
+]
+
+
 # ── fixture 加载 ───────────────────────────────────────────────────────────
 
 
@@ -89,6 +130,11 @@ def load_students() -> list[dict]:
 
 def load_jds() -> list[dict]:
     return _load_yaml_dir("jds")
+
+
+def load_jds_real() -> list[dict]:
+    """Phase 1 (real-JD) — 5 顶级公募真岗,从 DB Job 表抽出。"""
+    return _load_yaml_dir("jds_real")
 
 
 def load_interview_answers() -> list[dict]:
@@ -388,17 +434,22 @@ def run_followup_quality(sut, judge, fixtures) -> list[dict]:
     return results
 
 
-def run_multi_turn_quality(sut, simulator, judge, students, jds) -> list[dict]:
+def run_multi_turn_quality(sut, simulator, judge, students, jds,
+                            combos=None) -> list[dict]:
     """跑完整模拟面试,评估每个 follow-up 的质量 + interest_decider 决策。
 
     每个 fixture combo (student × chip × jd) 跑 1 次完整面试 (~6 skel × 0-3 follow-up
     each = up to 24 turns)。结果展开成多条 result,每个 follow-up turn 一条。
+
+    combos: 可选 — 覆盖 MULTI_TURN_FIXTURES。用于 --real-only 跑 real-JD set。
     """
+    if combos is None:
+        combos = MULTI_TURN_FIXTURES
     student_by_id = {s.get("id"): s for s in students}
     jd_by_id = {j.get("id"): j for j in jds}
     results = []
 
-    for combo in MULTI_TURN_FIXTURES:
+    for combo in combos:
         student = student_by_id.get(combo["student_id"])
         jd = jd_by_id.get(combo["jd_id"])
         if student is None or jd is None:
@@ -492,18 +543,28 @@ def main() -> int:
         "--out", type=Path, default=BASELINE_PATH,
         help="结果写到这个路径(默认 baseline.json)",
     )
+    parser.add_argument(
+        "--real-only", action="store_true",
+        help="Phase 1 (real-JD): 只跑 jds_real/ + MULTI_TURN_REAL_FIXTURES,"
+             "其他 metric 跳过。建议配合 --out baseline_real.json。",
+    )
     args = parser.parse_args()
 
     if args.diff:
         print("--diff 还没实现", file=sys.stderr)
         return 2
 
-    metrics = tuple(args.metric) if args.metric else ALL_METRICS
+    if args.real_only:
+        metrics = ("multi_turn_quality",)
+    else:
+        metrics = tuple(args.metric) if args.metric else ALL_METRICS
 
     sut = build_sut_client()
     judge = build_judge_client()
     students = load_students()
     jds = load_jds()
+    if args.real_only:
+        jds = jds + load_jds_real()  # union so jd_by_id 找得到 jds_real/ ID
     answers = load_interview_answers()
 
     logger.info(
@@ -534,7 +595,10 @@ def main() -> int:
 
     if "multi_turn_quality" in metrics:
         simulator = build_simulator_client()
-        all_results.extend(run_multi_turn_quality(sut, simulator, judge, students, jds))
+        combos = MULTI_TURN_REAL_FIXTURES if args.real_only else MULTI_TURN_FIXTURES
+        all_results.extend(run_multi_turn_quality(
+            sut, simulator, judge, students, jds, combos=combos,
+        ))
 
     # 落盘
     summary = _summarize(all_results)
