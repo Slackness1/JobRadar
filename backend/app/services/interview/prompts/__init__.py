@@ -14,6 +14,7 @@ def load(name: str) -> str:
 
 
 SCORING_SYSTEM = load("scoring_system")
+SCORING_PERSONALIZATION_DIRECTIVE = load("scoring_personalization_directive")
 REFERENCE_SYSTEM = load("reference_system")
 FOLLOW_UP_SYSTEM = load("follow_up_system")
 CONFIDENCE_SYSTEM = load("confidence_system")
