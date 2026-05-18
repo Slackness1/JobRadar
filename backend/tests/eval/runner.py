@@ -32,6 +32,7 @@ from tests.eval.clients import build_judge_client, build_simulator_client, build
 from tests.eval.judge import (
     Score,
     judge_evidence_groundedness,
+    judge_feedback_specificity,
     judge_fit_explanation_quality,
     judge_followup_quality,
     judge_track_relevance,
@@ -51,6 +52,7 @@ ALL_METRICS = (
     "evidence_groundedness",
     "followup_quality",
     "multi_turn_quality",
+    "feedback_specificity",   # Phase C: report 引用原话 + 可执行 action
 )
 
 
@@ -516,6 +518,104 @@ def run_multi_turn_quality(sut, simulator, judge, students, jds,
     return results
 
 
+def run_feedback_specificity(judge, multi_turn_results: list[dict]) -> list[dict]:
+    """Phase C: 复用 multi_turn 跑完的 transcript,生成 InterviewReport,
+    然后 judge 它 highlights/improvements 引用原话 + 给可执行 action 的程度。
+
+    依赖 multi_turn_quality 已经跑完 (从其 sut_output.turns 取 transcript)。
+    """
+    from app.services.interview.report import generate_interview_report
+
+    results = []
+    for r in multi_turn_results:
+        if r.get("metric") != "multi_turn_quality":
+            continue
+        student_id = r.get("student_id")
+        chip = r.get("chip")
+        sut_output = r.get("sut_output") or {}
+        turns = sut_output.get("turns") or []
+        target_job = sut_output.get("target_job", "")
+        if not turns or not target_job:
+            continue
+
+        # 构造 messages — skeleton+follow-up 都按 assistant/user 拼成 transcript
+        messages = []
+        for t in turns:
+            q = (t.get("question") or "").strip()
+            a = (t.get("answer") or "").strip()
+            if q:
+                messages.append({"role": "assistant", "content": q})
+            if a:
+                messages.append({"role": "user", "content": a})
+        if len(messages) < 4:
+            continue   # transcript 太短不评
+
+        logger.info("feedback_specificity · %s × %s (生成 report 中)", student_id, chip)
+        try:
+            report = generate_interview_report(target_job, messages, db=None)
+        except Exception as exc:
+            logger.exception("feedback_specificity: report gen failed: %s", student_id)
+            results.append({
+                "metric": "feedback_specificity",
+                "student_id": student_id,
+                "chip": chip,
+                "score": None,
+                "reasoning": f"<report 生成失败: {type(exc).__name__}: {str(exc)[:200]}>",
+                "concerns": ["report_gen_failed"],
+            })
+            continue
+
+        if not report.get("highlights") and not report.get("improvements"):
+            results.append({
+                "metric": "feedback_specificity",
+                "student_id": student_id,
+                "chip": chip,
+                "score": 0,
+                "reasoning": "<report 返回空,无 highlights / improvements>",
+                "concerns": ["empty_report"],
+                "report": report,
+            })
+            continue
+
+        # transcript 转回 judge 需要的 [{role, content}] 格式
+        judge_transcript = []
+        for m in messages:
+            judge_transcript.append({
+                "role": "interviewer" if m["role"] == "assistant" else "candidate",
+                "content": m["content"],
+            })
+
+        try:
+            score = judge_feedback_specificity(
+                judge=judge,
+                transcript=judge_transcript,
+                report=report,
+            )
+        except Exception as exc:
+            logger.exception("feedback_specificity: judge failed: %s", student_id)
+            results.append({
+                "metric": "feedback_specificity",
+                "student_id": student_id,
+                "chip": chip,
+                "score": None,
+                "reasoning": f"<judge 失败: {type(exc).__name__}: {str(exc)[:200]}>",
+                "concerns": ["judge_failed"],
+                "report": report,
+            })
+            continue
+
+        results.append({
+            "metric": "feedback_specificity",
+            "student_id": student_id,
+            "chip": chip,
+            "score": score.score,
+            "reasoning": score.reasoning,
+            "concerns": score.concerns,
+            "report": report,
+        })
+    return results
+
+
 def _error_result(metric: str, student_id, jd_id, exc, fixture_id=None) -> dict:
     return {
         "metric": metric,
@@ -555,7 +655,7 @@ def main() -> int:
         return 2
 
     if args.real_only:
-        metrics = ("multi_turn_quality",)
+        metrics = ("multi_turn_quality", "feedback_specificity")
     else:
         metrics = tuple(args.metric) if args.metric else ALL_METRICS
 
@@ -593,12 +693,25 @@ def main() -> int:
     if "followup_quality" in metrics:
         all_results.extend(run_followup_quality(sut, judge, answers))
 
-    if "multi_turn_quality" in metrics:
+    multi_turn_results: list[dict] = []
+    if "multi_turn_quality" in metrics or "feedback_specificity" in metrics:
         simulator = build_simulator_client()
         combos = MULTI_TURN_REAL_FIXTURES if args.real_only else MULTI_TURN_FIXTURES
-        all_results.extend(run_multi_turn_quality(
+        multi_turn_results = run_multi_turn_quality(
             sut, simulator, judge, students, jds, combos=combos,
-        ))
+        )
+        if "multi_turn_quality" in metrics:
+            all_results.extend(multi_turn_results)
+
+    if "feedback_specificity" in metrics:
+        # 依赖 multi_turn_quality 的 transcript;若上面没跑要现跑
+        if not multi_turn_results:
+            simulator = build_simulator_client()
+            combos = MULTI_TURN_REAL_FIXTURES if args.real_only else MULTI_TURN_FIXTURES
+            multi_turn_results = run_multi_turn_quality(
+                sut, simulator, judge, students, jds, combos=combos,
+            )
+        all_results.extend(run_feedback_specificity(judge, multi_turn_results))
 
     # 落盘
     summary = _summarize(all_results)

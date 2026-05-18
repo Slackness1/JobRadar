@@ -265,6 +265,96 @@ def judge_followup_quality(
     return _parse_score(raw, metric="followup_quality")
 
 
+# ── Feedback Specificity ───────────────────────────────────────────────────
+# Phase C: 评估 InterviewReport 的 highlights/improvements 是否引用候选人原话
+# + 是否给可执行 action。配合 prompts/scoring_system.md + report.py 的引用约束。
+
+_FEEDBACK_SPECIFICITY_SYSTEM = """\
+你是资深的中文校招面试评估官,review 另一位评估官给候选人写的面试报告 (highlights +
+improvements + overall_comment) 是否 specific。
+
+**Specific 的定义** (按 Phase A 强化后的 prompt 标准):
+  - highlights 每条必须用 「」 引用候选人答案里的**逐字片段** (eg 「用户增长 30% 但
+    留存 8%」),让用户能 trace 到具体 turn
+  - improvements 每条必须含 3 件事:(1) 引用问题位置 (eg "在第 3 题谈数据治理时")
+    + (2) 用 「」 引候选人弱点原话 + (3) 给"可以这样改"的完整替换话术
+  - overall_comment 至少 1 个具体优势引文 + 1 个具体短板
+
+评分 (整份报告综合判,不是单条):
+  0 = 全是空话, 0 个 「」 引文, improvements 是 "建议加强 X" 这种泛指
+  1 = 偶尔有引文 (<30% 命中标准), improvements 大多是泛建议没具体话术
+  2 = 多数 (50-80%) 条目有 「」 引文 + 具体话术, 个别空话
+  3 = 几乎所有条目 (>80%) 都有「逐字引用」+ 具体可替换话术,且引文确实在 transcript 内可找到
+
+**反 fabrication 检查 (任何一条违规 = 总分至多 1 分):**
+  - 「」 引文必须能在 transcript 里**逐字找到**。如果引文是评估官杜撰的,降到 0-1 分。
+  - 若 improvements 引文不存在,降 1 级。
+
+只输出严格 JSON,无前后散文,无 markdown fence:
+  {"score": 0-3,
+   "reasoning": "100-200 字, 必须举 1-2 个具体 highlights/improvements 例子说明",
+   "specific_count": <用引文的条目数>,
+   "vague_count": <无引文/空话条目数>,
+   "fabricated_quotes": [<列出 transcript 中不存在的引文,可空>],
+   "concerns": ["全空话|多空话|有杜撰|引文跑偏" 等]}
+"""
+
+
+def judge_feedback_specificity(
+    *,
+    judge: LLMClient,
+    transcript: list[dict],   # [{"role": "interviewer"|"candidate", "content": str}]
+    report: dict,             # {"highlights": [...], "improvements": [...], "overall_comment": "..."}
+) -> Score:
+    """评估 report 是否引用候选人原话 + 给可执行 action。"""
+    # transcript 可能很大 — 给 judge 一个紧凑版,标 turn 编号方便引文对照
+    compact_transcript = []
+    cand_turn = 0
+    for m in transcript:
+        role = m.get("role", "")
+        content = (m.get("content") or "").strip()
+        if not content:
+            continue
+        if role in ("candidate", "user"):
+            cand_turn += 1
+            compact_transcript.append(f"[候选人 T{cand_turn}] {content[:600]}")
+        elif role in ("interviewer", "assistant"):
+            compact_transcript.append(f"[面试官] {content[:300]}")
+
+    user_payload = json.dumps(
+        {
+            "transcript": "\n".join(compact_transcript),
+            "report": {
+                "highlights": report.get("highlights") or [],
+                "improvements": report.get("improvements") or [],
+                "overall_comment": report.get("overall_comment") or "",
+            },
+        },
+        ensure_ascii=False,
+    )
+    raw = judge.chat(
+        messages=[
+            {"role": "system", "content": _FEEDBACK_SPECIFICITY_SYSTEM},
+            {"role": "user", "content": user_payload},
+        ],
+        temperature=0.1,
+        response_format={"type": "json_object"},
+    )
+    score = _parse_score(raw, metric="feedback_specificity")
+    # 把额外字段 (specific_count / vague_count / fabricated_quotes) 塞 concerns
+    # 方便 dump 到 baseline.json 不丢失
+    try:
+        extra = json.loads(raw.strip().split("```")[-1] if "```" in raw else raw)
+        if isinstance(extra, dict):
+            for key in ("specific_count", "vague_count", "fabricated_quotes"):
+                v = extra.get(key)
+                if v not in (None, [], ""):
+                    score.concerns.append(f"{key}={v}")
+    except Exception:
+        pass
+    return score
+
+
 # ── 解析 + 摘要 helpers ────────────────────────────────────────────────────
 
 
