@@ -38,7 +38,7 @@
 | 🟡 | `_build_session_out` N+1(每次 1.6s 轮询跑 5 次 `.first()`) | `backend/app/routers/resume_copilot.py:57-61` |
 | 🟡 | `recommend_jobs_for_profile` 全表 `query(Job).all()` 无 prefilter | `backend/app/services/resume_copilot/recommendation.py:439` |
 | 🟡 | 推荐 enrichment snapshot 无 14 天 TTL | `recommendation.py:393-395` |
-| 🟡 | **Job.canonical_track 覆盖率 29.9%** — 余 70227 行主要是 tatawangshen/legacy catchall(无信号 source)。需 LLM enrich 才能提到 60%+ | `backend/app/services/crawler_llm_enrich.py` (默认 OFF) |
+| 🟢 | ~~Job.canonical_track 覆盖率 29.9%~~ → **2026-05-18 已解决**:VPS DB 跑 alembic 0004/0005 + MiMo v2.5 backfill 74,750 rows = **46.2% coverage** (57,927/125,367)。余 53.8% NULL 是 MiMo 判"无金融相关性"的真噪声(互联网/消费/制造非 SAIF 池),不再 actionable。详见 `backend/scripts/mimo_backfill_canonical.py` + D-16。 | — |
 | 🟡 | SUT 推荐 tier_label 太保守(multi-turn baseline 从不给 '强匹配');SUT follow-up 偶发跨经历跳跃 | `backend/app/services/resume_copilot/recommendation.py` LLM rerank prompt |
 | 🟢 | chat.py rewrite 未按 user canonical track 调改写口径(Phase E stretch 留 backlog) | `backend/app/services/resume_copilot/chat.py` |
 | 🟢 | Tencent 知识包用的是 transcript 范例数据,未接 `tencent-recruit-pack/scripts/fetch_recruit_jds.py` 抓真实 JD | `backend/app/services/knowledge_pack/` |
