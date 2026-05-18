@@ -19,6 +19,8 @@ from app.schemas_resume_copilot import (
     RewriteOption,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
+from app.services.resume_copilot.plan import Evidence, audit_draft
+from app.services.resume_copilot.tag_extractor import extract_tags
 
 if TYPE_CHECKING:
     from app.schemas_resume_copilot import DirectionTierResult, ResumeRecommendationItem
@@ -100,7 +102,10 @@ _CHAT_SYSTEM_PROMPT = """\
    - 方案B 突出跨部门协作 / 技术深度 / 方法论
 4. 严禁编造候选人没有的具体数字、项目、技术栈、公司。如信息不足以改写，`content` 里追问，并把
    `rewrite_options` 返回空数组 `[]`。
-5. 改写后的 bullets 行数可比原文 ±1 行，但不要清空。
+5. **严禁角色升级**:原文写"参与/协助/辅助/配合/支持/跟进",改写也用同档动词;**不允许**
+   改成"主导/负责/带领/管理/牵头" — 这等于编造身份。原文里本就有"主导/负责"则可保留。
+6. **严禁声明编造**:不允许加"被采纳/获奖/获 leader 表扬/排名前三"这类成果声明,除非原文已写。
+7. 改写后的 bullets 行数可比原文 ±1 行，但不要清空。
 
 field_path 规则（dot-notation）：
 - 实习整段：`internships.{i}.bullets`      （i 是数组下标）
@@ -228,6 +233,168 @@ def _annotate_fabrications(options: list[RewriteOption], profile_dict: dict) -> 
         )
 
 
+def _profile_to_evidence_list(profile_dict: dict) -> list[Evidence]:
+    """整份简历 → Evidence 列表 (每条 internship/project/edu/skill bullet 一个 Evidence)。
+
+    每条 evidence 自动跑 tag_extractor 抽 metric/tech/scope/role/verb_subject tag。
+    给 audit_draft 当作"已有证据池"使用。
+    """
+    evidences: list[Evidence] = []
+
+    def _add(text: str) -> None:
+        t = str(text or '').strip()
+        if not t:
+            return
+        evidences.append(Evidence(
+            source='parsed_resume',
+            text=t,
+            tags=extract_tags(t),
+        ))
+
+    # candidate_summary
+    _add(profile_dict.get('candidate_summary', ''))
+
+    # education + highlights
+    for edu in profile_dict.get('education', []) or []:
+        if not isinstance(edu, dict):
+            continue
+        for k in ('school', 'degree', 'major'):
+            _add(edu.get(k, ''))
+        for h in (edu.get('highlights') or []):
+            _add(h)
+
+    # internships: company + role + bullets
+    for intern in profile_dict.get('internships', []) or []:
+        if not isinstance(intern, dict):
+            continue
+        for k in ('company', 'role'):
+            _add(intern.get(k, ''))
+        for b in (intern.get('bullets') or []):
+            _add(b)
+
+    # projects: name + role + tech_stack + bullets
+    for proj in profile_dict.get('projects', []) or []:
+        if not isinstance(proj, dict):
+            continue
+        for k in ('name', 'role'):
+            _add(proj.get(k, ''))
+        for t in (proj.get('tech_stack') or []):
+            _add(t)
+        for b in (proj.get('bullets') or []):
+            _add(b)
+
+    # skills (一并算证据)
+    skills = profile_dict.get('skills', {}) or {}
+    if isinstance(skills, dict):
+        for k in ('technical', 'tools', 'languages'):
+            for s in (skills.get(k) or []):
+                _add(s)
+
+    for award in (profile_dict.get('awards') or []):
+        _add(award)
+    for lang in (profile_dict.get('languages') or []):
+        _add(lang)
+
+    return evidences
+
+
+_SEVERE_RISK_KINDS = {'overclaim', 'leadership_unverified', 'tech_unverified'}
+_WARN_RISK_KINDS = {'missing_metric', 'vague_verb'}
+
+
+_LEADERSHIP_DRAFT_TOKEN_RE = re.compile(r"draft uses '(.+?)'")
+_TECH_DRAFT_TOKEN_RE = re.compile(r"draft mentions '(.+?)'")
+
+
+def _filter_audit_risks_against_original(risk_flags, original_text: str):
+    """chat.py 场景:对比 improved vs original,过滤掉 original 已含的 token。
+
+    plan-mode 假设用户从空白构建 bullet,所有 leadership/tech token 都要 evidence 支持;
+    chat.py 是 rewrite **已经存在**的 bullet,如果 original 里就有 "主导/负责",改写保留
+    它不算新夸大。这层过滤只对 leadership_unverified / tech_unverified 生效,其它维度
+    (overclaim 数字 / missing_metric / vague_verb) 仍走原 audit_draft。
+    """
+    if not original_text:
+        return risk_flags
+    out = []
+    for f in risk_flags:
+        if f.kind == 'leadership_unverified':
+            m = _LEADERSHIP_DRAFT_TOKEN_RE.search(f.detail)
+            if m and m.group(1) in original_text:
+                continue
+        elif f.kind == 'tech_unverified':
+            m = _TECH_DRAFT_TOKEN_RE.search(f.detail)
+            if m and m.group(1) in original_text:
+                continue
+        out.append(f)
+    return out
+
+
+def _audit_rewrite_options(options: list[RewriteOption], profile_dict: dict) -> None:
+    """对每个 RewriteOption 跑 5-维 audit_draft + 填 audit_risks + warning_severity。
+
+    选项 B (半硬警告): severe risk 红底警示,但 apply 按钮仍可点。
+
+    chat.py 场景特化:
+      - audit_draft 是 plan-mode 设计的"从空白起"严格模式
+      - 对 rewrite 场景,只 flag improved 引入但 original 没有的 leadership/tech token
+        (差量检查),否则只是把已有 token 保留也会被误判
+    """
+    evidence = _profile_to_evidence_list(profile_dict)
+    if not evidence:
+        return
+
+    for opt in options:
+        draft_text = '\n'.join(opt.improved or [])
+        if not draft_text.strip():
+            continue
+        risk_flags = audit_draft(draft_text, evidence)
+        original_text = '\n'.join(opt.original or [])
+        risk_flags = _filter_audit_risks_against_original(risk_flags, original_text)
+        if not risk_flags:
+            continue
+
+        opt.audit_risks = [
+            {'kind': f.kind, 'detail': f.detail, 'blocking': f.blocking}
+            for f in risk_flags
+        ]
+        # severity: 任一 severe kind → severe;任一 warn kind 且无 severe → warn
+        kinds = {f.kind for f in risk_flags}
+        if kinds & _SEVERE_RISK_KINDS:
+            opt.warning_severity = 'severe'
+        elif kinds & _WARN_RISK_KINDS:
+            opt.warning_severity = 'warn'
+
+        # 把 audit detail 汇成人话 warning (跟数字 fabrication 的 warning 合并 / 覆盖)
+        human = _format_audit_risks(risk_flags)
+        if human:
+            # 不覆盖已有数字 fabrication warning,但前缀加上
+            opt.warning = (opt.warning + ' ' + human).strip() if opt.warning else human
+
+
+_HUMAN_KIND_LABEL = {
+    'overclaim': '夸大或编造数字',
+    'leadership_unverified': '声称的领导/主导角色无证据',
+    'tech_unverified': '提及的技术栈/工具简历里没有',
+    'missing_metric': '缺量化数据,建议补一个数字',
+    'vague_verb': '动词太虚 (e.g. "参与/负责"),建议改具体动作',
+}
+
+
+def _format_audit_risks(risk_flags) -> str:
+    if not risk_flags:
+        return ''
+    severe_msgs = [
+        f"⚠️ {_HUMAN_KIND_LABEL.get(f.kind, f.kind)}:{f.detail}"
+        for f in risk_flags if f.blocking
+    ]
+    warn_msgs = [
+        f"💡 {_HUMAN_KIND_LABEL.get(f.kind, f.kind)}"
+        for f in risk_flags if not f.blocking
+    ]
+    return ' / '.join(severe_msgs + warn_msgs)
+
+
 def _load_profile_dict(session_id: int, db: Session) -> dict:
     confirmed = (
         db.query(ResumeConfirmedProfile)
@@ -330,6 +497,7 @@ def generate_chat_turn(
 
     if options:
         _annotate_fabrications(options, profile_dict)
+        _audit_rewrite_options(options, profile_dict)
 
     assistant_msg = ResumeCopilotMessage(
         session_id=session_id,

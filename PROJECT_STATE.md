@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-> 项目当前快照。每次大段工作结束时更新。**Last updated: 2026-05-17.**
+> 项目当前快照。每次大段工作结束时更新。**Last updated: 2026-05-18.**
 
 ## Modules
 
@@ -25,7 +25,7 @@
 
 ## In flight
 
-(空) — SAIF 投研召回改造 sprint 收官 (D-16),离线测试 N=8+rerank 96.2% hit / 0% bad,等用户指派下一段。
+(空) — 6-metric 试点级硬化 sprint 收官 (D-17):推荐侧 tier_label 三档强约束 + priority_letter A/B/C/D;简历侧 chat.py 接 audit_draft 5 维 (复用 plan-mode 算法);Evidence 100% / Overclaim 0% / Actionability 100%;30 新 unit tests。等用户指派下一段。
 
 ## Recent shipped (last 2 weeks)
 
@@ -39,8 +39,8 @@
 | ✅ | ~~`recommend_jobs_for_profile` 全表 `query(Job).all()` 无 prefilter~~ — 已修(D-16: track-aware prefilter + 双层 NULL fallback + 可迁移 OR + 分级 fallback) | `recommendation.py:530-619` |
 | 🟡 | 推荐 enrichment snapshot 无 14 天 TTL | `recommendation.py:393-395` |
 | 🟡 | **Job.canonical_track 覆盖率 29.9%** — 余 70227 行主要是 tatawangshen/legacy catchall(无信号 source)。需 LLM enrich 才能提到 60%+ | `backend/app/services/crawler_llm_enrich.py` (默认 OFF) |
-| 🟡 | SUT 推荐 tier_label 太保守(multi-turn baseline 从不给 '强匹配');SUT follow-up 偶发跨经历跳跃 | `backend/app/services/resume_copilot/recommendation.py` LLM rerank prompt |
-| 🟢 | chat.py rewrite 未按 user canonical track 调改写口径(Phase E stretch 留 backlog) | `backend/app/services/resume_copilot/chat.py` |
+| ✅ | ~~SUT 推荐 tier_label 太保守~~ — 已修(D-17: 三档白名单强约束 + rule 兜底);follow-up 跨经历跳跃问题独立留 backlog | rerank prompt 严约束 |
+| 🟢 | chat.py rewrite 未按 user canonical track 调改写口径 — 仍为 Phase E stretch backlog;但 audit_draft 已接 (D-17) | `chat.py` |
 | 🟢 | Tencent 知识包用的是 transcript 范例数据,未接 `tencent-recruit-pack/scripts/fetch_recruit_jds.py` 抓真实 JD | `backend/app/services/knowledge_pack/` |
 | 🟢 | `HANDOFF_NEXT_SESSION.md` (root) / `backend/data/jobradar.db.bak.20260428` / `docs/decisions.md` (lowercase) 三个 stale — 待 user 确认删/保留 | root + backend/data + docs |
 

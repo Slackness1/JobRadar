@@ -149,6 +149,9 @@ export interface ResumeRecommendationItem {
   strengths: string[];
   risks: string[];
   target_direction: string;
+  tier_label?: string;       // '强匹配' | '可迁移' | '有差距'
+  priority_letter?: string;  // 'A' | 'B' | 'C' | 'D'
+  track_match_kind?: string; // debug
 }
 
 export interface ResumeAgentTraceItem {
@@ -199,6 +202,12 @@ export interface DirectionTierResult {
   transferable_from: string[];
 }
 
+export interface RewriteAuditRisk {
+  kind: string;          // 'overclaim' | 'leadership_unverified' | 'tech_unverified' | 'missing_metric' | 'vague_verb'
+  detail: string;
+  blocking: boolean;
+}
+
 export interface RewriteOption {
   option_id: string;
   label: string;
@@ -209,6 +218,8 @@ export interface RewriteOption {
   improved: string[];
   rationale: string;
   warning?: string;
+  audit_risks?: RewriteAuditRisk[];
+  warning_severity?: 'info' | 'warn' | 'severe';
 }
 
 export interface CopilotMessage {

@@ -1561,8 +1561,15 @@ function RewriteOptionCard({
   const originalLines = option.original ?? [];
   const improvedLines = option.improved ?? [];
   const warning = option.warning?.trim() ?? '';
+  const severity = option.warning_severity ?? 'info';
+  const audit_risks = option.audit_risks ?? [];
+  const isSevere = severity === 'severe';
+  // 严重 fabrication 时按钮 hover 提示但仍可 apply (选项 B 半硬警告)
+  const buttonTitle = isSevere
+    ? 'AI 检测到夸大或编造，请确认后再应用'
+    : applied ? '已应用' : '一键应用到简历';
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+    <div className={`rounded-xl border bg-white px-3 py-3 ${isSevere ? 'border-rose-300' : 'border-slate-200'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-semibold text-slate-950">{option.label || `方案 ${option.option_id}`}</div>
@@ -1573,9 +1580,32 @@ function RewriteOptionCard({
         <Badge className="shrink-0 bg-slate-100 text-[10px] text-slate-500">{option.section || option.field_path}</Badge>
       </div>
       {warning && (
-        <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-[11px] leading-5 text-amber-900">
-          <span aria-hidden className="mt-0.5 text-sm leading-none">⚠</span>
+        <div className={`mt-2 flex items-start gap-2 rounded-lg border px-2.5 py-2 text-[11px] leading-5 ${
+          isSevere
+            ? 'border-rose-300 bg-rose-50 text-rose-900'
+            : severity === 'warn'
+              ? 'border-amber-300 bg-amber-50 text-amber-900'
+              : 'border-slate-200 bg-slate-50 text-slate-700'
+        }`}>
+          <span aria-hidden className="mt-0.5 text-sm leading-none">{isSevere ? '🚫' : severity === 'warn' ? '⚠' : 'ℹ'}</span>
           <span>{warning}</span>
+        </div>
+      )}
+      {audit_risks.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {audit_risks.map((r, idx) => (
+            <span
+              key={idx}
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                r.blocking
+                  ? 'bg-rose-100 text-rose-800'
+                  : 'bg-amber-100 text-amber-800'
+              }`}
+              title={r.detail}
+            >
+              {r.kind}
+            </span>
+          ))}
         </div>
       )}
       {originalLines.length > 0 && (
@@ -1608,9 +1638,10 @@ function RewriteOptionCard({
           variant={applied ? 'secondary' : 'default'}
           disabled={disabled || applied}
           onClick={() => void onApply(messageId, option.option_id)}
+          title={buttonTitle}
         >
           {isApplying ? <Loader2 className="size-3.5 animate-spin" /> : applied ? <Check className="size-3.5" /> : null}
-          {applied ? '已应用' : '一键应用到简历'}
+          {applied ? '已应用' : isSevere ? '确认无误后应用' : '一键应用到简历'}
         </Button>
       </div>
     </div>
@@ -2093,8 +2124,24 @@ function ResumeChatRail({
                               {item.company} · {item.location || '地点待确认'}
                             </div>
                           </div>
-                          <div className="flex shrink-0 items-center gap-1 text-xs font-semibold text-[var(--primary)]">
-                            {Math.round(item.final_score)}
+                          <div className="flex shrink-0 items-center gap-1.5 text-xs font-semibold">
+                            {item.priority_letter && (
+                              <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-md px-1.5 text-[10px] font-bold ${
+                                item.priority_letter === 'A' ? 'bg-emerald-500 text-white' :
+                                item.priority_letter === 'B' ? 'bg-amber-500 text-white' :
+                                item.priority_letter === 'C' ? 'bg-slate-400 text-white' :
+                                'bg-rose-400 text-white'
+                              }`}
+                              title={
+                                item.priority_letter === 'A' ? '优先投: 强匹配 + 顶级品牌' :
+                                item.priority_letter === 'B' ? '推荐投: 强匹配,或顶级品牌可迁移' :
+                                item.priority_letter === 'C' ? '拓展投: 可迁移或信号不足' :
+                                '不建议: 错位或低质量'
+                              }>
+                                {item.priority_letter}
+                              </span>
+                            )}
+                            <span className="text-[var(--primary)]">{Math.round(item.final_score)}</span>
                           </div>
                         </div>
                         <div className="mt-2 text-[11px] leading-4 text-slate-400">
@@ -2102,6 +2149,15 @@ function ResumeChatRail({
                           {item.company_priority_label ? ` · ${item.company_priority_label}` : ''}
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1.5">
+                          {item.tier_label && (
+                            <Badge className={
+                              item.tier_label === '强匹配' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' :
+                              item.tier_label === '可迁移' ? 'border-amber-300 bg-amber-50 text-amber-800' :
+                              'border-rose-300 bg-rose-50 text-rose-800'
+                            }>
+                              {item.tier_label}
+                            </Badge>
+                          )}
                           {item.company_priority_label && (
                             <Badge className="border-[var(--primary-ring)] bg-[var(--soft-blue)] text-[var(--primary-strong)]">
                               {item.company_priority_label}

@@ -2,6 +2,14 @@
 
 > 最近 shipped 工作的轻量摘要。最新在上，按周分组。详细 entry 在 commit message 里。
 
+## 2026-W21 (May 17-18) · SAIF 投研召回 + 6-metric 试点级硬化
+
+- **🎯 6-metric 试点级硬化 sprint (2026-05-18, D-17)** —— 把推荐+简历改写共 6 个 metric 全部 push 到试点水平。
+  - **推荐侧 ②③** — LLM rerank prompt 强制 SUT 输出 tier_label ∈ {强匹配/可迁移/有差距} 三档 + strengths 必须 2-4 条引用简历具体事实 (实习公司/项目/技能);新 `_track_kind_to_tier_label` 把 4 分支映射到 3 档 + 红线优先;新 `_compute_priority_letter` 算 A/B/C/D 投递分层;前端 HFPill 角标显示 priority_letter (绿/橙/灰/红) + tier_label。
+  - **简历侧 ④⑤⑥** — chat.py 复用 plan-mode 的 `audit_draft` + `tag_extractor.extract_tags` + `EvidenceTag` schema (不搬整套状态机);新 `_profile_to_evidence_list` 把整份简历转 Evidence 池;`_filter_audit_risks_against_original` 差量过滤 leadership/tech (chat.py 是 rewrite 不是从空白起);chat.py system prompt 加严禁角色升级 + 成果声明编造 (D-17 第 7 点);RewriteOption 新字段 `audit_risks` + `warning_severity`,UI 选项 B 半硬警告 (severe 红底但 apply 仍可点保 actionability)。
+  - **离线评估** — `scripts/offline_test_resume_rewrite.py`:8 SAIF 简历 × 2 bullets × 2 options = 32 改写。**v3 (final): Evidence 100% / Severe overclaim 0% / Actionability 100%** (v1→v2→v3 迭代:25%→22%→0% severe);priority 分布 (n=80): A 86.2% / B 11.2% / C 2.5% / D 0%。
+  - **30 新 unit tests** (`test_recommendation_priority_tier.py` + `test_chat_audit_integration.py`) 全绿。
+
 ## 2026-W21 (May 17) · SAIF 投研召回改造
 
 - **🎯 SAIF 投研召回 sprint (2026-05-17, D-16)** —— 用户截图反馈"选投研+上海推 AI 工程师 / 合规 / 营销"问题完整修复。从诊断到验证 8 task 收官:

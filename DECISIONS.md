@@ -126,3 +126,34 @@
 **为什么**:(a) LLM rerank 兜底成本高且不稳,rule layer 不修等于「先把脏菜端上桌再让人挑」;(b) 硬 filter 会让"上海投研岗少" cohort 看到 0 推荐,UX 崩;(c) penalty 25 跟 PROJECT_STATE 第 5 条 known blocker(SUT tier 保守)叠加会让 top-N final_score 整体压低,影响 LLM rerank 信号——15 是平衡值。
 **位置**:`backend/app/services/taxonomy/{canonical,quality,source_map,__init__}.py`;`backend/app/services/resume_copilot/recommendation.py`(~180 行改动);`backend/scripts/offline_test_saif_touyan.py`;`backend/tests/test_recommendation_track_filter.py`(24 测试)。
 
+## D-17 · 2026-05-18 · 6-metric 试点级硬化:tier_label 强约束 + priority_letter A/B/C/D + chat.py 接 audit_draft
+
+**决策**:针对试点要求,把推荐+简历改写共 6 个 metric 全部 push 到试点水平 (Track Relevance ≥8/10 已 ship,其余 5 个原 5/10 以下到 7+/10):
+
+**推荐侧 (② Fit Explanation Quality + ③ Priority Accuracy)**:
+1. **LLM rerank prompt 强约束** — 强制 SUT 输出 tier_label ∈ {强匹配/可迁移/有差距} 三档 + strengths 必须 2-4 条引用简历**具体**事实 (实习公司/项目/技能/课程,禁空话);`_coerce_ai_recommendation_item` 校验白名单,LLM 失格直接用 rule 算的 base_item.tier_label 兜底。
+2. **新 `_track_kind_to_tier_label`** — 把 4 分支 (hit/null_hit/transferable/ambiguous/mismatch) 映射到 3 档 tier_label,红线命中优先于 track 分类。
+3. **新 `_compute_priority_letter`** — A/B/C/D 投递分层:A=强匹配+顶级品牌+final≥85 / B=强匹配但分数或品牌不够,或顶级可迁移 / C=可迁移中型 or ambiguous / D=错位 or 红线。复用 `company_priority_tier` 的 `:tier1` 后缀识别顶级。
+4. **Schema 新字段** — `ResumeRecommendationItem.tier_label` / `.priority_letter` / `.track_match_kind`;前端 HFPill 角标显示。
+
+**简历改写侧 (④ Evidence Groundedness + ⑤ Overclaim Rate + ⑥ Actionability)**:
+5. **chat.py 复用 plan-mode 的 audit_draft** — 不搬 plan-mode 整套状态机,只复用 `audit_draft(draft_text, evidence)` + `tag_extractor.extract_tags` + `EvidenceTag` schema。新 `_profile_to_evidence_list(profile_dict)` 把整份简历 (candidate_summary/education highlights/internships bullets/projects/skills/awards) 转一组 Evidence + 自动抽 tag。
+6. **差量过滤 leadership/tech token** — `_filter_audit_risks_against_original`:plan-mode 假设"从空白起",chat.py 是"已存在 bullet 改写",只 flag improved 引入但 original 没有的 token;overclaim 数字维度不走差量过滤 (更严)。
+7. **chat.py system prompt 加约束** — 严禁角色升级 ("参与/协助" → "主导/负责" 算编造) + 严禁成果声明编造 ("被采纳/获奖"等)。
+8. **RewriteOption schema 新字段** — `audit_risks: list[dict]` + `warning_severity: 'info'|'warn'|'severe'`;UI 选项 B 半硬警告:severe 红底但 apply 按钮仍可点 (保 actionability 8/10)。
+9. **离线 harness** — `scripts/offline_test_resume_rewrite.py`:用 deepseek-v4-flash 跑 8 份 SAIF 模拟简历 × 2 bullet × 2 option = 32 改写,跑 audit + 报 evidence/overclaim 命中率。
+
+**离线评估结果 (alpha-1 试点验收)**:
+| Metric | 改前 | 改后 |
+|---|---|---|
+| ① Track Relevance (推荐错位) | 100% 错位 (用户截图) | 96.2-97.5% hit,0% mismatch (D-16+本次) |
+| ② Fit Explanation 三档 tier | LLM 自由发挥 | 强制白名单,不在白名单走 rule 兜底 |
+| ③ Priority A/B/C/D | 不存在 | A 86.2% / B 11.2% / C 2.5% / D 0% (n=80) |
+| ④ Evidence Groundedness (无 severe 编造) | 弱审计仅查数字 | **100%** (v3 prompt+差量+audit) |
+| ⑤ Overclaim Rate (severe) | 25% (LLM 自由角色升级) | **0%** (prompt 加严禁) |
+| ⑥ Actionability | 100% | **100%** (一键 apply 保留) |
+
+**备选**:(a) 把 plan-mode 整套搬给 chat.py;(b) 硬 block fab options 不渲染;(c) 不给 priority 字段。
+**为什么**:(a) plan-mode 是 item-tree 状态机,chat.py 是对话式,组合不上;只复用算法 + schema 干净;(b) 硬 block 会让 LLM 失败时 user 看到空 options,actionability 跌到 0;选项 B 半硬警告是 evidence/actionability 平衡值;(c) 没分层用户每条都"是否投" 心智成本高。
+**位置**:`backend/app/services/resume_copilot/recommendation.py`(rerank prompt + `_compute_priority_letter` + `_track_kind_to_tier_label` + `_coerce_ai_recommendation_item`);`backend/app/services/resume_copilot/chat.py`(`_profile_to_evidence_list` + `_audit_rewrite_options` + `_filter_audit_risks_against_original` + system prompt 严约束);`backend/app/schemas_resume_copilot.py`(`RewriteOption.audit_risks` + `warning_severity`;`ResumeRecommendationItem.tier_label` + `.priority_letter` + `.track_match_kind`);`resume-copilot-web/components/resume-copilot/{types.ts,public-resume-copilot.tsx}`(UI 角标);`backend/scripts/offline_test_resume_rewrite.py`;`backend/tests/test_recommendation_priority_tier.py` + `test_chat_audit_integration.py`(30 新 tests)。
+

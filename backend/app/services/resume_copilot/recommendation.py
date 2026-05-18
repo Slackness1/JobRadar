@@ -131,12 +131,28 @@ class OpenAICompatibleResumeRecommendationProvider:
         per_job_context: str = "",
     ) -> Any:
         system_msg = (
-            'Rerank the candidate recommendation items. Return JSON with key items. '
-            'Each item must include job_id, final_score, why_recommended, strengths, risks.\n\n'
-            '已知 8 大金融赛道 (canonical 口径,详见 docs/finance-tracks-2026-overview.md):\n'
+            '你是 SAIF 金融硕士的求职推荐顾问。Rerank the candidate recommendation items.\n'
+            'Return JSON with key items. Each item must include:\n'
+            '  - job_id, final_score (整数)\n'
+            '  - tier_label: 必须三选一 {"强匹配","可迁移","有差距"}\n'
+            '    映射规则: track_match_kind=hit/null_hit→"强匹配"; transferable/ambiguous→"可迁移";\n'
+            '    mismatch 或 含低质量 risks→"有差距"\n'
+            '  - why_recommended: list[str] — 最多 3 条,每条 ≤30 字\n'
+            '  - strengths: list[str] — **必须** 2-4 条,每条引用学生简历里的具体事实\n'
+            '    (实习公司+组别 / 项目名 / 技能 / 课程 / GPA / 证书),不允许只说"金融背景扎实"这种空话\n'
+            '  - risks: list[str] — 短板/不匹配点,最多 2 条;复用 input item 已有 risks 中的角标\n'
+            '    (如"赛道为可迁移跳板") 但 strengths/why 中不要重复\n\n'
+            '已知 8 大金融赛道 (canonical 口径):\n'
             + '\n'.join(f'  - {t}' for t in CANONICAL_FINANCE_TRACKS) +
             '\n\n在 why_recommended / strengths / risks 里描述赛道时,请引用上述 canonical 名称,'
-            '不要自创"投资银行业务" / "卖方分析" / "公募/研究" 这类变体。'
+            '不要自创"投资银行业务" / "卖方分析" / "公募/研究" 这类变体。\n\n'
+            'tier_label 必须严格三档输出,不允许返"较强匹配""部分匹配"这种自创档位。\n'
+            '若 input 已含 track_match_kind 字段,**严格**按映射规则输出 tier_label,不要按"感觉"修正。\n\n'
+            'strengths 引用简历事实时,**禁止编造**:\n'
+            '- 只能引用 profile.internships / projects / education / skills / awards 里**已有**的字符串片段\n'
+            '- 数字必须 verbatim 复用,不允许把"5 只"改写成"5+只" / "约 5 只"\n'
+            '- 公司名必须 verbatim 复用,不允许把"易方达"改成"易方达基金"\n'
+            '- 严格禁止"覆盖 50 家公司"这种简历里没有的数字\n'
         )
         if per_job_context:
             system_msg += (
@@ -278,14 +294,31 @@ def _coerce_ai_recommendation_item(
     base_item = base_items_by_job_id.get(job_id)
     if base_item is None:
         return None
+    # tier_label 严格三档校验,LLM 输出不在白名单 → 用 rule 算的 base_item.tier_label 兜底
+    _VALID_TIER_LABELS = {'强匹配', '可迁移', '有差距'}
+    llm_tier = str(raw_item.get('tier_label', '')).strip()
+    tier_label_final = llm_tier if llm_tier in _VALID_TIER_LABELS else base_item.tier_label
+
+    final_score_new = int(raw_item.get('final_score', base_item.final_score) or 0)
+    # priority_letter rule-recompute (用 LLM 给的新 final_score + base_item 的 track_kind/brand)
+    priority_letter_new = _compute_priority_letter(
+        base_item.track_match_kind,
+        final_score_new,
+        base_item.company_priority_tier,
+        # 红线 hit 用 base risk 中是否含 "低质量" 标志 (简单 detect, 因 LLM 不传 hit 词)
+        '低质量' if any('低质量' in r for r in base_item.risks) else None,
+    )
+
     return ResumeRecommendationItem.model_validate(
         {
             **base_item.model_dump(),
-            'final_score': int(raw_item.get('final_score', base_item.final_score) or 0),
+            'final_score': final_score_new,
             'used_ai': True,
             'why_recommended': [str(value) for value in raw_item.get('why_recommended', [])],
             'strengths': [str(value) for value in raw_item.get('strengths', [])],
             'risks': [str(value) for value in raw_item.get('risks', [])],
+            'tier_label': tier_label_final,
+            'priority_letter': priority_letter_new,
         }
     )
 
@@ -533,6 +566,79 @@ _COMPANY_TYPE_TAG_KEYWORDS: dict[str, list[str]] = {
 }
 
 
+def _track_kind_to_tier_label(track_kind: str, low_quality_hit: str | None) -> str:
+    """4 分支 + 低质量红线 → 3 档 tier_label。
+
+    输入: hit / null_hit / transferable / ambiguous / mismatch / no_pref
+    输出: '强匹配' | '可迁移' | '有差距'
+
+    映射:
+      - 红线命中 → '有差距' (优先)
+      - hit / null_hit → '强匹配'
+      - transferable → '可迁移'
+      - ambiguous → '可迁移' (信号不足按可迁移处理)
+      - mismatch → '有差距'
+      - no_pref → '' (用户没选,不强制)
+    """
+    if low_quality_hit:
+        return '有差距'
+    if track_kind in ('hit', 'null_hit'):
+        return '强匹配'
+    if track_kind in ('transferable', 'ambiguous'):
+        return '可迁移'
+    if track_kind == 'mismatch':
+        return '有差距'
+    return ''
+
+
+_PRIORITY_LETTER_THRESHOLDS = {
+    'A_min_final': 85,  # A 投递的 final_score 下限
+    'B_min_final': 70,  # B 投递的 final_score 下限
+}
+
+
+def _compute_priority_letter(
+    track_kind: str,
+    final_score: int,
+    company_priority_tier: str,
+    low_quality_hit: str | None,
+) -> str:
+    """投递分层 — 综合 track + 品牌 + 分数 → A/B/C/D。
+
+    A 优先投: 强匹配 + 品牌 T0/T0.5 + final≥85
+    B 推荐投: 强匹配但品牌或分数不够,或 可迁移 + 顶级品牌
+    C 拓展投: 可迁移 + 一般品牌,或 ambiguous
+    D 不建议: 错位 / 红线
+    """
+    if low_quality_hit:
+        return 'D'
+    if track_kind == 'mismatch':
+        return 'D'
+    # 顶级品牌定义:跟 company_priority.yaml 对齐, T0/T0.5 头部 = tier1 后缀
+    # (实际 tier 命名是 'securities:tier1' / 'bank:tier1' / 'funds:tier1' 等)
+    tier_lower = (company_priority_tier or '').lower()
+    is_top_brand = tier_lower.endswith(':tier1') or tier_lower in ('t0', 't0.5', 'tier1')
+
+    if track_kind in ('hit', 'null_hit'):
+        if final_score >= _PRIORITY_LETTER_THRESHOLDS['A_min_final'] and is_top_brand:
+            return 'A'
+        if final_score >= _PRIORITY_LETTER_THRESHOLDS['B_min_final']:
+            return 'B'
+        return 'C'
+    if track_kind == 'transferable':
+        if is_top_brand and final_score >= _PRIORITY_LETTER_THRESHOLDS['B_min_final']:
+            return 'B'
+        return 'C'
+    if track_kind == 'ambiguous':
+        return 'C'
+    # no_pref — 退化到分数 + 品牌
+    if final_score >= _PRIORITY_LETTER_THRESHOLDS['A_min_final'] and is_top_brand:
+        return 'A'
+    if final_score >= _PRIORITY_LETTER_THRESHOLDS['B_min_final']:
+        return 'B'
+    return 'C'
+
+
 def _classify_track_match(
     job: Job,
     preferences: ResumePreferencePayload | None,
@@ -717,6 +823,10 @@ def recommend_jobs_for_profile(
             - (LOW_QUALITY_PENALTY if low_quality_hit else 0)
             - track_mismatch_penalty
         )
+        tier_label_value = _track_kind_to_tier_label(track_match_kind, low_quality_hit)
+        priority_letter_value = _compute_priority_letter(
+            track_match_kind, final_score_value, priority.tier, low_quality_hit,
+        )
         recommendations.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id or ''),
@@ -742,6 +852,9 @@ def recommend_jobs_for_profile(
                 topic_cache_status=topic_cache_status,
                 topic_summary=topic_summary,
                 used_ai=False,
+                tier_label=tier_label_value,
+                priority_letter=priority_letter_value,
+                track_match_kind=track_match_kind,
                 why_recommended=[
                     value
                     for value in [

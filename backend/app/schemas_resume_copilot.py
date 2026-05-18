@@ -197,6 +197,9 @@ class ResumeRecommendationItem(BaseModel):
     strengths: list[str] = []
     risks: list[str] = []
     target_direction: str = ''   # set by ReAct agent in finalize
+    tier_label: str = ''         # '强匹配' | '可迁移' | '有差距' — 三档说理
+    priority_letter: str = ''    # 'A' | 'B' | 'C' | 'D' — 投递分层 (rule 算)
+    track_match_kind: str = ''   # 'hit'|'null_hit'|'transferable'|'ambiguous'|'mismatch'|'no_pref' (debug)
 
 
 class ResumeRecommendationResultOut(BaseModel):
@@ -241,6 +244,8 @@ class RewriteOption(BaseModel):
     rationale: str = ''
     warning: str = ''               # set by the fabrication guard when `improved` introduces
                                     # numeric values not present anywhere in the original profile
+    audit_risks: list[dict] = []    # set by audit_draft 5-维 evidence gate;每项 {kind,detail,blocking}
+    warning_severity: str = 'info'  # 'info' | 'warn' | 'severe' — UI 角标用
 
     @field_validator('original', 'improved', mode='before')
     @classmethod
