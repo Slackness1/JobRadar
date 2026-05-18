@@ -592,8 +592,12 @@ def _track_kind_to_tier_label(track_kind: str, low_quality_hit: str | None) -> s
 
 
 _PRIORITY_LETTER_THRESHOLDS = {
-    'A_min_final': 85,  # A 投递的 final_score 下限
-    'B_min_final': 70,  # B 投递的 final_score 下限
+    # A 阈值 — 实测 20 学生 × top-10 = 80 推荐分布: final mean ~78, top quartile ~85+
+    # 之前 85 太严 (8.75% 拿 A);放宽到 80 让"强匹配 + 顶级品牌"达到 30-40%
+    'A_min_final': 80,
+    'B_min_final': 65,
+    # D 阈值 — 严错位 (-15) + 低质量 (-50) 之后 final 会到 ~30-40, 强制 D 兜底
+    'D_max_final': 50,
 }
 
 
@@ -605,19 +609,23 @@ def _compute_priority_letter(
 ) -> str:
     """投递分层 — 综合 track + 品牌 + 分数 → A/B/C/D。
 
-    A 优先投: 强匹配 + 品牌 T0/T0.5 + final≥85
-    B 推荐投: 强匹配但品牌或分数不够,或 可迁移 + 顶级品牌
-    C 拓展投: 可迁移 + 一般品牌,或 ambiguous
-    D 不建议: 错位 / 红线
+    A 优先投: 强匹配 + 顶级品牌 (T0/T0.5) + final≥80
+    B 推荐投: 强匹配 (非顶级品牌或分数稍低), 或 顶级品牌可迁移
+    C 拓展投: 可迁移 中型, 或 ambiguous (信号不足)
+    D 不建议: 错位 / 红线 / final 过低
     """
     if low_quality_hit:
         return 'D'
     if track_kind == 'mismatch':
         return 'D'
     # 顶级品牌定义:跟 company_priority.yaml 对齐, T0/T0.5 头部 = tier1 后缀
-    # (实际 tier 命名是 'securities:tier1' / 'bank:tier1' / 'funds:tier1' 等)
+    # (实际 tier 命名: securities:tier1 / funds:tier1 / quant:tier1 / pe_vc:tier1 等)
     tier_lower = (company_priority_tier or '').lower()
     is_top_brand = tier_lower.endswith(':tier1') or tier_lower in ('t0', 't0.5', 'tier1')
+
+    # 触发 D 兜底:无明显错位但 final 太低 (可能匹配信号弱 + 多项扣分)
+    if final_score < _PRIORITY_LETTER_THRESHOLDS['D_max_final']:
+        return 'D'
 
     if track_kind in ('hit', 'null_hit'):
         if final_score >= _PRIORITY_LETTER_THRESHOLDS['A_min_final'] and is_top_brand:

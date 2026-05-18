@@ -33,23 +33,30 @@ class TestTrackKindToTierLabel:
 
 class TestComputePriorityLetter:
     def test_A_强匹配_顶级品牌_高分(self):
+        # 阈值放宽到 80 (2026-05-19 实测分布校准)
         assert _compute_priority_letter('hit', 90, 'securities:tier1', None) == 'A'
         assert _compute_priority_letter('null_hit', 88, 'bank:tier1', None) == 'A'
-        assert _compute_priority_letter('hit', 85, 'funds:tier1', None) == 'A'
+        assert _compute_priority_letter('hit', 80, 'funds:tier1', None) == 'A'
 
     def test_B_强匹配_顶级品牌_分数边界以下(self):
-        # final<85 但 ≥70 = B
-        assert _compute_priority_letter('hit', 80, 'securities:tier1', None) == 'B'
+        # final<80 但 ≥65 = B
+        assert _compute_priority_letter('hit', 75, 'securities:tier1', None) == 'B'
 
     def test_B_强匹配_中型品牌(self):
         # 不是顶级品牌,即使强匹配也是 B
         assert _compute_priority_letter('hit', 90, 'securities:tier2', None) == 'B'
 
     def test_B_可迁移_顶级品牌(self):
-        assert _compute_priority_letter('transferable', 80, 'bank:tier1', None) == 'B'
+        assert _compute_priority_letter('transferable', 70, 'bank:tier1', None) == 'B'
 
     def test_C_强匹配_低分(self):
+        # 60 仍 ≥ D 阈值 50 → C (新加 D 兜底:final<50 → D)
         assert _compute_priority_letter('hit', 60, 'securities:tier1', None) == 'C'
+
+    def test_D_强匹配但final过低(self):
+        # 新增:无明显错位但 final<50 强制 D 兜底
+        assert _compute_priority_letter('hit', 40, 'securities:tier1', None) == 'D'
+        assert _compute_priority_letter('hit', 30, 'funds:tier1', None) == 'D'
 
     def test_C_可迁移_中型品牌(self):
         assert _compute_priority_letter('transferable', 80, 'bank:tier2', None) == 'C'

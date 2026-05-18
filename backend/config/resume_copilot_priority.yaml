@@ -173,3 +173,211 @@ categories:
           - 乐高
           - 爱立信
           - 沃尔沃
+  funds:
+    label: 公募基金
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0-T0.5 顶级公募
+        bonus: 24
+        aliases:
+          - 易方达基金
+          - 易方达
+          - 广发基金
+          - 兴证全球基金
+          - 兴证全球
+          - 富国基金
+          - 招商基金
+          - 中欧基金
+          - 中欧
+          - 嘉实基金
+          - 汇添富基金
+          - 汇添富
+          - 华夏基金
+          - 银华基金
+          - 景顺长城基金
+          - 景顺长城
+      tier2:
+        label: T1 主流公募
+        bonus: 16
+        aliases:
+          - 鹏华基金
+          - 南方基金
+          - 博时基金
+          - 工银瑞信
+          - 建信基金
+          - 交银施罗德
+          - 长信基金
+          - 中银基金
+  private_buyside:
+    label: 阳光私募与理财子
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 顶级买方平台
+        bonus: 24
+        aliases:
+          - 高毅资产
+          - 景林资产
+          - 重阳投资
+          - 千合资本
+          - 淡水泉投资
+          - 淡水泉
+          - 睿郡资产
+          - 趣时资产
+          - 招银理财
+          - 兴银理财
+      tier2:
+        label: T1 主流理财子与保险资管
+        bonus: 16
+        aliases:
+          - 平安理财
+          - 工银理财
+          - 建信理财
+          - 国寿资产
+          - 平安资产
+          - 泰康资产
+          - 太保资产
+          - 友邦保险
+  quant:
+    label: 量化
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 顶级量化私募+海外做市
+        bonus: 24
+        aliases:
+          - 九坤投资
+          - 九坤
+          - 明汯投资
+          - 明汯
+          - 幻方量化
+          - 幻方
+          - 灵均投资
+          - 灵均
+          - 诚奇资产
+          - 衍复投资
+          - 衍复
+          - 宽德投资
+          - 世纪前沿
+          - 黑翼资产
+          - 茂源量化
+          - Citadel
+          - Jane Street
+          - Optiver
+          - IMC
+          - SIG
+          - Susquehanna
+      tier2:
+        label: T1 公募量化部+次顶级
+        bonus: 16
+        aliases:
+          - 华泰柏瑞
+          - 国泰量化
+          - 嘉实量化
+          - 富国量化
+          - 念空科技
+          - 因诺资产
+          - 启林投资
+  pe_vc:
+    label: 一级市场
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 顶级 PE
+        bonus: 24
+        aliases:
+          - 高瓴资本
+          - 高瓴
+          - Hillhouse
+          - 红杉中国
+          - 红杉资本
+          - Sequoia
+          - CDH
+          - 鼎晖投资
+          - 鼎晖
+          - 弘毅投资
+          - 弘毅
+          - 华平投资
+          - Warburg Pincus
+          - 凯雷投资
+          - Carlyle
+          - KKR
+          - TPG
+          - 黑石
+          - Blackstone
+      tier2:
+        label: T1 中型 PE/VC + FA
+        bonus: 16
+        aliases:
+          - 君联资本
+          - 启明创投
+          - IDG资本
+          - IDG 资本
+          - 经纬创投
+          - 经纬中国
+          - 真格基金
+          - 高榕资本
+          - 华兴资本
+          - 青桐资本
+          - 汉能投资
+          - 光源资本
+  foreign_ibd:
+    label: 海外投行
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 海外投行
+        bonus: 24
+        aliases:
+          - Goldman Sachs
+          - 高盛
+          - Morgan Stanley
+          - 摩根士丹利
+          - JP Morgan
+          - JPMorgan
+          - 摩根大通
+          - UBS
+          - 瑞银
+          - Citi
+          - Citibank
+          - 花旗
+          - Deutsche Bank
+          - 德意志银行
+          - Barclays
+          - 巴克莱
+          - HSBC
+          - 汇丰
+          - Bank of America
+          - 美林
+  consulting_finance:
+    label: 金融咨询
+    high_info_asymmetry: true
+    tiers:
+      tier1:
+        label: T0 MBB + 海外 IBD 财务
+        bonus: 22
+        aliases:
+          - 麦肯锡
+          - McKinsey
+          - BCG
+          - 波士顿咨询
+          - Bain
+          - 贝恩
+          - 贝恩咨询
+      tier2:
+        label: T1 战略咨询+四大金融
+        bonus: 14
+        aliases:
+          - Roland Berger
+          - 罗兰贝格
+          - Oliver Wyman
+          - OW
+          - 普华永道
+          - PwC
+          - 德勤
+          - Deloitte
+          - 安永
+          - EY
+          - 毕马威
+          - KPMG

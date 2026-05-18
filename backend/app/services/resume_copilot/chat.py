@@ -147,11 +147,49 @@ class ChatLLMProvider(Protocol):
     def generate_turn(self, messages_payload: list[dict]) -> dict[str, Any]: ...
 
 
+_JSON_FENCE_RE = re.compile(r"```(?:json)?\s*\n(.*?)\n```", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_fence(content: str) -> str:
+    """LLM 有时把 JSON 包在 ```json ... ``` fence 里, 剥掉后再解析。"""
+    m = _JSON_FENCE_RE.search(content)
+    if m:
+        return m.group(1).strip()
+    return content.strip()
+
+
+def _try_parse_chat_json(content: str) -> dict | None:
+    """容错解析: 1. 直接 json.loads;  2. 剥 markdown fence 后 retry;
+       3. 取第一个 { 到最后一个 } 间的 substring 试。失败返 None。"""
+    # 1. 直接试
+    try:
+        return json.loads(content)
+    except (json.JSONDecodeError, TypeError):
+        pass
+    # 2. 剥 fence
+    stripped = _strip_fence(content)
+    if stripped != content:
+        try:
+            return json.loads(stripped)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    # 3. 找 { ... } 大括号 substring (LLM 偶发前后包说明文)
+    if '{' in stripped and '}' in stripped:
+        start = stripped.find('{')
+        end = stripped.rfind('}')
+        if start < end:
+            try:
+                return json.loads(stripped[start:end + 1])
+            except (json.JSONDecodeError, TypeError):
+                pass
+    return None
+
+
 class OpenAICompatibleChatLLMProvider:
     def __init__(self, client=None) -> None:
         self.client = client or build_resume_llm_client()
 
-    def generate_turn(self, messages_payload: list[dict]) -> dict[str, Any]:
+    def _raw_call(self, messages_payload: list[dict]) -> str:
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
@@ -168,8 +206,46 @@ class OpenAICompatibleChatLLMProvider:
         )
         with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as response:
             body = json.loads(response.read().decode('utf-8'))
-        content = body['choices'][0]['message']['content']
-        return json.loads(content)
+        return body['choices'][0]['message']['content']
+
+    def generate_turn(self, messages_payload: list[dict]) -> dict[str, Any]:
+        """带 1 次 JSON-format 重试 + 文本 fallback。
+
+        Production 触发: LLM 拒绝 fabrication 时直接输出 markdown 解释而非 JSON
+        包装, JSONDecodeError 让 chat turn 整段废掉。新逻辑:
+          1. 第一次调 LLM, 用容错解析
+          2. 失败 → 重试一次, system 强调 "返 JSON, 不要 markdown"
+          3. 仍失败 → 把 content 当作 assistant text 包装回 {content, rewrite_options:[]}
+        """
+        # 1. First try
+        content = self._raw_call(messages_payload)
+        parsed = _try_parse_chat_json(content)
+        if parsed is not None:
+            return parsed
+
+        # 2. Retry 一次, system 加强 JSON 约束
+        retry_payload = list(messages_payload)
+        retry_payload.insert(-1, {
+            'role': 'system',
+            'content': (
+                '⚠️ 上一次输出无法解析为 JSON。**严格要求**:\n'
+                '- 整段输出必须是合法 JSON 对象 (单层 {})\n'
+                '- 不要用 ```json 代码块包裹\n'
+                '- 不要写"我无法..."这种纯文本回复;如果不能改写, 也要返 JSON: '
+                '{"content": "(简短回复)", "rewrite_options": []}'
+            ),
+        })
+        content2 = self._raw_call(retry_payload)
+        parsed2 = _try_parse_chat_json(content2)
+        if parsed2 is not None:
+            return parsed2
+
+        # 3. Fallback: 把 LLM 的 text content 当作 user-facing 回复, 空 options
+        text_fallback = _strip_fence(content2 or content or '抱歉,这条暂时改不了')
+        return {
+            'content': text_fallback[:800],  # 避免太长污染 UI
+            'rewrite_options': [],
+        }
 
 
 # --- Fabrication guard --------------------------------------------------------
@@ -520,6 +596,30 @@ def generate_chat_turn(
     )
 
 
+def _coerce_value_to_target_type(current_value: Any, new_value: Any) -> Any:
+    """如果目标位置当前是 str 而新值是 list (或反之), 做安全 coerce。
+
+    Production 触发: LLM 改写 candidate_summary 字段 (str 类型) 时 improved 永远返
+    list[str], _traverse_and_set 不做 coerce 直接灌 list → schema 后 validate 崩。
+    """
+    # 现位置是 str, 新值是 list → join 成 str
+    if isinstance(current_value, str) and isinstance(new_value, list):
+        cleaned = [str(v).strip() for v in new_value if v and str(v).strip()]
+        if not cleaned:
+            return ''
+        # 单元素直接用; 多元素用句号连接
+        if len(cleaned) == 1:
+            return cleaned[0]
+        joined = '。'.join(cleaned).strip()
+        if joined and not joined.endswith(('。', '.', '！', '?', '？', '!')):
+            joined += '。'
+        return joined
+    # 现位置是 list, 新值是 str → 包装成 single-element list
+    if isinstance(current_value, list) and isinstance(new_value, str):
+        return [new_value] if new_value.strip() else []
+    return new_value
+
+
 def _traverse_and_set(data: dict, path: str, value: Any) -> None:
     parts = path.split('.')
     current: Any = data
@@ -534,8 +634,13 @@ def _traverse_and_set(data: dict, path: str, value: Any) -> None:
     last = parts[-1]
     try:
         if isinstance(current, list):
-            current[int(last)] = value
+            idx = int(last)
+            value = _coerce_value_to_target_type(current[idx], value)
+            current[idx] = value
         else:
+            # dict 路径: 看 last key 是否存在 + 当前类型, 做 type-aware coerce
+            existing = current.get(last) if isinstance(current, dict) else None
+            value = _coerce_value_to_target_type(existing, value)
             current[last] = value
     except (IndexError, ValueError, KeyError) as exc:
         raise ValueError(f'field_path assignment failed at "{last}": {exc}') from exc
