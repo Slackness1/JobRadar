@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from dataclasses import asdict
 from urllib import request as urllib_request
 
@@ -65,8 +66,14 @@ def _build_report_system_prompt(track: str | None = None) -> str:
   - ✅ 好: "回答动机时,你说『腾讯产品做得好,有挑战』,这是 common sense 层级。
           可以改成『腾讯近 2 年在 AI 应用层做了显著重投入(混元 + 元宝),正好和我
           做过的多 agent 编排项目对得上,我想去参与 AI 产品从 0 到 1 的过程』"
-- **overall_comment** 至少要点名 1 个候选人具体优势（带原话引用） + 1 个具体短板
-- 不要编造候选人没说过的内容；任何 「」 内的引文必须能在 transcript 里逐字找到
+- **overall_comment 硬约束** —— **必须**包含至少 1 个 「」 引用候选人原话的片段(优势或短板都行),否则整份报告无效。
+  - ❌ 坏: "候选人整体表现稳健,在结构化表达和动机阐述方面有亮点,但行业认知深度有待加强"(无引文,流水账)
+  - ✅ 好: "候选人开场用「用户增长 30% 但留存 8%」直接锚定问题展示了产品思维,但谈数据治理时「就是把表跑通」暴露了 IT 视角,需要补强业务价值锚定"
+- **improvements 3 条独立合规** —— 每一条都必须独立满足 (1)+(2)+(3) 三件事,**不要前 2 条做规范、第 3 条偷懒**:
+  - ❌ 坏 (第 3 条退化): "继续加强金融产品知识,多看研报和券商数据库" (没位置,没引文,没替换话术)
+  - ❌ 坏 (第 3 条退化): "在反问环节可以更主动一些,问出更深度的问题" (没引文,'更深度' 是空话)
+  - ✅ 好 (第 3 条仍合规): "在反问环节,你说「想了解一下团队氛围」,这是泛 HR 问题。可以改成『我看到贵基金最近在 AI 多 agent 投研上有公开成果,你们 team 现在用 Agent 框架处理哪些研究任务,基本面 vs 量化的分工目前是什么样?』,把反问对到团队真实在做的事上"
+- 不要编造候选人没说过的内容；任何 「」 内的引文必须能在 transcript 里逐字找到(系统会在生成后扫描验证)
 - 反馈语气参考资深面试官风格，但**禁止**在任何输出字段中出现 "Jerry"、"老师"、"原话"、"参考资深面试官" 等字样。
   反馈应当读起来像评估官自己的判断 — 不要暴露任何 anchor 来源。
 - 输出**只能**是 JSON 对象，不要任何解释或前后缀
@@ -137,7 +144,58 @@ def generate_interview_report(
             raw = ''
         if raw:
             break
-    return parse_report_json(raw)
+
+    report = parse_report_json(raw)
+
+    # Fabrication guard: 校验 「」 引文是否真的在 transcript 里
+    transcript_text = '\n'.join(
+        (m.get('content') or '') for m in messages if m.get('role') == 'user'
+    )
+    fabricated = verify_quotes_against_transcript(report, transcript_text)
+    if fabricated:
+        logger.warning(
+            'interview report fabricated quotes (%d): %s',
+            len(fabricated), fabricated[:5],
+        )
+        report['_fabrication_warnings'] = fabricated
+    return report
+
+
+_QUOTE_PATTERN = re.compile(r'「([^」]+)」')
+
+
+def verify_quotes_against_transcript(report: dict, transcript_text: str) -> list[str]:
+    """扫描 report 所有 「」 引文,验证能在 transcript 内找到 (whitespace 容忍)。
+
+    返回 fabricated quotes list (空 = 全部干净)。
+    用于 prod-side fabrication guard — 抓 LLM 编造候选人原话的 C5 红线违反。
+    """
+    text_blob_parts = [report.get('overall_comment', '')]
+    text_blob_parts.extend(str(h) for h in report.get('highlights', []) if h)
+    text_blob_parts.extend(str(i) for i in report.get('improvements', []) if i)
+    for d in report.get('dimensions', []) or []:
+        if isinstance(d, dict):
+            text_blob_parts.append(str(d.get('comment', '')))
+    text_blob = '\n'.join(text_blob_parts)
+
+    quotes = _QUOTE_PATTERN.findall(text_blob)
+    if not quotes:
+        return []
+
+    # 移除所有空白字符做对比,容忍换行/空格差异
+    transcript_normalized = ''.join(transcript_text.split())
+
+    fabricated: list[str] = []
+    seen: set[str] = set()
+    for q in quotes:
+        q_stripped = q.strip()
+        if not q_stripped or q_stripped in seen:
+            continue
+        seen.add(q_stripped)
+        q_normalized = ''.join(q_stripped.split())
+        if q_normalized and q_normalized not in transcript_normalized:
+            fabricated.append(q_stripped)
+    return fabricated
 
 
 def parse_report_json(raw: str) -> dict:
