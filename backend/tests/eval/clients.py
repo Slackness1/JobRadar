@@ -132,11 +132,13 @@ def build_simulator_client() -> LLMClient:
 def build_judge_client() -> LLMClient:
     """Judge client。
 
-    Provider switchable via EVAL_JUDGE_PROVIDER env: mimo (default) | qwen | deepseek
+    Provider switchable via EVAL_JUDGE_PROVIDER env:
+      mimo (default) | qwen | glm | deepseek
 
     - mimo: 默认,跨厂商独立 judge,但限流偏紧 (after-fix baseline 35% 429 rate)
-    - qwen: dashscope qwen-max,独立 + 限流宽,推荐 SAIF 试点用
-    - deepseek: 与 SUT 同厂商,会有 self-judge bias (~10-20% 偏高);仅应急用
+    - qwen: dashscope qwen-max,独立 + 限流宽,推荐 SAIF 试点
+    - glm: 智谱 glm-4.6,独立 + 推理强,跟 qwen 互为备份
+    - deepseek: 与 SUT 同厂商,有 self-judge bias (~10-20% 偏高);仅应急用
     """
     provider = os.environ.get("EVAL_JUDGE_PROVIDER", "mimo").lower()
     if provider == "qwen":
@@ -147,6 +149,17 @@ def build_judge_client() -> LLMClient:
             ),
             api_key=os.environ.get("DASHSCOPE_API_KEY", ""),
             model=os.environ.get("EVAL_JUDGE_MODEL", "qwen-max-latest"),
+            timeout_seconds=180,
+            label="JUDGE",
+        )
+    if provider == "glm":
+        return LLMClient(
+            base_url=os.environ.get(
+                "ZHIPU_BASE_URL",
+                "https://open.bigmodel.cn/api/paas/v4",
+            ),
+            api_key=os.environ.get("ZHIPU_API_KEY", ""),
+            model=os.environ.get("EVAL_JUDGE_MODEL", "glm-4.6"),
             timeout_seconds=180,
             label="JUDGE",
         )
