@@ -73,6 +73,12 @@ _INTEREST_SYSTEM = """\
                         如果是 1b 桥接,写'迁移性验证:<具体桥接方向>'",
    "reasoning": "30-100 字解释,引用候选人话里具体词或 JD 关键词。
                  advance 时必须说明为什么 1b 桥接也不成立"}
+
+**JSON 转义硬约束**:字段值里如果要引用候选人原话或岗位术语,**一律用中文方括号
+「」包裹,不要用英文双引号 \"\"**。例:
+  ✅ 好: "target_dimension": "迁移性验证:候选人「期权做市 SVI 模型」能否迁到「宏观 FICC」场景"
+  ❌ 坏: "target_dimension": "迁移性验证:候选人"期权做市"能否迁到"宏观 FICC""
+       (字段内嵌的 "" 会破坏 JSON 解析 → 整个决策被废回 advance)
 """
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*\n(.*?)\n```\s*$", re.DOTALL | re.IGNORECASE)

@@ -66,6 +66,11 @@ SUT 推的 matched_track_label 若不在这 8 个里,通常说明 SUT 还在用 
   - SUT 推 strong_match + 说"强匹配" → 3 分
   - SUT 推 strong_match + 谦虚说"可迁移" → 2 分(低估)
 
+**JSON 转义硬约束**:reasoning 等字段内任何引文用中文方括号 「」 包,
+**不要**在字段值里嵌套英文双引号 "" — 会破坏 JSON 解析。
+例: ✅ "reasoning": "follow-up 击中候选人「DCF 概率权重」钩子"
+    ❌ "reasoning": "follow-up 击中候选人"DCF 概率权重"钩子"
+
 只输出严格 JSON,无前后散文,无 markdown fence:
   {"score": 0-3, "reasoning": "30-100 字 中文,**必须**提及 tier 和你的判断逻辑", "concerns": ["可空"]}
 """
@@ -289,6 +294,11 @@ improvements + overall_comment) 是否 specific。
 **反 fabrication 检查 (任何一条违规 = 总分至多 1 分):**
   - 「」 引文必须能在 transcript 里**逐字找到**。如果引文是评估官杜撰的,降到 0-1 分。
   - 若 improvements 引文不存在,降 1 级。
+
+**JSON 转义硬约束**:reasoning 等字段内任何引文用中文方括号 「」 包,
+**不要**在字段值里嵌套英文双引号 "" — 会破坏 JSON 解析。
+例: ✅ "reasoning": "follow-up 击中候选人「DCF 概率权重」钩子"
+    ❌ "reasoning": "follow-up 击中候选人"DCF 概率权重"钩子"
 
 只输出严格 JSON,无前后散文,无 markdown fence:
   {"score": 0-3,
