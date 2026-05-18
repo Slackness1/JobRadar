@@ -75,44 +75,56 @@ MULTI_TURN_FIXTURES = [
 ]
 
 
-# Phase 1 (real-JD) — 5 顶级公募真实在招岗位 × 最匹配学生,canonical=二级买方·基本面
-# JD 来源:backend/data/jobradar.db Job 表,id 见 fixture source 字段
+# Phase D (2026-05-19) — 5 学生 × 5 真实公募投研岗 全配对 = 25 组合
+# 跨学生背景 × 跨子方向矩阵,检验学生×岗位交互模式 (顶级学生×弱岗 / 弱学生×顶级岗)
+# 都是 canonical=二级买方·基本面 chip,只是子方向不同 (股票行业 / 宏观 / 产品 / 固收等)
+
+_REAL_JDS = [
+    {
+        "jd_id": "jds_real/06_jiashi_industry_analyst",
+        "target_job": "嘉实基金 股票行业分析师 (2027校招)",
+        "chip_summary": "公募基金股票行业研究方向(嘉实头部)",
+    },
+    {
+        "jd_id": "jds_real/07_invesco_industry_research",
+        "target_job": "景顺长城 行业研究员",
+        "chip_summary": "公募基金行业研究方向(景顺长城深圳)",
+    },
+    {
+        "jd_id": "jds_real/08_chinaamc_macro_research",
+        "target_job": "华夏基金 宏观研究员实习",
+        "chip_summary": "公募宏观研究 + AI 赋能 FICC 投研",
+    },
+    {
+        "jd_id": "jds_real/09_fullgoal_product_research",
+        "target_job": "富国基金 产品研究员-产品经理(公募) 暑期",
+        "chip_summary": "公募基金产品研究/产品经理方向",
+    },
+    {
+        "jd_id": "jds_real/10_jiashi_credit_research",
+        "target_job": "嘉实基金 信用研究员 (2027校招)",
+        "chip_summary": "公募基金信用研究 / 固收方向",
+    },
+]
+
+_REAL_STUDENT_IDS = [
+    "students/01_finance_undergrad",
+    "students/02_business_noname",
+    "students/03_cs_to_finance",
+    "students/04_quant_master",
+    "students/05_ib_intern_strong",
+]
+
 MULTI_TURN_REAL_FIXTURES = [
     {
-        "student_id": "students/05_ib_intern_strong",
+        "student_id": sid,
         "chip": "公募基金",
-        "chip_summary": "公募基金股票行业研究方向(嘉实头部)",
-        "target_job": "嘉实基金 股票行业分析师 (2027校招)",
-        "jd_id": "jds_real/06_jiashi_industry_analyst",
-    },
-    {
-        "student_id": "students/01_finance_undergrad",
-        "chip": "公募基金",
-        "chip_summary": "公募基金行业研究方向(景顺长城深圳)",
-        "target_job": "景顺长城 行业研究员",
-        "jd_id": "jds_real/07_invesco_industry_research",
-    },
-    {
-        "student_id": "students/04_quant_master",
-        "chip": "公募基金",
-        "chip_summary": "公募宏观研究 + AI 赋能 FICC 投研",
-        "target_job": "华夏基金 宏观研究员实习",
-        "jd_id": "jds_real/08_chinaamc_macro_research",
-    },
-    {
-        "student_id": "students/02_business_noname",
-        "chip": "公募基金",
-        "chip_summary": "公募基金产品研究/产品经理方向",
-        "target_job": "富国基金 产品研究员-产品经理(公募) 暑期",
-        "jd_id": "jds_real/09_fullgoal_product_research",
-    },
-    {
-        "student_id": "students/03_cs_to_finance",
-        "chip": "公募基金",
-        "chip_summary": "公募基金信用研究 / 固收方向",
-        "target_job": "嘉实基金 信用研究员 (2027校招)",
-        "jd_id": "jds_real/10_jiashi_credit_research",
-    },
+        "chip_summary": jd["chip_summary"],
+        "target_job": jd["target_job"],
+        "jd_id": jd["jd_id"],
+    }
+    for sid in _REAL_STUDENT_IDS
+    for jd in _REAL_JDS
 ]
 
 
