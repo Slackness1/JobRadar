@@ -94,10 +94,23 @@ def should_continue_followup(
     `followup_chain` 是已问 + 已答的 follow-up 历史 [(q, a), ...]。最后一个
     是刚刚答完的那一轮。
     """
+    # A2 fix (Sonnet meta-review §4): "为什么选这家公司" 骨架题需要逼问
+    # 差异化认知,否则 5 个 combo 都没问"为什么是这家而不是同业" (投研标准考察项)。
+    augmented_chip_summary = chip_summary
+    if main_question and ("为什么选这家公司" in main_question or "为什么选我们" in main_question):
+        augmented_chip_summary = (
+            f"{chip_summary}\n"
+            "[考察重点 — 选公司动机题]: 候选人是否说出本公司(vs 同类公司) 的"
+            "**具体**差异化认知 — 不能停留在 '文化好/规模大/品牌强' 这种泛同业话术,"
+            "要点出本公司**独有**的业务/团队/产品/方法论/IP/业绩特征。"
+            "若回答停留在同业通用层面 → should_continue=true, "
+            "target_dimension='差异化认知验证: 追问候选人对本公司不同于同业 X/Y/Z 的具体认知'"
+        )
+
     user_payload = json.dumps(
         {
             "target_job": target_job,
-            "chip_summary": chip_summary,
+            "chip_summary": augmented_chip_summary,
             "jd_content": (jd_content or "")[:1500],   # 截断防 token 爆
             "main_question": main_question,
             "main_answer": main_answer[:2000],

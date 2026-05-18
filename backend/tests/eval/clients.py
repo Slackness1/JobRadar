@@ -3,11 +3,12 @@
 3 角色用 3 个 client (跨厂商防 self-judge bias):
   SUT       deepseek-v4-pro   重任务,production 用什么测什么
   Simulator deepseek-v4-flash 轻量多轮 role-play
-  Judge     mimo-v2.5-pro     独立厂商,推理强
+  Judge     可选 mimo / qwen / deepseek (默认 mimo),通过 EVAL_JUDGE_PROVIDER 切换
 
 所有 client 走 OpenAI-compatible chat completions。Retry:
   - 5xx / connection error → 重试 3 次,2s/4s/8s backoff
-  - 4xx → 不重试 (key/model/payload 问题,重试也没用)
+  - 429 (rate limit) → 重试 5 次,5s/10s/20s/40s/60s backoff (限流是临时态)
+  - 其他 4xx → 不重试 (key/model/payload 问题,重试也没用)
 """
 from __future__ import annotations
 
@@ -60,8 +61,10 @@ class LLMClient:
         if response_format is not None:
             payload["response_format"] = response_format
 
+        # 429 享 5 次重试 (限流临时态),其他 5xx 享 3 次 (网络问题)
+        rate_limit_max_retries = 5
         last_exc: Optional[Exception] = None
-        for attempt in range(max_retries + 1):
+        for attempt in range(max(max_retries, rate_limit_max_retries) + 1):
             try:
                 req = request.Request(
                     self.chat_completions_url,
@@ -76,7 +79,19 @@ class LLMClient:
                     body = json.loads(resp.read().decode("utf-8"))
                 return body["choices"][0]["message"]["content"]
             except error.HTTPError as exc:
-                # 4xx 不重试 — 重试也只会再 4xx
+                # 429 是限流(临时态)— 拉长 backoff 多重试
+                if exc.code == 429:
+                    if attempt >= rate_limit_max_retries:
+                        raise
+                    last_exc = exc
+                    backoff = min(5 * (2 ** attempt), 60)  # 5/10/20/40/60
+                    logger.warning(
+                        "[%s] HTTP 429 rate-limited on attempt %d, sleeping %ds",
+                        self.label, attempt + 1, backoff,
+                    )
+                    time.sleep(backoff)
+                    continue
+                # 其他 4xx 不重试 — key/model/payload 问题
                 if exc.code < 500 or attempt >= max_retries:
                     raise
                 last_exc = exc
@@ -115,6 +130,34 @@ def build_simulator_client() -> LLMClient:
 
 
 def build_judge_client() -> LLMClient:
+    """Judge client。
+
+    Provider switchable via EVAL_JUDGE_PROVIDER env: mimo (default) | qwen | deepseek
+
+    - mimo: 默认,跨厂商独立 judge,但限流偏紧 (after-fix baseline 35% 429 rate)
+    - qwen: dashscope qwen-max,独立 + 限流宽,推荐 SAIF 试点用
+    - deepseek: 与 SUT 同厂商,会有 self-judge bias (~10-20% 偏高);仅应急用
+    """
+    provider = os.environ.get("EVAL_JUDGE_PROVIDER", "mimo").lower()
+    if provider == "qwen":
+        return LLMClient(
+            base_url=os.environ.get(
+                "DASHSCOPE_BASE_URL",
+                "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            ),
+            api_key=os.environ.get("DASHSCOPE_API_KEY", ""),
+            model=os.environ.get("EVAL_JUDGE_MODEL", "qwen-max-latest"),
+            timeout_seconds=180,
+            label="JUDGE",
+        )
+    if provider == "deepseek":
+        return LLMClient(
+            base_url=os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
+            api_key=os.environ.get("DEEPSEEK_API_KEY", ""),
+            model=os.environ.get("EVAL_JUDGE_MODEL", "deepseek-v4-pro"),
+            timeout_seconds=180,
+            label="JUDGE",
+        )
     return LLMClient(
         base_url=os.environ.get("MIMO_BASE_URL", "https://token-plan-sgp.xiaomimimo.com/v1"),
         api_key=os.environ.get("MIMO_API_KEY", ""),
