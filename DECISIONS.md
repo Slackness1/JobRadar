@@ -113,7 +113,21 @@
 **为什么**:(a) 武断 — 高毅(基本面)和幻方(量化)都进 hedge_funds source,选首个会错一半;(b) 破坏 enum 约束,downstream group-by 全乱;(c) LLM 兜底成本高。NULL + job_title fallback 是"诚实":能从 title 推就推,推不出就留给下游 LLM rerank 或 review_queue 人工处理。29.9% backfill 覆盖率 (29592/99113) 在没花 LLM 钱情况下已经把 internet/bank/insurance/funds/state_owned 大头吃满,1:N source 走 title 也能补一部分 (e.g. 394 量化 / 264 卖方,基本来自 title 推断)。
 **位置**:`backend/app/services/taxonomy/source_map.py`;tests/test_phase_b_job_canonical.py `test_source_map_skips_ambiguous`。
 
-## D-16 · 2026-05-17 · SAIF 投研召回:track 升级为伞 + 硬 prefilter + 错位负分
+## D-16 · 2026-05-17 · `securities_*` 在 source_map 加 source-aware title 二级路由
+
+**决策**:`source_map.canonicalize_job()` 加 `_SOURCE_AWARE_TITLE_OVERRIDES` — 凡 source 以 `securities_` 开头,title 含 `研究员/行业研究/金融工程/策略分析/宏观研究/固收研究/权益研究/...` → 强制路由到 `卖方研究·S&T`(不走通用 alias 的"二级买方·基本面" buy-side 路径)。`投行业务/并购重组/资本市场/ECM/DCM` → `一级市场`。`开发工程师/算法工程师/AI工程师` → `金融科技`。
+**备选**:(a) 改 `canonical.TRACK_ALIASES` 把 `研究员` 全局映到 `卖方研究·S&T`(会污染所有非券商 source);(b) 不动,接受 sell-side 错位。
+**为什么**:D-15 决策 1:N source 留 NULL 在 securities 上有 systemic mis-routing — `研究员/行业研究` 等关键词在 `canonical.TRACK_ALIASES` 通用映到 `二级买方·基本面`(买方),但在券商上下文里全是 sell-side。源头改全局 alias 会扩散到非券商 source 的同名 title;只在 `source_map` 加 source-aware override 是最小爆炸半径的修法,不破坏 D-15 主决策。实测 VPS 125k 行 net 影响:卖方研究·S&T +64 (255→319) / 二级买方·基本面 -27 / 金融科技 +26,纯 routing 正确性修复。
+**位置**:`backend/app/services/taxonomy/source_map.py:_SOURCE_AWARE_TITLE_OVERRIDES`,commit `f577ff6`。
+
+## D-17 · 2026-05-18 · MiMo v2.5-pro thinking=disabled + 全局 QPS rate limiter
+
+**决策**:`scripts/mimo_backfill_canonical.py` 给 74,750 NULL canonical 行做 LLM 兜底分类,走 token_plan_sgp endpoint 的 mimo-v2.5-pro。关键设计:(1) `thinking={"type":"disabled"}` 关 reasoning;(2) 全局 token-bucket rate limiter `max_qps=2.5`;(3) `requests.Session` + `HTTPAdapter(pool_size=32)`;(4) `WHERE canonical_track IS NULL` idempotent + resumable;(5) 4 workers 最佳。
+**备选**:(a) reasoning 开启;(b) 不限 qps + 高并发;(c) 用 OpenAI SDK / DeepSeek。
+**为什么**:(a) 实测 10 case reasoning 10/10 准 vs disabled 9/10 准,差 1 例是渠道销售误归基金 — D-12 红线词层会兜底,**reasoning 不值** 2.6x 速度、78x output token 成本;(b) MiMo 实测 rate cap ~2.5-3 req/s,>3 worker 几乎全 "Too many requests" 错;(c) DeepSeek 已用于 crawler_llm_enrich,**跨厂商防 self-judge bias** 更重要,且 MiMo token plan quota 比 DeepSeek 充裕。**实测 74k 行 12.7h 完成,4/74,750 永久错 (0.005%),14,721 rate-limit retries 全自动消化,57% prompt cache hit,8M prompt tokens net 实际计费**。canonical 覆盖 40.4% → **46.2%**;SAIF P0 三个 track 全部 1.7-5.2x 突破:卖方研究·S&T 255→1,328 (5.2x), 量化 448→912 (2.0x), 一级市场 1,411→2,394 (1.7x)。
+**位置**:`backend/scripts/mimo_backfill_canonical.py`,commit `b57d345`。运行命令:`MIMO_API_KEY=tp-xxx PYTHONPATH=. .venv/bin/python scripts/mimo_backfill_canonical.py --workers 4 --qps 2.5`(可加 `--limit N` 做 dry-run,`--workers 8` 会触发 rate limit)。
+
+## D-18 · 2026-05-17 · SAIF 投研召回:track 升级为伞 + 硬 prefilter + 错位负分
 
 **决策**:用户截图反馈"选投研+上海推 AI 工程师"后,重新设计推荐召回:
 1. **伞展开** — taxonomy 加 `_UMBRELLA_EXPANSION`('投研' → §1+§3+§4+§2 四个 canonical) + `expand_track_to_canonicals(label)` + `aliases_for_canonical` + `recall_keywords_for_canonical`(召回宽 keyword,故意比严格 alias 宽);加 `TRANSFERABLE_FOR_UMBRELLA`('投研' → 金融咨询 + 银行·总行核心,跳板可迁移)。
@@ -126,7 +140,7 @@
 **为什么**:(a) LLM rerank 兜底成本高且不稳,rule layer 不修等于「先把脏菜端上桌再让人挑」;(b) 硬 filter 会让"上海投研岗少" cohort 看到 0 推荐,UX 崩;(c) penalty 25 跟 PROJECT_STATE 第 5 条 known blocker(SUT tier 保守)叠加会让 top-N final_score 整体压低,影响 LLM rerank 信号——15 是平衡值。
 **位置**:`backend/app/services/taxonomy/{canonical,quality,source_map,__init__}.py`;`backend/app/services/resume_copilot/recommendation.py`(~180 行改动);`backend/scripts/offline_test_saif_touyan.py`;`backend/tests/test_recommendation_track_filter.py`(24 测试)。
 
-## D-17 · 2026-05-18 · 6-metric 试点级硬化:tier_label 强约束 + priority_letter A/B/C/D + chat.py 接 audit_draft
+## D-19 · 2026-05-18 · 6-metric 试点级硬化:tier_label 强约束 + priority_letter A/B/C/D + chat.py 接 audit_draft
 
 **决策**:针对试点要求,把推荐+简历改写共 6 个 metric 全部 push 到试点水平 (Track Relevance ≥8/10 已 ship,其余 5 个原 5/10 以下到 7+/10):
 

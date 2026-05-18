@@ -25,7 +25,7 @@
 
 ## In flight
 
-(空) — 6-metric 试点级硬化 sprint 收官 (D-17):推荐侧 tier_label 三档强约束 + priority_letter A/B/C/D;简历侧 chat.py 接 audit_draft 5 维 (复用 plan-mode 算法);Evidence 100% / Overclaim 0% / Actionability 100%;30 新 unit tests。等用户指派下一段。
+(空) — 6-metric 试点级硬化 sprint 收官 (D-19):推荐侧 tier_label 三档强约束 + priority_letter A/B/C/D;简历侧 chat.py 接 audit_draft 5 维 (复用 plan-mode 算法);Evidence 100% / Overclaim 0% / Actionability 100%;30 新 unit tests。**MiMo backfill 收官 (D-17)**:canonical 覆盖 29.9% → 46.2%。等用户指派下一段。
 
 ## Recent shipped (last 2 weeks)
 
@@ -36,16 +36,17 @@
 | 优先级 | 问题 | 位置 |
 |---|---|---|
 | 🟡 | `_build_session_out` N+1(每次 1.6s 轮询跑 5 次 `.first()`) | `backend/app/routers/resume_copilot.py:57-61` |
-| ✅ | ~~`recommend_jobs_for_profile` 全表 `query(Job).all()` 无 prefilter~~ — 已修(D-16: track-aware prefilter + 双层 NULL fallback + 可迁移 OR + 分级 fallback) | `recommendation.py:530-619` |
+| ✅ | ~~`recommend_jobs_for_profile` 全表 `query(Job).all()` 无 prefilter~~ — 已修(D-18: track-aware prefilter + 双层 NULL fallback + 可迁移 OR + 分级 fallback) | `recommendation.py:530-619` |
 | 🟡 | 推荐 enrichment snapshot 无 14 天 TTL | `recommendation.py:393-395` |
-| 🟡 | **Job.canonical_track 覆盖率 29.9%** — 余 70227 行主要是 tatawangshen/legacy catchall(无信号 source)。需 LLM enrich 才能提到 60%+ | `backend/app/services/crawler_llm_enrich.py` (默认 OFF) |
-| ✅ | ~~SUT 推荐 tier_label 太保守~~ — 已修(D-17: 三档白名单强约束 + rule 兜底);follow-up 跨经历跳跃问题独立留 backlog | rerank prompt 严约束 |
-| 🟢 | chat.py rewrite 未按 user canonical track 调改写口径 — 仍为 Phase E stretch backlog;但 audit_draft 已接 (D-17) | `chat.py` |
+| ✅ | ~~Job.canonical_track 覆盖率 29.9%~~ → **2026-05-18 已解决**:MiMo v2.5 backfill 74,750 rows = **46.2% coverage** (D-17)。余 53.8% NULL 是 MiMo 判"无金融相关性"的真噪声,不再 actionable。 | `backend/scripts/mimo_backfill_canonical.py` |
+| ✅ | ~~SUT 推荐 tier_label 太保守~~ — 已修(D-19: 三档白名单强约束 + rule 兜底);follow-up 跨经历跳跃问题独立留 backlog | rerank prompt 严约束 |
+| 🟢 | chat.py rewrite 未按 user canonical track 调改写口径 — 仍为 Phase E stretch backlog;但 audit_draft 已接 (D-19) | `chat.py` |
 | 🟢 | Tencent 知识包用的是 transcript 范例数据,未接 `tencent-recruit-pack/scripts/fetch_recruit_jds.py` 抓真实 JD | `backend/app/services/knowledge_pack/` |
 | 🟢 | `HANDOFF_NEXT_SESSION.md` (root) / `backend/data/jobradar.db.bak.20260428` / `docs/decisions.md` (lowercase) 三个 stale — 待 user 确认删/保留 | root + backend/data + docs |
 
-## Production runtime
+## Runtimes (dev + prod 自 2026-05-17 拆分)
 
-- VPS `myvps` (122.51.18.237) 跑 systemd unit `jobradar.service`,main 分支。
-- Daily crawl 08:00 / tier crawl 09:00 / digest 09:35(Asia/Shanghai)。
-- 详见 `CLAUDE.md` "Production runtime" 段 + `docs/deployment-and-data.md`。
+- **Dev VPS** `lavm-wlcndo6anm` (公网 `1.161.52.206`,4 CPU / 15Gi / 99G):开发 / migration / LLM backfill / smoke。**不**跑 systemd。
+- **Prod VPS** `myvps` (公网 `122.51.18.237`):systemd `jobradar.service`,main 分支,域名 jobcopilot.top。Daily crawl 08:00 / tier crawl 09:00 / digest 09:35(Asia/Shanghai)。
+- dev → prod 同步走 `jobradar-vps-deploy` skill;dev DB 改动不会自动到 prod。
+- 详见 `CLAUDE.md` "Runtimes" 段 + `docs/deployment-and-data.md`。

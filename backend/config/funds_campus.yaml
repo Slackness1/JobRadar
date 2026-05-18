@@ -65,39 +65,45 @@ sites:
 
   - name: 国泰基金
     entry_url: https://gtfund.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 SPA, /api/Jobad/GetJobAdPageList 通用 endpoint 仍可用 (~13 条)。
 
   - name: 长盛基金
     entry_url: https://csfunds.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye_spa
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 stc-cms.beisen.com 新 CMS SPA，链接 /campusxq?jobId=…；当前显示"无任何在招职位"（季节性）。Playwright 渲染。
 
   - name: 中欧基金
     entry_url: https://zofund.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye_spa
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 stc-cms.beisen.com 新 CMS SPA，链接 /campusxq?jobId=…；实测 ~10 条 27 届校招。Playwright 渲染。
 
   - name: 万家基金
     entry_url: https://wjasset.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 SPA, /api/Jobad/GetJobAdPageList 通用 endpoint 仍可用 (~20 条/page)。
 
   - name: 华安基金
     entry_url: https://huaan.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye_spa
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 stc-cms.beisen.com 新 CMS SPA，链接 /campusxq?jobId=…；实测 ~8 条 2027 暑期实习。Playwright 渲染。
 
   - name: 招商基金
     entry_url: https://cmfchina.zhiye.com/campus
-    ats_family: zhiye_beisen_cms
+    ats_family: zhiye
     category: 头部公募
     max_pages: 10
+    note: 2026-05-16 上游切 SPA, /api/Jobad/GetJobAdPageList 通用 endpoint 仍可用 (~20 条/page)。
 
   # ---- BACKLOG (ats_family=other → 跳过)。每条都有真实 portal，只是当前公开
   # 数据为 0 或需要新写 SPA parser，不值得在 90 min 内硬刚。 ----

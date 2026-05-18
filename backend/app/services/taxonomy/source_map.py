@@ -13,6 +13,13 @@ canonical_tracks 映射,把 source 反推到 canonical,实现 backfill + 新增�
   source-level 准。
 - **load-on-import**。模块 import 时从 coverage_truth.yaml 算一次 dict,不
   做 lazy / cache,因 yaml 改动总要重启进程。
+- **source-aware title 二级路由 (D-16, 2026-05-17)**: 1:N source 上同一 alias 在
+  不同上下文 canonical 不同(典型:`研究员` 在 securities 是 sell-side =
+  卖方研究·S&T,但 canonical.TRACK_ALIASES 把它通用映射到 二级买方·基本面)。
+  `_SOURCE_AWARE_TITLE_OVERRIDES` 给特定 source prefix 写二级规则,优先级
+  最高 — 不动 D-15 "1:N source 留 NULL" 的设计,只在 title 信号清晰时切回。
+- **is_ambiguous_source (2026-05-18)**: D-18 召回 mismatch penalty 需要识别
+  1:N source 的 NULL,跳过错位罚分,改成"信号不足" risk note。
 """
 from __future__ import annotations
 
@@ -79,20 +86,77 @@ def is_ambiguous_source(source: str) -> bool:
     return source.strip() in AMBIGUOUS_SOURCES
 
 
-def canonicalize_job(source: str, job_title: str) -> Optional[str]:
-    """优先用 job_title 推断 canonical;不行的话退到 source 映射;再不行返 None。
+# Source-aware title 二级路由:对 1:N source(securities / hedge_funds)上
+# 在 source 上下文里语义有偏的 title,直接路由到正确 canonical。
+#
+# 规则:外层 key 是 source prefix(用 startswith 匹配);内层是 title 子串
+# → canonical 字典,**外层第一个匹配的 prefix + title 子串胜出**。
+#
+# 关键场景:
+# - 券商的 "研究员 / 行业研究 / 金融工程 / 策略分析" 是 sell-side(卖方研究·S&T),
+#   而 canonical.TRACK_ALIASES 把它通用映到 二级买方·基本面(买方研究)。
+# - 券商的 "投行业务 / 资本市场" 偶尔在 alias 漏掉的子部门,这里兜一下。
+_SOURCE_AWARE_TITLE_OVERRIDES: list[tuple[str, dict[str, str]]] = [
+    (
+        "securities_",
+        {
+            "研究员":      "卖方研究·S&T",
+            "行业研究":    "卖方研究·S&T",
+            "金融工程":    "卖方研究·S&T",
+            "策略分析":    "卖方研究·S&T",
+            "宏观研究":    "卖方研究·S&T",
+            "固收研究":    "卖方研究·S&T",
+            "权益研究":    "卖方研究·S&T",
+            "债券分析":    "卖方研究·S&T",
+            "股票分析":    "卖方研究·S&T",
+            "策略研究":    "卖方研究·S&T",
+            "信用研究":    "卖方研究·S&T",
+            # IBD/一级 — 即便 alias 已覆盖 'ibd'/'投行',这里再兜一层
+            "投行业务":    "一级市场",
+            "并购重组":    "一级市场",
+            "资本市场":    "一级市场",
+            "ECM":         "一级市场",
+            "DCM":         "一级市场",
+            # 金融科技:券商科技子公司岗,通用 alias 漏抓
+            "开发工程师":  "金融科技",
+            "算法工程师":  "金融科技",
+            "AI工程师":    "金融科技",
+            "数据工程师":  "金融科技",
+            "测试工程师":  "金融科技",
+        },
+    ),
+]
 
-    顺序合理性:job_title 是岗位级信号("量化研究员"明确是 量化 track);
-    source 是平台级信号(只在 1:1 mapping 时可信)。两边都没命中就 None,
-    交给下游 LLM rerank 或人工 review_queue。
+
+def canonicalize_job(source: str, job_title: str) -> Optional[str]:
+    """优先用 source-aware title 二级路由;再退 job_title alias;再退 source 映射;
+    再不行返 None。
+
+    顺序合理性:source-aware override 解决 1:N source 上 title 语义偏移;
+    job_title 是岗位级信号;source 是平台级信号(只在 1:1 mapping 时可信)。
+    都没命中就 None,交给下游 LLM rerank 或人工 review_queue。
     """
-    if job_title:
-        canon = canonicalize_track(job_title)
+    src = (source or "").strip()
+    title = job_title or ""
+
+    # 1. source-aware title 二级路由 (highest priority for 1:N sources)
+    if src and title:
+        for prefix, overrides in _SOURCE_AWARE_TITLE_OVERRIDES:
+            if src.startswith(prefix):
+                for needle, canon in overrides.items():
+                    if needle in title:
+                        return canon
+                break  # 同 prefix 只匹配一组,不跨 prefix
+
+    # 2. 通用 title alias
+    if title:
+        canon = canonicalize_track(title)
         # canonicalize_track 没命中时返原字符串,得校验
-        if canon and canon != job_title:
+        if canon and canon != title:
             return canon
 
-    if source:
-        return SOURCE_TO_CANONICAL.get(source.strip())
+    # 3. source 兜底 (只在 1:1 mapping 时可信)
+    if src:
+        return SOURCE_TO_CANONICAL.get(src)
 
     return None

@@ -142,7 +142,7 @@ class OpenAICompatibleResumeRecommendationProvider:
             '    (实习公司+组别 / 项目名 / 技能 / 课程 / GPA / 证书),不允许只说"金融背景扎实"这种空话\n'
             '  - risks: list[str] — 短板/不匹配点,最多 2 条;复用 input item 已有 risks 中的角标\n'
             '    (如"赛道为可迁移跳板") 但 strengths/why 中不要重复\n\n'
-            '已知 8 大金融赛道 (canonical 口径):\n'
+            '已知 8 大金融赛道 (canonical 口径,详见 docs/finance-tracks-2026-overview.md):\n'
             + '\n'.join(f'  - {t}' for t in CANONICAL_FINANCE_TRACKS) +
             '\n\n在 why_recommended / strengths / risks 里描述赛道时,请引用上述 canonical 名称,'
             '不要自创"投资银行业务" / "卖方分析" / "公募/研究" 这类变体。\n\n'

@@ -14,6 +14,7 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowUpRight,
+  Brain,
   Check,
   ChevronDown,
   Download,
@@ -73,6 +74,7 @@ import {
 } from './types';
 import { DemoBanner } from '@/components/hifi/demo-banner';
 import { HFLogo, HFRadarPulse } from '@/components/hifi/hifi-primitives';
+import { StudentKbDrawer } from './student-kb-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -179,7 +181,20 @@ const RESUME_LAYOUT_CONTROL_META: Record<
   },
 };
 
-const TRACK_OPTIONS = ['金融科技', '咨询', '数据分析', '产品运营', '后端开发', '投研'];
+// Phase C (2026-05-16): 8 canonical finance tracks 跟 backend
+// app.services.taxonomy.CANONICAL_FINANCE_TRACKS 对齐。SAIF audience 主要金融。
+// 用户老 preference 里可能存了 '咨询' / '数据分析' 等非 canonical 值,picker 用
+// union 渲染保留可点性 — 看 OptionPills 调用处。
+const TRACK_OPTIONS = [
+  '二级买方·基本面',
+  '量化',
+  '一级市场',
+  '卖方研究·S&T',
+  '银行·总行核心',
+  '监管·体制内',
+  '金融科技',
+  '金融咨询',
+];
 const LOCATION_OPTIONS = ['上海', '北京', '深圳', '杭州', '广州', '远程'];
 const ROLE_OPTIONS = ['数据分析师', '后端工程师', '产品经理', '咨询顾问', '投研实习生'];
 const COMPANY_OPTIONS = ['互联网', '金融机构', '咨询公司', '外企', '初创公司', '国央企'];
@@ -958,6 +973,7 @@ export function PublicResumeCopilot() {
   const [isSendingChat, setIsSendingChat] = useState(false);
   const [applyingOption, setApplyingOption] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [kbDrawerOpen, setKbDrawerOpen] = useState(false);
   const [resumeHistory, setResumeHistory] = useState<ResumeHistoryItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -1414,6 +1430,7 @@ export function PublicResumeCopilot() {
   return (
     <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
       {sessionId === DEMO_SESSION_ID && <DemoBanner />}
+      <StudentKbDrawer open={kbDrawerOpen} onClose={() => setKbDrawerOpen(false)} />
       {sessionId && pollErrorStreak >= POLL_ERROR_LIMIT && !pollGaveUp ? (
         <div style={{ padding: '8px 12px', background: 'var(--soft-blue, #eef4ff)', border: '1px solid var(--border, #d8dde3)', borderRadius: 8, fontSize: 13, color: 'var(--ink, #2c3036)' }}>
           连接不稳定（连续 {pollErrorStreak} 次失败）。
@@ -1477,6 +1494,7 @@ export function PublicResumeCopilot() {
           applyRewriteOption={applyRewriteOption}
           isSendingChat={isSendingChat}
           applyingOption={applyingOption}
+          onOpenKb={() => setKbDrawerOpen(true)}
         />
         <EditableResumeCanvas
           profile={currentProfile}
@@ -1679,6 +1697,7 @@ function ResumeChatRail({
   applyRewriteOption,
   isSendingChat,
   applyingOption,
+  onOpenKb,
 }: {
   session: ResumeCopilotSession | null;
   notice: string;
@@ -1709,6 +1728,7 @@ function ResumeChatRail({
   applyRewriteOption: (messageId: number, optionId: string) => Promise<void>;
   isSendingChat: boolean;
   applyingOption: string | null;
+  onOpenKb?: () => void;
 }) {
   const [draft, setDraft] = useState('');
   const [targetOpen, setTargetOpen] = useState(false);
@@ -1966,11 +1986,24 @@ function ResumeChatRail({
                 <div className="mt-0.5 text-xs leading-tight text-slate-500">AI 简历助手</div>
               </div>
             </div>
-            {sessionIsActive(session) ? (
-              <Loader2 className="size-4 animate-spin text-[var(--primary)]" />
-            ) : (
-              <Check className="size-4 text-emerald-500" />
-            )}
+            <div className="flex items-center gap-2">
+              {currentSessionId !== DEMO_SESSION_ID && onOpenKb && (
+                <button
+                  type="button"
+                  onClick={onOpenKb}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                  title="我的求职档案 — 跨会话的经历库"
+                >
+                  <Brain className="size-3.5 text-[var(--primary)]" />
+                  我的档案
+                </button>
+              )}
+              {sessionIsActive(session) ? (
+                <Loader2 className="size-4 animate-spin text-[var(--primary)]" />
+              ) : (
+                <Check className="size-4 text-emerald-500" />
+              )}
+            </div>
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
@@ -2167,6 +2200,22 @@ function ResumeChatRail({
                             {enrichmentStatusLabel(item.topic_cache_status, item.need_enrichment)}
                           </Badge>
                         </div>
+                        {item.risks && item.risks.length > 0 && (
+                          <div className="mt-1.5 flex flex-col gap-1">
+                            {item.risks.map((risk, idx) => {
+                              const isLowQuality = risk.includes('低质量');
+                              const cls = isLowQuality
+                                ? 'flex items-start gap-1 rounded border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] leading-4 text-rose-700'
+                                : 'flex items-start gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] leading-4 text-amber-800';
+                              return (
+                                <div key={`risk-${idx}`} className={cls}>
+                                  <span className="shrink-0">{isLowQuality ? '🚫' : '⚠️'}</span>
+                                  <span className="leading-tight">{risk}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {item.detail_url && (
                             <a
@@ -2229,7 +2278,7 @@ function ResumeChatRail({
                   <div className="text-xs leading-5 text-slate-400">岗位大类、目标岗位、地点和公司类型会影响后续推荐排序。</div>
                   <OptionPills
                     label="目标赛道"
-                    options={TRACK_OPTIONS}
+                    options={Array.from(new Set([...TRACK_OPTIONS, ...preferences.preferred_tracks]))}
                     values={preferences.preferred_tracks}
                     onChange={(values) => setPreferences((previous) => ({ ...previous, preferred_tracks: values, all_skipped: false }))}
                   />

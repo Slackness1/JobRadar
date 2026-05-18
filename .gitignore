@@ -55,3 +55,18 @@ Thumbs.db
 # Bundled PDF fonts (fetched by scripts/install_pdf_fonts.sh)
 backend/app/services/resume_copilot/fonts/*.ttf
 backend/app/services/resume_copilot/fonts/*.otf
+
+# Podcast knowledge-base raw + derived data (re-generatable via scripts/podcast_pass*.py)
+# Keep _processed/term_dict.json — it's the curated dictionary, small and hand-edited.
+backend/data/podcasts/transcripts/
+backend/data/podcasts/transcripts_raw/
+backend/data/podcasts/_meta/
+backend/data/podcasts/_logs/
+backend/data/podcasts/_processed/_debug/
+backend/data/podcasts/_processed/episode_summaries.jsonl
+backend/data/podcasts/_processed/insights.jsonl
+backend/data/podcasts/_processed/insights_dedup.jsonl
+
+# Private docs (SAIF 沟通细节 / 老师反馈 / 学生名单 等敏感文档)
+# Clone Slackness1/JobRadar-private into docs/_private/ to populate.
+docs/_private/

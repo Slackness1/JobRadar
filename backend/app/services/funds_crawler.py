@@ -137,6 +137,150 @@ def crawl_zhiye_beisen_cms_target(target: Dict[str, Any]) -> List[Dict[str, Any]
     return records
 
 
+# ---- Beisen new-CMS SPA (`/campusxq?jobId=...`) ----------------------------
+#
+# 2026-05-16 实测部分 zhiye 租户（zofund 中欧 / huaan 华安 / csfunds 长盛 等）
+# 切到 stc-cms.beisen.com 新一代 CMS：HTML 是 SPA 壳，岗位通过 JS 渲染到一个
+# <table><tbody><tr> 表格里，链接形如 `<a href="/campusxq?jobId=621076397">`。
+# 旧 `_BEISEN_ROW_RE` 抓 `/zpdetail/` 完全 miss，`/api/Jobad/GetJobAdPageList`
+# 也 302 redirect 到 /404（这批租户没在那个 endpoint 上提供 JSON）。
+#
+# 唯一稳定路径是 Playwright headless 渲染后从 DOM 提取。开销 ~8s/家。
+def crawl_zhiye_spa_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return []
+
+    entry_url = target["entry_url"]
+    base_match = re.match(r"^(https?://[^/]+)", entry_url)
+    if not base_match:
+        return []
+    base = base_match.group(1)
+    company = target["name"]
+    # 本机/VPS 都用 mihomo proxy；REQUEST_PROXIES dict for requests, but
+    # Playwright takes a single `server` string.
+    proxy_url: Optional[str] = None
+    if REQUEST_PROXIES:
+        proxy_url = REQUEST_PROXIES.get("https") or REQUEST_PROXIES.get("http")
+
+    real_ua = (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
+
+    rows_raw: List[Dict[str, str]] = []
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                proxy={"server": proxy_url} if proxy_url else None,
+                args=["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+            )
+            try:
+                ctx = browser.new_context(
+                    user_agent=real_ua,
+                    locale="zh-CN",
+                    viewport={"width": 1440, "height": 900},
+                )
+                page = ctx.new_page()
+                try:
+                    page.goto(entry_url, wait_until="domcontentloaded", timeout=30000)
+                    page.wait_for_timeout(7000)  # SPA hydrate window
+                    # Job rows live in <table tbody tr>; column count differs per
+                    # tenant (中欧 6 cols, 华安 5 cols). Extract the header row
+                    # labels alongside data rows so the caller can map by name.
+                    page_data = page.evaluate(
+                        """() => {
+                            const table = document.querySelector('table');
+                            if (!table) return {headers: [], rows: []};
+                            // Header = first row that contains <th>, or the first row overall.
+                            const allRows = Array.from(table.querySelectorAll('tr'));
+                            const headerRow = allRows.find(r => r.querySelector('th')) || allRows[0];
+                            const headers = headerRow
+                                ? Array.from(headerRow.querySelectorAll('th,td')).map(c => (c.innerText || '').trim())
+                                : [];
+                            const rows = allRows.map(tr => {
+                                const a = tr.querySelector('a[href*="/campusxq?jobId="]');
+                                if (!a) return null;
+                                const href = a.getAttribute('href') || '';
+                                const tds = Array.from(tr.querySelectorAll('td')).map(td => (td.innerText || '').trim());
+                                return {href, title: (a.innerText || '').trim(), cols: tds};
+                            }).filter(x => x !== null);
+                            return {headers, rows};
+                        }"""
+                    ) or {}
+                    rows_raw = page_data.get("rows") or []
+                    headers_raw = page_data.get("headers") or []
+                except Exception:
+                    rows_raw = []
+                    headers_raw = []
+                finally:
+                    ctx.close()
+            finally:
+                browser.close()
+    except Exception:
+        return []
+
+    # Header-based column mapping. Layouts vary by tenant: 中欧 6 cols incl.
+    # 部门名称, 华安 5 cols drops 部门. Match by Chinese label substring so we
+    # don't depend on positional index.
+    def _resolve_col_idx(headers: List[str], *needles: str) -> Optional[int]:
+        for i, h in enumerate(headers):
+            for needle in needles:
+                if needle in h:
+                    return i
+        return None
+    idx_dept = _resolve_col_idx(headers_raw, "部门")
+    idx_cat  = _resolve_col_idx(headers_raw, "职位类别", "类别")
+    idx_loc  = _resolve_col_idx(headers_raw, "工作地点", "地点")
+    idx_pub  = _resolve_col_idx(headers_raw, "发布日期", "发布时间")
+
+    records: List[Dict[str, Any]] = []
+    seen: set = set()
+    for row in rows_raw:
+        href = row.get("href") or ""
+        title = (row.get("title") or "").strip()
+        cols = row.get("cols") or []
+        m = re.search(r"jobId=(\d+)", href)
+        if not m or not title:
+            continue
+        job_key = m.group(1)
+        if job_key in seen:
+            continue
+        seen.add(job_key)
+        def _col(i: Optional[int]) -> str:
+            if i is None or i >= len(cols):
+                return ""
+            return (cols[i] or "").strip()
+        department = _col(idx_dept)
+        category = _col(idx_cat) or department
+        location = _col(idx_loc) or "未知"
+        publish = _col(idx_pub)
+        detail_url = f"{base}/campusxq?jobId={job_key}"
+        records.append({
+            "job_id": _hash_id("funds_zhiye_spa", company, job_key),
+            "source": "funds_zhiye_spa",
+            "company": company,
+            "company_type_industry": "公募基金",
+            "company_tags": category or "校园招聘",
+            "department": department or company,
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": _infer_stage(title, category),
+            "source_config_id": f"funds_api:{company}:{job_key}",
+            "publish_date": _parse_dt(publish),
+            "deadline": None,
+            "detail_url": detail_url,
+            "scraped_at": datetime.utcnow(),
+        })
+    return records
+
+
 # ---- Wintalent (sc.hotjob.cn / sc.wintalent.cn 自助站) ---------------------
 
 WINTALENT_SC_BASE = "https://sc.hotjob.cn"
@@ -277,13 +421,14 @@ def crawl_wintalent_sc_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 # ---- Tagging helpers for source sub-strings --------------------------------
 
-_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc"}
+_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "zhiye_spa", "wintalent_sc"}
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "hotjob":            "funds_hotjob",
     "zhiye":             "funds_zhiye",
     "moka_embedded":     "funds_moka_embedded",
     "zhiye_beisen_cms":  "funds_zhiye_beisen_cms",
+    "zhiye_spa":         "funds_zhiye_spa",
     "wintalent_sc":      "funds_wintalent_sc",
 }
 
@@ -327,6 +472,8 @@ def crawl_configured_funds_targets(
             crawled = crawl_moka_embedded_target(target)
         elif family == "zhiye_beisen_cms":
             crawled = crawl_zhiye_beisen_cms_target(target)
+        elif family == "zhiye_spa":
+            crawled = crawl_zhiye_spa_target(target)
         elif family == "wintalent_sc":
             crawled = crawl_wintalent_sc_target(target)
         else:

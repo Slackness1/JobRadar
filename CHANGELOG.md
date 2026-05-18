@@ -2,24 +2,34 @@
 
 > 最近 shipped 工作的轻量摘要。最新在上，按周分组。详细 entry 在 commit message 里。
 
-## 2026-W21 (May 17-18) · SAIF 投研召回 + 6-metric 试点级硬化
+## 2026-W21 (May 17-18) · MiMo backfill + SAIF 召回 + 6-metric + interview/eval 多 provider
 
-- **🎯 6-metric 试点级硬化 sprint (2026-05-18, D-17)** —— 把推荐+简历改写共 6 个 metric 全部 push 到试点水平。
+- **🎯 6-metric 试点级硬化 sprint (2026-05-18, D-18)** —— 把推荐+简历改写共 6 个 metric 全部 push 到试点水平。
   - **推荐侧 ②③** — LLM rerank prompt 强制 SUT 输出 tier_label ∈ {强匹配/可迁移/有差距} 三档 + strengths 必须 2-4 条引用简历具体事实 (实习公司/项目/技能);新 `_track_kind_to_tier_label` 把 4 分支映射到 3 档 + 红线优先;新 `_compute_priority_letter` 算 A/B/C/D 投递分层;前端 HFPill 角标显示 priority_letter (绿/橙/灰/红) + tier_label。
-  - **简历侧 ④⑤⑥** — chat.py 复用 plan-mode 的 `audit_draft` + `tag_extractor.extract_tags` + `EvidenceTag` schema (不搬整套状态机);新 `_profile_to_evidence_list` 把整份简历转 Evidence 池;`_filter_audit_risks_against_original` 差量过滤 leadership/tech (chat.py 是 rewrite 不是从空白起);chat.py system prompt 加严禁角色升级 + 成果声明编造 (D-17 第 7 点);RewriteOption 新字段 `audit_risks` + `warning_severity`,UI 选项 B 半硬警告 (severe 红底但 apply 仍可点保 actionability)。
-  - **离线评估** — `scripts/offline_test_resume_rewrite.py`:8 SAIF 简历 × 2 bullets × 2 options = 32 改写。**v3 (final): Evidence 100% / Severe overclaim 0% / Actionability 100%** (v1→v2→v3 迭代:25%→22%→0% severe);priority 分布 (n=80): A 86.2% / B 11.2% / C 2.5% / D 0%。
+  - **简历侧 ④⑤⑥** — chat.py 复用 plan-mode 的 `audit_draft` + `tag_extractor.extract_tags` + `EvidenceTag` schema (不搬整套状态机);新 `_profile_to_evidence_list` 把整份简历转 Evidence 池;`_filter_audit_risks_against_original` 差量过滤 leadership/tech (chat.py 是 rewrite 不是从空白起);chat.py system prompt 加严禁角色升级 + 成果声明编造;RewriteOption 新字段 `audit_risks` + `warning_severity`,UI 选项 B 半硬警告。
+  - **离线评估** — `scripts/offline_test_resume_rewrite.py`:8 SAIF 简历 × 2 bullets × 2 options = 32 改写。**v3 (final): Evidence 100% / Severe overclaim 0% / Actionability 100%**;priority 分布 (n=80): A 86.2% / B 11.2% / C 2.5% / D 0%。
   - **30 新 unit tests** (`test_recommendation_priority_tier.py` + `test_chat_audit_integration.py`) 全绿。
 
-## 2026-W21 (May 17) · SAIF 投研召回改造
+- **🎯 SAIF 投研召回 sprint (2026-05-17, D-17)** —— 用户截图反馈"选投研+上海推 AI 工程师 / 合规 / 营销"问题完整修复。
+  - **taxonomy 加 4 helper** — `_UMBRELLA_EXPANSION` (投研→4 canonical) + `expand_track_to_canonicals` + `aliases_for_canonical` + `recall_keywords_for_canonical`;`TRANSFERABLE_FOR_UMBRELLA` 跳板;`is_ambiguous_source` (1:N source 不当作错位)。
+  - **召回硬过滤** — `_filter_candidate_jobs` 加 track 维度,双层 (typed ∪ transferable ∪ NULL+alias) ∧ (location ∨ company_type),分级 fallback。候选池从 91k 缩到 ~2235。
+  - **打分权重再平衡** — track 4→18;`_classify_track_match` 4 分支 + `_track_mismatch_penalty=15` + risks 角标。
+  - **红线词扩** — +13 个 stem (HRBP / 产品运营 / 服务经理 / 业务运营)。
+  - **离线 harness** — N=8 + rerank:96.2% hit / 0% bad。
 
-- **🎯 SAIF 投研召回 sprint (2026-05-17, D-16)** —— 用户截图反馈"选投研+上海推 AI 工程师 / 合规 / 营销"问题完整修复。从诊断到验证 8 task 收官:
-  - **taxonomy 加 4 helper** — `_UMBRELLA_EXPANSION` (投研→4 canonical) + `expand_track_to_canonicals` + `aliases_for_canonical` + `recall_keywords_for_canonical` (召回宽 keyword,28 个 stem 词补足 NULL fallback);`TRANSFERABLE_FOR_UMBRELLA` (投研→金融咨询+银行总行) 跳板可迁移;`is_ambiguous_source` (D-15 1:N source 不当作错位)。
-  - **召回硬过滤** — `_filter_candidate_jobs` 加 track 维度,双层 (typed column IN expanded ∪ transferable ∪ (NULL ∧ title LIKE recall_kw)) ∧ (location ∨ company_type),分级 fallback。候选池从 91k 缩到 ~2235(上海+投研),NULL fallback 命中 382 真投研 stem 岗。
-  - **打分权重再平衡** — `compute_preference_score` track 4→18(role 5→8 保优先级);新增 `_classify_track_match` 4 分支 (hit / transferable / ambiguous / mismatch) + `final_score -15` mismatch penalty + risks 角标 ("赛道为可迁移跳板" / "信号不足" / "赛道不符")。
-  - **红线词扩** — 加 13 个 stem 词 (HRBP / 人力资源 / 产品运营 / 运营经理 / 服务经理 / 业务运营) 防"HR岗(投行条线)"/"运营类研究所"/"量化服务经理"伪命中 subset。
-  - **离线 harness** — `scripts/offline_test_saif_touyan.py` 用 DeepSeek 生成 N 份 SAIF 投研学生模拟简历 (13 多样化 hint),跑完整推荐+LLM rerank,分类 top-10。**N=8 + rerank 全路径:96.2% hit / 0% bad,top-N 全是华泰研究员 / 中金 IBD / 国泰海通量化 / 中信建投投行 / 兴业行研**。量化背景 → 全量化研究员,固收背景 → 固收+量化研究员,LLM rerank 学到了简历专长。
-  - **24 unit tests + 全套 backend 717/725 pass**(8 failed 都是 env/alembic 历史问题,跟改动无关)。
-  - 详见 D-16 + `scripts/offline_test_saif_touyan.py`。
+- **🎯 MiMo v2.5 canonical backfill sprint (2026-05-18, D-16)** —— Job.canonical_track 覆盖率 29.9% → **46.2%** (57,927/125,367),余 53.8% 是 MiMo 判"无金融相关性"的真噪声。
+- **securities source-aware title 二级路由** — 修 sell-side / buy-side / IBD 三种 securities source 的 canonical 错位。
+- **公募 6 家爬虫修复** — Beisen Zhiye SSR → SPA 适配。
+- **hedge_funds +鸣石投资** — 量化 SAIF 校招扩 +7 个岗。
+- **dev/prod VPS 拆分**(自 2026-05-17) — dev `lavm-wlcndo6anm` 不跑 systemd / prod `myvps` 域名 jobcopilot.top。
+
+### Interview + eval 改进 (本地 6 commit)
+- **interview/interest_decider 加维度 1b 迁移性追问** — 跨经历桥接 (量化→信用 / 期权→FICC) + A2 augmented_chip_summary 选公司差异化 inject;answer<80字 advance 等 hard rule。
+- **interview/report 反编造守卫** — overall_comment + improvements 必须引用学生原话 + 可执行 action;JSON 转义用「」防双引号崩溃。
+- **interview/scoring Phase A** — scoring_system.md + report.py prompt 加强要求引用原话。
+- **eval/clients 多 judge provider** — `EVAL_JUDGE_PROVIDER=mimo|qwen|glm|deepseek`,429 专门 retry。
+- **eval/judge Phase C** — 新 metric `judge_feedback_specificity`,评 SUT 报告是否引用原话+给可执行 action。
+- **eval/runner real fixtures** — 5 真实公募 JD × 学生配对,`--real-only` flag 单跑真实数据。
 
 ## 2026-W20 (May 11-17) · 后半周大爆发
 
