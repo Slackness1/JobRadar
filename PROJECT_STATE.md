@@ -44,8 +44,9 @@
 | 🟢 | Tencent 知识包用的是 transcript 范例数据,未接 `tencent-recruit-pack/scripts/fetch_recruit_jds.py` 抓真实 JD | `backend/app/services/knowledge_pack/` |
 | 🟢 | `HANDOFF_NEXT_SESSION.md` (root) / `backend/data/jobradar.db.bak.20260428` / `docs/decisions.md` (lowercase) 三个 stale — 待 user 确认删/保留 | root + backend/data + docs |
 
-## Production runtime
+## Runtimes (dev + prod 自 2026-05-17 拆分)
 
-- VPS `myvps` (122.51.18.237) 跑 systemd unit `jobradar.service`,main 分支。
-- Daily crawl 08:00 / tier crawl 09:00 / digest 09:35(Asia/Shanghai)。
-- 详见 `CLAUDE.md` "Production runtime" 段 + `docs/deployment-and-data.md`。
+- **Dev VPS** `lavm-wlcndo6anm` (公网 `1.161.52.206`,4 CPU / 15Gi / 99G):开发 / migration / LLM backfill / smoke。**不**跑 systemd。
+- **Prod VPS** `myvps` (公网 `122.51.18.237`):systemd `jobradar.service`,main 分支,域名 jobcopilot.top。Daily crawl 08:00 / tier crawl 09:00 / digest 09:35(Asia/Shanghai)。
+- dev → prod 同步走 `jobradar-vps-deploy` skill;dev DB 改动不会自动到 prod。
+- 详见 `CLAUDE.md` "Runtimes" 段 + `docs/deployment-and-data.md`。
