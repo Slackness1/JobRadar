@@ -117,14 +117,29 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 - **加新 finance source 要同时改 crawler 和 `coverage_truth.yaml` 的 `source_match`** — 一个 commit。
 - 改 crawler 之前看 `docs/crawlers-notes.md` 的 site quirk —— 字节 5,590 ceiling / 阿里 batchId 季度更新 / Workday `limit ≤ 20` 等。
 
-## Production runtime (摘要)
+## Runtimes — 两套 VPS,严格分离
 
-- VPS `myvps` (122.51.18.237) 跑 systemd unit `jobradar.service`，分支 `main`，bind `127.0.0.1:8000`。
-- APScheduler `daily_crawl` 0 8 * * * Asia/Shanghai。验证：`curl http://127.0.0.1:8000/api/scheduler`。
-- VPS 时区 = CST (UTC+8)；SQLite 存 naive UTC，查询用 `datetime(col, 'localtime')`，**不要**手动 -8h。
-- VPS 工作目录 `/home/ubuntu/opencode-worktrees/jobrador-edit/backend`。新 VPS DB 第一次部署后 `alembic stamp head` 一次再让 lifespan upgrade。
-- Logs：`sudo journalctl -u jobradar --since "08:00"`
-- Weekly DB backup：WSL cron 每周日 03:00 跑 `~/bin/backup_jobradar_db.sh`，sqlite3 `.backup` API + gzip + rsync。
+**自 2026-05-17 起 dev / prod 拆到两台独立 VPS**(此前合用 myvps,开发改动经常带崩生产)。Claude session 开工前先 `hostname` 确认当前是哪台。
+
+### Dev VPS (你大概率在这台)
+- `lavm-wlcndo6anm` (公网 `1.161.52.206`),4 CPU / 15Gi RAM / 99G disk(配置明显高于 prod)
+- **只跑开发**:写代码 / 跑 migration / smoke / LLM backfill / 实验性脚本 全在这里
+- 工作目录 `/home/ubuntu/opencode-worktrees/jobrador-edit/backend`,DB `backend/data/jobradar.db` 是 **dev DB**(prod backup 拷贝过来的)
+- **不**跑 systemd `jobradar.service`,不开公网端口给真实用户
+- 这台跑的 alembic upgrade / DB UPDATE 都**只影响 dev DB**,不会改 prod
+
+### Prod VPS
+- `myvps` (公网 `122.51.18.237`),老 VPS 配置较低,只跑生产
+- 跑 systemd unit `jobradar.service`,分支 `main`,bind `127.0.0.1:8000`,域名 jobcopilot.top
+- APScheduler `daily_crawl` 0 8 * * * Asia/Shanghai。验证:`curl http://127.0.0.1:8000/api/scheduler`
+- 工作目录 `/home/ubuntu/opencode-worktrees/jobrador-edit/backend`,**不**手动改文件 — 用 `jobradar-vps-deploy` skill 推
+- Logs:`sudo journalctl -u jobradar --since "08:00"`
+
+### 给 Claude 的硬约束
+- **dev VPS 上的 DB 改动不会自动同步到 prod**。任何 schema migration / LLM backfill / 长跑入库 在 dev 跑完后,要进生产需走 `jobradar-vps-deploy` skill 或显式 dump+restore VPS DB
+- VPS 时区 = CST (UTC+8);SQLite 存 naive UTC,查询用 `datetime(col, 'localtime')`,**不要**手动 -8h
+- Weekly DB backup:WSL cron 每周日 03:00 跑 `~/bin/backup_jobradar_db.sh`,从 **prod** VPS 抽 backup
+- 新 VPS DB 第一次部署后 `alembic stamp head` 一次再让 lifespan upgrade
 
 详见 `docs/deployment-and-data.md`。
 

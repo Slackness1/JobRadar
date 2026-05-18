@@ -5,25 +5,36 @@
 - Use it when changing deployment, database, auth/session state, or data import/export behavior.
 
 ## Canonical Truth Box
-- **VPS is the source of truth for production data.**
-- Local WSL2 is for development and verification.
+- **Prod VPS is the source of truth for production data.**
+- 自 2026-05-17 起,dev / prod **拆到两台独立 VPS**,理由:先前合用一台 VPS,开发改动经常带崩生产。
 - Deploy code from Git; do not overwrite production data files from local by default.
 - Canonical database path in code is `backend/data/jobradar.db`.
 - `backend/data/jobs.db` appears in older docs/env files but should be treated as legacy unless a migration explicitly says otherwise.
 
 ## Environment Modes
 
-### Local WSL2 development
-- Default mode for feature work, tests, and frontend/backend integration.
-- Use local data only for development validation.
+### Dev VPS (主开发环境,自 2026-05-17 新增)
+- `lavm-wlcndo6anm` (公网 `1.161.52.206`),4 CPU / 15Gi RAM / 99G disk
+- **只跑开发**:写代码 / 跑 migration / smoke / LLM backfill / 实验性脚本
+- 工作目录 `/home/ubuntu/opencode-worktrees/jobrador-edit/backend`
+- DB `backend/data/jobradar.db` 是 prod backup 的拷贝,可以放心改
+- **不**跑 systemd `jobradar.service`,不开公网端口给真实用户
+- Claude session 大概率在这台。开工前先 `hostname` 确认
 
-### Optional shadow runtime
-- Use only when you need isolation from an already running environment.
-- Shadow runtime is disposable/snapshot-like and should not be treated as prod truth.
+### Prod VPS
+- `myvps` (公网 `122.51.18.237`),Tencent Cloud,只跑生产
+- 跑 systemd `jobradar.service`,域名 `jobcopilot.top`
+- **不**手动 ssh 改文件 — 用 `jobradar-vps-deploy` skill 推
+- Production should be treated as a separate runtime with its own persistent state
 
-### VPS production
-- Tencent Cloud VPS hosts the real public service.
-- Production should be treated as a separate runtime with its own persistent state.
+### Local WSL2
+- Backup mode for offline feature work
+- Use local data only for development validation
+
+### Dev → Prod 同步
+- Code:走 `jobradar-vps-deploy` skill(git pull + 重启 systemd)
+- DB schema:dev 跑过 alembic 0xxx 后,prod 要重新跑(lifespan 自动 upgrade)
+- DB rows (LLM backfill / 长跑入库):需要显式 dump + restore VPS DB,不会自动同步
 
 ## Current Runtime Model
 - Checked-in dev compose is local-first and not a production contract.
