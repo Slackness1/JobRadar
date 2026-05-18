@@ -64,6 +64,7 @@ def _score_task(
     user_answer: str,
     chip_summary: str,
     llm: InterviewLLMClient,
+    user_key: str = "",
 ) -> None:
     db = session_factory()
     try:
@@ -73,6 +74,8 @@ def _score_task(
             user_answer=user_answer,
             chip_summary=chip_summary,
             llm=llm,
+            db=db,
+            user_key=user_key,
         )
         if result.overall is None and not result.hits and not result.misses:
             return  # leave score_json null
@@ -243,6 +246,7 @@ def process_turn_synchronous(
             pool.submit(
                 _score_task, session_factory, session_id, prev_turn_index,
                 target_job, prev_question, prev_user_answer, chip_summary, llm,
+                user_key,
             ),
             pool.submit(
                 _reference_task, session_factory, session_id, prev_turn_index,
