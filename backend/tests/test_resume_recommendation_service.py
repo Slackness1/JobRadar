@@ -420,7 +420,7 @@ def test_company_priority_does_not_match_aliases_from_job_description_only():
 
 
 class _SuccessfulRecommendationProvider:
-    def rerank_recommendations(self, profile, preferences, items):
+    def rerank_recommendations(self, profile, preferences, items, **_kwargs):
         top = list(items)
         top[0] = top[0].model_copy(
             update={
@@ -435,7 +435,7 @@ class _SuccessfulRecommendationProvider:
 
 
 class _FailingRecommendationProvider:
-    def rerank_recommendations(self, profile, preferences, items):
+    def rerank_recommendations(self, profile, preferences, items, **_kwargs):
         raise RuntimeError('rerank unavailable')
 
 

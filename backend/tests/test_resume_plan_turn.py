@@ -10,14 +10,12 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base
 from app.models import (
-    ResumeConfirmedProfile,
     ResumeCopilotMessage,
     ResumeCopilotSession,
     ResumeParsedProfile,
 )
 from app.services.resume_copilot.agent.builder import NoMoreItems
 from app.services.resume_copilot.plan import (
-    Draft,
     Evidence,
     ItemKind,
     ItemStatus,
@@ -149,51 +147,6 @@ def test_run_plan_turn_raises_no_more_items_when_terminal(db_with_session):
     fake = _fake_caller({"action": "ask", "payload": {"question_text": "x"}})
     with pytest.raises(NoMoreItems):
         run_plan_turn(db, sid, "anything", llm_caller=fake)
-
-
-def test_run_plan_turn_ask_action_does_not_flip_recommendations_stale(db_with_session):
-    db, sid, item_id = db_with_session
-    fake = _fake_caller({
-        "action": "ask",
-        "item_id": item_id,
-        "payload": {"question_text": "数据量?"},
-    })
-    run_plan_turn(db, sid, "msg", llm_caller=fake)
-    s = db.query(ResumeCopilotSession).filter_by(id=sid).first()
-    assert int(s.recommendations_stale or 0) == 0
-    # confirmed_profile should not be created either
-    assert db.query(ResumeConfirmedProfile).filter_by(session_id=sid).first() is None
-
-
-def test_run_plan_turn_finalize_syncs_self_intro_and_flips_stale(db_with_session):
-    db, sid, _ = db_with_session
-    # rebuild plan with one self_intro item already in AWAITING_REVIEW + draft
-    intro = PlanItem(
-        kind=ItemKind.SELF_INTRO,
-        title='self_intro',
-        order=0,
-        status=ItemStatus.AWAITING_REVIEW,
-        draft=Draft(text='互联网赛道·数据分析方向'),
-    )
-    plan = PlanState(version=2, status=PlanStatus.REVIEWING, items=[intro])
-    s = db.query(ResumeCopilotSession).filter_by(id=sid).first()
-    s.plan_json = plan.model_dump_json()
-    s.plan_status = plan.status.value
-    db.commit()
-
-    fake = _fake_caller({"action": "finalize", "item_id": intro.id, "payload": {}})
-    new_plan, action = run_plan_turn(db, sid, "敲定", llm_caller=fake)
-    assert action.action == "finalize"
-    assert new_plan.items[0].status == ItemStatus.FINALIZED
-
-    db.expire_all()
-    s = db.query(ResumeCopilotSession).filter_by(id=sid).first()
-    assert int(s.recommendations_stale or 0) == 1
-
-    confirmed = db.query(ResumeConfirmedProfile).filter_by(session_id=sid).first()
-    assert confirmed is not None
-    profile = json.loads(confirmed.profile_json)
-    assert profile['candidate_summary'] == '互联网赛道·数据分析方向'
 
 
 def test_run_plan_turn_raises_when_no_plan(db_with_session):

@@ -8,7 +8,7 @@ from typing import Any, Protocol
 from urllib import request
 
 import yaml
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from app.models import Job, JobIntelSnapshot
@@ -19,10 +19,23 @@ from app.schemas_resume_copilot import (
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
 from app.services.resume_copilot.redact import redact_profile_for_llm
+from app.services.taxonomy import (
+    CANONICAL_FINANCE_TRACKS,
+    LOW_QUALITY_PENALTY,
+    aliases_for_canonical,
+    canonicalize_track,
+    expand_track_to_canonicals,
+    is_ambiguous_source,
+    is_low_quality_role,
+    recall_keywords_for_canonical,
+    transferable_for,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 PRIORITY_CONFIG_PATH = PROJECT_ROOT / 'backend' / 'config' / 'resume_copilot_priority.yaml'
 HIGH_AMBIGUITY_ROLE_KEYWORDS = ('管培', '储备', '综合', '项目管理', '客户经理', '运营', '战略', '研究', '投研')
+
+
 TRACK_CATEGORY_HINTS: dict[str, tuple[str, ...]] = {
     'internet': ('互联网', 'internet', 'tech', '算法', '开发', '产品', '数据', '前端', '后端'),
     'securities': ('券商', '证券', '研究所', '投研', '投行', '行研', '机构销售'),
@@ -102,6 +115,7 @@ class ResumeRecommendationProvider(Protocol):
         profile: ResumeProfilePayload,
         preferences: ResumePreferencePayload | None,
         items: list[ResumeRecommendationItem],
+        per_job_context: str = "",
     ) -> Any: ...
 
 
@@ -114,17 +128,29 @@ class OpenAICompatibleResumeRecommendationProvider:
         profile: ResumeProfilePayload,
         preferences: ResumePreferencePayload | None,
         items: list[ResumeRecommendationItem],
+        per_job_context: str = "",
     ) -> Any:
+        system_msg = (
+            'Rerank the candidate recommendation items. Return JSON with key items. '
+            'Each item must include job_id, final_score, why_recommended, strengths, risks.\n\n'
+            '已知 8 大金融赛道 (canonical 口径,详见 docs/finance-tracks-2026-overview.md):\n'
+            + '\n'.join(f'  - {t}' for t in CANONICAL_FINANCE_TRACKS) +
+            '\n\n在 why_recommended / strengths / risks 里描述赛道时,请引用上述 canonical 名称,'
+            '不要自创"投资银行业务" / "卖方分析" / "公募/研究" 这类变体。'
+        )
+        if per_job_context:
+            system_msg += (
+                '\n\n' + per_job_context +
+                '\n\n请在 strengths/risks/why_recommended 中**自然引用**上述洞察的关键判断，'
+                '但**禁止编造**洞察里没说的具体数字或公司细节。'
+            )
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
             'messages': [
                 {
                     'role': 'system',
-                    'content': (
-                        'Rerank the candidate recommendation items. Return JSON with key items. '
-                        'Each item must include job_id, final_score, why_recommended, strengths, risks.'
-                    ),
+                    'content': system_msg,
                 },
                 {
                     'role': 'user',
@@ -352,8 +378,9 @@ def compute_preference_score(job: Job, preferences: ResumePreferencePayload | No
     score = 0
 
     score += sum(6 for location in preferences.preferred_locations if location and location.lower() in job_text)
-    score += sum(5 for role in preferences.preferred_roles if _pref_value_matches(job_text, role, PREF_ROLE_ALIASES))
-    score += sum(4 for track in preferences.preferred_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
+    score += sum(8 for role in preferences.preferred_roles if _pref_value_matches(job_text, role, PREF_ROLE_ALIASES))
+    # track 是用户最强信号 — 拉到主导权重 (18),让"投研+上海"碾压"任意+上海大厂"
+    score += sum(18 for track in preferences.preferred_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
     score += sum(4 for company_type in preferences.preferred_company_types if _pref_value_matches(job_text, company_type, PREF_COMPANY_TYPE_ALIASES))
     return score
 
@@ -506,30 +533,142 @@ _COMPANY_TYPE_TAG_KEYWORDS: dict[str, list[str]] = {
 }
 
 
-def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | None) -> list[Job]:
-    """Pre-filter jobs by location and company type before full scoring.
+def _classify_track_match(
+    job: Job,
+    preferences: ResumePreferencePayload | None,
+) -> tuple[str, int]:
+    """根据 job 跟用户 preferred_tracks 的关系返 (label, penalty)。
 
-    Falls back to the full table if the filtered set is too small to be useful.
+    返值:
+      - ('hit',      0)  — canonical 在伞展开内,严格命中
+      - ('null_hit', 0)  — canonical NULL 但 title 含严格 alias,作为伞命中处理
+      - ('transferable', 0) — canonical 在可迁移内,推荐但角标"可迁移"
+      - ('ambiguous', 0) — source 是 1:N 故意 NULL,信号不足不罚
+      - ('mismatch', 15) — 严错位,扣 15
+      - ('no_pref', 0)  — 用户没选 track
+    """
+    if not preferences or preferences.all_skipped or not preferences.preferred_tracks:
+        return ('no_pref', 0)
+
+    expanded: set[str] = set()
+    transferable: set[str] = set()
+    strict_aliases: set[str] = set()
+    for pref in preferences.preferred_tracks:
+        for canon in expand_track_to_canonicals(pref):
+            expanded.add(canon)
+            strict_aliases.update(a.lower() for a in aliases_for_canonical(canon))
+        transferable.update(transferable_for(pref))
+
+    if not expanded and not transferable:
+        return ('no_pref', 0)  # 用户给的 track 我们没法 expand,不罚
+
+    canon = getattr(job, 'canonical_track', None)
+    if canon and canon in expanded:
+        return ('hit', 0)
+    if canon and canon in transferable:
+        return ('transferable', 0)
+    if canon is None:
+        # NULL 分两种:1:N source 故意留 NULL,vs 信号不足
+        if is_ambiguous_source(str(job.source or '')):
+            return ('ambiguous', 0)
+        # NULL 但 title 含严格 alias → 视作伞命中
+        title_l = str(job.job_title or '').lower()
+        if any(a in title_l for a in strict_aliases if len(a) >= 2):
+            return ('null_hit', 0)
+    # canonical 不在伞/可迁移内,且 NULL 也没 alias 命中 → 严错位
+    return ('mismatch', 15)
+
+
+def _build_track_condition(preferences: ResumePreferencePayload):
+    """从 preferred_tracks 推出 SQL condition,覆盖三类候选:
+      1. canonical_track ∈ 伞展开 (typed column 命中,占已 backfill 的 ~30%)
+      2. canonical_track IN 可迁移 canonical (跳板岗,角标"可迁移")
+      3. canonical_track IS NULL AND job_title LIKE alias (70% NULL 兜底)
+
+    返 None 表示没有 track 偏好(不加约束)。
+    """
+    if not preferences or preferences.all_skipped or not preferences.preferred_tracks:
+        return None
+
+    expanded_canonicals: set[str] = set()
+    transferable_canonicals: set[str] = set()
+    recall_words: set[str] = set()
+    for pref in preferences.preferred_tracks:
+        for canon in expand_track_to_canonicals(pref):
+            expanded_canonicals.add(canon)
+            recall_words.update(recall_keywords_for_canonical(canon))
+        transferable_canonicals.update(transferable_for(pref))
+
+    if not expanded_canonicals and not transferable_canonicals:
+        return None  # 未知 track 偏好,降级到 location-only 过滤
+
+    branches = []
+    if expanded_canonicals:
+        branches.append(Job.canonical_track.in_(sorted(expanded_canonicals)))
+    if transferable_canonicals:
+        branches.append(Job.canonical_track.in_(sorted(transferable_canonicals)))
+    if recall_words:
+        # NULL fallback: 对未 backfill 的 row,用 recall keyword 做 title substring
+        # 兜底。recall keyword 故意比严格 alias 宽,会带误召回,但下游 _track_mismatch
+        # _penalty 会把真错位推到底部。
+        title_likes = [Job.job_title.like(f'%{a}%') for a in recall_words]
+        if title_likes:
+            branches.append(and_(Job.canonical_track.is_(None), or_(*title_likes)))
+    return or_(*branches) if branches else None
+
+
+def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | None) -> list[Job]:
+    """Pre-filter jobs by track (canonical typed + NULL alias fallback + transferable),
+    location, and company type before full scoring.
+
+    分级 fallback:
+      1. track ∧ (location ∨ company_type)        — 严格
+      2. track ∧ location                          — 放宽 company_type
+      3. track only                                — 放宽 location
+      4. location ∨ company_type                   — 放宽 track (老逻辑)
+      5. 全表                                       — 兜底
+    第一个 size >= _MIN_FILTERED_CANDIDATES 的层级胜出。
     """
     if not preferences or preferences.all_skipped:
         return db.query(Job).all()
 
-    conditions = []
+    location_conds = [
+        Job.location.like(f'%{loc}%')
+        for loc in preferences.preferred_locations
+        if loc and loc != '远程'
+    ]
+    company_conds = [
+        Job.company_tags.like(f'%{kw}%')
+        for company_type in preferences.preferred_company_types
+        for kw in _COMPANY_TYPE_TAG_KEYWORDS.get(company_type, [])
+    ]
+    track_cond = _build_track_condition(preferences)
+    loc_or_company = or_(*(location_conds + company_conds)) if (location_conds or company_conds) else None
 
-    for loc in preferences.preferred_locations:
-        if loc and loc != '远程':
-            conditions.append(Job.location.like(f'%{loc}%'))
+    # 1. 最严格: track ∧ (location ∨ company_type)
+    if track_cond is not None and loc_or_company is not None:
+        rows = db.query(Job).filter(and_(track_cond, loc_or_company)).all()
+        if len(rows) >= _MIN_FILTERED_CANDIDATES:
+            return rows
+        # 2. track ∧ location only
+        if location_conds:
+            rows = db.query(Job).filter(and_(track_cond, or_(*location_conds))).all()
+            if len(rows) >= _MIN_FILTERED_CANDIDATES:
+                return rows
+        # 3. track only (放弃地点,优先保赛道)
+        rows = db.query(Job).filter(track_cond).all()
+        if len(rows) >= _MIN_FILTERED_CANDIDATES:
+            return rows
+        if rows:
+            return rows  # 即便不到 _MIN_FILTERED_CANDIDATES,也优先保 track-aligned
 
-    for company_type in preferences.preferred_company_types:
-        for keyword in _COMPANY_TYPE_TAG_KEYWORDS.get(company_type, []):
-            conditions.append(Job.company_tags.like(f'%{keyword}%'))
+    # 4. 老逻辑兜底:location ∨ company_type
+    if loc_or_company is not None:
+        rows = db.query(Job).filter(loc_or_company).all()
+        if len(rows) >= _MIN_FILTERED_CANDIDATES:
+            return rows
 
-    if not conditions:
-        return db.query(Job).all()
-
-    filtered = db.query(Job).filter(or_(*conditions)).all()
-    if len(filtered) >= _MIN_FILTERED_CANDIDATES:
-        return filtered
+    # 5. 全表
     return db.query(Job).all()
 
 
@@ -546,6 +685,7 @@ def recommend_jobs_for_profile(
     snapshots_by_job_id = _latest_snapshots_by_job_id(db)
     recommendations: list[ResumeRecommendationItem] = []
     matched_track_key, matched_track_label = _matched_track(profile, preferences)
+    matched_track_label = canonicalize_track(matched_track_label)
     matched_role_family = _matched_role_family(profile, preferences)
     target_category_keys = _target_category_keys(profile, preferences)
 
@@ -568,6 +708,15 @@ def recommend_jobs_for_profile(
         )
         enhanced_score = base_match_score + enhanced_boost
         topic_key = _topic_key(job, matched_role_family)
+        # 低质量岗位红线 (柜员/客户经理/渠道销售类) → final_score 扣 50 拉到底部 +
+        # 加 risk note 告诉 user 为啥被降级。详见 docs/finance-tracks-2026-overview.md。
+        low_quality_hit = is_low_quality_role(str(job.job_title or ''))
+        track_match_kind, track_mismatch_penalty = _classify_track_match(job, preferences)
+        final_score_value = (
+            enhanced_score
+            - (LOW_QUALITY_PENALTY if low_quality_hit else 0)
+            - track_mismatch_penalty
+        )
         recommendations.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id or ''),
@@ -581,7 +730,7 @@ def recommend_jobs_for_profile(
                 company_priority_score=company_priority_score,
                 base_match_score=base_match_score,
                 enhanced_score=enhanced_score,
-                final_score=enhanced_score,
+                final_score=final_score_value,
                 matched_track_key=matched_track_key,
                 matched_track_label=matched_track_label,
                 matched_role_family=matched_role_family,
@@ -604,7 +753,25 @@ def recommend_jobs_for_profile(
                     if value
                 ],
                 strengths=[],
-                risks=['岗位信息较模糊，建议进入情报增强'] if need_enrichment else [],
+                risks=[
+                    *(['岗位信息较模糊，建议进入情报增强'] if need_enrichment else []),
+                    *(
+                        [f'岗位类型偏低质量（命中"{low_quality_hit}"），SAIF 同学慎选']
+                        if low_quality_hit else []
+                    ),
+                    *(
+                        ['赛道为可迁移跳板（不严格是你选的赛道，但路径相近）']
+                        if track_match_kind == 'transferable' else []
+                    ),
+                    *(
+                        ['赛道信号不足（来源较泛），需自行核验是否符合方向']
+                        if track_match_kind == 'ambiguous' else []
+                    ),
+                    *(
+                        ['赛道不符你选的方向，仅作扩展推荐']
+                        if track_match_kind == 'mismatch' else []
+                    ),
+                ],
             )
         )
 
@@ -631,8 +798,39 @@ def recommend_jobs_for_profile(
                     provider = None
                     fallback_reason = str(exc)
             if provider is not None:
+                # Pluggable per-job context (podcast / future memory / future tencent…).
+                per_job_ctx = ""
                 try:
-                    reranked_items = provider.rerank_recommendations(profile, preferences, ai_slice)
+                    from app.services.llm_context import (
+                        ContextRequest, fetch_blocks_for_jobs, format_per_job_aggregated,
+                    )
+                    from app.services.llm_context.base import PURPOSE_RERANK_JOB
+                    base_req = ContextRequest(
+                        purpose=PURPOSE_RERANK_JOB,
+                        db=db,
+                        profile=profile.model_dump() if hasattr(profile, "model_dump") else None,
+                        preferences=preferences.model_dump() if preferences else None,
+                    )
+                    jobs_for_ctx = [
+                        {
+                            "id": item.job_id,
+                            "company": item.company,
+                            "title": item.job_title,
+                            "track_label": item.matched_track_label or item.matched_role_family,
+                        }
+                        for item in ai_slice
+                    ]
+                    blocks_by_job = fetch_blocks_for_jobs(base_req, jobs_for_ctx)
+                    per_job_ctx = format_per_job_aggregated(
+                        blocks_by_job,
+                        header="每个岗位附带的相关洞察 — 用来辅助 final_score / strengths / risks 的判断",
+                    )
+                except Exception:
+                    pass  # context layer is best-effort
+                try:
+                    reranked_items = provider.rerank_recommendations(
+                        profile, preferences, ai_slice, per_job_context=per_job_ctx,
+                    )
                     if isinstance(reranked_items, dict):
                         reranked_items = reranked_items.get('items', [])
                     base_items_by_job_id = {item.job_id: item for item in ai_slice}

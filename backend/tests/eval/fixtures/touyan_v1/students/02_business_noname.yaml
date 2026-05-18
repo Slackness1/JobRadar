@@ -1,0 +1,64 @@
+id: students/02_business_noname
+display_name: "李雨桐 · 普通本商科 + 校园项目为主"
+profile:
+  basic_info:
+    name: "李雨桐"
+    headline: "上海立信会计金融学院 · 工商管理本科"
+    email: "liyutong@xx.edu.cn"
+    location: "上海"
+  education:
+    - school: "上海立信会计金融学院 工商管理学院"
+      degree: "本科"
+      major: "工商管理"
+      start_date: "2022-09"
+      end_date: "2026-06"
+      highlights:
+        - "GPA 3.4/4.0"
+        - "课程：财务管理 / 投资学 / 市场营销 / 运营管理"
+  internships:
+    - company: "中泰证券 上海某营业部"
+      role: "业务支持 实习生"
+      start_date: "2025-07"
+      end_date: "2025-08"
+      bullets:
+        - "协助客户经理整理客户档案 60+ 份，录入 CRM 系统"
+        - "参与营业部周会，旁听经纪业务考核流程"
+  projects:
+    - name: "校园新茶饮市场调研"
+      role: "组员（4 人）"
+      tech_stack: ["问卷网", "SPSS"]
+      bullets:
+        - "在 3 所高校发放问卷 350 份，用 SPSS 做交叉分析"
+        - "输出 20 页调研报告，拿到课堂展示 90 分"
+  skills:
+    technical: ["Excel", "PPT", "SPSS 入门"]
+    tools: ["Wind 学生版"]
+    languages: ["中文（母语）", "英文（CET-4）"]
+  languages: ["中文", "英文"]
+  awards:
+    - "2024 校级三好学生"
+  candidate_summary: "工商管理本科生，实习经验集中在券商营业部支持类岗位，缺少深度行业研究 / 量化建模训练。希望往泛投研 / 财富管理方向尝试。"
+  inferred_roles:
+    - "投资顾问助理"
+    - "财富管理"
+    - "客户支持"
+  inferred_tracks:
+    - "财富管理 / 经纪"
+    - "券商支持类岗位"
+
+eval_anchors:
+  expected_strong_match_tracks: []
+  expected_transferable_tracks:
+    - "财富管理 / 经纪"
+  expected_gap_tracks:
+    - "公募基金/研究"
+    - "券商研究所"
+    - "二级市场买方"
+    - "一级 PE"
+    - "量化研究"
+  evidence_keywords:
+    - "中泰证券"
+    - "营业部"
+    - "立信"
+    - "市场调研"
+  fabrication_traps: []

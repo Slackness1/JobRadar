@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary, event
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -105,7 +105,6 @@ class ResumeCopilotSession(Base):
     expires_at = Column(DateTime, nullable=True, index=True)
     plan_json = Column(Text, nullable=True)
     plan_status = Column(Text, default="idle", index=True)
-    recommendations_stale = Column(Integer, default=0)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
@@ -273,8 +272,29 @@ class Job(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     track_predicted = Column(Text, nullable=False, default="")
     quality_label = Column(Text, nullable=False, default="")
+    # Phase B (2026-05-16): canonicalize_job(source, job_title) 的结果,
+    # 自动通过 before_insert/before_update event listener (database.py 里挂)
+    # 写入。None = 1:N 歧义 source 且 job_title 无信号,留给下游 LLM rerank。
+    # 与 track_predicted (LLM 自由文本) 平级,canonical_track 是 enum-constrained。
+    canonical_track = Column(Text, nullable=True, index=True)
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
+
+
+# Phase B (2026-05-16): 自动派生 canonical_track。
+# 挂 model 上而不是 20+ 个 Job() 调用点 — 改一处生效,新增 crawler 不会漏。
+# 已经显式设过的不覆盖(尊重 caller 意图,e.g. review_queue 改 track,或
+# backfill 直接赋值)。import taxonomy 在函数里做,避免循环 import / 启动开销。
+@event.listens_for(Job, 'before_insert')
+@event.listens_for(Job, 'before_update')
+def _populate_job_canonical_track(_mapper, _conn, target: 'Job') -> None:
+    if getattr(target, 'canonical_track', None):
+        return
+    from app.services.taxonomy import canonicalize_job
+    target.canonical_track = canonicalize_job(
+        getattr(target, 'source', '') or '',
+        getattr(target, 'job_title', '') or '',
+    )
 
 
 class Track(Base):
@@ -286,6 +306,10 @@ class Track(Base):
     weight = Column(Float, default=1.0)
     min_score = Column(Integer, default=10)
     sort_order = Column(Integer, default=0)
+    # Phase F (2026-05-16): 映射到 app.services.taxonomy 的 canonical key。
+    # nullable — Track 是 keyword tier-scoring 的桶,不一定能对应到 8 canonical
+    # 任一项 (e.g. other_foreign 太杂)。空 = 不归属。
+    canonical_track = Column(Text, nullable=True)
 
     groups = relationship("KeywordGroup", back_populates="track", cascade="all, delete-orphan",
                           order_by="KeywordGroup.sort_order")
@@ -489,6 +513,108 @@ class InterviewTurn(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class StudentExperience(Base):
+    """Cross-session personal knowledge base for one student (keyed on user_key).
+
+    Schema aligned with Claude Code's memory file design — see CLAUDE.md "Student KB"
+    section for rationale. Each row is one "experience" or related fact extracted
+    from the resume-copilot chat rail and re-usable in mock interview prompts.
+    """
+
+    __tablename__ = "student_experiences"
+
+    id = Column(Integer, primary_key=True)
+    user_key = Column(Text, nullable=False, index=True)
+    source_session_id = Column(
+        Integer,
+        ForeignKey("resume_copilot_sessions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    name = Column(Text, default="")                    # ≤20 char human-readable
+    summary = Column(Text, default="")                 # ≤30 char, lives in always-on index
+    summary_hash = Column(Text, default="", index=True)  # dedup key
+    category = Column(Text, default="experience")      # experience | skill_claim | preference | identity_fact
+    star_dimensions_json = Column(Text, default="[]")  # JSON list[str], retrieval index for category=experience
+    behavioral_hook = Column(Text, default="")         # STAR-structured template the interview LLM reuses verbatim
+    quantified_json = Column(Text, default="{}")       # JSON dict (team_size, duration_months, outcome, ...)
+    raw_excerpt = Column(Text, default="")             # original chat substring — anti-hallucination + audit trail
+    confidence = Column(Float, default=0.0)            # LLM self-rated 0-1
+    user_confirmed = Column(Boolean, default=False, index=True)
+
+    # 3-anchor flags — for category='experience', all three must be True or the row is rejected at extraction time.
+    has_temporal_anchor = Column(Boolean, default=False)
+    has_concrete_action = Column(Boolean, default=False)
+    has_outcome = Column(Boolean, default=False)
+
+    # Time / staleness — mirrors Claude Code's "memory is N days old" injection.
+    captured_at = Column(DateTime, default=datetime.utcnow, index=True)
+    last_verified_at = Column(DateTime, default=datetime.utcnow)
+    last_used_at = Column(DateTime, nullable=True)
+    use_count = Column(Integer, default=0)
+
+    # User-driven lifecycle
+    is_archived = Column(Boolean, default=False)       # user marked outdated / superseded
+
+    __table_args__ = (
+        UniqueConstraint("user_key", "summary_hash", name="uq_student_experience_user_summary"),
+    )
+
+
+class AccountMemory(Base):
+    """Unified account-scoped memory layer — single table, category-discriminated.
+
+    Replaces piecemeal stores (student_experiences, plan_json-embedded Evidence)
+    with one row-per-fact design. See docs/unified-memory-and-plan-mode-2026-05-13.md
+    for full rationale and the 8 categories' payload schemas.
+
+    Provenance is a first-class concept: every row remembers which module produced
+    it (`source_module`), which session and which message inside that session
+    (`source_session_id` / `source_message_id`), and the original raw text
+    (`raw_excerpt`) for anti-hallucination audit. Mirrors Claude Code memory's
+    `originSessionId` + verify-before-recommend pattern.
+    """
+
+    __tablename__ = "account_memory"
+
+    id = Column(Integer, primary_key=True)
+
+    # Identity + discriminator
+    user_key = Column(Text, nullable=False, index=True)
+    category = Column(Text, nullable=False, index=True)
+    # one of: evidence | experience | skill_claim | preference |
+    #         identity_fact | goal | commitment | weakness_signal
+
+    # Content
+    summary = Column(Text, default="")               # short, always-on index field
+    payload_json = Column(Text, default="{}")        # category-specific (pydantic-validated)
+    summary_hash = Column(Text, default="", index=True)  # dedup key
+
+    # Provenance
+    source_module = Column(Text, default="")         # chat | plan | parser | interview | manual
+    source_session_id = Column(Integer, nullable=True)
+    source_message_id = Column(Integer, nullable=True)
+    raw_excerpt = Column(Text, default="")           # source citation, anti-hallucination anchor
+
+    # Confidence + user-confirmation
+    confidence = Column(Float, default=0.0)
+    user_confirmed = Column(Boolean, default=False, index=True)
+
+    # Lifecycle
+    captured_at = Column(DateTime, default=datetime.utcnow, index=True)
+    last_verified_at = Column(DateTime, default=datetime.utcnow)
+    last_used_at = Column(DateTime, nullable=True)
+    use_count = Column(Integer, default=0)
+
+    # Evolution (versioning via supersession chain)
+    superseded_by_id = Column(Integer, nullable=True)   # FK-shaped but not enforced (intra-table)
+    is_archived = Column(Boolean, default=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("user_key", "summary_hash", name="uq_account_memory_user_summary"),
+    )
+
+
 class JobDraft(Base):
     """Teacher quick-entry: one job draft (link / OCR / JD-text input → parsed → review queue)."""
 
@@ -517,3 +643,283 @@ class JobDraft(Base):
     reviewed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PodcastEpisode(Base):
+    __tablename__ = "podcast_episodes"
+
+    id = Column(Integer, primary_key=True)
+    eid = Column(Text, unique=True, nullable=False, index=True)
+    show = Column(Text, default="")
+    title = Column(Text, default="")
+    duration_sec = Column(Integer, default=0)
+    topic_one_liner = Column(Text, default="")
+    summary_500 = Column(Text, default="")
+    audience = Column(Text, default="")
+    guests_json = Column(Text, default="[]")
+    hot_takes_json = Column(Text, default="[]")
+    covers_role_json = Column(Text, default="[]")
+    covers_company_json = Column(Text, default="[]")
+    covers_sector_json = Column(Text, default="[]")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PodcastInsight(Base):
+    __tablename__ = "podcast_insights"
+
+    id = Column(Integer, primary_key=True)
+    insight_id = Column(Text, unique=True, nullable=False, index=True)
+    source_eid = Column(Text, nullable=False, index=True)
+    type_json = Column(Text, default="[]")
+    primary_type = Column(Text, default="", index=True)
+    role_target_json = Column(Text, default="[]")
+    company_target_json = Column(Text, default="[]")
+    sector_target_json = Column(Text, default="[]")
+    content = Column(Text, nullable=False)
+    source_quote = Column(Text, default="")
+    speaker = Column(Text, default="unknown")
+    confidence = Column(Text, default="med", index=True)
+    corroboration_json = Column(Text, default="[]")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ---------------------------------------------------------------------------
+# Knowledge pack — public 智库 layer (per-employer rubric/quote/example bank)
+# Sourced from skill packs like tencent-recruit-pack/. Read by
+# TencentTrackProvider / SensitiveTopicProvider via fetch_blocks().
+# ---------------------------------------------------------------------------
+
+
+class KnowledgeEmployer(Base):
+    """Lookup row per public-knowledge owner. Use 'tencent' for tencent-recruit-pack
+    and '__generic__' for cross-employer methodology (STAR, group-interview rubrics)."""
+
+    __tablename__ = "knowledge_employers"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, unique=True, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    description = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class KnowledgeTrack(Base):
+    """Per-employer track lookup (技术 / 产品 / 游戏 / 市场 ...)."""
+
+    __tablename__ = "knowledge_tracks"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    aliases_json = Column(Text, default="[]")
+    description = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "track_key", name="uq_knowledge_track"),
+    )
+
+
+class KnowledgeFile(Base):
+    """Source-of-truth .md content. Hash-based dedup so re-ingest is idempotent."""
+
+    __tablename__ = "knowledge_files"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    file_path = Column(Text, nullable=False)
+    content_md = Column(Text, default="")
+    content_hash = Column(Text, default="", index=True)
+    version = Column(Integer, default=1)
+    ingested_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "file_path", name="uq_knowledge_file_path"),
+    )
+
+
+class TrackResumeRubric(Base):
+    """Per-(employer, track) resume scoring dimension with high/low signals."""
+
+    __tablename__ = "track_resume_rubrics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    dimension = Column(Text, default="")
+    high_signal = Column(Text, default="")
+    low_signal = Column(Text, default="")
+    examples_json = Column(Text, default="[]")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class TrackInterviewRubric(Base):
+    """Per-(employer, track, stage) interview rubric. group/1v1/hr/ai_screen.
+
+    For 群面 (group), scoring_dimensions_json carries the dual-axis spec:
+        {"speak_quality": [...], "collaboration": [...]}
+    """
+
+    __tablename__ = "track_interview_rubrics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, nullable=False, index=True)
+    interview_stage = Column(Text, default="", index=True)
+    scoring_dimensions_json = Column(Text, default="{}")
+    rubric_md = Column(Text, default="")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class InterviewerQuote(Base):
+    """VERBATIM quotes from real interviewers — paraphrasing forbidden.
+
+    quote_verbatim must be a substring of the source file at ingest time;
+    the ingest script drops candidates that fail substring verification.
+    """
+
+    __tablename__ = "interviewer_quotes"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, default="", index=True)
+    interview_stage = Column(Text, default="", index=True)
+    quote_verbatim = Column(Text, nullable=False)
+    attribution = Column(Text, default="")
+    context_topic = Column(Text, default="")
+    source_file = Column(Text, default="")
+    source_excerpt = Column(Text, default="")
+    quote_hash = Column(Text, default="", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "quote_hash", name="uq_interviewer_quote_hash"),
+    )
+
+
+class TrackExampleBank(Base):
+    """good_answer / bad_answer / star_example / group_interview_full_run / ..."""
+
+    __tablename__ = "track_example_bank"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    track_key = Column(Text, default="", index=True)
+    example_type = Column(Text, default="", index=True)
+    title = Column(Text, default="")
+    content_md = Column(Text, default="")
+    rubric_score_json = Column(Text, default="{}")
+    commentary = Column(Text, default="")
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class OutputConstraint(Base):
+    """Cross-cutting output rules. scope='global' applies to everything;
+    'employer' / 'track' narrow it. SensitiveTopicProvider may early-terminate
+    based on the highest-priority match."""
+
+    __tablename__ = "output_constraints"
+
+    id = Column(Integer, primary_key=True)
+    scope = Column(Text, default="global", index=True)
+    employer_key = Column(Text, default="", index=True)
+    track_key = Column(Text, default="", index=True)
+    rule = Column(Text, nullable=False)
+    explanation = Column(Text, default="")
+    softening_phrases_json = Column(Text, default="[]")
+    forbidden_phrases_json = Column(Text, default="[]")
+    priority = Column(Integer, default=50, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class SensitiveTopic(Base):
+    """8 categories per Tencent sensitive-topics.md. SensitiveTopicProvider
+    matches user_question against typical_phrasings_json and, on hit,
+    returns response_template + an early-terminate sentinel so other
+    providers don't append further context."""
+
+    __tablename__ = "sensitive_topics"
+
+    id = Column(Integer, primary_key=True)
+    employer_key = Column(Text, nullable=False, index=True)
+    topic_key = Column(Text, nullable=False, index=True)
+    display_name = Column(Text, default="")
+    typical_phrasings_json = Column(Text, default="[]")
+    response_template = Column(Text, default="")
+    can_say_json = Column(Text, default="[]")
+    cannot_say_json = Column(Text, default="[]")
+    severity = Column(Text, default="block", index=True)
+    source_file = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("employer_key", "topic_key", name="uq_sensitive_topic"),
+    )
+
+
+# ── 账号系统 (alpha-1 内测,邀请码 gated) ───────────────────────────────────
+
+
+class InviteCode(Base):
+    """邀请码。已用过的 code consumed_at != null。"""
+
+    __tablename__ = "invite_codes"
+
+    id = Column(Integer, primary_key=True)
+    code = Column(Text, nullable=False, unique=True, index=True)
+    note = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    consumed_at = Column(DateTime, nullable=True, index=True)
+    consumed_by_user_key = Column(Text, nullable=True)  # 不上 FK,跟 users 解耦
+    expires_at = Column(DateTime, nullable=True, index=True)
+
+
+class User(Base):
+    """邮箱注册账号。email_verified_at != null 才能正常使用。"""
+
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(Text, nullable=False, unique=True, index=True)
+    password_hash = Column(Text, nullable=False)
+    invite_code_id = Column(Integer, ForeignKey("invite_codes.id"), nullable=True)
+    email_verified_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_login_at = Column(DateTime, nullable=True)
+
+
+class EmailVerification(Base):
+    """6 位数字邮箱验证码,10 分钟有效。一个 user 多条历史记录(防 race)。"""
+
+    __tablename__ = "email_verifications"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    code = Column(Text, nullable=False)
+    purpose = Column(Text, default="register", index=True)  # register | reset_password | ...
+    sent_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    verified_at = Column(DateTime, nullable=True)
+    attempts = Column(Integer, default=0)
+
+
+class UserSession(Base):
+    """登录 session token。30 天有效。前端用 Bearer header 携带。"""
+
+    __tablename__ = "user_sessions"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    token = Column(Text, nullable=False, unique=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    revoked_at = Column(DateTime, nullable=True)
+    ua = Column(Text, nullable=True)
+    ip = Column(Text, nullable=True)

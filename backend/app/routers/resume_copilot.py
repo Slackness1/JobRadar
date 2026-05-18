@@ -122,7 +122,6 @@ def _build_session_out(session: ResumeCopilotSession) -> ResumeCopilotSessionOut
         has_direction_analysis=session.direction_analysis_run is not None,
         plan_status=str(getattr(session, 'plan_status', '') or 'idle'),
         has_plan=bool(getattr(session, 'plan_json', None)),
-        recommendations_stale=bool(getattr(session, 'recommendations_stale', 0)),
         created_at=getattr(session, 'created_at', None),
         updated_at=getattr(session, 'updated_at', None),
         finished_at=getattr(session, 'finished_at', None),
@@ -429,7 +428,6 @@ def generate_resume_recommendations(
     session.recommendation_status = RunStatus.RUNNING.value
     session.feedback_status = RunStatus.RUNNING.value
     session.error_message = ''
-    session.recommendations_stale = 0
     db.commit()
     background_tasks.add_task(run_resume_generate_workflow, int(session_id))
 
@@ -514,6 +512,7 @@ def get_chat_messages(
 def post_chat_message(
     session_id: int,
     payload: ChatMessageIn,
+    background_tasks: BackgroundTasks,
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -529,9 +528,37 @@ def post_chat_message(
         raise HTTPException(status_code=409, detail='DIRECTION_ANALYSIS_NOT_READY')
 
     try:
-        return generate_chat_turn(session_id, payload.content, db)
+        response = generate_chat_turn(session_id, payload.content, db)
     except Exception as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    # Student KB passive capture — flag-gated, guest/demo-skipped inside the task.
+    # Runs after response returns so chat latency is unaffected.
+    background_tasks.add_task(
+        _dispatch_student_kb_extraction,
+        session_id=session_id,
+        user_content=payload.content,
+    )
+    return response
+
+
+def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> None:
+    """BackgroundTasks entry point. Opens own SessionLocal because the request
+    DB session is closed by the time this runs."""
+    from app.database import SessionLocal
+    from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
+
+    db = SessionLocal()
+    try:
+        extract_for_chat_turn(db, session_id=session_id, user_content=user_content)
+    except Exception:
+        # Memory extraction failures must never surface to the user — log and drop.
+        import logging
+        logging.getLogger(__name__).exception(
+            "student_kb extraction failed for session_id=%s", session_id
+        )
+    finally:
+        db.close()
 
 
 @router.post('/sessions/{session_id}/chat/apply-rewrite', response_model=ApplyRewriteOut)
@@ -569,39 +596,6 @@ def _load_plan(session: ResumeCopilotSession):
 def _save_plan(session: ResumeCopilotSession, plan) -> None:
     session.plan_json = plan.model_dump_json()
     session.plan_status = plan.status.value
-
-
-def _maybe_sync_plan_to_profile(
-    db: Session,
-    session: ResumeCopilotSession,
-    old_plan,
-    new_plan,
-) -> None:
-    """If `apply_action` newly finalized any items, mirror plan content
-    into ResumeConfirmedProfile.profile_json and flip recommendations_stale.
-
-    Caller commits — we only stage changes."""
-    from app.services.resume_copilot.plan_sync import (
-        newly_finalized_item_ids,
-        sync_plan_to_profile,
-    )
-
-    if not newly_finalized_item_ids(old_plan, new_plan):
-        return
-
-    confirmed = session.confirmed_profile
-    raw = (confirmed.profile_json if confirmed is not None else '') or ''
-    try:
-        current = ResumeProfilePayload.model_validate(json.loads(raw)) if raw else ResumeProfilePayload()
-    except (json.JSONDecodeError, ValueError):
-        current = ResumeProfilePayload()
-
-    synced = sync_plan_to_profile(new_plan, current)
-    if confirmed is None:
-        confirmed = ResumeConfirmedProfile(session_id=session.id)
-        db.add(confirmed)
-    confirmed.profile_json = json.dumps(synced.model_dump())
-    session.recommendations_stale = 1
 
 
 def _parsed_counts_from_profile(session: ResumeCopilotSession) -> dict[str, int]:
@@ -800,7 +794,6 @@ def post_plan_action(
         ) from exc
 
     _save_plan(session_obj, new_plan)
-    _maybe_sync_plan_to_profile(db, session_obj, plan, new_plan)
     db.commit()
     db.refresh(session_obj)
     return PlanStateOut(**new_plan.model_dump(mode='json'))

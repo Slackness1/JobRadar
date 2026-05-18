@@ -1,0 +1,36 @@
+id: interview_answers/02_zhouhai_valuation_tradeoff
+target_job: "高瓴 PE 投资分析师"
+chip: "一级 PE"
+chip_summary: "PE 一级市场投资"
+student_id: students/05_ib_intern_strong
+
+# 周海答"估值方法取舍"题。投行背景能讲细 — 强 DCF 假设,弱在为什么不上 LBO。
+# 测 follow-up 会不会追问 LBO 没用的原因,而不是跳到 TMT IPO。
+transcript:
+  - role: assistant
+    content: "请简短自我介绍,再讲讲你为什么选 PE。"
+  - role: user
+    content: "我是周海,北大光华金融本科,有高盛 IBD TMT 组 + 中金 IBD 大消费组两段实习。投行做尽调让我接触很多产业,我发现自己更喜欢深度研究一两家公司而不是跑很多 deal,所以想转 PE 做投资。"
+  - role: assistant
+    content: "在你做过的项目里,有没有一个关键的估值方法取舍?为什么这么选,代价是什么?"
+  - role: user
+    content: "在中金做的一个白酒次新股项目,我们对一家区域酒厂做估值。最后用 DCF 而不是可比公司法,因为可比 PE 估值在 25-40x 区间太宽,我们没法稳定锚定。DCF 的代价是要假设永续增长率 + WACC,我用了 11.5% WACC 和 2.5% 永续,得出 80 亿估值,跟最终 IPO 定价 75 亿差距 6%。代价是这套假设的解释成本很高,客户问了好几次为什么 WACC 是 11.5。"
+
+current_main_question: "在你做过的项目里,有没有一个关键的估值方法取舍?为什么这么选,代价是什么?"
+current_main_answer: "在中金做的一个白酒次新股项目,我们对一家区域酒厂做估值。最后用 DCF 而不是可比公司法,因为可比 PE 估值在 25-40x 区间太宽,我们没法稳定锚定。DCF 的代价是要假设永续增长率 + WACC,我用了 11.5% WACC 和 2.5% 永续,得出 80 亿估值,跟最终 IPO 定价 75 亿差距 6%。代价是这套假设的解释成本很高,客户问了好几次为什么 WACC 是 11.5。"
+
+weakness:
+  avg_score: 80
+  weak_topics: ["LBO 适用性讨论缺失", "WACC 拆解细节"]
+  strong_topics: ["方法对比清晰", "数字支撑充分"]
+
+expected_followup_targets:
+  - "WACC 11.5% 怎么拆 — 无风险利率 / beta / ERP"
+  - "为什么不用 LBO(消费品 cash flow 稳定,适合 LBO)"
+  - "可比公司 PE 25-40x 那么宽,有没有 segment 一下(全国型 vs 区域型酒厂)"
+  - "永续增长率 2.5% 跟 GDP 增速 / 行业容量怎么关联"
+
+expected_followup_targets_must_avoid:
+  - "你高盛 TMT 的 IPO 项目是什么情况"   # 跳到另一段经历
+  - "为什么从投行转 PE"                  # 已经在自我介绍说过
+  - "你的 GPA 多少"

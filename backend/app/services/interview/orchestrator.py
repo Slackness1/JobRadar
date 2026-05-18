@@ -28,6 +28,11 @@ from app.services.interview.adaptive import (
     generate_followup_question,
     pick_next_question,
 )
+from app.services.interview.subagents.recaller import (
+    ExperienceRecaller,
+    RecallerInput,
+)
+from app.services.interview.interest_decider import should_continue_followup
 from app.services.interview.llm_helpers import InterviewLLMClient
 from app.services.interview.reference_answer import generate_reference
 from app.services.interview.scoring import ScoreResult, score_answer
@@ -37,6 +42,15 @@ from app.services.interview.voice_metrics import (
     score_confidence_from_transcript,
 )
 from app.services.interview.weakness_profile import compute_weakness
+
+
+# 反问环节后礼貌收尾文案 — orchestrator 在 reverse Q 答完之后返回这条,
+# 不再 LLM 生成 follow-up
+_END_OF_INTERVIEW_MESSAGE = "本次面试到这里告一段落,谢谢你今天的分享。如果还有想补充的可以再聊几句,否则可以结束。"
+
+# Hard-rule 阈值
+_FOLLOWUP_CAP = 3                  # 单 main 下最多 N 个 follow-up (旧版写死 2)
+_TOO_SHORT_ANSWER_CHARS = 80       # 答案少于 N 字直接 advance,没东西可问
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +119,45 @@ def _reference_task(
     except Exception as exc:
         logger.warning("reference_task failed: %s", exc)
         db.rollback()
+    finally:
+        db.close()
+
+
+def _recall_experiences(
+    session_factory: Callable[[], Session],
+    user_key: str,
+    target_job: str,
+    transcript: list[dict],
+    max_results: int = 3,
+) -> list[dict]:
+    """Run ExperienceRecaller synchronously and return its experiences list.
+
+    The Recaller is async-shaped (asyncio.to_thread internally) but does pure
+    SQL/Python work — we drive it from the sync orchestrator via asyncio.run.
+    Failures are non-fatal: returns [] so the follow-up branch falls through
+    to its existing behavior without recalled hints.
+    """
+    import asyncio
+    if not (user_key or "").strip():
+        return []
+    db = session_factory()
+    try:
+        try:
+            result = asyncio.run(
+                ExperienceRecaller().invoke(RecallerInput(
+                    db=db,
+                    user_key=user_key,
+                    target_job=target_job,
+                    transcript_so_far=transcript,
+                    max_results=max_results,
+                ))
+            )
+        except Exception as exc:
+            logger.warning("ExperienceRecaller invoke failed: %s", exc)
+            return []
+        if not result.is_usable:
+            return []
+        return list(result.summary.get("experiences") or [])
     finally:
         db.close()
 
@@ -256,23 +309,93 @@ def process_turn_synchronous(
     finally:
         db.close()
 
-    # Step 5: decide follow-up vs advance vs final fallback
-    should_follow_up = (
-        current_main_index is not None
-        and followups_under_current < 2
-        and prev_score is not None
-        and (
-            (
-                prev_score.get("overall") is not None
-                and isinstance(prev_score["overall"], (int, float))
-                and prev_score["overall"] < 60
-            )
-            or len(prev_score.get("misses") or []) >= 1
+    # Step 5: decide follow-up vs advance vs end-of-interview
+    #
+    # Hybrid:
+    #   1. Hard rules (no LLM,毫秒级): 反问环节 / 上限 / 答案太短 → advance
+    #   2. Soft rule (LLM interest_decider): 真实面试官视角判 "还想继续追问吗"
+    #
+    # 失败时(LLM 错误 / 解析失败) 默认 advance — 不连续追问总比追错好。
+    should_follow_up = False
+    interest_target_dimension: str | None = None
+
+    # 是不是反问环节(skeleton 最后一题)
+    is_reverse_question_phase = False
+    if current_main_index is not None:
+        main_turn_obj = next(
+            (t for t in (
+                # 重新开 session 拿 all_turns 太重,直接用 prev_turn 推断:
+                # current_main_index 要么 == prev_turn_index (skeleton),
+                # 要么 prev_turn 是它的 child (follow-up)
+                [prev_turn] if prev_turn is not None else []
+            ) if t and int(getattr(t, 'turn_index', -1)) == current_main_index),
+            None,
         )
-    )
+        if main_turn_obj is not None and getattr(main_turn_obj, 'question_source', None) == "skeleton":
+            # 它在 skeleton 列表里的位置 = 它前面有几个 skeleton turn
+            skeleton_position = sum(
+                1 for t in all_turns
+                if t.question_source == "skeleton" and t.turn_index < current_main_index
+            )
+            is_reverse_question_phase = skeleton_position == len(skeleton_list) - 1
+
+    answer_too_short = len((prev_user_answer or "").strip()) < _TOO_SHORT_ANSWER_CHARS
+    followup_cap_reached = followups_under_current >= _FOLLOWUP_CAP
+
+    if is_reverse_question_phase:
+        logger.info("hard rule: 反问环节,跳过 follow-up")
+    elif followup_cap_reached:
+        logger.info("hard rule: 已追 %d 次 (cap=%d),advance", followups_under_current, _FOLLOWUP_CAP)
+    elif answer_too_short:
+        logger.info("hard rule: 答案 %d 字 (<%d),advance", len(prev_user_answer or ''), _TOO_SHORT_ANSWER_CHARS)
+    elif current_main_index is None:
+        # 未识别到 main → 安全 advance
+        logger.info("无 current_main_index,advance")
+    else:
+        # Soft rule: 让 LLM 像面试官一样判断
+        main_turn = next((t for t in all_turns if t.turn_index == current_main_index), None)
+        main_question = str(main_turn.question or "") if main_turn else ""
+        main_answer = str(main_turn.user_answer or "") if main_turn else ""
+        # 已问 + 已答的 follow-up 链 (parent == current_main_index 的 turn,按 turn_index 排序)
+        followup_chain = [
+            (str(t.question or ""), str(t.user_answer or ""))
+            for t in sorted(
+                [t for t in all_turns
+                 if t.parent_turn_index is not None
+                 and int(t.parent_turn_index) == current_main_index],
+                key=lambda x: x.turn_index,
+            )
+        ]
+        decision = should_continue_followup(
+            llm=llm,
+            target_job=target_job,
+            chip_summary=chip_summary,
+            jd_content=jd_content,
+            main_question=main_question,
+            main_answer=main_answer,
+            followup_chain=followup_chain,
+        )
+        should_follow_up = decision.should_continue
+        interest_target_dimension = decision.target_dimension
+        logger.info(
+            "interest_decider: continue=%s target=%r reasoning=%s",
+            decision.should_continue, decision.target_dimension, decision.reasoning[:120],
+        )
 
     parent_for_next: int | None = None
     if should_follow_up:
+        # Recall experiences from account_memory before generating follow-up so
+        # the LLM can ground sub-questions in real candidate history.
+        transcript = [
+            {"role": "assistant", "content": str(t.question or "")}
+            for t in all_turns if t.question
+        ] + [
+            {"role": "user", "content": str(t.user_answer or "")}
+            for t in all_turns if t.user_answer
+        ]
+        recalled = _recall_experiences(
+            session_factory, user_key, target_job, transcript,
+        )
         next_q = generate_followup_question(
             target_job=target_job,
             chip_summary=chip_summary,
@@ -282,6 +405,7 @@ def process_turn_synchronous(
             jd_content=jd_content,
             current_main_question=prev_question if current_main_index is not None else "",
             current_main_answer=prev_user_answer if current_main_index is not None else "",
+            recalled_experiences=recalled,
         )
         parent_for_next = current_main_index
     elif skeleton_count < len(skeleton_list):
@@ -289,19 +413,11 @@ def process_turn_synchronous(
         next_q = NextQuestion(question=skeleton_list[skeleton_count], source="skeleton")
         parent_for_next = None
     else:
-        # All skeleton done and no drill triggered — keep going via follow-up so
-        # the interview is unbounded; user ends manually.
-        next_q = generate_followup_question(
-            target_job=target_job,
-            chip_summary=chip_summary,
-            weakness=weakness,
-            asked_questions=asked,
-            llm=llm,
-            jd_content=jd_content,
-            current_main_question=prev_question if current_main_index is not None else "",
-            current_main_answer=prev_user_answer if current_main_index is not None else "",
-        )
-        parent_for_next = current_main_index
+        # 全部 skeleton 跑完(含反问环节已答)→ 礼貌收尾,不再硬生成 follow-up。
+        # 旧版在这里 LLM 生成无界 follow-up,会出现"反问环节面试官还反问候选人"的怪
+        # 行为(eval baseline 抓到的真 bug)。前端可以用 source="end" 来收 UI。
+        next_q = NextQuestion(question=_END_OF_INTERVIEW_MESSAGE, source="end")
+        parent_for_next = None
 
     # Step 6: persist next turn row
     db = session_factory()

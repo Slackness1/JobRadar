@@ -28,6 +28,7 @@ def seed_from_yaml(db: Session) -> bool:
             weight=track_data.get("weight", 1.0),
             min_score=track_data.get("min_score", 10),
             sort_order=sort_idx,
+            canonical_track=(track_data.get("canonical_track") or "").strip() or None,
         )
         db.add(track)
         db.flush()

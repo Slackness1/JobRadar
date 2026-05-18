@@ -21,11 +21,13 @@ from app.routers import (
     interview,
     job_intel,
     jobs,
+    podcast_rag,
     resume_copilot,
     review_queue,
     scheduler,
     scoring,
     sites,
+    student_kb,
     system_config,
     system_health,
     teacher_entry,
@@ -131,6 +133,15 @@ async def lifespan(app: FastAPI):
 
     start_scheduler()
     print("[INFO] Scheduler started")
+
+    # Register pluggable LLM context providers (podcast / future memory / future tencent…).
+    try:
+        from app.services.llm_context import bootstrap as bootstrap_llm_context, registered_names
+        bootstrap_llm_context()
+        print(f"[INFO] LLM context providers: {registered_names()}")
+    except Exception as exc:
+        print(f"[WARN] llm_context bootstrap failed: {exc}")
+
     yield
 
 
@@ -164,6 +175,11 @@ app.include_router(coverage.router)
 app.include_router(teacher_entry.router)
 app.include_router(review_queue.router)
 app.include_router(system_health.router)
+app.include_router(podcast_rag.router)
+app.include_router(student_kb.router)
+
+from app.routers import auth as _auth_router  # noqa: E402
+app.include_router(_auth_router.router)
 
 
 @app.get("/api/health")

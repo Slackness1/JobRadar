@@ -164,7 +164,7 @@ def interview_report(
     from app.services.interview.llm_helpers import build_interview_llm_client
 
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
-    report = generate_interview_report(body.target_job, messages)
+    report = generate_interview_report(body.target_job, messages, db=db)
 
     # New: aggregate from interview_turns + weekly plan
     session_id = getattr(body, 'session_id', '') or ''

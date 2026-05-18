@@ -115,7 +115,6 @@ class ResumeCopilotSessionOut(BaseModel):
     has_direction_analysis: bool = False
     plan_status: str = 'idle'
     has_plan: bool = False
-    recommendations_stale: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
     finished_at: datetime | None = None

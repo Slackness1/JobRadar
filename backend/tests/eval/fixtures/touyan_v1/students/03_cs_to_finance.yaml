@@ -1,0 +1,71 @@
+id: students/03_cs_to_finance
+display_name: "陈睿 · 复旦计科转金融 + 量化兴趣"
+profile:
+  basic_info:
+    name: "陈睿"
+    headline: "复旦计算机本科 / 金融双学位 / 想做量化研究"
+    email: "chenrui@fudan.edu.cn"
+    location: "上海"
+  education:
+    - school: "复旦大学 计算机科学与技术学院"
+      degree: "本科"
+      major: "计算机科学与技术（金融学双学位）"
+      start_date: "2022-09"
+      end_date: "2026-06"
+      highlights:
+        - "GPA 3.85/4.0 · 计算机专业前 10%"
+        - "金融双学位 GPA 3.9/4.0"
+        - "课程：机器学习 / 数据结构 / 数值分析 / 衍生品定价 / 计量经济学"
+  internships:
+    - company: "宽德投资"
+      role: "量化策略 · 实习生（中频组）"
+      start_date: "2025-06"
+      end_date: "2025-09"
+      bullets:
+        - "用 Python + C++ 维护 5 个中频信号的日更脚本"
+        - "复现一篇 SSRN 论文（盘中订单流不平衡），在 2020-2024 中证 800 样本上回测 IR 1.2"
+        - "协助 PM 做策略组合优化，参与 3 次策略评审会议"
+  projects:
+    - name: "深度学习预测股票收益（本科毕设进行中）"
+      role: "独立完成"
+      tech_stack: ["Python", "PyTorch", "Transformer", "Polars"]
+      bullets:
+        - "用 Transformer + 多头注意力建模 A 股 5min 收益，2018-2024 全样本"
+        - "对比 LSTM / GRU 基线，IC 从 0.045 提升到 0.058"
+        - "在 GitHub 开源代码（50+ stars）"
+  skills:
+    technical: ["Python", "C++", "PyTorch", "TensorFlow", "SQL", "机器学习", "时序建模"]
+    tools: ["Wind", "Tushare", "BackTrader", "Git"]
+    languages: ["中文（母语）", "英文（托福 105）"]
+  languages: ["中文", "英文"]
+  awards:
+    - "2024 全国大学生数学建模竞赛 国一"
+    - "2023 ACM-ICPC 上海站 银牌"
+  candidate_summary: "复旦计算机本科 + 金融双学位，强编程 + 机器学习。有头部量化私募实习，目标量化研究 / 量化策略方向。"
+  inferred_roles:
+    - "量化研究员"
+    - "量化开发"
+    - "因子研究"
+  inferred_tracks:
+    - "量化研究"
+    - "对冲基金 / 量化私募"
+
+eval_anchors:
+  expected_strong_match_tracks:
+    - "量化研究"
+    - "对冲基金 / 量化私募"
+  expected_transferable_tracks:
+    - "公募基金/研究"
+    - "二级市场买方"
+  expected_gap_tracks:
+    - "一级 PE"
+  evidence_keywords:
+    - "宽德投资"
+    - "Transformer"
+    - "中证 800"
+    - "复旦"
+    - "因子复现"
+    - "PyTorch"
+  fabrication_traps:
+    - "IC 数值"
+    - "回测 IR 数值"

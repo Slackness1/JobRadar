@@ -59,7 +59,10 @@ _REPORT_SYSTEM_PROMPT = _build_report_system_prompt()
 
 
 def generate_interview_report(
-    target_job: str, messages: list[dict], track: str | None = None
+    target_job: str,
+    messages: list[dict],
+    track: str | None = None,
+    db: Session | None = None,
 ) -> dict:
     transcript = '\n'.join(
         f"{'面试官' if m['role'] == 'assistant' else '候选人'}：{m['content']}"
@@ -69,6 +72,23 @@ def generate_interview_report(
     system_prompt = (
         _build_report_system_prompt(track=track) if track else _REPORT_SYSTEM_PROMPT
     )
+
+    # Pluggable knowledge sources (podcast / future memory / future tencent…).
+    # Append as additional system context — never break the report build.
+    if db is not None:
+        try:
+            from app.services.llm_context import ContextRequest, fetch_blocks
+            from app.services.llm_context.base import PURPOSE_INTERVIEW_SCORE
+            extras = fetch_blocks(ContextRequest(
+                purpose=PURPOSE_INTERVIEW_SCORE,
+                db=db,
+                target_job=target_job,
+            ))
+            if extras:
+                system_prompt = system_prompt + '\n\n' + '\n\n'.join(extras)
+        except Exception:
+            pass
+
     payload = {
         'model': client.model,
         'response_format': {'type': 'json_object'},

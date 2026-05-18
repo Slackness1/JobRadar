@@ -1,0 +1,22 @@
+id: jds/05_quant_research
+expected_track: "量化研究"
+canonical_track: "量化"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
+job:
+  company: "九坤投资"
+  job_title: "量化研究员（中低频策略组）· 2026 校招"
+  location: "北京 / 上海"
+  experience: "应届毕业生"
+  education: "硕士及以上"
+  description: |
+    岗位职责：
+    1. 在中低频策略组研究新的 Alpha 信号（基本面 + 量价 + 另类数据）
+    2. 用 Python / C++ 实现因子回测 + 策略组合优化
+    3. 协助 PM 调优现有策略，跟踪策略实盘表现
+    4. 参与新数据源 / 新方法论的探索
+
+    任职要求：
+    1. 国内外顶尖院校（清北复交 / 海外 top）数学 / 物理 / 计算机 / 统计 / 金融工程 硕士及以上
+    2. 强 Python 编程（pandas / numpy / 数据处理），熟悉 Linux / Git
+    3. 至少有一段 量化私募 / 量化对冲 / 高频做市 / 卖方量化 实习
+    4. 数学功底扎实（随机过程 / 凸优化 / 时序模型）
+    5. 有顶级竞赛经历（Putnam / IMO / ICPC）或顶会 paper 优先

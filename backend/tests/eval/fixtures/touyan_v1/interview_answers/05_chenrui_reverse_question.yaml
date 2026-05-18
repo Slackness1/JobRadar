@@ -1,0 +1,44 @@
+id: interview_answers/05_chenrui_reverse_question
+target_job: "九坤投资 量化研究员"
+chip: "量化研究"
+chip_summary: "量化私募研究方向"
+student_id: students/03_cs_to_finance
+
+# 反问环节 — 候选人提了一个"组里中频策略最近有没有重大重构"
+# 测 SUT 在收到候选人的反问之后会不会自然地"接住反问 + 简短作答 + 引导收尾",
+# 而不是 (a) 跳回常规追问 (b) 反问 → 反问的死循环。
+transcript:
+  - role: assistant
+    content: "请简短自我介绍。"
+  - role: user
+    content: "我是陈睿,复旦计科本 + 金融双学位,宽德投资中频组实习。希望转量化私募研究。"
+  - role: assistant
+    content: "讲讲你在宽德最有挑战的一段。"
+  - role: user
+    content: "我复现的那篇 SSRN paper 关于盘中订单流不平衡,原文用美股做的。我做的时候发现 A 股 tick 数据噪音大很多,直接搬过来 IR 只有 0.3 — 然后我做了三件事:(1) 把 tick 重采样到 1 分钟降噪,(2) 用 quantile cut 替换原来的 z-score 标准化,(3) 加了 sector neutral。最后回测出 IR 1.2。"
+  - role: assistant
+    content: "你想反过来问我们什么?无论是岗位、团队还是业务方向。"
+  - role: user
+    content: "想请教您两个问题。第一,中频组最近一年有没有做过重大策略框架重构,比如从纯量价转去更多用基本面或另类数据?第二,组里给新人的 first project 一般是 maintain 已有策略还是从 0 做新信号?"
+
+current_main_question: "你想反过来问我们什么?无论是岗位、团队还是业务方向。"
+current_main_answer: "想请教您两个问题。第一,中频组最近一年有没有做过重大策略框架重构,比如从纯量价转去更多用基本面或另类数据?第二,组里给新人的 first project 一般是 maintain 已有策略还是从 0 做新信号?"
+
+weakness:
+  avg_score: 88
+  weak_topics: []
+  strong_topics: ["反问质量高 — 一个判断业务方向 + 一个判断成长路径"]
+
+# 反问环节 SUT 不应该再追问技术细节,正确处理是:
+# - 接住反问,简短作答(可以含蓄)
+# - 引导收尾,问候选人有没有最后想补充的
+# - 或者结束环节
+expected_followup_targets:
+  - "简短回答候选人的反问 + 反问总结性问题(如还有没有最后想补充的)"
+  - "感谢候选人提问,简单作答,告知后续流程"
+  - "对候选人反问做一个'好问题'级反馈再合理引导收尾"
+
+expected_followup_targets_must_avoid:
+  - "继续追问技术细节(比如 sector neutral 的实现)"  # 应该已经收尾了
+  - "反问候选人:你为什么问这个问题"                # 死循环
+  - "讲一个完全新的话题(比如薪酬期望)"             # 跑题

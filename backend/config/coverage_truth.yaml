@@ -7,6 +7,11 @@
 # 字段：
 #   tracks[].id              内部 id
 #   tracks[].name            显示名（赛道名）
+#   tracks[].canonical_tracks  列表，映射到 app.services.taxonomy 的 8 大 canonical
+#                              金融赛道。空 list = 非金融或不属于 SAIF audience 关心
+#                              的 canonical 范畴。Phase F (2026-05-16) 加入；只读 hint
+#                              字段，coverage 计算逻辑不依赖；下游 UI 可按 canonical
+#                              做二级聚合。
 #   tracks[].source_match    company_crawl_logs.source 字段匹配的值列表
 #   tracks[].mode            'enumerate' = 列 T1 计算覆盖率
 #                            'absolute'  = 不列 T1，仅显示 active 绝对数（国央企用）
@@ -20,6 +25,7 @@ tracks:
   # ─────────────────────────── 互联网 ─────────────────────────────
   - id: internet
     name: 互联网
+    canonical_tracks: [金融科技]   # 蚂蚁/字节金融/腾讯金科;非金科部门 SAIF 投递率低
     source_match: [internet_official]
     mode: enumerate
     t1_companies:
@@ -50,7 +56,8 @@ tracks:
   # ─────────────────────────── 银行 ───────────────────────────────
   - id: banks
     name: 银行 (T0+T1)
-    source_match: [bank_official]
+    canonical_tracks: [银行·总行核心]   # 理财子另走 asset_mgmt
+    source_match: [bank_official, bank-legacy-csv]   # legacy CSV 也归 银行 桶
     mode: enumerate
     t1_companies:
       # T0 国有六大
@@ -83,6 +90,7 @@ tracks:
   # ─────────────────────────── 保险 ───────────────────────────────
   - id: insurance
     name: 保险
+    canonical_tracks: [二级买方·基本面]   # 保险资管 = 二级买方;前台精算/承保 SAIF 不投
     source_match: [insurance_official]
     mode: enumerate
     t1_companies:
@@ -107,6 +115,7 @@ tracks:
   # ─────────────────────────── 券商 ───────────────────────────────
   - id: securities
     name: 券商 T1
+    canonical_tracks: [卖方研究·S&T, 一级市场]   # 研究所+S&T 走卖方;IBD 走一级
     source_match:
       - securities_zhiye
       - securities_zhiye_legacy
@@ -148,6 +157,7 @@ tracks:
   # ─────────────────────────── 公募基金 ──────────────────────────
   - id: funds
     name: 公募基金 (top-15 by AUM)
+    canonical_tracks: [二级买方·基本面]   # 部分基金有量化部门,但岗位极少;主线归基本面
     source_match:
       - funds_hotjob
       - funds_zhiye
@@ -184,6 +194,7 @@ tracks:
   # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
   - id: hedge_funds
     name: 头部私募 (Hedge Funds)
+    canonical_tracks: [量化, 二级买方·基本面]   # 幻方/九坤/衍复=量化;高毅/景林=基本面
     source_match:
       - hedge_funds_hotjob
       - hedge_funds_zhiye
@@ -215,6 +226,7 @@ tracks:
   # ─────────────────────────── 外资投行 (Bulge Bracket) ─────────
   - id: foreign_ibs
     name: 外资投行 (Bulge Bracket China)
+    canonical_tracks: [一级市场, 卖方研究·S&T]   # IBD=一级;Research/S&T=卖方
     source_match: [foreign_ibs_official]
     mode: enumerate
     t1_companies:
@@ -246,6 +258,7 @@ tracks:
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc
     name: PE / VC (top 头部)
+    canonical_tracks: [一级市场]
     source_match: [pe_vc_official]
     mode: enumerate
     t1_companies:
@@ -284,6 +297,7 @@ tracks:
   # ─────────────────────────── 消费外企 ──────────────────────────
   - id: consumer_foreign
     name: 消费外企 (top)
+    canonical_tracks: []   # 非金融,MT 校招目标,不属 8 canonical 任一项
     source_match: [consumer_foreign_official]
     mode: enumerate
     t1_companies:
@@ -336,6 +350,7 @@ tracks:
   # 资管子公司 / 财富管理子公司），无独立 ATS 必要。
   - id: asset_mgmt
     name: 资管 / 理财
+    canonical_tracks: [二级买方·基本面]   # 银行理财子/资管子,典型二级买方
     mode: derived_company
     company_keywords_include:
       - 理财
@@ -359,6 +374,7 @@ tracks:
   # 补充，写入时仍命中 keyword=信托，所以也会在派生表里出现。
   - id: trust
     name: 信托
+    canonical_tracks: []   # SAIF audience 一般不投信托业务,无明确 canonical 归属
     mode: derived_company
     company_keywords_include:
       - 信托
@@ -373,6 +389,7 @@ tracks:
   # 平安/五矿等)，期货机构本身规模小，无独立 ATS 必要。已有 80+ 岗位。
   - id: futures
     name: 期货
+    canonical_tracks: [卖方研究·S&T]   # 期货研究所主要,资管/经纪 SAIF 不投
     mode: derived_company
     company_keywords_include:
       - 期货
@@ -388,6 +405,7 @@ tracks:
   # mode=absolute：太多，不列 T1，只显示 active 绝对数
   - id: state_owned
     name: 国央企
+    canonical_tracks: [监管·体制内]
     source_match: [state_owned_official]
     mode: absolute
     note: |
