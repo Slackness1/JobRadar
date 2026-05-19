@@ -144,6 +144,124 @@ def _fetch_workday_filtered(
     return out
 
 
+def _fetch_goldman_graphql(
+    company: str,
+    endpoint: str,
+    portal_url: str,
+    queries: List[str],
+    page_size: int = 20,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
+) -> List[Dict[str, Any]]:
+    """高盛 api-higher.gs.com GraphQL endpoint — 公开 schema 无 auth。
+
+    每个 query 关键词(Hong Kong/Singapore/Tokyo...)做一次 search,合并去重。
+    """
+    GQL = """
+    query Search($q: RoleSearchQueryInput!) {
+      roleSearch(searchQueryInput: $q) {
+        totalCount
+        items {
+          roleId jobTitle jobFunction division skillset
+          shortDescription descriptionHtml lastPostedDate
+          locations { city country state }
+        }
+        page { pageSize pageNumber hasNext }
+      }
+    }
+    """
+    seen: set[str] = set()
+    out: List[Dict[str, Any]] = []
+    for q in queries:
+        page = 0
+        while page < 10:  # safety cap; rarely > 5 pages per city
+            body = {
+                "query": GQL,
+                "variables": {
+                    "q": {
+                        "page": {"pageSize": page_size, "pageNumber": page},
+                        "experiences": ["EARLY_CAREER", "PROFESSIONAL"],
+                        "searchTerm": q,
+                    }
+                },
+            }
+            try:
+                r = requests.post(
+                    endpoint, json=body, timeout=20,
+                    headers={
+                        **_ua_headers(),
+                        "Content-Type": "application/json",
+                        "Origin": "https://higher.gs.com",
+                        "Referer": "https://higher.gs.com/roles",
+                    },
+                )
+            except Exception:
+                break
+            if r.status_code != 200:
+                break
+            try:
+                data = r.json()
+            except Exception:
+                break
+            res = (data.get("data") or {}).get("roleSearch") or {}
+            items = res.get("items") or []
+            for it in items:
+                rid = str(it.get("roleId") or "").strip()
+                if not rid or rid in seen:
+                    continue
+                seen.add(rid)
+                title = str(it.get("jobTitle") or "").strip()
+                if not title:
+                    continue
+                loc_objs = it.get("locations") or []
+                locs = [
+                    "/".join(filter(None, [
+                        (l.get("city") or "").strip(),
+                        (l.get("state") or "").strip(),
+                        (l.get("country") or "").strip(),
+                    ]))
+                    for l in loc_objs if isinstance(l, dict)
+                ]
+                location_text = ", ".join(filter(None, locs)) or "未知"
+                # Asia filter (post-hoc): keep only if any location word matches Asia keywords
+                if not _is_asia(location_text):
+                    continue
+                division = str(it.get("division") or "").strip()
+                jf = str(it.get("jobFunction") or "").strip()
+                department = division or jf
+                duty_raw = str(it.get("descriptionHtml") or it.get("shortDescription") or "")
+                import re as _re
+                duty_clean = _re.sub(r"<[^>]+>", " ", duty_raw)
+                duty_clean = _re.sub(r"&nbsp;", " ", duty_clean)
+                duty_clean = _re.sub(r"\s+", " ", duty_clean).strip()
+                out.append({
+                    "job_id": _hash_id(source, company, rid),
+                    "source": source,
+                    "company": company,
+                    "company_type_industry": industry,
+                    "company_tags": tags,
+                    "department": department,
+                    "job_title": title,
+                    "location": location_text,
+                    "major_req": str(it.get("skillset") or ""),
+                    "job_req": "",
+                    "job_duty": duty_clean[:4000],
+                    "application_status": "待申请",
+                    "job_stage": "campus" if "EARLY_CAREER" in title.upper() else "social",
+                    "source_config_id": f"{source}:goldman_gql:{company}",
+                    "publish_date": _parse_dt(it.get("lastPostedDate")),
+                    "deadline": None,
+                    "detail_url": f"{portal_url.rstrip('/')}/role/{rid}" if portal_url else "",
+                    "scraped_at": datetime.utcnow(),
+                })
+            pg = res.get("page") or {}
+            if not pg.get("hasNext"):
+                break
+            page += 1
+    return out
+
+
 def crawl_foreign_ibs(
     db: Session,
     existing_jobs: Optional[Dict[str, Job]] = None,
@@ -165,8 +283,8 @@ def crawl_foreign_ibs(
 
     for entry in raw:
         handler = entry.get("handler", "workday")
-        if handler != "workday":
-            continue  # only workday supported this round
+        if handler not in ("workday", "goldman_graphql"):
+            continue  # only supported handlers
 
         company = entry["name"]
         queries = entry.get("search_queries") or DEFAULT_ASIA_QUERIES
@@ -177,14 +295,23 @@ def crawl_foreign_ibs(
             db, source="foreign_ibs_official",
             company=company, parent_log_id=parent_log_id,
         ) as log:
-            records = _fetch_workday_filtered(
-                company=company,
-                endpoint=entry["endpoint"],
-                portal_url=entry.get("portal_url") or entry["endpoint"],
-                queries=queries,
-                page_size=page_size,
-                max_pages_per_query=max_pages,
-            )
+            if handler == "workday":
+                records = _fetch_workday_filtered(
+                    company=company,
+                    endpoint=entry["endpoint"],
+                    portal_url=entry.get("portal_url") or entry["endpoint"],
+                    queries=queries,
+                    page_size=page_size,
+                    max_pages_per_query=max_pages,
+                )
+            elif handler == "goldman_graphql":
+                records = _fetch_goldman_graphql(
+                    company=company,
+                    endpoint=entry["endpoint"],
+                    portal_url=entry.get("portal_url", ""),
+                    queries=queries,
+                    page_size=page_size,
+                )
 
             company_new = 0
             new_jobs_for_enrich: list[tuple[Job, str]] = []

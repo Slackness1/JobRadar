@@ -29,3 +29,11 @@ sites:
     max_pages_per_query: 8
     search_queries: ["China", "Hong Kong", "Singapore", "Tokyo"]
     note: 2026-05-11 MS 全球 1488 岗，Asia 区类似规模
+
+  - name: Goldman Sachs
+    handler: goldman_graphql
+    endpoint: https://api-higher.gs.com/gateway/api/v1/graphql
+    portal_url: https://higher.gs.com
+    page_size: 20
+    search_queries: ["Hong Kong", "Shanghai", "Beijing", "Singapore", "Tokyo"]
+    note: 2026-05-19 高盛走自建 higher.gs.com GraphQL,公开无 auth。Asia 实测 282 岗(HK 107, Tokyo 91, SG 72, Shanghai 7, Beijing 5)。
