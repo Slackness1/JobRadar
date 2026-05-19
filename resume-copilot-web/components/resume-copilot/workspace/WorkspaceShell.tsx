@@ -58,6 +58,15 @@ export interface WorkspaceShellProps {
   /** 学生在 RightResumePane 档案浮条点开 */
   onOpenArchive?: () => void;
 
+  // ── 推荐栏 callback (FE-2) ────────────────────────────────────────────────
+  /** 学生在左栏点 ✗ 反馈 — FE-2 内部已经 POST 了 reject,这里只用作 analytics
+   *  / 日志 hook,父不需要再发请求 */
+  onRejectRecommendation?: (jobId: string, reason: string, note: string) => void;
+  /** 学生在左栏点 "针对这家改写" — 跨栏信号给 RightResumePane (C-6,FE-3) */
+  onRequestRewrite?: (jobId: string) => void;
+  /** 推荐列表变化 (reject 后) — 父可选择重新拉 recommendations 拿最新顺序 */
+  onRecommendationsChanged?: () => void;
+
   // ── 占位 props（FE-2/3/4 实装时连后端） ───────────────────────────────────
   /** 顶部赛道 placeholder 数据,FE-2/P2-1 算法接入后真填 */
   currentTrackName?: string | null;
@@ -80,6 +89,9 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     onExport,
     onChangeTrack,
     onOpenArchive,
+    onRejectRecommendation,
+    onRequestRewrite,
+    onRecommendationsChanged,
     currentTrackName = null,
     currentFitScore = null,
   } = props;
@@ -103,7 +115,13 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
             onChangeTrack={onChangeTrack}
           />
           <div className="workspace-hifi__grid">
-            <LeftRecommendRail session={session} recommendations={recommendations} />
+            <LeftRecommendRail
+              session={session}
+              recommendations={recommendations}
+              onRejectRecommendation={onRejectRecommendation}
+              onRequestRewrite={onRequestRewrite}
+              onRecommendationsChanged={onRecommendationsChanged}
+            />
             <MiddleChatPane
               session={session}
               chatMessages={chatMessages}
