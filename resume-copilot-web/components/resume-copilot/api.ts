@@ -313,6 +313,68 @@ export function postApplyRewrite(sessionId: number, messageId: number, optionId:
   );
 }
 
+// ── Rewrite v0/v2 (C-1 thesis-aware, P1 BE-2) ────────────────────────────────
+// v0 = 学生原文 (echo); v2 = thesis-aware 改写.
+// FE-3 hooks this on bullet hover ✏️ → inline diff in RightResumePane.
+// Apply 链路暂未接 (see RightResumePane README) — 本助手只拉 v0/v2 + warnings,
+// 学生用 "复制到剪贴板" 自行粘贴回简历;完整 apply P1 末尾再接.
+
+export interface RewriteWarningSuggestionDto {
+  action: 'fill_real' | 'delete_number' | 'vague' | string;
+  label: string;
+}
+
+export interface RewriteWarningDto {
+  type: 'fabricated_number' | string;
+  number: string;
+  suggestion_options: RewriteWarningSuggestionDto[];
+  detail: string;
+}
+
+export interface RewriteVersionV0Dto {
+  text: string;
+}
+
+export interface RewriteVersionV2Dto {
+  text: string;
+  needs_plan_mode: boolean;
+  warnings: RewriteWarningDto[];
+}
+
+export interface RewriteV0V2Out {
+  field_path: string;
+  section: string;
+  target_title: string;
+  v0: RewriteVersionV0Dto;
+  v2: RewriteVersionV2Dto;
+  rationale: string;
+  memory_refs: number[];
+}
+
+export interface RewriteV0V2In {
+  bullet_text: string;
+  field_path: string;
+  target_job_description?: string;
+  target_title?: string;
+  section?: string;
+}
+
+export function postRewriteV0V2(sessionId: number, payload: RewriteV0V2In) {
+  return requestJson<RewriteV0V2Out>(
+    `/api/resume-copilot/sessions/${sessionId}/rewrite/v0v2`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        bullet_text: payload.bullet_text,
+        field_path: payload.field_path,
+        target_job_description: payload.target_job_description ?? '',
+        target_title: payload.target_title ?? '',
+        section: payload.section ?? '',
+      }),
+    }
+  );
+}
+
 // ── Student KB (personal knowledge base, cross-session) ──────────────────────
 
 export interface StudentExperienceIndexItem {

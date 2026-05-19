@@ -31,6 +31,7 @@ import { TopTrackBar } from './TopTrackBar';
 import { LeftRecommendRail } from './LeftRecommendRail';
 import { MiddleChatPane } from './MiddleChatPane';
 import { RightResumePane } from './RightResumePane';
+import { RewriteProvider } from './RewriteContext';
 
 import './workspace-theme.css';
 
@@ -94,33 +95,35 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
 
   return (
     <div className="hf">
-      <div className="workspace-hifi" data-testid="workspace-shell">
-        <TopTrackBar
-          trackName={currentTrackName}
-          fitScore={currentFitScore}
-          onChangeTrack={onChangeTrack}
-        />
-        <div className="workspace-hifi__grid">
-          <LeftRecommendRail session={session} recommendations={recommendations} />
-          <MiddleChatPane
-            session={session}
-            chatMessages={chatMessages}
-            isSendingChat={isSendingChat}
-            applyingOption={applyingOption}
-            sendChatMessage={sendChatMessage}
-            applyRewriteOption={applyRewriteOption}
+      <RewriteProvider>
+        <div className="workspace-hifi" data-testid="workspace-shell">
+          <TopTrackBar
+            trackName={currentTrackName}
+            fitScore={currentFitScore}
+            onChangeTrack={onChangeTrack}
           />
-          <RightResumePane
-            session={session}
-            profile={profile}
-            isExporting={isExporting}
-            canExport={canExport}
-            isDemo={isDemo}
-            onOpenArchive={onOpenArchive}
-            onExport={onExport}
-          />
+          <div className="workspace-hifi__grid">
+            <LeftRecommendRail session={session} recommendations={recommendations} />
+            <MiddleChatPane
+              session={session}
+              chatMessages={chatMessages}
+              isSendingChat={isSendingChat}
+              applyingOption={applyingOption}
+              sendChatMessage={sendChatMessage}
+              applyRewriteOption={applyRewriteOption}
+            />
+            <RightResumePane
+              session={session}
+              profile={profile}
+              isExporting={isExporting}
+              canExport={canExport}
+              isDemo={isDemo}
+              onOpenArchive={onOpenArchive}
+              onExport={onExport}
+            />
+          </div>
         </div>
-      </div>
+      </RewriteProvider>
     </div>
   );
 }

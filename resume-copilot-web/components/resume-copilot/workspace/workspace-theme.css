@@ -118,6 +118,7 @@
 
 .workspace-hifi__pane--right {
   background: var(--parchment);
+  position: relative; /* anchor toast (FE-3) inside the right pane */
 }
 
 /* ── Pane header (shared) ────────────────────────────────────────────────── */
@@ -203,4 +204,567 @@
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.04em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * FE-3 (2026-05-20) — 右栏简历预览 + hover 改写 + inline diff + 红警告
+ * 全部 scope `.workspace-hifi`,继承 `.hf` 的 HiFi token.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* Right pane body uses column layout so the archive slot pins to bottom. */
+.workspace-hifi__pane-body--right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 18px 0 18px; /* archive-slot owns the bottom padding */
+}
+
+/* ── Resume document ────────────────────────────────────────────────────── */
+
+.workspace-hifi__resume {
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-lg);
+  padding: 22px 22px 18px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.55;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.workspace-hifi__resume-header {
+  border-bottom: 1px solid var(--border-cream);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.workspace-hifi__resume-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+
+.workspace-hifi__resume-headline {
+  font-size: 12.5px;
+  color: var(--olive);
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__resume-contact {
+  font-size: 11.5px;
+  color: var(--stone);
+  letter-spacing: 0.02em;
+}
+
+.workspace-hifi__resume-section {
+  margin-top: 14px;
+}
+
+.workspace-hifi__resume-section-title {
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--terracotta-strong);
+  margin: 0 0 6px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  border-bottom: 1px dashed var(--border-warm);
+  padding-bottom: 3px;
+}
+
+.workspace-hifi__resume-section-empty {
+  font-size: 12px;
+  color: var(--stone);
+  padding: 6px 0 2px;
+  font-style: italic;
+}
+
+.workspace-hifi__resume-entry {
+  margin-bottom: 10px;
+}
+
+.workspace-hifi__resume-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.workspace-hifi__resume-entry-title {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 13.5px;
+}
+
+.workspace-hifi__resume-entry-date {
+  font-size: 11.5px;
+  color: var(--stone);
+  white-space: nowrap;
+}
+
+.workspace-hifi__resume-entry-meta {
+  font-size: 12px;
+  color: var(--olive);
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__resume-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.workspace-hifi__resume-bullet {
+  margin: 0;
+  padding: 2px 0;
+  position: relative;
+}
+
+.workspace-hifi__resume-bullet-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 4px 6px 4px 4px;
+  border-radius: 6px;
+  transition: background 120ms ease;
+  position: relative;
+}
+
+.workspace-hifi__resume-bullet-row:hover {
+  background: var(--terracotta-wash);
+}
+
+.workspace-hifi__resume-bullet-dot {
+  color: var(--terracotta);
+  flex-shrink: 0;
+  line-height: 1.55;
+  padding-top: 0;
+}
+
+.workspace-hifi__resume-bullet-text {
+  flex: 1 1 auto;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.workspace-hifi__resume-bullet-edit {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  background: var(--ivory);
+  color: var(--terracotta-strong);
+  border: 1px solid var(--terracotta-ring);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.4;
+  align-self: center;
+}
+
+.workspace-hifi__resume-bullet-row:hover .workspace-hifi__resume-bullet-edit,
+.workspace-hifi__resume-bullet-edit:focus-visible {
+  opacity: 1;
+}
+
+.workspace-hifi__resume-bullet-edit:hover {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: var(--terracotta);
+}
+
+.workspace-hifi__resume-bullet-edit:disabled {
+  cursor: not-allowed;
+  opacity: 0.4 !important;
+}
+
+.workspace-hifi__resume-skill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.workspace-hifi__resume-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  background: var(--library-rail);
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  border: 1px solid var(--border-warm);
+}
+
+/* ── Inline bullet rewrite diff ──────────────────────────────────────────── */
+
+.workspace-hifi__bullet-diff {
+  margin: 8px 0 6px 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--terracotta-ring);
+  border-left: 3px solid var(--terracotta);
+  border-radius: var(--r-md);
+  background: var(--parchment);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.workspace-hifi__bullet-diff.is-loading {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.workspace-hifi__bullet-diff-loading-text {
+  color: var(--olive);
+  font-size: 12.5px;
+}
+
+.workspace-hifi__bullet-diff-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--terracotta-ring);
+  border-top-color: var(--terracotta);
+  animation: workspace-hifi-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes workspace-hifi-spin {
+  to { transform: rotate(360deg); }
+}
+
+.workspace-hifi__bullet-diff.is-error {
+  border-color: #ef4444;
+  border-left-color: #ef4444;
+  background: #fff5f5;
+}
+
+.workspace-hifi__bullet-diff-error {
+  color: #b91c1c;
+  font-size: 12.5px;
+}
+
+.workspace-hifi__diff-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspace-hifi__diff-label {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stone);
+  font-weight: 600;
+}
+
+.workspace-hifi__diff-label--v2 {
+  color: var(--terracotta-strong);
+}
+
+.workspace-hifi__diff-text {
+  font-size: 13px;
+  color: var(--olive);
+  white-space: pre-line;
+}
+
+.workspace-hifi__diff-text--v2 {
+  color: var(--ink);
+  background: var(--terracotta-wash);
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.workspace-hifi__diff-arrow {
+  text-align: center;
+  color: var(--terracotta);
+  font-size: 14px;
+  line-height: 1;
+  margin: -2px 0;
+}
+
+.workspace-hifi__diff-plan-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.workspace-hifi__diff-plan-hint-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber-fg);
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.workspace-hifi__diff-rationale {
+  font-size: 12px;
+  color: var(--olive);
+  background: var(--ivory);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-cream);
+  line-height: 1.5;
+}
+
+.workspace-hifi__diff-rationale-label {
+  font-weight: 600;
+  color: var(--terracotta-strong);
+  margin-right: 4px;
+}
+
+.workspace-hifi__diff-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__diff-btn {
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  cursor: pointer;
+  background: var(--ivory);
+  color: var(--ink-soft);
+  border: 1px solid var(--border-warm);
+  font-family: inherit;
+}
+
+.workspace-hifi__diff-btn:hover {
+  background: var(--library-rail);
+}
+
+.workspace-hifi__diff-btn--primary {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: var(--terracotta);
+}
+
+.workspace-hifi__diff-btn--primary:hover {
+  background: var(--terracotta-strong);
+  border-color: var(--terracotta-strong);
+}
+
+/* ── Fabrication warning (C-5 红线) ──────────────────────────────────────── */
+
+.workspace-hifi__fab-warn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__fab-warn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.workspace-hifi__fab-warn-icon {
+  color: #b91c1c;
+  font-size: 18px;
+  line-height: 1;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__fab-warn-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__fab-warn-headline {
+  color: #7f1d1d;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.workspace-hifi__fab-warn-detail {
+  color: #991b1b;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.workspace-hifi__fab-warn-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__fab-warn-btn {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  border-radius: var(--r-pill);
+  background: #fff;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.workspace-hifi__fab-warn-btn:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+/* ── Chat-side thinking bubble (E-3) ─────────────────────────────────────── */
+
+.workspace-hifi__rewrite-bubble {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--r-lg);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  margin: 0 0 12px;
+  overflow: hidden;
+  font-size: 12.5px;
+}
+
+.workspace-hifi__rewrite-bubble.is-thinking {
+  background: var(--terracotta-wash);
+  border-color: var(--terracotta-ring);
+}
+
+.workspace-hifi__rewrite-bubble.is-done {
+  background: var(--emerald-soft);
+  border-color: var(--emerald);
+}
+
+.workspace-hifi__rewrite-bubble.is-error {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.workspace-hifi__rewrite-bubble-icon {
+  flex-shrink: 0;
+  padding-top: 1px;
+  color: var(--terracotta);
+}
+
+.workspace-hifi__rewrite-bubble.is-done .workspace-hifi__rewrite-bubble-icon {
+  color: var(--emerald);
+}
+
+.workspace-hifi__rewrite-bubble.is-error .workspace-hifi__rewrite-bubble-icon {
+  color: #b91c1c;
+}
+
+.workspace-hifi__rewrite-bubble-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspace-hifi__rewrite-bubble-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-hifi__rewrite-bubble-meta {
+  font-size: 11.5px;
+  color: var(--olive);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__rewrite-bubble-path {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--stone);
+}
+
+/* ── Archive slot (FE-4 owns; FE-3 just reserves ~20vh) ──────────────────── */
+
+.workspace-hifi__archive-slot {
+  flex-shrink: 0;
+  min-height: 20vh;
+  margin-top: 16px;
+  padding-bottom: 18px;
+}
+
+.workspace-hifi__archive-stub {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-hifi__archive-stub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-lg);
+  background: var(--library-rail);
+  border: 1px dashed var(--border-strong);
+  color: var(--ink-soft);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__archive-stub-btn:hover {
+  background: var(--warm-sand);
+}
+
+.workspace-hifi__archive-stub-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 0 2px rgba(63,154,93,0.18);
+}
+
+.workspace-hifi__archive-stub-hint {
+  color: var(--stone);
+  font-size: 11px;
+}
+
+/* ── Toast (local to RightResumePane) ────────────────────────────────────── */
+
+.workspace-hifi__toast {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--dark-surface);
+  color: var(--ivory);
+  font-size: 12.5px;
+  line-height: 1.4;
+  box-shadow: var(--sh-lift);
+  z-index: 50;
+  pointer-events: none;
 }
