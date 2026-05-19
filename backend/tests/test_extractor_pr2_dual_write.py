@@ -148,14 +148,16 @@ def test_experience_writes_to_both_tables(mock_client, db_factory):
         assert result["inserted"] == 1
         assert db.query(StudentExperience).count() == 1
 
-        # Unified leg: 1 experience + ≥1 derived evidence row
+        # Unified leg: 1 experience. A-4 简 (Phase 1 BE-1): chat extractor
+        # no longer derives evidence rows — evidence stays for plan-mode /
+        # parser writers.
         assert result["memory_inserted"] == 1
-        assert result["evidence_inserted"] >= 1
+        assert result["evidence_inserted"] == 0
 
         rows = db.query(AccountMemory).all()
         categories = {r.category for r in rows}
         assert "experience" in categories
-        assert "evidence" in categories
+        assert "evidence" not in categories
     finally:
         db.close()
 
@@ -215,7 +217,10 @@ def test_preference_emits_structured_payload(mock_client, db_factory):
 @patch("app.services.resume_copilot.memory.extractor.UNIFIED_MEMORY_ENABLED", True)
 @patch("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
 @patch("app.services.resume_copilot.memory.extractor._build_llm_client")
-def test_identity_fact_emits_structured_payload(mock_client, db_factory):
+def test_identity_fact_no_longer_extracted_by_chat(mock_client, db_factory):
+    """A-4 简 (BE-1): identity_fact 已从 chat extractor whitelist 移除 — 学校 /
+    专业 / 毕业时间 由简历 parse 负责,chat 不重复。LLM 即便返了 identity_fact
+    候选,extractor 也丢弃。"""
     from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
 
     fake = MagicMock()
@@ -226,10 +231,9 @@ def test_identity_fact_emits_structured_payload(mock_client, db_factory):
     db = db_factory()
     try:
         extract_for_chat_turn(db, session_id=sid, user_content=SOURCE_TEXT)
-        row = db.query(AccountMemory).filter(AccountMemory.category == "identity_fact").one()
-        payload = json.loads(row.payload_json)
-        assert payload["kind"] == "school"
-        assert payload["value"] == "上海交通大学"
+        assert db.query(AccountMemory).filter(
+            AccountMemory.category == "identity_fact"
+        ).count() == 0
     finally:
         db.close()
 
@@ -264,9 +268,10 @@ def test_preference_missing_structured_fields_skipped(mock_client, db_factory):
 @patch("app.services.resume_copilot.memory.extractor.UNIFIED_MEMORY_ENABLED", True)
 @patch("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
 @patch("app.services.resume_copilot.memory.extractor._build_llm_client")
-def test_experience_derives_evidence_tags(mock_client, db_factory):
-    """team_size + duration_months + outcome from quantified should each
-    become an EvidenceTag on the derived evidence row."""
+def test_chat_extractor_no_longer_derives_evidence(mock_client, db_factory):
+    """A-4 简 (BE-1): chat extractor 不再派生 evidence 行 — evidence 由
+    plan-mode finalize / 简历 parser 在更明确的语境下创建,避免 chat 抽取的
+    噪声进入 evidence 通道。"""
     from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
 
     fake = MagicMock()
@@ -276,15 +281,11 @@ def test_experience_derives_evidence_tags(mock_client, db_factory):
     sid = _make_session(db_factory)
     db = db_factory()
     try:
-        extract_for_chat_turn(db, session_id=sid, user_content=SOURCE_TEXT)
-
-        evidence_row = db.query(AccountMemory).filter(AccountMemory.category == "evidence").one()
-        payload = json.loads(evidence_row.payload_json)
-        assert payload["source"] == "chat_extract"
-        tag_types = {t["type"] for t in payload["tags"]}
-        assert "metric" in tag_types or "duration" in tag_types or "outcome" in tag_types
-        # Anti-hallucination: text must be the raw excerpt verbatim
-        assert payload["text"] == EXPERIENCE_CANDIDATE["raw_excerpt"]
+        result = extract_for_chat_turn(db, session_id=sid, user_content=SOURCE_TEXT)
+        assert result["evidence_inserted"] == 0
+        assert db.query(AccountMemory).filter(
+            AccountMemory.category == "evidence"
+        ).count() == 0
     finally:
         db.close()
 
@@ -333,7 +334,8 @@ def test_legacy_flag_off_only_unified_writes(mock_client, db_factory):
         assert result["inserted"] == 0
         assert result["memory_inserted"] == 1
         assert db.query(StudentExperience).count() == 0
-        assert db.query(AccountMemory).count() >= 2  # experience + evidence
+        # A-4 简 (BE-1): chat 不再派生 evidence — 只 experience 1 行
+        assert db.query(AccountMemory).count() == 1
     finally:
         db.close()
 
