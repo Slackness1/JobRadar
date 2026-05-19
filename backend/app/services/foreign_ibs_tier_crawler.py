@@ -262,6 +262,195 @@ def _fetch_goldman_graphql(
     return out
 
 
+def _fetch_ubs_taleo_spa(
+    company: str,
+    portal_url: str,
+    site_ids: List[int],
+    partner_id: int = 25008,
+    link_ids: Optional[List[int]] = None,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
+) -> List[Dict[str, Any]]:
+    """UBS Oracle Taleo TGnewUI — SPA JS-rendered jobs。
+
+    Taleo 不暴露干净 JSON API,initial GET HTML 也没 jobs(SPA hydrate)。用
+    Playwright headless 渲染后从 DOM 抽 a[href*=JobDetail] 节点。每个 site
+    (5012=Professionals, 5131=Students) 单独抓一次,合并去重。
+    """
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return []
+    import os
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    link_ids = link_ids or [15231]
+
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                proxy={"server": proxy} if proxy else None,
+                args=["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+            )
+            try:
+                for site_id, link_id in zip(site_ids, link_ids):
+                    url = (
+                        f"https://jobs.ubs.com/TGnewUI/Search/home/HomeWithPreLoad"
+                        f"?partnerid={partner_id}&siteid={site_id}"
+                        f"&PageType=searchResults&SearchType=linkquery&LinkID={link_id}"
+                    )
+                    ctx = browser.new_context(user_agent=UA, locale="en-US",
+                                              viewport={"width": 1440, "height": 900})
+                    page = ctx.new_page()
+                    try:
+                        page.goto(url, wait_until="networkidle", timeout=45000)
+                        page.wait_for_timeout(6000)
+                        items = page.eval_on_selector_all(
+                            'a[href*="PageType=JobDetails"]',
+                            """(els) => els.map(e => {
+                                // Climb to the row container that has all 4 fields rendered.
+                                let row = e;
+                                for (let i = 0; i < 8 && row.parentElement; i++) {
+                                    row = row.parentElement;
+                                    const txt = (row.innerText || '');
+                                    if (txt.length > 60 && txt.split('\\n').length >= 3) break;
+                                }
+                                return {
+                                    href: e.href,
+                                    text: (e.innerText || '').trim(),
+                                    row_text: (row?.innerText || '').substring(0, 400),
+                                };
+                            })""",
+                        ) or []
+                    except Exception:
+                        items = []
+                    finally:
+                        ctx.close()
+                    import re as _re
+                    for it in items:
+                        href = it.get("href") or ""
+                        title = (it.get("text") or "").strip()
+                        if not href or not title:
+                            continue
+                        # 提 reqId from URL
+                        rid_m = _re.search(r"reqId=(\d+)", href)
+                        if not rid_m:
+                            rid_m = _re.search(r"(?:JobId|jobId|jobid|reqid)=(\d+)", href)
+                        rid = rid_m.group(1) if rid_m else href
+                        if rid in seen:
+                            continue
+                        seen.add(rid)
+                        # row_text 结构: Title / Country / Function / Division / Description
+                        row_text = it.get("row_text") or ""
+                        lines = [ln.strip() for ln in row_text.split("\n") if ln.strip()]
+                        location = lines[1] if len(lines) >= 2 else "未知"
+                        function = lines[2] if len(lines) >= 3 else ""
+                        division = lines[3] if len(lines) >= 4 else ""
+                        # Asia 过滤
+                        if not _is_asia(location):
+                            continue
+                        out.append({
+                            "job_id": _hash_id(source, company, rid),
+                            "source": source,
+                            "company": company,
+                            "company_type_industry": industry,
+                            "company_tags": tags,
+                            "department": division or function,
+                            "job_title": title,
+                            "location": location,
+                            "major_req": "",
+                            "job_req": "",
+                            "job_duty": "",
+                            "application_status": "待申请",
+                            "job_stage": "campus" if site_id == 5131 else "social",
+                            "source_config_id": f"{source}:ubs_taleo:{company}:{rid}",
+                            "publish_date": None,
+                            "deadline": None,
+                            "detail_url": href,
+                            "scraped_at": datetime.utcnow(),
+                        })
+            finally:
+                browser.close()
+    except Exception:
+        return []
+    return out
+
+
+def _fetch_hsbc_search_html(
+    company: str,
+    portal_url: str,
+    page_size: int = 50,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
+) -> List[Dict[str, Any]]:
+    """HSBC mycareer.hsbc.com SearchJobs portal — server-side-rendered HTML
+    with <article class="article article--result"> per job. Direct GET works.
+    """
+    import re as _re
+    url = (
+        "https://mycareer.hsbc.com/en_GB/external/SearchJobs/"
+        f"?listFilterMode=1&pipelineRecordsPerPage={page_size}"
+    )
+    try:
+        r = requests.get(url, timeout=20, headers={
+            **_ua_headers(),
+            "Accept-Language": "en-GB,en;q=0.9",
+        })
+    except Exception:
+        return []
+    if r.status_code != 200 or not r.text:
+        return []
+    html = r.text
+    out: List[Dict[str, Any]] = []
+    arts = _re.findall(
+        r'<article class="article article--result[^"]*"[^>]*>(.*?)</article>',
+        html, _re.S,
+    )
+    for art in arts:
+        href_m = _re.search(r'href="([^"]*PipelineDetail/[^"]+)"', art)
+        title_m = _re.search(r'<a[^>]*PipelineDetail[^>]*>([^<]+)</a>', art)
+        # HSBC location 字段:`<span class="location">\s*<Country>\s*</span>`
+        loc_m = _re.search(r'class="location">\s*([A-Za-z][A-Za-z\s\-]{1,40})\s*<', art)
+        if not href_m or not title_m:
+            continue
+        href = href_m.group(1)
+        title = title_m.group(1).strip()
+        if not title:
+            continue
+        rid_m = _re.search(r"/(\d+)$", href)
+        rid = rid_m.group(1) if rid_m else href
+        location = (loc_m.group(1).strip() if loc_m else "未知")
+        # Asia 过滤 — HSBC 全集 53 条,Asia 区少
+        if not _is_asia(location):
+            continue
+        out.append({
+            "job_id": _hash_id(source, company, rid),
+            "source": source,
+            "company": company,
+            "company_type_industry": industry,
+            "company_tags": tags,
+            "department": "",
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": "social",
+            "source_config_id": f"{source}:hsbc_pipeline:{company}:{rid}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": href if href.startswith("http") else f"https://mycareer.hsbc.com{href}",
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
+
+
 def crawl_foreign_ibs(
     db: Session,
     existing_jobs: Optional[Dict[str, Job]] = None,
@@ -283,7 +472,7 @@ def crawl_foreign_ibs(
 
     for entry in raw:
         handler = entry.get("handler", "workday")
-        if handler not in ("workday", "goldman_graphql"):
+        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html"):
             continue  # only supported handlers
 
         company = entry["name"]
@@ -311,6 +500,20 @@ def crawl_foreign_ibs(
                     portal_url=entry.get("portal_url", ""),
                     queries=queries,
                     page_size=page_size,
+                )
+            elif handler == "ubs_taleo_spa":
+                records = _fetch_ubs_taleo_spa(
+                    company=company,
+                    portal_url=entry.get("portal_url", ""),
+                    site_ids=entry.get("site_ids") or [5012],
+                    partner_id=int(entry.get("partner_id", 25008)),
+                    link_ids=entry.get("link_ids") or [15231],
+                )
+            elif handler == "hsbc_html":
+                records = _fetch_hsbc_search_html(
+                    company=company,
+                    portal_url=entry.get("portal_url", ""),
+                    page_size=int(entry.get("page_size", 50)),
                 )
 
             company_new = 0

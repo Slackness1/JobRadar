@@ -36,4 +36,21 @@ sites:
     portal_url: https://higher.gs.com
     page_size: 20
     search_queries: ["Hong Kong", "Shanghai", "Beijing", "Singapore", "Tokyo"]
-    note: 2026-05-19 高盛走自建 higher.gs.com GraphQL,公开无 auth。Asia 实测 282 岗(HK 107, Tokyo 91, SG 72, Shanghai 7, Beijing 5)。
+    note: 2026-05-19 高盛走自建 higher.gs.com GraphQL,公开无 auth。Asia 实测 282 岗(HK 107, Tokyo 91, SG 72, Shanghai 7, Beijing 5),去重 + Asia 过滤后入库 ~146 条。
+
+  - name: UBS
+    handler: ubs_taleo_spa
+    portal_url: https://jobs.ubs.com
+    partner_id: 25008
+    site_ids: [5012, 5131]   # 5012 = Professionals (社招), 5131 = Students (校招)
+    link_ids: [15231, 15232]
+    note: 2026-05-19 UBS 走 Oracle Taleo TGnewUI SPA,jobs.ubs.com 直 GET 不行(SSR HTML 没 jobs),需 Playwright 渲染。每 site 50 jobs / 页 (含 Investment Banking Analyst/Fixed Income Structurer/Senior Investment Officer 等 SAIF 关键岗)。
+
+  # HSBC mycareer.hsbc.com SearchJobs portal — 2026-05-19 实测全 50 条全
+  # 在 Poland(HSBC Global Shared Center,Operations/Tech 后台岗),Asia
+  # 过滤后 0 条入库。SAIF 相关性极低。代码 `_fetch_hsbc_search_html` 保留
+  # 在 crawler 模块,等将来 HSBC HK/SG 真招聘启用了再 re-enable。
+  # - name: HSBC
+  #   handler: hsbc_html
+  #   portal_url: https://mycareer.hsbc.com
+  #   page_size: 50
