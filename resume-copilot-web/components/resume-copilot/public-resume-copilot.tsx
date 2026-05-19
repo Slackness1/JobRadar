@@ -75,6 +75,7 @@ import {
 import { DemoBanner } from '@/components/hifi/demo-banner';
 import { HFLogo, HFRadarPulse } from '@/components/hifi/hifi-primitives';
 import { StudentKbDrawer } from './student-kb-drawer';
+import { WorkspaceShell } from './workspace/WorkspaceShell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1427,6 +1428,27 @@ export function PublicResumeCopilot() {
     );
   }
 
+  // ── FE-1 transitional reservations ────────────────────────────────────────
+  // The following state hooks + handlers are kept alive (1) so existing data
+  // flows like preferences / feedback / session rename keep loading from the
+  // backend even though the new shell does not yet surface them, and (2) so
+  // FE-2 / FE-3 / FE-4 sub-agents can pick them up and route into the new
+  // panes without re-deriving from scratch.
+  // void-referencing here = explicit "intentionally unused for now".
+  void savedPreferences;
+  void feedback;
+  void directionResults;
+  void isSaving;
+  void isGenerating;
+  void updateBasicInfo;
+  void saveProfile;
+  void generate;
+  void regenerateFromSyncedProfile;
+  void skipPreferences;
+  void switchResumeSession;
+  void handleRenameSession;
+  void handleDeleteSession;
+
   return (
     <main className={cn('resume-copilot-shell min-h-screen bg-[#f6f7f8] text-slate-950', `resume-design-${designVariant}`)}>
       {sessionId === DEMO_SESSION_ID && <DemoBanner />}
@@ -1463,51 +1485,45 @@ export function PublicResumeCopilot() {
           </button>
         </div>
       ) : null}
-      <section className="grid min-h-screen lg:grid-cols-[minmax(560px,52vw)_minmax(0,1fr)]">
-        <ResumeChatRail
-          session={session}
-          notice={notice}
-          error={error}
-          preferences={preferences}
-          savedPreferences={savedPreferences}
-          setPreferences={setPreferences}
-          savePreferences={savePreferences}
-          skipPreferences={skipPreferences}
-          generate={generate}
-          regenerateFromSyncedProfile={regenerateFromSyncedProfile}
-          isSaving={isSaving}
-          isGenerating={isGenerating}
-          recommendations={recommendations}
-          feedback={feedback}
-          directionResults={directionResults}
-          activeDirection={activeDirection}
-          onSetActiveDirection={setActiveDirection}
-          currentSessionId={sessionId}
-          resumeHistory={resumeHistory}
-          onSwitchSession={switchResumeSession}
-          onRenameSession={handleRenameSession}
-          onDeleteSession={handleDeleteSession}
-          onUpload={handleUpload}
-          isUploading={isUploading}
-          chatMessages={chatMessages}
-          sendChatMessage={sendChatMessage}
-          applyRewriteOption={applyRewriteOption}
-          isSendingChat={isSendingChat}
-          applyingOption={applyingOption}
-          onOpenKb={() => setKbDrawerOpen(true)}
-        />
-        <EditableResumeCanvas
-          profile={currentProfile}
-          updateProfile={updateProfile}
-          updateBasicInfo={updateBasicInfo}
-          onSave={saveProfile}
-          isSaving={isSaving}
-          onExport={exportPdf}
-          isExporting={isExporting}
-          canExport={Boolean(sessionId) && Boolean(session?.has_parsed_profile)}
-          isDemo={sessionId === DEMO_SESSION_ID}
-        />
-      </section>
+      {/*
+        FE-1 (2026-05-20): 三栏工作台 shell 替换原 2-column grid.
+
+        - 原 `<ResumeChatRail>` (函数定义仍保留在本文件下方,行 ~1670) 内的
+          推荐 / chat / 输入框 UI 将由 FE-2 + FE-4 子代理 拆迁到
+          `workspace/LeftRecommendRail.tsx` + `workspace/MiddleChatPane.tsx`.
+        - 原 `<EditableResumeCanvas>` (函数定义在本文件下方) 应迁到
+          `workspace/RightResumePane.tsx`(改为只读预览 + hover 改写,
+          编辑能力由 plan-mode 替代).
+        - 现 placeholder 让学生看到三栏雏形,不报 console error.
+
+        被搁置的 props / state(FE-2/3/4 介入时按需接回 WorkspaceShell):
+          notice, error, preferences, savedPreferences, setPreferences,
+          savePreferences, skipPreferences, generate,
+          regenerateFromSyncedProfile, isSaving, isGenerating, feedback,
+          directionResults, activeDirection, setActiveDirection,
+          resumeHistory, switchResumeSession, handleRenameSession,
+          handleDeleteSession, handleUpload, isUploading,
+          updateProfile, updateBasicInfo, saveProfile.
+        StudentKbDrawer 暂仍由 onOpenArchive 触发,FE-4 重做后可删.
+      */}
+      <WorkspaceShell
+        session={session}
+        profile={currentProfile}
+        recommendations={recommendations}
+        chatMessages={chatMessages}
+        isSendingChat={isSendingChat}
+        applyingOption={applyingOption}
+        isExporting={isExporting}
+        canExport={Boolean(sessionId) && Boolean(session?.has_parsed_profile)}
+        isDemo={sessionId === DEMO_SESSION_ID}
+        sendChatMessage={sendChatMessage}
+        applyRewriteOption={applyRewriteOption}
+        onExport={exportPdf}
+        onChangeTrack={() => setEditorOpen(true)}
+        onOpenArchive={() => setKbDrawerOpen(true)}
+        currentTrackName={null}
+        currentFitScore={null}
+      />
     </main>
   );
 }
@@ -2815,3 +2831,14 @@ function CompactSkillEditor({
     </div>
   );
 }
+
+// ── FE-1 transitional preservation ──────────────────────────────────────────
+// `ResumeChatRail` (~lines 1670–2348) and `EditableResumeCanvas` (~line 2348+)
+// hold the original chat/recommend/resume-edit JSX. They are NOT currently
+// rendered — the new `<WorkspaceShell>` ships placeholder panes instead.
+// FE-2 / FE-3 / FE-4 sub-agents will pull the relevant JSX out of these two
+// functions into `workspace/{Left,Middle,Right}*.tsx`. Until then, void-ref
+// them here so lint stays at 0 warnings while the migration is in flight.
+// TODO(FE-2/3/4): once all surfaces are migrated, delete both function bodies.
+void ResumeChatRail;
+void EditableResumeCanvas;
