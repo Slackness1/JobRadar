@@ -386,7 +386,7 @@ def _call_extractor_llm(
             model=RESUME_COPILOT_LLM_MODEL,
             messages=messages,
             temperature=0.1,
-            max_tokens=900,
+            max_tokens=4000,
             response_format={"type": "json_object"},
         )
     except Exception as exc:
