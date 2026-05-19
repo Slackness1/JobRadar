@@ -345,3 +345,18 @@ class MemoryEntryCreateIn(BaseModel):
     payload: dict = {}
     raw_excerpt: str = ''
     confidence: float = 1.0
+
+
+class MemoryEntryPatchIn(BaseModel):
+    """Request body for ``PATCH /sessions/{id}/memory/{entry_id}``.
+
+    A-3 简(main-workspace-redesign-2026-05-20 Phase 1 BE-1):学生只能改两个
+    字段 —— ``summary`` (常驻索引短句) 和 ``payload`` (结构化字段)。
+    其它字段(category / confidence / raw_excerpt …)由 writer 一次性写入,
+    不允许学生修改 —— 改 category 会破坏 reader 的语义,改 raw_excerpt 会破坏
+    anti-hallucination 审计链。
+
+    两个字段均 optional;只提供哪个就改哪个,都不提供 → 422。"""
+
+    summary: str | None = None
+    payload: dict | None = None

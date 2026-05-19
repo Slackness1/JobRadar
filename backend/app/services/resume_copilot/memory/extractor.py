@@ -44,7 +44,13 @@ logger = logging.getLogger(__name__)
 _RESERVED_USER_KEYS = {"__demo__", "__guest__", ""}
 
 
-ALLOWED_CATEGORIES = ("experience", "skill_claim", "preference", "identity_fact")
+# Chat extractor 限 3 类(A-4 简,main-workspace-redesign-2026-05-20):
+# experience / skill_claim / preference 只这 3 类参与 chat 抽取。
+# 老的 5 类(identity_fact / evidence / goal / commitment / weakness_signal)的
+# pydantic payload 模型 + dispatcher 写入路径仍保留 — mock interview / plan finalize
+# 等其它 writer 仍可写入 / reader (StudentMemoryProvider 等) 仍可读出已有的 5 类老数据;
+# 只是 chat extractor 不再产生新的这 5 类。
+ALLOWED_CATEGORIES = ("experience", "skill_claim", "preference")
 
 # Fixed STAR-dimension ontology. Interview question generator joins on these.
 # Adding a new dimension MUST also update interview rubric prompts.
@@ -75,7 +81,7 @@ _EXTRACTOR_SYSTEM_PROMPT = """\
 {
   "name": "≤20 字标题,如「组织 50 人产品发布会」",
   "summary": "≤30 字一句话总结(将作为长期索引项,字数严格控制)",
-  "category": "experience | skill_claim | preference | identity_fact",
+  "category": "experience | skill_claim | preference",
   "star_dimensions": ["leadership", "teamwork", ...],  // 见允许列表
   "behavioral_hook": "STAR 切入点。格式:S=...|T=...|A=...|R=...。
                        可被面试 LLM 直接复用,不是抽象描述",
@@ -87,12 +93,17 @@ _EXTRACTOR_SYSTEM_PROMPT = """\
   "has_outcome": true/false             // 有结果/数字/反馈吗
 }
 
+**只允许这 3 个 category** —— experience / skill_claim / preference。
+其它任何 category 值(identity_fact / evidence / goal / commitment / weakness_signal …)
+一律不要输出 —— 这些信号由其它模块(简历 parse / plan finalize / 面试报告)负责入档,
+不属于 chat 抽取器的职责。
+
 提取硬规则:
 1. category="experience" 必须 has_temporal_anchor && has_concrete_action && has_outcome 三个都为 true。
-   不满足三锚点的经历叙述 → 一律不要提取(宁缺毋滥)。
+   不满足三锚点(时间 / 具体动作 / 结果)的经历叙述 → 一律不要提取(宁缺毋滥)。
 2. 空泛感受类("我喜欢编程"、"我对金融感兴趣"、"我抗压能力强"
    这类没有任何具体凭据的表态)→ 不提取。
-3. 但是,以下三类「事实陈述」即使没有 3 锚点也要提取(用对应 category),
+3. 但是,以下两类「事实陈述」即使没有 3 锚点也要提取(用对应 category),
    并且**必须**填对应的结构化字段:
    - skill_claim: 具体可验证的硬技能/证书/工具能力。
      ("CFA 三级已过"、"Python pandas/numpy 熟练"、"自己写过回测框架"、
@@ -107,18 +118,15 @@ _EXTRACTOR_SYSTEM_PROMPT = """\
        preference_dimension 必须是 city|industry|role|comp|company_type|stage 之一,
        preference_value 是具体值。
        例:`"preference_dimension": "city", "preference_value": "上海"`
-   - identity_fact: 学校/专业/毕业时间/在校身份等可核对的身份事实。
-     ("我是 SAIF MF 2026 届"、"复旦金融工程本科")
-     → category="identity_fact",并填 `identity_fact_kind` 和 `identity_fact_value`:
-       identity_fact_kind 必须是 school|major|degree|graduation_year|program 之一。
-       例:`"identity_fact_kind": "school", "identity_fact_value": "上海交大"`
-   这三类填 has_temporal_anchor/has_concrete_action/has_outcome 时按字面填写
+   这两类填 has_temporal_anchor/has_concrete_action/has_outcome 时按字面填写
    即可(可能都为 false),不影响入库;只有 experience 严格走三锚。
 4. raw_excerpt 必须是原文精确子串,任何修改 = 幻觉,丢弃。
 5. 一次最多 3 条最有价值的;没有可提的 → 返回 []。
 6. star_dimensions 只能从允许列表选,每条 experience 通常 1-4 个 dimension。
-7. category=skill_claim / preference / identity_fact 时 star_dimensions 必须为 []
-   (这些 category 不参与面试召回,只参与档案展示)。
+7. category=skill_claim / preference 时 star_dimensions 必须为 []
+   (这两类不参与面试召回,只参与档案展示)。
+8. 身份事实(学校 / 专业 / 毕业时间)→ **不提取**(由简历 parse 负责,
+   chat 抽取器不重复)。
 
 允许的 star_dimensions:
 leadership, teamwork, conflict_resolution, initiative, deadline_pressure,
@@ -218,12 +226,15 @@ def _candidate_to_payload(c: "ExtractionCandidate") -> Optional[Any]:
     Returns None when the candidate's category is unknown or the structured
     fields needed for that category are missing — caller should skip the
     write rather than send empty payloads through the dispatcher.
+
+    Chat extractor 限 3 类(A-4 简,2026-05-20):只处理 experience / skill_claim /
+    preference。其它 category(identity_fact / evidence / goal / commitment /
+    weakness_signal)的 payload class 仍在 ``app.services.memory.schemas`` 中保留,
+    由其它 writer(简历 parse / plan finalize / 面试报告)使用。
     """
     # Imported lazily to avoid circular import at module load time.
     from app.services.memory.schemas import (
-        EvidenceTag,
         ExperiencePayload,
-        IdentityFactPayload,
         PreferencePayload,
         SkillClaimPayload,
     )
@@ -255,82 +266,23 @@ def _candidate_to_payload(c: "ExtractionCandidate") -> Optional[Any]:
             value=c.preference_value.strip(),
         )
 
-    if c.category == "identity_fact":
-        if not (c.identity_fact_kind and c.identity_fact_value):
-            return None
-        return IdentityFactPayload(
-            kind=c.identity_fact_kind,
-            value=c.identity_fact_value.strip(),
-        )
-
     return None
 
 
 def _derive_evidence_payloads(c: "ExtractionCandidate") -> list[Any]:
-    """For experience candidates, derive 0..N EvidencePayload rows from
-    ``quantified`` dict + behavioral_hook. Other categories return []."""
-    from app.services.memory.schemas import EvidencePayload, EvidenceTag
+    """A-4 简(main-workspace-redesign-2026-05-20):chat extractor 限 3 类
+    (experience / skill_claim / preference),**不再写 evidence** —— 始终返回 [].
 
-    if c.category != "experience":
-        return []
-    if not c.raw_excerpt.strip():
-        return []
-
-    tags: list[EvidenceTag] = []
-    quantified = c.quantified or {}
-
-    # Known quantified keys → tag types. We keep this conservative — only
-    # well-known dimensions become tags. Custom keys go to a generic "outcome"
-    # bucket to avoid losing signal entirely.
-    KEY_TO_TAG_TYPE = {
-        "team_size": "metric",
-        "duration_months": "duration",
-        "duration": "duration",
-        "outcome": "outcome",
-        "tech": "tech",
-        "tools": "tool",
-        "role": "role",
-        "scope": "scope",
-    }
-
-    for key, value in quantified.items():
-        if value in (None, "", []):
-            continue
-        tag_type = KEY_TO_TAG_TYPE.get(key, "outcome")
-        tags.append(
-            EvidenceTag(
-                type=tag_type,
-                value=str(value)[:120],
-                raw=str(value)[:120],
-            )
-        )
-
-    if not tags:
-        # No structured quantified data — still emit one evidence row carrying
-        # the raw_excerpt + an outcome tag derived from the summary, so the
-        # citation is at least preserved.
-        tags.append(
-            EvidenceTag(
-                type="outcome",
-                value=c.summary[:120] or "(unspecified)",
-                raw=c.summary[:120],
-            )
-        )
-
-    return [
-        EvidencePayload(
-            text=c.raw_excerpt,
-            tags=tags,
-            source="chat_extract",
-            related_role=None,
-        )
-    ]
+    EvidencePayload schema 仍保留在 ``app.services.memory.schemas`` 供
+    plan finalize / 简历 parse 等其它 writer 使用;只是 chat 路径不再产生
+    derived evidence rows。
+    """
+    return []
 
 
 def _evidence_summary(c: "ExtractionCandidate", evidence_index: int) -> str:
-    """Generate a stable, unique summary for an evidence row derived from a
-    candidate. Used as the dedup key (with user_key + category) — must vary
-    when the same experience produces multiple evidence rows."""
+    """Dead since A-4 简 — chat extractor no longer writes evidence. Kept as a
+    pure helper in case future writer paths reuse the same naming convention."""
     base = (c.raw_excerpt or c.summary or "").strip()[:60]
     return f"{base} · evidence#{evidence_index}"
 
@@ -529,14 +481,13 @@ def _persist_to_account_memory(
     """PR-2 dual-write second leg: route the candidate through the unified
     dispatcher into ``account_memory``. Returns a small counter dict.
 
-    For ``experience`` candidates, this writes:
-      1. ONE experience row (carries STAR hook + dimensions)
-      2. ONE or more evidence rows derived from `quantified` + raw_excerpt
+    A-4 简(2026-05-20):chat extractor 限 3 类 —— experience / skill_claim /
+    preference,每个 candidate 写 ONE 行,evidence 派生取消(``_derive_evidence_payloads``
+    始终返 [])。 ``evidence_inserted`` 计数字段保留兼容老调用方,但永远 0。
 
-    For ``skill_claim`` / ``preference`` / ``identity_fact``, writes ONE row
-    of that category. Categories whose required structured fields are missing
-    (e.g. preference without preference_dimension) are silently skipped — the
-    LLM forgetting a field shouldn't crash the path.
+    Categories whose required structured fields are missing (e.g. preference
+    without preference_dimension) are silently skipped — the LLM forgetting a
+    field shouldn't crash the path.
 
     All writes go through ``dispatcher.write_memory``, which is itself flag-
     gated on ``UNIFIED_MEMORY_ENABLED`` — so when the flag is OFF this

@@ -25,6 +25,7 @@ from app.schemas_resume_copilot import (
     DirectionTierResult,
     MemoryEntryCreateIn,
     MemoryEntryOut,
+    MemoryEntryPatchIn,
     MemoryGroupedOut,
     PlanStartIn,
     PlanStateOut,
@@ -902,3 +903,137 @@ def post_session_memory(
             detail='MEMORY_WRITE_NO_ROW',
         )
     return MemoryEntryOut.model_validate(serialize_entry(outcome.row))
+
+
+# Phase 1 (BE-1 of main-workspace-redesign-2026-05-20). A-3 简: 学生可以
+# 编辑 + 删除 自己 account_memory 中的条目 —— 不带 ⭐ 重要标记, 不带永久改写
+# 历史。修改限于 summary + payload; 删除走软删 (is_archived=True) 保留审计。
+
+
+def _get_memory_entry_for_session(
+    db: Session,
+    *,
+    session: ResumeCopilotSession,
+    entry_id: int,
+):
+    """Fetch one ``AccountMemory`` row that belongs to ``session``'s owner.
+
+    Returns the ``AccountMemory`` row or raises 404. The 404 message is
+    intentionally identical for "entry doesn't exist" and "entry exists but
+    belongs to another user_key" — never leak existence of other users' rows.
+    """
+    from app.models import AccountMemory
+
+    session_user_key = str(getattr(session, 'user_key', '') or '')
+    row = (
+        db.query(AccountMemory)
+        .filter(
+            AccountMemory.id == entry_id,
+            AccountMemory.user_key == session_user_key,
+        )
+        .first()
+    )
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f'MEMORY_ENTRY_NOT_FOUND:{entry_id}',
+        )
+    return row
+
+
+@router.patch(
+    '/sessions/{session_id}/memory/{entry_id}',
+    response_model=MemoryEntryOut,
+)
+def patch_session_memory_entry(
+    session_id: int,
+    entry_id: int,
+    body: MemoryEntryPatchIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> MemoryEntryOut:
+    """Edit one memory entry. A-3 简: only ``summary`` / ``payload`` mutable.
+
+    Guards (in order):
+      - 404 if session unknown
+      - 403 if X-Resume-User-Key doesn't match session owner
+      - 403 if demo session (read-only by convention)
+      - 404 if entry id doesn't exist OR belongs to another user_key
+      - 422 if patched payload fails category-schema validation
+      - 422 if both summary and payload are None (no-op)
+    """
+    from app.services.memory.api_helpers import serialize_entry
+    from app.services.memory.schemas import validate_payload
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    if body.summary is None and body.payload is None:
+        raise HTTPException(
+            status_code=422,
+            detail='MEMORY_PATCH_EMPTY: at least one of summary / payload required',
+        )
+
+    row = _get_memory_entry_for_session(db, session=session_obj, entry_id=entry_id)
+
+    # ── summary update ─────────────────────────────────────────────────────
+    if body.summary is not None:
+        cleaned = body.summary.strip()
+        if not cleaned:
+            raise HTTPException(
+                status_code=422,
+                detail='MEMORY_PATCH_EMPTY_SUMMARY',
+            )
+        if len(cleaned) > 200:
+            cleaned = cleaned[:200]
+        row.summary = cleaned
+
+    # ── payload update (validated against category schema) ────────────────
+    if body.payload is not None:
+        category = str(row.category or '')
+        try:
+            validated = validate_payload(category, body.payload)
+        except (ValueError, Exception) as exc:  # noqa: BLE001 — pydantic + ValueError both possible
+            raise HTTPException(
+                status_code=422,
+                detail=f'MEMORY_PATCH_INVALID_PAYLOAD: {str(exc)[:300]}',
+            )
+        row.payload_json = validated.model_dump_json()
+
+    # AccountMemory has no `updated_at` column — bump ``last_verified_at``
+    # which carries the "I touched this row" semantic for read-side ordering.
+    row.last_verified_at = datetime.utcnow()
+    db.commit()
+    db.refresh(row)
+    return MemoryEntryOut.model_validate(serialize_entry(row))
+
+
+@router.delete(
+    '/sessions/{session_id}/memory/{entry_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_session_memory_entry(
+    session_id: int,
+    entry_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Soft-delete a memory entry (``is_archived=True``).
+
+    We never hard-delete — audit trail + Plan-Mode citations may reference
+    the row id. Subsequent GET /memory filters archived rows out by default,
+    so from the UI's perspective it disappears immediately.
+    """
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    row = _get_memory_entry_for_session(db, session=session_obj, entry_id=entry_id)
+
+    # Idempotent: re-archiving an archived row is a no-op, still 204.
+    if not bool(getattr(row, 'is_archived', False)):
+        row.is_archived = True
+        row.last_verified_at = datetime.utcnow()
+        db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
