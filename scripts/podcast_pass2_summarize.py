@@ -21,9 +21,24 @@ OUT = PROC / "episode_summaries.jsonl"
 DEBUG = PROC / "_debug"
 DEBUG.mkdir(parents=True, exist_ok=True)
 
-KEY = os.environ["MIMO_API_KEY"]
-URL = "https://token-plan-sgp.xiaomimimo.com/v1/chat/completions"
-MODEL = "mimo-v2.5-pro"
+def _env(k):
+    for p in [ROOT/"backend/.env.local", ROOT/"backend/.env"]:
+        if p.exists():
+            for line in p.read_text().splitlines():
+                if line.startswith(f"{k}="):
+                    return line.split("=",1)[1].strip().strip('"').strip("'")
+    return None
+
+USE_DEEPSEEK = "--use-deepseek" in sys.argv
+if USE_DEEPSEEK:
+    sys.argv.remove("--use-deepseek")
+    KEY = os.environ.get("DEEPSEEK_API_KEY") or _env("DEEPSEEK_API_KEY") or _env("RESUME_COPILOT_API_KEY")
+    URL = (os.environ.get("DEEPSEEK_BASE_URL") or _env("DEEPSEEK_BASE_URL") or _env("RESUME_COPILOT_BASE_URL") or "https://api.deepseek.com/v1") + "/chat/completions"
+    MODEL = "deepseek-chat"
+else:
+    KEY = os.environ["MIMO_API_KEY"]
+    URL = "https://token-plan-sgp.xiaomimimo.com/v1/chat/completions"
+    MODEL = "mimo-v2.5-pro"
 
 term_dict = json.loads((PROC / "term_dict.json").read_text())
 CANON_COMPANIES = [c["canonical"] for c in term_dict["companies"]]

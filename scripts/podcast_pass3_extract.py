@@ -81,7 +81,6 @@ confidence 三档：
 speaker：
 - 转录里 [spk0] / [spk1] 标签是 ASR 的说话人编号
 - 根据 system 提供的「主持人」和「嘉宾」名字，推断每段是谁说的
-- 主持人是「大力」/「王大力」（大力如山节目）或「西西」（就业研究所节目）
 - 单口集 speaker = "host"
 - 实在判断不出 speaker = "unknown"
 
@@ -135,16 +134,31 @@ def call_llm(payload_body, *, use_deepseek=False):
     with urllib.request.urlopen(req, timeout=240) as r:
         return json.load(r)
 
+def _load_host(eid: str) -> str:
+    """Read host from META/{eid}.meta.json (recorded by transcribe_apple.py)."""
+    meta_path = META / f"{eid}.meta.json"
+    if meta_path.exists():
+        try:
+            m = json.loads(meta_path.read_text())
+            host = (m.get("host") or "").strip()
+            if host:
+                return host
+        except Exception:
+            pass
+    return "(主持人未知)"
+
+
 def build_user_msg(eid, summary, transcript):
     show = summary.get("show") or "?"
     title = summary.get("title") or "?"
     topic = summary.get("topic_one_liner") or "?"
     guests = summary.get("guests") or []
     guests_str = "; ".join(f"{g.get('name','?')}({g.get('background','?')[:40]})" for g in guests) or "(无嘉宾，主持人单口)"
+    host = _load_host(eid)
     return f"""节目: {show}
 单集: {title}
 主题: {topic}
-主持人: {"大力" if show == "大力如山" else "西西"}
+主持人: {host}
 嘉宾: {guests_str}
 
 转录文本（[spkN] 是 ASR 说话人编号）：
@@ -181,6 +195,8 @@ def validate_insight(ins):
         "confidence": conf,
     }
 
+PRIMARY_DEEPSEEK = False  # set in main() from CLI flag
+
 def process(eid):
     summary = get_summary_for_eid(eid)
     if not summary:
@@ -193,31 +209,34 @@ def process(eid):
         "max_tokens": 8192,
         "response_format": {"type": "json_object"},
     }
-    used_provider = "mimo"
+    primary_is_ds = PRIMARY_DEEPSEEK
+    used_provider = "deepseek" if primary_is_ds else "mimo"
     try:
-        resp = call_llm(payload)
+        resp = call_llm(payload, use_deepseek=primary_is_ds)
     except urllib.error.HTTPError as e:
-        # Try DeepSeek fallback for content filter issues (HTTP 400)
-        if e.code == 400 and DS_KEY:
+        # Cross-provider fallback for content filter / quota issues
+        other_key_present = KEY if primary_is_ds else DS_KEY
+        if e.code in (400, 429) and other_key_present:
             try:
-                resp = call_llm(payload, use_deepseek=True)
-                used_provider = "deepseek-fallback"
+                resp = call_llm(payload, use_deepseek=not primary_is_ds)
+                used_provider = ("mimo-fallback" if primary_is_ds else "deepseek-fallback")
             except Exception as e2:
-                return ("err", eid, [], f"both providers failed: mimo={e}; deepseek={e2}")
+                return ("err", eid, [], f"both providers failed: primary={e}; other={e2}")
         else:
             return ("err", eid, [], f"http {e.code}: {str(e.read())[:200] if hasattr(e,'read') else e}")
     except Exception as e:
         return ("err", eid, [], str(e))
     content = resp["choices"][0]["message"]["content"]
-    # MiMo content filter sometimes returns 200 with rejection text — fall back to DeepSeek
-    if used_provider == "mimo" and DS_KEY and ("high risk" in content or len(content.strip()) < 30):
+    # MiMo content filter sometimes returns 200 with rejection text — try the other provider
+    other_key_present = KEY if primary_is_ds else DS_KEY
+    if used_provider in ("mimo", "deepseek") and other_key_present and ("high risk" in content or len(content.strip()) < 30):
         try:
-            resp = call_llm(payload, use_deepseek=True)
+            resp = call_llm(payload, use_deepseek=not primary_is_ds)
             content = resp["choices"][0]["message"]["content"]
-            used_provider = "deepseek-fallback"
+            used_provider = ("mimo-fallback" if primary_is_ds else "deepseek-fallback")
         except Exception as e:
             (DEBUG / f"{eid}__pass3.raw.txt").write_text(content)
-            return ("err", eid, [], f"mimo rejected, DS fallback failed: {e}")
+            return ("err", eid, [], f"primary rejected, fallback failed: {e}")
     try:
         data = json.loads(content)
     except Exception as e:
@@ -248,10 +267,17 @@ def main():
     ap.add_argument("--sample", type=int, default=0, help="run on N sample eids only")
     ap.add_argument("--eids", type=str, default="", help="comma-separated eids to run")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--use-deepseek", action="store_true", help="DeepSeek primary, mimo fallback (default: mimo primary)")
     args = ap.parse_args()
 
-    if not KEY:
-        print("MIMO_API_KEY not set", file=sys.stderr); sys.exit(1)
+    global PRIMARY_DEEPSEEK
+    PRIMARY_DEEPSEEK = args.use_deepseek
+    if PRIMARY_DEEPSEEK:
+        if not DS_KEY:
+            print("DEEPSEEK_API_KEY not set (or RESUME_COPILOT_API_KEY)", file=sys.stderr); sys.exit(1)
+    else:
+        if not KEY:
+            print("MIMO_API_KEY not set", file=sys.stderr); sys.exit(1)
 
     done = get_done_eids()
     all_eids = sorted({json.loads(l)["eid"] for l in SUMMARIES.read_text().splitlines() if l.strip()})
@@ -277,7 +303,7 @@ def main():
 
     out_handle = OUT.open("a")
     n_ok = n_err = total_in = total_out = total_bad = 0
-    by_provider = {"mimo": 0, "deepseek-fallback": 0}
+    by_provider = {"mimo": 0, "deepseek": 0, "mimo-fallback": 0, "deepseek-fallback": 0}
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
         for fut in as_completed([ex.submit(process, e) for e in todo]):
@@ -292,7 +318,8 @@ def main():
                 total_bad += info["bad"]
                 by_provider[info["provider"]] = by_provider.get(info["provider"], 0) + 1
                 n_ok += 1
-                tag = " (DS)" if info["provider"] == "deepseek-fallback" else ""
+                tag_map = {"deepseek": " (DS)", "mimo": " (MM)", "deepseek-fallback": " (DS-fb)", "mimo-fallback": " (MM-fb)"}
+                tag = tag_map.get(info["provider"], "")
                 print(f"  ✓ {eid} {len(insights):>3} insights{tag}  bad={info['bad']:>2}  in={u.get('prompt_tokens')}/out={u.get('completion_tokens')}")
             else:
                 n_err += 1

@@ -28,6 +28,13 @@ from typing import Any, Iterable
 import yaml
 
 import app.config  # noqa: F401  触发 .env.local 加载
+
+# 触发 ContextRegistry 注册 (PodcastContext / StudentMemory / TencentTrack / TrackKnowledge / SensitiveTopic)
+# 否则 fetch_blocks() 返空, podcast RAG 不生效。Runner 不走 FastAPI lifespan, 需要显式 bootstrap。
+from app.services.llm_context import bootstrap as _bootstrap_llm_context, registered_names as _registered_names
+_bootstrap_llm_context()
+logging.getLogger(__name__).info("LLM context providers loaded: %s", _registered_names())
+
 from tests.eval.clients import build_judge_client, build_simulator_client, build_sut_client
 from tests.eval.judge import (
     Score,
@@ -660,6 +667,10 @@ def main() -> int:
         help="Phase 1 (real-JD): 只跑 jds_real/ + MULTI_TURN_REAL_FIXTURES,"
              "其他 metric 跳过。建议配合 --out baseline_real.json。",
     )
+    parser.add_argument(
+        "--limit-combos", type=int, default=0,
+        help="只跑前 N 个 multi-turn combo (0 = 全跑)。用于快速 sanity check。",
+    )
     args = parser.parse_args()
 
     if args.diff:
@@ -709,6 +720,8 @@ def main() -> int:
     if "multi_turn_quality" in metrics or "feedback_specificity" in metrics:
         simulator = build_simulator_client()
         combos = MULTI_TURN_REAL_FIXTURES if args.real_only else MULTI_TURN_FIXTURES
+        if args.limit_combos:
+            combos = combos[:args.limit_combos]
         multi_turn_results = run_multi_turn_quality(
             sut, simulator, judge, students, jds, combos=combos,
         )
@@ -720,6 +733,8 @@ def main() -> int:
         if not multi_turn_results:
             simulator = build_simulator_client()
             combos = MULTI_TURN_REAL_FIXTURES if args.real_only else MULTI_TURN_FIXTURES
+            if args.limit_combos:
+                combos = combos[:args.limit_combos]
             multi_turn_results = run_multi_turn_quality(
                 sut, simulator, judge, students, jds, combos=combos,
             )
