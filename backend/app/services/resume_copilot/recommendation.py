@@ -1,6 +1,7 @@
 import re
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Protocol
@@ -738,6 +739,10 @@ def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | N
     return db.query(Job).all()
 
 
+RECOMMEND_TOP_N = 10
+RECOMMEND_MIN_SCORE = 50
+
+
 def recommend_jobs_for_profile(
     db: Session,
     profile: ResumeProfilePayload,
@@ -745,7 +750,31 @@ def recommend_jobs_for_profile(
     limit: int | None = None,
     ai_provider: ResumeRecommendationProvider | None = None,
     ai_top_n: int = 10,  # B7 (2026-05-19): 5→10, 让全 top-10 都有 LLM 生成的 strengths/risks
+    rejected_job_ids: list[str] | None = None,
+    min_score: int | None = None,
+    top_n: int | None = None,
 ) -> tuple[list[ResumeRecommendationItem], bool, str]:
+    """
+    BE-3 of main-workspace-redesign-2026-05-20 (D-6):
+
+    - ``rejected_job_ids`` — caller-provided list of job_ids the user has
+      ✗-rejected; filtered out before sort. The session-level rejected list
+      lives on ``ResumeCopilotSession.rejected_job_ids_json``; callers parse
+      that and pass it in. ``None`` / empty list = no filtering (preserves
+      backwards-compatible behaviour).
+    - Final sort applies top-N (``RECOMMEND_TOP_N=10``) and a minimum score
+      (``RECOMMEND_MIN_SCORE=50``). If fewer than 10 candidates clear the
+      threshold, returns whatever passed — caller checks ``len(items) < 10``
+      to render the "暂无更多优质推荐" hint. The 50-floor is enforced
+      regardless of ``limit`` — passing ``limit=20`` does NOT bring back
+      sub-50 candidates.
+    - ``min_score`` / ``top_n`` are escape hatches for unit tests that need
+      to assert scoring contracts in isolation; production callers leave
+      them ``None`` to get the product defaults.
+    """
+    rejected_set: set[str] = {str(j).strip() for j in (rejected_job_ids or []) if str(j).strip()}
+    effective_min_score = RECOMMEND_MIN_SCORE if min_score is None else int(min_score)
+    effective_top_n = RECOMMEND_TOP_N if top_n is None else int(top_n)
     profile_tokens = build_profile_tokens(profile)
     jobs = _filter_candidate_jobs(db, preferences)
     recommendations: list[ResumeRecommendationItem] = []
@@ -836,6 +865,15 @@ def recommend_jobs_for_profile(
             )
         )
 
+    # BE-3 (D-2 / D-3): exclude jobs the user has ✗-rejected this session
+    # before any sort / threshold. Done here (not in the SQL filter) so the
+    # rejected list overrides every recall branch — including the "all jobs"
+    # fallback — without coupling to track_cond.
+    if rejected_set:
+        recommendations = [
+            item for item in recommendations if str(item.job_id) not in rejected_set
+        ]
+
     recommendations.sort(
         key=lambda item: (
             item.final_score,
@@ -914,15 +952,65 @@ def recommend_jobs_for_profile(
                         ),
                         reverse=True,
                     )
-                    if limit is not None:
-                        return updated_recommendations[:limit], True, ''
-                    return updated_recommendations, True, ''
+                    return _apply_top_n_with_threshold(
+                        updated_recommendations, limit, effective_top_n, effective_min_score,
+                    ), True, ''
                 except Exception as exc:
                     fallback_reason = str(exc)
-            if limit is not None:
-                return recommendations[:limit], False, fallback_reason
-            return recommendations, False, fallback_reason
+            return _apply_top_n_with_threshold(
+                recommendations, limit, effective_top_n, effective_min_score,
+            ), False, fallback_reason
 
-    if limit is not None:
-        return recommendations[:limit], False, ''
-    return recommendations, False, ''
+    return _apply_top_n_with_threshold(
+        recommendations, limit, effective_top_n, effective_min_score,
+    ), False, ''
+
+
+def _apply_top_n_with_threshold(
+    items: list[ResumeRecommendationItem],
+    limit: int | None,
+    top_n: int = RECOMMEND_TOP_N,
+    min_score: int = RECOMMEND_MIN_SCORE,
+) -> list[ResumeRecommendationItem]:
+    """BE-3 (D-6): enforce top-N + 50-score floor on a sorted recommendation list.
+
+    ``items`` must already be sorted by descending ``final_score``. The score
+    floor (``RECOMMEND_MIN_SCORE``) is applied unconditionally — passing a
+    large ``limit`` does NOT bring back sub-floor items. ``limit`` acts only
+    as a cap; the effective top-N is ``min(limit, RECOMMEND_TOP_N)`` so the
+    caller can shrink (e.g. preview slot) but never expand past 10.
+    """
+    cap = top_n if limit is None else min(int(limit), top_n)
+    if cap <= 0:
+        return []
+    filtered = [item for item in items if int(item.final_score or 0) >= min_score]
+    return filtered[:cap]
+
+
+def should_debounce_recommend(
+    session,
+    debounce_seconds: float = 1.5,
+    now: datetime | None = None,
+) -> bool:
+    """BE-3 (D-5): collapse rapid back-to-back recommend regenerations.
+
+    Returns ``True`` if a recommend re-trigger should be SKIPPED because the
+    previous trigger fired within ``debounce_seconds``. Callers that decide
+    to fire a regeneration MUST stamp ``session.last_recommend_trigger_at =
+    datetime.utcnow()`` themselves (and commit) — this helper only reads.
+
+    Pass ``None`` / unbound sessions (no ``last_recommend_trigger_at`` field
+    or column NULL) returns False — i.e. allow the trigger.
+    """
+    if session is None:
+        return False
+    last = getattr(session, 'last_recommend_trigger_at', None)
+    if last is None:
+        return False
+    current = now or datetime.utcnow()
+    delta = (current - last).total_seconds()
+    if delta < 0:
+        # Clock skew defence — treat negative deltas as "fresh enough" so we
+        # don't get stuck blocking forever.
+        return False
+    return delta < float(debounce_seconds)

@@ -90,6 +90,13 @@ class ResumeCopilotSession(Base):
     expires_at = Column(DateTime, nullable=True, index=True)
     plan_json = Column(Text, nullable=True)
     plan_status = Column(Text, default="idle", index=True)
+    # BE-3 of main-workspace-redesign-2026-05-20 (D-2 / D-3 / D-5):
+    # rejected_job_ids_json — session-scoped list of job_ids the user has
+    # ✗-rejected from recommendations; filtered out on every regenerate.
+    # last_recommend_trigger_at — used by should_debounce_recommend() to
+    # collapse rapid back-to-back regenerate triggers.
+    rejected_job_ids_json = Column(Text, default="[]", nullable=True)
+    last_recommend_trigger_at = Column(DateTime, nullable=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",

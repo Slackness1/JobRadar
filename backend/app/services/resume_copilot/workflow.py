@@ -186,11 +186,22 @@ def run_resume_generate_workflow(
         # ── Step 1: Rule scoring ──────────────────────────────────────────
         _append_agent_trace(db, session_id, agent_trace, 'Agent',
                             '规则引擎召回中，正在计算基础匹配分…', 'running')
+        # BE-3 (D-2/D-3): exclude jobs the user has ✗-rejected this session
+        rejected_job_ids: list[str] = []
+        raw_rejected = getattr(session, 'rejected_job_ids_json', None)
+        if raw_rejected:
+            try:
+                parsed = json.loads(str(raw_rejected) or '[]')
+                if isinstance(parsed, list):
+                    rejected_job_ids = [str(j) for j in parsed if str(j).strip()]
+            except json.JSONDecodeError:
+                rejected_job_ids = []
         candidates, used_ai, fallback_reason = recommend_jobs_for_profile(
             db, profile, preferences,
             limit=RESUME_RECOMMENDATION_LIMIT,
             ai_provider=recommendation_provider,
             ai_top_n=0,
+            rejected_job_ids=rejected_job_ids,
         )
         _append_agent_trace(db, session_id, agent_trace, 'Agent',
                             f'规则初筛完成，召回 {len(candidates)} 个候选岗位。', 'completed')

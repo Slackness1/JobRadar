@@ -18,6 +18,7 @@ from app.models import (
     ResumeRecommendationRun,
 )
 from app.schemas_resume_copilot import (
+    REJECT_REASON_LABELS,
     AgentActionIn,
     ApplyRewriteIn,
     ApplyRewriteOut,
@@ -28,6 +29,8 @@ from app.schemas_resume_copilot import (
     MemoryGroupedOut,
     PlanStartIn,
     PlanStateOut,
+    RecommendRejectIn,
+    RecommendRejectOut,
     ResumeAgentTraceItem,
     ResumeConfirmedProfileIn,
     ResumeConfirmedProfileOut,
@@ -457,6 +460,148 @@ def get_resume_copilot_recommendations(
         fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
         error_message=str(getattr(recommendation_run, 'error_message', '') or ''),
         items=[ResumeRecommendationItem.model_validate(item) for item in json.loads(str(recommendations_json))],
+    )
+
+
+@router.post(
+    '/sessions/{session_id}/recommendations/{job_id}/reject',
+    response_model=RecommendRejectOut,
+)
+def post_reject_recommendation(
+    session_id: int,
+    job_id: str,
+    payload: RecommendRejectIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> RecommendRejectOut:
+    """BE-3 of main-workspace-redesign-2026-05-20 (D-2 / D-3): user ✗'d a job
+    on the recommend rail.
+
+    Effects:
+
+    1. Validates ``payload.reason`` against the canonical 5-key map.
+    2. Verifies ``job_id`` appeared in this session's most recent
+       recommendations (anti-id-guessing). 404 if not.
+    3. Writes an ``account_memory.preference`` row capturing
+       company / job_id / reason / note / rejected_at.
+    4. Appends ``job_id`` to ``ResumeCopilotSession.rejected_job_ids_json``
+       (dedupe). The next ``recommend_jobs_for_profile`` call reads this list
+       and filters those jobs out.
+    5. Returns the inserted ``memory_entry_id`` (may be the same row id on
+       second-press dedupe via the dispatcher's summary_hash refresh) and the
+       updated ``rejected_count``.
+
+    Demo session: 403 via ``_assert_not_demo``.
+    Cross-session id guessing: 403 via ``_assert_session_owner``.
+    Reject reason not in the 5-key set: 422.
+    job_id not in the latest recommendations list for this session: 404.
+    """
+    from app.services.memory.dispatcher import write_memory
+    from app.services.memory.schemas import PreferencePayload
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    reason_key = (payload.reason or '').strip()
+    if reason_key not in REJECT_REASON_LABELS:
+        raise HTTPException(
+            status_code=422,
+            detail=f'INVALID_REJECT_REASON: must be one of {sorted(REJECT_REASON_LABELS)}',
+        )
+    reason_label = REJECT_REASON_LABELS[reason_key]
+
+    # ── Verify job_id is in the most recent recommendations ─────────────────
+    recommendation_run = db.query(ResumeRecommendationRun).filter(
+        ResumeRecommendationRun.session_id == session_id
+    ).first()
+    if recommendation_run is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f'NO_RECOMMENDATIONS: session {session_id} has no recommendation run',
+        )
+    recs_raw = str(getattr(recommendation_run, 'recommendations_json', '[]') or '[]')
+    try:
+        recs_list = json.loads(recs_raw)
+    except json.JSONDecodeError:
+        recs_list = []
+    rec_lookup = {
+        str(rec.get('job_id', '')): rec
+        for rec in recs_list
+        if isinstance(rec, dict)
+    }
+    target = rec_lookup.get(str(job_id))
+    if target is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f'JOB_NOT_IN_RECOMMENDATIONS: {job_id}',
+        )
+    company = str(target.get('company') or '') or '未知公司'
+
+    # ── Write account_memory.preference ─────────────────────────────────────
+    # PreferenceDimension is constrained to {city,industry,role,comp,
+    # company_type,stage}; ``company_type`` is the closest fit for "this
+    # company is not for me" without modifying the memory schema. Full
+    # reject metadata (job_id / reason key / note / timestamp) is JSON-packed
+    # into raw_excerpt so the 我的档案 UI can render it.
+    rejected_at_iso = datetime.utcnow().isoformat()
+    note = (payload.note or '').strip()
+    raw_excerpt_payload = json.dumps(
+        {
+            'company': company,
+            'job_id': str(job_id),
+            'reason': reason_key,
+            'reason_label': reason_label,
+            'note': note,
+            'rejected_at': rejected_at_iso,
+        },
+        ensure_ascii=False,
+    )
+    user_key = str(getattr(session_obj, 'user_key', '') or '')
+    outcome = write_memory(
+        db,
+        user_key=user_key,
+        category='preference',
+        summary=f'不喜欢 {company} - {reason_label}',
+        payload=PreferencePayload(dimension='company_type', value=company),
+        source_module='recommend_reject',
+        source_session_id=session_id,
+        raw_excerpt=raw_excerpt_payload,
+        confidence=1.0,
+    )
+    if outcome.action == 'validation_error':
+        raise HTTPException(
+            status_code=422,
+            detail=f'MEMORY_VALIDATION_ERROR: {outcome.reason}',
+        )
+    if outcome.action == 'blocked':
+        # Most likely flag_off (Phase 0 enabled it) or guest/empty user_key.
+        # Either way we still want the rejected_job_ids list to update so the
+        # session-level filter works — but we report the block so the caller
+        # knows the档案 entry didn't persist.
+        memory_entry_id: int | None = None
+    else:
+        memory_entry_id = int(outcome.row.id) if outcome.row is not None else None
+
+    # ── Append to session.rejected_job_ids_json (dedupe) ────────────────────
+    raw_rejected = getattr(session_obj, 'rejected_job_ids_json', None)
+    try:
+        current_rejected = json.loads(str(raw_rejected) if raw_rejected else '[]')
+        if not isinstance(current_rejected, list):
+            current_rejected = []
+    except json.JSONDecodeError:
+        current_rejected = []
+    job_str = str(job_id)
+    if job_str not in {str(j) for j in current_rejected}:
+        current_rejected.append(job_str)
+    session_obj.rejected_job_ids_json = json.dumps(current_rejected)
+    session_obj.updated_at = datetime.utcnow()
+    db.commit()
+
+    return RecommendRejectOut(
+        ok=True,
+        memory_entry_id=memory_entry_id,
+        rejected_count=len(current_rejected),
     )
 
 

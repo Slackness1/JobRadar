@@ -10,7 +10,19 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
     ResumeSkillsPayload,
 )
-from app.services.resume_copilot.recommendation import recommend_jobs_for_profile
+from app.services.resume_copilot.recommendation import (
+    recommend_jobs_for_profile as _recommend_jobs_for_profile,
+)
+
+
+def recommend_jobs_for_profile(*args, **kwargs):
+    """Test-only wrapper: disable the BE-3 top-10/50-floor by default so the
+    unit-level scoring contracts (token match, preference boost, AI rerank,
+    ...) can be asserted in isolation. Tests that exercise the threshold/
+    top-N behaviour itself live in ``test_recommend_threshold.py``."""
+    kwargs.setdefault('min_score', 0)
+    kwargs.setdefault('top_n', 999)
+    return _recommend_jobs_for_profile(*args, **kwargs)
 
 
 def _build_session_factory():
