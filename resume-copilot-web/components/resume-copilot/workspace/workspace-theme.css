@@ -1,0 +1,206 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * workspace-theme.css — main workspace shell scope
+ *
+ * Scope: `.workspace-hifi` (Phase-2 FE-1, 2026-05-20)
+ *
+ * Holds layout-specific styles for `/resume-copilot` 主工作台 三栏 shell.
+ * All tokens are inherited from `components/hifi/hifi-tokens.css` (which is
+ * scoped to `.hf`); `.workspace-hifi` always nests inside `.hf` so the
+ * terracotta / parchment palette is available without re-declaring tokens.
+ *
+ * Strict-isolation rule (CLAUDE.md "Design system rules"):
+ *   - Workspace CSS must NOT bleed into landing (`/`), upload (`/upload`),
+ *     or interview (`/interview/*`).
+ *   - Anything new here is selected only via `.workspace-hifi ...`.
+ *   - No `:root` overrides, no global element selectors.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.workspace-hifi {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* ── Top track bar (E-5) ─────────────────────────────────────────────────── */
+
+.workspace-hifi__top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 24px;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border-warm);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+
+.workspace-hifi__top-bar-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.workspace-hifi__top-bar-target-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+}
+
+.workspace-hifi__top-bar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-warm);
+}
+
+.workspace-hifi__top-bar-score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--olive);
+}
+
+.workspace-hifi__top-bar-score-value {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__top-bar-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Three-pane grid (E-1) ───────────────────────────────────────────────── */
+
+.workspace-hifi__grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 420px;
+  min-height: 0;
+}
+
+@media (max-width: 1280px) {
+  .workspace-hifi__grid {
+    grid-template-columns: 260px minmax(0, 1fr) 380px;
+  }
+}
+
+.workspace-hifi__pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.workspace-hifi__pane--left {
+  background: var(--library-rail);
+  border-right: 1px solid var(--border-warm);
+}
+
+.workspace-hifi__pane--middle {
+  background: var(--ivory);
+  border-right: 1px solid var(--border-warm);
+}
+
+.workspace-hifi__pane--right {
+  background: var(--parchment);
+}
+
+/* ── Pane header (shared) ────────────────────────────────────────────────── */
+
+.workspace-hifi__pane-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border-cream);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__pane-header-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+}
+
+.workspace-hifi__pane-header-count {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0;
+}
+
+/* ── Pane body (scroll area) ─────────────────────────────────────────────── */
+
+.workspace-hifi__pane-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+/* ── Placeholder card (used by FE-2/3/4 stubs until they implement) ──────── */
+
+.workspace-hifi__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 32px 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--ivory);
+  color: var(--olive);
+  font-size: 13px;
+  min-height: 120px;
+}
+
+.workspace-hifi__placeholder-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__placeholder-hint {
+  font-size: 12.5px;
+  color: var(--stone);
+  line-height: 1.5;
+}
+
+.workspace-hifi__placeholder-todo {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
