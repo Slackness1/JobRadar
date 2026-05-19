@@ -233,15 +233,15 @@ tracks:
       # Workday CXS 已 wired (Phase 10, 2026-05-11)
       - name: Citi
       - name: Morgan Stanley
-      # Workday CXS 422 — endpoint 存在但拒绝最小 payload，待 per-tenant facets 调试
+      # higher.gs.com GraphQL 已 wired (2026-05-19)
       - name: Goldman Sachs
-        deferred_reason: goldmansachs.wd1.myworkdayjobs.com Workday 422，需 per-tenant facets/session prep
-      - name: JP Morgan
-        deferred_reason: jpmc.wd5.myworkdayjobs.com Workday 422
+      # Oracle Taleo TGnewUI SPA via Playwright 已 wired (2026-05-19)
       - name: UBS
-        deferred_reason: ubs.wd3.myworkdayjobs.com Workday 422
+      # Workday CXS 422 — endpoint 存在但拒绝最小 payload，待 per-tenant facets 调试
+      - name: JP Morgan
+        deferred_reason: jpmc.wd5.myworkdayjobs.com Workday 422；无公开 job-search 入口
       - name: HSBC
-        deferred_reason: hsbc.wd3.myworkdayjobs.com Workday 422；mycareer.hsbc.com 已迁站
+        deferred_reason: mycareer.hsbc.com 实测 50 条全在 Poland GSC，非 SAIF 相关；中国/HK IBD 未走此 portal
       - name: Bank of America
         deferred_reason: bankofamerica.wd1.myworkdayjobs.com Workday 422
       - name: BNP Paribas
