@@ -18,7 +18,7 @@
  *   - 不会渗到 `/`、`/upload`、`/interview/*`
  */
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type {
   CopilotMessage,
@@ -32,6 +32,7 @@ import { LeftRecommendRail } from './LeftRecommendRail';
 import { MiddleChatPane } from './MiddleChatPane';
 import { RightResumePane } from './RightResumePane';
 import { RewriteProvider } from './RewriteContext';
+import { ArchivePanel } from './archive/ArchivePanel';
 
 import './workspace-theme.css';
 
@@ -71,6 +72,13 @@ export interface WorkspaceShellProps {
   /** 顶部赛道 placeholder 数据,FE-2/P2-1 算法接入后真填 */
   currentTrackName?: string | null;
   currentFitScore?: number | null;
+
+  // ── FE-4 wiring ───────────────────────────────────────────────────────────
+  /** 当前用户 X-Resume-User-Key — api.ts 自己会从 localStorage 拿,这里传入主要
+   *  让 ArchivePanel / chat 子组件做 user-scope 检查或 future toast. */
+  xResumeUserKey?: string;
+  /** 学生从 ArchivePanel 引导 banner 或档案 entry 触发 plan-mode (FE-4 B-2). */
+  onStartPlanMode?: (focusKind: string, focusId?: number) => void;
 }
 
 export function WorkspaceShell(props: WorkspaceShellProps) {
@@ -94,6 +102,8 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     onRecommendationsChanged,
     currentTrackName = null,
     currentFitScore = null,
+    xResumeUserKey,
+    onStartPlanMode,
   } = props;
 
   // Lock body scroll so the three panes own their own vertical overflow.
@@ -104,6 +114,42 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
       document.body.style.overflow = previous;
     };
   }, []);
+
+  // ── FE-4 cross-component wiring ─────────────────────────────────────────
+  // ArchivePanel banner / entry → MiddleChatPane plan-mode auto-open.
+  const [planFocusRequest, setPlanFocusRequest] = useState<
+    { focusKind: 'experience'; focusId?: number } | null
+  >(null);
+  const [archiveRefreshTick, setArchiveRefreshTick] = useState(0);
+
+  const handleStartPlanMode = useCallback(
+    (focusKind: string, focusId?: number) => {
+      setPlanFocusRequest({
+        focusKind: 'experience',
+        focusId: focusKind === 'experience' ? focusId : undefined,
+      });
+      onStartPlanMode?.(focusKind, focusId);
+    },
+    [onStartPlanMode],
+  );
+
+  const handlePlanFocusConsumed = useCallback(() => {
+    setPlanFocusRequest(null);
+  }, []);
+
+  const handleMemoryArchived = useCallback(() => {
+    // bump ArchivePanel mount key so it re-fetches /memory after入档
+    setArchiveRefreshTick((t) => t + 1);
+  }, []);
+
+  const archiveSlot = (
+    <ArchivePanel
+      key={`${session?.id ?? 'none'}-${archiveRefreshTick}`}
+      sessionId={session?.id ?? null}
+      isDemo={isDemo}
+      onStartPlanMode={handleStartPlanMode}
+    />
+  );
 
   return (
     <div className="hf">
@@ -129,6 +175,10 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               applyingOption={applyingOption}
               sendChatMessage={sendChatMessage}
               applyRewriteOption={applyRewriteOption}
+              isDemo={isDemo}
+              planFocusRequest={planFocusRequest}
+              onPlanFocusRequestConsumed={handlePlanFocusConsumed}
+              onMemoryArchived={handleMemoryArchived}
             />
             <RightResumePane
               session={session}
@@ -136,8 +186,10 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               isExporting={isExporting}
               canExport={canExport}
               isDemo={isDemo}
+              xResumeUserKey={xResumeUserKey}
               onOpenArchive={onOpenArchive}
               onExport={onExport}
+              archiveSlot={archiveSlot}
             />
           </div>
         </div>

@@ -499,3 +499,258 @@ export function postRejectRecommendation(
     },
   );
 }
+
+// ── Account memory (Phase 0 P0-2 + BE-1; FE-4 consumer) ─────────────────────
+//
+// 8 canonical categories: experience / skill_claim / preference / identity_fact
+// / evidence / goal / commitment / weakness_signal.
+// (A-4 简: 当前 chat extractor 只写 experience / skill_claim / preference,
+//  其余 5 类暂留以兼容旧 writers。)
+
+export const MEMORY_CATEGORIES = [
+  'experience',
+  'skill_claim',
+  'preference',
+  'identity_fact',
+  'evidence',
+  'goal',
+  'commitment',
+  'weakness_signal',
+] as const;
+
+export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
+
+export interface MemoryEntry {
+  id: number;
+  category: MemoryCategory | string;
+  summary: string;
+  payload: Record<string, unknown>;
+  confidence: number;
+  user_confirmed: boolean;
+  use_count: number;
+  is_archived: boolean;
+  superseded_by_id: number | null;
+  source_module: string;
+  source_session_id: number | null;
+  raw_excerpt: string;
+  captured_at: string | null;
+  last_verified_at: string | null;
+  last_used_at: string | null;
+}
+
+export interface MemoryGroupedResponse {
+  session_id: number;
+  user_key: string;
+  entries: Record<string, MemoryEntry[]>;
+}
+
+export function getSessionMemory(sessionId: number) {
+  return requestJson<MemoryGroupedResponse>(
+    `/api/resume-copilot/sessions/${sessionId}/memory`,
+  );
+}
+
+export interface MemoryCreateIn {
+  category: MemoryCategory | string;
+  summary: string;
+  payload?: Record<string, unknown>;
+  raw_excerpt?: string;
+  confidence?: number;
+}
+
+export function postSessionMemory(sessionId: number, payload: MemoryCreateIn) {
+  return requestJson<MemoryEntry>(
+    `/api/resume-copilot/sessions/${sessionId}/memory`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        category: payload.category,
+        summary: payload.summary,
+        payload: payload.payload ?? {},
+        raw_excerpt: payload.raw_excerpt ?? '',
+        confidence: payload.confidence ?? 1.0,
+      }),
+    },
+  );
+}
+
+export interface MemoryPatchIn {
+  summary?: string;
+  payload?: Record<string, unknown>;
+}
+
+export function patchSessionMemoryEntry(
+  sessionId: number,
+  entryId: number,
+  body: MemoryPatchIn,
+) {
+  const payload: Record<string, unknown> = {};
+  if (body.summary !== undefined) payload.summary = body.summary;
+  if (body.payload !== undefined) payload.payload = body.payload;
+  return requestJson<MemoryEntry>(
+    `/api/resume-copilot/sessions/${sessionId}/memory/${entryId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function deleteSessionMemoryEntry(sessionId: number, entryId: number) {
+  return requestJson<void>(
+    `/api/resume-copilot/sessions/${sessionId}/memory/${entryId}`,
+    { method: 'DELETE' },
+  );
+}
+
+// ── Plan-mode (B-1 / B-2 简 / B-3 / B-4) ────────────────────────────────────
+//
+// Backend lives in app/routers/resume_copilot.py around /plan/* — the schema
+// is the rich PlanState (items[], evidence, drafts, …).  FE-4 only needs:
+//   1. start  → POST /plan/start (body is empty in current BE; the prompt
+//      contract carries focus_kind/focus_id which BE silently ignores today —
+//      see report §9. We still send it so the wire matches the design doc.)
+//   2. turn   → POST /plan/turn   (composer message → AI follow-up + state)
+//   3. finalize → POST /plan/actions {action:"finalize", item_id, expected_version}
+//      (BE has no /plan/finalize endpoint; the "finalize" semantic lives in
+//      apply_action.)
+//   4. get    → GET /plan          (rehydrate after refresh)
+
+export interface PlanEvidenceTagWire {
+  type: string;
+  value: string;
+  raw: string;
+}
+
+export interface PlanEvidenceWire {
+  id: string;
+  source: string;
+  text: string;
+  tags: PlanEvidenceTagWire[];
+  citation_msg_id: string | null;
+  extracted_at: string;
+}
+
+export interface PlanOpenQuestionWire {
+  id: string;
+  text: string;
+  asked_at: string;
+  answered_at: string | null;
+  answer_msg_id: string | null;
+}
+
+export interface PlanDraftWire {
+  text: string;
+  used_evidence_ids: string[];
+  risk_flags: Array<{ kind: string; detail: string; blocking: boolean }>;
+  generated_at: string;
+}
+
+export interface PlanItemWire {
+  id: string;
+  kind: string;
+  title: string;
+  parent_id: string | null;
+  order: number;
+  status: string;
+  evidence: PlanEvidenceWire[];
+  draft: PlanDraftWire | null;
+  open_questions: PlanOpenQuestionWire[];
+  rationale: string | null;
+  last_transition_at: string;
+}
+
+export interface PlanStateOut {
+  version: number;
+  status: string;
+  current_item_id: string | null;
+  items: PlanItemWire[];
+  replan_count: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PlanStartIn {
+  /** Designed contract per main-workspace-redesign-2026-05-20 §2 B-2 简.
+   *  BE silently ignores until P1.x — included so the wire matches and we
+   *  can flip BE later without touching FE. */
+  focus_kind?: 'experience' | string;
+  focus_id?: number;
+}
+
+export function postPlanStart(sessionId: number, payload?: PlanStartIn) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/start`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload ?? {}),
+    },
+  );
+}
+
+export function getPlan(sessionId: number) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan`,
+  );
+}
+
+export function postPlanApprove(sessionId: number) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/approve`,
+    { method: 'POST' },
+  );
+}
+
+export interface PlanTurnIn {
+  user_message: string;
+  target_item_id?: string | null;
+}
+
+export function postPlanTurn(sessionId: number, body: PlanTurnIn) {
+  const qs =
+    body.target_item_id != null
+      ? `?target_item_id=${encodeURIComponent(body.target_item_id)}`
+      : '';
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/turn${qs}`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content: body.user_message }),
+    },
+  );
+}
+
+export interface PlanActionIn {
+  action: 'finalize' | 'ready_to_write' | 'drop' | 'block' | string;
+  item_id: string;
+  payload?: Record<string, unknown>;
+  expected_version?: number;
+}
+
+export function postPlanAction(sessionId: number, body: PlanActionIn) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/actions`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        action: body.action,
+        item_id: body.item_id,
+        payload: body.payload ?? {},
+        expected_version: body.expected_version ?? null,
+      }),
+    },
+  );
+}
+
+/** Convenience wrapper requested by the FE-4 task spec.  Maps to BE's
+ *  apply_action("finalize") on the currently-active item. */
+export function postPlanFinalize(
+  sessionId: number,
+  body: { item_id: string; expected_version?: number },
+) {
+  return postPlanAction(sessionId, {
+    action: 'finalize',
+    item_id: body.item_id,
+    expected_version: body.expected_version,
+  });
+}

@@ -1377,3 +1377,1165 @@
 .workspace-hifi__pane--left {
   position: relative;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * FE-4 (2026-05-20) — 中栏 chat / plan-mode + 右栏 ArchivePanel
+ * 全部 scope `.workspace-hifi`,继承 `.hf` 的 HiFi token.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* ── 中栏 body 改为 flex column,让 composer sticky 在底 ───────────────────── */
+
+.workspace-hifi__pane-body--middle {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px 0 18px;
+  gap: 0;
+}
+
+.workspace-hifi__chat-stream {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+
+.workspace-hifi__chat-empty {
+  margin-top: 30px;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  background: var(--ivory);
+  border: 1px dashed var(--border-warm);
+  color: var(--olive);
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.workspace-hifi__chat-typing {
+  align-self: flex-start;
+  padding: 6px 12px;
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-size: 12px;
+  border-radius: var(--r-pill);
+}
+
+.workspace-hifi__chat-error {
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  color: #7f1d1d;
+  font-size: 12.5px;
+}
+
+/* ── Chat message bubbles ─────────────────────────────────────────────── */
+
+.workspace-hifi__chat-msg {
+  display: flex;
+  width: 100%;
+}
+
+.workspace-hifi__chat-msg--user {
+  justify-content: flex-end;
+}
+
+.workspace-hifi__chat-msg--assistant {
+  justify-content: flex-start;
+}
+
+.workspace-hifi__chat-msg-bubble {
+  max-width: 88%;
+  padding: 9px 13px;
+  border-radius: var(--r-lg);
+  font-size: 13.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.workspace-hifi__chat-msg--user .workspace-hifi__chat-msg-bubble {
+  background: var(--terracotta);
+  color: #fff;
+  border-top-right-radius: 6px;
+}
+
+.workspace-hifi__chat-msg--assistant .workspace-hifi__chat-msg-bubble {
+  background: var(--ivory);
+  color: var(--ink);
+  border: 1px solid var(--border-warm);
+  border-top-left-radius: 6px;
+}
+
+.workspace-hifi__chat-msg-bubble.is-system {
+  background: var(--amber-bg);
+  border-color: #f0d99c;
+  color: var(--amber-fg);
+}
+
+.workspace-hifi__chat-msg-text {
+  white-space: pre-wrap;
+}
+
+.workspace-hifi__chat-msg-options {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__chat-rewrite-card {
+  border: 1px solid var(--border-warm);
+  background: var(--parchment);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+}
+
+.workspace-hifi__chat-rewrite-card.is-severe {
+  border-color: #fca5a5;
+  background: #fff5f5;
+}
+
+.workspace-hifi__chat-rewrite-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.workspace-hifi__chat-rewrite-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-hifi__chat-rewrite-section {
+  font-size: 10.5px;
+  color: var(--stone);
+  background: var(--ivory);
+  border-radius: var(--r-pill);
+  padding: 1px 6px;
+}
+
+.workspace-hifi__chat-rewrite-warn {
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  border-left: 3px solid var(--amber-fg);
+  background: var(--amber-bg);
+  color: var(--amber-fg);
+}
+
+.workspace-hifi__chat-rewrite-warn.is-severe {
+  border-left-color: #ef4444;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.workspace-hifi__chat-rewrite-improved {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.workspace-hifi__chat-rewrite-rationale {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--olive);
+}
+
+.workspace-hifi__chat-rewrite-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.workspace-hifi__chat-rewrite-btn {
+  padding: 4px 12px;
+  font-size: 11.5px;
+  border-radius: var(--r-pill);
+  background: var(--terracotta);
+  color: #fff;
+  border: 1px solid var(--terracotta);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__chat-rewrite-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Composer (sticky bottom inside middle pane) ──────────────────────── */
+
+.workspace-hifi__composer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin: 0 -18px;
+  padding-left: 18px;
+  padding-right: 18px;
+  border-top: 1px solid var(--border-warm);
+  background: var(--library-rail);
+}
+
+.workspace-hifi__composer-toggle {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.workspace-hifi__composer-toggle-btn {
+  padding: 3px 12px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--stone);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 120ms ease;
+}
+
+.workspace-hifi__composer-toggle-btn:hover:not(:disabled) {
+  color: var(--ink-soft);
+  border-color: var(--terracotta-ring);
+}
+
+.workspace-hifi__composer-toggle-btn.is-active {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  border-color: var(--terracotta);
+  font-weight: 500;
+}
+
+.workspace-hifi__composer-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md);
+}
+
+.workspace-hifi__composer-textarea {
+  flex: 1;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.workspace-hifi__composer-textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Plan progress (4 anchor) ─────────────────────────────────────────── */
+
+.workspace-hifi__plan-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  font-size: 11.5px;
+}
+
+.workspace-hifi__plan-progress-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--stone);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: default;
+}
+
+.workspace-hifi__plan-progress-step.is-done {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+  border-color: var(--emerald);
+  font-weight: 500;
+}
+
+.workspace-hifi__plan-progress-mark {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.workspace-hifi__plan-progress-hint {
+  margin-left: auto;
+  color: var(--terracotta-strong);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ── Plan focus picker (B-2 简) ───────────────────────────────────────── */
+
+.workspace-hifi__plan-picker {
+  border: 1px solid var(--terracotta-ring);
+  background: var(--ivory);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0 4px;
+}
+
+.workspace-hifi__plan-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workspace-hifi__plan-picker-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__plan-picker-close {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--stone);
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  font-family: inherit;
+}
+
+.workspace-hifi__plan-picker-close:hover {
+  background: var(--library-rail);
+  color: var(--ink);
+}
+
+.workspace-hifi__plan-picker-loading,
+.workspace-hifi__plan-picker-empty {
+  font-size: 12.5px;
+  color: var(--olive);
+  padding: 8px 0;
+}
+
+.workspace-hifi__plan-picker-error {
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  color: #7f1d1d;
+  font-size: 11.5px;
+}
+
+.workspace-hifi__plan-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.workspace-hifi__plan-picker-item {
+  width: 100%;
+  text-align: left;
+  background: var(--parchment);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 120ms ease;
+}
+
+.workspace-hifi__plan-picker-item:hover {
+  border-color: var(--terracotta);
+  background: var(--terracotta-wash);
+}
+
+.workspace-hifi__plan-picker-item.is-preselected {
+  border-color: var(--terracotta);
+  background: var(--terracotta-wash);
+  box-shadow: 0 0 0 2px var(--terracotta-ring);
+}
+
+.workspace-hifi__plan-picker-item-summary {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__plan-picker-item-quote {
+  font-size: 11px;
+  color: var(--olive);
+  line-height: 1.4;
+}
+
+.workspace-hifi__plan-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.workspace-hifi__plan-picker-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__plan-picker-btn.is-primary {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: #fff;
+}
+
+.workspace-hifi__plan-picker-btn:hover {
+  filter: brightness(0.96);
+}
+
+/* ── Plan draft review card (B-4) ─────────────────────────────────────── */
+
+.workspace-hifi__plan-draft {
+  border: 1px solid var(--terracotta-ring);
+  background: var(--ivory);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0;
+  box-shadow: var(--sh-whisper);
+}
+
+.workspace-hifi__plan-draft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workspace-hifi__plan-draft-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  font-size: 11px;
+  border-radius: var(--r-pill);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-weight: 500;
+}
+
+.workspace-hifi__plan-draft-kind {
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.workspace-hifi__plan-draft-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__plan-draft-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  background: var(--parchment);
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  white-space: pre-wrap;
+}
+
+.workspace-hifi__plan-draft-evidence summary {
+  cursor: pointer;
+  font-size: 11.5px;
+  color: var(--olive);
+}
+
+.workspace-hifi__plan-draft-evidence ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workspace-hifi__plan-draft-evidence-src {
+  font-family: var(--font-mono);
+  color: var(--stone);
+  font-size: 10.5px;
+  margin-right: 4px;
+}
+
+.workspace-hifi__plan-draft-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.workspace-hifi__plan-draft-btn {
+  padding: 5px 14px;
+  font-size: 12px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__plan-draft-btn.is-primary {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: #fff;
+}
+
+.workspace-hifi__plan-draft-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__plan-draft-btn:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+/* ── B-3 confirm-cancel modal ─────────────────────────────────────────── */
+
+.workspace-hifi__chat-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+}
+
+.workspace-hifi__chat-confirm {
+  background: var(--ivory);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+  max-width: 420px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--sh-lift);
+}
+
+.workspace-hifi__chat-confirm h4 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__chat-confirm p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.workspace-hifi__chat-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.workspace-hifi__chat-confirm-btn {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__chat-confirm-btn.is-danger {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.workspace-hifi__chat-confirm-btn:hover {
+  filter: brightness(0.97);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * ArchivePanel (FE-4 A-1/A-2/A-5/A-6/A-7)
+ * Mounted as RightResumePane archiveSlot, inside .workspace-hifi__archive-slot
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.workspace-hifi__archive {
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: max-height 200ms ease;
+}
+
+.workspace-hifi__archive.is-open {
+  max-height: 70vh;
+}
+
+.workspace-hifi__archive-empty-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--library-rail);
+  color: var(--olive);
+  font-size: 12.5px;
+}
+
+.workspace-hifi__archive-empty-hint {
+  color: var(--stone);
+  font-size: 11.5px;
+}
+
+.workspace-hifi__archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--library-rail);
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+  text-align: left;
+  position: relative;
+}
+
+.workspace-hifi__archive-toggle:hover {
+  background: var(--warm-sand);
+}
+
+.workspace-hifi__archive-toggle-icon {
+  font-size: 14px;
+}
+
+.workspace-hifi__archive-toggle-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__archive-toggle-count {
+  font-size: 11.5px;
+  color: var(--stone);
+}
+
+.workspace-hifi__archive-toggle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 0 2px rgba(63,154,93,0.18);
+  margin-left: 4px;
+}
+
+.workspace-hifi__archive-toggle-chev {
+  margin-left: auto;
+  color: var(--stone);
+  font-size: 12px;
+}
+
+.workspace-hifi__archive-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px 14px;
+  overflow-y: auto;
+  position: relative;
+  max-height: calc(70vh - 50px);
+}
+
+.workspace-hifi__archive-error {
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  color: #7f1d1d;
+  font-size: 11.5px;
+}
+
+.workspace-hifi__archive-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__archive-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--terracotta-strong);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  cursor: default;
+}
+
+.workspace-hifi__archive-section-title.is-collapsible {
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__archive-section-title.is-collapsible:hover {
+  color: var(--terracotta-strong);
+}
+
+.workspace-hifi__archive-section-count {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--stone);
+  font-weight: 400;
+}
+
+.workspace-hifi__archive-section-chev {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.workspace-hifi__archive-section-empty {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--stone);
+  background: var(--parchment);
+  border-radius: var(--r-sm);
+  font-style: italic;
+}
+
+.workspace-hifi__archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__archive-secondary-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.workspace-hifi__archive-secondary-title {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 12px;
+  color: var(--olive);
+  font-weight: 500;
+}
+
+.workspace-hifi__archive-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--terracotta-wash);
+  border-radius: var(--r-md);
+  border: 1px solid var(--terracotta-ring);
+  margin-top: 4px;
+}
+
+.workspace-hifi__archive-cta-text {
+  font-size: 11.5px;
+  color: var(--terracotta-strong);
+  line-height: 1.5;
+}
+
+.workspace-hifi__archive-cta-btn {
+  align-self: flex-start;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: var(--r-pill);
+  background: var(--terracotta);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.workspace-hifi__archive-cta-btn:hover {
+  background: var(--terracotta-strong);
+}
+
+.workspace-hifi__archive-toast {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  background: var(--dark-surface);
+  color: var(--ivory);
+  font-size: 11.5px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ── Single archive entry card ────────────────────────────────────────── */
+
+.workspace-hifi__archive-card {
+  background: var(--parchment);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__archive-card.is-expanded {
+  border-color: var(--terracotta-ring);
+  background: var(--ivory);
+}
+
+.workspace-hifi__archive-card.is-new {
+  border-color: var(--emerald);
+  box-shadow: 0 0 0 1px var(--emerald-soft);
+}
+
+.workspace-hifi__archive-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workspace-hifi__archive-card-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.workspace-hifi__archive-card-summary-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.workspace-hifi__archive-card-new {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  border-radius: var(--r-pill);
+  background: var(--emerald);
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__archive-card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--stone);
+}
+
+.workspace-hifi__archive-card-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--library-rail);
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+
+.workspace-hifi__archive-card-captured {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--stone);
+}
+
+.workspace-hifi__archive-card-menu-wrap {
+  margin-left: auto;
+  position: relative;
+}
+
+.workspace-hifi__archive-card-menu-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--stone);
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  font-family: inherit;
+}
+
+.workspace-hifi__archive-card-menu-btn:hover {
+  background: var(--library-rail);
+  color: var(--ink);
+}
+
+.workspace-hifi__archive-card-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 2px;
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-whisper);
+  display: flex;
+  flex-direction: column;
+  min-width: 88px;
+  z-index: 6;
+}
+
+.workspace-hifi__archive-card-menu-item {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 12px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__archive-card-menu-item:hover {
+  background: var(--library-rail);
+  color: var(--ink);
+}
+
+.workspace-hifi__archive-card-menu-item.is-danger {
+  color: #b91c1c;
+}
+
+.workspace-hifi__archive-card-menu-item.is-danger:hover {
+  background: #fee2e2;
+}
+
+.workspace-hifi__archive-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-cream);
+}
+
+.workspace-hifi__archive-card-payload {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11.5px;
+}
+
+.workspace-hifi__archive-card-payload-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.workspace-hifi__archive-card-payload-row dt {
+  flex-shrink: 0;
+  min-width: 64px;
+  font-weight: 600;
+  color: var(--terracotta-strong);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workspace-hifi__archive-card-payload-row dd {
+  margin: 0;
+  flex: 1;
+  color: var(--ink-soft);
+  word-break: break-word;
+}
+
+.workspace-hifi__archive-card-excerpt {
+  background: var(--library-rail);
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  color: var(--olive);
+}
+
+.workspace-hifi__archive-card-excerpt-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-bottom: 2px;
+}
+
+.workspace-hifi__archive-card-excerpt p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.workspace-hifi__archive-card-empty {
+  margin: 0;
+  font-size: 11px;
+  color: var(--stone);
+  font-style: italic;
+}
+
+.workspace-hifi__archive-card-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-cream);
+}
+
+.workspace-hifi__archive-card-edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10.5px;
+  color: var(--stone);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workspace-hifi__archive-card-edit-input,
+.workspace-hifi__archive-card-edit-textarea {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  background: var(--ivory);
+  color: var(--ink);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-sm);
+  outline: none;
+}
+
+.workspace-hifi__archive-card-edit-input:focus,
+.workspace-hifi__archive-card-edit-textarea:focus {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--terracotta-ring);
+}
+
+.workspace-hifi__archive-card-edit-textarea {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.workspace-hifi__archive-card-edit-error {
+  padding: 5px 8px;
+  font-size: 11px;
+  background: #fee2e2;
+  border-left: 3px solid #ef4444;
+  color: #7f1d1d;
+  border-radius: var(--r-sm);
+}
+
+.workspace-hifi__archive-card-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.workspace-hifi__archive-card-edit-btn {
+  padding: 4px 12px;
+  font-size: 11.5px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__archive-card-edit-btn.is-primary {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: var(--terracotta);
+}
+
+.workspace-hifi__archive-card-edit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__archive-card-edit-btn:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
