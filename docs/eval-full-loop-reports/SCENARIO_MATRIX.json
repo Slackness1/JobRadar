@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-05-19T16:20:58.932519",
+  "scenarios": [
+    "touyan_strong_2026_05_19",
+    "touyan_mid_2026_05_19",
+    "touyan_cross_2026_05_19"
+  ],
+  "missing": [],
+  "overall_aggregate": {
+    "touyan_strong_2026_05_19": 5.55,
+    "touyan_mid_2026_05_19": 6.1,
+    "touyan_cross_2026_05_19": 4.45
+  },
+  "reviewer_scores": {
+    "touyan_strong_2026_05_19": {
+      "reviewer1_question_quality": 5.4,
+      "reviewer2_feedback_quality": 4.8,
+      "reviewer3_teaching_value": 5.8,
+      "reviewer4_chain_consistency": 6.2
+    },
+    "touyan_mid_2026_05_19": {
+      "reviewer1_question_quality": 5.8,
+      "reviewer2_feedback_quality": 5.8,
+      "reviewer3_teaching_value": 6.4,
+      "reviewer4_chain_consistency": 6.4
+    },
+    "touyan_cross_2026_05_19": {
+      "reviewer1_question_quality": 3.2,
+      "reviewer2_feedback_quality": 4.6,
+      "reviewer3_teaching_value": 4.8,
+      "reviewer4_chain_consistency": 5.2
+    }
+  },
+  "phase2_memory_total": {
+    "touyan_strong_2026_05_19": 19,
+    "touyan_mid_2026_05_19": 13,
+    "touyan_cross_2026_05_19": 15
+  },
+  "phase3_overall_avg": {
+    "touyan_strong_2026_05_19": 76.47619047619048,
+    "touyan_mid_2026_05_19": 64.66666666666667,
+    "touyan_cross_2026_05_19": 62.857142857142854
+  }
+}

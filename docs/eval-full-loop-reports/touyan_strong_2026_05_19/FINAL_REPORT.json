@@ -1,0 +1,47 @@
+{
+  "scenario_id": "touyan_strong_2026_05_19",
+  "student_name": "顾承翊",
+  "target_job": "嘉实基金管理有限公司 - 2027届校招-股票行业分析师",
+  "overall_aggregate": 5.55,
+  "reviewer_scores": {
+    "reviewer1_question_quality": {
+      "title": "Reviewer 1 · 问题质量 (资深行研面试官)",
+      "total_score": 5.4,
+      "one_liner": "问题\"问得像\", 但只在工程颗粒度上反复打洞,**没有任何一题真正撬开\"thesis 是谁的、conviction 来源在哪、有没有在下行周期里被验证过\"这三个真正区分强候选人 vs Tier-1 入场券的轴**;对一个\"流程齐全 + 简历 perfect match\"的候选人,这套问题等于在 21 个 turn 里让她无成本演完全套 sell-side 叙事,首席面试官看完一句话就会问出来的题,产品一题也没问。"
+    },
+    "reviewer2_feedback_quality": {
+      "title": "Reviewer 2 · 反馈质量 (面试官 + 部门 manager)",
+      "total_score": 4.8,
+      "one_liner": "被学生的\"漂亮叙事\"骗了** —— 整场反馈把 persona 最致命的盲点 (\"thesis 都是 mentor 给的、没有 high-conviction 自有观点、没有下行周期阅历\") **当成 bonus 来表扬** (4 处 \"批判性反思\" / \"坦诚经历空白\" / \"将取舍与自我认知挂钩\"),0 处 miss 把它识别为结构性缺陷;C' 个性化命中率 **0/19** (Phase 2 写入 19 条 memory 没有任何一条在 score 反馈里被点名引用);平均 76.5 严重高估,真实区间应该是 65-68。"
+    },
+    "reviewer3_teaching_value": {
+      "title": "Reviewer 3 · 教学价值 (SAIF 教学顾问)",
+      "total_score": 5.8,
+      "one_liner": ""
+    },
+    "reviewer4_chain_consistency": {
+      "title": "Reviewer 4 · 链路一致性 (AI 产品 reviewer)",
+      "total_score": 6.2,
+      "one_liner": ""
+    }
+  },
+  "phase2_summary": {
+    "memory_total": 19,
+    "by_category": {
+      "experience": 7,
+      "evidence": 7,
+      "identity_fact": 2,
+      "skill_claim": 2,
+      "preference": 1
+    },
+    "gate_passed": true
+  },
+  "phase3_summary": {
+    "answered_turns": 21,
+    "skeleton_count": 6,
+    "followup_count": 15,
+    "overall_avg": 76.47619047619048,
+    "dimension_avg": {}
+  },
+  "missing_reviewers": []
+}

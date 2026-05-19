@@ -1,0 +1,47 @@
+{
+  "scenario_id": "touyan_mid_2026_05_19",
+  "student_name": "林婉清",
+  "target_job": "嘉实基金管理有限公司 - 2027届校招-股票行业分析师",
+  "overall_aggregate": 6.1,
+  "reviewer_scores": {
+    "reviewer1_question_quality": {
+      "title": "Reviewer 1 · 问题质量 (资深行研面试官)",
+      "total_score": 5.8,
+      "one_liner": "追问层面有惊喜(德方纳米链、海天回款链能压到 3 层,问出了 mid-tier 学生的真实底色),但 skeleton 6 题严重\"通用化\",**完全不像在面公募行研** — 缺了行研岗最经典的 \"讲一只你最深覆盖的票\" / \"你跟市场有什么非共识判断\" / \"你最近最关注哪只 A 股、为什么\",导致 persona 预设的 3 个 blind_spot 只撬出了 1 个(DCF 套数字),另两个(卖方→买方 mindset 切换、实习数量当竞争力)从头到尾没碰。一句话:**像一场通用咨询/管培 STAR 面,不像公募行研一面**。"
+    },
+    "reviewer2_feedback_quality": {
+      "title": "Reviewer 2 · 反馈质量 (面试官 + 部门 manager)",
+      "total_score": 5.8,
+      "one_liner": "反馈做对了\"诚实分辨好坏\",但没做到\"用学生的故事追问学生\"** —— C' 个性化只在\"招商基金固收+\"这一条 memory 上反复用,其余 6 条 memory(海天渠道、XGBoost、CFA、上财、嘉实偏好、德方 DCF 的具体数字)都在 score 反馈里被遗忘了,标签化 miss(\"缺量化结果\"出现 17 次)挤掉了本应更尖锐的 personalized miss。"
+    },
+    "reviewer3_teaching_value": {
+      "title": "Reviewer 3 · 教学价值 (SAIF 教学顾问)",
+      "total_score": 6.4,
+      "one_liner": "学生做完这场面试,在\"DCF 方法论\"和\"卖方 vs 买方流程感\"上真的近了 1 步;但在\"我到底有没有 high-conviction view\"这个嘉实真正筛人的核心问题上,基本没动 — 她大概率会带着\"我表现还行\"的错觉走出面试间。"
+    },
+    "reviewer4_chain_consistency": {
+      "title": "Reviewer 4 · 链路一致性 (AI 产品 reviewer)",
+      "total_score": 6.4,
+      "one_liner": "系统\"懂\"这个学生的程度 = **它知道学生的核心 entity 名字,也敢追问到她的痛处(德方纳米 DCF / Walk-forward / 海天调研),但它对学生在 chat 里主动暴露的两条最关键的自我修正信号 —— 招商基金其实是固收+ / 海天报告只写了 1500 字 —— 完全没拿来在面试里交叉验证,导致面试里出现了多处\"学生 chat 里都纠正过了,面试还在按简历原版往下问\"的链路裂缝。"
+    }
+  },
+  "phase2_summary": {
+    "memory_total": 13,
+    "by_category": {
+      "identity_fact": 2,
+      "preference": 1,
+      "experience": 4,
+      "evidence": 4,
+      "skill_claim": 2
+    },
+    "gate_passed": true
+  },
+  "phase3_summary": {
+    "answered_turns": 21,
+    "skeleton_count": 6,
+    "followup_count": 15,
+    "overall_avg": 64.66666666666667,
+    "dimension_avg": {}
+  },
+  "missing_reviewers": []
+}

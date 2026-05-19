@@ -1,0 +1,47 @@
+{
+  "scenario_id": "touyan_cross_2026_05_19",
+  "student_name": "陈昱辰",
+  "target_job": "嘉实基金管理有限公司 - 2027届校招-股票行业分析师",
+  "overall_aggregate": 4.45,
+  "reviewer_scores": {
+    "reviewer1_question_quality": {
+      "title": "Reviewer 1 · 问题质量 (资深行研面试官)",
+      "total_score": 3.2,
+      "one_liner": "产品像一个尽职但完全没意识到面前坐了个\"放错赛道的 quant\"的 PM 面试官 — 问到了 PM 框架想问的所有\"业务痛点 / 取舍 / 量化\",却没一刻把候选人撬出 quant 舒适区,也没在任何一轮 challenge 他\"你这个简历投错岗位了\"。**"
+    },
+    "reviewer2_feedback_quality": {
+      "title": "Reviewer 2 · 反馈质量 (面试官 + 部门 manager)",
+      "total_score": 4.6,
+      "one_liner": "反馈在该 reframe 的时候选择了和稀泥** —— 跨专业候选人的本质风险是\"把 ML 工程当行研 differentiation\",这是 disqualification signal,产品对此**全场零次正面戳破**;反而把\"用 LSTM 算因子\"\"讲 stacking 选型\"这类 quant 叙事反复标为 hit,等于在帮学生 reinforce 那个会让他被嘉实秒杀的错觉。"
+    },
+    "reviewer3_teaching_value": {
+      "title": "Reviewer 3 · 教学价值 (SAIF 教学顾问)",
+      "total_score": 4.8,
+      "one_liner": "陈昱辰这场跨专业 mock 的最大教学价值本应是\"被诚实告知:你这个 background 不该硬投嘉实行研,你的最优解是 quant 或 hybrid\"——产品**整场没说一次**,反而用\"业务痛点\"这类卖方研究行话反复追问他,把跨赛道错配演成了\"行研业务能力不足\"。学生会带着\"我多补补业务理解就行\"的错觉离开,而真正该带走的\"职业 reframe\"完全没发生——这是跨专业 scenario 里最贵的一次教学浪费。"
+    },
+    "reviewer4_chain_consistency": {
+      "title": "Reviewer 4 · 链路一致性 (AI 产品 reviewer)",
+      "total_score": 5.2,
+      "one_liner": "系统精准记住了陈昱辰的量化主线（LSTM/IC 0.082/Sharpe 1.82），并驱动出一条扎实的 factor decay 追问链，但 chat 阶段 AI 8 轮全程强化其\"技术背景是杀手锏\"的 blind_spot 而非戳破，导致学生带着错误的赛道自信进入面试，链路\"记得住工程细节，看不穿致命错配\"。"
+    }
+  },
+  "phase2_summary": {
+    "memory_total": 15,
+    "by_category": {
+      "experience": 4,
+      "evidence": 4,
+      "identity_fact": 4,
+      "skill_claim": 2,
+      "preference": 1
+    },
+    "gate_passed": true
+  },
+  "phase3_summary": {
+    "answered_turns": 21,
+    "skeleton_count": 6,
+    "followup_count": 15,
+    "overall_avg": 62.857142857142854,
+    "dimension_avg": {}
+  },
+  "missing_reviewers": []
+}
