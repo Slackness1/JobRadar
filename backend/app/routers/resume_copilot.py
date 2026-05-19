@@ -49,6 +49,8 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
     ResumeRecommendationResultOut,
     RewriteOption,
+    RewriteV0V2In,
+    RewriteV0V2Out,
 )
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
@@ -730,6 +732,41 @@ def post_apply_rewrite(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     return ApplyRewriteOut(profile=updated_profile, applied=True)
+
+
+# ─── Rewrite v0/v2 (C-1 thesis-aware, P1 BE-2) ───────────────────────────────
+
+@router.post(
+    '/sessions/{session_id}/rewrite/v0v2',
+    response_model=RewriteV0V2Out,
+)
+def post_rewrite_v0_v2(
+    session_id: int,
+    payload: RewriteV0V2In,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Generate v0 (echo) + v2 (thesis-aware) rewrite for one bullet.
+
+    Empty memory → v2.needs_plan_mode=True, LLM not called. See
+    ``propose_rewrite_v0_v2`` for the full pipeline + fabrication-warning
+    semantics (C-5 red line: warnings are surfaced, never stripped).
+    """
+    from app.services.resume_copilot.chat import propose_rewrite_v0_v2
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    return propose_rewrite_v0_v2(
+        session_id,
+        payload.bullet_text,
+        payload.field_path,
+        db,
+        target_job_description=payload.target_job_description,
+        target_title=payload.target_title,
+        section=payload.section,
+    )
 
 
 # ─── Plan-mode endpoints ────────────────────────────────────────────────────

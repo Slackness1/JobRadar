@@ -284,6 +284,15 @@ class RewriteVersionV2(BaseModel):
     warnings: list[RewriteWarning] = []
 
 
+class RewriteV0V2In(BaseModel):
+    """Request body for POST /sessions/{id}/rewrite/v0v2 (C-1)."""
+    bullet_text: str
+    field_path: str
+    target_job_description: str = ''
+    target_title: str = ''
+    section: str = ''
+
+
 class RewriteV0V2Out(BaseModel):
     """Response shape for the C-1 simplified rewrite path: v0 + v2 only.
 
