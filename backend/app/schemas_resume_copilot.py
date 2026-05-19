@@ -241,6 +241,64 @@ class RewriteOption(BaseModel):
         return [str(value)]
 
 
+# ─── Rewrite v0/v2 (Phase 1 BE-2 — C-1 简) ─────────────────────────────────
+#
+# v0 = 学生当前简历原文 (echo, 不改)
+# v2 = thesis-aware 改写 (基于 account_memory 注入学生独立判断 / 非共识 view)
+# 没有 v1 STAR (C-1 简化决策, 见 docs/main-workspace-redesign-2026-05-20.md §0.6)
+
+
+class RewriteWarningSuggestion(BaseModel):
+    """One actionable choice attached to a rewrite warning (C-5)."""
+    action: str        # 'fill_real' | 'delete_number' | 'vague'
+    label: str         # 学生可见的中文按钮文案
+
+
+class RewriteWarning(BaseModel):
+    """Structured rewrite-warning. Today's only ``type`` is
+    ``fabricated_number`` (C-5 red line). Schema is open for future kinds
+    (overclaim / leadership_unverified etc.) without bumping the wire format.
+    """
+    type: str                        # 'fabricated_number' (for now)
+    number: str = ''                 # the offending token, when type=fabricated_number
+    suggestion_options: list[RewriteWarningSuggestion] = []
+    detail: str = ''                 # optional free-text human description
+
+
+class RewriteVersionV0(BaseModel):
+    """v0 — 学生当前原文。Echo of the bullet, no AI rewrite."""
+    text: str
+
+
+class RewriteVersionV2(BaseModel):
+    """v2 — thesis-aware 改写, 基于 account_memory entries 注入个人化判断 / 非共识 view.
+
+    ``needs_plan_mode=True`` 表示 memory 拉不到相关 entries, 此时 ``text`` 是
+    引导文案而非真实改写 — 学生应去 plan-mode 跟 AI 聊聊这段经历再回来。
+
+    ``warnings`` 由 ``_detect_fabricated_numbers`` 填; 学生应用前必须看到 —
+    CLAUDE.md 红线: AI 不可在 v2 里编造原简历没有的数字。
+    """
+    text: str
+    needs_plan_mode: bool = False
+    warnings: list[RewriteWarning] = []
+
+
+class RewriteV0V2Out(BaseModel):
+    """Response shape for the C-1 simplified rewrite path: v0 + v2 only.
+
+    ``field_path`` / ``target_title`` mirror ``RewriteOption`` so the same
+    ``apply_rewrite`` traversal logic can later be reused (FE-3 wires up the
+    apply button against this schema)."""
+    field_path: str            # e.g. 'internships.0.bullets.0' or 'internships.0.bullets'
+    section: str = ''          # 'internships' | 'projects' | 'candidate_summary'
+    target_title: str = ''     # "字节跳动 · 产品实习生"
+    v0: RewriteVersionV0
+    v2: RewriteVersionV2
+    rationale: str = ''        # why v2 is shaped this way — visible in the diff panel
+    memory_refs: list[int] = []  # account_memory.id of injected entries (audit/debug)
+
+
 class ResumeCopilotMessageOut(BaseModel):
     id: int
     role: str           # "system" | "user" | "assistant"
