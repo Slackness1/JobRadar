@@ -89,6 +89,7 @@ class Evidence(BaseModel):
 RiskKind = Literal[
     "overclaim", "missing_metric", "vague_verb",
     "tech_unverified", "leadership_unverified",
+    "vague_quantification", "evidence_scope_unverified",  # B5 (2026-05-19)
 ]
 
 
@@ -229,6 +230,24 @@ _LEADERSHIP_TOKENS = ("带领", "主导", "负责", "管理")
 _VAGUE_VERBS = ("参与", "协助", "帮助")
 _TECH_CANDIDATE_RE = re.compile(r'\b[A-Z][a-zA-Z0-9+#]{1,}\b')
 
+# B5 (2026-05-19): 模糊量级 + 虚构调研规模 — 20 学生 e2e 测试漏检的两类
+#
+# vague_quantification:看似量化实则没数(没法验证), 不允许新引入。
+# 例:"千万级广告消耗"/"日均约 50 条"/"百万级流水"/"亿级订单" —
+#   这些是 P12/P08 实际触发过的表达。
+_VAGUE_QUANTIFICATION_RE = re.compile(
+    r'(?:千万|百万|亿|十万)\s*[级别+]?|'      # 千万级/百万级/亿级/十万+
+    r'日均\s*约\s*[\d十百千]+|'              # 日均约 50/日均约 500
+    r'[数若几]\s*[十百千万]\s*[+]?'           # 数十/几百/数千+
+)
+
+# evidence_scope_unverified: 引用 "N 次调研/访谈/纪要" 等调研规模, 但原 evidence 没出现过。
+# 例:P07 turn-3 漏过的 "引用 3 次专家访谈纪要" — evidence 池没有 "访谈纪要" 任何痕迹。
+_EVIDENCE_SCOPE_RE = re.compile(
+    r'(?:引用|参考|整理|查阅|访谈)\s*\d+\s*(?:次|篇|份|个|位|场)\s*'
+    r'(?:专家|访谈|纪要|报告|调研|路演|资料|文献|案例)+'  # + 让多个 object 词都吃进
+)
+
 
 def audit_draft(draft_text: str, evidence: list[Evidence]) -> list[RiskFlag]:
     """Run the evidence-gate audit.
@@ -290,6 +309,33 @@ def audit_draft(draft_text: str, evidence: list[Evidence]) -> list[RiskFlag]:
                 kind="vague_verb",
                 detail=f"draft uses vague verb {v!r}",
                 blocking=False,
+            ))
+            break
+
+    # B5: 模糊量级词 ("千万级广告消耗"/"日均约 50 条"/"数十亿")
+    # 只 flag draft 引入但 original/evidence 没出现的;原文已有则保留
+    for m in _VAGUE_QUANTIFICATION_RE.finditer(draft_text):
+        phrase = m.group().strip()
+        if phrase and phrase not in all_text:
+            flags.append(RiskFlag(
+                kind="vague_quantification",
+                detail=f"draft uses vague quantification {phrase!r} not in evidence (looks quantified but can't verify)",
+                blocking=True,
+            ))
+            break
+
+    # B5: 虚构调研规模 ("引用 3 次专家访谈纪要" — 但 evidence 池没有 "访谈纪要")
+    for m in _EVIDENCE_SCOPE_RE.finditer(draft_text):
+        phrase = m.group().strip()
+        # 关键: 不止看 phrase 字面命中, 还看核心动词+宾语组合
+        # 如果 evidence 里完全没出现 "访谈/纪要/调研" 这种核心宾语, 就 flag
+        core_objects = ("专家", "访谈", "纪要", "报告", "调研", "路演")
+        has_any_obj_in_evidence = any(obj in all_text for obj in core_objects if obj in phrase)
+        if not has_any_obj_in_evidence:
+            flags.append(RiskFlag(
+                kind="evidence_scope_unverified",
+                detail=f"draft claims {phrase!r} but evidence has no related research/interview/report mention",
+                blocking=True,
             ))
             break
 

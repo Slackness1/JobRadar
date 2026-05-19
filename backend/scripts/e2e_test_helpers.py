@@ -75,7 +75,7 @@ def setup_test_session(profile_json: str, prefs_json: str, user_key: str) -> dic
         db.close()
 
 
-def recommend_for_session(session_id: int, ai_top_n: int = 5) -> dict:
+def recommend_for_session(session_id: int, ai_top_n: int = 10) -> dict:
     """跑推荐 + LLM rerank,返 top-10 item list (含 priority_letter/tier_label/audit_risks etc)。"""
     db = SessionLocal()
     try:

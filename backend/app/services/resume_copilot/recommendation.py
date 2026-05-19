@@ -792,7 +792,7 @@ def recommend_jobs_for_profile(
     preferences: ResumePreferencePayload | None = None,
     limit: int | None = None,
     ai_provider: ResumeRecommendationProvider | None = None,
-    ai_top_n: int = 5,
+    ai_top_n: int = 10,  # B7 (2026-05-19): 5→10, 让全 top-10 都有 LLM 生成的 strengths/risks
 ) -> tuple[list[ResumeRecommendationItem], bool, str]:
     profile_tokens = build_profile_tokens(profile)
     jobs = _filter_candidate_jobs(db, preferences)

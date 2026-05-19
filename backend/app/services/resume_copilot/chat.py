@@ -106,6 +106,14 @@ _CHAT_SYSTEM_PROMPT = """\
    改成"主导/负责/带领/管理/牵头" — 这等于编造身份。原文里本就有"主导/负责"则可保留。
 6. **严禁声明编造**:不允许加"被采纳/获奖/获 leader 表扬/排名前三"这类成果声明,除非原文已写。
 7. 改写后的 bullets 行数可比原文 ±1 行，但不要清空。
+8. **弱背景诚实反馈** (B8 / 2026-05-19): 当学生背景跟其目标方向有明显差距 (e.g. 普通财经
+   院校 + GPA<3.5 + 只有非金融实习/营业部理财顾问/客服类经历, 但选投研 / 顶级 PE 方向),
+   *不要*粉饰太平,在 `content` 字段诚实告知:
+   - 当前简历相对目标方向的真实差距是什么 (e.g. "缺顶级买卖方实习" / "缺量化项目" / "缺 CFA")
+   - 给出**可执行**补救路径 (e.g. "本学期争取一段中型券商行研实习" / "自学 CFA 二级到 8 月")
+   - 仍然给 rewrite_options (改写现有经历最大化呈现), 但 `content` 里要说"改写之外, 你
+     还需要补 X" — 否则学生只看到改写, 误以为简历"够用了"。
+   不要为了避免打击学生回避真实差距 — 那只会让学生在真实投递时被实习招聘官打回来。
 
 field_path 规则（dot-notation）：
 - 实习整段：`internships.{i}.bullets`      （i 是数组下标）
@@ -309,72 +317,127 @@ def _annotate_fabrications(options: list[RewriteOption], profile_dict: dict) -> 
         )
 
 
-def _profile_to_evidence_list(profile_dict: dict) -> list[Evidence]:
-    """整份简历 → Evidence 列表 (每条 internship/project/edu/skill bullet 一个 Evidence)。
+def _add_evidence(evidences: list[Evidence], text: str) -> None:
+    t = str(text or '').strip()
+    if not t:
+        return
+    evidences.append(Evidence(
+        source='parsed_resume',
+        text=t,
+        tags=extract_tags(t),
+    ))
 
-    每条 evidence 自动跑 tag_extractor 抽 metric/tech/scope/role/verb_subject tag。
-    给 audit_draft 当作"已有证据池"使用。
+
+def _add_global_evidence(evidences: list[Evidence], profile_dict: dict) -> None:
+    """全局 evidence — 不限于某段:summary / education / skills / awards / languages。
+
+    这些 trace 跨任何段改写都成立, 不算"跨段编造"。
     """
-    evidences: list[Evidence] = []
-
-    def _add(text: str) -> None:
-        t = str(text or '').strip()
-        if not t:
-            return
-        evidences.append(Evidence(
-            source='parsed_resume',
-            text=t,
-            tags=extract_tags(t),
-        ))
-
-    # candidate_summary
-    _add(profile_dict.get('candidate_summary', ''))
-
-    # education + highlights
+    _add_evidence(evidences, profile_dict.get('candidate_summary', ''))
     for edu in profile_dict.get('education', []) or []:
-        if not isinstance(edu, dict):
-            continue
-        for k in ('school', 'degree', 'major'):
-            _add(edu.get(k, ''))
-        for h in (edu.get('highlights') or []):
-            _add(h)
-
-    # internships: company + role + bullets
-    for intern in profile_dict.get('internships', []) or []:
-        if not isinstance(intern, dict):
-            continue
-        for k in ('company', 'role'):
-            _add(intern.get(k, ''))
-        for b in (intern.get('bullets') or []):
-            _add(b)
-
-    # projects: name + role + tech_stack + bullets
-    for proj in profile_dict.get('projects', []) or []:
-        if not isinstance(proj, dict):
-            continue
-        for k in ('name', 'role'):
-            _add(proj.get(k, ''))
-        for t in (proj.get('tech_stack') or []):
-            _add(t)
-        for b in (proj.get('bullets') or []):
-            _add(b)
-
-    # skills (一并算证据)
+        if isinstance(edu, dict):
+            for k in ('school', 'degree', 'major'):
+                _add_evidence(evidences, edu.get(k, ''))
+            for h in (edu.get('highlights') or []):
+                _add_evidence(evidences, h)
     skills = profile_dict.get('skills', {}) or {}
     if isinstance(skills, dict):
         for k in ('technical', 'tools', 'languages'):
             for s in (skills.get(k) or []):
-                _add(s)
-
+                _add_evidence(evidences, s)
     for award in (profile_dict.get('awards') or []):
-        _add(award)
+        _add_evidence(evidences, award)
     for lang in (profile_dict.get('languages') or []):
-        _add(lang)
+        _add_evidence(evidences, lang)
+
+
+def _add_internship_evidence(evidences: list[Evidence], intern: dict) -> None:
+    if not isinstance(intern, dict):
+        return
+    for k in ('company', 'role'):
+        _add_evidence(evidences, intern.get(k, ''))
+    for b in (intern.get('bullets') or []):
+        _add_evidence(evidences, b)
+
+
+def _add_project_evidence(evidences: list[Evidence], proj: dict) -> None:
+    if not isinstance(proj, dict):
+        return
+    for k in ('name', 'role'):
+        _add_evidence(evidences, proj.get(k, ''))
+    for t in (proj.get('tech_stack') or []):
+        _add_evidence(evidences, t)
+    for b in (proj.get('bullets') or []):
+        _add_evidence(evidences, b)
+
+
+def _parse_field_scope(field_path: str) -> tuple[str | None, int | None]:
+    """field_path → (section, index) — 决定 audit 用哪一段 evidence。
+
+    例:
+      - 'internships.0.bullets' → ('internships', 0)
+      - 'projects.2.bullets'   → ('projects', 2)
+      - 'candidate_summary'    → (None, None)   全局, 没 sub-section
+      - 'education.1.highlights' → ('education', 1)
+    """
+    if not field_path:
+        return (None, None)
+    parts = field_path.split('.')
+    if len(parts) < 2:
+        return (None, None)
+    section = parts[0]
+    if section not in ('internships', 'projects', 'education'):
+        return (None, None)
+    try:
+        index = int(parts[1])
+    except (ValueError, IndexError):
+        return (None, None)
+    return (section, index)
+
+
+def _profile_to_evidence_list(profile_dict: dict, field_path: str = '') -> list[Evidence]:
+    """profile → Evidence 列表, 可选按 field_path 做 per-section 隔离。
+
+    B6 (2026-05-19) per-internship 隔离:
+      - 给定 field_path='internships.0.bullets', 只取 internships[0] + 全局 evidence
+        (candidate_summary / education / skills / awards),其它 internships 跟 projects
+        bullet 不算入,防止 LLM 把 BCG 段的"客户访谈" 错挂到 McKinsey 段。
+      - field_path 空或解析不到 section → 取整份 evidence (向后兼容)。
+    """
+    evidences: list[Evidence] = []
+    section, index = _parse_field_scope(field_path)
+
+    # 全局 evidence (始终包含)
+    _add_global_evidence(evidences, profile_dict)
+
+    if section is None:
+        # 没 field_path scope, 全份 (旧行为)
+        for intern in profile_dict.get('internships', []) or []:
+            _add_internship_evidence(evidences, intern)
+        for proj in profile_dict.get('projects', []) or []:
+            _add_project_evidence(evidences, proj)
+    elif section == 'internships':
+        # 只取该段 internship; projects 完全不算
+        interns = profile_dict.get('internships', []) or []
+        if 0 <= index < len(interns):
+            _add_internship_evidence(evidences, interns[index])
+    elif section == 'projects':
+        # 只取该段 project; internships 完全不算
+        projs = profile_dict.get('projects', []) or []
+        if 0 <= index < len(projs):
+            _add_project_evidence(evidences, projs[index])
+    # section='education' 走全局分支已涵盖 (education 已在 _add_global_evidence)
 
     return evidences
 
 
-_SEVERE_RISK_KINDS = {'overclaim', 'leadership_unverified', 'tech_unverified'}
+_SEVERE_RISK_KINDS = {
+    'overclaim',
+    'leadership_unverified',
+    'tech_unverified',
+    'vague_quantification',         # B5 (2026-05-19): "千万级"/"日均约" 看似量化实未验证
+    'evidence_scope_unverified',    # B5: "引用 N 次专家访谈纪要" 调研规模虚构
+}
 _WARN_RISK_KINDS = {'missing_metric', 'vague_verb'}
 
 
@@ -415,12 +478,15 @@ def _audit_rewrite_options(options: list[RewriteOption], profile_dict: dict) -> 
       - audit_draft 是 plan-mode 设计的"从空白起"严格模式
       - 对 rewrite 场景,只 flag improved 引入但 original 没有的 leadership/tech token
         (差量检查),否则只是把已有 token 保留也会被误判
+      - B6 (2026-05-19): per-section 隔离 — audit 该 option 的 field_path 对应段
+        evidence + 全局; 防止跨段编造 (e.g. McKinsey 段的"客户访谈"挂到 BCG 段)
     """
-    evidence = _profile_to_evidence_list(profile_dict)
-    if not evidence:
-        return
-
     for opt in options:
+        # B6: 按 option 的 field_path 取 scoped evidence
+        evidence = _profile_to_evidence_list(profile_dict, opt.field_path or '')
+        if not evidence:
+            continue
+
         draft_text = '\n'.join(opt.improved or [])
         if not draft_text.strip():
             continue
@@ -454,6 +520,8 @@ _HUMAN_KIND_LABEL = {
     'tech_unverified': '提及的技术栈/工具简历里没有',
     'missing_metric': '缺量化数据,建议补一个数字',
     'vague_verb': '动词太虚 (e.g. "参与/负责"),建议改具体动作',
+    'vague_quantification': '模糊量级词 (e.g. "千万级 / 日均约"),看似量化实则没法验证',
+    'evidence_scope_unverified': '虚构调研规模 (e.g. "引用 N 次专家访谈纪要"),原经历无证据',
 }
 
 

@@ -410,6 +410,14 @@ simulator_rules:
   - 真实学生不会用"请基于 STAR 原则改写"这种 AI 黑话,要用大白话
 
 # ========== Judge 评分 rubric ==========
+# 2026-05-19 B3 决策澄清:
+#   "选项 B 半硬警告" = 系统设计意图 (severe risk 红底警告 + apply 按钮仍可点)。
+#   评分时必须遵守:
+#     - Evidence Groundedness / Overclaim Rate 只看 **final profile 实际内容**
+#       是否含编造, **不要**因 audit_risks 触发但用户仍 apply 就扣分。
+#     - "audit 给了警告 + 学生选择 apply" 不算 evidence 失败 — 学生有最终决定权。
+#     - 只有当学生 apply 后, final profile 出现 evidence 池没有的数字/技术/角色 →
+#       才算 evidence 失分。
 judge_rubric:
   ① Track Relevance:
     评 top-10 推荐里,跟该学生 cohort 一致 (subset) 或可迁移 (transferable) 的占比。
@@ -418,17 +426,29 @@ judge_rubric:
     评 top-3 推荐的 strengths 字段,是否引用学生简历里的**具体**事实 (实习公司+组别 / 项目名 / 技能)。
     0=全空话, 1=部分具体但不深, 2=多数具体, 3=每条都引用
   ③ Priority Accuracy:
-    评 top-10 的 priority_letter A/B/C/D 分布是否合理。顶级品牌+强匹配应该 A;弱背景+错位应该 D。
-    0=完全乱, 1=部分合理, 2=大部分合理, 3=全合理
+    评 top-10 的 priority_letter A/B/C/D 分布**对该岗位池**是否合理。
+    **关键澄清**: Priority 衡量"岗位是否值得投",**不是**"学生 fit 度"。
+      - 顶级品牌+强匹配 + final≥80 → A (优先投, 不管学生背景多强多弱)
+      - 顶级品牌+强匹配 + final 65-79 → B (推荐投)
+      - 可迁移 / ambiguous → C
+      - 错位 + 低质量红线 / final<50 → D
+    弱背景学生看到全 B/C 是诚实表达"这些岗位都不错但你 fit 度待提升" — 不是 priority bug。
+    0=完全乱 (A/D 翻转), 1=部分合理, 2=大部分合理, 3=全合理
   ④ Evidence Groundedness:
-    评 chat 后 final profile 的所有 bullet,是否基于学生原有经历 (不是 chat 中 LLM 编造)。
+    评 chat 后 **final profile** 的所有 bullet 是否基于学生原有经历。
+    **关键澄清**: 只看 final profile 实际内容, **不看** chat 中 audit 是否 block。
+      - 系统 audit 警告 + 学生选择 apply → 看 final profile 是否含编造
+      - audit 警告 + 学生选择拒绝 → final profile 没该编造 → 仍是 grounded
+      - 系统 audit 警告 + 学生 apply 后 final 含编造 → evidence 失分
     0=多处编造, 1=个别编造, 2=只有微调, 3=全部 trace 回原经历
   ⑤ Overclaim Rate:
-    评 chat 后 final profile 是否出现"参与→主导"角色升级或"被采纳/获奖"声明编造。
+    评 chat 后 **final profile** 是否出现"参与→主导"角色升级或"被采纳/获奖"声明编造。
+    **关键澄清**: 同上, 只看 final profile 实际内容, 不看警告是否 block。
     0=多处夸大, 1=偶有夸大, 2=保持原档, 3=无任何夸大
   ⑥ Actionability:
-    评 chat 中所有 rewrite_options 是否真的可 apply (有 field_path + 学生选了一个)。
-    0=无可用 option, 1=能 apply 但不深, 2=能 apply 且贴近真实经历, 3=全 actionable
+    评 chat 中所有 rewrite_options 是否真的可 apply (有 field_path + 学生能 click apply)。
+    **关键澄清**: severe 警告 + 按钮可点 = actionability **保留** (不是失败)。
+    "学生看到警告自己决定" 是设计意图, 0=空 option / 1=能 apply 但不深 / 2=能 apply 且贴近真实 / 3=全 actionable
   额外 · 行业深度:
     评 chat 后 final profile 是否比 initial 更有金融行业深度 (具体术语 / 量化数字 / 业务理解)。
     0=没提升, 1=略有, 2=明显提升, 3=深度行业表达
