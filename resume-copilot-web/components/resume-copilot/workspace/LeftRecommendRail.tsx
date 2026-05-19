@@ -1,34 +1,63 @@
 'use client';
 
 /**
- * LeftRecommendRail — 左栏推荐 (E-2 / D-1 / D-2 / D-3 / D-5 / D-6).
+ * LeftRecommendRail — 左栏推荐 (FE-2 实装 of E-2 / D-1 / D-2 / D-3 / E-4).
  *
- * FE-1 placeholder。真正实现由 FE-2 子代理来做:
- *   - 卡片可展开,同一时间只允许 1 张展开
- *   - 两层分(规则 + LLM 共识),snapshot 删除后
- *   - "为什么推" bullet 列表 + ✗ 反馈 inline 表单
- *   - FLIP 1.5s 柔和重排
+ * 职责:
+ *   - 渲染 recommendations.items(已被 BE-3 过滤:top10 + 50 分 + 排除 rejected)
+ *   - 卡片展开/收起 — 同时只允许 1 张展开,父统一管 `expandedJobId`
+ *   - ✗ 反馈 inline 表单(在卡片内,不是 modal)— 调 POST .../reject
+ *   - 1.5s FLIP 柔和重排动画(reject 移除一条 / 列表顺序变化)
+ *   - 第一次进工作台时,如果检测到本会话新增 reject 数,顶部 banner
+ *     「👍 已记你不喜欢 X 条,已排除」。localStorage 记
+ *     `jobradar.workspace.lastSeenRejectedCount.<sessionId>` 做对比。
  *
- * 此 placeholder 只负责:
- *   - 渲染 pane 容器 + header
- *   - 暴露 props 接口让 PublicResumeCopilot 把已有的 recommendations + 回调
- *     提前接进来,FE-2 实现时只填 body
- *
- * TODO(FE-2): 现 `<ResumeChatRail>` 里的推荐列表 JSX 应该搬过来 ──
- *             见 public-resume-copilot.tsx 旧 `RecommendationsBlock` /
- *             "推荐结果" 段落(原 ResumeChatRail 内部)。
+ * 不动:
+ *   - HiFi tokens(只用,scope 严格 `.workspace-hifi`)
+ *   - WorkspaceShell signature(只追加可选 prop,不破坏)
+ *   - 其他 panes(FE-3/FE-4 负责)
  */
 
-import type { ResumeRecommendationResult, ResumeCopilotSession } from '../types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { I } from '@/components/hifi/hifi-primitives';
+import type {
+  ResumeCopilotSession,
+  ResumeRecommendationItem,
+  ResumeRecommendationResult,
+} from '../types';
+import {
+  postRejectRecommendation,
+  type RecommendRejectReason,
+} from '../api';
+import { RecommendCard } from './recommend/RecommendCard';
+import { useFlipAnimation } from './recommend/use-flip-animation';
+
+const LAST_SEEN_KEY_PREFIX = 'jobradar.workspace.lastSeenRejectedCount.';
+const TOAST_AUTO_DISMISS_MS = 2600;
 
 export interface LeftRecommendRailProps {
   session: ResumeCopilotSession | null;
   recommendations: ResumeRecommendationResult | null;
-  /** 学生点 ✗ 反馈触发(FE-2 实现时连后端 D-2/D-3) */
+  /** 学生点 ✗ 反馈触发(FE-2 → BE-3 D-2/D-3) */
   onRejectRecommendation?: (jobId: string, reason: string, note: string) => void;
   /** 学生点 "针对这家改写" 触发 — 跨栏信号给 RightResumePane 出 chat 思考 (C-6) */
   onRequestRewrite?: (jobId: string) => void;
+  /** 推荐列表变化(reject 成功后)— 父可选择重新拉 recommendations。
+   *  不传也 OK,本组件用本地 hidden set 做即时 UI 反馈。 */
+  onRecommendationsChanged?: () => void;
+}
+
+function readLastSeen(sessionId: number | undefined): number {
+  if (sessionId === undefined) return 0;
+  if (typeof window === 'undefined') return 0;
+  const raw = window.localStorage.getItem(`${LAST_SEEN_KEY_PREFIX}${sessionId}`);
+  return Number(raw || '0') || 0;
+}
+
+function writeLastSeen(sessionId: number | undefined, count: number): void {
+  if (sessionId === undefined) return;
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(`${LAST_SEEN_KEY_PREFIX}${sessionId}`, String(count));
 }
 
 export function LeftRecommendRail({
@@ -36,13 +65,115 @@ export function LeftRecommendRail({
   recommendations,
   onRejectRecommendation,
   onRequestRewrite,
+  onRecommendationsChanged,
 }: LeftRecommendRailProps) {
-  // Reserved for FE-2 wiring; reference so lint stays clean while the shell ships.
-  void onRejectRecommendation;
+  // FE-2 reserves this prop for future C-6 cross-pane signal (推荐卡 → 改写).
   void onRequestRewrite;
 
-  const itemCount = recommendations?.items?.length ?? 0;
+  // ── Local state ────────────────────────────────────────────────────────────
+  // hiddenJobIds: 即时从 UI 隐藏的 jobId(reject 成功后)— 给 FLIP exit 动画
+  const [hiddenJobIds, setHiddenJobIds] = useState<Set<string>>(() => new Set());
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string>('');
+  const [bannerDismissed, setBannerDismissed] = useState<boolean>(false);
+
+  // "Adjusting state when props change" idiom (React 19): track previous
+  // recommendations via a setState rather than a ref (react-compiler bans ref
+  // access during render). When upstream recommendations changes reference
+  // (new generation / session switch), reset hidden + expanded + banner.
+  const [lastRecSeen, setLastRecSeen] = useState<ResumeRecommendationResult | null>(
+    recommendations,
+  );
+  if (recommendations !== lastRecSeen) {
+    setLastRecSeen(recommendations);
+    setHiddenJobIds(new Set());
+    setExpandedJobId(null);
+    setBannerDismissed(false);
+  }
+
+  const flip = useFlipAnimation<string>();
+
+  // ── Derived list (filter out hidden ids) ───────────────────────────────────
+  const items: ResumeRecommendationItem[] = useMemo(() => {
+    const raw = recommendations?.items ?? [];
+    if (hiddenJobIds.size === 0) return raw;
+    return raw.filter((r) => !hiddenJobIds.has(String(r.job_id)));
+  }, [recommendations, hiddenJobIds]);
+
+  // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
+  // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
+  // 已隐藏数对比。banner 字符串完全是 derived value — 不在 effect 里 setState。
+  const lastSeenRejected = useMemo(
+    () => readLastSeen(session?.id),
+    [session?.id],
+  );
+  const currentRejected = hiddenJobIds.size;
+  const showBanner = !bannerDismissed && currentRejected > lastSeenRejected;
+  const bannerText = showBanner
+    ? `👍 已记你不喜欢 ${currentRejected - lastSeenRejected} 条,已从推荐排除`
+    : '';
+
+  // Persist the new "last seen" once the banner is shown (or refresh occurs).
+  // Effect's only side effect is the localStorage write — no React setState.
+  useEffect(() => {
+    if (session?.id === undefined) return;
+    writeLastSeen(session.id, currentRejected);
+  }, [session?.id, currentRejected]);
+
+  // Auto-dismiss toast.
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(''), TOAST_AUTO_DISMISS_MS);
+    return () => window.clearTimeout(t);
+  }, [toast]);
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+  const handleToggle = useCallback(
+    (jobId: string) => {
+      setExpandedJobId((prev) => (prev === jobId ? null : jobId));
+    },
+    [],
+  );
+
+  const sessionId = session?.id;
+  const handleReject = useCallback(
+    async (jobId: string, reason: RecommendRejectReason, note: string) => {
+      if (sessionId === undefined) return;
+      // Notify parent (in case it wants to do analytics / log) — fire-and-forget.
+      if (onRejectRecommendation) {
+        try {
+          onRejectRecommendation(jobId, reason, note);
+        } catch {
+          /* parent callback should not crash the reject flow */
+        }
+      }
+      // POST the reject to BE-3 — this writes account_memory.preference and
+      // appends jobId to session.rejected_job_ids_json so future recommends
+      // exclude it.
+      await postRejectRecommendation(sessionId, jobId, { reason, note });
+
+      // FLIP: snapshot positions before mutating the visible list.
+      flip.snapshot();
+      setHiddenJobIds((prev) => {
+        const next = new Set(prev);
+        next.add(jobId);
+        return next;
+      });
+      setExpandedJobId(null);
+      setToast('👍 已记入档案');
+      // Optional: let parent know it can refetch a fresh recommendations run.
+      if (onRecommendationsChanged) {
+        try { onRecommendationsChanged(); } catch { /* ignore */ }
+      }
+    },
+    [sessionId, onRejectRecommendation, onRecommendationsChanged, flip],
+  );
+
+  // ── Render ─────────────────────────────────────────────────────────────────
   const sessionReady = session?.has_recommendations === true;
+  const totalCount = items.length;
+  const isUnderfilled = sessionReady && totalCount > 0 && totalCount < 5;
+  const isEmpty = sessionReady && totalCount === 0;
 
   return (
     <aside className="workspace-hifi__pane workspace-hifi__pane--left" aria-label="推荐岗位">
@@ -52,20 +183,83 @@ export function LeftRecommendRail({
         </span>
         <span>推荐</span>
         <span className="workspace-hifi__pane-header-count">
-          {sessionReady ? `${itemCount} 条` : '等待生成'}
+          {sessionReady ? `${totalCount} 条` : '等待生成'}
         </span>
       </header>
+
       <div className="workspace-hifi__pane-body">
-        <div className="workspace-hifi__placeholder">
-          <span className="workspace-hifi__placeholder-todo">FE-2 占位</span>
-          <span className="workspace-hifi__placeholder-title">推荐列表</span>
-          <span className="workspace-hifi__placeholder-hint">
-            E-2 / D-1 / D-2 / D-3 / D-5 / D-6
-            <br />
-            原 ResumeChatRail 内的推荐区将搬到这里。
-          </span>
-        </div>
+        {showBanner && (
+          <div className="workspace-hifi__rec-banner" role="status">
+            <span>{bannerText}</span>
+            <button
+              type="button"
+              className="workspace-hifi__rec-banner-dismiss"
+              aria-label="关闭提示"
+              onClick={() => setBannerDismissed(true)}
+            >
+              {I.close(11)}
+            </button>
+          </div>
+        )}
+
+        {!sessionReady && (
+          <div className="workspace-hifi__rec-empty">
+            <span className="workspace-hifi__rec-empty-title">等待生成推荐</span>
+            <span className="workspace-hifi__rec-empty-hint">
+              上传简历 + 确认偏好后,系统会基于赛道 + 经历推荐 top 10。
+            </span>
+          </div>
+        )}
+
+        {isEmpty && (
+          <div className="workspace-hifi__rec-empty">
+            <span className="workspace-hifi__rec-empty-title">暂无更多优质推荐</span>
+            <span className="workspace-hifi__rec-empty-hint">
+              当前赛道下没有达到 50 分门槛的岗位 — 试试换赛道,
+              或检查偏好是不是卡得太死。
+            </span>
+          </div>
+        )}
+
+        {sessionReady && totalCount > 0 && (
+          <div className="workspace-hifi__rec-list" role="list">
+            {items.map((item, idx) => {
+              const jobId = String(item.job_id);
+              return (
+                <div
+                  key={jobId}
+                  ref={flip.register(jobId)}
+                  className="workspace-hifi__rec-list-item"
+                  role="listitem"
+                >
+                  <RecommendCard
+                    item={item}
+                    rank={idx + 1}
+                    isExpanded={expandedJobId === jobId}
+                    onToggle={() => handleToggle(jobId)}
+                    onReject={(reason, note) => handleReject(jobId, reason, note)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {isUnderfilled && (
+          <div className="workspace-hifi__rec-underfilled" role="note">
+            <span aria-hidden>📭</span>
+            <span>
+              当前赛道高分岗位较少 — 试试调整偏好或换赛道扩面。
+            </span>
+          </div>
+        )}
       </div>
+
+      {toast && (
+        <div className="workspace-hifi__rec-toast" role="status" aria-live="polite">
+          {toast}
+        </div>
+      )}
     </aside>
   );
 }

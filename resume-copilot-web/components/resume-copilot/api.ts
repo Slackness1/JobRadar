@@ -397,3 +397,43 @@ export function deleteStudentExperience(expId: number) {
     { method: 'DELETE' }
   );
 }
+
+// ── Recommendation reject (BE-3, D-2 / D-3) ──────────────────────────────────
+
+/** Canonical reason keys accepted by BE-3 reject endpoint. */
+export type RecommendRejectReason =
+  | 'wrong_track'
+  | 'company_disliked'
+  | 'school_mismatch'
+  | 'timing'
+  | 'other';
+
+export interface RecommendRejectIn {
+  reason: RecommendRejectReason;
+  note?: string;
+}
+
+export interface RecommendRejectOut {
+  ok: boolean;
+  memory_entry_id: number | null;
+  rejected_count: number;
+}
+
+/** D-2/D-3: 学生 ✗ 拒绝一个推荐岗。BE 会写一条 account_memory.preference
+ *  + 把 job_id 追加到 session.rejected_job_ids_json,下次 recommend 会过滤掉。 */
+export function postRejectRecommendation(
+  sessionId: number,
+  jobId: string,
+  payload: RecommendRejectIn,
+) {
+  return requestJson<RecommendRejectOut>(
+    `/api/resume-copilot/sessions/${sessionId}/recommendations/${encodeURIComponent(jobId)}/reject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        reason: payload.reason,
+        note: payload.note ?? '',
+      }),
+    },
+  );
+}
