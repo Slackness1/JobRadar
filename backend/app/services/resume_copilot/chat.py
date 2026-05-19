@@ -12,11 +12,16 @@ from urllib import request as urllib_request
 
 from sqlalchemy.orm import Session
 
-from app.models import ResumeConfirmedProfile, ResumeCopilotMessage
+from app.models import ResumeConfirmedProfile, ResumeCopilotMessage, ResumeCopilotSession
 from app.schemas_resume_copilot import (
     ResumeProfilePayload,
     ResumeCopilotMessageOut,
     RewriteOption,
+    RewriteV0V2Out,
+    RewriteVersionV0,
+    RewriteVersionV2,
+    RewriteWarning,
+    RewriteWarningSuggestion,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
 from app.services.resume_copilot.plan import Evidence, audit_draft
@@ -752,3 +757,275 @@ def apply_rewrite(
     db.commit()
 
     return ResumeProfilePayload.model_validate(profile_dict)
+
+
+# ─── Rewrite v0/v2 — thesis-aware (Phase 1 BE-2, C-1 简 + C-5) ────────────────
+#
+# 新 rewrite pipeline (砍 v1 STAR — 见 docs/main-workspace-redesign-2026-05-20.md
+# §0.6):
+#
+#   bullet_text + JD + account_memory(experience + skill_claim, top-3)
+#       → LLM thesis-aware rewrite
+#       → v2.text
+#       → _detect_fabricated_numbers → warnings (3 suggestion_options)
+#       → RewriteV0V2Out
+#
+# v0 = echo 原文 (无改写)
+# v2 = LLM 改, 必须用 memory_blocks 里的细节 + 注入学生独立判断 / 非共识 view
+#
+# memory 为空时不调 LLM —— 直接返 needs_plan_mode=True, 引导学生先去 plan-mode
+# 跟 AI 加厚这段经历再回来。
+
+
+_REWRITE_V2_SYSTEM_PROMPT = """\
+你是一位资深的金融行业简历改写顾问 (服务 SAIF 高金 MF / MBA 学生)。
+
+任务: 接收一条学生简历 bullet + 目标岗位 JD + 学生自己讲过的真实经历细节
+(`student_memory`), 输出一版 **thesis-aware** 改写。
+
+什么叫 thesis-aware:
+1. **基于 student_memory 注入真实细节** — 不能只是把原 bullet 词换一下,要把
+   memory 里的具体动作 / 数据 / 结果 / 方法编入改写。
+2. **加学生独立判断 / 非共识 view** — 不要写"按要求完成 X","参与了 Y" 这种
+   被动陈述。要呈现 "我看到了什么 / 我是怎么判断的 / 我得出的非共识结论"。
+   例:
+     - 烂版: "参与了行研项目, 跟踪 5 只半导体股票"
+     - thesis 版: "跟踪 5 只半导体股票时, 发现头部 IDM 在车规 MCU 切换上的
+       lead time 被市场低估, 据此给 leader 提出反共识 buy 建议"
+3. **行业洞察** — 体现学生对所投赛道有深度理解 (e.g. 知道买方研究跟卖方研究
+   的差别 / 知道一级和二级的视角差 / 知道公募研究员的报告流程)。
+
+硬约束 (违反即作废):
+- **绝不编造原 bullet + student_memory 都没有的具体数字 / 公司 / 工具**。
+  系统会再跑一遍数字检测; 你输出的数字必须能在 anchor 里找得到。
+- **绝不角色升级** — 原文用"参与/协助/配合" 改写也用同档动词, 不允许变成
+  "主导/负责/带领"。
+- **绝不声明编造** — 不允许加"被采纳/获奖/leader 表扬"这类成果, 除非原文已写。
+- 字数控制在原 bullet ± 30%。
+
+输出严格 JSON:
+{
+  "text": "thesis-aware 改写后的 bullet (一行)",
+  "rationale": "为什么这样改 (1-2 句, 解释你用了 memory 哪条细节 + 注入了什么 view)"
+}
+"""
+
+
+_REWRITE_V2_NO_MEMORY_MESSAGE = (
+    "需要更多经历细节,建议用 plan-mode 跟 AI 聊聊这段经历"
+)
+
+
+def _detect_fabricated_numbers_in_text(text: str, anchor: set[str]) -> set[str]:
+    """Single-string variant of ``_detect_fabricated_numbers`` (which takes a
+    list[str]). Used by the v0/v2 path where the v2 output is one bullet."""
+    return _extract_numbers(text or '') - anchor
+
+
+_FABRICATED_NUMBER_SUGGESTIONS: list[dict[str, str]] = [
+    {"action": "fill_real", "label": "填实数"},
+    {"action": "delete_number", "label": "删数"},
+    {"action": "vague", "label": "接受模糊版本"},
+]
+
+
+def _build_fabrication_warnings(text: str, profile_dict: dict) -> list[RewriteWarning]:
+    """Run the v0/v2 v2-text through fabrication detector and return a structured
+    RewriteWarning list. Empty list = no fabrications detected.
+
+    Each fabricated number becomes ONE warning with the canonical 3-option
+    suggestion set (填实数 / 删数 / 接受模糊版本). The set is fixed by C-5
+    spec — don't trim it; the UI renders the buttons directly from it."""
+    anchor = _profile_anchor_numbers(profile_dict)
+    if not anchor:
+        # No anchor numbers anywhere in the profile — can't decide if v2 numbers
+        # are fabricated. Skip the warning (false-positive risk too high).
+        return []
+    fabricated = _detect_fabricated_numbers_in_text(text, anchor)
+    if not fabricated:
+        return []
+    warnings: list[RewriteWarning] = []
+    for num in sorted(fabricated):
+        warnings.append(RewriteWarning(
+            type='fabricated_number',
+            number=num,
+            suggestion_options=[
+                RewriteWarningSuggestion(action=s['action'], label=s['label'])
+                for s in _FABRICATED_NUMBER_SUGGESTIONS
+            ],
+            detail=f"改写引入了原简历里没有的数字 {num},请核实或选择处理方式。",
+        ))
+    return warnings
+
+
+def _format_memory_block(memory_entries: list[dict]) -> str:
+    """Render the top-k memory entries as a system-prompt block.
+
+    Style matches StudentMemoryProvider so the LLM sees a familiar layout.
+    Each entry: ``- [category] summary (raw_excerpt 摘要)``.
+    """
+    if not memory_entries:
+        return ''
+    lines: list[str] = [
+        '[student_memory · 学生自己讲过的经历细节 — 你必须基于这些事实改写, 不要凭空发挥]',
+    ]
+    for entry in memory_entries:
+        cat = str(entry.get('category', '') or '')
+        summary = str(entry.get('summary', '') or '').strip()
+        excerpt = str(entry.get('raw_excerpt', '') or '').strip()
+        line = f"  - [{cat}] {summary}"
+        if excerpt and excerpt != summary:
+            # Trim excerpt so prompt stays compact.
+            line += f"\n      原话: {excerpt[:200]}"
+        lines.append(line)
+    return '\n'.join(lines)
+
+
+def _load_user_key_for_session(session_id: int, db: Session) -> str:
+    row = (
+        db.query(ResumeCopilotSession)
+        .filter(ResumeCopilotSession.id == session_id)
+        .first()
+    )
+    return str(getattr(row, 'user_key', '') or '') if row else ''
+
+
+class V2RewriteLLMProvider(Protocol):
+    def generate_v2(self, messages_payload: list[dict]) -> dict[str, Any]: ...
+
+
+class OpenAICompatibleV2RewriteLLMProvider:
+    """Single-call LLM provider for the v0/v2 thesis rewrite path.
+
+    Distinct from ``OpenAICompatibleChatLLMProvider`` because the v2 rewrite
+    output schema is much smaller (``{text, rationale}``) and we don't need
+    the multi-turn / rewrite_options pipeline.
+    """
+
+    def __init__(self, client=None) -> None:
+        self.client = client or build_resume_llm_client()
+
+    def generate_v2(self, messages_payload: list[dict]) -> dict[str, Any]:
+        payload = {
+            'model': self.client.model,
+            'response_format': {'type': 'json_object'},
+            'messages': messages_payload,
+        }
+        req = urllib_request.Request(
+            self.client.chat_completions_url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Authorization': f'Bearer {self.client.api_key}',
+                'Content-Type': 'application/json',
+            },
+            method='POST',
+        )
+        with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as response:
+            body = json.loads(response.read().decode('utf-8'))
+        content = body['choices'][0]['message']['content']
+        parsed = _try_parse_chat_json(content)
+        if parsed is None:
+            # Defensive fallback: keep the original LLM text so the caller at
+            # least has something to show — don't drop the whole turn.
+            return {'text': _strip_fence(content)[:800], 'rationale': ''}
+        return parsed
+
+
+def propose_rewrite_v0_v2(
+    session_id: int,
+    bullet_text: str,
+    field_path: str,
+    db: Session,
+    *,
+    target_job_description: str = '',
+    target_title: str = '',
+    section: str = '',
+    provider: 'V2RewriteLLMProvider | None' = None,
+    user_key_override: str | None = None,
+) -> RewriteV0V2Out:
+    """Generate the v0/v2 rewrite for one resume bullet.
+
+    Pipeline:
+      1. Echo the bullet → ``v0``.
+      2. Look up the session's ``user_key``; fetch top-3 relevant ``experience``
+         + ``skill_claim`` rows from ``account_memory`` via
+         ``relevant_memory_for_bullet``.
+      3. **Empty memory → short-circuit**: return ``v2.needs_plan_mode=True``
+         with the canonical guidance message. The LLM is NOT called.
+      4. Otherwise call the v2 LLM with: JD + bullet + memory block.
+      5. Run ``_build_fabrication_warnings`` against ``v2.text``; attach warnings
+         (with the 3 canonical suggestion_options) but DO NOT strip the number.
+
+    The fabrication warning is a CLAUDE.md red line — callers must not suppress
+    it. Apply path lives in FE / future endpoint.
+    """
+    cleaned_bullet = (bullet_text or '').strip()
+    v0 = RewriteVersionV0(text=cleaned_bullet)
+
+    user_key = (
+        user_key_override
+        if user_key_override is not None
+        else _load_user_key_for_session(session_id, db)
+    )
+    profile_dict = _load_profile_dict(session_id, db)
+
+    # Step 2: fetch relevant memory
+    from app.services.memory.api_helpers import relevant_memory_for_bullet
+    memory_entries = relevant_memory_for_bullet(
+        db, user_key=user_key, bullet_text=cleaned_bullet, k=3,
+    )
+
+    # Step 3: empty memory → guide to plan-mode, don't burn LLM tokens.
+    if not memory_entries:
+        return RewriteV0V2Out(
+            field_path=field_path,
+            section=section,
+            target_title=target_title,
+            v0=v0,
+            v2=RewriteVersionV2(
+                text=_REWRITE_V2_NO_MEMORY_MESSAGE,
+                needs_plan_mode=True,
+                warnings=[],
+            ),
+            rationale='',
+            memory_refs=[],
+        )
+
+    # Step 4: call LLM
+    _provider = provider or OpenAICompatibleV2RewriteLLMProvider()
+    memory_block = _format_memory_block(memory_entries)
+
+    user_payload = {
+        'target_job_description': target_job_description or '',
+        'original_bullet': cleaned_bullet,
+        'field_path': field_path,
+    }
+
+    system_content = _REWRITE_V2_SYSTEM_PROMPT + '\n\n' + memory_block
+    messages_payload: list[dict] = [
+        {'role': 'system', 'content': system_content},
+        {'role': 'user', 'content': json.dumps(user_payload, ensure_ascii=False)},
+    ]
+
+    raw: Any = _provider.generate_v2(messages_payload)
+    if not isinstance(raw, dict):
+        raw = {'text': cleaned_bullet, 'rationale': ''}
+    v2_text = str(raw.get('text', '') or '').strip() or cleaned_bullet
+    rationale = str(raw.get('rationale', '') or '').strip()
+
+    # Step 5: fabrication warnings — DO NOT strip, surface them.
+    warnings = _build_fabrication_warnings(v2_text, profile_dict)
+
+    return RewriteV0V2Out(
+        field_path=field_path,
+        section=section,
+        target_title=target_title,
+        v0=v0,
+        v2=RewriteVersionV2(
+            text=v2_text,
+            needs_plan_mode=False,
+            warnings=warnings,
+        ),
+        rationale=rationale,
+        memory_refs=[int(e.get('id', 0)) for e in memory_entries if e.get('id')],
+    )
