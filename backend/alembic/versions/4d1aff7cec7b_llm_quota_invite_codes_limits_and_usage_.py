@@ -19,7 +19,10 @@ import sqlalchemy as sa
 
 
 revision: str = '4d1aff7cec7b'
-down_revision: Union[str, Sequence[str], None] = '0006_xhs_notes_insights'
+# Prod head 是 d5e9a541fac0 (merge of taxonomy/recommendations/stale)。0006_xhs_notes_insights
+# 是 dev 上未提交的并行 in-progress 工作,链不到 prod。锚到 d5e9a541fac0 让 prod 能跑;
+# dev 这边 0006 自己再做个 merge 跟我合一下就行。
+down_revision: Union[str, Sequence[str], None] = 'd5e9a541fac0'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
