@@ -72,6 +72,11 @@ def run_resume_parse_workflow(
         db.close()
         raise ValueError(f'Resume copilot session {session_id} not found')
 
+    # 设 ContextVar 让 LLM call 站点能记账。BackgroundTask 不继承 request 的 contextvar,
+    # 所以在 task 入口显式 set,session.user_key 是注册时 plumb 进来的 stable key。
+    from app.services.llm_quota import set_current_user_key, reset_current_user_key
+    _quota_token = set_current_user_key(str(getattr(session, 'user_key', '') or ''))
+
     try:
         profile = parse_resume_text_to_profile(str(getattr(session, 'extracted_text', '') or ''), provider=provider)
         parsed_profile = db.query(ResumeParsedProfile).filter(ResumeParsedProfile.session_id == session_id).first()
@@ -107,6 +112,7 @@ def run_resume_parse_workflow(
         db.commit()
     finally:
         db.close()
+        reset_current_user_key(_quota_token)
 
 
 def run_resume_generate_workflow(
@@ -124,6 +130,9 @@ def run_resume_generate_workflow(
     if not session:
         db.close()
         raise ValueError(f'Resume copilot session {session_id} not found')
+
+    from app.services.llm_quota import set_current_user_key, reset_current_user_key
+    _quota_token = set_current_user_key(str(getattr(session, 'user_key', '') or ''))
 
     recommendation_run = db.query(ResumeRecommendationRun).filter(
         ResumeRecommendationRun.session_id == session_id
@@ -293,3 +302,4 @@ def run_resume_generate_workflow(
         db.commit()
     finally:
         db.close()
+        reset_current_user_key(_quota_token)

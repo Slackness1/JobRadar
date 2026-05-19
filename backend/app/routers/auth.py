@@ -271,3 +271,14 @@ def me(user=Depends(get_current_user)):
         created_at=user.created_at,
         last_login_at=user.last_login_at,
     )
+
+
+@router.get("/me/usage")
+def me_usage(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    """当前账号 token 配额 + 用量快照。exempt=True 代表不限。"""
+    from app.services.llm_quota import get_usage_snapshot
+    user_key = auth_service.user_key_for(user)
+    return get_usage_snapshot(db, user_key)

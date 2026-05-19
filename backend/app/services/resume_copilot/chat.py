@@ -214,6 +214,11 @@ class OpenAICompatibleChatLLMProvider:
         )
         with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as response:
             body = json.loads(response.read().decode('utf-8'))
+        try:
+            from app.services.llm_quota import record_usage_from_response_for_current
+            record_usage_from_response_for_current('resume_chat', body)
+        except Exception:
+            pass
         return body['choices'][0]['message']['content']
 
     def generate_turn(self, messages_payload: list[dict]) -> dict[str, Any]:

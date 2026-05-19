@@ -389,6 +389,17 @@ def _call_extractor_llm(
             max_tokens=4000,
             response_format={"type": "json_object"},
         )
+        try:
+            usage = getattr(resp, 'usage', None)
+            if usage is not None:
+                from app.services.llm_quota import record_usage_for_current
+                record_usage_for_current(
+                    'memory_extract',
+                    int(getattr(usage, 'prompt_tokens', 0) or 0),
+                    int(getattr(usage, 'completion_tokens', 0) or 0),
+                )
+        except Exception:
+            pass
     except Exception as exc:
         logger.debug("student_kb.extractor llm call failed: %s", exc)
         return []

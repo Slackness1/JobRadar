@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from app import models  # noqa: F401  # 确保模型被导入以参与建表
 from app.database import Base, SessionLocal, engine
 from app.middleware.readonly_guest import ReadOnlyGuestMiddleware
+from app.middleware.llm_quota_context import LlmQuotaContextMiddleware
 from app.models import CrawlLog
 from app.routers import (
     company_recrawl,
@@ -149,6 +150,7 @@ app = FastAPI(title="JobRadar API", lifespan=lifespan)
 
 # Add read-only guest middleware (must be added before CORS middleware)
 app.add_middleware(ReadOnlyGuestMiddleware)
+app.add_middleware(LlmQuotaContextMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

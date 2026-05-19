@@ -52,6 +52,11 @@ class InterviewLLMClient:
     def _extract_content(self, raw_response: str) -> str:
         try:
             body = json.loads(raw_response)
+            try:
+                from app.services.llm_quota import record_usage_from_response_for_current
+                record_usage_from_response_for_current('interview_helper', body)
+            except Exception:
+                pass
             return body["choices"][0]["message"]["content"]
         except (json.JSONDecodeError, KeyError, IndexError, TypeError):
             return ""

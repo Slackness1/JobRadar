@@ -165,6 +165,9 @@ async def create_resume_copilot_session(
     x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
+    # 配额闸 — 解析简历会跑 LLM,先挡一道
+    from app.services.llm_quota import check_quota_or_raise
+    check_quota_or_raise(db, x_resume_user_key)
     try:
         validate_pdf_upload(file.filename or '', file.content_type or '')
         file_bytes = await file.read()
@@ -392,6 +395,9 @@ def generate_resume_recommendations(
     session = _get_session_or_404(db, session_id)
     _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)
+    # 配额闸:超额直接 429
+    from app.services.llm_quota import check_quota_or_raise
+    check_quota_or_raise(db, x_resume_user_key)
     confirmed_profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not confirmed_profile:
         raise HTTPException(status_code=409, detail='CONFIRMED_PROFILE_REQUIRED')
@@ -521,6 +527,8 @@ def post_chat_message(
     session_obj = _get_session_or_404(db, session_id)
     _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
+    from app.services.llm_quota import check_quota_or_raise
+    check_quota_or_raise(db, x_resume_user_key)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
     ).first()
@@ -547,8 +555,14 @@ def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> No
     DB session is closed by the time this runs."""
     from app.database import SessionLocal
     from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
+    from app.services.llm_quota import set_current_user_key, reset_current_user_key
 
     db = SessionLocal()
+    # session.user_key 在 task 调度时已固化在 DB 上,从 session 取 — BackgroundTask
+    # 不继承请求 contextvar,所以在这里显式 set 一遍。
+    sess = db.query(ResumeCopilotSession).filter(ResumeCopilotSession.id == session_id).first()
+    user_key = str(getattr(sess, 'user_key', '') or '') if sess else ''
+    _quota_token = set_current_user_key(user_key)
     try:
         extract_for_chat_turn(db, session_id=session_id, user_content=user_content)
     except Exception:
@@ -559,6 +573,7 @@ def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> No
         )
     finally:
         db.close()
+        reset_current_user_key(_quota_token)
 
 
 @router.post('/sessions/{session_id}/chat/apply-rewrite', response_model=ApplyRewriteOut)

@@ -134,6 +134,7 @@ class OpenAICompatibleResumeParserProvider:
             'response_format': {'type': 'json_object'},
             'max_tokens': 8000,
             'stream': True,
+            'stream_options': {'include_usage': True},
             'messages': [
                 {
                     'role': 'system',
@@ -177,6 +178,7 @@ class OpenAICompatibleResumeParserProvider:
         # Streaming mode: accumulate SSE chunks so each recv() arrives quickly,
         # avoiding long silent-wait timeouts on large JSON outputs.
         chunks: list[str] = []
+        usage_obj: dict | None = None
         with request.urlopen(req, timeout=self.client.timeout_seconds) as response:
             for raw_line in response:
                 line = raw_line.decode('utf-8').strip()
@@ -187,12 +189,22 @@ class OpenAICompatibleResumeParserProvider:
                     break
                 try:
                     event = json.loads(data)
-                    delta = event['choices'][0].get('delta', {})
-                    token = delta.get('content') or ''
-                    if token:
-                        chunks.append(token)
+                    if isinstance(event.get('usage'), dict):
+                        usage_obj = event['usage']  # final chunk carries usage
+                    choices = event.get('choices') or []
+                    if choices:
+                        delta = choices[0].get('delta', {})
+                        token = delta.get('content') or ''
+                        if token:
+                            chunks.append(token)
                 except (KeyError, json.JSONDecodeError):
                     continue
+        if usage_obj:
+            try:
+                from app.services.llm_quota import record_usage_from_response_for_current
+                record_usage_from_response_for_current('resume_parse', {'usage': usage_obj})
+            except Exception:
+                pass
         content = ''.join(chunks)
         return json.loads(content)
 

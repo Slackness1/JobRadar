@@ -51,7 +51,9 @@ def interview_turn(
 ):
     from app.services.interview.adaptive import NextQuestion, pick_next_question
     from app.services.interview.weakness_profile import WeaknessProfile
+    from app.services.llm_quota import check_quota_or_raise
 
+    check_quota_or_raise(db, x_resume_user_key)
     chip = body.target_job  # 1:1 for now; later: derive from a chip lookup table
     chip_summary = _load_chip_summary(db, chip)
     jd_content = body.jd_content or ''
@@ -162,7 +164,9 @@ def interview_report(
 ):
     from app.services.interview.report import build_report_aggregate
     from app.services.interview.llm_helpers import build_interview_llm_client
+    from app.services.llm_quota import check_quota_or_raise
 
+    check_quota_or_raise(db, x_resume_user_key)
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
     report = generate_interview_report(body.target_job, messages, db=db)
 

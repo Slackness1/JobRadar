@@ -64,6 +64,11 @@ def _call_llm(messages: list[dict], timeout_seconds: int = 30) -> str:
     )
     with urllib_request.urlopen(req, timeout=timeout_seconds) as response:
         body = json.loads(response.read().decode('utf-8'))
+    try:
+        from app.services.llm_quota import record_usage_from_response_for_current
+        record_usage_from_response_for_current('resume_agent', body)
+    except Exception:
+        pass
     return body['choices'][0]['message']['content']
 
 

@@ -138,6 +138,11 @@ def generate_interview_report(
         try:
             with urllib_request.urlopen(req, timeout=client.timeout_seconds) as response:
                 body = json.loads(response.read().decode('utf-8'))
+            try:
+                from app.services.llm_quota import record_usage_from_response_for_current
+                record_usage_from_response_for_current('interview_report', body)
+            except Exception:
+                pass
             raw = (body['choices'][0]['message']['content'] or '').strip()
         except Exception as exc:
             logger.warning('interview report LLM attempt %d failed: %s', attempt + 1, exc)

@@ -686,6 +686,52 @@ class PodcastInsight(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class XhsNote(Base):
+    """XHS (小红书) post = source row for XhsInsight. Mirrors PodcastEpisode role."""
+
+    __tablename__ = "xhs_notes"
+
+    id = Column(Integer, primary_key=True)
+    note_id = Column(Text, unique=True, nullable=False, index=True)
+    title = Column(Text, default="")
+    desc = Column(Text, default="")
+    author_name = Column(Text, default="")
+    author_id = Column(Text, default="")
+    tags_json = Column(Text, default="[]")
+    liked_count = Column(Integer, default=0)
+    collected_count = Column(Integer, default=0)
+    comment_count = Column(Integer, default=0)
+    signal_score = Column(Float, default=0.0)
+    matched_keywords_json = Column(Text, default="[]")
+    source_url = Column(Text, default="")
+    time_iso = Column(Text, default="")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+
+class XhsInsight(Base):
+    """Typed insight extracted from an XHS note (post + top comments)."""
+
+    __tablename__ = "xhs_insights"
+
+    id = Column(Integer, primary_key=True)
+    insight_id = Column(Text, unique=True, nullable=False, index=True)
+    source_note_id = Column(Text, nullable=False, index=True)
+    type_json = Column(Text, default="[]")
+    primary_type = Column(Text, default="", index=True)
+    role_target_json = Column(Text, default="[]")
+    company_target_json = Column(Text, default="[]")
+    sector_target_json = Column(Text, default="[]")
+    content = Column(Text, nullable=False)
+    source_quote = Column(Text, default="")
+    speaker = Column(Text, default="unknown")  # author | commenter | unknown
+    confidence = Column(Text, default="med", index=True)
+    corroboration_json = Column(Text, default="[]")
+    embedding = Column(LargeBinary, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # ---------------------------------------------------------------------------
 # Knowledge pack — public 智库 layer (per-employer rubric/quote/example bank)
 # Sourced from skill packs like tencent-recruit-pack/. Read by
@@ -868,7 +914,10 @@ class SensitiveTopic(Base):
 
 
 class InviteCode(Base):
-    """邀请码。已用过的 code consumed_at != null。"""
+    """邀请码。已用过的 code consumed_at != null。
+
+    token_limit_total / token_limit_daily NULL = 不限。
+    """
 
     __tablename__ = "invite_codes"
 
@@ -879,6 +928,23 @@ class InviteCode(Base):
     consumed_at = Column(DateTime, nullable=True, index=True)
     consumed_by_user_key = Column(Text, nullable=True)  # 不上 FK,跟 users 解耦
     expires_at = Column(DateTime, nullable=True, index=True)
+    token_limit_total = Column(Integer, nullable=True)
+    token_limit_daily = Column(Integer, nullable=True)
+
+
+class LlmUsage(Base):
+    """一行 = 一次 LLM 调用。给 token quota 用,也方便事后审计。"""
+
+    __tablename__ = "llm_usage"
+
+    id = Column(Integer, primary_key=True)
+    user_key = Column(Text, nullable=False, index=True)
+    feature = Column(Text, nullable=False)
+    prompt_tokens = Column(Integer, nullable=False, default=0)
+    completion_tokens = Column(Integer, nullable=False, default=0)
+    total_tokens = Column(Integer, nullable=False, default=0)
+    usage_date = Column(Text, nullable=False)  # 'YYYY-MM-DD' Asia/Shanghai
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class User(Base):

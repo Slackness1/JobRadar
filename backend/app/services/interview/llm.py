@@ -153,6 +153,7 @@ def stream_interview_turn(
     payload = {
         'model': client.model,
         'stream': True,
+        'stream_options': {'include_usage': True},
         'messages': [
             {
                 'role': 'system',
@@ -177,4 +178,16 @@ def stream_interview_turn(
         for raw_line in response:
             line = raw_line.decode('utf-8').rstrip('\n')
             if line:
+                # 抠 usage 字段 (final chunk),记账后照常 yield
+                if line.startswith('data:'):
+                    payload_str = line[len('data:'):].strip()
+                    if payload_str and payload_str != '[DONE]':
+                        try:
+                            event = json.loads(payload_str)
+                            usage = event.get('usage') if isinstance(event, dict) else None
+                            if isinstance(usage, dict):
+                                from app.services.llm_quota import record_usage_from_response_for_current
+                                record_usage_from_response_for_current('interview_turn', {'usage': usage})
+                        except Exception:
+                            pass
                 yield line + '\n'

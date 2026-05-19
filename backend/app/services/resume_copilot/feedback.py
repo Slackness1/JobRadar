@@ -73,6 +73,11 @@ class OpenAICompatibleResumeFeedbackProvider:
         )
         with request.urlopen(req, timeout=self.client.timeout_seconds) as response:
             body = json.loads(response.read().decode('utf-8'))
+        try:
+            from app.services.llm_quota import record_usage_from_response_for_current
+            record_usage_from_response_for_current('resume_feedback', body)
+        except Exception:
+            pass
         content = body['choices'][0]['message']['content']
         return json.loads(content)
 

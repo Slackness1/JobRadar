@@ -86,6 +86,11 @@ def _call_chat_json(system_prompt: str, user_payload: dict, timeout_seconds: int
     )
     with request.urlopen(req, timeout=timeout_seconds or client.timeout_seconds) as response:
         body = json.loads(response.read().decode('utf-8'))
+    try:
+        from app.services.llm_quota import record_usage_from_response_for_current
+        record_usage_from_response_for_current('resume_quick_enrich', body)
+    except Exception:
+        pass
     content = body['choices'][0]['message']['content']
     return json.loads(content)
 
