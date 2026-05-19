@@ -610,6 +610,38 @@ def _promote_draft_to_job(db: Session, draft: JobDraft) -> Job:
     return job
 
 
+_REQUIRED_DRAFT_FIELDS_FOR_APPROVE = (
+    ('parsed_detail_url', '岗位申请链接 detail_url'),
+    ('parsed_company',    '公司名'),
+    ('parsed_title',      '岗位标题'),
+)
+
+
+def _validate_draft_for_approve(draft: JobDraft) -> None:
+    """T2 (2026-05-19): admin approve 前强制校验关键字段非空。
+
+    教师录入时 OCR/链接抓取/手填三模任一缺 detail_url, draft 进 jobs 表后
+    学生看到推荐点不进去 — 浪费推荐位 + 损害信任。这里 hard-block:
+      - detail_url 空 → 拒绝, 让 admin 把链接补全后再 approve
+      - company / title 空 → 同上
+    location / canonical_track 不强制 (前者会从 company_tags 推, 后者
+    before_insert listener 自动派生; 缺这俩岗位仍可见, 只是 ranking 弱)
+    """
+    missing = []
+    for field, label in _REQUIRED_DRAFT_FIELDS_FOR_APPROVE:
+        v = (getattr(draft, field, '') or '').strip()
+        if not v:
+            missing.append(label)
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f'Draft {draft.id} 缺少关键字段:{", ".join(missing)}。'
+                f'请回到 draft 补全后再 approve(否则学生看到岗位会点不进去)'
+            ),
+        )
+
+
 @router.post('/admin/drafts/{draft_id}/approve', response_model=ApproveOut)
 def admin_approve_draft(
     draft_id: int,
@@ -622,6 +654,9 @@ def admin_approve_draft(
     cur = getattr(draft, 'status', '') or ''
     if cur not in {'pending', 'draft'}:
         raise HTTPException(status_code=409, detail=f'Draft 当前状态 {cur} 不能 approve')
+
+    # T2: 校验必填字段 (detail_url + company + title)
+    _validate_draft_for_approve(draft)
 
     # 1. 把 draft 的字段 promote 成 jobs 行（如果之前 approve 过会复用）
     job = _promote_draft_to_job(db, draft)

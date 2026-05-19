@@ -236,8 +236,12 @@ class TeacherRejectBody(BaseModel):
 def teacher_draft_approve(draft_id: int, db: Session = Depends(get_db)) -> dict:
     """Approve a teacher-uploaded draft → promote to a Job row.
     Delegates to teacher_entry.admin_approve_draft logic (no token forwarded —
-    the admin gate exists for cross-origin clients, not for same-process UI)."""
-    from app.routers.teacher_entry import _promote_draft_to_job
+    the admin gate exists for cross-origin clients, not for same-process UI).
+
+    T2 (2026-05-19): 复用 teacher_entry._validate_draft_for_approve 校验必填
+    字段, 不让 detail_url 空的 draft 通过 promote。
+    """
+    from app.routers.teacher_entry import _promote_draft_to_job, _validate_draft_for_approve
     from app.services.scorer import score_all_jobs
 
     draft = db.query(JobDraft).filter(JobDraft.id == draft_id).first()
@@ -246,6 +250,9 @@ def teacher_draft_approve(draft_id: int, db: Session = Depends(get_db)) -> dict:
     cur = draft.status or ""
     if cur not in {"pending", "draft"}:
         raise HTTPException(409, f"draft 当前状态 {cur} 不能 approve")
+
+    # T2: 校验必填字段 (detail_url + company + title)
+    _validate_draft_for_approve(draft)
 
     job = _promote_draft_to_job(db, draft)
     draft.status = "approved"

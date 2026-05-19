@@ -770,6 +770,9 @@ def test_get_recommendations_returns_persisted_result():
                 'strengths': ['Python'],
                 'risks': ['Distributed systems depth'],
                 'target_direction': '',
+                'tier_label': '',
+                'priority_letter': '',
+                'track_match_kind': '',
             }
         ],
     }

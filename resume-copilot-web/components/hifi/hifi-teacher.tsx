@@ -509,9 +509,34 @@ export function HFTeacher() {
     setCards((prev) => prev.filter((c) => c.uid !== uid));
   }
 
+  // T1 (2026-05-19): 提交前校验必填字段。
+  // detail_url 缺时学生看到推荐点不进去 → 直接拦在前端,提示老师补全。
+  function _validateCardForSubmit(card: DraftCard): string | null {
+    const url = (card.parsed.detail_url || '').trim();
+    const title = (card.parsed.title || '').trim();
+    const company = (card.parsed.company || '').trim();
+    if (!url) return '岗位申请链接 (detail_url) 必填 — 学生看到岗位会点不进去';
+    if (!title) return '岗位标题必填';
+    if (!company) return '公司名必填';
+    // 简单 URL 格式校验
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return '岗位申请链接必须是完整 URL (含 http:// 或 https://)';
+    }
+    return null;
+  }
+
   async function submitOne(uid: string): Promise<boolean> {
     const card = cards.find((c) => c.uid === uid);
     if (!card) return false;
+
+    // T1: 前端校验必填字段
+    const err = _validateCardForSubmit(card);
+    if (err) {
+      patchCard(uid, { cardStatus: 'failed', cardError: err });
+      flashToast(err);
+      return false;
+    }
+
     patchCard(uid, { cardStatus: 'submitting', cardError: undefined });
     try {
       const draft = await postDraft({
