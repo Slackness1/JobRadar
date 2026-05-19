@@ -234,8 +234,12 @@ def test_extract_for_chat_turn_skips_guest_user_key(mock_client, db_factory):
 
 
 @patch('app.services.resume_copilot.memory.extractor.STUDENT_KB_ENABLED', False)
+@patch('app.services.resume_copilot.memory.extractor.UNIFIED_MEMORY_ENABLED', False)
 @patch('app.services.resume_copilot.memory.extractor._build_llm_client')
 def test_extract_for_chat_turn_skips_when_flag_off(mock_client, db_factory):
+    """Phase 0 (P0-1) flipped both memory flags ON by default — the
+    flag_off short-circuit now requires BOTH to be False, so this test
+    patches both to verify the kill-switch still works."""
     from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
 
     sid = _make_session(db_factory, user_key='real_user_123')

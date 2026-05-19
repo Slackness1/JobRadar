@@ -352,8 +352,8 @@ def test_company_tier_tags_contribute_priority_and_enrichment_signals():
         assert indexed[priority_job.job_id].company_priority_label == 'T0-T1 主流平台'
         assert indexed[priority_job.job_id].company_priority_score == 42
         assert indexed[priority_job.job_id].base_match_score > indexed[ordinary_job.job_id].base_match_score
-        assert indexed[priority_job.job_id].need_enrichment is True
-        assert indexed[priority_job.job_id].topic_cache_status == 'internal_beta_pending'
+        # Phase 0 (D-4): need_enrichment / topic_cache_status fields removed
+        # with the snapshot system. priority + why_recommended remain.
         assert '学生优先赛道：互联网' in indexed[priority_job.job_id].why_recommended
     finally:
         db.close()
@@ -385,8 +385,9 @@ def test_state_owned_tier_tags_mark_high_info_asymmetry():
         item = recommendations[0]
         assert item.job_id == job.job_id
         assert item.company_priority_label == 'T0 央企核心平台'
-        assert item.need_enrichment is True
-        assert 'high_info_asymmetry' in item.enrichment_reason
+        # Phase 0 (D-4): need_enrichment / enrichment_reason fields removed
+        # with the snapshot system. high_info_asymmetry now surfaces only via
+        # priority metadata + LLM rerank.
     finally:
         db.close()
 

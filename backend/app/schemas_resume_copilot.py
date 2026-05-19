@@ -143,22 +143,6 @@ class ResumeGenerateOut(BaseModel):
     status: str
 
 
-class ResumeQuickEnrichmentSource(BaseModel):
-    title: str = ''
-    url: str = ''
-    snippet: str = ''
-
-
-class ResumeQuickEnrichmentProfile(BaseModel):
-    summary: str = ''
-    likely_orientation: str = ''
-    likely_department: str = ''
-    target_track_fit: str = ''
-    uncertainty_points: list[str] = []
-    search_queries: list[str] = []
-    sources: list[ResumeQuickEnrichmentSource] = []
-
-
 class ResumeAgentTraceItem(BaseModel):
     agent: str
     message: str
@@ -186,12 +170,10 @@ class ResumeRecommendationItem(BaseModel):
     matched_role_family: str = ''
     company_priority_tier: str = ''
     company_priority_label: str = ''
-    need_enrichment: bool = False
-    enrichment_reason: str = ''
     topic_key: str = ''
-    topic_cache_status: str = 'not_needed'
-    topic_summary: str = ''
-    quick_enrichment_profile: ResumeQuickEnrichmentProfile = Field(default_factory=ResumeQuickEnrichmentProfile)
+    # Phase 0 (D-4): snapshot/enrichment fields removed —
+    # need_enrichment / enrichment_reason / topic_cache_status / topic_summary /
+    # quick_enrichment_profile no longer part of the recommendation contract.
     used_ai: bool = False
     why_recommended: list[str] = []
     strengths: list[str] = []
@@ -316,3 +298,50 @@ class PlanStateOut(BaseModel):
     replan_count: int = 0
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+# ─── Memory API (Phase 0 P0-2) ──────────────────────────────────────────────
+
+class MemoryEntryOut(BaseModel):
+    """One ``account_memory`` row as returned by the memory endpoints.
+
+    Payload shape varies per category — kept as a free-form dict here so the
+    HTTP contract isn't tied to the 8 category-specific pydantic schemas
+    (which live in ``app.services.memory.schemas``). Frontend can switch on
+    ``category`` to render the right view."""
+    id: int
+    category: str
+    summary: str
+    payload: dict = {}
+    confidence: float = 0.0
+    user_confirmed: bool = False
+    use_count: int = 0
+    is_archived: bool = False
+    superseded_by_id: int | None = None
+    source_module: str = ''
+    source_session_id: int | None = None
+    raw_excerpt: str = ''
+    captured_at: str | None = None
+    last_verified_at: str | None = None
+    last_used_at: str | None = None
+
+
+class MemoryGroupedOut(BaseModel):
+    """Response for ``GET /sessions/{id}/memory`` — entries grouped by the
+    8 canonical categories. Each value is the list of non-archived rows for
+    that category (most recently captured first)."""
+    session_id: int
+    user_key: str
+    entries: dict[str, list[MemoryEntryOut]]
+
+
+class MemoryEntryCreateIn(BaseModel):
+    """Request body for ``POST /sessions/{id}/memory``.
+
+    ``category`` must be one of the 8 canonical categories; ``payload`` is
+    validated against the matching pydantic schema inside the dispatcher."""
+    category: str
+    summary: str
+    payload: dict = {}
+    raw_excerpt: str = ''
+    confidence: float = 1.0

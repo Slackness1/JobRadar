@@ -119,8 +119,10 @@ CRAWLER_LLM_DIGEST_ENABLED = os.environ.get("CRAWLER_LLM_DIGEST_ENABLED", "0") i
 
 # Student KB (Phase 1: passive extraction from chat rail into long-lived
 # per-student knowledge base for cross-session use by interview module).
-# OFF by default — flip STUDENT_KB_ENABLED=1 to start passive capture.
-STUDENT_KB_ENABLED = os.environ.get("STUDENT_KB_ENABLED", "0") in {"1", "true", "True"}
+# ON by default since main-workspace-redesign-2026-05-20 Phase 0 (P0-1) —
+# memory was implemented and battle-tested but kept dark; flipping it on is
+# the prerequisite for the SAIF闭环 (chat 写 → 档案展示 → 推荐/改写 读回).
+STUDENT_KB_ENABLED = os.environ.get("STUDENT_KB_ENABLED", "1") in {"1", "true", "True"}
 STUDENT_KB_MAX_CANDIDATES_PER_TURN = _get_int_env("STUDENT_KB_MAX_CANDIDATES_PER_TURN", 3)
 STUDENT_KB_AUTO_CONFIRM_THRESHOLD = float(
     os.environ.get("STUDENT_KB_AUTO_CONFIRM_THRESHOLD", "0.92")
@@ -128,10 +130,11 @@ STUDENT_KB_AUTO_CONFIRM_THRESHOLD = float(
 
 # Unified account memory (see docs/unified-memory-and-plan-mode-2026-05-13.md).
 # Absorbs student_experiences + plan-embedded Evidence into a single
-# `account_memory` table with category-discriminated rows. OFF by default;
-# when flipped ON, write paths in chat/parser/plan/interview start producing
-# rows. Read paths light up independently per follow-up PR.
-UNIFIED_MEMORY_ENABLED = os.environ.get("UNIFIED_MEMORY_ENABLED", "0") in {"1", "true", "True"}
+# `account_memory` table with category-discriminated rows. ON by default
+# since Phase 0 (P0-1) — same闭环 prerequisite as STUDENT_KB_ENABLED. The two
+# flags now dual-write; legacy student_experiences will be retired in a later
+# PR once UI consumers fully migrate to account_memory.
+UNIFIED_MEMORY_ENABLED = os.environ.get("UNIFIED_MEMORY_ENABLED", "1") in {"1", "true", "True"}
 
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]

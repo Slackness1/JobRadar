@@ -1,7 +1,6 @@
 import re
 import json
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Protocol
@@ -11,7 +10,7 @@ import yaml
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
-from app.models import Job, JobIntelSnapshot
+from app.models import Job
 from app.schemas_resume_copilot import (
     ResumePreferencePayload,
     ResumeProfilePayload,
@@ -484,59 +483,12 @@ def _topic_key(job: Job, role_family: str) -> str:
     return f'{company}:{role}'
 
 
-def _latest_snapshots_by_job_id(db: Session) -> dict[int, JobIntelSnapshot]:
-    snapshots = db.query(JobIntelSnapshot).order_by(JobIntelSnapshot.generated_at.desc()).all()
-    by_job_id: dict[int, JobIntelSnapshot] = {}
-    for snapshot in snapshots:
-        if snapshot.job_id not in by_job_id:
-            by_job_id[int(snapshot.job_id)] = snapshot
-    return by_job_id
-
-
 def _student_priority_bonus(priority: CompanyPriorityMatch, target_category_keys: set[str]) -> int:
     if not priority.score:
         return 0
     if priority.category_key in target_category_keys:
         return 18 if priority.score >= 20 else 10
     return 6 if priority.score >= 20 else 0
-
-
-_SNAPSHOT_TTL_DAYS = 14
-
-
-def _snapshot_is_fresh(snapshot: JobIntelSnapshot) -> bool:
-    generated_at = getattr(snapshot, 'generated_at', None)
-    if generated_at is None:
-        return False
-    if generated_at.tzinfo is None:
-        generated_at = generated_at.replace(tzinfo=timezone.utc)
-    return datetime.now(timezone.utc) - generated_at < timedelta(days=_SNAPSHOT_TTL_DAYS)
-
-
-def _detect_enrichment(
-    job: Job,
-    priority: CompanyPriorityMatch,
-    base_match_score: int,
-    snapshot: JobIntelSnapshot | None,
-) -> tuple[bool, str, str, str, int]:
-    if snapshot is not None and _snapshot_is_fresh(snapshot):
-        boost = min(8, max(2, int((float(snapshot.confidence_score or 0) or 0.4) * 8)))
-        return False, 'topic_cache_ready', 'ready', str(snapshot.summary_text or ''), boost
-
-    jd_text = ' '.join([str(job.job_req or ''), str(job.job_duty or '')]).strip()
-    title = str(job.job_title or '')
-    reasons: list[str] = []
-    if priority.high_info_asymmetry:
-        reasons.append('high_info_asymmetry')
-    if len(jd_text) < 80:
-        reasons.append('jd_short')
-    if any(keyword in title for keyword in HIGH_AMBIGUITY_ROLE_KEYWORDS):
-        reasons.append('role_ambiguous')
-    if priority.score >= 20 and base_match_score >= 50:
-        reasons.append('high_value')
-
-    deduped = list(dict.fromkeys(reasons))
-    return bool(deduped), ','.join(deduped), 'internal_beta_pending' if deduped else 'not_needed', '', 0
 
 
 def compute_rule_score(
@@ -796,7 +748,6 @@ def recommend_jobs_for_profile(
 ) -> tuple[list[ResumeRecommendationItem], bool, str]:
     profile_tokens = build_profile_tokens(profile)
     jobs = _filter_candidate_jobs(db, preferences)
-    snapshots_by_job_id = _latest_snapshots_by_job_id(db)
     recommendations: list[ResumeRecommendationItem] = []
     matched_track_key, matched_track_label = _matched_track(profile, preferences)
     matched_track_label = canonicalize_track(matched_track_label)
@@ -812,15 +763,10 @@ def recommend_jobs_for_profile(
             target_category_keys=target_category_keys,
         )
         priority = compute_company_priority(job)
-        snapshot = snapshots_by_job_id.get(int(job.id))
         base_match_score = objective_score + preference_score + base_job_score + company_priority_score
-        need_enrichment, enrichment_reason, topic_cache_status, topic_summary, enhanced_boost = _detect_enrichment(
-            job,
-            priority,
-            base_match_score,
-            snapshot,
-        )
-        enhanced_score = base_match_score + enhanced_boost
+        # Phase 0 (D-4): snapshot system deleted — no enrichment boost,
+        # recommendation collapses to two layers (rule_score + LLM rerank).
+        enhanced_score = base_match_score
         topic_key = _topic_key(job, matched_role_family)
         # 低质量岗位红线 (柜员/客户经理/渠道销售类) → final_score 扣 50 拉到底部 +
         # 加 risk note 告诉 user 为啥被降级。详见 docs/finance-tracks-2026-overview.md。
@@ -854,11 +800,7 @@ def recommend_jobs_for_profile(
                 matched_role_family=matched_role_family,
                 company_priority_tier=priority.tier,
                 company_priority_label=priority.label,
-                need_enrichment=need_enrichment,
-                enrichment_reason=enrichment_reason,
                 topic_key=topic_key,
-                topic_cache_status=topic_cache_status,
-                topic_summary=topic_summary,
                 used_ai=False,
                 tier_label=tier_label_value,
                 priority_letter=priority_letter_value,
@@ -869,13 +811,11 @@ def recommend_jobs_for_profile(
                         f'公司平台：{priority.label}' if priority.label else '',
                         f'学生优先赛道：{priority.category_label}' if priority.category_key and priority.category_key in target_category_keys else '',
                         f'匹配方向：{matched_role_family}' if matched_role_family else '',
-                        '已命中岗位情报缓存' if topic_cache_status == 'ready' else '',
                     ]
                     if value
                 ],
                 strengths=[],
                 risks=[
-                    *(['岗位信息较模糊，建议进入情报增强'] if need_enrichment else []),
                     *(
                         [f'岗位类型偏低质量（命中"{low_quality_hit}"），SAIF 同学慎选']
                         if low_quality_hit else []

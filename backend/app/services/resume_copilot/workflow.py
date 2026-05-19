@@ -16,7 +16,6 @@ from app.services.resume_copilot.parser import (
     is_resume_parser_upstream_http_error,
     parse_resume_text_to_profile,
 )
-from app.services.resume_copilot.quick_enrichment import serialize_agent_trace
 from app.services.resume_copilot.state import RunStatus, SessionStatus
 from app.services.resume_copilot.agent.budget import AgentBudget
 from app.services.resume_copilot.agent.core import ReActAgent
@@ -25,6 +24,13 @@ from app.services.resume_copilot.recommendation import ResumeRecommendationProvi
 
 RESUME_RECOMMENDATION_LIMIT = 100
 _AGENT_TRACE_CAP = 50
+
+
+def serialize_agent_trace(items: list[ResumeAgentTraceItem]) -> str:
+    """JSON-serialize agent trace list. Used to be in quick_enrichment.py;
+    moved here in Phase 0 (D-4 snapshot system removal) since that module no
+    longer exists."""
+    return json.dumps([item.model_dump() for item in items], ensure_ascii=False)
 
 # Mirrors USER_SESSION_TTL from app.routers.resume_copilot — duplicated here
 # to avoid a circular import. Keep in sync.

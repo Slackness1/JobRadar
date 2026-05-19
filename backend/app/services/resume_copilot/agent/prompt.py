@@ -55,7 +55,6 @@ def _summarize_candidates(candidates: list[ResumeRecommendationItem]) -> str:
             'location': item.location,
             'base_match_score': item.base_match_score,
             'company_tier': item.company_priority_label or '',
-            'need_enrichment': item.need_enrichment,
         }
         for i, item in enumerate(candidates[:100])
     ]
@@ -111,14 +110,12 @@ def build_system_prompt(
 - search_candidates: 剩余 {r.get('search_candidates', 0)} 次
 - inspect_jobs: 剩余 {r.get('inspect_jobs', 0)} 次
 - get_company_intel: 剩余 {r.get('get_company_intel', 0)} 次
-- search_web: 剩余 {r.get('search_web', 0)} 次
 - finalize: 剩余 {r.get('finalize', 0)} 次（必须调用，结束分析）
 
 ## 工具参数规格（严格使用以下参数名，不得自定义或增减）
 - search_candidates: {{"query": "搜索词字符串", "filters": {{"track": "赛道"}} 或 null}}
 - inspect_jobs:      {{"job_ids": ["id1", "id2"]}}  ← 最多5个，job_id 来自候选池
 - get_company_intel: {{"company_name": "单个公司名字符串"}}  ← 每次只查一家
-- search_web:        {{"query": "搜索词字符串"}}
 - finalize:          {{"recommendations": [{{"job_id": "...", "final_score": 85, "why_recommended": [...], "strengths": [...], "risks": [...], "target_direction": "目标方向名"}}]}}
 
 ## 输出格式（每轮严格返回 JSON）
@@ -128,5 +125,4 @@ def build_system_prompt(
 1. reasoning_display 用中文、用"你"称呼候选人，一句话，面向候选人展示
 2. 有足够依据时尽早 finalize，不要为了用完预算而无意义搜索
 3. 对高信息不对称赛道（券商/银行/国央企）优先调 get_company_intel，每次只传一个 company_name
-4. search_web 只用于真正模糊的岗位，不对每个岗位都搜
-5. 预算耗尽时立即 finalize，不要报错"""
+4. 预算耗尽时立即 finalize，不要报错"""

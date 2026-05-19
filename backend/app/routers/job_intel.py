@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Job, JobIntelTask, JobIntelRecord, JobIntelSnapshot
+from app.models import Job, JobIntelTask, JobIntelRecord
 from app.schemas_job_intel import (
     JobIntelSearchRequest,
     JobIntelRefreshRequest,
@@ -47,18 +47,15 @@ def get_job_intel_summary(job_id: int, db: Session = Depends(get_db)):
         .first()
     )
     records_count = db.query(JobIntelRecord).filter(JobIntelRecord.job_id == job_id).count()
-    snapshots = (
-        db.query(JobIntelSnapshot)
-        .filter(JobIntelSnapshot.job_id == job_id)
-        .order_by(JobIntelSnapshot.created_at.desc())
-        .all()
-    )
+    # Phase 0 (D-4): snapshot system removed — summary no longer returns
+    # snapshots. Schema still includes an empty list for backward compatibility
+    # with admin frontend until E-2/P1-2 ships the two-layer recommend card.
     return JobIntelSummaryOut(
         job_id=job_id,
         latest_task_id=latest_task.id if latest_task else None,
         latest_task_status=latest_task.status if latest_task else "no_data",
         records_count=records_count,
-        snapshots=snapshots,
+        snapshots=[],
     )
 
 

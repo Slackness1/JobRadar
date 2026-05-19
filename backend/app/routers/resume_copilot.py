@@ -23,6 +23,9 @@ from app.schemas_resume_copilot import (
     ApplyRewriteOut,
     ChatMessageIn,
     DirectionTierResult,
+    MemoryEntryCreateIn,
+    MemoryEntryOut,
+    MemoryGroupedOut,
     PlanStartIn,
     PlanStateOut,
     ResumeAgentTraceItem,
@@ -797,3 +800,105 @@ def post_plan_action(
     db.commit()
     db.refresh(session_obj)
     return PlanStateOut(**new_plan.model_dump(mode='json'))
+
+
+# ── Memory endpoints ────────────────────────────────────────────────────────
+# Phase 0 (P0-2 of main-workspace-redesign-2026-05-20). Surfaces
+# account_memory rows grouped by the 8 canonical categories so the UI's
+# 我的档案 panel (A-1 / A-2 / A-5) can render them, and lets authenticated
+# users add an entry manually (later: edit / archive in P1).
+
+
+@router.get(
+    '/sessions/{session_id}/memory',
+    response_model=MemoryGroupedOut,
+)
+def get_session_memory(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> MemoryGroupedOut:
+    """Return all non-archived ``account_memory`` rows for this session's
+    owner, grouped by the 8 canonical categories.
+
+    Demo session (``user_key == '__demo__'``) is publicly readable per the
+    project convention but always yields empty buckets — demo/guest keys are
+    multi-tenant and we refuse to write or surface memory there.
+    """
+    from app.services.memory.api_helpers import (
+        MEMORY_CATEGORIES,
+        list_entries_by_category,
+    )
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+
+    grouped = list_entries_by_category(
+        db,
+        user_key=str(getattr(session_obj, 'user_key', '') or ''),
+        include_archived=False,
+    )
+    # Cast each entry through MemoryEntryOut so the response schema validates.
+    grouped_typed: dict[str, list[MemoryEntryOut]] = {
+        cat: [MemoryEntryOut.model_validate(e) for e in grouped.get(cat, [])]
+        for cat in MEMORY_CATEGORIES
+    }
+    return MemoryGroupedOut(
+        session_id=session_id,
+        user_key=str(getattr(session_obj, 'user_key', '') or ''),
+        entries=grouped_typed,
+    )
+
+
+@router.post(
+    '/sessions/{session_id}/memory',
+    response_model=MemoryEntryOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def post_session_memory(
+    session_id: int,
+    payload: MemoryEntryCreateIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> MemoryEntryOut:
+    """Manually insert a row into ``account_memory`` for this session's
+    owner. Demo session is blocked by ``_assert_not_demo``; guest sessions
+    are blocked inside the dispatcher (reserved user_key)."""
+    from app.services.memory.api_helpers import serialize_entry
+    from app.services.memory.dispatcher import write_memory
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    user_key = str(getattr(session_obj, 'user_key', '') or '')
+    outcome = write_memory(
+        db,
+        user_key=user_key,
+        category=payload.category,
+        summary=payload.summary,
+        payload=payload.payload,
+        source_module='manual_api',
+        source_session_id=session_id,
+        raw_excerpt=payload.raw_excerpt,
+        confidence=float(payload.confidence),
+    )
+    if outcome.action == 'validation_error':
+        raise HTTPException(
+            status_code=422,
+            detail=f'MEMORY_VALIDATION_ERROR: {outcome.reason}',
+        )
+    if outcome.action == 'blocked':
+        # Most likely flag_off (shouldn't happen post-Phase 0) or a reserved
+        # user_key (guest/empty). Return 403 with the dispatcher's reason so
+        # callers can tell apart "not authed" from "memory subsystem down".
+        raise HTTPException(
+            status_code=403,
+            detail=f'MEMORY_BLOCKED: {outcome.reason}',
+        )
+    if outcome.row is None:
+        raise HTTPException(
+            status_code=500,
+            detail='MEMORY_WRITE_NO_ROW',
+        )
+    return MemoryEntryOut.model_validate(serialize_entry(outcome.row))

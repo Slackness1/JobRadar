@@ -79,30 +79,18 @@ class JobIntelCommentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ---- Job Intel Snapshots ----
-
-class JobIntelSnapshotOut(BaseModel):
-    id: int
-    job_id: int
-    snapshot_type: str
-    summary_text: str
-    evidence_count: int
-    source_platforms_json: str
-    confidence_score: float
-    generated_at: Optional[datetime] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    model_config = {"from_attributes": True}
-
-
 # ---- Job Intel Summary ----
+# Phase 0 (D-4): JobIntelSnapshotOut removed with the snapshot system. The
+# `snapshots` field stays as `list` (always empty) so existing admin frontend
+# clients don't 500 on a schema validation mismatch — UI will be cleaned up in
+# P1-2.
 
 class JobIntelSummaryOut(BaseModel):
     job_id: int
     latest_task_id: Optional[int] = None
     latest_task_status: Optional[str] = None
     records_count: int
-    snapshots: list[JobIntelSnapshotOut]
+    snapshots: list = []
     model_config = {"from_attributes": True}
 
 

@@ -30,8 +30,7 @@ def _normalize_tool_args(tool_name: str, args: dict) -> dict:
         return {k: v for k, v in args.items() if k in ('query', 'filters')}
     if tool_name == 'inspect_jobs':
         return {k: v for k, v in args.items() if k == 'job_ids'}
-    if tool_name == 'search_web':
-        return {k: v for k, v in args.items() if k == 'query'}
+    # Phase 0 (D-4): 'search_web' arg normalizer removed with the tool.
     return args
 
 

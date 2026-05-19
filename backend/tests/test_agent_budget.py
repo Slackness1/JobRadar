@@ -19,9 +19,10 @@ def test_check_blocks_per_tool_limit():
 
 def test_check_blocks_total_budget():
     budget = AgentBudget()
-    # 4+3+5 = 12, exactly at max_total_calls
+    # 4+3+5 = 12, exactly at max_total_calls (Phase 0: search_web removed,
+    # but total still 12 since the previous budget was over-allocated)
     budget._call_counts = {'search_candidates': 4, 'inspect_jobs': 3, 'get_company_intel': 5}
-    allowed, reason = budget.check('search_web')
+    allowed, reason = budget.check('inspect_jobs')
     assert allowed is False
     assert reason == 'TOTAL_BUDGET_EXHAUSTED'
 
@@ -35,15 +36,15 @@ def test_finalize_not_subject_to_total_budget():
 
 def test_record_increments_count():
     budget = AgentBudget()
-    budget.record('search_web')
-    budget.record('search_web')
-    assert budget._call_counts['search_web'] == 2
+    budget.record('search_candidates')
+    budget.record('search_candidates')
+    assert budget._call_counts['search_candidates'] == 2
 
 
 def test_remaining_decrements_after_record():
     budget = AgentBudget()
-    budget.record('search_web')
-    assert budget.remaining()['search_web'] == 2  # limit 3, used 1
+    budget.record('get_company_intel')
+    assert budget.remaining()['get_company_intel'] == 4  # limit 5, used 1
 
 
 def test_time_exhausted_blocks_all_tools():

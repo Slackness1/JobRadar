@@ -71,21 +71,6 @@ class JobIntelComment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
 
-class JobIntelSnapshot(Base):
-    __tablename__ = "job_intel_snapshots"
-
-    id = Column(Integer, primary_key=True)
-    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
-    snapshot_type = Column(Text, default="")
-    summary_text = Column(Text, default="")
-    evidence_count = Column(Integer, default=0)
-    source_platforms_json = Column(Text, default="[]")
-    confidence_score = Column(Float, default=0)
-    generated_at = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
-
 class ResumeCopilotSession(Base):
     __tablename__ = "resume_copilot_sessions"
 
