@@ -418,3 +418,33 @@ class MemoryEntryPatchIn(BaseModel):
 
     summary: str | None = None
     payload: dict | None = None
+
+
+# ─── Recommendation reject (BE-3, D-2 / D-3) ─────────────────────────────────
+
+REJECT_REASON_LABELS: dict[str, str] = {
+    'wrong_track': '赛道不对',
+    'company_disliked': '公司不喜欢',
+    'school_mismatch': '学校段位不匹配',
+    'timing': '时间不合适',
+    'other': '其他',
+}
+
+
+class RecommendRejectIn(BaseModel):
+    """Request body for POST /sessions/{id}/recommendations/{job_id}/reject.
+
+    ``reason`` must be one of ``REJECT_REASON_LABELS``. ``note`` is the
+    optional free-text the user typed in the inline form (≤2000 chars).
+    """
+    reason: str
+    note: str = ''
+
+
+class RecommendRejectOut(BaseModel):
+    """Response for the reject endpoint. ``memory_entry_id`` lets the frontend
+    show "已记入档案: id=..." for testing/debugging; ``rejected_count`` is the
+    session-scoped list length after dedupe so the UI can show a small badge."""
+    ok: bool = True
+    memory_entry_id: int | None = None
+    rejected_count: int = 0
