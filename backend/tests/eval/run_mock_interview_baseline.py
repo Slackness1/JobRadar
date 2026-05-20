@@ -413,6 +413,10 @@ def main() -> int:
     parser.add_argument("--questions", type=int, default=6, help="每 persona 跑的 skeleton 题数 (默认 6)")
     parser.add_argument("--workers", type=int, default=3, help="并发 persona 数 (默认 3, 防 429)")
     parser.add_argument("--limit", type=int, default=0, help="只跑前 N 个 persona (sanity)")
+    parser.add_argument(
+        "--include-ids", type=str, default="",
+        help="逗号分隔的 scenario_id (或 P/M 编号 prefix) 白名单, 仅跑这些 persona; 空 = 全跑。Day 8 增量 baseline v4 用",
+    )
     parser.add_argument("--out", type=Path, required=True, help="结果 JSON 输出路径")
     args = parser.parse_args()
 
@@ -421,6 +425,15 @@ def main() -> int:
 
     dirs = [Path(d.strip()) for d in args.personas_dirs.split(",") if d.strip()]
     personas = load_personas(dirs)
+    if args.include_ids:
+        whitelist = {x.strip() for x in args.include_ids.split(",") if x.strip()}
+        before = len(personas)
+        # match exact scenario_id 或 file stem (e.g. "M6" / "P9")
+        personas = [
+            p for p in personas
+            if p.scenario_id in whitelist or p.file_path.stem in whitelist
+        ]
+        logger.info("filtered %d → %d personas by --include-ids", before, len(personas))
     if args.limit:
         personas = personas[:args.limit]
     if not personas:

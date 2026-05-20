@@ -1,0 +1,164 @@
+2026-05-21 03:52:17,330 [INFO] LLM context providers: ['sensitive_topic', 'tencent_track', 'student_memory', 'podcast', 'xhs', 'track_knowledge']
+2026-05-21 03:52:17,334 [INFO] filtered 24 → 14 personas by --include-ids
+2026-05-21 03:52:17,334 [INFO] loaded 14 personas: workspace_P1_2026_05_20, workspace_P2_2026_05_20, workspace_P5_2026_05_20, workspace_P6_2026_05_20, workspace_P8_2026_05_21 ...
+2026-05-21 03:52:35,001 [INFO] [workspace_P6_2026_05_20] turn 0 (自我介绍与来意) overall=82 len_ans=440
+2026-05-21 03:52:39,969 [INFO] [workspace_P5_2026_05_20] turn 0 (自我介绍与来意) overall=72 len_ans=565
+2026-05-21 03:52:42,719 [INFO] [workspace_P2_2026_05_20] turn 0 (自我介绍与来意) overall=76 len_ans=505
+2026-05-21 03:52:44,060 [INFO] [workspace_P1_2026_05_20] turn 0 (自我介绍与来意) overall=80 len_ans=640
+2026-05-21 03:52:55,483 [INFO] [workspace_P6_2026_05_20] turn 1 (主导过的核心项目) overall=None len_ans=604
+2026-05-21 03:53:00,025 [INFO] [workspace_P2_2026_05_20] turn 1 (主导过的核心项目) overall=88 len_ans=345
+2026-05-21 03:53:01,563 [INFO] [workspace_P5_2026_05_20] turn 1 (主导过的核心项目) overall=74 len_ans=544
+2026-05-21 03:53:21,482 [INFO] [workspace_P1_2026_05_20] turn 1 (主导过的核心项目) overall=74 len_ans=356
+2026-05-21 03:53:23,983 [INFO] [workspace_P6_2026_05_20] turn 2 (关键技术 / 业务取舍) overall=58 len_ans=758
+2026-05-21 03:53:25,843 [INFO] [workspace_P2_2026_05_20] turn 2 (关键技术 / 业务取舍) overall=88 len_ans=588
+2026-05-21 03:53:29,514 [INFO] [workspace_P5_2026_05_20] turn 2 (关键技术 / 业务取舍) overall=68 len_ans=518
+2026-05-21 03:53:46,063 [INFO] [workspace_P1_2026_05_20] turn 2 (关键技术 / 业务取舍) overall=86 len_ans=600
+2026-05-21 03:53:46,678 [INFO] [workspace_P6_2026_05_20] turn 3 (在不确定下的决策) overall=84 len_ans=610
+2026-05-21 03:53:53,769 [INFO] [workspace_P5_2026_05_20] turn 3 (在不确定下的决策) overall=68 len_ans=721
+2026-05-21 03:53:54,420 [INFO] [workspace_P2_2026_05_20] turn 3 (在不确定下的决策) overall=72 len_ans=883
+2026-05-21 03:54:12,662 [INFO] [workspace_P1_2026_05_20] turn 3 (在不确定下的决策) overall=86 len_ans=634
+2026-05-21 03:54:17,344 [INFO] [workspace_P2_2026_05_20] turn 4 (为什么是这家公司) overall=84 len_ans=478
+2026-05-21 03:54:17,672 [INFO] [workspace_P6_2026_05_20] turn 4 (为什么是这家公司) overall=82 len_ans=577
+2026-05-21 03:54:21,378 [INFO] [workspace_P5_2026_05_20] turn 4 (为什么是这家公司) overall=78 len_ans=547
+2026-05-21 03:54:32,823 [INFO] [workspace_P1_2026_05_20] turn 4 (为什么是这家公司) overall=86 len_ans=532
+2026-05-21 03:54:40,553 [INFO] [workspace_P6_2026_05_20] turn 5 (反问环节) overall=86 len_ans=522
+2026-05-21 03:54:41,944 [INFO] [workspace_P2_2026_05_20] turn 5 (反问环节) overall=66 len_ans=515
+2026-05-21 03:54:53,551 [INFO] [workspace_P1_2026_05_20] turn 5 (反问环节) overall=76 len_ans=415
+2026-05-21 03:54:57,683 [WARNING] fabricated quotes (3), retrying with strict directive: ['独立交叉验证海关进口数据', '我主动把核心driver从行业扩产红利切到CCP刻蚀机在存储领域的技术突破', '虽然我更多卖方经历，但贵司的持仓风格和研究深度让我非常想加入，我已有持续跟踪贵司重仓标的的经验']
+2026-05-21 03:55:07,000 [INFO] [workspace_P5_2026_05_20] turn 5 (反问环节) overall=74 len_ans=506
+2026-05-21 03:55:08,144 [INFO] fabricated quotes (5) but ratio < 50%, only annotating
+2026-05-21 03:55:08,146 [INFO] done workspace_P6_2026_05_20 (1 / 14)
+2026-05-21 03:55:09,528 [WARNING] fabricated quotes (4), retrying with strict directive: ['我在易方达做白酒渠道调研、在中信搭建渠道跟踪表、在高瓴支持医疗器械尽调，三段经历都指向自下而上选股', '我的三段实习都聚焦消费和医药，核心是自下而上做基本面研究，与贵司研究员角色高度匹配', '市场一致预期汾酒2025年营收增速15%，但我基于渠道周转数据认为超预期3-5pp，主因省外开瓶率提升']
+2026-05-21 03:55:23,841 [INFO] done workspace_P2_2026_05_20 (2 / 14)
+2026-05-21 03:55:30,233 [INFO] done workspace_P1_2026_05_20 (3 / 14)
+2026-05-21 03:55:33,399 [INFO] fabricated quotes (4) but ratio < 50%, only annotating
+2026-05-21 03:55:33,401 [INFO] done workspace_P5_2026_05_20 (4 / 14)
+2026-05-21 03:55:41,032 [INFO] [workspace_P8_2026_05_21] turn 0 (自我介绍与来意) overall=84 len_ans=635
+2026-05-21 03:55:47,304 [INFO] [mock_interview_M11_2026_05_21] turn 0 (自我介绍与来意) overall=44 len_ans=502
+2026-05-21 03:55:58,895 [INFO] [workspace_P9_2026_05_21] turn 0 (自我介绍与来意) overall=90 len_ans=694
+2026-05-21 03:55:59,212 [INFO] [mock_interview_M12_2026_05_21] turn 0 (自我介绍与来意) overall=82 len_ans=739
+2026-05-21 03:56:02,924 [INFO] [workspace_P8_2026_05_21] turn 1 (主导过的核心项目) overall=86 len_ans=414
+2026-05-21 03:56:08,012 [INFO] [mock_interview_M11_2026_05_21] turn 1 (主导过的核心项目) overall=36 len_ans=603
+2026-05-21 03:56:21,135 [INFO] [mock_interview_M12_2026_05_21] turn 1 (主导过的核心项目) overall=32 len_ans=646
+2026-05-21 03:56:23,588 [INFO] [workspace_P9_2026_05_21] turn 1 (主导过的核心项目) overall=78 len_ans=393
+2026-05-21 03:56:33,481 [INFO] [mock_interview_M11_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=42 len_ans=509
+2026-05-21 03:56:39,456 [INFO] [workspace_P8_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=86 len_ans=918
+2026-05-21 03:56:41,381 [INFO] [mock_interview_M12_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=60 len_ans=493
+2026-05-21 03:56:53,181 [INFO] [workspace_P9_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=84 len_ans=755
+2026-05-21 03:57:03,014 [INFO] [mock_interview_M12_2026_05_21] turn 3 (在不确定下的决策) overall=None len_ans=704
+2026-05-21 03:57:05,068 [INFO] [mock_interview_M11_2026_05_21] turn 3 (在不确定下的决策) overall=58 len_ans=569
+2026-05-21 03:57:07,587 [INFO] [workspace_P8_2026_05_21] turn 3 (在不确定下的决策) overall=76 len_ans=793
+2026-05-21 03:57:11,843 [INFO] [workspace_P9_2026_05_21] turn 3 (在不确定下的决策) overall=68 len_ans=526
+2026-05-21 03:57:25,668 [INFO] [mock_interview_M12_2026_05_21] turn 4 (为什么是这家公司) overall=70 len_ans=597
+2026-05-21 03:57:29,863 [INFO] [mock_interview_M11_2026_05_21] turn 4 (为什么是这家公司) overall=78 len_ans=457
+2026-05-21 03:57:32,334 [INFO] [workspace_P8_2026_05_21] turn 4 (为什么是这家公司) overall=88 len_ans=768
+2026-05-21 03:57:36,742 [INFO] [workspace_P9_2026_05_21] turn 4 (为什么是这家公司) overall=72 len_ans=631
+2026-05-21 03:57:51,492 [INFO] [mock_interview_M12_2026_05_21] turn 5 (反问环节) overall=88 len_ans=716
+2026-05-21 03:57:52,592 [INFO] [mock_interview_M11_2026_05_21] turn 5 (反问环节) overall=92 len_ans=457
+2026-05-21 03:57:56,964 [INFO] [workspace_P9_2026_05_21] turn 5 (反问环节) overall=68 len_ans=585
+2026-05-21 03:57:57,970 [INFO] [workspace_P8_2026_05_21] turn 5 (反问环节) overall=88 len_ans=709
+2026-05-21 03:58:07,562 [WARNING] fabricated quotes (9), retrying with strict directive: ['交大化工+SAIF金融', '先不纠结最终指标，做一轮粗筛实验把可行区间划出来', '是否有资深技术/工艺专家来判断放大风险']
+2026-05-21 03:58:11,009 [WARNING] fabricated quotes (3), retrying with strict directive: ['在JPM summer project中，我主导了dispersion trade在恒指和国企指数上的PnL回测，独立搭建回测框架', '2023年Q3财报亚太Equity Structured Products收入增长约18%', '我关注到贵司在亚太推出了结构化笔记快发平台，缩短定价周期至T+1，这与我实习时做的vol工具思路一致']
+2026-05-21 03:58:12,717 [INFO] fabricated quotes (2) but ratio < 50%, only annotating
+2026-05-21 03:58:12,719 [INFO] done workspace_P9_2026_05_21 (5 / 14)
+2026-05-21 03:58:12,924 [INFO] fabricated quotes (1) but ratio < 50%, only annotating
+2026-05-21 03:58:12,926 [INFO] done workspace_P8_2026_05_21 (6 / 14)
+2026-05-21 03:58:28,694 [INFO] done mock_interview_M11_2026_05_21 (7 / 14)
+2026-05-21 03:58:35,462 [INFO] [mock_interview_M13_2026_05_21] turn 0 (自我介绍与来意) overall=86 len_ans=428
+2026-05-21 03:58:36,400 [INFO] done mock_interview_M12_2026_05_21 (8 / 14)
+2026-05-21 03:58:47,888 [INFO] [mock_interview_M14_2026_05_21] turn 0 (自我介绍与来意) overall=78 len_ans=450
+2026-05-21 03:58:49,538 [INFO] [mock_interview_M15_2026_05_21] turn 0 (自我介绍与来意) overall=82 len_ans=445
+2026-05-21 03:58:57,743 [INFO] [mock_interview_M16_2026_05_21] turn 0 (自我介绍与来意) overall=82 len_ans=584
+2026-05-21 03:59:00,639 [INFO] [mock_interview_M13_2026_05_21] turn 1 (主导过的核心项目) overall=None len_ans=512
+2026-05-21 03:59:10,364 [INFO] [mock_interview_M14_2026_05_21] turn 1 (主导过的核心项目) overall=68 len_ans=493
+2026-05-21 03:59:13,250 [INFO] [mock_interview_M15_2026_05_21] turn 1 (主导过的核心项目) overall=74 len_ans=572
+2026-05-21 03:59:15,879 [INFO] [mock_interview_M16_2026_05_21] turn 1 (主导过的核心项目) overall=54 len_ans=511
+2026-05-21 03:59:23,936 [INFO] [mock_interview_M13_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=86 len_ans=570
+2026-05-21 03:59:30,178 [INFO] [mock_interview_M14_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=74 len_ans=519
+2026-05-21 03:59:32,377 [INFO] [mock_interview_M15_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=88 len_ans=573
+2026-05-21 03:59:46,888 [INFO] [mock_interview_M16_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=66 len_ans=538
+2026-05-21 03:59:47,296 [INFO] [mock_interview_M13_2026_05_21] turn 3 (在不确定下的决策) overall=70 len_ans=517
+2026-05-21 03:59:52,823 [INFO] [mock_interview_M14_2026_05_21] turn 3 (在不确定下的决策) overall=78 len_ans=590
+2026-05-21 03:59:56,487 [INFO] [mock_interview_M15_2026_05_21] turn 3 (在不确定下的决策) overall=84 len_ans=631
+2026-05-21 04:00:07,902 [INFO] [mock_interview_M13_2026_05_21] turn 4 (为什么是这家公司) overall=74 len_ans=489
+2026-05-21 04:00:13,498 [INFO] [mock_interview_M16_2026_05_21] turn 3 (在不确定下的决策) overall=70 len_ans=558
+2026-05-21 04:00:18,215 [INFO] [mock_interview_M14_2026_05_21] turn 4 (为什么是这家公司) overall=82 len_ans=489
+2026-05-21 04:00:26,339 [INFO] [mock_interview_M15_2026_05_21] turn 4 (为什么是这家公司) overall=82 len_ans=478
+2026-05-21 04:00:32,584 [INFO] [mock_interview_M13_2026_05_21] turn 5 (反问环节) overall=82 len_ans=529
+2026-05-21 04:00:34,779 [INFO] [mock_interview_M16_2026_05_21] turn 4 (为什么是这家公司) overall=80 len_ans=592
+2026-05-21 04:00:42,670 [WARNING] fabricated quotes (5), retrying with strict directive: ['重叠度38%、转介率不到5%', '私行和投行客户重叠度38%，跨子公司转介不到5%', '模糊匹配而非精确匹配']
+2026-05-21 04:00:44,087 [INFO] [mock_interview_M14_2026_05_21] turn 5 (反问环节) overall=76 len_ans=516
+2026-05-21 04:00:54,087 [INFO] [mock_interview_M15_2026_05_21] turn 5 (反问环节) overall=90 len_ans=705
+2026-05-21 04:01:01,005 [INFO] done mock_interview_M13_2026_05_21 (9 / 14)
+2026-05-21 04:01:04,842 [INFO] fabricated quotes (2) but ratio < 50%, only annotating
+2026-05-21 04:01:04,843 [INFO] done mock_interview_M14_2026_05_21 (10 / 14)
+2026-05-21 04:01:07,040 [INFO] [mock_interview_M16_2026_05_21] turn 5 (反问环节) overall=80 len_ans=614
+2026-05-21 04:01:17,530 [INFO] fabricated quotes (2) but ratio < 50%, only annotating
+2026-05-21 04:01:17,532 [INFO] done mock_interview_M15_2026_05_21 (11 / 14)
+2026-05-21 04:01:23,025 [INFO] [mock_interview_M6_2026_05_21] turn 0 (自我介绍与来意) overall=50 len_ans=554
+2026-05-21 04:01:36,695 [INFO] [mock_interview_M8_2026_05_21] turn 0 (自我介绍与来意) overall=88 len_ans=602
+2026-05-21 04:01:42,427 [INFO] done mock_interview_M16_2026_05_21 (12 / 14)
+2026-05-21 04:01:43,665 [INFO] [mock_interview_M6_2026_05_21] turn 1 (主导过的核心项目) overall=76 len_ans=511
+2026-05-21 04:02:01,634 [INFO] [mock_interview_M8_2026_05_21] turn 1 (主导过的核心项目) overall=86 len_ans=448
+2026-05-21 04:02:07,437 [INFO] [mock_interview_M6_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=68 len_ans=860
+2026-05-21 04:02:24,217 [INFO] [mock_interview_M6_2026_05_21] turn 3 (在不确定下的决策) overall=32 len_ans=485
+2026-05-21 04:02:29,490 [INFO] [mock_interview_M8_2026_05_21] turn 2 (关键技术 / 业务取舍) overall=88 len_ans=801
+2026-05-21 04:02:45,024 [INFO] [mock_interview_M6_2026_05_21] turn 4 (为什么是这家公司) overall=80 len_ans=585
+2026-05-21 04:02:56,663 [INFO] [mock_interview_M8_2026_05_21] turn 3 (在不确定下的决策) overall=82 len_ans=706
+2026-05-21 04:03:03,458 [INFO] [mock_interview_M6_2026_05_21] turn 5 (反问环节) overall=62 len_ans=614
+2026-05-21 04:03:22,794 [INFO] [mock_interview_M8_2026_05_21] turn 4 (为什么是这家公司) overall=92 len_ans=629
+2026-05-21 04:03:28,282 [INFO] fabricated quotes (3) but ratio < 50%, only annotating
+2026-05-21 04:03:28,284 [INFO] done mock_interview_M6_2026_05_21 (13 / 14)
+2026-05-21 04:03:46,514 [INFO] [mock_interview_M8_2026_05_21] turn 5 (反问环节) overall=82 len_ans=684
+2026-05-21 04:04:02,190 [WARNING] fabricated quotes (2), retrying with strict directive: ['半年内完成三花智控深度覆盖，独立提出R290切换带来的ASP提升未被定价', '三花在精密铸件（比亚迪副车架）良率已超90%，机器人关节执行器工艺相似，量产风险低于市场预期']
+2026-05-21 04:04:25,734 [INFO] done mock_interview_M8_2026_05_21 (14 / 14)
+2026-05-21 04:04:25,740 [INFO] wrote tests/eval/_out/mock_interview_post_v4_2026_05_21.json (14 personas, 728.4s)
+
+=== Summary ===
+{
+  "by_tier": {
+    "extreme": {
+      "n_personas": 2,
+      "turn_score_mean": 62.0,
+      "turn_score_stdev": 20.49,
+      "report_overall_mean": 80.0,
+      "dim_spread_mean": 22.8
+    },
+    "strong": {
+      "n_personas": 7,
+      "turn_score_mean": 78.85,
+      "turn_score_stdev": 7.77,
+      "report_overall_mean": 90.43,
+      "dim_spread_mean": 2.37
+    },
+    "mid": {
+      "n_personas": 4,
+      "turn_score_mean": 79.42,
+      "turn_score_stdev": 8.46,
+      "report_overall_mean": 88.5,
+      "dim_spread_mean": 3.27
+    },
+    "weak": {
+      "n_personas": 1,
+      "turn_score_mean": 61.33,
+      "turn_score_stdev": 16.32,
+      "report_overall_mean": 70.0,
+      "dim_spread_mean": 3.74
+    }
+  },
+  "spread_strong_vs_weak": 20.43,
+  "spread_strong_vs_extreme": 10.43,
+  "feedback_quality": {
+    "n_reports": 14,
+    "ref_jd_anchor_any_pct": 0.214,
+    "ref_track_token_pct": 0.857,
+    "has_rewrite_demo_pct": 0.571,
+    "has_cohort_anchor_pct": 0.714,
+    "any_fabrication_pct": 0.929,
+    "fabrication_suppressed_pct": 0.429,
+    "fab_numbers_detected_pct": 0.857,
+    "improvements_4seg_compliant_pct": 0.0,
+    "fallback_invoked_pct": 0.0,
+    "avg_report_chars": 729.0
+  }
+}
