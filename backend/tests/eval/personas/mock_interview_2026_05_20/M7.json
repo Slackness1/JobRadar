@@ -1,0 +1,154 @@
+{
+  "scenario_id": "mock_interview_M7_2026_05_20",
+  "scenario_config": {
+    "target_track": "二级买方 / 卖方研究 (公募行研 + 卖方助理两投)",
+    "target_jd_ref": "jds_real/17_huitianfu_research_assistant",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "中山本金融 + SAIF MF-G, 2 段实习其实不差 (1 段中部公募 + 1 段中型券商研究). 但 bullets 写得极平庸: 大量 '协助/参与/辅助', 0 数字, 0 deliverable, 0 客户/PM 反馈. 用来验 '内容好但表达弱' — AI 应识别出底层经历可挖, 主动提问让她讲出隐藏亮点."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "邓清漪",
+      "headline": "中山大学金融本 + SAIF MF / 行业研究 / 目标头部公募/券商研究所",
+      "email": "deng.qingyi@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.58/4.0, 投资学 A- / 公司金融 A- / 衍生品 B+",
+          "选修《行业研究方法》《卖方研究实务》",
+          "CFA Level I 通过 (2024)"
+        ]
+      },
+      {
+        "school": "中山大学 岭南学院",
+        "degree": "本科",
+        "major": "金融学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.69/4.0, 专业排名 30/85",
+          "本科毕业论文方向: 新能源车产业链上游材料环节的盈利波动研究"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "广发基金 · 权益研究部 (新能源组)",
+        "role": "研究实习生",
+        "start_date": "2024-09",
+        "end_date": "2025-03",
+        "bullets": [
+          "协助研究员覆盖新能源车产业链相关公司的研究工作",
+          "参与组内策略会议, 协助整理相关会议纪要和研究材料",
+          "辅助完成多家公司的业绩点评和跟踪工作",
+          "协助维护组内数据底表, 支持团队日常工作"
+        ]
+      },
+      {
+        "company": "兴业证券研究所 · 电新组 (寒假实习)",
+        "role": "卖方研究助理",
+        "start_date": "2024-01",
+        "end_date": "2024-03",
+        "bullets": [
+          "协助首席覆盖电力设备相关公司的基本面研究",
+          "辅助完成行业月报相关材料的整理工作",
+          "参与组内研究讨论, 协助整理调研纪要"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "新能源车产业链上游材料盈利波动研究 (本科毕设)",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕业论文, 研究新能源车产业链上游材料 (锂/钴/镍/正极/电解液) 环节的盈利波动来源",
+        "bullets": [
+          "梳理产业链相关公司财务数据进行分析",
+          "对各环节盈利波动情况进行了相关研究",
+          "形成毕业论文一篇"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel + 财务三表 (能搭 DCF / 相对估值)",
+        "Wind / iFinD (熟练)",
+        "Python 基础 (pandas)",
+        "PowerPoint"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "iFinD",
+        "Choice",
+        "卖方报告库"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 95)"
+      ]
+    },
+    "awards": [
+      "CFA Level I 通过 (2024)",
+      "中山大学优秀学生 (2023)",
+      "粤港澳大湾区金融科技大赛优胜奖 (2023)"
+    ],
+    "candidate_summary": "中山本金融 + SAIF MF, 2 段研究类实习 (广发基金新能源 + 兴业证券电新). 优势是新能源车产业链全覆盖, 买方+卖方双视角; 想加入头部公募新能源组或券商研究所电新组.",
+    "inferred_roles": [
+      "买方研究员助理",
+      "卖方研究助理"
+    ],
+    "inferred_tracks": [
+      "头部公募行研",
+      "券商研究所电新/新能源组"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "听话型学生, 实习里 senior 让做什么就做什么, 但讲故事时把所有 ownership 都让给 senior, 自己讲得像背景板; 被追问才会说出 '其实那段我自己也跑过......'",
+    "verbal_tics": [
+      "'我们组当时'",
+      "'研究员让我做的事是'",
+      "'我主要是协助'",
+      "'其实......其实我那时候也做了......' (被追问时才出现)"
+    ],
+    "typical_message_length": "中等 (50-80 字), 但内容信息密度极低, 大量套话",
+    "under_pressure": "被追问 '具体哪家公司你跟过' 时, 会突然冒出大量细节 (公司名 / 数字 / PM 反馈), 让人意识到她其实做了不少但完全不会包装"
+  },
+  "flow_padding_internship": {
+    "company": "广发基金 · 权益研究部 (新能源组)",
+    "bullet_index": 3,
+    "original_text": "协助维护组内数据底表, 支持团队日常工作"
+  },
+  "target_jd_anchors": [
+    "新能源车产业链",
+    "买方研究 + 卖方研究双视角",
+    "上游材料环节理解",
+    "独立 view",
+    "深度报告产出",
+    "数字化产出"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "实际在广发新能源组覆盖了正极材料环节 (容百 / 当升 / 振华新材), 完整跑了 2 篇业绩点评 + 1 篇产业链月报 — 简历用 '协助' 把这些产出全洗掉了, AI 在 mock interview 里必须主动挖"
+    },
+    {
+      "where": "internships[0].bullets[3]",
+      "hidden_fact": "维护的'组内数据底表'实际是正极材料月度成本-价格-价差跟踪表 (碳酸锂 + 三元前驱体 + 钴价 + 加工费), 累计 6 个月数据, 是给 PM 跟踪盈利拐点用的核心表 — 这条 bullet 价值被严重低估"
+    },
+    {
+      "where": "internships[1].bullets[1]",
+      "hidden_fact": "在兴业电新组实际独立完成了储能 PCS 环节 1 篇短报告, 在首席月报里被引用 1 段 — 卖方实习生能被首席月报引用是真实产出, 简历完全没写"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "没有头部公募/卖方加持 (广发 + 兴业都偏中部), 怕中信/中金 HR 觉得 'caliber 不够'",
+    "wants_to_emphasize": "新能源车产业链买方+卖方双视角覆盖 + 上游材料环节理解 — 但她自己讲不出来, 需要追问"
+  }
+}

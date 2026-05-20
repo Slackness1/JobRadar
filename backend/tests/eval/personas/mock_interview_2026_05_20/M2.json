@@ -1,0 +1,152 @@
+{
+  "scenario_id": "mock_interview_M2_2026_05_20",
+  "scenario_config": {
+    "target_track": "卖方研究 (消费/医药 sector, 中型券商研究所)",
+    "target_jd_ref": "jds_real/12_dongwu_consumer_research",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "浙大本经济 + SAIF MF-G, 1 段中型券商研究所 (东吴证券消费组) 实习. 卖方 mid 主流画像 — 学校好但非清北复交, 实习落在中型券商而非中金/中信, 叙事一般、深度报告产出 0."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "邵子谦",
+      "headline": "浙大本经济 + SAIF MF / 消费 + 大健康 / 目标头部/中型券商研究所",
+      "email": "shao.ziqian@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.55/4.0, 公司金融 A / 实证金融 A- / 投资学 B+",
+          "选修《行业研究方法》《卖方研究实务》",
+          "在读 CFA Level II"
+        ]
+      },
+      {
+        "school": "浙江大学 经济学院",
+        "degree": "本科",
+        "major": "经济学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.78/4.0, 专业排名 18/85",
+          "辅修计算机基础 + 数据科学课程包",
+          "本科毕业论文方向: 集采常态化背景下创新药企估值范式重构"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "东吴证券研究所 · 消费组",
+        "role": "卖方研究助理",
+        "start_date": "2024-09",
+        "end_date": "2025-04",
+        "bullets": [
+          "协助首席覆盖大众品/调味品 3 家公司 (海天 / 千禾 / 涪陵榨菜), 完成公司点评 5 篇 + 行业月报 4 期",
+          "搭建调味品月度高频跟踪表 (含淘系数据 / 渠道铺货率 / 渠道反馈), 累计 6 个月",
+          "协助首席整理路演材料 14 份 + 客户问答合集 8 份",
+          "参与组内策略会 20 次 + 部门晨会 60+ 次, 协助整理纪要"
+        ]
+      },
+      {
+        "company": "万联证券 · 大健康组 (寒假实习)",
+        "role": "研究实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-02",
+        "bullets": [
+          "协助研究员完成创新药板块 2 家公司 (恒瑞医药 / 信达生物) 业绩点评",
+          "整理创新药板块季度财务数据 + 集采落地影响梳理, 形成 1 份组内 memo"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "调味品行业 2024 渠道库存与价格带跟踪",
+        "duration": "2025-01 至 2025-04",
+        "description": "东吴实习期间持续做的小项目, 跟踪调味品行业 3 家公司渠道库存 + 价格带变化, 汇总进首席的行业月报",
+        "bullets": [
+          "数据集: 3 家上市公司渠道反馈 + 淘系销售数据 + 6 个月连续追踪",
+          "结论: 渠道库存边际改善但价格带下沉趋势未止, 入选首席月报 2 期",
+          "做了一份内部分享 PPT 在组内讲过 1 次"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel + 财务三张表 (熟练, 能搭 DCF / 相对估值)",
+        "Wind / iFinD (日常使用, 能写复杂函数)",
+        "Python (基础, pandas + matplotlib)",
+        "PowerPoint (路演 PPT 经验)"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "iFinD",
+        "卖方报告库 (慧博 / 同花顺)",
+        "淘数据 / 飞瓜数据 (消费品高频数据)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 102)"
+      ]
+    },
+    "awards": [
+      "CFA Level I 通过 (2024)",
+      "浙江大学优秀学生 (2023)",
+      "中国高校证券投资模拟大赛三等奖 (2023)"
+    ],
+    "candidate_summary": "浙大本经济 + SAIF MF, 2 段卖方研究实习 (东吴消费 + 万联大健康). 优势是消费 + 医药双覆盖, 路演 PPT 经验扎实, 卖方流程熟悉; 劣势是中型券商出身, 没有头部加持, 也没有独立深度报告. 希望加入头部券商研究所 (中信 / 中金 / 国君) 消费组或医药组, 中期目标助理研究员独立覆盖.",
+    "inferred_roles": [
+      "卖方研究助理",
+      "消费组研究员",
+      "大健康研究员"
+    ],
+    "inferred_tracks": [
+      "头部券商研究所",
+      "中型券商研究所",
+      "公募行研"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "卖方风格练过, 表达流畅但偏'介绍型', 喜欢用首席的话/月报里的标准结论, 自己 view 不太敢站",
+    "verbal_tics": [
+      "'我们组的观点是'",
+      "'首席跟我说……'",
+      "'月报里我们写过'",
+      "'从行业 beta 角度看'"
+    ],
+    "typical_message_length": "偏长 (80-120 字), 喜欢先铺背景再讲结论",
+    "under_pressure": "被追问 '抛开首席, 你自己怎么看' 会有点 awkward, 倾向用 '我目前还在 follow' 来回避"
+  },
+  "flow_padding_internship": {
+    "company": "东吴证券研究所 · 消费组",
+    "bullet_index": 3,
+    "original_text": "参与组内策略会 20 次 + 部门晨会 60+ 次, 协助整理纪要"
+  },
+  "target_jd_anchors": [
+    "卖方研究流程",
+    "路演经验",
+    "消费/医药基本面",
+    "高频跟踪 (淘系/渠道)",
+    "独立 view",
+    "深度报告产出"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[1]",
+      "hidden_fact": "调味品渠道铺货率 + 6 个月连续追踪表 — 卖方实习生里能持续 own 一张高频跟踪表的不多, 是可被复用进面试的具体抓手"
+    },
+    {
+      "where": "projects[0].bullets[1]",
+      "hidden_fact": "结论入选首席月报 2 期 — 间接证明了 view 被采纳的产出, 但简历里语气太弱, AI 应主动放大"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "东吴不是头部, 没出过独立深度, 怕被中信/中金 HR 觉得'卖方流程懂但深度不够'",
+    "wants_to_emphasize": "消费 + 医药双 sector 覆盖经验 + 渠道高频跟踪能力 — 想塑造'落到实操不是空谈'的研究员雏形"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "scenario_id": "mock_interview_M3_2026_05_20",
+  "scenario_config": {
+    "target_track": "投行 IBD / 资本市场 (中型券商投行部)",
+    "target_jd_ref": "jds_real/13_huatailianhe_ibd",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "中财本金融 + SAIF MF-G, 1 段中型券商投行 (华泰联合 IPO 团队) 实习. IBD mid 主流画像 — 学校对口、专业对口、有 1 段中型券商投行, 但缺中金/中信级别加持, IPO 项目以辅助为主."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "顾彦廷",
+      "headline": "中财本金融 + SAIF MF / IPO + 再融资 / 目标头部券商 IBD",
+      "email": "gu.yanting@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.60/4.0, 公司金融 A / 兼并收购 A / 衍生品 B+",
+          "SAIF 投行协会副会长, 组织 3 次校友返校讲座",
+          "在读 CFA Level II"
+        ]
+      },
+      {
+        "school": "中央财经大学 金融学院",
+        "degree": "本科",
+        "major": "金融学 (投资方向)",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.75/4.0, 专业排名 25/110",
+          "公司金融 92 / 财务报表分析 90 / 投行业务实务 95",
+          "本科毕业论文方向: 注册制下科创板 IPO 估值锚定机制实证"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "华泰联合证券 · 投行部 (TMT 组)",
+        "role": "投行业务实习生",
+        "start_date": "2024-11",
+        "end_date": "2025-05",
+        "bullets": [
+          "参与 1 个科创板 IPO 项目 (某半导体设备公司) 的辅导和申报阶段, 完成可比公司分析表 + 收入端核查底稿 8 份",
+          "参与 1 个再融资项目 (定增) 的方案搭建, 完成募投项目可行性测算和发行方案对比",
+          "协助 senior 整理项目尽调访谈纪要 12 份, 出席现场尽调 2 次",
+          "做了一些底稿翻译和打印归档的事务性工作"
+        ]
+      },
+      {
+        "company": "国信证券 · 投行业务部 (寒假实习)",
+        "role": "投行业务实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-03",
+        "bullets": [
+          "参与 1 个 IPO 储备项目的行业研究和申报材料初稿撰写, 完成行业地位分析 1 份",
+          "整理同业 IPO 案例 6 个, 形成行业 IPO 节奏 + 估值分布 memo"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "科创板半导体设备 IPO 估值锚定研究",
+        "duration": "2024-09 至 2025-05",
+        "description": "本科毕业论文延续 + 华泰联合实习的端到端项目, 研究科创板半导体设备公司 IPO 询价估值与 PS/PE 锚的关系",
+        "bullets": [
+          "数据集: 2019-2024 科创板半导体设备 IPO 共 28 家, 完整发行+上市数据",
+          "结论: 上市后 6 个月平均破发 35% 但 12 个月修复, 与 PS 锚定区间相关性 0.52",
+          "在 SAIF 投行讲座做了一次内部分享, 老师建议精修后投会议"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel 三表建模 + DCF/相对估值 (熟练)",
+        "招股说明书/募集说明书写作 (实习中训练过)",
+        "Wind / Choice (日常使用)",
+        "Python 基础 (能跑数据抓取 + 简单可视化)",
+        "PowerPoint (项目立项 / 推介 PPT 经验)"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "Choice 金融终端",
+        "巨潮资讯 / 证监会披露平台",
+        "iFinD"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 100, 能读英文招股书)"
+      ]
+    },
+    "awards": [
+      "CFA Level I 通过 (2024)",
+      "中央财经大学优秀学生 (2023)",
+      "Rotman 国际投资大赛中国区季军 (2023, 队员)"
+    ],
+    "candidate_summary": "中财本金融 + SAIF MF, 2 段中型券商投行实习 (华泰联合 TMT + 国信). 优势是 IPO / 再融资全流程都接触过, 三表建模 + 募投测算扎实; 劣势是没有中金/中信级别的标杆项目, 没 own 过完整模块. 希望加入头部券商投行 (中金 / 中信 / 中信建投) IBD 组做新人, 中期目标承做.",
+    "inferred_roles": [
+      "投行新人",
+      "IPO 业务",
+      "再融资 / 并购"
+    ],
+    "inferred_tracks": [
+      "头部券商 IBD",
+      "中型券商 IBD",
+      "外资行 IBD"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "投行新人风格, 表达严谨偏正式, 喜欢用'项目里我们'/'承做的角度', 偶尔有点 over-formal",
+    "verbal_tics": [
+      "'从项目角度看'",
+      "'监管口径上'",
+      "'我们承做的逻辑是'",
+      "'底稿里有'"
+    ],
+    "typical_message_length": "中等 (60-90 字), 倾向先讲项目背景再讲个人参与",
+    "under_pressure": "被追问 '你自己 own 了什么' 时容易退回 'senior 让我做的'/'团队一起 own', 自己拍胸脯不太敢"
+  },
+  "flow_padding_internship": {
+    "company": "华泰联合证券 · 投行部 (TMT 组)",
+    "bullet_index": 3,
+    "original_text": "做了一些底稿翻译和打印归档的事务性工作"
+  },
+  "target_jd_anchors": [
+    "IPO 全流程",
+    "三表建模",
+    "尽调底稿",
+    "募投测算",
+    "估值锚定",
+    "行业研究 + 投行结合"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "在 1 个半导体设备 IPO 申报阶段做了收入端核查底稿 — 收入核查是承做核心模块, 实习生能上手是真实参与而非边缘, 但 bullet 写得太平淡 AI 应放大"
+    },
+    {
+      "where": "projects[0].bullets[1]",
+      "hidden_fact": "完整跑了 28 家科创板半导体设备 IPO 数据集 + 发现破发-修复-PS 锚定的量化关系 — 这是头部 IBD 面试很喜欢的'你独立做过什么研究'式问题的好答案"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "华泰联合不是中金/中信, 怕被头部 HR 觉得'流程懂但 caliber 不够'",
+    "wants_to_emphasize": "IPO + 再融资双覆盖 + 三表建模 + 独立研究 IPO 估值锚定 — 想塑造'有 IBD 直觉的新人, 能快速上手承做'"
+  }
+}

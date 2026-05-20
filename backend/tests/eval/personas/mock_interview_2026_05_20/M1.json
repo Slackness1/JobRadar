@@ -1,0 +1,151 @@
+{
+  "scenario_id": "mock_interview_M1_2026_05_20",
+  "scenario_config": {
+    "target_track": "二级买方·基本面 (公募行研, 大消费/食品饮料组)",
+    "target_jd_ref": "jds_real/11_zhongou_consumer_research",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "上财本金融 + SAIF MF-G, 1 段中部公募行研实习 (中欧基金大消费组). 投研 mid 主流画像 — 学校对口、专业对口、有 1 段中部公募, 但没有头部 PE/卖方加持; bullets 中规中矩, 数字真实但偏行政事务."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "沈书雅",
+      "headline": "上财本金融 + SAIF MF / 大消费方向 / 目标头部/中部公募行研",
+      "email": "shen.shuya@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.62/4.0, 投资学 A / 公司金融 A / 实证金融 A-",
+          "SAIF 投研协会大消费组组员, 月度策略会发言 3 次",
+          "在读 CFA Level II (一次过 Level I)"
+        ]
+      },
+      {
+        "school": "上海财经大学 金融学院",
+        "degree": "本科",
+        "major": "金融学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.71/4.0, 专业排名 22/120",
+          "公司理财 91 / 财务报表分析 89 / 证券投资学 92",
+          "本科毕业论文方向: 中国消费股长期超额收益来源拆解 (2012-2024)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中欧基金 · 权益研究部 (大消费组)",
+        "role": "研究实习生",
+        "start_date": "2024-12",
+        "end_date": "2025-05",
+        "bullets": [
+          "覆盖白酒板块 4 家公司 (贵州茅台 / 五粮液 / 山西汾酒 / 古井贡酒), 完成业绩点评 6 篇, 其中山西汾酒点评被 PM 内部 forward",
+          "搭建白酒月度跟踪表 (含批价 / 库存 / 终端动销 / 渠道扫码数据), 数据来源含今世缘 + 京东 + 多家渠道商, 累计 5 个月数据",
+          "参与组内每周策略会 18 次, 协助整理会议纪要 12 份",
+          "做了一些数据录入和 PPT 整理工作支持组内"
+        ]
+      },
+      {
+        "company": "申万菱信基金 · 行业研究部 (寒假实习)",
+        "role": "研究实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-03",
+        "bullets": [
+          "协助研究员覆盖食品饮料板块, 完成 1 篇调味品行业入门 memo + 2 篇公司点评 (海天味业 / 中炬高新)",
+          "整理调味品板块季度财务数据, 累计 8 家公司近 3 年数据"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "白酒行业 2024 Q1-Q3 库存周期复盘",
+        "duration": "2025-03 至 2025-05",
+        "description": "中欧实习期间的组内小项目, 复盘 2024 年白酒行业去库存周期, 输出 PPT 8 页, 在组内做了 1 次分享",
+        "bullets": [
+          "数据集: 8 家白酒上市公司季报 + Wind 渠道库存 + 第三方渠道扫码",
+          "结论: 高端价位带库存压力小于次高端, 与 PM 直觉一致, 但量化口径下次高端压力被低估",
+          "组内 PM 在月度策略会提及一次"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel + 财务三张表 (熟练, 能搭中等复杂度 DCF / 相对估值模型)",
+        "Wind / 同花顺 iFinD (日常使用)",
+        "Python (pandas / matplotlib, 基础, 能跑数据清洗 + 简单回归)",
+        "SQL 基础"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "同花顺 iFinD",
+        "Choice 金融终端",
+        "PowerPoint (熟练)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 98, 能读英文行业报告)"
+      ]
+    },
+    "awards": [
+      "CFA Level I 通过 (2024)",
+      "上海财经大学优秀学生 (2023)",
+      "全国大学生金融建模大赛二等奖 (2023)"
+    ],
+    "candidate_summary": "上财本金融 + SAIF MF, 2 段公募研究实习 (中欧基金大消费 + 申万菱信食饮). 优势是行业理解 + 财务基本功扎实, 调味品/白酒板块有上手经验; 劣势是缺头部加持、缺独立深度报告产出. 希望加入头部或中部公募 (易方达 / 中欧 / 汇添富 / 兴全) 大消费组做行研, 中期目标基金经理助理.",
+    "inferred_roles": [
+      "买方行业研究员",
+      "消费组研究员"
+    ],
+    "inferred_tracks": [
+      "头部公募行研",
+      "中部公募行研",
+      "券商研究所消费组"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "金融专业女生标准表达, 中规中矩偏稳重, 能用行业术语但偶尔不够精准; 不爱抢话, 喜欢先听完再答",
+    "verbal_tics": [
+      "'我观察下来'",
+      "'这块我们组内的讨论是……'",
+      "'从 ROE / 净利率角度看'",
+      "'去化角度'"
+    ],
+    "typical_message_length": "中等 (60-90 字), 倾向先给观点再补 1-2 个数据点支撑",
+    "under_pressure": "被追问 '你独立有什么 view' 时会停顿, 倾向退回 '我们 PM 是这么看的' 而不是给自己的判断"
+  },
+  "flow_padding_internship": {
+    "company": "中欧基金 · 权益研究部 (大消费组)",
+    "bullet_index": 3,
+    "original_text": "做了一些数据录入和 PPT 整理工作支持组内"
+  },
+  "target_jd_anchors": [
+    "白酒/食饮基本面",
+    "渠道调研",
+    "批价/库存跟踪",
+    "独立 thesis 输出",
+    "公募研究方法论",
+    "财务勾稽"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "山西汾酒点评被 PM 内部 forward — 1 段中部公募实习生里能被 PM forward 已经是 top 实习生信号, 但简历埋在长 bullet 里, AI 应主动放大"
+    },
+    {
+      "where": "projects[0].bullets[1]",
+      "hidden_fact": "'次高端库存压力被低估' 的量化结论与 PM 直觉相反并被采纳 — 体现独立 view + 数据落地能力, 这是 mid 学生能拿 mid-strong 加分的地方"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "没有头部公募/卖方实习, 怕 HR 觉得'就只在中欧待过 5 个月'",
+    "wants_to_emphasize": "白酒/食饮板块的连续覆盖 + 渠道扫码数据搭表能力 — 想突出'真正进过组开过会做过产业链跟踪'的实战感"
+  }
+}

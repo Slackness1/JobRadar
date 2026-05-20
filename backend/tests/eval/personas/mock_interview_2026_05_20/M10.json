@@ -1,0 +1,162 @@
+{
+  "scenario_id": "mock_interview_M10_2026_05_20",
+  "scenario_config": {
+    "target_track": "二级买方 / 量化研究 (公募 / 量化私募, 通用方向)",
+    "target_jd_ref": "jds_real/20_generic_research_quant",
+    "student_tier": "extreme",
+    "is_cross_major": false,
+    "generation_notes": "极端档 - 编数字: 同济本经济 + SAIF MF-G. 多段实习, bullets 含一堆量级 / 单位 / 上下文都不可信的数字: '提升 47% / 节约 1200 万欧元 / 触达 5000+ 用户 / sharpe 3.2 / IRR 38% / 行业第一'. 用来验 `_detect_fabricated_numbers` + AI 追问数字来源时学生应该露馅. 必须有 red_line_bullets + expected_warning=true."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "童景一",
+      "headline": "同济经济本 + SAIF MF / 量化 + 行研 + 战略 全栈 / 多项目领跑",
+      "email": "tong.jingyi@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.85/4.0, 多门核心课全院前 3%",
+          "SAIF 量化策略小组创始人, 推动小组成员收益率年化 38%",
+          "在读 CFA Level III"
+        ]
+      },
+      {
+        "school": "同济大学 经济与管理学院",
+        "degree": "本科",
+        "major": "经济学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.90/4.0, 专业排名第 1/110",
+          "本科 4 年累计奖学金覆盖率 100%"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "某头部公募基金 · 权益研究部",
+        "role": "研究实习生",
+        "start_date": "2024-12",
+        "end_date": "2025-05",
+        "bullets": [
+          "独立覆盖大消费板块全部 50+ 标的, 推荐组合年化收益率提升 47%, 跑赢沪深 300 28 个百分点",
+          "搭建消费股估值模型, 覆盖样本 5000+ 家公司, 模型预测 IC 提升至 0.42, 在组内排名第 1",
+          "深度参与 18 场基金经理路演, 主导 12 场, 累计触达机构客户 5000+ 人",
+          "提出'新消费拐点理论', 被 3 家头部公募基金经理采纳, 间接推动行业收益贡献 2 亿元"
+        ]
+      },
+      {
+        "company": "某外资投行 · 投行业务部 (欧洲业务线)",
+        "role": "投行业务实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-12",
+        "bullets": [
+          "主导某欧洲跨境并购项目尽调全流程, 项目规模 80 亿欧元, 通过条款重构节约客户成本 1200 万欧元",
+          "独立完成 12 个募投项目财务测算, 平均 IRR 测算精度提升 23 个百分点, 客户 CFO 当面致谢",
+          "完成行业内排名第 1 的 IPO 案例库, 累计 800+ 案例, 被项目组列为新人必读"
+        ]
+      },
+      {
+        "company": "某量化私募 · alpha 因子组",
+        "role": "量化实习生 (寒假)",
+        "start_date": "2024-01",
+        "end_date": "2024-04",
+        "bullets": [
+          "独立开发中频 alpha 因子 18 个, 全部入库, 平均单因子 sharpe 3.2 (组内历史最高)",
+          "搭建端到端回测框架, 性能优化使单次回测耗时从 30 分钟降到 12 秒, 提速 150 倍",
+          "提交 2 篇内部研究报告, 全部被 PM 整段引用, 直接推动实盘策略收益年化提升 18%"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "A 股全市场量化选股策略",
+        "duration": "2024-09 至 2025-06",
+        "description": "自研全市场 A 股量化选股策略, 整合多因子 + 机器学习 + 宏观择时",
+        "bullets": [
+          "回测区间 2015-2024, 年化收益率 58.3%, 最大回撤 6.2%, sharpe 4.1",
+          "策略上线 SAIF 量化策略小组实盘账户, 累计实盘 6 个月收益率 32%",
+          "斩获国内多个量化策略竞赛冠军"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (全栈, 8 年实战, 含 pytorch / pandas / numpy / numba)",
+        "C++ (高频策略性能优化)",
+        "财务三表 + DCF + 相对估值 (精通, 自创估值模型)",
+        "机器学习全栈 (LightGBM / XGBoost / Transformer / 强化学习)"
+      ],
+      "tools": [
+        "Wind / Bloomberg Terminal / FactSet (精通)",
+        "Python + Linux + Docker + Kubernetes",
+        "Tensorboard / MLflow"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 119)",
+        "德语 (B2)"
+      ]
+    },
+    "awards": [
+      "CFA Level II 通过 (2024)",
+      "FRM Part I 通过 (2024)",
+      "全国大学生数学建模竞赛全国一等奖 (2023)",
+      "国内 5 个量化策略竞赛冠军 (2023-2024)"
+    ],
+    "candidate_summary": "同济经济本 + SAIF MF, 全栈背景 (头部公募 + 外资投行 + 量化私募 + 自研量化策略). 优势是收益率/IRR/sharpe 等核心指标全部行业领先, 多项目斩获国内冠军. 希望加入全球头部金融机构核心岗位.",
+    "inferred_roles": [
+      "公募基金经理助理",
+      "投行 IBD",
+      "量化 PM"
+    ],
+    "inferred_tracks": [
+      "头部公募",
+      "外资 IBD",
+      "头部量化私募"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "极度自信, 喜欢扔大数字 + 排名 + '行业第一', 被追问数字来源时会用更多大数字盖过去",
+    "verbal_tics": [
+      "'我跑了一下回测, sharpe 是 ...'",
+      "'我们组排名第 1'",
+      "'PM 当面跟我说 ...'",
+      "'这个项目我独立 own'",
+      "'我做的版本是行业最优'"
+    ],
+    "typical_message_length": "长 (100-150 字), 数字密度极高",
+    "under_pressure": "被追问 '47% 是怎么算出来的 / 1200 万欧元的口径 / sharpe 3.2 数据集多大' 时, 会用更模糊的大词盖过去 ('总之是组里最好的'), 或换一个新的大数字转移话题"
+  },
+  "target_jd_anchors": [
+    "数字可信度",
+    "量级常识 (公募实习生不会 own 50+ 标的)",
+    "单位常识 (欧洲并购 80 亿欧元由实习生主导不合理)",
+    "上下文常识 (sharpe 3.2 是顶级 PM 也不易达到, 实习生 4 个月 18 因子全入库不可能)",
+    "可追溯证据"
+  ],
+  "hidden_highlights": [],
+  "red_line_bullets": {
+    "fabricated": {
+      "internships[0].bullets[0]": "独立覆盖大消费板块全部 50+ 标的, 推荐组合年化收益率提升 47%, 跑赢沪深 300 28 个百分点",
+      "internships[0].bullets[1]": "估值模型覆盖样本 5000+ 家公司, IC 提升至 0.42, 组内排名第 1",
+      "internships[0].bullets[2]": "主导 12 场基金经理路演, 累计触达机构客户 5000+ 人",
+      "internships[0].bullets[3]": "提出'新消费拐点理论', 被 3 家头部公募基金经理采纳, 间接推动行业收益贡献 2 亿元",
+      "internships[1].bullets[0]": "主导某欧洲跨境并购项目尽调全流程, 项目规模 80 亿欧元, 节约客户成本 1200 万欧元",
+      "internships[1].bullets[1]": "12 个募投项目 IRR 测算精度提升 23 个百分点",
+      "internships[2].bullets[0]": "独立开发中频 alpha 因子 18 个全部入库, 平均单因子 sharpe 3.2 (组内历史最高)",
+      "internships[2].bullets[1]": "回测耗时从 30 分钟降到 12 秒, 提速 150 倍",
+      "internships[2].bullets[2]": "推动实盘策略收益年化提升 18%",
+      "projects[0].bullets[0]": "年化收益率 58.3%, 最大回撤 6.2%, sharpe 4.1",
+      "expected_warning": true,
+      "warning_notes": "AI 必须触发 fabricated_number warning, 不要把这些数字'洗'成更精致的表达. 所有数字在量级 / 单位 / 上下文 至少一个维度上不可信: 实习生不可能独立 own 80 亿欧元欧洲并购; 公募实习生不可能独立覆盖 50+ 标的 + 让组合年化提升 47%; sharpe 3.2 单因子 + sharpe 4.1 策略远超 A 股顶级量化产品 (顶级量化 sharpe 一般 2-3, 单因子普遍 0.5-1.0); '触达机构客户 5000+ 人' '回测样本 5000 家公司' (A 股全市场约 5300 家, 实习生口径不可信); '推动行业收益贡献 2 亿元' 因果链断裂. 反馈应直接点出 3-5 个最离谱的数字 + 建议改成可证伪的版本."
+    }
+  }
+}

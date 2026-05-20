@@ -1,0 +1,153 @@
+{
+  "scenario_id": "mock_interview_M5_2026_05_20",
+  "scenario_config": {
+    "target_track": "FinTech 数据 / 算法 (券商金科 / 互联网风控)",
+    "target_jd_ref": "jds_real/15_zhongtai_fintech_data",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "哈工大本计算机 + SAIF MF-FT, 1 段券商金科部 (中泰证券金融科技中心) + 1 段普通互联网数据分析 (爱奇艺数据中台) 实习. FT 数据 mid 参差段画像 — 比 P7 (清华本 + 蚂蚁算法) 明显弱一档, 互联网那段离金融远."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "周允辰",
+      "headline": "哈工大计算机本 + SAIF MF-FT / 风控 + 数据 / 目标券商金科 / FinTech 数据岗",
+      "email": "zhou.yunchen@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 - FinTech 方向 (MF-FT)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.52/4.0, 机器学习与金融实证 A- / 时间序列分析 B+",
+          "选修《信贷风控建模》《金融大数据》",
+          "在读 CFA Level I"
+        ]
+      },
+      {
+        "school": "哈尔滨工业大学 计算机科学与技术学院",
+        "degree": "本科",
+        "major": "计算机科学与技术",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.70/4.0, 专业排名 60/180",
+          "本科毕业设计: 基于 XGBoost 的小微企业信贷违约预测",
+          "辅修金融学课程 (公司金融 / 投资学)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中泰证券 · 金融科技中心 (风控数据组)",
+        "role": "数据建模实习生",
+        "start_date": "2024-09",
+        "end_date": "2025-04",
+        "bullets": [
+          "在 senior 指导下参与两融业务客户分层模型迭代, 完成特征工程 (32 维行为/资金/持仓特征) + XGBoost 训练 + KS 0.42 → 0.46 提升",
+          "搭建模型监控 dashboard, 监控 PSI / KS / 人群分布漂移, 每天自动跑批 + 钉钉告警",
+          "撰写模型上线文档 1 份 + 月度模型回顾报告 4 份, 在风控周会上做了 2 次分享",
+          "做了一些数据 ETL 脚本维护和取数支持的事务性工作"
+        ]
+      },
+      {
+        "company": "爱奇艺 · 数据中台 (内容增长组, 寒假实习)",
+        "role": "数据分析实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-03",
+        "bullets": [
+          "支持内容增长组的会员留存分析, 完成 3 个 AB test 的指标拆解 + 显著性检验",
+          "用 SQL 写了 8 张会员行为分析底表, 协助业务方完成留存归因 PPT 4 份"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "小微企业信贷违约预测 (本科毕设)",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕业设计, 用 XGBoost + LightGBM 在公开 Kaggle 小微企业贷款数据上做违约预测",
+        "bullets": [
+          "数据集: Kaggle 小微贷款数据 + 央行征信公开样例, 共 12 万样本",
+          "特征工程: 46 维特征 + 时间窗口聚合 + 类别变量 target encoding",
+          "样本外 AUC 0.78, KS 0.41, 与 baseline (LR) 提升 8 个百分点"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / sklearn / xgboost / lightgbm), 4 年实战",
+        "SQL (Hive / Presto / MySQL, 熟练复杂窗口函数)",
+        "机器学习 (XGBoost / LightGBM / LR / 简单 NN, 调参实战)",
+        "风控建模流程 (特征工程 → 训练 → 监控 → 迭代)",
+        "Linux + Git + 简单 Docker"
+      ],
+      "tools": [
+        "Jupyter + VSCode",
+        "Hive / Spark SQL",
+        "Tableau / FineBI",
+        "Wind 基础 / 同花顺 iFinD 基础"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 92, 能读英文技术文档)"
+      ]
+    },
+    "awards": [
+      "全国大学生数学建模竞赛黑龙江省一等奖 (2023)",
+      "蓝桥杯软件赛全国二等奖 (2023)",
+      "哈尔滨工业大学优秀学生 (2023)"
+    ],
+    "candidate_summary": "哈工大计算机本 + SAIF MF-FT, 2 段数据岗实习 (中泰证券金科 + 爱奇艺数据中台). 优势是工程基础 (SQL + Python + XGBoost) 扎实, 风控建模流程完整跑过一遍; 劣势是没头部金科 (蚂蚁/招行金科级别), 互联网那段离金融远. 希望加入头部券商金科部 (中信 / 国君 / 华泰金科) 或互联网风控 (蚂蚁 / 京东金融) 做数据建模岗, 中期目标策略分析.",
+    "inferred_roles": [
+      "风控建模工程师",
+      "数据分析师",
+      "金融科技数据岗"
+    ],
+    "inferred_tracks": [
+      "券商金科部",
+      "互联网金融风控",
+      "公募/私募 IT/数据中台"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "理工生务实型, 说话不绕弯, 喜欢直接给指标 (KS/AUC/PSI), 但讲业务故事/赛道理解时会显得有点干",
+    "verbal_tics": [
+      "'KS 是 ...'",
+      "'特征是 ... 维'",
+      "'PSI 监控这块'",
+      "'我跑了一版'"
+    ],
+    "typical_message_length": "短-中等 (40-70 字), 倾向先给指标再展开",
+    "under_pressure": "被追问 '这个模型业务上解决了什么问题' 会停一下, 倾向退回技术细节 (特征/指标), 不太擅长讲业务价值"
+  },
+  "flow_padding_internship": {
+    "company": "中泰证券 · 金融科技中心 (风控数据组)",
+    "bullet_index": 3,
+    "original_text": "做了一些数据 ETL 脚本维护和取数支持的事务性工作"
+  },
+  "target_jd_anchors": [
+    "风控建模全流程",
+    "XGBoost / LightGBM 调参",
+    "PSI / KS 监控",
+    "金融业务理解",
+    "SQL / Python 工程化",
+    "AB test 设计"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "两融客户分层模型 KS 0.42 → 0.46 (+4pp) — 在两融这类成熟模型上加 4 个 KS 已经很可观, 但 bullet 写得太技术化, AI 应翻译成业务影响"
+    },
+    {
+      "where": "internships[0].bullets[1]",
+      "hidden_fact": "自建模型监控 dashboard + PSI 漂移告警 — 是 MLOps 雏形, 多数实习生只跑训练不管线上, 这点是稀缺的"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "中泰不是头部金科 + 爱奇艺离金融远, 怕蚂蚁/招行金科 HR 觉得'caliber 不够'",
+    "wants_to_emphasize": "风控建模从特征到监控的端到端 ownership + 金融业务上下文 — 想塑造'不只是模型工程师, 懂金融业务的建模人'"
+  }
+}

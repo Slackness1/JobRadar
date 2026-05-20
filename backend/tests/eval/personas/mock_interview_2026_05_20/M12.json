@@ -1,0 +1,156 @@
+{
+  "scenario_id": "mock_interview_M12_2026_05_20",
+  "scenario_config": {
+    "target_track": "二级买方 / 卖方研究 (公募行研 / 卖方助理, TMT 方向)",
+    "target_jd_ref": "jds_real/22_generic_research_assistant_tmt",
+    "student_tier": "extreme",
+    "is_cross_major": false,
+    "generation_notes": "极端档 - 表达极弱 / 翻译腔: 曼大本会计金融 (海外 9% 段) + SAIF MF-G. bullets 大量 'leveraged synergies to drive value / spearheaded cross-functional initiatives / optimized stakeholder alignment' 这种翻译腔中文 ('通过协同杠杆驱动价值 / 牵头跨部门倡议 / 优化利益相关方对齐'), 句子主语缺失、动宾搭配生硬、因果倒置、逻辑断裂. 用来验逻辑性 + 表达扣分."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Vincent Yu (虞文耀)",
+      "headline": "Manchester 会计金融本 + SAIF MF / 跨界协同价值驱动 / 目标 TMT 行研",
+      "email": "yu.wenyao@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.50/4.0, 在战略性课程中通过结构化思维赋能价值闭环",
+          "选修《行业研究方法》, 完成对 TMT 赛道的颠覆性洞察输出"
+        ]
+      },
+      {
+        "school": "The University of Manchester · Alliance Manchester Business School",
+        "degree": "BSc (Hons)",
+        "major": "Accounting and Finance",
+        "start_date": "2021-09",
+        "end_date": "2024-06",
+        "highlights": [
+          "First Class Honours (2:1 in 1st year, 1st in years 2-3)",
+          "Dean's List 2 次入选, 通过跨学科协同实现学术绩效跃升",
+          "毕业论文方向: 关于 ESG 因子如何赋能英国上市公司估值范式的颠覆性重塑"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "某英国精品投行 (伦敦) · TMT 业务线",
+        "role": "Summer Analyst Intern",
+        "start_date": "2023-06",
+        "end_date": "2023-09",
+        "bullets": [
+          "通过协同杠杆赋能 TMT 赛道关键交易, 形成跨利益相关方的价值对齐闭环",
+          "对多个潜在标的进行了价值驱动维度的颠覆性洞察输出, 牵头跨职能小组的关键里程碑交付",
+          "在前台与后台之间打通了关键链路, 推动了交易执行效率的端到端跃升",
+          "通过结构化思维框架, 在不确定性环境中沉淀了可复用的项目交付心智"
+        ]
+      },
+      {
+        "company": "某国内中型券商 · 投资银行部 (寒假实习)",
+        "role": "投行业务实习生",
+        "start_date": "2024-12",
+        "end_date": "2025-02",
+        "bullets": [
+          "通过对客户痛点的颠覆性洞察, 赋能项目组在关键时刻完成价值交付",
+          "深度参与了跨部门协同的关键链路构建, 推动了交易闭环的端到端打通",
+          "在结构性挑战面前, 通过敏捷迭代实现了项目里程碑的高质量收口"
+        ]
+      },
+      {
+        "company": "某互联网公司 · 战略投资部",
+        "role": "战投实习生",
+        "start_date": "2024-07",
+        "end_date": "2024-10",
+        "bullets": [
+          "对 TMT 赛道的多个潜在标的, 通过价值驱动型分析框架, 形成投资逻辑的颠覆性重塑",
+          "牵头跨职能小组, 通过协同杠杆推动了关键交易的里程碑达成",
+          "在多变环境中, 通过结构化思维赋能业务侧实现了价值闭环"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "ESG 因子对英国上市公司估值赋能的颠覆性研究 (本科毕设)",
+        "duration": "2023-09 至 2024-06",
+        "description": "本科毕业论文, 探索 ESG 因子如何通过价值驱动维度重塑英国上市公司估值范式",
+        "bullets": [
+          "通过对多个英国上市公司的颠覆性洞察, 输出 ESG 因子与估值的协同关系",
+          "形成了一套可复用的 ESG 赋能估值的方法论框架",
+          "毕业论文获评 First Class, 体现了跨学科协同的颠覆性能力"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel + 财务三表 (通过结构化思维实现颠覆性建模)",
+        "Bloomberg Terminal (在伦敦实习期间高强度使用)",
+        "PowerPoint (用于价值驱动型的 stakeholder 对齐)",
+        "Python 基础"
+      ],
+      "tools": [
+        "Bloomberg Terminal",
+        "Wind",
+        "Excel / PPT (英文 deck 经验)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (雅思 7.5, 在伦敦/曼彻斯特工作和学习经验)"
+      ]
+    },
+    "awards": [
+      "Manchester Dean's List (2022, 2023)",
+      "First Class Honours (BSc, 2024)"
+    ],
+    "candidate_summary": "Manchester 本会计金融 + SAIF MF, 通过跨地域 + 跨学科的协同杠杆, 实现了在 TMT 赛道的价值驱动型沉淀. 优势是国际化视野 + 颠覆性洞察能力; 希望在头部公募 / 卖方 TMT 组中, 通过结构化思维赋能赛道研究的价值闭环.",
+    "inferred_roles": [
+      "TMT 研究方向",
+      "投资银行方向",
+      "战略投资方向"
+    ],
+    "inferred_tracks": [
+      "头部公募 TMT 组",
+      "券商研究所 TMT 组",
+      "战投/PE"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "中英夹杂 + 翻译腔严重, 中文句子主语缺失 / 动宾搭配生硬 / 因果倒置. 喜欢用 '颠覆性 / 赋能 / 协同杠杆 / 价值驱动 / 闭环 / 端到端' 等 buzzword, 但讲不出具体一件事情的来龙去脉",
+    "verbal_tics": [
+      "'通过协同杠杆 ...'",
+      "'我们 leveraged 了 ...'",
+      "'从 stakeholder alignment 的角度'",
+      "'本质上 it's about driving value'",
+      "'颠覆性洞察 ...'",
+      "'端到端的闭环'"
+    ],
+    "typical_message_length": "长 (100-150 字), 但每句话内部逻辑断裂, 听完不知道讲了什么具体事",
+    "under_pressure": "被追问 '你具体做了一件什么事 / 这家公司叫什么名字 / 你的结论是什么' 时, 会换用更多 buzzword 盖过去, 中英夹杂更严重, 或者绕回 '本质上 it's about ...' 这类 meta 句式"
+  },
+  "target_jd_anchors": [
+    "中文表达清晰度",
+    "句子主谓宾完整",
+    "因果链条逻辑性",
+    "具体公司 / 数字 / 事件",
+    "翻译腔识别",
+    "可被复述的故事"
+  ],
+  "hidden_highlights": [],
+  "red_line_bullets": {
+    "translation_artifact": {
+      "internships[0].bullets[0]": "'通过协同杠杆赋能 TMT 赛道关键交易, 形成跨利益相关方的价值对齐闭环' — 主语缺失 (谁在赋能?), 动宾搭配生硬, 无具体交易 / 标的 / 客户 / 结果",
+      "internships[0].bullets[1]": "'颠覆性洞察输出' '牵头跨职能小组的关键里程碑交付' — 翻译腔 (leveraged synergies / spearheaded cross-functional initiatives / delivered key milestones 直译), 无具体内容",
+      "internships[1].bullets": "全部 3 条都是同样的 buzzword 堆砌, 主语缺失 + 因果倒置, 看不出实际做了什么",
+      "internships[2].bullets": "同上, 战投实习也是 'value-driven / synergy / stakeholder alignment' 直译, 无具体标的 / 投资逻辑 / 决策",
+      "projects[0].bullets": "本科毕设 ESG 研究也是空泛 buzzword, 没有具体公司 / 因子构造 / 回归结果",
+      "expected_warning": true,
+      "warning_notes": "AI 必须识别这是 '翻译腔 + buzzword 堆砌' 模式, 触发逻辑性 + 表达力低分. 反馈应: (1) 直接点出 3-5 个最严重的翻译腔短语 + 给出对应的英文原型 (leveraged synergies / spearheaded / value-driven / stakeholder alignment) 让学生意识到自己在直译; (2) 给出 '什么是中文行研人语言' 的范例对照 ('A 公司 2024 Q2 收入 +35% 主要来自 X 产品在 Y 渠道铺货' 这种主谓宾齐全 + 具体数据 + 因果清晰的句式); (3) 指出 buzzword (颠覆性/赋能/协同杠杆/闭环) 在中文金融语境里是反向信号 — 用得越多, 越显得没具体内容."
+    }
+  }
+}
