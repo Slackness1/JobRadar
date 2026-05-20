@@ -1,0 +1,147 @@
+{
+  "scenario_id": "workspace_P7_2026_05_20",
+  "scenario_config": {
+    "target_track": "FinTech 数据 / 算法 (金融科技数据岗)",
+    "target_jd_ref": "jds_real/07_antgroup_algo_engineer",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "清华本计算机 + SAIF MF-FT, 数据中部 2 段 (某券商金融科技部 + 蚂蚁金服算法岗). FT 数据 11% + 销售交易 14%."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "蒋睿哲",
+      "headline": "清华计算机本 + SAIF MF-FT / FinTech 数据 + 算法 / 目标金融科技数据岗",
+      "email": "jiang.ruizhe@saif.sjtu.edu.cn",
+      "location": "杭州 / 上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 - FinTech 方向 (MF-FT)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.71/4.0, 机器学习与金融实证 A / 风险管理 A",
+          "导师方向: 反欺诈 + 信用评分模型在小微企业贷款的应用"
+        ]
+      },
+      {
+        "school": "清华大学计算机科学与技术系",
+        "degree": "本科",
+        "major": "计算机科学与技术",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.76/4.0",
+          "数据库 A / 机器学习 A / 分布式系统 A-",
+          "本科毕业论文方向: 图神经网络在反欺诈识别中的应用"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "某券商 · 金融科技部 · 智能投顾组",
+        "role": "数据 / 算法实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-12",
+        "bullets": [
+          "支持智能投顾系统 v3.0 推荐算法升级, 实现基于客户画像的协同过滤 + 内容推荐双路融合",
+          "构建客户标签体系 (覆盖 18 个维度 + 240 个细化标签), 累计入库标签数据 1.2 亿条",
+          "AB 测试: 新算法相比 baseline 用户点击率提升 7.3%, 加仓转化率提升 4.1%, 在 6 万用户样本上验证",
+          "做了一些数据维护工作"
+        ]
+      },
+      {
+        "company": "蚂蚁金服 · 风险管理部 · 算法组",
+        "role": "算法实习生",
+        "start_date": "2025-01",
+        "end_date": "2025-05",
+        "bullets": [
+          "支持小微企业贷款反欺诈模型迭代, 实现基于图神经网络 (GraphSAGE) 的关系网络挖掘",
+          "数据集: 蚂蚁金服小微贷款 2023-2024 共 800 万样本 + 800 万企业实体, 涉及 22 类风险特征",
+          "模型 KS 值从 0.42 提升到 0.48 (头部 5% 风险样本召回率 +8 pp), 已上线 A/B 测试",
+          "与产品 + 数据 + 业务 4 个团队协同迭代 11 次, 写过 5 篇内部 tech memo"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "图神经网络在反欺诈中的应用",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕业论文延续项目, 使用 GraphSAGE + GAT 模型在公开 Elliptic 数据集 + 自建合成数据集上测试反欺诈识别效果",
+        "bullets": [
+          "公开数据集 AUC 0.973, 自建合成数据集 AUC 0.951, 超过 baseline LightGBM 5-7 pp",
+          "论文获院级优秀, 节选发表于 KDD 2024 Workshop"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / pytorch / sklearn / dgl), 5 年实战经验",
+        "图神经网络 (GraphSAGE / GAT / GCN) 实战经验",
+        "机器学习 (LightGBM / XGBoost / 集成学习 + 调参)",
+        "SQL + Spark SQL (Hive + Spark 集群熟练)",
+        "Java 基础 (蚂蚁内部部分代码栈)",
+        "Linux + Docker + Kubernetes 基础"
+      ],
+      "tools": [
+        "Hadoop / Hive / Spark / Flink",
+        "Kafka / Redis",
+        "MLflow / Airflow",
+        "Jupyter / VSCode"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 103, 阅读英文论文流畅)"
+      ]
+    },
+    "awards": [
+      "清华大学优秀毕业生 (2025)",
+      "全国大学生计算机系统能力大赛三等奖 (2023)",
+      "蚂蚁金服 2025 实习 'A 级' 评价",
+      "Kaggle 比赛银牌 (2024, 反欺诈类)"
+    ],
+    "candidate_summary": "清华计算机本 + SAIF MF-FT, 2 段中部 FinTech 实习 (某券商智能投顾 + 蚂蚁金服反欺诈). 优势是工程能力 + 算法能力扎实, 有 ML 工程化与 AB 测试经验; 劣势是金融业务理解相对薄弱. 希望加入头部互联网金融 (蚂蚁 / 字节金融 / 腾讯 FiT / 平安科技) 做数据 / 算法岗, 中期目标做技术 lead.",
+    "inferred_roles": ["FinTech 算法工程师", "数据科学家", "风控算法岗"],
+    "inferred_tracks": ["互联网金融科技", "银行金融科技子公司", "券商金融科技部"]
+  },
+  "persona_voice": {
+    "communication_style": "技术风, 数据驱动, 偶尔讲业务但不深, 喜欢用'metric'/'AUC'/'KS'",
+    "verbal_tics": [
+      "'AUC 是 X'",
+      "'pipeline 这块'",
+      "'AB 测试结果'",
+      "'本质上是一个 ranking 问题'"
+    ],
+    "typical_message_length": "中等 (50-90 字), 倾向数字 + 简短业务背景",
+    "under_pressure": "被问到'为什么这个 metric 提升对业务有意义'时会用'我跟业务 team 沟通过, 他们说 ...'缓冲"
+  },
+  "flow_padding_internship": {
+    "company": "某券商 · 金融科技部 · 智能投顾组",
+    "bullet_index": 3,
+    "original_text": "做了一些数据维护工作"
+  },
+  "target_jd_anchors": [
+    "ML 工程化",
+    "AB 测试",
+    "GNN / 图神经网络",
+    "反欺诈 / 风控",
+    "大数据栈 (Hive + Spark)",
+    "AUC / KS 模型评价"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[1].bullets[2]",
+      "hidden_fact": "KS 0.42→0.48 + 头部 5% 召回率 +8 pp + A/B 上线 — 在算法岗实习生中是非常成熟的产出"
+    },
+    {
+      "where": "internships[0].bullets[2]",
+      "hidden_fact": "AB 测试 + 6 万用户样本 + 4.1% 加仓转化率提升 — 算法 + 业务双方都看得懂的硬指标"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "券商实习里的数据维护事务工作 + 金融业务理解相对薄弱",
+    "wants_to_emphasize": "蚂蚁 KS 模型上线 + GNN 实战 + AB 测试经验 — 想突出算法工程化能力"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "scenario_id": "workspace_P5_2026_05_20",
+  "scenario_config": {
+    "target_track": "投行 IBD (Investment Banking Division)",
+    "target_jd_ref": "jds_real/05_cicc_ibd_summer",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "北大本经济 + SAIF MF, 头部 2 段 (中金 IBD + 高盛 GBM 暑期). 投行 11% 代表."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "魏文骏",
+      "headline": "北大经济本 + SAIF MF / 中金 IBD + 高盛 GBM / 目标顶级投行",
+      "email": "wei.wenjun@saif.sjtu.edu.cn",
+      "location": "上海 / 香港"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.80/4.0, 高级公司金融 A+ / M&A 实务 A+",
+          "SAIF Investment Banking Club 主席",
+          "组织 3 场 MD 级嘉宾分享 (中金 / 高盛 / 摩根士丹利)"
+        ]
+      },
+      {
+        "school": "北京大学经济学院",
+        "degree": "本科",
+        "major": "经济学 (国际经济与贸易)",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.88/4.0, 专业排名 5/120, 保送 SAIF",
+          "北大经院学术新人奖 (2024)",
+          "本科毕业论文《跨境并购中的反垄断审查路径研究》获院级优秀"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中国国际金融股份有限公司 (CICC) · 投资银行部 · 大型企业组",
+        "role": "Summer Analyst",
+        "start_date": "2024-07",
+        "end_date": "2024-12",
+        "bullets": [
+          "参与 3 单 IPO 项目 (2 单 A 股主板 + 1 单 H 股), 其中 1 单为消费品行业 30 亿融资规模, 已成功过会",
+          "独立完成 2 家拟上市公司的行业研究章节 (各约 22 页), 含竞争格局 / 渠道结构 / 单店模型",
+          "搭建多个行业可比公司估值数据库 (覆盖 A 股 + 港股共 67 家), 建立 PE/EV-EBITDA 历史区间面板",
+          "随 MD 团队赴 6 个项目现场出差, 参与访谈 19 次, 完成访谈纪要 14 万字",
+          "评估为部门当期 Top 10% 实习生, 获 return offer"
+        ]
+      },
+      {
+        "company": "高盛 (Goldman Sachs) · Global Markets Division (GBM) · 暑期项目",
+        "role": "Summer Analyst",
+        "start_date": "2025-06",
+        "end_date": "2025-08",
+        "bullets": [
+          "Rotation 跨 Equity Sales + Macro Trading + Structured Products 3 个 desk, 完成 3 份 rotation 报告",
+          "支持 senior trader 完成中国权益客户的 daily flow analysis, 累计跑 28 个交易日数据",
+          "参与某结构化产品定价讨论 5 次, 协助搭建 Excel 定价模型",
+          "完成期末 capstone project (一个跨境并购套利方案), 获 desk head 评为 'highly effective'",
+          "整理 daily morning note 和市场数据"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "跨境并购反垄断审查路径研究",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕业论文延续项目, 整合 2018-2024 中国上市公司跨境并购案例 + 反垄断审查结果, 构建审查路径分析框架",
+        "bullets": [
+          "数据集覆盖 240 个跨境并购案例 (中企作为收购方), 含 38 个未通过审查的样本",
+          "提出'审查时长 vs 行业敏感度'二维框架, 解释了 78% 的样本结果",
+          "论文获院级优秀, 节选发表于学院学术周刊"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "财务三张表勾稽 + 估值建模 (DCF / LBO / Comps / Precedent Transactions)",
+        "Excel 高级建模 (中金标准化模板)",
+        "PowerPoint 顶级制作 (中金 / 高盛风格)",
+        "Python (基础, pandas + 简单脚本)",
+        "SQL (基础查询)"
+      ],
+      "tools": [
+        "Bloomberg Terminal (高盛实习日常使用)",
+        "Wind 资讯 + Choice",
+        "Capital IQ",
+        "FactSet",
+        "Mergermarket"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (TOEFL 112, GMAT 750, 流畅英文 conference call + IC 演讲)"
+      ]
+    },
+    "awards": [
+      "北京大学经济学院学术新人奖 (2024)",
+      "中金公司 2024 Summer Top 10%, return offer",
+      "高盛 GBM 2025 暑期 capstone 'highly effective'",
+      "CFA Level II 通过 (2025)",
+      "全国大学生英语辩论赛季军 (2023)"
+    ],
+    "candidate_summary": "北大经济本 + SAIF MF, 2 段顶级投行实习 (中金 IBD return offer + 高盛 GBM 暑期). 优势是 IBD + Markets 双线经验, 财务建模 + 估值能力扎实, 英文流畅; 弱势在 buy-side 研究 sense (从未接触). 希望加入顶级投行 IBD (中金 / 中信 / 高盛 / 摩根士丹利), 中期目标做 M&A 或行业组 VP.",
+    "inferred_roles": ["IBD Analyst", "投行业务岗"],
+    "inferred_tracks": ["内资头部投行 IBD", "外资投行 IBD", "外资投行 GBM"]
+  },
+  "persona_voice": {
+    "communication_style": "精炼、自信, 频繁中英混杂, 答题节奏快",
+    "verbal_tics": [
+      "'本质上'",
+      "'thesis 是这样的'",
+      "'pretty much'",
+      "'三个 takeaway'",
+      "'long story short'"
+    ],
+    "typical_message_length": "短-中等 (40-70 字), 倾向 punchy 一句话总结",
+    "under_pressure": "被追问到 buy-side 视角时会用'IBD 的角度看是 X, 但我也知道 buy-side 会有不同 view'这种缓冲"
+  },
+  "flow_padding_internship": {
+    "company": "高盛 (Goldman Sachs) · Global Markets Division (GBM) · 暑期项目",
+    "bullet_index": 4,
+    "original_text": "整理 daily morning note 和市场数据"
+  },
+  "target_jd_anchors": [
+    "建模深度",
+    "estimate execution 经验",
+    "M&A 思维",
+    "可比公司估值",
+    "尽调流程",
+    "MD 评价"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "30 亿融资规模 + 过会 — 同期实习生很少能接触到这种体量已过会的项目, 是 deal track 上的硬通货"
+    },
+    {
+      "where": "internships[1].bullets[3]",
+      "hidden_fact": "capstone 跨境并购套利方案获 desk head 评为 'highly effective' — 是 quant + IBD 思维结合的稀缺信号"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "高盛实习里整理 morning note 的事务性工作 — 怕被认为只是端茶倒水",
+    "wants_to_emphasize": "中金 30 亿 IPO + 高盛 capstone — 想突出 IBD 全流程 + 跨界能力"
+  }
+}

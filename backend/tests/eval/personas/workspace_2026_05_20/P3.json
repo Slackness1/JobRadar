@@ -1,0 +1,147 @@
+{
+  "scenario_id": "workspace_P3_2026_05_20",
+  "scenario_config": {
+    "target_track": "私募 / 资管基本面研究",
+    "target_jd_ref": "jds_real/03_gaoyi_research",
+    "student_tier": "mid",
+    "is_cross_major": true,
+    "generation_notes": "上交本数学 + SAIF MF (跨专业), 中上 2 段 (中型公募行研 + 某私募基本面). 投研次主力, 跨专业 (理工背景) 进入金融行研的代表."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "陈昊",
+      "headline": "上交数学本 + SAIF MF / 跨专业转金融 / 目标私募基本面研究",
+      "email": "chen.hao.math@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.65/4.0, 投资学 A / 衍生品 A+",
+          "导师方向: 量化基本面策略 (Quantamental)",
+          "自学完成《证券分析》《聪明的投资者》《股市真规则》"
+        ]
+      },
+      {
+        "school": "上海交通大学数学科学学院",
+        "degree": "本科",
+        "major": "数学与应用数学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.71/4.0, 专业排名 28/96",
+          "辅修金融学课程包 (公司金融 / 投资学 / 衍生品定价)",
+          "本科毕业论文方向: 时序模型在 A 股因子分析中的应用"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "国海富兰克林基金 · 行业研究部",
+        "role": "研究实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-12",
+        "bullets": [
+          "覆盖新能源车产业链 4 家公司 (宁德时代 / 比亚迪 / 亿纬锂能 / 国轩高科), 撰写业绩点评 7 篇",
+          "搭建动力电池装机量月度跟踪表, 数据来源含工信部 + 上险数据, 累计 18 个月数据",
+          "参与组内每周策略会 14 次, 旁听基金经理对新能源板块的讨论, 写过 5 篇组内 memo",
+          "做了一些数据整理工作支持团队"
+        ]
+      },
+      {
+        "company": "某中型私募 (规模 50 亿) · 研究部",
+        "role": "基本面研究实习生",
+        "start_date": "2025-01",
+        "end_date": "2025-05",
+        "bullets": [
+          "在 PM 指导下覆盖光伏产业链 3 家公司 (隆基绿能 / 通威股份 / 阳光电源), 撰写深度报告 1 篇 + 业绩点评 4 篇",
+          "搭建光伏组件价格 + 硅料价格联动跟踪表, 周度更新, 累计 22 周",
+          "参与公司股东大会和 IR 沟通 6 次, 撰写访谈纪要 4 份, 其中 1 份被 PM 在月度策略会引用",
+          "独立完成某光伏标的的财务模型 (含 DCF + 相对估值), 模型被 PM 反向 challenge 3 次后修订"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "时序模型在 A 股选股因子上的应用",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕业论文延续项目, 用 LSTM + Transformer 提取 A 股月频价量特征作为选股因子, 与传统多因子模型对比",
+        "bullets": [
+          "数据集覆盖 2015-2024 共 10 年 A 股月频数据 (近 4000 只股票)",
+          "样本外 IC 0.052 (传统多因子 IC 0.045), 边际改进有限",
+          "在 SAIF 学术沙龙做了一次内部分享"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / pytorch / scikit-learn), 4 年实战 (数学本科底子)",
+        "时序模型 (LSTM / Transformer / GRU) 实战经验",
+        "财务三张表 (基础, 自学完成, 还在补足直觉)",
+        "DCF / 相对估值 (能搭模型但 sense 不如经金背景)",
+        "SQL (PostgreSQL, 基础查询 + 聚合)"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "Tushare / AKShare",
+        "Jupyter Notebook (日常使用)",
+        "Excel/PPT"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 102)"
+      ]
+    },
+    "awards": [
+      "全国大学生数学建模竞赛全国一等奖 (2023)",
+      "美国大学生数学建模竞赛 M 奖 (2024)",
+      "CFA Level I 通过 (2024)"
+    ],
+    "candidate_summary": "上交数学本 + SAIF MF (跨专业), 2 段中上行研实习 (国海富兰克林新能源 / 某 50 亿私募光伏). 优势是数学/编程底子扎实, 量化工具熟练; 劣势是财务/估值直觉还在补 (相比经金背景同学). 希望加入私募 / 资管 (高毅 / 景林 / 千合) 做基本面研究, 利用量化能力做差异化.",
+    "inferred_roles": ["买方研究员", "行业研究员", "量化基本面研究员"],
+    "inferred_tracks": ["头部私募研究员", "中型公募行研", "资管子公司行研"]
+  },
+  "persona_voice": {
+    "communication_style": "理工生风格, 偏严谨、爱说数据, 但不太擅长讲'感觉''sense'类内容",
+    "verbal_tics": [
+      "'我的理解是'",
+      "'数学上讲'",
+      "'数据说明……'",
+      "'我做过 backtest'"
+    ],
+    "typical_message_length": "中等 (50-80 字), 倾向先抛数据再展开",
+    "under_pressure": "被问到'你怎么 sense 这个行业'时会停顿, 转回'我能用数据看出'这类回答"
+  },
+  "flow_padding_internship": {
+    "company": "国海富兰克林基金 · 行业研究部",
+    "bullet_index": 3,
+    "original_text": "做了一些数据整理工作支持团队"
+  },
+  "target_jd_anchors": [
+    "基本面 sense",
+    "量化基本面结合",
+    "独立 thesis",
+    "财务勾稽直觉",
+    "产业链理解",
+    "PM 反向 challenge 经验"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[1].bullets[3]",
+      "hidden_fact": "模型被 PM 反向 challenge 3 次后修订 — 体现承压能力 + 思辨能力, 比典型实习生更接近基本面研究员的工作样态"
+    },
+    {
+      "where": "skills.technical[1]",
+      "hidden_fact": "时序模型 (LSTM / Transformer) 实战经验 — 对量化私募 + Quantamental 是稀缺技能"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "财务直觉相对经金同学薄弱这一点 — 怕被首席视为'数学好但 sense 差'",
+    "wants_to_emphasize": "量化工具 + 基本面研究的结合能力 — 想突出 Quantamental 差异化定位"
+  }
+}
