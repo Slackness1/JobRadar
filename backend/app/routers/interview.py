@@ -22,6 +22,39 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix='/api/interview', tags=['interview'])
 
 
+def _load_latest_profile_for_user(db: Session, user_key: str) -> dict | None:
+    """Look up the most recent confirmed resume profile for a user_key.
+
+    Used by /report to power the fab-number guard in generate_interview_report —
+    candidate's transcript numbers are cross-checked against this profile.
+    Returns None when user has no resume copilot session (guest / cold start);
+    the guard then no-ops without crashing.
+    """
+    if not user_key:
+        return None
+    try:
+        from app.models import ResumeConfirmedProfile, ResumeCopilotSession
+        sess = (
+            db.query(ResumeCopilotSession)
+            .filter(ResumeCopilotSession.user_key == user_key)
+            .order_by(ResumeCopilotSession.updated_at.desc())
+            .first()
+        )
+        if not sess:
+            return None
+        cp = (
+            db.query(ResumeConfirmedProfile)
+            .filter(ResumeConfirmedProfile.session_id == sess.id)
+            .first()
+        )
+        if not cp or not cp.profile_json:
+            return None
+        return json.loads(str(cp.profile_json))
+    except Exception as exc:
+        logger.warning('load_latest_profile_for_user failed for %s: %s', user_key, exc)
+        return None
+
+
 class InterviewMessage(BaseModel):
     role: str
     content: str
@@ -168,7 +201,12 @@ def interview_report(
 
     check_quota_or_raise(db, x_resume_user_key)
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
-    report = generate_interview_report(body.target_job, messages, db=db)
+    profile = _load_latest_profile_for_user(db, x_resume_user_key)
+    report = generate_interview_report(
+        body.target_job, messages, db=db,
+        session_id=getattr(body, 'session_id', '') or None,
+        profile=profile,
+    )
 
     # New: aggregate from interview_turns + weekly plan
     session_id = getattr(body, 'session_id', '') or ''

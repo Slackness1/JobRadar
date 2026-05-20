@@ -147,6 +147,67 @@ def test_score_answer_with_db_and_memory_injects_blocks_and_directive(tmp_path, 
         db.close()
 
 
+# ── 5-dim 评分 (2026-05-20) ─────────────────────────────────────────────────
+
+
+def test_score_answer_parses_5_dim_response():
+    """5 维 LLM 响应被解析进 dim_scores, 旧 hits/misses 字段同时保留。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "name": "岗位能力匹配度", "score": 8,
+             "evidence": ["「中欧实习覆盖白酒」"], "reason": "+3 因为对口"},
+            {"id": "info_selection", "name": "信息选取与侧重", "score": 6,
+             "evidence": [], "reason": "默认 5; +1"},
+            {"id": "logic", "name": "逻辑性", "score": 7, "evidence": [], "reason": ""},
+            {"id": "industry_sense", "name": "行业感", "score": 7, "evidence": [], "reason": ""},
+            {"id": "credibility", "name": "可信度", "score": 9, "evidence": [], "reason": ""},
+        ],
+        "overall": 74,
+        "hits": ["对口实习「中欧白酒」"],
+        "misses": [],
+        "bonuses": [],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert out.overall == 74
+    assert out.dim_scores is not None and len(out.dim_scores) == 5
+    assert out.dim_scores[0]["id"] == "job_fit"
+    assert out.dim_scores[0]["score"] == 8
+    assert out.hits == ["对口实习「中欧白酒」"]
+
+
+def test_score_answer_computes_overall_from_dims_when_missing():
+    """LLM 给了 dim_scores 但忘了 overall, 兜底用 mean(dim) * 10。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 3},
+            {"id": "info_selection", "score": 4},
+            {"id": "logic", "score": 5},
+            {"id": "industry_sense", "score": 2},
+            {"id": "credibility", "score": 1},
+        ],
+        "hits": [], "misses": [], "bonuses": [],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    # mean = 3, overall = 30
+    assert out.overall == 30
+    assert out.dim_scores is not None and len(out.dim_scores) == 5
+
+
+def test_score_answer_drops_unknown_dim_ids():
+    """LLM 编造 dim id 不在 5 维白名单 → 该项被丢弃, 其他保留。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "communication", "score": 9},  # 不在 5 维 → 丢
+            {"id": "credibility", "score": 7},
+        ],
+        "overall": 80, "hits": [], "misses": [], "bonuses": [],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert out.dim_scores is not None and len(out.dim_scores) == 2
+    assert {d["id"] for d in out.dim_scores} == {"job_fit", "credibility"}
+
+
 def test_score_answer_with_db_no_memory_skips_blocks_and_directive(tmp_path):
     """db provided but no memory + reserved user_key → no provider fires →
     system prompt stays bare. directive is NOT appended (no blocks)."""
