@@ -1,0 +1,146 @@
+{
+  "scenario_id": "workspace_P4_2026_05_20",
+  "scenario_config": {
+    "target_track": "银行管培 / 综合金融",
+    "target_jd_ref": "jds_real/04_zhaohang_mgmt_trainee",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "上交本管理 + SAIF MF, 中部 2 段 (招行总行管培项目 + 中信建投综合岗). 管培 26% 代表."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "夏文清",
+      "headline": "上交管理本 + SAIF MF / 银行管培方向 / 目标股份行 / 头部券商综合岗",
+      "email": "xia.wenqing@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.62/4.0, 商业银行管理 A",
+          "SAIF MBA 学生大使 (兼职), 主持 4 场企业参访活动",
+          "选修人力资源管理 + 组织行为学课程"
+        ]
+      },
+      {
+        "school": "上海交通大学安泰经济与管理学院",
+        "degree": "本科",
+        "major": "工商管理",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.68/4.0",
+          "安泰学生会副主席, 组织规模 800+ 人的迎新典礼",
+          "公益项目'乡村金融普及'团队负责人, 累计走访 6 个乡镇"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "招商银行 · 总行管培生暑期项目",
+        "role": "管培实习生",
+        "start_date": "2024-07",
+        "end_date": "2024-08",
+        "bullets": [
+          "轮岗 4 个部门 (零售金融 / 公司金融 / 私人银行 / 风险管理), 完成 4 份部门轮岗报告",
+          "参与私人银行业务条线的客户访谈 12 次 (高净值客户 + 客户经理), 协助整理客户画像 8 份",
+          "完成项目结题汇报 (面向总行 VP), 评估为该期 Top 5 实习生 (50 人组), 拿到 return offer",
+          "做了部门内部的一些事务性工作"
+        ]
+      },
+      {
+        "company": "中信建投证券 · 投资银行部 · 综合金融组",
+        "role": "投行实习生",
+        "start_date": "2025-01",
+        "end_date": "2025-04",
+        "bullets": [
+          "支持 2 单 IPO 项目 (制造业 + 消费品) 的尽调和招股书撰写, 完成行业研究章节 (各约 18 页)",
+          "参与可比公司估值表搭建 (覆盖 28 家公司), 协助 MD 完成估值区间报告",
+          "参与现场访谈 9 次 (经销商 + 供应商), 完成访谈纪要 5 万字",
+          "整理部门日常文件和数据"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "招行私人银行高净值客户画像研究",
+        "duration": "2024-07 至 2024-08",
+        "description": "招行实习期间立项, 整合 12 次客户访谈 + 公开年报数据, 输出私行客户画像报告",
+        "bullets": [
+          "样本含 12 名高净值客户, 标记其投资偏好 + 资产配置结构",
+          "报告被部门主管转交至产品团队作为客群洞察参考"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel 数据透视 + 模型搭建",
+        "PowerPoint 高级动效与图表",
+        "财务三张表基础勾稽",
+        "DCF / 相对估值 (基础)",
+        "SPSS 基础统计分析"
+      ],
+      "tools": [
+        "Wind 资讯",
+        "Bloomberg Terminal (基础)",
+        "Excel / PPT 专家级",
+        "Notion / Trello (项目管理)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 100)"
+      ]
+    },
+    "awards": [
+      "上海交通大学优秀学生干部 (2023, 2024)",
+      "招行总行管培暑期项目 Top 5 (50 人组)",
+      "全国大学生创新创业大赛省级三等奖 (2024)"
+    ],
+    "candidate_summary": "上交管理本 + SAIF MF, 2 段中部金融实习 (招行总行管培 / 中信建投投行). 优势是组织能力 + 沟通能力 + 业务理解全面, 拿过招行 return offer; 劣势是定量分析能力相对薄弱. 希望加入股份制银行 (招行 / 兴业 / 平安) 做管培或综合金融, 中期目标做产品/业务负责人.",
+    "inferred_roles": ["管培生", "客户经理", "综合金融岗"],
+    "inferred_tracks": ["股份行管培", "国有大行总行管培", "券商综合金融"]
+  },
+  "persona_voice": {
+    "communication_style": "亲和、表达流畅, 重组织感, 倾向用'我们''团队'句式",
+    "verbal_tics": [
+      "'我们当时'",
+      "'我有一段经历'",
+      "'我觉得'",
+      "'比较有意思的是'"
+    ],
+    "typical_message_length": "稍长 (80-120 字), 喜欢讲故事",
+    "under_pressure": "被追问定量细节时会承认'数据细节我记不太清, 但当时大致是 ...', 然后转回组织/沟通故事"
+  },
+  "flow_padding_internship": {
+    "company": "招商银行 · 总行管培生暑期项目",
+    "bullet_index": 3,
+    "original_text": "做了部门内部的一些事务性工作"
+  },
+  "target_jd_anchors": [
+    "跨部门协调",
+    "业务全景理解",
+    "客户洞察",
+    "组织能力",
+    "管培生潜质",
+    "return offer"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[2]",
+      "hidden_fact": "Top 5 / 50 人 + return offer — 在该批次中能力前 10%, 但简历语言把它和其他描述混在一起"
+    },
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "4 部门轮岗 + 4 份报告 — 体现快速学习 + 业务全景理解能力, 是管培岗最看重的特质"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "中信建投实习里的事务性整理 + 定量能力较弱 — 怕显得'只会软技能'",
+    "wants_to_emphasize": "招行 Top 5 + 跨部门轮岗能力 + 客户访谈经验 — 想突出管培生核心素质"
+  }
+}

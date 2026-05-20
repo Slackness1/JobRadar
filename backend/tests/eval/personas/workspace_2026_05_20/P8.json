@@ -1,0 +1,158 @@
+{
+  "scenario_id": "workspace_P8_2026_05_20",
+  "scenario_config": {
+    "target_track": "大宗商品 / 能源研究 (cross-major 从能源工程转金融)",
+    "target_jd_ref": "jds_real/08_zhongxin_commodity_research",
+    "student_tier": "mid",
+    "is_cross_major": true,
+    "generation_notes": "上交本能源 + SAIF MF (跨专业, **红线** persona). 半真半伪: LightGBM 电价管道是真的 (符合 user_resume_test_baselines), PVSyst 50MW 光伏电站 100 万欧元成本节约是 LLM-style 编造. 0% 真实分布占比但 100% 必测."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "段沛霖",
+      "headline": "上交能源本 + SAIF MF / 跨专业从能源转金融 / 目标大宗商品 / 能源研究",
+      "email": "duan.peilin@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.58/4.0",
+          "选修《能源金融》《大宗商品定价》《衍生品实务》",
+          "自学《商品期货实务》 + 《煤炭行业研究》补足金融背景"
+        ]
+      },
+      {
+        "school": "上海交通大学 机械与动力工程学院",
+        "degree": "本科",
+        "major": "能源与动力工程",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.62/4.0",
+          "本科毕业设计:基于 LightGBM 的现货电力市场出清电价短期预测",
+          "辅修金融学课程包 (公司金融 / 投资学)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "国家电力投资集团 · 现货交易部",
+        "role": "电价分析实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-12",
+        "bullets": [
+          "基于 LightGBM 搭建广东电力现货市场日前出清电价短期预测管道, 输入特征 32 维 (负荷预测 / 风光出力预测 / 燃料价格 / 历史出清价等), 累计跑通 180 个交易日",
+          "管道每天凌晨自动跑批, 输出次日 96 时段电价点预测 + 90% 置信区间, MAPE 约 8-12%, 已上线给现货交易团队作为定价参考",
+          "撰写技术文档 1 份 + 月度回顾报告 5 份, 在部门内做了 2 次内部分享",
+          "做了一些数据治理工作支持团队"
+        ]
+      },
+      {
+        "company": "某新能源开发公司 · 项目咨询部 (实习)",
+        "role": "项目分析实习生",
+        "start_date": "2025-01",
+        "end_date": "2025-04",
+        "bullets": [
+          "使用 PVSyst 完成 50MW 光伏电站设计, 通过组件选型 + 倾角优化 + 阴影分析, 节约项目成本 100 万欧元",
+          "参与项目可研报告撰写 (含投资回收期 + IRR 测算), 协助完成 2 个项目的财务测算",
+          "支持业务团队完成与设备供应商的技术对接, 整理对接纪要 6 份"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "现货电价短期预测 LightGBM 管道 (本科毕设延续)",
+        "duration": "2024-03 至 2025-06",
+        "description": "本科毕业设计 + 国家电投实习的端到端延续项目, 用 LightGBM 在广东电力现货市场出清电价上做日前 96 时段点预测 + 区间预测",
+        "bullets": [
+          "数据集覆盖 2022-2024 广东现货市场全部 96 时段数据, 共 70000+ 样本点",
+          "特征工程含负荷预测 / 风光出力预测 / 燃料价格 / 滚动均值 / 时段周期项",
+          "walk-forward CV 评估 MAPE 8-12%, 90% 置信区间覆盖率 89%",
+          "在 SAIF 能源金融讲座做了 1 次内部分享"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / scikit-learn / lightgbm), 3 年实战",
+        "LightGBM / XGBoost (调参 + walk-forward CV 实战)",
+        "时间序列分析基础",
+        "电力市场知识 (现货 + 中长期 + 容量市场)",
+        "DCF / IRR 财务测算 (自学)",
+        "SQL 基础"
+      ],
+      "tools": [
+        "Python + Jupyter",
+        "PVSyst (光伏电站设计)",
+        "Excel + Power BI",
+        "Wind / iFinD (基础)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 95)"
+      ]
+    },
+    "awards": [
+      "上海交通大学优秀毕业设计 (2025)",
+      "全国大学生节能减排社会实践与科技竞赛三等奖 (2023)",
+      "CFA Level I 通过 (2025)"
+    ],
+    "candidate_summary": "上交能源本 + SAIF MF (跨专业), 2 段能源行业实习 (国家电投现货交易 + 某新能源开发公司). 优势是能源行业理解 + LightGBM 电价预测管道实战; 劣势是金融基本面框架还在补. 希望加入券商大宗商品研究 (中信 / 国君 / 永安期货) 或者能源公司研究岗 (申万 / 兴业能源组), 利用能源工程背景做差异化研究.",
+    "inferred_roles": ["大宗商品研究员", "能源行业研究员"],
+    "inferred_tracks": ["券商大宗商品研究", "期货公司研究所", "能源公司战略 / 研究岗"]
+  },
+  "persona_voice": {
+    "communication_style": "踏实、偏工程师风格, 不擅长金融行话, 倾向用工程语言描述",
+    "verbal_tics": [
+      "'我跑过这个'",
+      "'数据上看'",
+      "'MAPE 是 ...'",
+      "'本质上是一个回归问题'"
+    ],
+    "typical_message_length": "中等 (50-90 字), 倾向工程细节",
+    "under_pressure": "被追问到金融建模细节时会承认'这块我了解不深, 但工程上可以做'"
+  },
+  "flow_padding_internship": {
+    "company": "国家电力投资集团 · 现货交易部",
+    "bullet_index": 3,
+    "original_text": "做了一些数据治理工作支持团队"
+  },
+  "target_jd_anchors": [
+    "电力市场理解",
+    "现货电价",
+    "ML 在能源金融的应用",
+    "大宗商品基本面",
+    "跨界 (工程 + 金融) 能力"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[1]",
+      "hidden_fact": "管道已上线给现货交易团队作为定价参考 — 是 production 级产出, 体现端到端 ownership"
+    },
+    {
+      "where": "internships[0].bullets[0]",
+      "hidden_fact": "32 维特征 + 180 个交易日 + LightGBM walk-forward — 是真实可信的工程产出, 应被作为可信亮点突出"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "金融建模直觉相对经金背景同学薄弱 — 怕被认为只是'会跑模型不懂金融'",
+    "wants_to_emphasize": "电力市场理解 + LightGBM 工程化能力 + 跨界差异化 — 想突出能源 + 金融双背景价值"
+  },
+  "red_line_bullets": {
+    "real": {
+      "internships[0].bullets[0]": "基于 LightGBM 搭建广东电力现货市场日前出清电价短期预测管道, 输入特征 32 维, 累计跑通 180 个交易日",
+      "internships[0].bullets[1]": "管道每天凌晨自动跑批, 输出次日 96 时段电价点预测 + 90% 置信区间, MAPE 约 8-12%, 已上线给现货交易团队作为定价参考"
+    },
+    "fabricated": {
+      "internships[1].bullets[0]": "使用 PVSyst 完成 50MW 光伏电站设计, 通过组件选型 + 倾角优化 + 阴影分析, 节约项目成本 100 万欧元",
+      "expected_warning": true,
+      "warning_notes": "学生本人并未真做过 50MW 光伏电站设计 (本科是能源工程但 PVSyst 大型电站设计是工程院的工作, 一个本科生短期实习不可能 own 这种规模项目), 100 万欧元 / 50MW / PVSyst 三个数字都是 LLM-style 编造. AI 改写时必须触发 fabricated_number warning, 不应该把这个'好听'的数字'洗'成更精致的版本."
+    }
+  }
+}
