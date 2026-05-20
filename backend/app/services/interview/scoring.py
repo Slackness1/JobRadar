@@ -207,9 +207,18 @@ def score_answer(
         return ScoreResult.empty()
 
     dim_scores = _coerce_dim_scores(raw.get("dim_scores"))
+
+    # 2026-05-21 Day 8 Bug A: 模板词 / 翻译腔 / 跨专业 mismatch 后处理 cap
+    # baseline v3 抓到 LLM 倾向给鼓励分 (M9 套模板=80, M12 翻译腔=87), 不敢扣低分。
+    # 在 LLM 评分基础上, 检测候选人答里有没有套模板/翻译腔/跨专业 mismatch 信号,
+    # 命中 → 该维度 cap ≤ 3. 不重生成, 只 cap 上限。
+    if dim_scores:
+        dim_scores = _apply_pattern_caps(dim_scores, user_answer, target_job)
+
     overall = _clamp_overall(raw.get("overall"))
-    # 如果 LLM 给了 dim_scores 但 overall 缺失/不合法, 用 mean(dim) * 10 兜底
-    if overall is None and dim_scores:
+    # 如果 LLM 给了 dim_scores 但 overall 缺失/不合法 (或 pattern cap 改了 dim),
+    # 重算 overall = mean(dim) * 10
+    if dim_scores and (overall is None or _need_recompute_overall(raw.get("overall"), dim_scores)):
         overall = round(sum(d["score"] for d in dim_scores) * 10 / len(dim_scores))
 
     return ScoreResult(
@@ -219,3 +228,95 @@ def score_answer(
         bonuses=_string_list(raw.get("bonuses"), cap=3),
         dim_scores=dim_scores,
     )
+
+
+def _need_recompute_overall(raw_overall, dim_scores) -> bool:
+    """LLM overall vs 5-dim mean × 10 偏离 > 15 分 → cap 把 dim 改了, 应重算 overall。"""
+    try:
+        raw_int = int(raw_overall)
+        computed = round(sum(d["score"] for d in dim_scores) * 10 / len(dim_scores))
+        return abs(raw_int - computed) > 15
+    except (TypeError, ValueError):
+        return True
+
+
+# 12 个套模板词 — baseline M9 抓到的 "主导/复盘/沉淀/赋能/闭环/抓手/打法/心智"
+# + 业界扩展。命中 ≥ 3 个 → info_selection / logic 维度 cap ≤ 3
+_TEMPLATE_WORDS = (
+    '主导', '复盘', '沉淀', '赋能', '闭环', '抓手', '打法', '心智',
+    '链路', '范式', '矩阵化', '颗粒度',
+)
+
+# 8 个翻译腔短语 — baseline M12 抓到的 "leveraged synergies / 端到端价值闭环"
+# + 业界扩展。命中 ≥ 1 个 → logic / industry_sense 维度 cap ≤ 3
+_TRANSLATION_PHRASES = (
+    'leveraged', 'synergy', 'synergies', 'end-to-end', 'value-driven',
+    'spearheaded', 'stakeholder alignment', 'cross-functional',
+    '端到端价值闭环', '颠覆性洞察', '协同杠杆', '价值驱动赋能',
+    '利益相关方对齐', '跨职能协同',
+)
+
+# 跨专业工程/化学/物理术语 — 命中 ≥ 5 个 + target 含"金融/投研/投行/资管"等
+# → job_fit 强制 ≤ 3 (baseline M11 化工本投公募大消费 case)
+_ENG_TERMS = (
+    'Ni', 'Al2O3', 'MDI', 'DCS', 'TPR', 'XRD', 'BET', 'CO2', '催化剂',
+    '中试', '装置', '反应釜', '吸附', '裂解', '甲烷化', '脱硫', '蒸馏',
+    '焊接', '冲压', '热处理', '齿轮', '减速器', '伺服', 'PLC',
+    '电池', '电芯',  # 注意: 电池可能命中真实新能源研究, 加权时考虑
+)
+_FINANCE_TARGETS = (
+    '金融', '投研', '行研', '投行', 'IBD', '资管', '公募', '私募', '券商',
+    '基金', '研究员', '行业研究', '战略投资', '战略发展',
+    # 2026-05-21 Day 8 baseline v4 抓到 — corp dev / M&A / 战略发展部 也算金融岗,
+    # 否则化工本想转 corp dev 的跨专业 mismatch 不会触发 job_fit cap
+    'corp dev', 'M&A', 'MA', '战略', 'strategy', '产业基金',
+)
+
+
+def _apply_pattern_caps(dim_scores: list[dict], user_answer: str, target_job: str) -> list[dict]:
+    """Post-LLM cap based on regex pattern hits in user_answer.
+
+    Returns new dim_scores list with cap applied (cap = min(orig, 3)).
+    LLM 评分高但候选人答里满是模板词 / 翻译腔 / 跨专业 → 强制压低对应维度。
+    """
+    if not user_answer:
+        return dim_scores
+
+    template_hits = sum(1 for w in _TEMPLATE_WORDS if w in user_answer)
+    translation_hits = sum(1 for p in _TRANSLATION_PHRASES if p.lower() in user_answer.lower())
+    eng_hits = sum(1 for t in _ENG_TERMS if t in user_answer)
+    target_is_finance = any(t in (target_job or '') for t in _FINANCE_TARGETS)
+
+    caps: dict[str, int] = {}
+    # 2026-05-21 Day 8 baseline v4 调阈值 — 原 ≥ 3 误伤金融研报正常用词:
+    # P8 (strong 公募行研) 真实 thesis 答里也用 '主导/复盘/闭环' = 3 命中, 被误 cap.
+    # baseline v3 M9 (真套模板) = 6 命中, P1 strong = 2, P5 strong = 1 → 阈值 ≥4 完美区分.
+    if template_hits >= 4:
+        caps['info_selection'] = 3
+        caps['logic'] = 3
+    if translation_hits >= 1:
+        caps['logic'] = min(caps.get('logic', 10), 3)
+        caps['industry_sense'] = 3
+    if eng_hits >= 5 and target_is_finance:
+        caps['job_fit'] = 3
+
+    if not caps:
+        return dim_scores
+
+    out = []
+    for d in dim_scores:
+        new_d = dict(d)
+        cap = caps.get(d.get('id'))
+        if cap is not None and d.get('score', 10) > cap:
+            new_d['score'] = cap
+            existing_reason = (d.get('reason') or '').strip()
+            reason_addon = ''
+            if d['id'] in ('info_selection', 'logic') and template_hits >= 3:
+                reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词]'
+            elif d['id'] in ('logic', 'industry_sense') and translation_hits >= 1:
+                reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔/英文管理黑话]'
+            elif d['id'] == 'job_fit' and eng_hits >= 5:
+                reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题 {eng_hits} 个工程术语 + target 是金融, 无转译]'
+            new_d['reason'] = (existing_reason + reason_addon).strip()
+        out.append(new_d)
+    return out

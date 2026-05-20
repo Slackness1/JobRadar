@@ -54,37 +54,45 @@ def _build_report_system_prompt(track: str | None = None) -> str:
     {dim_json_template}
   ],
   "highlights": ["<亮点1, 必含「」 引用候选人原话>", "<亮点2>"],
-  "improvements": ["<改进点1, 严格 4 段格式 — 见下>", "<改进点2>", "<改进点3>"],
+  "improvements": [
+    {{
+      "deduction": "<在第 N 题 ... 时, 你说「<候选人原话 4-15 字>」, 这是 [common sense/飘/模板词/编数字/etc.]>",
+      "cohort_anchor": "<这个方向的同期候选人通常会提 / P50 是 ...>",
+      "rewrite_demo": "<可以改成「<≤30 字具体替换话术, 用候选人简历里真实存在的事实>」>",
+      "next_step": "<练 N 次 X / 看 Y / 补 1 段 Z, 1 小时内可做>"
+    }}
+  ],
   "overall_comment": "<2-3 句, 必含至少 1 个 「」 引用候选人原话, 落到岗位匹配>"
 }}
 ```
 
-## **improvements 4 段强制** (每条都要完整 4 段, 不允许任何一条省略)
+## **improvements 4 字段强制** (每条都要 4 个字段全, 任一缺 / 空 → 该条会被丢弃)
 
-每条 improvement 是**一个字符串**, 用以下 4 段拼接 (顺序固定, 用 ` · ` 或换行分段):
+每条 improvement 是**一个 JSON object**, 4 个 key 都必须给, 且都不能为空字符串:
 
-```
-[扣分点] 在第 N 题 ... 时, 你说「<候选人原话 4-15 字>」, 这是 [common sense / 飘 / 模板词 / 编数字 / etc.]。
-[行业坐标] 这个方向的同期候选人通常会提 / P50 是 ... (引 podcast / xhs / 公开同辈水准)。
-[改写示范] 可以改成「<≤30 字具体替换话术, 用候选人简历里真实存在的事实>」。
-[下一步] 练 N 次 X / 看 Y / 补 1 段 Z, 1 小时内可做。
-```
-
-**4 段任一缺失 = 这条 improvement 无效** (系统会做格式校验, 不符 → 重新生成)。
+| key | 含义 | 字数 |
+|---|---|---|
+| `deduction` | **扣分点**: 引候选人原话 + 指出问题类型 | 20-80 字 |
+| `cohort_anchor` | **行业坐标**: 同期 / 头部候选人通常怎么答 | 20-80 字 |
+| `rewrite_demo` | **改写示范**: ≤30 字具体替换话术 (用候选人简历里真事实) | 15-50 字 |
+| `next_step` | **下一步动作**: 1 小时内可做的具体练习 | 10-40 字 |
 
 ### ✅ 合规示例
 
-> [扣分点] 在第 2 题主导项目时, 你说「我们 PM 是这么看的」, 这是退回 mentor 观点 = 缺独立 view。
-> [行业坐标] 头部公募大消费组的实习生通常会主动给出"市场看 A, 我看 B, 证据 1/2/3" 的独立 thesis。
-> [改写示范] 可以改成「市场担心高端白酒批价, 我独立测算认为次高端库存压力被低估, 数据是 X」。
-> [下一步] 找 1 只覆盖股, 写 1 篇 200 字独立 view (含 1 个非共识判断 + 3 个证据), 这周内做。
+```json
+{{
+  "deduction": "在第 2 题主导项目时, 你说「我们 PM 是这么看的」, 这是退回 mentor 观点 = 缺独立 view。",
+  "cohort_anchor": "头部公募大消费组的实习生通常会主动给出『市场看 A, 我看 B, 证据 1/2/3』的独立 thesis。",
+  "rewrite_demo": "可以改成「市场担心高端白酒批价, 我独立测算认为次高端库存压力被低估」。",
+  "next_step": "找 1 只覆盖股, 写 1 篇 200 字独立 view, 这周内做。"
+}}
+```
 
-### ❌ 反例 (绝对不能出)
+### ❌ 反例 (绝对不能出 — 任一字段缺或空就会被系统丢弃)
 
-> "需要加强行业认知, 多了解一些公司动态" (空话; 没引文; 没改写; 没下一步)
-> "可以更结构化一点" (4 段全缺)
-> "继续加强金融产品知识, 多看研报" (没引文; 没改写)
-> "在反问环节可以更主动一些, 问出更深度的问题" (没引文; '更深度' 是空话)
+> `{{"deduction": "需要加强行业认知", "cohort_anchor": "", "rewrite_demo": "", "next_step": ""}}` (3 字段空)
+> `{{"deduction": "可以更结构化", ...}}` (deduction 空话, 无原话)
+> 直接给 string 而不是 dict (老 schema, 已 deprecated)
 
 ## 严格约束 (一条都不能破)
 
@@ -188,6 +196,7 @@ def generate_interview_report(
                     report2['_fabrication_warnings'] = fab2
                     report2['_fabrication_suppressed'] = True
                     report2['improvements'] = []
+                    report2['improvements_v2'] = []
                     report2['highlights'] = []
                     report2 = _append_overall_warning(report2, _SUPPRESS_NOTE)
                     report = report2
@@ -196,6 +205,7 @@ def generate_interview_report(
                 report['_fabrication_warnings'] = fabricated
                 report['_fabrication_suppressed'] = True
                 report['improvements'] = []
+                report['improvements_v2'] = []
                 report['highlights'] = []
                 report = _append_overall_warning(report, _SUPPRESS_NOTE)
         else:
@@ -206,17 +216,18 @@ def generate_interview_report(
             report['highlights'] = []
             report = _append_overall_warning(report, _SUPPRESS_NOTE)
 
-    # ── Soft check: 4-段 improvements 格式 (扣分点 / 行业坐标 / 改写示范 / 下一步) ──
-    # 不重生成 (省 LLM 钱), 只 tag _meta 让 eval 知道命中率, day-7 regression 报表会看。
+    # ── Soft check: 4-字段 improvements 合规率 (Day 8 Bug B) ──
+    # parse 时缺字段已被 drop, 所以 v2/raw 长度差 = 不合规条数。
     # Suppressed 时跳过 — improvements 已经被清空, 没意义。
-    if report.get('improvements') and not report.get('_fabrication_suppressed'):
-        bad_idx = _check_improvements_4_segments(report['improvements'])
-        if bad_idx:
+    if not report.get('_fabrication_suppressed'):
+        v2_count = len(report.get('improvements_v2') or [])
+        raw_count = len(_raw_improvements_count(raw))
+        if raw_count > 0:
             meta = report.setdefault('_meta', {})
-            meta['improvements_format_warning'] = {
-                'bad_indices': bad_idx,
-                'n_total': len(report['improvements']),
-                'n_compliant': len(report['improvements']) - len(bad_idx),
+            meta['improvements_v2_compliance'] = {
+                'n_raw': raw_count,
+                'n_compliant': v2_count,
+                'rate': round(v2_count / raw_count, 3) if raw_count else 0.0,
             }
 
     # ── Guard 2: fabricated numbers (复用 resume_copilot._detect_fabricated_numbers) ──
@@ -249,34 +260,139 @@ def generate_interview_report(
                 )
             report['_fabricated_numbers'] = sorted(fab_nums)
             report['_fabricated_strong'] = strong_fab
+
+    # ── Guard 3: pattern caps on report dimensions (Day 8 Bug A 报告路径补) ──
+    # scoring.py 在 turn-level 跑过 pattern cap, 但 report 是另一个 LLM call,
+    # 完全裸奔 — M11/M12 翻译腔在 report 路径 LLM 给 90-95 分, baseline v4 抓到。
+    # 这里用 transcript 全文跑同样的 detection, 命中 → 对应 report dim 强制 ≤ 30。
+    transcript_for_caps = '\n'.join(
+        (m.get('content') or '') for m in messages if m.get('role') == 'user'
+    )
+    _apply_report_pattern_caps(report, transcript_for_caps, target_job)
+
     return report
+
+
+def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -> None:
+    """对 report 的 dimensions 应用 pattern cap (复用 scoring._apply_pattern_caps 的规则,
+    分制换算 0-10 → 0-100)。命中 → cap 该 dim 到 30, 重算 overall = mean(dim)。
+    """
+    from app.services.interview.scoring import (
+        _ENG_TERMS,
+        _FINANCE_TARGETS,
+        _TEMPLATE_WORDS,
+        _TRANSLATION_PHRASES,
+    )
+
+    if not transcript:
+        return
+
+    template_hits = sum(1 for w in _TEMPLATE_WORDS if w in transcript)
+    translation_hits = sum(1 for p in _TRANSLATION_PHRASES if p.lower() in transcript.lower())
+    eng_hits = sum(1 for t in _ENG_TERMS if t in transcript)
+    target_is_finance = any(t in (target_job or '') for t in _FINANCE_TARGETS)
+
+    caps: dict[str, int] = {}
+    cap_reasons: list[str] = []
+    # 2026-05-21 Day 8 baseline v4 — 阈值 ≥4 (与 scoring.py 对齐, 防 P8 / P1 / P5 等
+    # 正常金融研报答里 '主导/复盘/闭环/沉淀' = 3 触发被误 cap)
+    if template_hits >= 4:
+        caps['info_selection'] = 30
+        caps['logic'] = 30
+        cap_reasons.append(f'套模板词 ×{template_hits}')
+    if translation_hits >= 1:
+        caps['logic'] = min(caps.get('logic', 100), 30)
+        caps['industry_sense'] = 30
+        cap_reasons.append(f'翻译腔 ×{translation_hits}')
+    if eng_hits >= 5 and target_is_finance:
+        caps['job_fit'] = 30
+        cap_reasons.append(f'跨专业工程术语 ×{eng_hits} (target 金融)')
+
+    if not caps:
+        return
+
+    dims = report.get('dimensions') or []
+    capped_any = False
+    for d in dims:
+        if not isinstance(d, dict):
+            continue
+        dim_id = d.get('id')
+        cap = caps.get(dim_id)
+        if cap is None:
+            continue
+        try:
+            cur = int(d.get('score') or 100)
+        except (TypeError, ValueError):
+            cur = 100
+        if cur > cap:
+            d['score'] = cap
+            note = ''
+            if dim_id in ('info_selection', 'logic') and template_hits >= 3:
+                note = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词]'
+            elif dim_id in ('logic', 'industry_sense') and translation_hits >= 1:
+                note = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔/英文管理黑话 ×{translation_hits}]'
+            elif dim_id == 'job_fit' and eng_hits >= 5:
+                note = f' [⚠️ 后处理 cap ≤{cap}: 答题 {eng_hits} 个工程术语 + target 是金融, 无转译]'
+            d['comment'] = (d.get('comment') or '').rstrip() + note
+            capped_any = True
+
+    if capped_any:
+        # 重算 overall = mean(5 dim), 不再信任 LLM 原 overall
+        valid_scores = [
+            int(d['score']) for d in dims
+            if isinstance(d, dict) and isinstance(d.get('score'), (int, float))
+        ]
+        if valid_scores:
+            report['overall_score'] = round(sum(valid_scores) / len(valid_scores))
+        report = _append_overall_warning(
+            report,
+            f'⚠️ 后处理触发 pattern cap [{", ".join(cap_reasons)}], 整场分数已下调。',
+        )
+        report['_pattern_caps_applied'] = list(caps.keys())
 
 
 # 强信号: 编数字典型特征 — 含 亿/万 量词、sharpe/年化 等专业指标紧邻数字、% ≥ 30
 # baseline M10 "80 亿欧元 / sharpe 3.2 / 触达 5000+ / 年化 +47%" 全部命中;
 # M1 "茅台 2700 / 75%" 是市场公开数据则不命中 (无量词 + 无专业指标 + % < 30 比例正常)
-# 顺序: 长 alternative 在前, 防 万 抢到 万亿 / 百万。
-_EXTREME_FAB_PATTERNS = [
+# 2026-05-21 Day 8 Bug C: 强信号收紧 — 必须"实习生身份不可能 own"的体量
+# 才算强信号 (e.g. 实习生 + own + 80 亿欧元 + 并购). 单"万/亿"出现 (e.g.
+# "茅台市值 2 万亿" 引市场公开数据) → 弱信号, 只 annotate 不 cap credibility。
+#
+# 检测规则: 数字 + 量词 (万/亿/sharpe/年化+N%/三位数%) 必须与"自我归因短语"
+# (我 / 我独立 / 我 own / 我覆盖 / 我搭建 / 我主导) **同一段内**共现, 才算强。
+
+_FAB_NUMBER_PATTERNS = [
     re.compile(r'\d+\s*(?:万亿|百万|千万|亿|万)'),
     re.compile(r'sharpe\s*[≈=:：]?\s*\d+\.\d+', re.IGNORECASE),
     re.compile(r'年化\s*[+\-]?\s*\d{2,}%'),
     re.compile(r'\d{4,}\s*[+]\s*(?:家|个|人|机构|客户)'),
-    re.compile(r'\d{3,}%'),   # 三位数百分比明显不对 (300%)
+    re.compile(r'\d{3,}%'),
 ]
+
+_SELF_ATTRIBUTION_RE = re.compile(
+    r'(?:我(?:独立)?(?:own|主导|覆盖|搭建|完成|做了|负责)|own[　\s]*了|独立[　\s]*own)'
+)
 
 
 def _has_extreme_fab_signal(fab_nums: set[str], transcript: str) -> bool:
-    """是否含 baseline 典型编数字 'tell' (量词 / 专业指标 / 大百分比)。"""
-    if any(re.search(p, transcript) for p in _EXTREME_FAB_PATTERNS):
-        return True
-    # 单独百分比 ≥ 30 也算强信号
-    for n in fab_nums:
-        if n.endswith('%'):
-            try:
-                if float(n.rstrip('%')) >= 30:
-                    return True
-            except ValueError:
-                pass
+    """是否含 baseline 典型编数字 'tell' — 必须"自我归因 + 数字量词共现"。
+
+    把 transcript 按句号/换行切分, 检查每段是否同时出现:
+      - 数字+量词 (万/亿/sharpe/年化%等)
+      - 自我归因 (我/我独立/我 own/我覆盖/我搭建)
+    任一段命中 → True。
+
+    这样 "茅台市值 2 万亿" (无自我归因) → False, 只 annotate;
+    "我 own 了 80 亿欧元的并购" (自我归因 + 数字量词) → True, cap credibility。
+    """
+    # 切分段落: 中文句号 / 英文句号 / 感叹号 / 问号 / 换行
+    segments = re.split(r'[。．\.!?！？\n]+', transcript or '')
+    for seg in segments:
+        has_num_unit = any(p.search(seg) for p in _FAB_NUMBER_PATTERNS)
+        if not has_num_unit:
+            continue
+        if _SELF_ATTRIBUTION_RE.search(seg):
+            return True
     return False
 
 
@@ -606,23 +722,115 @@ def parse_report_json(raw: str) -> dict:
             'comment': str(d.get('comment', '')),
         })
 
-    # improvements: LLM sometimes returns list[dict] {position, weakness, suggestion}
-    # 而不是 list[str]。展平成多段拼接的 str 给 UI 看, 保留原 dict 在 meta 里。
+    # 2026-05-21 Day 8 Bug B: improvements 改为 4 字段 dict 优先, 同时输出 str (兼容老 UI)。
+    # 老 list[str] (v3 路径) / 老 list[dict {position/weakness/suggestion}] / 新 4 字段 dict
+    # 三种 input 都 normalize 成 (improvements_v2: list[dict 4 字段], improvements: list[str])。
+    # 4 字段任一缺 / 空 → 该条 drop (不再 patch 进残缺字段)。
     improvements_raw = data.get('improvements', [])
-    improvements_str: list[str] = []
-    for i in improvements_raw if isinstance(improvements_raw, list) else []:
-        if isinstance(i, dict):
-            improvements_str.append(_format_improvement_dict(i))
-        elif isinstance(i, str) and i.strip():
-            improvements_str.append(i.strip())
+    improvements_v2, improvements_str = _normalize_improvements(improvements_raw)
 
     return {
         'overall_score': overall,
         'dimensions': normalized_dims,
         'highlights': [str(h) for h in data.get('highlights', []) if h],
         'improvements': improvements_str,
+        'improvements_v2': improvements_v2,
         'overall_comment': str(data.get('overall_comment', '')),
     }
+
+
+# 4 字段 normalized key (Day 8 Bug B 新 schema)
+_V2_KEYS = ('deduction', 'cohort_anchor', 'rewrite_demo', 'next_step')
+
+# 各字段的中文 alias (向后兼容 LLM 出中文 key 的情况)
+_V2_KEY_ALIASES: dict[str, tuple[str, ...]] = {
+    'deduction':     ('扣分点', 'position', 'weakness'),
+    'cohort_anchor': ('行业坐标', 'industry', 'cohort'),
+    'rewrite_demo':  ('改写示范', 'suggestion', 'rewrite'),
+    'next_step':     ('下一步', '下一步动作', 'action'),
+}
+
+# label 用于回拼接 string (UI 显示) — 顺序与 _V2_KEYS 对齐
+_V2_LABELS: dict[str, str] = {
+    'deduction': '扣分点',
+    'cohort_anchor': '行业坐标',
+    'rewrite_demo': '改写示范',
+    'next_step': '下一步',
+}
+
+
+def _extract_v2_dict(d: dict) -> dict | None:
+    """从 LLM dict 抽 4 字段 normalized 形式, 任一缺/空 → 返 None (drop)。"""
+    out: dict[str, str] = {}
+    for canonical in _V2_KEYS:
+        v = d.get(canonical)
+        if not (isinstance(v, str) and v.strip()):
+            for alias in _V2_KEY_ALIASES[canonical]:
+                v = d.get(alias)
+                if isinstance(v, str) and v.strip():
+                    break
+        if not (isinstance(v, str) and v.strip()):
+            return None
+        out[canonical] = v.strip()
+    return out
+
+
+def _parse_inline_4seg(s: str) -> dict | None:
+    """从老格式 inline 4-段 string ('[扣分点] X · [行业坐标] Y · [改写示范] Z · [下一步] W')
+    抽出 4 字段 dict; 缺任一段 → None。"""
+    sections: dict[str, str] = {}
+    # 按 [marker] 切, 取每个 marker 后到下一个 marker 之前的内容
+    pattern = re.compile(r'\[(扣分点|行业坐标|改写示范|下一步)\]\s*([^\[]+?)(?=\s*[·\n]|\s*\[|$)')
+    for m in pattern.finditer(s):
+        sections[m.group(1)] = m.group(2).strip()
+    marker_to_canonical = {
+        '扣分点': 'deduction',
+        '行业坐标': 'cohort_anchor',
+        '改写示范': 'rewrite_demo',
+        '下一步': 'next_step',
+    }
+    out: dict[str, str] = {}
+    for marker, canonical in marker_to_canonical.items():
+        if marker not in sections or not sections[marker]:
+            return None
+        out[canonical] = sections[marker]
+    return out
+
+
+def _v2_to_string(v2: dict) -> str:
+    """4 字段 dict → ` · ` 拼接的老格式 string (UI 兼容)。"""
+    parts = [f'[{_V2_LABELS[k]}] {v2[k]}' for k in _V2_KEYS]
+    return ' · '.join(parts)
+
+
+def _normalize_improvements(raw) -> tuple[list[dict], list[str]]:
+    """统一 normalize improvements (3 种 input → 2 种 output)。
+
+    Input 允许:
+      - list[dict 4 字段] (新 schema)
+      - list[dict {position, weakness, suggestion}] (老 baseline M9 dict)
+      - list[str inline 4 段] (v3 prompt 输出)
+      - list[str 散文] (无 4 段) — 一并 drop
+
+    Output:
+      - improvements_v2: list[dict 4 字段] (新 UI / eval)
+      - improvements: list[str inline] (向后兼容老 UI / current frontend)
+    """
+    if not isinstance(raw, list):
+        return [], []
+    v2_list: list[dict] = []
+    str_list: list[str] = []
+    for item in raw:
+        v2 = None
+        if isinstance(item, dict):
+            v2 = _extract_v2_dict(item)
+        elif isinstance(item, str) and item.strip():
+            v2 = _parse_inline_4seg(item.strip())
+        if v2 is None:
+            continue
+        v2_list.append(v2)
+        str_list.append(_v2_to_string(v2))
+    return v2_list, str_list
 
 
 def _format_improvement_dict(d: dict) -> str:
@@ -650,7 +858,7 @@ def _format_improvement_dict(d: dict) -> str:
     return json.dumps(d, ensure_ascii=False)
 
 
-# 4 段 improvement 软校验 — 不重生成, 只 tag _meta 让 UI/eval 知道哪些没合规
+# 4 段 improvement 软校验 — 保留供老 baseline JSON regression 兼容用 (不再用在主流程)
 _4SEG_MARKERS = ('[扣分点]', '[行业坐标]', '[改写示范]', '[下一步]')
 
 
@@ -661,6 +869,17 @@ def _check_improvements_4_segments(improvements: list[str]) -> list[int]:
         if not all(m in s for m in _4SEG_MARKERS):
             bad.append(i)
     return bad
+
+
+def _raw_improvements_count(raw_llm_response: str) -> list:
+    """从 LLM 原始 response 抽 raw improvements (用于算合规率分母)。
+    parse 失败 → 空 list, 合规率分母为 0。"""
+    try:
+        data = json.loads(raw_llm_response)
+    except (json.JSONDecodeError, TypeError):
+        return []
+    imp = data.get('improvements', [])
+    return imp if isinstance(imp, list) else []
 
 
 # ---------------------------------------------------------------------------

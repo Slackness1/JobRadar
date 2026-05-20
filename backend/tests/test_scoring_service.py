@@ -193,6 +193,92 @@ def test_score_answer_computes_overall_from_dims_when_missing():
     assert out.dim_scores is not None and len(out.dim_scores) == 5
 
 
+# ── Pattern caps (Bug A 2026-05-21 Day 8) — 套模板/翻译腔/跨专业 ──────────
+
+
+def test_template_words_cap_info_selection_and_logic():
+    """答里 ≥4 个套模板词 (主导/复盘/沉淀/赋能/闭环/抓手) → info_selection + logic 强制 ≤3."""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "info_selection", "score": 8},   # LLM 给 8, pattern cap 应压到 3
+            {"id": "logic", "score": 8},            # 同上
+            {"id": "industry_sense", "score": 7},
+            {"id": "credibility", "score": 7},
+        ],
+        "overall": 76, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我主导了核心赛道的研究框架搭建, 复盘了上下游产业链, 沉淀了一套方法论, 赋能团队整体效率, 形成闭环"
+    out = score_answer("公募行研", "讲一个项目", answer, "summary", llm=stub)
+    info_sel = next(d for d in out.dim_scores if d["id"] == "info_selection")
+    logic = next(d for d in out.dim_scores if d["id"] == "logic")
+    assert info_sel["score"] == 3
+    assert logic["score"] == 3
+    assert "套模板词" in info_sel["reason"]
+    # job_fit / industry_sense / credibility 不应被 cap (没命中规则)
+    job_fit = next(d for d in out.dim_scores if d["id"] == "job_fit")
+    assert job_fit["score"] == 8
+
+
+def test_translation_phrases_cap_logic_and_industry_sense():
+    """答里有翻译腔 (leveraged synergies / 端到端价值闭环) → logic + industry_sense 强制 ≤3."""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "info_selection", "score": 7},
+            {"id": "logic", "score": 9},
+            {"id": "industry_sense", "score": 9},
+            {"id": "credibility", "score": 8},
+        ],
+        "overall": 82, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我 leveraged 了多方 synergies, 通过端到端价值闭环 drive 一个 value-driven outcome"
+    out = score_answer("S&T 销售交易", "讲一个项目", answer, "summary", llm=stub)
+    logic = next(d for d in out.dim_scores if d["id"] == "logic")
+    industry = next(d for d in out.dim_scores if d["id"] == "industry_sense")
+    assert logic["score"] == 3
+    assert industry["score"] == 3
+    assert "翻译腔" in logic["reason"]
+
+
+def test_cross_major_mismatch_caps_job_fit():
+    """答里 ≥5 个工程术语 + target 是金融岗 → job_fit 强制 ≤3."""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "info_selection", "score": 7},
+            {"id": "logic", "score": 7},
+            {"id": "industry_sense", "score": 6},
+            {"id": "credibility", "score": 8},
+        ],
+        "overall": 72, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我做的是 Ni 基催化剂在 MDI 装置的 CO2 甲烷化反应, 用 XRD 和 BET 分析了 Al2O3 担载特性"
+    out = score_answer("公募行研", "讲一个项目", answer, "summary", llm=stub)
+    job_fit = next(d for d in out.dim_scores if d["id"] == "job_fit")
+    assert job_fit["score"] == 3
+    assert "工程术语" in job_fit["reason"]
+
+
+def test_pattern_cap_recomputes_overall():
+    """LLM 给 overall=80, pattern cap 改了几个 dim, overall 应重算."""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 9},
+            {"id": "info_selection", "score": 9},   # 8 → cap 3
+            {"id": "logic", "score": 9},            # 8 → cap 3
+            {"id": "industry_sense", "score": 8},
+            {"id": "credibility", "score": 8},
+        ],
+        "overall": 86,
+        "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我主导赋能闭环了核心抓手, 沉淀打法, 复盘心智模型"
+    out = score_answer("公募行研", "q", answer, "summary", llm=stub)
+    # mean = (9+3+3+8+8)/5 = 6.2 → overall = 62 (而不是 LLM 给的 86)
+    assert out.overall == 62
+
+
 def test_score_answer_drops_unknown_dim_ids():
     """LLM 编造 dim id 不在 5 维白名单 → 该项被丢弃, 其他保留。"""
     stub = _StubLLM({

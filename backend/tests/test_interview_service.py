@@ -243,6 +243,151 @@ def test_fallback_report_aggregates_5dim_from_turn_rows(tmp_path):
         db.close()
 
 
+def test_apply_report_pattern_caps_translation_caps_logic_and_industry():
+    """Day 8 Bug A 报告路径补 — 整场 transcript 含翻译腔 → cap logic + industry_sense ≤ 30。"""
+    from app.services.interview.report import _apply_report_pattern_caps
+    report = {
+        'overall_score': 88,
+        'dimensions': [
+            {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 90, 'comment': '匹配'},
+            {'id': 'info_selection', 'name': '信息选取与侧重', 'score': 85, 'comment': '清楚'},
+            {'id': 'logic', 'name': '逻辑性', 'score': 92, 'comment': '完整'},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 90, 'comment': '深'},
+            {'id': 'credibility', 'name': '可信度', 'score': 85, 'comment': 'OK'},
+        ],
+        'overall_comment': '总体不错',
+    }
+    transcript = "我 leveraged synergies 实现了端到端价值闭环, 跨职能协同促成颠覆性洞察, value-driven 的方式跑通 stakeholder alignment"
+    _apply_report_pattern_caps(report, transcript, '公募行研')
+    dims_by_id = {d['id']: d for d in report['dimensions']}
+    assert dims_by_id['logic']['score'] == 30
+    assert dims_by_id['industry_sense']['score'] == 30
+    assert dims_by_id['job_fit']['score'] == 90   # 不被翻译腔影响
+    # overall 重算 = mean(90+85+30+30+85)/5 = 64
+    assert report['overall_score'] == 64
+    assert '翻译腔' in dims_by_id['logic']['comment']
+    assert '⚠️' in report['overall_comment']
+
+
+def test_apply_report_pattern_caps_template_words_cap():
+    """套模板词 ≥ 4 → cap info_selection + logic ≤ 30。"""
+    from app.services.interview.report import _apply_report_pattern_caps
+    report = {
+        'overall_score': 80,
+        'dimensions': [
+            {'id': 'info_selection', 'name': '信息选取与侧重', 'score': 80, 'comment': ''},
+            {'id': 'logic', 'name': '逻辑性', 'score': 80, 'comment': ''},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 80, 'comment': ''},
+        ],
+        'overall_comment': '',
+    }
+    transcript = "我主导了这个项目, 进行了复盘和沉淀, 赋能给团队闭环抓手, 形成新的打法"
+    _apply_report_pattern_caps(report, transcript, '公募行研')
+    by_id = {d['id']: d for d in report['dimensions']}
+    assert by_id['info_selection']['score'] == 30
+    assert by_id['logic']['score'] == 30
+
+
+def test_apply_report_pattern_caps_no_signal_unchanged():
+    """无套模板词 / 翻译腔 → 不动报告。"""
+    from app.services.interview.report import _apply_report_pattern_caps
+    original = {
+        'overall_score': 88,
+        'dimensions': [{'id': 'logic', 'name': '逻辑性', 'score': 88, 'comment': 'OK'}],
+        'overall_comment': '',
+    }
+    import copy
+    report = copy.deepcopy(original)
+    _apply_report_pattern_caps(report, "正常的财务分析答题, 没有任何套话", '公募行研')
+    assert report == original
+
+
+def test_parse_report_json_v2_dict_format():
+    """新 schema: LLM 出 list[dict 4 字段] → improvements_v2 + improvements 都填齐。"""
+    raw = json.dumps({
+        "overall_score": 78,
+        "dimensions": [],
+        "highlights": [],
+        "improvements": [
+            {
+                "deduction": "在第 2 题主导项目时, 你说「我们 PM 是这么看的」, 这是退回 mentor 观点。",
+                "cohort_anchor": "头部公募大消费组的实习生通常会主动给出『市场看 A 我看 B』。",
+                "rewrite_demo": "可以改成「市场担心高端白酒批价, 我独立测算次高端被低估」。",
+                "next_step": "找 1 只覆盖股写 200 字独立 view, 这周内做。",
+            },
+        ],
+        "overall_comment": "总体不错",
+    })
+    result = parse_report_json(raw)
+    assert len(result["improvements_v2"]) == 1
+    v2 = result["improvements_v2"][0]
+    assert v2["deduction"].startswith("在第 2 题")
+    assert v2["cohort_anchor"].startswith("头部公募")
+    assert v2["rewrite_demo"].startswith("可以改成")
+    assert v2["next_step"].startswith("找 1 只")
+    # 同时 backward-compat string 也填齐
+    assert len(result["improvements"]) == 1
+    assert all(m in result["improvements"][0] for m in ('[扣分点]', '[行业坐标]', '[改写示范]', '[下一步]'))
+
+
+def test_parse_report_json_v2_drops_incomplete_dict():
+    """4 字段任一缺 / 空 → 该条 drop, 不再 patch 残缺字段进去。"""
+    raw = json.dumps({
+        "overall_score": 60,
+        "dimensions": [],
+        "highlights": [],
+        "improvements": [
+            {"deduction": "好", "cohort_anchor": "中", "rewrite_demo": "差", "next_step": "练"},  # 全字段, 合规
+            {"deduction": "缺其它 3 字段"},  # 缺 3 → drop
+            {"deduction": "全空 cohort", "cohort_anchor": "", "rewrite_demo": "x", "next_step": "y"},  # 空 → drop
+        ],
+        "overall_comment": "",
+    })
+    result = parse_report_json(raw)
+    assert len(result["improvements_v2"]) == 1   # 只第 1 条合规
+    assert result["improvements_v2"][0]["deduction"] == "好"
+
+
+def test_parse_report_json_v2_accepts_chinese_keys():
+    """老 LLM 出中文 key (扣分点 / 行业坐标 / 改写示范 / 下一步动作) → 也 normalize 成 4 字段 dict。"""
+    raw = json.dumps({
+        "overall_score": 70,
+        "dimensions": [],
+        "highlights": [],
+        "improvements": [{
+            "扣分点": "A",
+            "行业坐标": "B",
+            "改写示范": "C",
+            "下一步动作": "D",
+        }],
+        "overall_comment": "",
+    })
+    result = parse_report_json(raw)
+    assert len(result["improvements_v2"]) == 1
+    v2 = result["improvements_v2"][0]
+    assert v2["deduction"] == "A" and v2["cohort_anchor"] == "B"
+    assert v2["rewrite_demo"] == "C" and v2["next_step"] == "D"
+
+
+def test_parse_report_json_v2_parses_inline_string_back_to_dict():
+    """LLM 出老 inline 4-段 string → 也 reverse-parse 成 4 字段 dict (向后兼容 v3 baseline)。"""
+    raw = json.dumps({
+        "overall_score": 65,
+        "dimensions": [],
+        "highlights": [],
+        "improvements": [
+            "[扣分点] 你说 X · [行业坐标] 同期会提 Y · [改写示范] 可以改成「Z」 · [下一步] 练 3 次",
+            "[扣分点] 仅 1 段, 缺其它",  # 缺 → drop
+            "完全散文, 无 marker",  # 缺 → drop
+        ],
+        "overall_comment": "",
+    })
+    result = parse_report_json(raw)
+    assert len(result["improvements_v2"]) == 1
+    assert result["improvements_v2"][0]["deduction"].startswith("你说 X")
+    assert result["improvements_v2"][0]["next_step"].startswith("练 3 次")
+
+
 from unittest.mock import patch
 from app.services.interview.nowcoder.intel_provider import IntelView
 
