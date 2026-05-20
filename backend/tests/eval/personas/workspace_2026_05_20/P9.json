@@ -1,0 +1,173 @@
+{
+  "scenario_id": "workspace_P9_2026_05_21",
+  "scenario_config": {
+    "target_track": "顶级公募 / 卖方研究 (大消费 + TMT), 战略咨询背景转金融",
+    "target_jd_ref": "jds_real/23_fullgoal_research_analyst",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "北大光华本管理 + SAIF MF-General, 头部 3 段 (麦肯锡战略组金融服务 + 美团战略 + 君联资本 PE Analyst). 战略咨询训练 + PE due diligence + ML 业务理解三层叠加, 想从行业战略视角做投研. SAIF top tier 战略咨询转金融经典路径, 跟 P1 (清华 + 公募行研) / P5 (北大 + IBD) 区分."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "邱泽川",
+      "headline": "北大光华本 + SAIF MF / 麦肯锡战略组 + 美团战略 + 君联 PE / 想用行业战略视角做买方研究",
+      "email": "qiu.zechuan@saif.sjtu.edu.cn",
+      "location": "上海 / 北京"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.79/4.0, 高级公司金融 A+ / 投资学 A / 行业研究方法 A+",
+          "SAIF Consulting & Investment Club 副会长, 主持 5 场咨询/PE/buy-side 嘉宾 panel",
+          "导师方向: 战略咨询方法论 (单店模型 / 5C / customer lifetime value) 在公募基本面研究中的应用"
+        ]
+      },
+      {
+        "school": "北京大学光华管理学院",
+        "degree": "本科",
+        "major": "工商管理 (战略管理方向)",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.86/4.0, 专业排名 6/132, 保送 SAIF",
+          "光华管理学院战略学社副社长",
+          "毕业论文《新茶饮赛道 customer lifetime value 重构对头部品牌长期估值锚的影响》获院级优秀"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "麦肯锡 (McKinsey & Company) · 大中华区战略组 · 金融服务业务",
+        "role": "Associate Intern (Strategy)",
+        "start_date": "2024-09",
+        "end_date": "2025-03",
+        "bullets": [
+          "主力参与 2 个金融服务客户战略项目 (1 个股份制银行零售转型 + 1 个外资寿险 GA 渠道重构), 担任 single owner 完成核心 workstream 各 1 个",
+          "在股份制银行项目里搭建 customer lifetime value (CLV) 模型 (覆盖 280 万客户 4 年交易数据 + 13 个行为特征), 业务方采纳了 3 个核心 metric 进入零售客群分层运营 KPI",
+          "用 LightGBM 重塑业务流程: 把客户经理流失预警模型从规则版迭代到 ML 版, AUC 从 0.62 提到 0.81, 上线给 4 家分行做 pilot",
+          "汇报 Partner + 客户 EVP / 银行业务总裁各 3 次, 项目最终 deliverables 进入客户 2026 战略落地计划",
+          "准备客户 deck 周更新, 累计输出 PPT 240+ 页"
+        ]
+      },
+      {
+        "company": "美团 · 战略与投资部 (战略组)",
+        "role": "战略实习生",
+        "start_date": "2024-04",
+        "end_date": "2024-08",
+        "bullets": [
+          "参与即时零售 vs 传统电商 2026-2028 三年战略推演, 完成 6 个一二线城市 + 8 个品类的市占率拆解 + 履约成本敏感性分析",
+          "搭建美团闪购单仓 unit economics 模型 (含订单密度 / 履约半径 / 拣货成本 / 客单价四象限), 模型被战略负责人在月度战略会上引用",
+          "数据驱动决策: 用 SQL + Python 跑通 2300 万条订单数据, 提出'低线城市闪购应优先做生鲜密度'的 contrarian view, 战略组采纳进 Q4 资源分配",
+          "出席每周战略组例会 (共 18 次) + 月度业务复盘 (共 4 次)"
+        ]
+      },
+      {
+        "company": "君联资本 (Legend Capital) · 消费 + 医疗成长期组",
+        "role": "PE Analyst Intern",
+        "start_date": "2024-01",
+        "end_date": "2024-04",
+        "bullets": [
+          "参与 2 个 deal 的 due diligence (1 个新茶饮 B+ 轮 + 1 个国产医美 A 轮), 主导其中 1 个的产业访谈 + 单店模型 + 可比估值表",
+          "在新茶饮 deal 里独立提出'拒绝投资'反对意见 (基于单店日均杯量下行 + 二线城市加盟商回收期拉长到 24 个月), PM 接受意见, 该 deal 最终 pass",
+          "完成 18 家可比公司估值表 (A 股 + 港股 + 美股) + 4 篇产业访谈纪要 (覆盖品牌方 / 加盟商 / 上游原料)",
+          "参与 1 次 IC 会 + 协助合伙人准备 LPAC 季度更新材料"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "新茶饮 CLV 重构 → 头部品牌长期估值锚研究",
+        "duration": "2024-11 至 2025-04",
+        "description": "本科毕业论文延续 + 麦肯锡 CLV 方法论迁移项目, 把咨询里建客户终身价值的方法搬到二级新茶饮股票分析, 给头部品牌算可重复消费驱动的长期估值锚",
+        "bullets": [
+          "数据集覆盖 3 个头部品牌 (蜜雪 / 古茗 / 茶百道) 的门店扩张 + 单店日均杯量 + 加盟商回收期 + 复购率 4 维数据 (2020-2024 月度)",
+          "用 CLV × 单店密度 × 城市分层三维框架算出 implied 长期 P/S, 跟当前市场 P/S 对比给出 buy / hold / underweight 排序",
+          "结论: 头部 P/S 在 1.8-2.2x 区间应该 hold, 跌到 1.5x 以下才是 buy, 这跟卖方主流'看 PE'的范式完全错开",
+          "在 SAIF Consulting & Investment Club 做了 1 次内部分享, 被一位富国基金大消费组 PM 校友 mentor 推荐进 mentor 项目"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "咨询方法论 (MECE / 假设驱动 / 单店模型 / 5C / 7S) — 麦肯锡 6 个月实战",
+        "Customer Lifetime Value (CLV) 建模 — 银行 + 消费两个行业实战",
+        "Python (pandas / numpy / scikit-learn / lightgbm), 3 年实战",
+        "LightGBM / XGBoost 业务模型实战 (银行客户流失预警 AUC 0.81)",
+        "SQL (PostgreSQL + Hive, 跑过 2300 万行订单数据)",
+        "DCF / SOTP / 单店 EBITDA / P/S × CLV 估值框架",
+        "PowerPoint (麦肯锡 deck 风格, 高级)"
+      ],
+      "tools": [
+        "Excel + Think-Cell + 麦肯锡内部 toolkit",
+        "Wind 资讯 + Choice + Capital IQ",
+        "QuestMobile + 极海 + 高德开放平台 (消费品行业数据)",
+        "Bloomberg Terminal",
+        "Tableau / Power BI / Looker"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 113, GMAT 760, 流畅 partner-level 英文汇报 + 英文 IC 演讲)"
+      ]
+    },
+    "awards": [
+      "北京大学光华管理学院优秀毕业生 (2025)",
+      "SAIF Consulting & Investment Club 副会长 (2025-2026)",
+      "CFA Level II 通过 (2025)",
+      "麦肯锡 2024-2025 大中华区实习生 quarterly 'top contributor' (2 个项目均评)",
+      "Kaiser Permanente Case 大赛全国冠军 (2024, 队长)"
+    ],
+    "candidate_summary": "北大光华本 + SAIF MF, 3 段 strong 实习 (麦肯锡战略组金融服务 + 美团战略部 + 君联资本 PE Analyst). 战略咨询训练 + PE due diligence + ML 业务理解三层叠加, 已经能把咨询方法论 (单店模型 / CLV / MECE / 5C) 迁移到二级消费股估值范式. 核心差异化在 (1) 麦肯锡银行项目 CLV 模型业务方真采纳了 3 个 metric, (2) 君联新茶饮 deal 独立提出'拒绝投资'被 PM 接受, (3) 自己的论文用 CLV × 城市分层算出跟卖方主流不同的 P/S 估值锚. 希望加入头部公募大消费组 / 头部公募 TMT 组 (富国 / 易方达 / 中欧) 或顶级卖方研究 (中信 / 中金), 中期目标做基金经理.",
+    "inferred_roles": ["消费行业研究员", "TMT 行业研究员", "战略分析师", "买方研究员"],
+    "inferred_tracks": ["头部公募大消费组", "头部公募 TMT 组", "顶级卖方研究消费组", "战略咨询转金融"]
+  },
+  "persona_voice": {
+    "communication_style": "咨询人风格 strong 版 — 先框架再下结论, 喜欢 '三个角度看 / 第一第二第三' 结构化, 数字精准, 偶尔过度结构化 '为结构化而结构化'",
+    "verbal_tics": [
+      "'三个角度看这个问题 ...'",
+      "'第一 ... 第二 ... 第三 ...'",
+      "'本质上是一个 ... 的问题'",
+      "'我们项目当时的 takeaway 是 ...'",
+      "'用 MECE 拆一下 ...'"
+    ],
+    "typical_message_length": "中等偏长 (80-130 字), 强迫症式分点",
+    "under_pressure": "被追问'你这套方法在二级股票上真的 work 吗'会承认'我没在真实买方实习过, 但我的 CLV / 单店模型 / unit economics 这套框架跟买方看消费股的范式是同源的'"
+  },
+  "flow_padding_internship": {
+    "company": "麦肯锡 (McKinsey & Company) · 大中华区战略组 · 金融服务业务",
+    "bullet_index": 4,
+    "original_text": "准备客户 deck 周更新, 累计输出 PPT 240+ 页"
+  },
+  "target_jd_anchors": [
+    "单店模型 / unit economics",
+    "Customer Lifetime Value (CLV)",
+    "估值范式切换 (PE → P/S × CLV)",
+    "竞争格局拆解",
+    "MECE / 假设驱动",
+    "ML 业务理解",
+    "产业访谈深度",
+    "可证伪反方证据"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[1]",
+      "hidden_fact": "麦肯锡银行 CLV 模型业务方采纳 3 个 metric 进入零售客群分层 KPI — 是 senior 决策层级真采纳的产出, 在咨询实习生里是 top tier 信号"
+    },
+    {
+      "where": "internships[2].bullets[1]",
+      "hidden_fact": "君联新茶饮 deal 独立提出'拒绝投资'反对意见 PM 接受 — 在 PE 实习生里能反向影响 deal 决策极稀缺, 体现独立判断 + buy-side 思维 alignment"
+    },
+    {
+      "where": "projects[0].bullets[2]",
+      "hidden_fact": "用 CLV × 单店密度算出'看 P/S 不看 PE' 跟卖方主流范式错开 — 正是头部公募消费组看新经济消费股的核心范式切换, 体现'咨询 → 股票'桥梁能力"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "怕被认为'咨询人转金融只是为了 comp, 其实不爱投研' — 也怕被认为'从没真碰过股票/财报, 都是 PPT 工'",
+    "wants_to_emphasize": "单店模型 + CLV + ML 业务理解 + PE deal DD 全都跟买方研究的范式高度同源 — 想塑造'从产业战略 inside-out 看股票'的差异化定位, 区别于纯卖方训练出来的同学"
+  }
+}

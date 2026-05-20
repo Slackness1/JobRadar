@@ -1,16 +1,16 @@
 {
-  "scenario_id": "mock_interview_M11_2026_05_20",
+  "scenario_id": "mock_interview_M11_2026_05_21",
   "scenario_config": {
-    "target_track": "二级买方·基本面 (公募行研, 大消费/医药方向)",
-    "target_jd_ref": "jds_real/21_yifangda_consumer_research_v2",
+    "target_track": "实业 corp dev / M&A (含 corporate finance) — 化工跨专业目标",
+    "target_jd_ref": "jds_real/21_xxx_corp_dev",
     "student_tier": "extreme",
     "is_cross_major": true,
-    "generation_notes": "极端档 - 跑题: 上交化工本 + SAIF MF-G. target_track 写 '公募行研 / 大消费方向', 但 resume 实习经历全部是化工工艺/催化剂/中试放大/产线效率, **零金融经历, 零产业链转译**, 没有任何向消费/医药/金融搭桥的痕迹. 用来验赛道匹配度扣分 — AI 必须识别 '简历能力栈 vs 目标赛道完全 mismatch', 不应该硬夸 '化工背景对医药/消费有独特视角' (因为简历本身没做任何转译, 这种夸是 AI 在帮忙圆场)."
+    "generation_notes": "极端档 - 跑题 (改造版, 更真实 SAIF 场景): 上交化工本 + SAIF MF-G. target_track 改为 '实业上市公司战略投资部 / corp dev / M&A' — 与化工产业链至少相关 (现实里化工背景跨专业转金融的学生更可能瞄准这类岗位而非公募大消费). 但 resume 8 段 bullet 仍然 0 转译: 全部纯化工工程语言 (Ni 基催化剂 / CO2 甲烷化 / MDI 装置 / DCS 历史数据 / TPR 谱图 / 中试放大), **没有任何向金融 / 估值 / 并购 / DCF / 投资逻辑的搭桥**. 用来验赛道匹配度扣分 — AI 必须识别 '简历能力栈 vs target_track (实业 corp dev) 仍然完全 mismatch', 不应该硬夸 '化工背景做化工 M&A 有独特视角' (因为简历 0 段做了任何转译: 没有 '我用 DCF 估了某化工资产 / 我对标某并购案做了 synergy 测算 / 我研究过某 IPO 的化工业务'). 这种圆场是 AI 在帮学生编造 narrative."
   },
   "resume": {
     "basic_info": {
       "name": "桑泽川",
-      "headline": "上交化工本 + SAIF MF / 化工工艺背景 / 想转金融",
+      "headline": "上交化工本 + SAIF MF / 化工工艺背景 / 想转实业 corp dev / M&A",
       "email": "sang.zechuan@saif.sjtu.edu.cn",
       "location": "上海"
     },
@@ -113,7 +113,7 @@
       "全国大学生化工设计竞赛全国二等奖 (2023, 队员)",
       "上海交通大学优秀学生 (2023, 2024)"
     ],
-    "candidate_summary": "上交化工本 + SAIF MF (跨专业). 2 段化工实习 (中石化催化剂 + 万华聚氨酯工艺), 1 段本科毕设 (Ni 基催化剂), 1 段中试放大项目. 优势是化工工程功底扎实, 实验 + 工艺 + 中试全栈; 劣势是零金融经验, 不会 Wind / 不会三表 / 不会估值. 希望加入头部公募大消费组做行研.",
+    "candidate_summary": "上交化工本 + SAIF MF (跨专业). 2 段化工实习 (中石化催化剂 + 万华聚氨酯工艺), 1 段本科毕设 (Ni 基催化剂), 1 段中试放大项目. 优势是化工工程功底扎实, 实验 + 工艺 + 中试全栈; 劣势是零金融经验, 不会三表 / 不会 DCF / 不会做 M&A synergy 测算 / 不会 Wind. 希望加入化工 / 新材料行业上市公司战略投资部或精品并购顾问, 利用化工产业理解做 corp dev / M&A.",
     "inferred_roles": [
       "化工工艺工程师",
       "催化剂研究员"
@@ -125,34 +125,36 @@
     ]
   },
   "persona_voice": {
-    "communication_style": "工科严谨型, 喜欢讲反应机理 / 表征数据 / 工艺参数; 谈到金融问题会卡顿, 倾向把话题拉回 '我们这个反应' '我们那个工艺'",
+    "communication_style": "工科严谨型, 喜欢讲反应机理 / 表征数据 / 工艺参数; 谈到金融 / 估值 / 并购问题会卡顿, 倾向把话题拉回 '我们这个反应' '我们那个工艺' '我们催化剂的活性'",
     "verbal_tics": [
       "'我们的反应路径是'",
       "'TPD 谱图显示'",
       "'中试放大的时候'",
       "'选择性是 ... %'",
-      "'我对金融了解不深, 但 ...'"
+      "'我对金融了解不深, 但 ...'",
+      "'我觉得化工背景应该能 ...'"
     ],
-    "typical_message_length": "讲化工时长 (100-180 字, 工艺细节滔滔不绝), 讲金融时短 (10-30 字, 卡顿)",
-    "under_pressure": "被问 '你为什么觉得能做大消费行研' 时, 会承认 '我现在确实没看过消费股, 但我学过化学所以应该能懂医药 / 我能学'"
+    "typical_message_length": "讲化工时长 (100-180 字, 工艺细节滔滔不绝), 讲金融 / 估值 / 并购时短 (10-30 字, 卡顿)",
+    "under_pressure": "被问 '你为什么觉得能做 corp dev / M&A' 时, 会承认 '我现在确实没做过估值, 但我熟悉化工产业链, 应该能帮上忙 / 我能学'; 被问 'DCF 怎么做 / synergy 怎么测算 / 一个化工并购 case 怎么看' 时几乎完全答不出"
   },
   "target_jd_anchors": [
-    "大消费 / 食品饮料 / 医药基本面",
-    "公募研究方法论",
-    "财务三表 + 估值",
-    "Wind 数据使用",
-    "渠道调研",
-    "行业景气度判断"
+    "化工 / 新材料产业链理解",
+    "M&A / synergy 测算",
+    "DCF / 估值建模",
+    "财务三表",
+    "并购 case 复盘",
+    "尽调 (商业 + 财务)",
+    "Wind / 资本市场数据"
   ],
   "hidden_highlights": [],
   "red_line_bullets": {
     "track_mismatch": {
-      "internships[0].bullets": "全部 4 条都是 '催化剂载体改性 / BET / XRD / TPR / 焙烧 / 中试车间', 与 target_track '大消费行研' 0 重合",
-      "internships[1].bullets": "全部 3 条都是 'MDI 装置 / DCS 历史数据 / SIS 安全联锁', 与 target_track 0 重合",
-      "projects[0].bullets": "本科毕设 4 条都是 'CO2 甲烷化 / Ni/Al2O3-La / CH4 选择性', 与 target_track 0 重合",
+      "internships[0].bullets": "全部 4 条都是 '催化剂载体改性 / BET / XRD / TPR / 焙烧 / 中试车间', 与 target_track '实业 corp dev / M&A' 0 重合 — 既没有产业链上下游分析, 也没有任何资本市场视角",
+      "internships[1].bullets": "全部 3 条都是 'MDI 装置 / DCS 历史数据 / SIS 安全联锁', 0 任何向 M&A / 估值 / 投资 / 战略的转译",
+      "projects[0].bullets": "本科毕设 4 条都是 'CO2 甲烷化 / Ni/Al2O3-La / CH4 选择性', 纯学术工程内容, 与 target_track 0 重合",
       "projects[1].bullets": "中试放大 3 条都是 '浸渍液温度 / 焙烧升温速率 / 还原气氛', 与 target_track 0 重合",
       "expected_warning": true,
-      "warning_notes": "AI 必须识别 'resume 全部能力栈 vs target_track 完全 mismatch', 触发赛道匹配度低分 (≤2/5). 不应该硬圆 '化工背景对医药/消费有独特视角' — 因为学生简历里 0 段做了任何转译 (没有医药催化剂分析 / 没有消费品成本结构拆解 / 没有 ESG 路径), 这种圆场是 AI 在帮学生编造 narrative. 反馈应直接点出 '简历呈现的能力栈与 target_track 几乎完全 mismatch, 需要要么换 target_track (转入化工/新材料行研), 要么先补 1-2 段消费/医药相关实习 + 自学财务三表与 Wind, 才能投这条 track'."
+      "warning_notes": "AI 必须识别 '候选人 8 段 bullet 0 转译到金融 / 估值 / 投资视角, 全部纯化工工程语言'. target 虽然从公募大消费降到了 '实业 corp dev / M&A' (跟化工产业相关, 现实里更可能出现), 但简历能力栈与 target_track 仍然完全不对口. 不应该硬圆 '化工背景做化工 M&A 有独特视角' — 因为学生简历里 0 段做了任何转译: 没有 '我对标某化工并购案做了 synergy 测算 / 我用 DCF 估了某化工资产 / 我研究过某化工 IPO 的业务结构 / 我分析了某新材料公司的产业链位置'. 反馈应直接点出: (1) target_track 需要的能力 (DCF / synergy / 三表 / 尽调 / 资本市场 case) 在简历里完全没有体现; (2) 化工产业理解是潜在优势但**没被转译成金融语言**, 等于没有; (3) 行动项: 要么补 1-2 段 '化工产业研究 / 实业战投助理 / 精品并购暑期' 实习 + 自学 DCF + 看 3 个化工并购 case, 要么放弃这条 track. 触发 job_fit 维度强制 cap ≤ 3."
     }
   }
 }

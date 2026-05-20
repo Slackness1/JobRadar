@@ -1,16 +1,16 @@
 {
-  "scenario_id": "mock_interview_M12_2026_05_20",
+  "scenario_id": "mock_interview_M12_2026_05_21",
   "scenario_config": {
-    "target_track": "二级买方 / 卖方研究 (公募行研 / 卖方助理, TMT 方向)",
-    "target_jd_ref": "jds_real/22_generic_research_assistant_tmt",
+    "target_track": "S&T 销售交易 / 卖方衍生品 (MF-FinTech 量化背景)",
+    "target_jd_ref": "jds_real/22_generic_st_derivatives_mf_ft",
     "student_tier": "extreme",
     "is_cross_major": false,
-    "generation_notes": "极端档 - 表达极弱 / 翻译腔: 曼大本会计金融 (海外 9% 段) + SAIF MF-G. bullets 大量 'leveraged synergies to drive value / spearheaded cross-functional initiatives / optimized stakeholder alignment' 这种翻译腔中文 ('通过协同杠杆驱动价值 / 牵头跨部门倡议 / 优化利益相关方对齐'), 句子主语缺失、动宾搭配生硬、因果倒置、逻辑断裂. 用来验逻辑性 + 表达扣分."
+    "generation_notes": "极端档 - 表达极弱 / 翻译腔 (改造版, 更真实 SAIF 场景): SAIF MF-FinTech 海归 (曼大本计算机科学) + 真实可信的海外头部实习 (JPM 香港 S&T 暑期 + 麦肯锡 香港数字咨询). **简历内容 OK 且体面**, 数字 / 项目 / 公司都真实, 不是空泛 buzzword 堆砌. **极端弱点全部转到 persona_voice.under_pressure / verbal_tics**: 学生普通话流利但话术 100% 翻译腔, 中英夹杂严重 — 每句至少 2 个英文短语 OR 1 个直译金融黑话, 被追问 '说人话' 时仍然继续翻译腔, 甚至更密集. 用来验 LLM 的 '简历看着好不等于回答得好' — logic / industry_sense 维度必须基于**口头回答**(transcript) 而不是简历; 当 transcript 充斥 'leveraged synergies / spearheaded / value-driven / stakeholder alignment / 端到端价值闭环 / 颠覆性洞察' 时, 这两个维度强制 cap ≤ 3."
   },
   "resume": {
     "basic_info": {
       "name": "Vincent Yu (虞文耀)",
-      "headline": "Manchester 会计金融本 + SAIF MF / 跨界协同价值驱动 / 目标 TMT 行研",
+      "headline": "Manchester CS 本 + SAIF MF-FinTech / 量化 + 衍生品方向 / JPM HK S&T + 麦肯锡 HK",
       "email": "yu.wenyao@saif.sjtu.edu.cn",
       "location": "上海"
     },
@@ -18,139 +18,150 @@
       {
         "school": "上海交通大学上海高级金融学院 (SAIF)",
         "degree": "硕士",
-        "major": "金融学 (MF, General)",
+        "major": "金融学 (MF-FinTech)",
         "start_date": "2025-09",
         "end_date": "2027-06",
         "highlights": [
-          "GPA 3.50/4.0, 在战略性课程中通过结构化思维赋能价值闭环",
-          "选修《行业研究方法》, 完成对 TMT 赛道的颠覆性洞察输出"
+          "GPA 3.62/4.0",
+          "选修《衍生品定价》《随机过程》《算法交易》《市场微观结构》",
+          "FinTech track 必修: Python for Finance / 机器学习在量化中的应用"
         ]
       },
       {
-        "school": "The University of Manchester · Alliance Manchester Business School",
+        "school": "The University of Manchester · Department of Computer Science",
         "degree": "BSc (Hons)",
-        "major": "Accounting and Finance",
+        "major": "Computer Science",
         "start_date": "2021-09",
         "end_date": "2024-06",
         "highlights": [
-          "First Class Honours (2:1 in 1st year, 1st in years 2-3)",
-          "Dean's List 2 次入选, 通过跨学科协同实现学术绩效跃升",
-          "毕业论文方向: 关于 ESG 因子如何赋能英国上市公司估值范式的颠覆性重塑"
+          "First Class Honours (Final Year 78%, top 8%)",
+          "Dean's List 2 次入选 (2022, 2023)",
+          "毕业论文: 基于 LSTM + Attention 的高频订单簿短期价差预测 (评分 82)"
         ]
       }
     ],
     "internships": [
       {
-        "company": "某英国精品投行 (伦敦) · TMT 业务线",
-        "role": "Summer Analyst Intern",
-        "start_date": "2023-06",
-        "end_date": "2023-09",
+        "company": "JPMorgan Hong Kong · Markets (Equity Derivatives Sales & Structuring)",
+        "role": "Summer Analyst (S&T Summer Program)",
+        "start_date": "2024-06",
+        "end_date": "2024-08",
         "bullets": [
-          "通过协同杠杆赋能 TMT 赛道关键交易, 形成跨利益相关方的价值对齐闭环",
-          "对多个潜在标的进行了价值驱动维度的颠覆性洞察输出, 牵头跨职能小组的关键里程碑交付",
-          "在前台与后台之间打通了关键链路, 推动了交易执行效率的端到端跃升",
-          "通过结构化思维框架, 在不确定性环境中沉淀了可复用的项目交付心智"
+          "在亚太股票衍生品销售台 rotate 10 周, 覆盖 autocallable / accumulator / vanilla option 三类产品, shadow 3 位 senior MD 与 12 家亚太机构客户 (含 2 家国内头部公募与 1 家家族办公室) 共 28 次电话 / 会议",
+          "独立完成 1 单 KOSPI200 autocallable 结构的客户 pitch book (含 historical backtest 2019-2024 + breakeven 分析 + scenario PnL), 最终下单名义本金 ~USD 12M, 被 desk head 在 weekly review 点名表扬",
+          "用 Python + Bloomberg BQuant 搭建小型 vol surface 监控脚本, 每日 8:30 自动抓 30 个亚太核心标的 ATM/OTM IV 并 flag 异常波动 (z-score > 2), desk 4 位 trader / sales 上线使用至今",
+          "完成 summer project: 用 1 年历史 tick 数据复现 dispersion trade 在 HSI 与 HSCEI 上的 PnL, 结论是 2023H2 后 alpha 显著衰减 (Sharpe 从 1.4 → 0.6), 在 200+ 人 summer class 中 final present 排前 10%"
         ]
       },
       {
-        "company": "某国内中型券商 · 投资银行部 (寒假实习)",
-        "role": "投行业务实习生",
-        "start_date": "2024-12",
-        "end_date": "2025-02",
+        "company": "McKinsey & Company Hong Kong · Digital Practice (Financial Services)",
+        "role": "Summer Business Analyst Intern (Pre-MBA)",
+        "start_date": "2025-01",
+        "end_date": "2025-03",
         "bullets": [
-          "通过对客户痛点的颠覆性洞察, 赋能项目组在关键时刻完成价值交付",
-          "深度参与了跨部门协同的关键链路构建, 推动了交易闭环的端到端打通",
-          "在结构性挑战面前, 通过敏捷迭代实现了项目里程碑的高质量收口"
+          "服务东南亚某 top-3 商业银行的 retail digital transformation case, 在 6 人 team 里负责 mobile banking 用户流失模型, 用 XGBoost 在 80 万用户 / 26 个月历史数据上跑出 AUC 0.81, 较客户原有 logistic 模型 +0.14",
+          "独立 own '高价值客户挽留经济测算' 模块: 测算 top 10% AUM 客户挽留 1pp 对客户终身价值的影响 ~USD 47M / 年, 进入最终交付 deck 给客户 CFO",
+          "参与 client workshop 4 次, 其中 2 次代项目经理上台讲 model interpretation 部分 (SHAP 解释), 客户 Head of Digital 在结束 review 中给出 'exceeded expectations' 评价",
+          "在 case 收尾阶段 own 与客户 IT 团队的 model handover, 输出技术对接文档 1 份 + 部署 checklist 23 项"
         ]
       },
       {
-        "company": "某互联网公司 · 战略投资部",
-        "role": "战投实习生",
-        "start_date": "2024-07",
-        "end_date": "2024-10",
+        "company": "国泰君安证券 · 金融工程部 (寒假远程实习)",
+        "role": "量化研究实习生",
+        "start_date": "2023-12",
+        "end_date": "2024-02",
         "bullets": [
-          "对 TMT 赛道的多个潜在标的, 通过价值驱动型分析框架, 形成投资逻辑的颠覆性重塑",
-          "牵头跨职能小组, 通过协同杠杆推动了关键交易的里程碑达成",
-          "在多变环境中, 通过结构化思维赋能业务侧实现了价值闭环"
+          "复现 1 篇 SSRN 因子论文 (基于隐含波动率偏度的截面因子), 在 A 股 2018-2023 数据上跑出 IC 0.045 / ICIR 1.2, 与论文报告区间 (IC 0.04-0.06) 一致",
+          "搭建因子回测的轻量 framework (vectorized pandas + numba 加速), 单因子 5 年回测耗时从 ~8min 降至 ~40s, 后被组里 3 位实习生复用"
         ]
       }
     ],
     "projects": [
       {
-        "name": "ESG 因子对英国上市公司估值赋能的颠覆性研究 (本科毕设)",
-        "duration": "2023-09 至 2024-06",
-        "description": "本科毕业论文, 探索 ESG 因子如何通过价值驱动维度重塑英国上市公司估值范式",
+        "name": "高频订单簿短期价差预测 (毕业论文)",
+        "duration": "2023-10 至 2024-06",
+        "description": "Manchester CS 毕业论文, 用 LSTM + Attention 在 LOBSTER 数据集 (NASDAQ AAPL / MSFT / GOOG 一年 tick + LOB 数据) 上做 100ms 前瞻的 mid-price 方向预测",
         "bullets": [
-          "通过对多个英国上市公司的颠覆性洞察, 输出 ESG 因子与估值的协同关系",
-          "形成了一套可复用的 ESG 赋能估值的方法论框架",
-          "毕业论文获评 First Class, 体现了跨学科协同的颠覆性能力"
+          "数据量 ~3.2TB, 用 PyTorch + 单卡 A100 训练, 5-class 方向分类 macro-F1 0.58 (baseline logistic 0.41)",
+          "做了完整的 walk-forward 评估 (rolling 1 month train / 1 week test, 共 48 折), 排除 lookahead bias",
+          "论文成绩 82 (First Class), 推荐参加学院年度 dissertation showcase"
         ]
       }
     ],
     "skills": {
       "technical": [
-        "Excel + 财务三表 (通过结构化思维实现颠覆性建模)",
-        "Bloomberg Terminal (在伦敦实习期间高强度使用)",
-        "PowerPoint (用于价值驱动型的 stakeholder 对齐)",
-        "Python 基础"
+        "Python (pandas / numpy / pytorch / xgboost / scikit-learn, 5 年实战)",
+        "C++ 基础 (本科 HFT 选修课写过简单 order matching engine)",
+        "SQL / kdb+ 基础",
+        "Bloomberg Terminal + BQuant (JPM HK 实习 10 周高强度使用)",
+        "衍生品基础 (Black-Scholes / Greeks / vol surface / autocallable 结构)",
+        "机器学习 (XGBoost / LSTM / Attention, 实战)"
       ],
       "tools": [
-        "Bloomberg Terminal",
-        "Wind",
-        "Excel / PPT (英文 deck 经验)"
+        "Bloomberg Terminal / BQuant",
+        "Wind / Choice",
+        "PyTorch / PyCharm / Jupyter",
+        "Git / Docker 基础"
       ],
       "languages": [
-        "中文 (母语)",
-        "英文 (雅思 7.5, 在伦敦/曼彻斯特工作和学习经验)"
+        "中文 (母语, 普通话流利)",
+        "英文 (雅思 7.5, 在伦敦/曼彻斯特/香港工作和学习经验)",
+        "粤语 (基础, 港岛 3 个月生活能力)"
       ]
     },
     "awards": [
       "Manchester Dean's List (2022, 2023)",
-      "First Class Honours (BSc, 2024)"
+      "First Class Honours (BSc CS, 2024)",
+      "JPM HK S&T Summer Program — Final Project Top 10% (200+ 人)",
+      "CFA Level I 通过 (2025)"
     ],
-    "candidate_summary": "Manchester 本会计金融 + SAIF MF, 通过跨地域 + 跨学科的协同杠杆, 实现了在 TMT 赛道的价值驱动型沉淀. 优势是国际化视野 + 颠覆性洞察能力; 希望在头部公募 / 卖方 TMT 组中, 通过结构化思维赋能赛道研究的价值闭环.",
+    "candidate_summary": "Manchester CS 本 + SAIF MF-FinTech. 3 段头部实习: JPM HK 股票衍生品 S&T summer (USD 12M autocallable pitch + vol surface 工具 desk 在用) + 麦肯锡 HK 数字咨询 (东南亚商行 churn model AUC 0.81) + 国君金工远程量化 (复现隐含波动率偏度因子 IC 0.045). 目标头部外资行 / 国内头部券商 S&T 销售交易 / 衍生品方向. 优势: CS 工程底子 + 海外 + 真实 desk 经验; 待补: 长 short rates 与 FX desk 经验.",
     "inferred_roles": [
-      "TMT 研究方向",
-      "投资银行方向",
-      "战略投资方向"
+      "S&T 销售交易 (衍生品方向)",
+      "卖方量化策略",
+      "Pricing / Structuring Analyst"
     ],
     "inferred_tracks": [
-      "头部公募 TMT 组",
-      "券商研究所 TMT 组",
-      "战投/PE"
+      "外资行 S&T",
+      "中资头部券商 FICC / 权益衍生品",
+      "卖方金工"
     ]
   },
   "persona_voice": {
-    "communication_style": "中英夹杂 + 翻译腔严重, 中文句子主语缺失 / 动宾搭配生硬 / 因果倒置. 喜欢用 '颠覆性 / 赋能 / 协同杠杆 / 价值驱动 / 闭环 / 端到端' 等 buzzword, 但讲不出具体一件事情的来龙去脉",
+    "communication_style": "海归 + 顶级实习的 SAIF FT 学生, 普通话流利但话术 100% 翻译腔, 中英夹杂严重 (每句至少 2 个英文短语 OR 1 个直译金融黑话). 简历内容真实有数字, 但开口表达把所有内容毁掉 — 听完不知道他到底做了什么, 因为每个具体动作都被 'leveraged / synergy / end-to-end / value-driven' 这一层壳裹住",
     "verbal_tics": [
-      "'通过协同杠杆 ...'",
-      "'我们 leveraged 了 ...'",
-      "'从 stakeholder alignment 的角度'",
+      "'leveraged'",
+      "'synergy'",
+      "'end-to-end value chain'",
+      "'spearheaded'",
+      "'value-driven'",
+      "'stakeholder alignment'",
+      "'通过协同杠杆赋能 X'",
+      "'颠覆性洞察输出 Y'",
+      "'端到端价值闭环 Z'",
       "'本质上 it's about driving value'",
-      "'颠覆性洞察 ...'",
-      "'端到端的闭环'"
+      "'从 a holistic perspective'",
+      "'我们 align 了一下 expectations'"
     ],
-    "typical_message_length": "长 (100-150 字), 但每句话内部逻辑断裂, 听完不知道讲了什么具体事",
-    "under_pressure": "被追问 '你具体做了一件什么事 / 这家公司叫什么名字 / 你的结论是什么' 时, 会换用更多 buzzword 盖过去, 中英夹杂更严重, 或者绕回 '本质上 it's about ...' 这类 meta 句式"
+    "typical_message_length": "中长 (100-180 字), 信息量稀薄但 buzzword 密度极高 — 一段话出现 4-6 个英文短语 + 2-3 个直译金融黑话是常态",
+    "under_pressure": "被追问 '说人话 / 你具体做了一件什么事 / 这家客户是谁 / 你的结论是什么' 时仍然继续翻译腔, 甚至更密集 (e.g. '我 leverage 了 my synergy capabilities to drive 一个 value-driven outcome, 本质上 it's about end-to-end alignment with stakeholders / 我觉得这个 case 的 essence 是要 spearhead 一个 cross-functional 的 holistic approach'); 极少落到具体公司名 / 数字 / 时间点 / 一句中文行研人能听懂的因果链"
   },
   "target_jd_anchors": [
+    "S&T 销售交易理解",
+    "衍生品产品 (autocallable / vanilla option / structured note)",
+    "vol surface / Greeks",
+    "客户沟通能力",
     "中文表达清晰度",
-    "句子主谓宾完整",
-    "因果链条逻辑性",
-    "具体公司 / 数字 / 事件",
     "翻译腔识别",
-    "可被复述的故事"
+    "可被复述的具体案例 (公司 / 数字 / 时间)"
   ],
   "hidden_highlights": [],
   "red_line_bullets": {
     "translation_artifact": {
-      "internships[0].bullets[0]": "'通过协同杠杆赋能 TMT 赛道关键交易, 形成跨利益相关方的价值对齐闭环' — 主语缺失 (谁在赋能?), 动宾搭配生硬, 无具体交易 / 标的 / 客户 / 结果",
-      "internships[0].bullets[1]": "'颠覆性洞察输出' '牵头跨职能小组的关键里程碑交付' — 翻译腔 (leveraged synergies / spearheaded cross-functional initiatives / delivered key milestones 直译), 无具体内容",
-      "internships[1].bullets": "全部 3 条都是同样的 buzzword 堆砌, 主语缺失 + 因果倒置, 看不出实际做了什么",
-      "internships[2].bullets": "同上, 战投实习也是 'value-driven / synergy / stakeholder alignment' 直译, 无具体标的 / 投资逻辑 / 决策",
-      "projects[0].bullets": "本科毕设 ESG 研究也是空泛 buzzword, 没有具体公司 / 因子构造 / 回归结果",
+      "where": "persona_voice (under_pressure / verbal_tics) — 不在 resume bullets",
+      "note": "改造后简历内容 OK 且真实 (JPM HK + 麦肯锡 HK + 国君金工, 数字 / 公司 / 项目都可信). 红线**不在简历**, 而在**口头回答风格**: persona 在 transcript 里会大量使用翻译腔 + 中英夹杂 + 金融黑话直译, 把任何具体动作 / 数字 / 客户名都裹在一层 'leveraged synergies / spearheaded / value-driven / stakeholder alignment / 端到端价值闭环 / 颠覆性洞察' 壳里",
       "expected_warning": true,
-      "warning_notes": "AI 必须识别这是 '翻译腔 + buzzword 堆砌' 模式, 触发逻辑性 + 表达力低分. 反馈应: (1) 直接点出 3-5 个最严重的翻译腔短语 + 给出对应的英文原型 (leveraged synergies / spearheaded / value-driven / stakeholder alignment) 让学生意识到自己在直译; (2) 给出 '什么是中文行研人语言' 的范例对照 ('A 公司 2024 Q2 收入 +35% 主要来自 X 产品在 Y 渠道铺货' 这种主谓宾齐全 + 具体数据 + 因果清晰的句式); (3) 指出 buzzword (颠覆性/赋能/协同杠杆/闭环) 在中文金融语境里是反向信号 — 用得越多, 越显得没具体内容."
+      "warning_notes": "AI 必须识别候选人**不在简历内容差**, 而是**说话风格用翻译腔黑话掩盖具体动作 / 数字 / 业务洞察**. 反馈应: (1) 直接点出 transcript 里 5-8 个最严重的翻译腔短语 + 给出对应的英文原型 (leveraged synergies / spearheaded / value-driven / stakeholder alignment / end-to-end / synergy / holistic approach), 让候选人意识到自己在中英直译; (2) 给出 '什么是中文 S&T / 衍生品人语言' 的范例对照 (e.g. '上周帮某家公募 pitch 了一笔 KOSPI200 autocallable, 名义 1200 万美元, 我做的 backtest 显示 2023H2 后 dispersion 的 Sharpe 从 1.4 掉到 0.6, 客户最后下单' — 这种主谓宾齐全 + 具体数字 + 因果清晰的句式); (3) 指出 buzzword (颠覆性 / 赋能 / 协同杠杆 / 闭环 / leveraged / spearheaded) 在中文金融语境里是反向信号 — 用得越多, 越显得没具体内容; (4) **关键**: 不能因为简历好看就给 logic / industry_sense 高分 — 这两个维度必须基于**口头回答**评判. 当回答里 80%+ 是 buzzword 而非具体公司 / 数字 / 因果链时, logic 与 industry_sense 强制 cap ≤ 3."
     }
   }
 }

@@ -1,0 +1,182 @@
+{
+  "scenario_id": "mock_interview_M15_2026_05_21",
+  "scenario_config": {
+    "target_track": "顶级券商 FICC 销售交易 / 卖方衍生品做市 / 海外做市商 (Citadel/Jane Street 中国)",
+    "target_jd_ref": "jds_real/26_citic_ficc_sales_trading",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "上交大数学 + CS 双本 + SAIF MF-FT, 3 段 S&T 相关实习 (中信 FICC 衍生品销售交易 + 黑翼量化策略落地 + 汇丰香港 Equity Derivatives 暑期). FT MF S&T 主流画像 — 数学+CS 底子扎实, 既懂定价又懂客户视角, 跟 P6 alpha 因子方向区分."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "程奕辰",
+      "headline": "上交数学+CS 本 + SAIF MF-FT / 衍生品销售交易方向 / 目标顶级券商 FICC + 海外做市商",
+      "email": "cheng.yichen@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 - FinTech 方向 (MF-FT)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.74/4.0, 衍生品定价 A+ / 随机过程与金融工程 A / 固定收益 A-",
+          "SAIF FICC 兴趣小组发起人, 主持组内 vol surface / curve 构造系列分享 6 次",
+          "在读 CFA Level II, FRM Part I 通过"
+        ]
+      },
+      {
+        "school": "上海交通大学 致远学院",
+        "degree": "本科",
+        "major": "数学与应用数学 + 计算机科学 (双学位)",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.84/4.0, 致远荣誉学位",
+          "全国大学生数学建模竞赛全国一等奖 (2023, 队长)",
+          "本科毕业论文方向: SABR 模型在国债期货期权 vol skew 拟合中的应用"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中信证券 · FICC · 利率与跨境衍生品销售交易部",
+        "role": "FICC 销售交易实习生",
+        "start_date": "2024-08",
+        "end_date": "2025-01",
+        "bullets": [
+          "覆盖 6 家股份行金融市场部客户的利率互换 (IRS) + 国债期货策略询价, 协助 sales 完成日常报价 200+ 笔, 跟单成交 35 笔",
+          "支持 1 单跨境结构性产品 (挂钩美元利率 + 人民币汇率) 的定价与对冲方案设计, 在 director 指导下用蒙特卡洛搭建 pricer 原型",
+          "为某城商行客户搭建利率债组合久期对冲方案 (PV01 中性 + 凸性微调), 方案被 sales 用作客户晨会路演材料",
+          "参与每日盘前 vol / 收益率曲线复盘会 80+ 次, 协助维护组内 Greeks / curve 监控表",
+          "做了一些部门的报表整理和资料归档"
+        ]
+      },
+      {
+        "company": "黑翼资产 · 量化策略落地组 (Execution Desk)",
+        "role": "策略落地实习生 (寒假项目)",
+        "start_date": "2025-02",
+        "end_date": "2025-05",
+        "bullets": [
+          "在 trader 指导下分析公司中频 alpha 信号在 A 股流动性分层下的执行成本, 输出 1 份组内 TCA (Transaction Cost Analysis) 报告",
+          "提出'分钟级 VWAP 切片改用 POV 自适应'执行优化建议, 在 5 个组合上 paper trading 测算节省 1.8 bps / 1.2 bps / 2.4 bps / 0.6 bps / 1.5 bps",
+          "维护组内执行监控 dashboard, 跟踪日内滑点 + impact cost + 撤单率指标"
+        ]
+      },
+      {
+        "company": "汇丰银行香港 · Global Markets · Equity Derivatives (暑期实习)",
+        "role": "Summer Analyst",
+        "start_date": "2024-06",
+        "end_date": "2024-08",
+        "bullets": [
+          "rotation 4 周 Equity Derivatives Structuring + 4 周 Index Vol Trading, 协助 structurer 完成 3 单 KI/KO 自动赎回结构定价复核",
+          "搭建一份 HSCEI 指数 listed option vol surface 监控表, 跟踪每日 ATM vol / skew / term structure 变化",
+          "在 trading desk 旁完成 4 周 shadow trading, 整理 1 份'港股波动率市场结构与境内的差异'对比 memo (3000 字)"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "SABR 模型在国债期货期权 vol skew 拟合中的应用 (本科毕设)",
+        "duration": "2024-09 至 2025-05",
+        "description": "本科毕业论文, 使用 SABR 模型对 T 主力合约期权 vol skew 做参数拟合, 对比 SVI / Heston 的拟合误差与稳定性",
+        "bullets": [
+          "数据: T 主力合约 2022-2024 每日期权链, 共约 80 万条 quote",
+          "结论: SABR 在 ATM ± 200bp 范围内 RMSE 比 SVI 低约 12%, 但在深虚值翼部稳定性差",
+          "论文在 SAIF FICC 沙龙做 1 次分享, 被 2 位卖方衍生品 trader 主动约谈"
+        ]
+      },
+      {
+        "name": "全国大学生数学建模竞赛全国一等奖",
+        "duration": "2023",
+        "description": "队长身份带 3 人团队完成竞赛题, 方向为多周期投资组合优化",
+        "bullets": [
+          "全国一等奖 (前 1%), 队长身份负责模型设计 + 论文写作"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / scipy / quantlib), 5 年实战",
+        "C++ (本科 ACM 训练, 熟练 STL + 模板)",
+        "随机微积分 + 衍生品定价 (BSM / SABR / Heston / Local Vol 基础)",
+        "蒙特卡洛 + 有限差分 PDE solver (实战搭过)",
+        "Greeks / vol surface / curve 构造 (实战)",
+        "TCA + 执行算法 (VWAP / POV / IS, 基础)"
+      ],
+      "tools": [
+        "Bloomberg Terminal (熟练, FICC + OPT)",
+        "Wind / 同花顺",
+        "QuantLib / RiskMetrics",
+        "Linux + Git + Docker 熟练"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 108, 香港 desk 全英文工作环境)"
+      ]
+    },
+    "awards": [
+      "全国大学生数学建模竞赛全国一等奖 (2023, 队长)",
+      "美国大学生数学建模竞赛 M 奖 (2024)",
+      "中信证券 FICC 2024 实习 Top 5 (12 人组)",
+      "FRM Part I 通过 (2024)"
+    ],
+    "candidate_summary": "上交数学 + CS 双本 + SAIF MF-FT, 3 段 S&T 相关实习 (中信 FICC 利率与跨境衍生品销售交易 + 黑翼量化策略落地 + 汇丰香港 Equity Derivatives 暑期). 优势是数学定价底子 + 客户视角同时具备 (既能搭 pricer 又能 sell 给机构客户), 海外 desk 经历加分; 劣势是境内 FICC 客户仍集中在银行体系, 公募/保险客户覆盖少. 希望加入顶级券商 FICC (中信/中金 FICC) 做销售交易或加入海外做市商 (Citadel Securities / Jane Street / 大摩 EQD) 做衍生品做市, 长期目标 PM 或 desk head.",
+    "inferred_roles": [
+      "FICC 销售交易",
+      "衍生品做市 trader",
+      "衍生品 structurer"
+    ],
+    "inferred_tracks": [
+      "顶级券商 FICC 销售交易",
+      "海外做市商衍生品做市",
+      "外资行 Global Markets"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "思维快、数字敏感, 喜欢谈 Greeks / vol / curve / 流动性, 客户视角强, 不会陷入纯研究 mindset",
+    "verbal_tics": [
+      "'这个 trade 的 Greeks 是'",
+      "'从客户对冲诉求出发'",
+      "'流动性这块'",
+      "'本质上 sell 的是 vol'"
+    ],
+    "typical_message_length": "短-中等 (40-70 字), 倾向先给数字/方向再展开",
+    "under_pressure": "被追问'你这套对冲方案在尾部行情下还成立吗'会停一下, 然后承认'压力测试我当时跑的 scenario 有限', 转回给一个保守版本"
+  },
+  "flow_padding_internship": {
+    "company": "中信证券 · FICC · 利率与跨境衍生品销售交易部",
+    "bullet_index": 4,
+    "original_text": "做了一些部门的报表整理和资料归档"
+  },
+  "target_jd_anchors": [
+    "FICC 销售交易",
+    "衍生品做市",
+    "vol / Greeks / curve",
+    "客户对冲方案",
+    "流动性管理",
+    "execution 优化 / TCA",
+    "跨境结构性产品",
+    "vol surface 构造"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[2]",
+      "hidden_fact": "为城商行客户搭建的久期对冲方案 (PV01 中性 + 凸性微调) 被 sales 直接用作客户晨会路演材料 — 实习生方案被 sales 直接拿去面对客户, 是 client-facing 能力的硬证据"
+    },
+    {
+      "where": "internships[1].bullets[1]",
+      "hidden_fact": "在黑翼提出 POV 自适应替代 VWAP 切片建议, 5 个组合 paper trading 节省 0.6-2.4 bps — 量级真实 (个位数 bps 是 execution 优化合理区间), 体现既懂模型又能落地"
+    },
+    {
+      "where": "internships[2].bullets[2]",
+      "hidden_fact": "在汇丰香港 EQD desk 完成的'港股 vs 境内波动率市场结构差异'对比 memo — 跨市场视角对海外做市商 (Citadel / 大摩) 招人很关键, 是 SAIF 学生少有的资产"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "境内 FICC 客户覆盖偏银行体系, 公募 / 保险客户接触少 — 怕被认为'客户矩阵不全'",
+    "wants_to_emphasize": "数学定价 + 客户视角双轨能力 + 跨市场 (境内/境外) 衍生品产品理解 — 想突出'既能搭 pricer 又能 sell 给机构客户'的 dealer 潜质"
+  }
+}
