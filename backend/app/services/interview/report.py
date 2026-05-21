@@ -23,9 +23,6 @@ _REPORT_DIMENSIONS = [
     ('表达深度', 'expression_depth'),
 ]
 
-_FALLBACK_DIMENSIONS = _REPORT_DIMENSIONS   # alias for fallback path
-
-
 def _build_report_system_prompt(track: str | None = None) -> str:
     dim_json_template = ',\n    '.join(
         f'{{"name": "{name}", "id": "{dim_id}", "score": <0-100>, '
@@ -345,6 +342,14 @@ def generate_interview_report(
     )
     _apply_report_pattern_caps(report, transcript_for_caps, target_job)
 
+    # ── Guard 4: mentor / PM ownership-deferral (Day 11 B3 — P-fake-S1 红线) ──
+    # 设计退回 mentor 框架的 persona 在 v6 被抬到 78-82, 完全绕过 SAIF 核心承诺.
+    # ≥3 次 "我们PM觉得 / mentor 让我 / 组里讨论决定 / PM 的 thesis" 类外部化判断
+    # → 强制 cap overall ≤65 / 可信度 ≤50 + 抑制 内驱力 strong trait.
+    mentor_count = _detect_mentor_fallback(transcript_for_caps)
+    if mentor_count >= 3:
+        _cap_for_mentor_fallback(report, mentor_count)
+
     # ── Day 9 PR-3: aggregate trait_signals + transferability_signal ──
     # 从 turn_score_jsons (eval runner 路径) 或 InterviewTurn.score_json (生产路径)
     # 聚 trait_signals (strong only) → report.traits narrative; transferability 投票 → _meta.
@@ -433,9 +438,26 @@ def _aggregate_traits_and_transferability(
     return traits, transferability
 
 
+_REPORT_CAP_WHITELIST = {
+    # 正常 banking / consulting 术语 — pre-emptive 白名单 (Day 11 B2).
+    # 当前 _TEMPLATE_WORDS / _TRANSLATION_PHRASES / _ENG_TERMS 都不含这些 token,
+    # 所以白名单当下不减分。**保留这个 set 是 future-proof + 显式声明意图** —
+    # 若未来扩展 trigger 词表加进这些 acronym, 必须先从白名单移除。
+    'task force', 'rfm', 'bcg', 'crm', 'id mapping',
+    'kpi', 'okr', 'bd', 'pm', 'gmv', 'dau', 'mau',
+    'ddm', 'wacc', 'ev/ebitda', 'pe', 'pb', 'roe', 'roic',
+}
+
+
 def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -> None:
     """对 report 的 dimensions 应用 pattern cap (复用 scoring._apply_pattern_caps 的规则,
     分制换算 0-10 → 0-100)。命中 → cap 该 dim 到 30, 重算 overall = mean(dim)。
+
+    2026-05-22 Day 11 B2 修法: 翻译腔触发阈值 ≥1 → ≥2。
+    Why: M13 (强档银行 MT) 真实 transcript 含 "协同杠杆" 一次, 这是中文银行业
+    标准术语 (不是翻译腔), 之前 ≥1 命中就把 logic/industry_sense 强制 cap 到 30,
+    导致 baseline 58 / rerun 88 跨 run 33 分漂移。提到 ≥2 之后, 单 Chinese 金融术语
+    不再触发, 但堆叠 buzzword (leveraged + synergies + 端到端价值闭环 ≥2) 仍 cap.
     """
     from app.services.interview.scoring import (
         _ENG_TERMS,
@@ -447,9 +469,18 @@ def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -
     if not transcript:
         return
 
-    template_hits = sum(1 for w in _TEMPLATE_WORDS if w in transcript)
-    translation_hits = sum(1 for p in _TRANSLATION_PHRASES if p.lower() in transcript.lower())
-    eng_hits = sum(1 for t in _ENG_TERMS if t in transcript)
+    template_hits = sum(
+        1 for w in _TEMPLATE_WORDS
+        if w in transcript and w.lower() not in _REPORT_CAP_WHITELIST
+    )
+    translation_hits = sum(
+        1 for p in _TRANSLATION_PHRASES
+        if p.lower() in transcript.lower() and p.lower() not in _REPORT_CAP_WHITELIST
+    )
+    eng_hits = sum(
+        1 for t in _ENG_TERMS
+        if t in transcript and t.lower() not in _REPORT_CAP_WHITELIST
+    )
     target_is_finance = any(t in (target_job or '') for t in _FINANCE_TARGETS)
 
     caps: dict[str, int] = {}
@@ -462,7 +493,8 @@ def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -
         caps['logic'] = 30
         caps['expression_depth'] = 30
         cap_reasons.append(f'套模板词 ×{template_hits}')
-    if translation_hits >= 1:
+    # 2026-05-22 Day 11 B2: 阈值 ≥1 → ≥2 (单 "协同杠杆" 中文金融术语不再误 cap M13)
+    if translation_hits >= 2:
         caps['logic'] = min(caps.get('logic', 100), 30)
         caps['industry_sense'] = 30
         caps['expression_depth'] = min(caps.get('expression_depth', 100), 40)
@@ -588,6 +620,82 @@ def _cap_credibility(report: dict, *, cap: int) -> None:
                 d['score'] = cap
 
 
+# Day 11 B3: ownership-deferral 守卫 — 红线 persona P-fake-S1 被 v6 抬到 78-82.
+# 设计期待 50-65 (持续退回 mentor / PM 框架, 缺自主独立思考). 这里检测候选人答里
+# "把**判断的来源** attribute 到 mentor / PM / 组里" 的强语言模式, ≥3 次 → 强制 cap.
+#
+# 必须只检测"判断的来源是外部" 不要把"执行方向是 mentor 给的"(正常实习)
+# 或"PM 引用我的工作"(强档候选人)当成 deferral. 反例 (不该触发):
+#   ✗ "PM 让我搭模型" — 执行方向, 不是判断来源
+#   ✗ "PM 说"用起来比之前顺"" — 上级评价 (强档候选人被表扬)
+#   ✗ "不是 mentor 让我做的" — 显式否定 deferral
+#   ✗ "我们组内的讨论是 X, 但我判断 Y" — 框架引用 + 独立判断
+# ✓ 触发:
+#   ✓ "我们 PM 觉得..." / "我们 PM 是这么看的" / "PM 的 thesis 是"
+#   ✓ "PM 倾向于把 X 作为先行指标" / "PM forward 的标的"
+#   ✓ "mentor 给的基础模型 / 框架 / 思路 / view"
+#   ✓ "组里讨论形成共识" / "组里讨论得出结论"
+#   ✓ "是 mentor 给的 / 让的 / 说的 / 教的 / 定的"
+_MENTOR_FALLBACK_RE = re.compile(
+    # P1: 我们PM/mentor/senior/老师 + 判断动词/名词性短语
+    r'我们\s*(?:PM|mentor|senior|老师)\s*(?:觉得|是这么看|倾向于|forward|定的|教的|的(?:thesis|判断|看法|框架|观点|思路))'
+    # P2: 独立 PM/mentor/senior + 觉得/是这么看/倾向于/forward/thesis
+    r'|(?<![A-Za-z])(?:PM|mentor|senior)\s*(?:觉得|是这么看|倾向于|forward|的\s*thesis)'
+    # P3: mentor / PM / 老师 + 给的 + 框架|基础|思路|模型|判断|结论|view  (执行模型来自上级)
+    r'|(?:mentor|PM|老师)\s*给(?:的|了我)\s*(?:框架|基础|思路|模型|判断|结论|view)'
+    # P4: 是 + mentor/PM/我们PM/组里/老师 + 给的|让的|说的|教的|定的
+    r'|是\s*(?:mentor|PM|我们PM|我们mentor|组里|老师)\s*(?:给的|让的|说的|教的|定的)'
+    # P5: 组里/组内 + 讨论 + 形成共识|得出结论|定的|决定的 (强 collective judgment)
+    r'|组(?:里|内)\s*讨论\s*(?:形成共识|得出结论|定的|决定的)',
+    re.IGNORECASE,
+)
+
+
+def _detect_mentor_fallback(transcript: str) -> int:
+    """Count ownership-deferral phrases in candidate transcript.
+
+    Empty transcript → 0. Returns raw match count (no dedupe by pattern bucket).
+    """
+    if not transcript:
+        return 0
+    return len(_MENTOR_FALLBACK_RE.findall(transcript))
+
+
+def _cap_for_mentor_fallback(report: dict, count: int) -> None:
+    """count ≥ 3 → cap overall ≤65, credibility ≤50, suppress 内驱力 strong trait,
+    append warning to overall_comment, record `_meta.mentor_fallback_count`.
+
+    No-op for count < 3 (call-site checks threshold).
+    """
+    # cap credibility ≤ 50 (比 fab-number 的 cap 30 宽 — fab 是编造, mentor-fallback 是
+    # 责任缺位, 可信度问题不同)
+    for d in report.get('dimensions') or []:
+        if not isinstance(d, dict):
+            continue
+        if d.get('id') == 'credibility' or d.get('name') == '可信度':
+            try:
+                d['score'] = min(int(d.get('score') or 50), 50)
+            except (TypeError, ValueError):
+                d['score'] = 50
+    # cap overall ≤ 65 (硬上限)
+    try:
+        cur_overall = int(report.get('overall_score') or 65)
+    except (TypeError, ValueError):
+        cur_overall = 65
+    report['overall_score'] = min(cur_overall, 65)
+    # 抑制 内驱力 strong trait — 改成 weak, narrative 不再当 strong 展示
+    for t in report.get('traits') or []:
+        if isinstance(t, dict) and t.get('trait') == '内驱力':
+            t['suppressed_by_mentor_fallback'] = True
+            t['strength'] = 'weak'   # 若 narrative 读 strength 字段
+    _append_overall_warning(
+        report,
+        f'⚠️ 检测到 {count} 次"mentor / PM / 组里"框架引用 (判断来源外部化), '
+        '已下调 overall ≤ 65、可信度 ≤ 50。建议补充"我自己怎么想的"独立思考证据。',
+    )
+    report.setdefault('_meta', {})['mentor_fallback_count'] = count
+
+
 def _call_report_llm(client, system_prompt: str, user_content: str, *, n_attempts: int) -> str:
     """Up to n_attempts HTTP calls. Returns content string ('' on all-failure)."""
     payload = {
@@ -703,81 +811,39 @@ def _build_fallback_report(
     db: Session | None,
     session_id: str | None,
 ) -> dict:
-    """LLM 沉默失败时的兜底报告。
+    """LLM 沉默失败时的"系统错误"显式兜底报告 (Day 11 B1 修法)。
 
-    优先从 InterviewTurn.score_json 聚合 dim_scores (5 维) + per-turn misses 当
-    improvements; 拿不到时退到 transcript-长度 heuristic (每段答 ≥ 150 字 → 该
-    turn '内容充足'), overall 限制在 50-70 之间避免给学生 0 分惊吓。
+    旧实现 (Day 3): 用 turn-rows 聚合或 transcript-长度 heuristic 输出 6 维全 50-70 的
+    "看似正常" 报告 — 学生 / SAIF 老师区分不出"系统坏了 60 分"vs"真的 60 分"。
+    Day 11 独立审查抓到 P8 (顶档买方) baseline=87 → rerun fallback=60, 看上去
+    像真退档. 不可接受.
 
-    标记 `_meta.fallback_reason = 'report_llm_silent'`, 前端可以 banner 提示
-    '反馈 LLM 暂时不可用, 已用近似分数兜底'。
+    新契约: **不再伪装**。
+    - overall_score = None
+    - dimensions = []  (前端必须 banner "反馈生成中断"而非渲染 6 维卡片)
+    - improvements 给一句"系统错误 + 请刷新重试"
+    - _meta.fallback_reason 保留供前端识别 + 监控告警
     """
-    dim_aggregate: dict[str, list[int]] = {dim_id: [] for _, dim_id in _FALLBACK_DIMENSIONS}
-    per_turn_misses: list[str] = []
-    used_turn_rows = False
-
+    db_session_hint = ''
+    # 不再读 turn rows / 不再 heuristic — 整个兜底输出是"系统错误占位", 不是评分
     if db is not None and session_id:
-        try:
-            from app.models import InterviewTurn
-            rows = (
-                db.query(InterviewTurn)
-                .filter(InterviewTurn.session_id == session_id)
-                .order_by(InterviewTurn.turn_index)
-                .all()
-            )
-            for r in rows:
-                if not r.score_json:
-                    continue
-                try:
-                    sj = json.loads(r.score_json)
-                except (json.JSONDecodeError, TypeError):
-                    continue
-                used_turn_rows = True
-                for d in sj.get('dim_scores') or []:
-                    if isinstance(d, dict) and d.get('id') in dim_aggregate:
-                        s = d.get('score')
-                        if isinstance(s, int):
-                            dim_aggregate[d['id']].append(s)
-                for m in (sj.get('misses') or [])[:2]:
-                    if isinstance(m, str) and m.strip():
-                        per_turn_misses.append(m.strip())
-        except Exception as exc:
-            logger.warning('fallback report db read failed: %s', exc)
-
-    # transcript-length 兜底: 当 turn rows 不可用时 (e.g. eval runner, demo, db=None)
-    if not used_turn_rows:
-        cand_msgs = [m for m in messages if m.get('role') == 'user']
-        substantial = sum(1 for m in cand_msgs if len((m.get('content') or '').strip()) >= 150)
-        rough_score = max(50, min(70, 50 + substantial * 3))
-        for _name, dim_id in _FALLBACK_DIMENSIONS:
-            dim_aggregate[dim_id] = [rough_score // 10]   # 0-10 scale
-
-    dimensions = []
-    for name, dim_id in _FALLBACK_DIMENSIONS:
-        scores = dim_aggregate.get(dim_id) or []
-        avg = round(sum(scores) / len(scores)) if scores else 5
-        dimensions.append({
-            'name': name,
-            'score': max(0, min(100, avg * 10)),
-            'comment': '反馈 LLM 暂时不可用, 此分为单题 5 维评分聚合结果' if used_turn_rows
-                       else '反馈 LLM 暂时不可用, 此分为答题字数 heuristic 估算',
-        })
-    overall = round(sum(d['score'] for d in dimensions) / len(dimensions))
+        db_session_hint = f' (session {session_id})'
 
     return {
-        'overall_score': overall,
-        'dimensions': dimensions,
+        'overall_score': None,
+        'dimensions': [],
         'highlights': [],
-        'improvements': per_turn_misses[:5] if per_turn_misses else [
-            '本场反馈系统暂时不可用, 建议刷新页面再试; 如果反复出错可以联系运营。',
+        'improvements': [
+            '反馈生成时遇到系统错误, 我们已记录这次失败。请点刷新重新生成反馈; '
+            '如果反复失败请联系运营。',
         ],
         'overall_comment': (
-            f'本场目标岗位为「{target_job}」。反馈系统暂时不可用, 已根据单题分数聚合给出近似总分 {overall}。'
-            '建议你刷新重试以拿到完整 5 维反馈。'
+            f'⚠️ 本场目标岗位「{target_job}」的反馈生成 LLM 暂时不可用{db_session_hint}, '
+            '本次没有生成评分和 6 维反馈。请刷新页面再试一次, '
+            '我们已记录这次失败, 如反复失败请联系运营。'
         ),
         '_meta': {
             'fallback_reason': 'report_llm_silent',
-            'used_turn_rows': used_turn_rows,
         },
     }
 

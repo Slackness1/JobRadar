@@ -55,28 +55,34 @@ def test_parse_report_json_handles_missing_fields():
 # ── LLM silent failure fallback (2026-05-20, baseline 抓到 P1 5% 失败) ──────
 
 
-def test_fallback_report_db_none_uses_transcript_heuristic():
-    """db=None 路径 (eval runner / demo) — 用答题字数 heuristic 兜底, 6 维都非空。"""
+def test_fallback_report_does_not_fake_dimensions():
+    """Day 11 B1: fallback **不**输出 6 维全 60 的"伪装报告".
+
+    Why: 旧 Day 3 实现用 transcript 长度 heuristic 输出 dimensions, P8 顶档命中
+    fallback 后看上去像真的退档 60 分, SAIF 老师 / 学生区分不出"系统坏了"vs"真 60".
+    新契约: overall_score=None, dimensions=[], overall_comment 显式说"系统不可用".
+    """
     from app.services.interview.report import _build_fallback_report
 
     messages = [
         {"role": "assistant", "content": "请做个自我介绍"},
-        {"role": "user", "content": "我叫张三, 上交本科, " * 50},   # 长答
+        {"role": "user", "content": "我叫张三, 上交本科, " * 50},
         {"role": "assistant", "content": "讲一个项目"},
-        {"role": "user", "content": "我做过一个项目, " * 50},      # 长答
-        {"role": "assistant", "content": "为什么这家公司"},
-        {"role": "user", "content": "短答"},                       # 短答
+        {"role": "user", "content": "我做过一个项目, " * 50},
     ]
     rep = _build_fallback_report("公募行研", messages, db=None, session_id=None)
     assert rep["_meta"]["fallback_reason"] == "report_llm_silent"
-    assert rep["_meta"]["used_turn_rows"] is False
-    assert 50 <= rep["overall_score"] <= 70   # heuristic 限制范围
-    assert len(rep["dimensions"]) == 6
-    assert {d["name"] for d in rep["dimensions"]} == {
-        "岗位能力匹配度", "信息选取与侧重", "逻辑性", "行业感", "可信度", "表达深度",
-    }
-    assert rep["overall_comment"]   # 不再返空字符串
+    # 关键契约: 不输出 dimensions / overall_score (前端必须 banner 而不是渲染 6 维)
+    assert rep["overall_score"] is None
+    assert rep["dimensions"] == []
+    assert rep["highlights"] == []
+    # overall_comment 必须明确告诉学生这是系统错误, 不是评分结论
     assert "公募行研" in rep["overall_comment"]
+    assert "暂时不可用" in rep["overall_comment"] or "系统错误" in rep["overall_comment"]
+    assert "刷新" in rep["overall_comment"]
+    # improvements 给一个 actionable hint
+    assert len(rep["improvements"]) >= 1
+    assert "刷新" in rep["improvements"][0]
 
 
 # ── Fabricated-number guard (Day 4, 2026-05-20) ─────────────────────────────
@@ -240,8 +246,13 @@ def test_format_improvement_dict_handles_M9_style_dict():
     assert '可以改成「我独立判断 X」' in out
 
 
-def test_fallback_report_aggregates_5dim_from_turn_rows(tmp_path):
-    """db + session_id + turn rows 含 5 维 score_json → fallback 用聚合分而非 heuristic。"""
+def test_fallback_report_ignores_turn_rows_does_not_fake_score(tmp_path):
+    """Day 11 B1: 即使 db + session_id + turn rows 都有, fallback **也不**聚合分数.
+
+    Why: 旧实现从 InterviewTurn.score_json 聚合 5 维兜底, 输出仍是"看上去正常的报告".
+    Day 11 改成不论 db 有没有, fallback 都是显式的"系统错误占位", session_id
+    只用于 overall_comment 帮 ops 定位。
+    """
     from app.database import Base
     from app.models import InterviewTurn
     from app.services.interview.report import _build_fallback_report
@@ -253,33 +264,141 @@ def test_fallback_report_aggregates_5dim_from_turn_rows(tmp_path):
     Session = sessionmaker(bind=engine)
     db = Session()
     try:
-        for i, (job_fit, cred, miss) in enumerate([(8, 9, "缺量化「数据录入」"), (7, 8, "")]):
-            db.add(InterviewTurn(
-                session_id="sess_x", turn_index=i,
-                question="q", question_source="skeleton",
-                user_answer="a",
-                score_json=json.dumps({
-                    "overall": (job_fit + cred) * 5,
-                    "dim_scores": [
-                        {"id": "job_fit", "score": job_fit},
-                        {"id": "info_selection", "score": 6},
-                        {"id": "logic", "score": 7},
-                        {"id": "industry_sense", "score": 7},
-                        {"id": "credibility", "score": cred},
-                    ],
-                    "misses": [miss] if miss else [],
-                }, ensure_ascii=False),
-            ))
+        # 写 turn rows — 但 fallback 应该忽略
+        db.add(InterviewTurn(
+            session_id="sess_x", turn_index=0,
+            question="q", question_source="skeleton",
+            user_answer="a",
+            score_json=json.dumps({
+                "overall": 85,
+                "dim_scores": [{"id": "job_fit", "score": 9}],
+                "misses": ["缺量化"],
+            }, ensure_ascii=False),
+        ))
         db.commit()
 
         rep = _build_fallback_report("公募行研", [], db=db, session_id="sess_x")
-        assert rep["_meta"]["used_turn_rows"] is True
-        # job_fit mean = (8+7)/2 = 7.5 → round → 8 → 80
-        job_fit_dim = next(d for d in rep["dimensions"] if d["name"] == "岗位能力匹配度")
-        assert job_fit_dim["score"] == 80
-        assert "缺量化" in rep["improvements"][0]
+        # 同样契约: 不聚合, 不伪装
+        assert rep["overall_score"] is None
+        assert rep["dimensions"] == []
+        assert rep["_meta"]["fallback_reason"] == "report_llm_silent"
+        # session_id hint 出现在 overall_comment 帮 ops 排查
+        assert "sess_x" in rep["overall_comment"]
     finally:
         db.close()
+
+
+# ── Day 11 B2: pattern cap 翻译腔阈值 ≥1 → ≥2 (M13 真实修法) ────────────────
+
+
+def test_apply_report_pattern_caps_single_translation_phrase_does_not_cap():
+    """Day 11 B2: 单 "协同杠杆" 中文金融术语 (1 hit) → 不再 cap.
+
+    M13 真实 transcript 含 "综合金融的命题不是做加法, 是找出子公司的协同杠杆".
+    旧实现 (Day 9 阈值 ≥1) → logic/industry_sense 强制 cap 到 30, baseline=58 但 rerun=88.
+    新阈值 ≥2: 单个 hit 不动报告, 堆叠 ≥2 才 cap.
+    """
+    from app.services.interview.report import _apply_report_pattern_caps
+    original = {
+        'overall_score': 88,
+        'dimensions': [
+            {'id': 'logic', 'name': '逻辑性', 'score': 88, 'comment': '完整'},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 90, 'comment': '深'},
+            {'id': 'expression_depth', 'name': '表达深度', 'score': 85, 'comment': ''},
+        ],
+        'overall_comment': '总体不错',
+    }
+    import copy
+    report = copy.deepcopy(original)
+    # M13 transcript 含"协同杠杆"一次, 其他都是 banking 标准术语
+    transcript = "综合金融的命题不是做加法, 是找出子公司的协同杠杆 — RFM 分层 + 产品矩阵交叉分析"
+    _apply_report_pattern_caps(report, transcript, '银行管培生')
+    # 单 hit → 不动
+    assert report == original
+
+
+def test_apply_report_pattern_caps_two_translation_phrases_still_caps():
+    """对照: 2 个翻译腔短语 ≥ 阈值 → 仍 cap (不能放过 buzzword salad)."""
+    from app.services.interview.report import _apply_report_pattern_caps
+    report = {
+        'overall_score': 88,
+        'dimensions': [
+            {'id': 'logic', 'name': '逻辑性', 'score': 88, 'comment': ''},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 90, 'comment': ''},
+        ],
+        'overall_comment': '',
+    }
+    transcript = "我 leveraged synergies 跑通端到端价值闭环"   # 3 hits
+    _apply_report_pattern_caps(report, transcript, '公募行研')
+    by_id = {d['id']: d for d in report['dimensions']}
+    assert by_id['logic']['score'] == 30
+    assert by_id['industry_sense']['score'] == 30
+
+
+# ── Day 11 B3: mentor-fallback ownership 守卫 ─────────────────────────────────
+
+
+def test_detect_mentor_fallback_p_fake_s1_pattern_hits_threshold():
+    """P-fake-S1 真实 transcript 模式 — ≥3 次外部化判断 → 触发."""
+    from app.services.interview.report import _detect_mentor_fallback
+    transcript = (
+        "我们PM觉得动销跟踪是衡量渠道健康度的核心。"
+        "我们PM是这么看的——五粮液在千元价位带的品牌力是唯一可以对标茅台的。"
+        "组里讨论形成的共识是用 PE 而不是 DDM。"
+        "mentor 给的基础模型, 我主要做假设更新。"
+        "PM 的 thesis 是市场对某高端白酒批价压力的担忧过头了。"
+    )
+    assert _detect_mentor_fallback(transcript) >= 3
+
+
+def test_detect_mentor_fallback_strong_independent_does_not_trigger():
+    """对照: 强档候选人提及 mentor 但判断来自自己 → 不命中."""
+    from app.services.interview.report import _detect_mentor_fallback
+    transcript = (
+        "我跟 mentor 反馈了我的调研发现, 他同意了我的结论。"
+        "我自己跑了渠道调研, 走访了 8 家经销商。"
+        "我的非共识判断是市场过分担忧批价压力。"
+    )
+    assert _detect_mentor_fallback(transcript) == 0
+
+
+def test_cap_for_mentor_fallback_caps_overall_and_credibility():
+    """count ≥ 3 → overall ≤ 65, credibility ≤ 50, 标 _meta + warning."""
+    from app.services.interview.report import _cap_for_mentor_fallback
+    report = {
+        'overall_score': 82,
+        'dimensions': [
+            {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 85, 'comment': ''},
+            {'id': 'credibility', 'name': '可信度', 'score': 82, 'comment': ''},
+        ],
+        'overall_comment': '总体不错',
+        'traits': [{'trait': '内驱力', 'count': 2, 'hits': [], 'strength': 'strong'}],
+    }
+    _cap_for_mentor_fallback(report, count=5)
+    assert report['overall_score'] == 65
+    cred = next(d for d in report['dimensions'] if d['id'] == 'credibility')
+    assert cred['score'] == 50
+    assert report['_meta']['mentor_fallback_count'] == 5
+    # 内驱力 trait 被标 suppressed
+    assert report['traits'][0]['suppressed_by_mentor_fallback'] is True
+    assert report['traits'][0]['strength'] == 'weak'
+    # warning 进 overall_comment
+    assert 'mentor' in report['overall_comment'] or 'PM' in report['overall_comment']
+    assert '⚠️' in report['overall_comment']
+
+
+def test_cap_for_mentor_fallback_does_not_raise_score():
+    """若 overall 本来就 ≤ 65, cap 不应该把它抬上去."""
+    from app.services.interview.report import _cap_for_mentor_fallback
+    report = {
+        'overall_score': 45,
+        'dimensions': [{'id': 'credibility', 'name': '可信度', 'score': 30, 'comment': ''}],
+        'overall_comment': '',
+    }
+    _cap_for_mentor_fallback(report, count=4)
+    assert report['overall_score'] == 45   # 不动
+    cred = next(d for d in report['dimensions'] if d['id'] == 'credibility')
+    assert cred['score'] == 30   # 不动
 
 
 def test_apply_report_pattern_caps_translation_caps_logic_and_industry():
