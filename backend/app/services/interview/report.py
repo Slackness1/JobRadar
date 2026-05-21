@@ -13,12 +13,14 @@ logger = logging.getLogger(__name__)
 # 2026-05-20: 5-dim 与 scoring.DIM_ID_TO_NAME 对齐 (老师语言).
 # baseline 抓到旧 6-dim 在强弱档之间 spread=7 完全扁平 + 80% 编造引文,
 # 改造目标是 spread ≥ 30 + 0 编造。详见 docs/mock-interview-feedback-redesign-plan-2026-05-20.md §5
+# 2026-05-22 Day 9 PR-1: 加 expression_depth 第 6 维 (STAR-M), 与 scoring 对齐。
 _REPORT_DIMENSIONS = [
     ('岗位能力匹配度', 'job_fit'),
     ('信息选取与侧重', 'info_selection'),
     ('逻辑性', 'logic'),
     ('行业感', 'industry_sense'),
     ('可信度', 'credibility'),
+    ('表达深度', 'expression_depth'),
 ]
 
 _FALLBACK_DIMENSIONS = _REPORT_DIMENSIONS   # alias for fallback path
@@ -35,7 +37,7 @@ def _build_report_system_prompt(track: str | None = None) -> str:
 **简练、对结构 / 量化结果 / 行业 insider 颗粒敏感, 绝不被套模板词、英文管理黑话、编出的大数字唬住。**
 {track_hint}
 
-## 5 维评分 (与单题打分维度严格一致)
+## 6 维评分 (与单题打分维度严格一致)
 
 | id | 名称 | 看什么 |
 |---|---|---|
@@ -44,12 +46,39 @@ def _build_report_system_prompt(track: str | None = None) -> str:
 | `logic` | **逻辑性** | 痛点 → 目标 → 方法 → 取舍 → 结果 这条链有没有断 / 跳跃 / 颠倒因果 |
 | `industry_sense` | **行业感** | 用的是行业 insider 才会用的语言 / 数据 / 框架, 还是 common-sense / 媒体口径 |
 | `credibility` | **可信度** | 讲的数字 / 公司 / deal 在简历里能锚到吗? 量级 / 单位 / 时间 / 角色 站得住吗? |
+| `expression_depth` | **表达深度** | 候选人讲一段经历, 是流水账 (L1) / 有结论 (L2) / 还是有方法论推导 + 验证 (L3) — 用 **STAR-M 5 段** 衡量 |
+
+### `expression_depth` 表达深度 — STAR-M 5 档
+
+STAR-M = **S**ituation 情境 / **T**ask 任务 / **A**ction 行动 / **M** Method 方法论推导 / **R**esult 结果。
+
+| 分档 (0-100) | STAR-M 命中 | 候选人会说什么 |
+|---|---|---|
+| **85-100 (L3 方法论+验证)** | S T A M R 全, M 含数据/对照/反例 | "我跑了 4 个候选 driver, 用 10 年数据测 IC, 批价 IR=1.4 最高, 我加了库销比反向验证" |
+| **70-84 (L3 入门)** | S T A M(轻 1-2 句) R | "我选了批价做 driver, 因为它领先 PE 估值 2 个月, 我做了 5 年回测" |
+| **50-69 (L2 有结论, M 缺)** | S T A R, 缺 M | "我看研报 → 做 model → 写 memo → PM 看完说 OK" |
+| **30-49 (L2 弱)** | S T A 流水账 | "我去看研报, 因为要写报告" |
+| **0-29 (L1 纯动作 / 套模板)** | 只有 A 或 A 段全模板词 | "我主导了核心项目, 沉淀了一套方法论, 复盘了上下游, 形成闭环" |
+
+**expression_depth 硬规则**:
+- M 段必须有**具体验证** (回测 / 对照组 / 风险情境 / IC / mentor 挑战), 仅说"我觉得对" 不算 M
+- 套模板词 (主导/复盘/沉淀/赋能/闭环/抓手/心智) 替代具体动作 → expression_depth 至少 -20 分, 命中 ≥4 个 → 系统自动 cap ≤ 30
+- 看的是**实质**, 不看候选人是否用了 STAR 模板词
+
+## 打分原则 (硬约束)
+
+- **每个维度起评 50 分**, 候选人没明显证据 = **50 分**, 不是 60 也不是 70。
+- 加分 / 扣分**必须在 comment 里逐字引候选人原话** (4-15 字, 用 「」 包) 作为依据。
+  comment 里只说"答得不错" 而不给原话 = 视为无证据 = 必须改回 50 分。
+- **6 维必须有起伏**: ≥1 个最强 + ≥1 个最弱, 差距 ≥ 8 分。全部 60 / 全部 70 / 差距 ≤ 5 分 =
+  打分懒 = 学生看完不知道自己强在哪 → 反馈无效。
+- **弱档 / 跨专业 / 流水账** 候选人, 6 维出现 ≥1 个 ≤ 30 分是正常的, 全 60 分以上 = 漏判。
 
 ## 输出规范 (严格 JSON, 无前后散文, 无 markdown fence)
 
 ```json
 {{
-  "overall_score": <0-100 整数, = mean(5 个 dim score)>,
+  "overall_score": <0-100 整数, = mean(6 个 dim score)>,
   "dimensions": [
     {dim_json_template}
   ],
@@ -96,7 +125,9 @@ def _build_report_system_prompt(track: str | None = None) -> str:
 
 ## 严格约束 (一条都不能破)
 
-- 5 个 dimensions **必须全部出现**, name 和 id 必须和上方表完全一致。dim score **必须**和当题候选人表现匹配, **起评 5/10 (=50/100)**, 加分 / 扣分要有原话证据。**禁止鼓励式打分**。
+- 6 个 dimensions **必须全部出现**, name 和 id 必须和上方表完全一致 (`job_fit` / `info_selection` / `logic` / `industry_sense` / `credibility` / `expression_depth`)。dim score **必须**和当题候选人表现匹配, **起评 50/100**, 加分 / 扣分要有原话证据。**禁止鼓励式打分**。
+- **6 维必须有起伏**: 6 个 dim 必须**至少 1 个最强 + 1 个最弱, 最强 - 最弱 差距 ≥ 8 分**。
+  全部 60-65 / 全部 70-75 / 差距 ≤ 5 分 = 学生看完不知道自己强在哪, 整份报告被判无效。
 - **引用候选人原话的规则** (重要 — 上一版反馈系统大量编造原话被判无效):
   - 如果你能**逐字、完整**地从 transcript 里找到候选人说过的某个 4-15 字短语, 可以用 「」 包起来引用 (e.g. 「想了解一下团队氛围」)。
   - 如果你**不能 100% 确定**原话, 或者 transcript 里没有合适短语, **不要用 「」, 改用 paraphrase 描述** (e.g. "你在第 3 题谈到数据治理时", "你在反问环节问的是团队氛围方面的事")。
@@ -296,13 +327,16 @@ def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -
     cap_reasons: list[str] = []
     # 2026-05-21 Day 8 baseline v4 — 阈值 ≥4 (与 scoring.py 对齐, 防 P8 / P1 / P5 等
     # 正常金融研报答里 '主导/复盘/闭环/沉淀' = 3 触发被误 cap)
+    # 2026-05-22 Day 9 PR-1: 套模板 / 翻译腔 都 cap expression_depth (0-100 scale 是 30 / 40)
     if template_hits >= 4:
         caps['info_selection'] = 30
         caps['logic'] = 30
+        caps['expression_depth'] = 30
         cap_reasons.append(f'套模板词 ×{template_hits}')
     if translation_hits >= 1:
         caps['logic'] = min(caps.get('logic', 100), 30)
         caps['industry_sense'] = 30
+        caps['expression_depth'] = min(caps.get('expression_depth', 100), 40)
         cap_reasons.append(f'翻译腔 ×{translation_hits}')
     if eng_hits >= 5 and target_is_finance:
         caps['job_fit'] = 30
@@ -327,7 +361,11 @@ def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -
         if cur > cap:
             d['score'] = cap
             note = ''
-            if dim_id in ('info_selection', 'logic') and template_hits >= 3:
+            if dim_id == 'expression_depth' and template_hits >= 4:
+                note = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词, STAR-M 的 Action 段被模板词占满]'
+            elif dim_id == 'expression_depth' and translation_hits >= 1:
+                note = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔, 表达深度被英文管理黑话替代]'
+            elif dim_id in ('info_selection', 'logic') and template_hits >= 3:
                 note = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词]'
             elif dim_id in ('logic', 'industry_sense') and translation_hits >= 1:
                 note = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔/英文管理黑话 ×{translation_hits}]'

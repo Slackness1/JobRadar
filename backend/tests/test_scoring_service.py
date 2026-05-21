@@ -280,11 +280,11 @@ def test_pattern_cap_recomputes_overall():
 
 
 def test_score_answer_drops_unknown_dim_ids():
-    """LLM 编造 dim id 不在 5 维白名单 → 该项被丢弃, 其他保留。"""
+    """LLM 编造 dim id 不在 6 维白名单 → 该项被丢弃, 其他保留。"""
     stub = _StubLLM({
         "dim_scores": [
             {"id": "job_fit", "score": 8},
-            {"id": "communication", "score": 9},  # 不在 5 维 → 丢
+            {"id": "communication", "score": 9},  # 不在 6 维 → 丢
             {"id": "credibility", "score": 7},
         ],
         "overall": 80, "hits": [], "misses": [], "bonuses": [],
@@ -292,6 +292,102 @@ def test_score_answer_drops_unknown_dim_ids():
     out = score_answer("x", "q", "a", "summary", llm=stub)
     assert out.dim_scores is not None and len(out.dim_scores) == 2
     assert {d["id"] for d in out.dim_scores} == {"job_fit", "credibility"}
+
+
+# ── expression_depth 第 6 维 (Day 9 PR-1, STAR-M 范式) ─────────────────────
+
+
+def test_score_answer_parses_6_dim_with_expression_depth():
+    """LLM 返回 6 维 (含 expression_depth) 被全部解析 + DIM_ID_TO_NAME 含 expression_depth。"""
+    from app.services.interview.scoring import DIM_ID_TO_NAME
+
+    assert "expression_depth" in DIM_ID_TO_NAME
+    assert DIM_ID_TO_NAME["expression_depth"] == "表达深度"
+
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8, "evidence": ["「中欧白酒」"], "reason": "对口"},
+            {"id": "info_selection", "score": 7, "evidence": [], "reason": ""},
+            {"id": "logic", "score": 7, "evidence": [], "reason": ""},
+            {"id": "industry_sense", "score": 7, "evidence": [], "reason": ""},
+            {"id": "credibility", "score": 8, "evidence": [], "reason": ""},
+            {"id": "expression_depth", "score": 9,
+             "evidence": ["「跑了 4 个 driver, IC 回测」"],
+             "reason": "STAR-M 全, M 段含 10 年回测 + 库销比反向验证 (L3 方法论+验证)"},
+        ],
+        "overall": 77, "hits": [], "misses": [], "bonuses": [],
+    })
+    out = score_answer("公募行研", "讲一段研究项目", "我跑了 4 个 driver", "summary", llm=stub)
+    assert out.dim_scores is not None and len(out.dim_scores) == 6
+    expr = next(d for d in out.dim_scores if d["id"] == "expression_depth")
+    assert expr["score"] == 9
+    assert expr["name"] == "表达深度"
+
+
+def test_template_words_cap_expression_depth_to_3():
+    """套模板词 ≥4 → expression_depth 同时被 cap ≤ 3 (STAR-M 的 Action 段被模板词占满)。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "info_selection", "score": 8},   # cap → 3
+            {"id": "logic", "score": 8},            # cap → 3
+            {"id": "industry_sense", "score": 7},
+            {"id": "credibility", "score": 7},
+            {"id": "expression_depth", "score": 8},  # cap → 3 (新加)
+        ],
+        "overall": 77, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我主导了核心赛道的研究框架搭建, 复盘了上下游产业链, 沉淀了一套方法论, 赋能团队整体效率, 形成闭环"
+    out = score_answer("公募行研", "讲一个项目", answer, "summary", llm=stub)
+    expr = next(d for d in out.dim_scores if d["id"] == "expression_depth")
+    assert expr["score"] == 3
+    assert "套模板词" in expr["reason"]
+    assert "STAR-M" in expr["reason"]
+    # 其它本来就被 cap 的 dim 也保持 cap
+    info_sel = next(d for d in out.dim_scores if d["id"] == "info_selection")
+    assert info_sel["score"] == 3
+    # job_fit 不被 cap
+    job_fit = next(d for d in out.dim_scores if d["id"] == "job_fit")
+    assert job_fit["score"] == 8
+
+
+def test_translation_phrases_cap_expression_depth_to_4():
+    """翻译腔 ≥1 → expression_depth cap ≤ 4 (比模板词稍宽 — translation 不必然伴随流水账)。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 8},
+            {"id": "info_selection", "score": 7},
+            {"id": "logic", "score": 9},            # cap → 3
+            {"id": "industry_sense", "score": 9},   # cap → 3
+            {"id": "credibility", "score": 8},
+            {"id": "expression_depth", "score": 8},  # cap → 4 (新加)
+        ],
+        "overall": 82, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我 leveraged 了多方 synergies, 通过端到端价值闭环 drive 一个 value-driven outcome"
+    out = score_answer("S&T 销售交易", "讲一个项目", answer, "summary", llm=stub)
+    expr = next(d for d in out.dim_scores if d["id"] == "expression_depth")
+    assert expr["score"] == 4
+    assert "翻译腔" in expr["reason"]
+
+
+def test_pattern_cap_recomputes_overall_with_6_dims():
+    """6 维带 expression_depth, 套模板触发多 dim 被 cap, overall 按 6 dim 均值重算。"""
+    stub = _StubLLM({
+        "dim_scores": [
+            {"id": "job_fit", "score": 9},
+            {"id": "info_selection", "score": 9},   # cap → 3
+            {"id": "logic", "score": 9},            # cap → 3
+            {"id": "industry_sense", "score": 8},
+            {"id": "credibility", "score": 8},
+            {"id": "expression_depth", "score": 9},  # cap → 3 (新加)
+        ],
+        "overall": 87, "hits": [], "misses": [], "bonuses": [],
+    })
+    answer = "我主导赋能闭环了核心抓手, 沉淀打法, 复盘心智模型"
+    out = score_answer("公募行研", "q", answer, "summary", llm=stub)
+    # mean = (9+3+3+8+8+3)/6 = 5.667 → 57
+    assert out.overall == 57
 
 
 def test_score_answer_with_db_no_memory_skips_blocks_and_directive(tmp_path):

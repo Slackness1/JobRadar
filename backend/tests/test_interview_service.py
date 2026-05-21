@@ -56,7 +56,7 @@ def test_parse_report_json_handles_missing_fields():
 
 
 def test_fallback_report_db_none_uses_transcript_heuristic():
-    """db=None 路径 (eval runner / demo) — 用答题字数 heuristic 兜底, 5 维都非空。"""
+    """db=None 路径 (eval runner / demo) — 用答题字数 heuristic 兜底, 6 维都非空。"""
     from app.services.interview.report import _build_fallback_report
 
     messages = [
@@ -71,9 +71,9 @@ def test_fallback_report_db_none_uses_transcript_heuristic():
     assert rep["_meta"]["fallback_reason"] == "report_llm_silent"
     assert rep["_meta"]["used_turn_rows"] is False
     assert 50 <= rep["overall_score"] <= 70   # heuristic 限制范围
-    assert len(rep["dimensions"]) == 5
+    assert len(rep["dimensions"]) == 6
     assert {d["name"] for d in rep["dimensions"]} == {
-        "岗位能力匹配度", "信息选取与侧重", "逻辑性", "行业感", "可信度",
+        "岗位能力匹配度", "信息选取与侧重", "逻辑性", "行业感", "可信度", "表达深度",
     }
     assert rep["overall_comment"]   # 不再返空字符串
     assert "公募行研" in rep["overall_comment"]
@@ -300,6 +300,69 @@ def test_apply_report_pattern_caps_no_signal_unchanged():
     report = copy.deepcopy(original)
     _apply_report_pattern_caps(report, "正常的财务分析答题, 没有任何套话", '公募行研')
     assert report == original
+
+
+# ── Day 9 PR-1: expression_depth 第 6 维 + report 镜像 cap ───────────────────
+
+
+def test_report_dimensions_include_expression_depth():
+    """_REPORT_DIMENSIONS 必须含 expression_depth — prompt 模板生成依赖这个。"""
+    from app.services.interview.report import _REPORT_DIMENSIONS
+    dim_ids = {dim_id for _name, dim_id in _REPORT_DIMENSIONS}
+    assert 'expression_depth' in dim_ids
+    name_by_id = {dim_id: name for name, dim_id in _REPORT_DIMENSIONS}
+    assert name_by_id['expression_depth'] == '表达深度'
+
+
+def test_apply_report_pattern_caps_expression_depth_template():
+    """报告层: transcript 套模板 ≥4 → expression_depth ≤ 30 + info_selection / logic 也 cap ≤ 30。"""
+    from app.services.interview.report import _apply_report_pattern_caps
+    report = {
+        'overall_score': 82,
+        'dimensions': [
+            {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 85, 'comment': 'OK'},
+            {'id': 'info_selection', 'name': '信息选取与侧重', 'score': 82, 'comment': ''},
+            {'id': 'logic', 'name': '逻辑性', 'score': 82, 'comment': ''},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 80, 'comment': ''},
+            {'id': 'credibility', 'name': '可信度', 'score': 80, 'comment': ''},
+            {'id': 'expression_depth', 'name': '表达深度', 'score': 80, 'comment': ''},
+        ],
+        'overall_comment': '',
+    }
+    transcript = "我主导了这个项目, 进行了复盘和沉淀, 赋能给团队闭环抓手, 形成新的打法"
+    _apply_report_pattern_caps(report, transcript, '公募行研')
+    by_id = {d['id']: d for d in report['dimensions']}
+    assert by_id['expression_depth']['score'] == 30
+    assert by_id['info_selection']['score'] == 30
+    assert by_id['logic']['score'] == 30
+    assert by_id['job_fit']['score'] == 85   # 不被 cap
+    assert '套模板词' in by_id['expression_depth']['comment']
+    assert 'STAR-M' in by_id['expression_depth']['comment']
+    # overall 重算 = mean(85+30+30+80+80+30)/6 = 56
+    assert report['overall_score'] == 56
+
+
+def test_apply_report_pattern_caps_expression_depth_translation():
+    """报告层: transcript 含翻译腔 → expression_depth ≤ 40 + logic/industry_sense 也 cap ≤ 30。"""
+    from app.services.interview.report import _apply_report_pattern_caps
+    report = {
+        'overall_score': 88,
+        'dimensions': [
+            {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 88, 'comment': ''},
+            {'id': 'logic', 'name': '逻辑性', 'score': 90, 'comment': ''},
+            {'id': 'industry_sense', 'name': '行业感', 'score': 88, 'comment': ''},
+            {'id': 'expression_depth', 'name': '表达深度', 'score': 85, 'comment': ''},
+        ],
+        'overall_comment': '',
+    }
+    transcript = "我 leveraged synergies 跑出 end-to-end value-driven outcomes"
+    _apply_report_pattern_caps(report, transcript, '公募行研')
+    by_id = {d['id']: d for d in report['dimensions']}
+    assert by_id['expression_depth']['score'] == 40
+    assert by_id['logic']['score'] == 30
+    assert by_id['industry_sense']['score'] == 30
+    assert by_id['job_fit']['score'] == 88   # 不被 cap (无工程术语)
+    assert '翻译腔' in by_id['expression_depth']['comment']
 
 
 def test_parse_report_json_v2_dict_format():

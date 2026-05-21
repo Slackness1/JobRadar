@@ -238,6 +238,7 @@ def run_one_persona(
                     "hits": score.hits,
                     "misses": score.misses,
                     "bonuses": score.bonuses,
+                    "dim_scores": score.dim_scores,
                 }
             except Exception as exc:
                 logger.warning("[%s] turn %d score failed: %s", p.scenario_id, idx, exc)

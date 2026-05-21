@@ -61,13 +61,16 @@ class ScoreResult:
         return json.dumps(out, ensure_ascii=False)
 
 
-# 5 维 id → 中文 name 表 (与 SCORING_SYSTEM / report.py 对齐)
+# 6 维 id → 中文 name 表 (与 SCORING_SYSTEM / report.py 对齐)
+# 2026-05-22 Day 9 PR-1: 新加 expression_depth 第 6 维 (STAR-M 范式),
+# 区分 A 流水账型 / B 有目标型 / C 方法论型 学生的表达深度档位。
 DIM_ID_TO_NAME: dict[str, str] = {
     "job_fit": "岗位能力匹配度",
     "info_selection": "信息选取与侧重",
     "logic": "逻辑性",
     "industry_sense": "行业感",
     "credibility": "可信度",
+    "expression_depth": "表达深度",
 }
 
 
@@ -291,12 +294,16 @@ def _apply_pattern_caps(dim_scores: list[dict], user_answer: str, target_job: st
     # 2026-05-21 Day 8 baseline v4 调阈值 — 原 ≥ 3 误伤金融研报正常用词:
     # P8 (strong 公募行研) 真实 thesis 答里也用 '主导/复盘/闭环' = 3 命中, 被误 cap.
     # baseline v3 M9 (真套模板) = 6 命中, P1 strong = 2, P5 strong = 1 → 阈值 ≥4 完美区分.
+    # 2026-05-22 Day 9 PR-1: 套模板 / 翻译腔 都同时 cap expression_depth — 套模板词代表
+    # 候选人答非"具体动作 + 方法论推导", 表达深度也要压下来。
     if template_hits >= 4:
         caps['info_selection'] = 3
         caps['logic'] = 3
+        caps['expression_depth'] = 3
     if translation_hits >= 1:
         caps['logic'] = min(caps.get('logic', 10), 3)
         caps['industry_sense'] = 3
+        caps['expression_depth'] = min(caps.get('expression_depth', 10), 4)
     if eng_hits >= 5 and target_is_finance:
         caps['job_fit'] = 3
 
@@ -311,7 +318,11 @@ def _apply_pattern_caps(dim_scores: list[dict], user_answer: str, target_job: st
             new_d['score'] = cap
             existing_reason = (d.get('reason') or '').strip()
             reason_addon = ''
-            if d['id'] in ('info_selection', 'logic') and template_hits >= 3:
+            if d['id'] == 'expression_depth' and template_hits >= 4:
+                reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词, STAR-M 的 Action 段被模板词占满]'
+            elif d['id'] == 'expression_depth' and translation_hits >= 1:
+                reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔, 表达深度被英文管理黑话替代]'
+            elif d['id'] in ('info_selection', 'logic') and template_hits >= 3:
                 reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含 {template_hits} 个套模板词]'
             elif d['id'] in ('logic', 'industry_sense') and translation_hits >= 1:
                 reason_addon = f' [⚠️ 后处理 cap ≤{cap}: 答题含翻译腔/英文管理黑话]'
