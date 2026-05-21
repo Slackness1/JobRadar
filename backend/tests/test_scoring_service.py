@@ -35,10 +35,53 @@ def test_score_answer_parses_well_formed_response():
 
 
 def test_score_answer_returns_empty_on_llm_exception():
+    """两次 LLM 都 raise → 仍返 empty (M2 retry 后兜底契约不变)."""
     stub = _StubLLM(RuntimeError("network down"))
     out = score_answer("x", "q", "a", "summary", llm=stub)
     assert out.overall is None
     assert out.hits == []
+
+
+class _FlakyLLM:
+    """First call raises, subsequent calls return raw_response."""
+    def __init__(self, raw_response, *, fail_first=1):
+        self._raw = raw_response
+        self._remaining_fails = fail_first
+        self.call_count = 0
+
+    def chat_json(self, system, user, **_):
+        self.call_count += 1
+        if self._remaining_fails > 0:
+            self._remaining_fails -= 1
+            raise RuntimeError(f"flaky failure #{self.call_count}")
+        return self._raw
+
+
+def test_score_answer_retries_once_on_llm_failure():
+    """Day 11 M2: 第 1 次 LLM 失败 → 自动 retry 1 次 → 第 2 次成功就拿到真分数,
+    不再返 None 污染下游 trait/transferability 聚合."""
+    stub = _FlakyLLM({
+        "overall": 75,
+        "hits": ["量化结果"],
+        "misses": [],
+        "bonuses": [],
+    }, fail_first=1)
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert stub.call_count == 2   # 第 1 次失败 + 第 2 次成功
+    assert out.overall == 75   # 真分数, 不是 None
+
+
+def test_score_answer_does_not_retry_when_first_call_succeeds():
+    """第 1 次就成功不应该 retry — 不浪费 LLM 调用."""
+    stub = _FlakyLLM({
+        "overall": 65,
+        "hits": [],
+        "misses": [],
+        "bonuses": [],
+    }, fail_first=0)
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert stub.call_count == 1   # 只调一次
+    assert out.overall == 65
 
 
 def test_score_answer_returns_empty_on_non_dict_response():

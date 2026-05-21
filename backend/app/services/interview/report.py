@@ -282,6 +282,13 @@ def generate_interview_report(
             report['highlights'] = []
             report = _append_overall_warning(report, _SUPPRESS_NOTE)
 
+    # ── Day 11 M1: suppressed 时数字分必须 cap ──
+    # full 27 baseline 里 8 个 reports `_fabrication_suppressed=True` AND overall ≥70 —
+    # 文本被 suppress 但 LLM 仍给高数字分, "安全文案 + 高分" 自相矛盾.
+    # cap overall ≤60 + 每维 >60 都 cap, 标 _meta.score_capped_for_fabrication.
+    if report.get('_fabrication_suppressed'):
+        _cap_for_fabrication_suppression(report, cap=60)
+
     # ── Soft check: 4-字段 improvements 合规率 (Day 8 Bug B) ──
     # parse 时缺字段已被 drop, 所以 v2/raw 长度差 = 不合规条数。
     # Suppressed 时跳过 — improvements 已经被清空, 没意义。
@@ -607,6 +614,29 @@ def _append_overall_warning(report: dict, note: str) -> dict:
     sep = ' ' if base else ''
     report['overall_comment'] = base + sep + note
     return report
+
+
+def _cap_for_fabrication_suppression(report: dict, *, cap: int = 60) -> None:
+    """Day 11 M1: `_fabrication_suppressed=True` 时把 overall + 每维 cap 到 ≤ cap.
+
+    Why: full 27 baseline 8 个 reports suppressed=True 但 overall ≥70 — 文本层抑制
+    + 数字层不动 = "文案安全, 分数仍高" 自相矛盾, 学生 / 老师 / 监控信号都被搞糊涂.
+    """
+    try:
+        cur_overall = int(report.get('overall_score') or cap)
+    except (TypeError, ValueError):
+        cur_overall = cap
+    report['overall_score'] = min(cur_overall, cap)
+    for d in report.get('dimensions') or []:
+        if not isinstance(d, dict):
+            continue
+        try:
+            cur = int(d.get('score') or cap)
+        except (TypeError, ValueError):
+            cur = cap
+        if cur > cap:
+            d['score'] = cap
+    report.setdefault('_meta', {})['score_capped_for_fabrication'] = True
 
 
 def _cap_credibility(report: dict, *, cap: int) -> None:

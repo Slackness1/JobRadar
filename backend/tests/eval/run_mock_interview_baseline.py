@@ -274,6 +274,14 @@ def run_one_persona(
             sc = t.score
             if not sc:
                 continue
+            # Day 11 M2: 跳过 turn overall=None — scoring 失败 retry 后仍空,
+            # 不让 None 污染 trait_signals / transferability 聚合.
+            if sc.get("overall") is None:
+                logger.warning(
+                    "[%s] turn %d overall=None after scoring retry, skipping aggregation",
+                    p.scenario_id, t.turn_index,
+                )
+                continue
             try:
                 turn_score_jsons.append(json.dumps(sc, ensure_ascii=False))
             except (TypeError, ValueError):

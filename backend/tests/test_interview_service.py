@@ -401,6 +401,43 @@ def test_cap_for_mentor_fallback_does_not_raise_score():
     assert cred['score'] == 30   # 不动
 
 
+# ── Day 11 M1: fabrication_suppressed → cap overall ≤ 60 ──────────────────────
+
+
+def test_cap_for_fabrication_suppression_caps_overall_and_high_dims():
+    """suppressed=True → overall + 每维 >60 都 cap 到 60, 标 _meta.score_capped_for_fabrication."""
+    from app.services.interview.report import _cap_for_fabrication_suppression
+    report = {
+        'overall_score': 82,
+        'dimensions': [
+            {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 85, 'comment': ''},
+            {'id': 'logic', 'name': '逻辑性', 'score': 78, 'comment': ''},
+            {'id': 'credibility', 'name': '可信度', 'score': 55, 'comment': ''},  # 已 ≤60, 不动
+        ],
+        'overall_comment': '',
+    }
+    _cap_for_fabrication_suppression(report, cap=60)
+    assert report['overall_score'] == 60
+    by_id = {d['id']: d for d in report['dimensions']}
+    assert by_id['job_fit']['score'] == 60
+    assert by_id['logic']['score'] == 60
+    assert by_id['credibility']['score'] == 55   # ≤60 → 不动
+    assert report['_meta']['score_capped_for_fabrication'] is True
+
+
+def test_cap_for_fabrication_suppression_does_not_raise_low_score():
+    """overall 本来就 ≤60 → cap 不应该把它抬上去."""
+    from app.services.interview.report import _cap_for_fabrication_suppression
+    report = {
+        'overall_score': 42,
+        'dimensions': [{'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 30, 'comment': ''}],
+        'overall_comment': '',
+    }
+    _cap_for_fabrication_suppression(report, cap=60)
+    assert report['overall_score'] == 42
+    assert report['dimensions'][0]['score'] == 30
+
+
 def test_apply_report_pattern_caps_translation_caps_logic_and_industry():
     """Day 8 Bug A 报告路径补 — 整场 transcript 含翻译腔 → cap logic + industry_sense ≤ 30。"""
     from app.services.interview.report import _apply_report_pattern_caps

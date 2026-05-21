@@ -259,11 +259,18 @@ def score_answer(
 
     system_prompt = _build_system_prompt(db, target_job, user_key, profile, preferences)
 
+    # Day 11 M2: LLM 调用失败时 retry 1 次. Why: full 27 baseline 5 个 persona
+    # 有 turn `overall=None`, 上游 trait/report 聚合受污染. retry 一次能消大部分
+    # transient 失败 (rate limit / 5xx / timeout). 再失败仍返 empty, runner 自己跳.
     try:
         raw = llm.chat_json(system=system_prompt, user=user_payload)
     except Exception as exc:
-        logger.warning("scoring LLM call failed: %s", exc)
-        return ScoreResult.empty()
+        logger.warning("scoring LLM call failed, retrying once: %s", exc)
+        try:
+            raw = llm.chat_json(system=system_prompt, user=user_payload)
+        except Exception as exc2:
+            logger.warning("scoring LLM retry also failed: %s", exc2)
+            return ScoreResult.empty()
 
     if not isinstance(raw, dict):
         logger.warning("scoring LLM returned non-dict (%s)", type(raw).__name__)
