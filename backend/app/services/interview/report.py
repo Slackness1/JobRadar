@@ -149,7 +149,15 @@ def generate_interview_report(
     db: Session | None = None,
     session_id: str | None = None,
     profile: dict | None = None,
+    turn_score_jsons: list[str] | None = None,
 ) -> dict:
+    """Generate the full integrated report.
+
+    `turn_score_jsons` (Day 9 PR-3): list of per-turn ScoreResult.to_json() strings,
+    used to aggregate `trait_signals` → `report.traits` narrative + roll up
+    `transferability_signal` to `report._meta.transferability`. If not provided
+    and (db + session_id) are, the function loads from InterviewTurn.score_json.
+    """
     transcript = '\n'.join(
         f"{'面试官' if m['role'] == 'assistant' else '候选人'}：{m['content']}"
         for m in messages
@@ -301,7 +309,92 @@ def generate_interview_report(
     )
     _apply_report_pattern_caps(report, transcript_for_caps, target_job)
 
+    # ── Day 9 PR-3: aggregate trait_signals + transferability_signal ──
+    # 从 turn_score_jsons (eval runner 路径) 或 InterviewTurn.score_json (生产路径)
+    # 聚 trait_signals (strong only) → report.traits narrative; transferability 投票 → _meta.
+    score_jsons = turn_score_jsons
+    if score_jsons is None and db is not None and session_id:
+        try:
+            from app.models import InterviewTurn
+            score_jsons = [
+                r.score_json for r in (
+                    db.query(InterviewTurn)
+                    .filter(InterviewTurn.session_id == session_id)
+                    .order_by(InterviewTurn.turn_index)
+                    .all()
+                ) if r.score_json
+            ]
+        except Exception as exc:
+            logger.warning('trait aggregation db read failed: %s', exc)
+            score_jsons = []
+
+    if score_jsons:
+        traits, transferability = _aggregate_traits_and_transferability(score_jsons)
+        if traits:
+            report['traits'] = traits
+        if transferability:
+            meta = report.setdefault('_meta', {})
+            meta['transferability'] = transferability
+
     return report
+
+
+def _aggregate_traits_and_transferability(
+    score_jsons: list[str],
+) -> tuple[list[dict], str | None]:
+    """Aggregate per-turn trait_signals + transferability_signal into report payload.
+
+    - `traits`: list of {trait, hits: [{turn_index, evidence}], count}, only STRONG
+      tags (weak tags collected but not surfaced in narrative — narrative thresholds
+      to 1 strong hit to confirm a trait). Sorted by count desc, trait name asc.
+    - `transferability`: 投票 — 出现频次最多的非 null 值, tie 时优先 active_bridge >
+      no_attempt > domain_match (鼓励桥接尝试).
+    """
+    trait_to_hits: dict[str, list[dict]] = {}
+    transferability_counts: dict[str, int] = {}
+
+    for idx, sj in enumerate(score_jsons):
+        if not sj:
+            continue
+        try:
+            data = json.loads(sj)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        for tag in (data.get('trait_signals') or []):
+            if not isinstance(tag, dict):
+                continue
+            if tag.get('strength') != 'strong':
+                continue   # weak 信号不进 narrative (减少 false positive)
+            trait = tag.get('trait')
+            evidence = (tag.get('evidence') or '').strip()
+            if not trait or not evidence:
+                continue
+            trait_to_hits.setdefault(trait, []).append({
+                'turn_index': idx,
+                'evidence': evidence,
+            })
+        ts = data.get('transferability_signal')
+        if isinstance(ts, str) and ts:
+            transferability_counts[ts] = transferability_counts.get(ts, 0) + 1
+
+    traits = [
+        {'trait': t, 'count': len(hits), 'hits': hits}
+        for t, hits in trait_to_hits.items()
+    ]
+    # 排序: count 多的在前; tie 时按 trait 名字典序
+    traits.sort(key=lambda x: (-x['count'], x['trait']))
+
+    # transferability 投票: active_bridge > no_attempt > domain_match (tie-break)
+    transferability: str | None = None
+    if transferability_counts:
+        priority = {'active_bridge': 0, 'no_attempt': 1, 'domain_match': 2}
+        winner = max(
+            transferability_counts.items(),
+            key=lambda kv: (kv[1], -priority.get(kv[0], 99)),
+        )
+        transferability = winner[0]
+
+    return traits, transferability
 
 
 def _apply_report_pattern_caps(report: dict, transcript: str, target_job: str) -> None:

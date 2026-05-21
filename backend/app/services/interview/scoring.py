@@ -42,8 +42,19 @@ class ScoreResult:
     bonuses: list[str] = field(default_factory=list)
     # 2026-05-20: 5 维独立打分 (job_fit / info_selection / logic /
     # industry_sense / credibility), 0-10 分 + evidence + reason。
+    # 2026-05-22 PR-1: 加 expression_depth 第 6 维 (STAR-M)。
     # 旧调用方不传 → None, 完全向后兼容。
     dim_scores: list[dict] | None = None
+    # 2026-05-22 PR-3: opt-in trait_signals (4 trait × strong/weak) + 钩子原话.
+    # 每题最多 2 个 tag, 没信号就空 list, **不算总分**, 只给 report.traits narrative
+    # 聚合用. None = LLM 没产 (向后兼容)。
+    trait_signals: list[dict] | None = None
+    # 2026-05-22 PR-3: transferability_signal _meta tag, 3 选 1:
+    # "active_bridge" — 候选人主动讲了"X 能搬到 Y, Z 需重学"
+    # "no_attempt" — domain mismatch 但候选人没主动桥接
+    # "domain_match" — domain 直接对得上, 不存在迁移问题
+    # None = LLM 没产或非跨 domain 题, 不算分。
+    transferability_signal: str | None = None
 
     @classmethod
     def empty(cls) -> "ScoreResult":
@@ -58,6 +69,10 @@ class ScoreResult:
         }
         if self.dim_scores is not None:
             out["dim_scores"] = self.dim_scores
+        if self.trait_signals is not None:
+            out["trait_signals"] = self.trait_signals
+        if self.transferability_signal is not None:
+            out["transferability_signal"] = self.transferability_signal
         return json.dumps(out, ensure_ascii=False)
 
 
@@ -98,6 +113,51 @@ def _clamp_dim_score(value) -> int | None:
     except (TypeError, ValueError):
         return None
     return max(0, min(10, n))
+
+
+# 2026-05-22 PR-3: 4 trait + 2 strength 白名单 (与 prompt 对齐)
+_TRAIT_NAMES: frozenset[str] = frozenset({"内驱力", "学习能力", "团队合作", "钻研精神"})
+_TRAIT_STRENGTHS: frozenset[str] = frozenset({"strong", "weak"})
+# transferability_signal 3 选 1 + None
+_TRANSFERABILITY_VALUES: frozenset[str] = frozenset({"active_bridge", "no_attempt", "domain_match"})
+
+
+def _coerce_trait_signals(value) -> list[dict] | None:
+    """Parse trait_signals list. 每题最多 2 个 valid tag, drop 非白名单 trait/strength。
+    None 表示 LLM 没产 (向后兼容); 空 list 表示 LLM 显式说"这题没特质信号"。
+    """
+    if not isinstance(value, list):
+        return None
+    out: list[dict] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        trait = item.get("trait")
+        if not isinstance(trait, str) or trait not in _TRAIT_NAMES:
+            continue
+        strength = item.get("strength")
+        if not isinstance(strength, str) or strength not in _TRAIT_STRENGTHS:
+            continue
+        evidence = item.get("evidence")
+        if not isinstance(evidence, str) or not evidence.strip():
+            continue
+        out.append({
+            "trait": trait,
+            "strength": strength,
+            "evidence": evidence.strip()[:200],
+        })
+        if len(out) >= 2:   # 每题最多 2 个 tag (cap, 防 LLM 输出爆)
+            break
+    return out
+
+
+def _coerce_transferability(value) -> str | None:
+    """Validate transferability_signal — 必须 3 个白名单之一 or None。"""
+    if not isinstance(value, str):
+        return None
+    if value not in _TRANSFERABILITY_VALUES:
+        return None
+    return value
 
 
 def _coerce_dim_scores(value) -> list[dict] | None:
@@ -230,6 +290,8 @@ def score_answer(
         misses=_string_list(raw.get("misses"), cap=4),
         bonuses=_string_list(raw.get("bonuses"), cap=3),
         dim_scores=dim_scores,
+        trait_signals=_coerce_trait_signals(raw.get("trait_signals")),
+        transferability_signal=_coerce_transferability(raw.get("transferability_signal")),
     )
 
 

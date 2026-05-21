@@ -390,6 +390,96 @@ def test_pattern_cap_recomputes_overall_with_6_dims():
     assert out.overall == 57
 
 
+# ── Day 9 PR-3: trait_signals + transferability_signal opt-in tag ──────────
+
+
+def test_score_answer_parses_trait_signals_strong_and_weak():
+    """LLM 出 trait_signals 4 trait × strong/weak → 解析进 ScoreResult.trait_signals。"""
+    stub = _StubLLM({
+        "overall": 75, "hits": [], "misses": [], "bonuses": [],
+        "trait_signals": [
+            {"trait": "内驱力", "strength": "strong",
+             "evidence": "「周末自己跑去港交所翻招股书」"},
+            {"trait": "钻研精神", "strength": "weak",
+             "evidence": "「跟踪了 18 个月渠道扫码」"},
+        ],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert out.trait_signals is not None and len(out.trait_signals) == 2
+    drive = next(t for t in out.trait_signals if t["trait"] == "内驱力")
+    assert drive["strength"] == "strong"
+    assert "港交所" in drive["evidence"]
+
+
+def test_score_answer_drops_invalid_trait_signals():
+    """非白名单 trait (e.g. '执行力') / 无 evidence / 错 strength 都被 drop。"""
+    stub = _StubLLM({
+        "overall": 60, "hits": [], "misses": [], "bonuses": [],
+        "trait_signals": [
+            {"trait": "执行力", "strength": "strong", "evidence": "「...」"},  # bad trait
+            {"trait": "内驱力", "strength": "moderate", "evidence": "「...」"},  # bad strength
+            {"trait": "学习能力", "strength": "strong", "evidence": ""},          # empty evidence
+            {"trait": "团队合作", "strength": "weak", "evidence": "「跨团队拉通」"},  # valid
+        ],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert out.trait_signals == [
+        {"trait": "团队合作", "strength": "weak", "evidence": "「跨团队拉通」"},
+    ]
+
+
+def test_score_answer_caps_trait_signals_at_2():
+    """每题最多 2 个 trait tag, 第 3 个起被丢 (prompt 也说了)。"""
+    stub = _StubLLM({
+        "overall": 80, "hits": [], "misses": [], "bonuses": [],
+        "trait_signals": [
+            {"trait": "内驱力", "strength": "strong", "evidence": "「我主动做了 X」"},
+            {"trait": "学习能力", "strength": "strong", "evidence": "「自学 CFA L2」"},
+            {"trait": "团队合作", "strength": "strong", "evidence": "「跨部门拉通」"},
+        ],
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert len(out.trait_signals) == 2
+
+
+def test_score_answer_parses_transferability_signal_valid_values():
+    """transferability_signal 3 选 1 解析; 非白名单值 → None。"""
+    for valid in ("active_bridge", "no_attempt", "domain_match"):
+        stub = _StubLLM({
+            "overall": 70, "hits": [], "misses": [], "bonuses": [],
+            "transferability_signal": valid,
+        })
+        out = score_answer("x", "q", "a", "summary", llm=stub)
+        assert out.transferability_signal == valid
+
+    # 非白名单 → None
+    stub = _StubLLM({
+        "overall": 70, "hits": [], "misses": [], "bonuses": [],
+        "transferability_signal": "unknown",
+    })
+    out = score_answer("x", "q", "a", "summary", llm=stub)
+    assert out.transferability_signal is None
+
+
+def test_to_json_includes_trait_signals_and_transferability_when_set():
+    """ScoreResult.to_json 包含 trait_signals + transferability_signal (set 时), 不 set 时缺席."""
+    from app.services.interview.scoring import ScoreResult
+    sr = ScoreResult(
+        overall=70, hits=[], misses=[], bonuses=[],
+        trait_signals=[{"trait": "内驱力", "strength": "strong", "evidence": "「X」"}],
+        transferability_signal="active_bridge",
+    )
+    parsed = json.loads(sr.to_json())
+    assert parsed["trait_signals"][0]["trait"] == "内驱力"
+    assert parsed["transferability_signal"] == "active_bridge"
+
+    # 不 set → 字段缺席 (向后兼容)
+    sr2 = ScoreResult(overall=70)
+    parsed2 = json.loads(sr2.to_json())
+    assert "trait_signals" not in parsed2
+    assert "transferability_signal" not in parsed2
+
+
 def test_score_answer_with_db_no_memory_skips_blocks_and_directive(tmp_path):
     """db provided but no memory + reserved user_key → no provider fires →
     system prompt stays bare. directive is NOT appended (no blocks)."""

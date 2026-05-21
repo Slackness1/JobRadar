@@ -342,6 +342,50 @@ def test_apply_report_pattern_caps_expression_depth_template():
     assert report['overall_score'] == 56
 
 
+def test_aggregate_traits_strong_only_and_transferability_vote():
+    """Day 9 PR-3: report 聚合 — 只 strong tag 进 narrative, transferability 投票 (priority
+    active_bridge > no_attempt > domain_match)。"""
+    from app.services.interview.report import _aggregate_traits_and_transferability
+    score_jsons = [
+        json.dumps({
+            "trait_signals": [
+                {"trait": "内驱力", "strength": "strong", "evidence": "「周末跑去港交所」"},
+                {"trait": "钻研精神", "strength": "weak", "evidence": "「翻了几页」"},  # weak — drop
+            ],
+            "transferability_signal": "active_bridge",
+        }),
+        json.dumps({
+            "trait_signals": [
+                {"trait": "内驱力", "strength": "strong", "evidence": "「自学了 AWS」"},
+                {"trait": "团队合作", "strength": "strong", "evidence": "「跨部门拉通」"},
+            ],
+            "transferability_signal": "no_attempt",
+        }),
+        json.dumps({
+            "trait_signals": [],
+            "transferability_signal": "active_bridge",
+        }),
+    ]
+    traits, transferability = _aggregate_traits_and_transferability(score_jsons)
+    # 内驱力 2 个 strong → count=2, 第一; 团队合作 1 个 → count=1; 钻研精神 weak drop → 不出现
+    assert [(t["trait"], t["count"]) for t in traits] == [
+        ("内驱力", 2),
+        ("团队合作", 1),
+    ]
+    # 第 1 + 第 3 都是 active_bridge (count=2), 第 2 是 no_attempt (count=1) → active_bridge 赢
+    assert transferability == "active_bridge"
+
+
+def test_aggregate_traits_handles_empty_and_malformed_jsons():
+    """空 / malformed JSON / 缺字段 → 返 ([], None)。"""
+    from app.services.interview.report import _aggregate_traits_and_transferability
+    traits, transferability = _aggregate_traits_and_transferability([
+        "", "not json", "{}", json.dumps({"trait_signals": "not a list"}),
+    ])
+    assert traits == []
+    assert transferability is None
+
+
 def test_apply_report_pattern_caps_expression_depth_translation():
     """报告层: transcript 含翻译腔 → expression_depth ≤ 40 + logic/industry_sense 也 cap ≤ 30。"""
     from app.services.interview.report import _apply_report_pattern_caps

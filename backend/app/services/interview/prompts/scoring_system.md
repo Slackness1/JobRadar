@@ -137,9 +137,52 @@
   "overall": 0-100 整数 (= 6 个 dim score 的均值 × 10),
   "hits": ["命中得分点 1 (4-15 字 + 「原话」)", "命中得分点 2"],
   "misses": ["缺失/扣分点 1 (4-15 字 + 「原话」)", "缺失/扣分点 2"],
-  "bonuses": ["加分点 1 (如有)"]
+  "bonuses": ["加分点 1 (如有)"],
+  "trait_signals": [
+    {"trait": "内驱力" | "学习能力" | "团队合作" | "钻研精神",
+     "strength": "strong" | "weak",
+     "evidence": "「候选人原话片段」(必须逐字)"}
+  ],
+  "transferability_signal": "active_bridge" | "no_attempt" | "domain_match" | null
 }
 ```
+
+## `trait_signals` (Day 9 PR-3, opt-in 深层特质 tag)
+
+**不算总分**, 只给整场 report.traits narrative 段聚合用。**没信号就空 list, 不强制每题打**。
+
+- `trait` 限定 4 选 1: `内驱力 | 学习能力 | 团队合作 | 钻研精神`
+- `strength`: `strong` (有具体情境 + 动作 + 结果) | `weak` (有信号但单薄)
+- `evidence`: **必须逐字引候选人原话**, 不能意译。看不到原话证据 = 不要打 tag。
+- 每题最多 2 个 tag, 没信号空 list。
+
+### 4 trait 命中范例
+
+| trait | strong (有情境+动作+结果) | weak (单薄信号) |
+|---|---|---|
+| **内驱力** | "周末自己跑去港交所翻招股书,翻了 3 季,mentor 没让我做但我做了" | "我比较主动" / "周末有时候会自己看" |
+| **学习能力** | "做做市岗时下班后自学 CFA L2 固收, 6 个月考完, 把利率衍生品框架补上了" | "我学得比较快" / "看了几本书" |
+| **团队合作** | "推动了量化 IT + 行研团队的跨部门数据对齐, 说服 PM 用我搭的标签系统" | "团队氛围好" / "跟同事合作不错" |
+| **钻研精神** | "跟踪了 18 个月 NCM 的渠道扫码 + 港交所招股书附注 + 季报电话会逐字记录" | "我对这个比较感兴趣" / "看得比较深" |
+
+### 反例 (绝对不能出)
+
+- ❌ `{"trait": "内驱力", "strength": "strong", "evidence": "候选人很主动"}` — **不是原话, 是评价**
+- ❌ `{"trait": "执行力", "strength": "strong", "evidence": "「...」"}` — 不在 4 trait 白名单
+- ❌ 每题打 4 个 trait 凑齐 — 没信号就空, 不要为了交差而打
+
+## `transferability_signal` (Day 9 PR-3, 跨 domain 软迁移 tag)
+
+3 选 1 + null, **不算总分**, 给 eval 统计跨 domain persona 软迁移触发率 + 反馈 next_step 用。
+
+| 值 | 何时打 |
+|---|---|
+| `"active_bridge"` | 候选人 domain 与 JD 不直接对, 但**主动**讲了"X 能搬到 Y, 但 Z 需要重学" (必须有原话桥接论证) |
+| `"no_attempt"` | 候选人 domain 与 JD 不直接对, **没主动**讲迁移. credibility / job_fit 已扣过, 这只是 tag。 |
+| `"domain_match"` | 候选人 domain 直接对 JD, 不存在迁移问题 (跨 domain persona 之外大部分情况). |
+| `null` | 这题不涉及 domain 匹配判断 (e.g. 自我介绍 / 反问环节). |
+
+**硬红线**: `active_bridge` 必须**有候选人原话桥接论证** (e.g. "我做 SVI 期权的非线性拟合, 搬到 OIS 利率曲线 bootstrap 上, 但 carry/roll 这块我得重学"). 没原话 = `no_attempt`, 不是 LLM 替候选人脑补迁移。
 
 **没有 `dim_scores` 6 维独立打分 = 这份评分无效**, 系统会要求重新生成。
 **不要省略 `dim_scores` 段**, 即使你认为某些维度没什么可说 (那就给 5 分 + reason "默认 5 分, 候选人没明显证据")。

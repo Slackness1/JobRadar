@@ -240,6 +240,8 @@ def run_one_persona(
                     "misses": score.misses,
                     "bonuses": score.bonuses,
                     "dim_scores": score.dim_scores,
+                    "trait_signals": score.trait_signals,
+                    "transferability_signal": score.transferability_signal,
                 }
             except Exception as exc:
                 logger.warning("[%s] turn %d score failed: %s", p.scenario_id, idx, exc)
@@ -263,6 +265,17 @@ def run_one_persona(
 
         # 整场 report
         t0 = time.time()
+        # Day 9 PR-3: 把 per-turn score_jsons 喂给 report — 用于聚 trait_signals → report.traits
+        # 用 in-memory turn list (eval runner 不入 DB), 重建 ScoreResult.to_json() 形态
+        turn_score_jsons: list[str] = []
+        for t in turns:
+            sc = t.score
+            if not sc:
+                continue
+            try:
+                turn_score_jsons.append(json.dumps(sc, ensure_ascii=False))
+            except (TypeError, ValueError):
+                pass
         try:
             report = generate_interview_report(
                 target_job=p.target_job,
@@ -270,6 +283,7 @@ def run_one_persona(
                 track=p.target_track,
                 db=db,
                 profile=p.profile,
+                turn_score_jsons=turn_score_jsons,
             )
         except Exception as exc:
             logger.warning("[%s] report failed: %s", p.scenario_id, exc)

@@ -1,0 +1,175 @@
+{
+  "scenario_id": "mock_interview_P_trait_S1_2026_05_21",
+  "scenario_config": {
+    "target_track": "公募基金股票行业研究 (TMT / 互联网)",
+    "target_jd_ref": "jds_real/24_xxx_tmt_internet_research",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "3 trait 强信号子档 — 上交计科本 + SAIF MF, 3 段实习每段都有 1 个 trait 强信号: 内驱力 (T-drive, 腾讯实习时没人让做但周末自己跑深圳大学 ACM 内推接触 4 位字节工程师 + 自学 AWS Sagemaker) / 团队合作 (T-team, 易方达推动量化 IT + 行研跨部门数据对齐 + 说服产品组用自己搭的内部研报标签系统) / 钻研 (T-grit, 中信跑去港交所翻 5 个互联网公司 8 季度招股书附注 + 跟踪 18 个月 NetEase Cloud Music 渠道扫码数据). 用来验 trait_signals 召回率 ≥ 80% — scoring LLM 应在多题里识别出 T-drive / T-team / T-grit 各 ≥ 1 个 strong tag, report.traits narrative 段必须聚到这 3 trait. 若 LLM 只识别出 1-2 个 trait, 召回率 < 80% 即 fail."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "汤予舟",
+      "headline": "上交计科本 + SAIF MF / 腾讯 + 易方达 + 中信 3 段相关实习 / 想转公募 TMT 互联网研究",
+      "email": "tang.yuzhou@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.72/4.0",
+          "选修科技股研究 / 平台经济 / 估值建模 / NLP 在金融文本上的应用",
+          "在读 CFA Level 2"
+        ]
+      },
+      {
+        "school": "上海交通大学 计算机科学与工程系",
+        "degree": "本科",
+        "major": "计算机科学与技术",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.86/4.0, 专业排名 9/120",
+          "算法与数据结构 95 / 机器学习 94 / 分布式系统 90 / 数据库系统 92",
+          "本科毕设: 基于 LLM 的中文研报观点抽取与论据归因 (准确率 84.3%)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "腾讯 · CSIG · 云计算事业部 · ML 平台组 (T-drive 信号)",
+        "role": "ML 工程实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-09",
+        "bullets": [
+          "在腾讯实习时, 没人让我做但我周末自己跑去深圳大学 ACM 校园招募内推会接触了 4 位字节工程师 + 1 位 SHEIN 算法负责人, 拿到 3 份字节内推 + 1 份 SHEIN 内推",
+          "下班后自学了 AWS Sagemaker (虽然腾讯组内不用, 但我想搞清楚海外云的 ML 部署模式), 跟着官方文档跑通 6 个 demo + 复刻了组内 1 个 pipeline 在 Sagemaker 上",
+          "主动找了组内 mentor 申请加入了 1 个 OKR 之外的 side project — 把组内推荐系统 metrics dashboard 从 Grafana 迁移到 Looker, 节省 PM 取数时间约 30%",
+          "完成 OKR 内主任务: 推荐系统 A/B 测试平台 dashboard 重构, CTR 监控延迟从 1h 降到 5min",
+          "实习结业评级 S (TOP 5%), 拿到 return offer 但放弃 (决定转金融)"
+        ]
+      },
+      {
+        "company": "易方达基金 · 量化投资部 / 行业研究部 (跨组) (T-team 信号)",
+        "role": "数据 + 行研实习生",
+        "start_date": "2024-10",
+        "end_date": "2025-04",
+        "bullets": [
+          "在易方达, 推动了量化 IT 团队 + 行研团队的跨部门数据对齐 — 之前两边对 '互联网公司 GMV' 的拆分口径不一致, 我组织了 4 次跨组会, 拉通了 12 家公司的 GMV / DAU / MAU / 用户时长 4 个指标定义",
+          "说服了产品组用我搭的内部研报标签系统 (Streamlit + GPT-4 tagging) — 起初产品组担心 LLM 幻觉, 我做了 200 篇报告的人工对标 + 准确率报告 (88.2%), 最终被推全行研组 8 个研究员使用",
+          "在行研组覆盖了腾讯 + 阿里 + 美团 3 家公司, 维护季度财务模型 + 财报点评, mentor 评 '建模 + 数据处理能力强, 但 thesis 还需要积累'",
+          "在量化组协助开发了 1 个基于卖方研报情绪 + alternative data 的互联网板块择时信号, IR 1.2, 已上线小规模实盘",
+          "组织过 2 次 '量化 × 行研' 跨部门内部分享会, 推动两边互相理解对方语言"
+        ]
+      },
+      {
+        "company": "中信证券 · TMT 行业组 / 互联网赛道 (T-grit 信号)",
+        "role": "卖方研究实习生",
+        "start_date": "2024-03",
+        "end_date": "2024-06",
+        "bullets": [
+          "自己跑去港交所现场翻了 5 个互联网公司 (腾讯 + 阿里 + 美团 + 京东 + 拼多多) 过去 8 季度的招股书 / 中期报告附注, 整理出 60 页交叉对比表 (员工成本 / 商誉减值 / 长股投 / VIE 架构变化), 首席评 '比 senior 还细'",
+          "跟踪了 18 个月 NetEase Cloud Music 的渠道扫码数据 (从 22Q4 开始), 月度更新, 验证了我对它月活拐点的判断比 sell-side 共识早 1 季度",
+          "完成 1 篇 NetEase Cloud Music 深度报告 (署名第二作者), 模型预测 25Q1 月活 2.18 亿, 实际 2.16 亿, 误差 0.9%",
+          "在 18 个月持续跟踪过程中, 整理了 12 类渠道数据源 + 7 类用户调研问卷, 输出了内部数据集 (300+ 行)"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "基于 LLM 的中文研报观点抽取与论据归因 (本科毕设)",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕设, 用 GPT-4 + 自训 LoRA fine-tune 实现中文卖方研报的 '观点 - 论据' 抽取与归因",
+        "bullets": [
+          "标注了 800 篇中文卖方研报作为训练 + 验证集, 设计 4 类观点 (买入 / 卖出 / 中性 / 风险提示) + 5 类论据 (数据 / 调研 / 政策 / 行业 / 公司治理)",
+          "用 LoRA 在 Qwen-7B 上 fine-tune, 观点抽取准确率 84.3%, 论据归因 F1 0.79",
+          "毕设答辩获评优秀 (前 5%), 论文被 CCFC 学生工作坊接收"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python 全栈 (numpy / pandas / sklearn / torch / transformers, 熟练)",
+        "LLM 应用 + LoRA fine-tune (本科毕设 + 易方达内部研报标签系统, 熟练)",
+        "推荐系统 + A/B 测试平台 (腾讯 CSIG, 熟练)",
+        "AWS Sagemaker (腾讯实习期间自学, 入门 +)",
+        "财务建模 + 估值 (DDM / DCF / SOTP, 中信 + 易方达实习用过)",
+        "SQL + Spark + Hive (腾讯 + 易方达数据栈, 熟练)"
+      ],
+      "tools": [
+        "Wind / iFinD (熟练)",
+        "Bloomberg Terminal (基础)",
+        "Streamlit / Looker / Grafana (熟练)",
+        "Git / Linux / Docker"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 105, 能读英文研报 + 论文)"
+      ]
+    },
+    "awards": [
+      "上海交通大学优秀毕业设计 (2025, 前 5%)",
+      "ACM ICPC 上海赛区铜奖 (2023)",
+      "CCFC 学生工作坊论文接收 (2025)",
+      "腾讯 CSIG 实习 S 级评级 (TOP 5%)"
+    ],
+    "candidate_summary": "上交计科本 + SAIF MF. 3 段相关实习 (腾讯 CSIG ML 3 个月 + 易方达量化×行研 6 个月 + 中信 TMT 互联网 3 个月). 优势是 (1) 工程 + 数据栈扎实 (LLM 毕设 + 推荐系统平台 + LoRA fine-tune); (2) 主动性强 (腾讯实习期间周末自己跑内推 + 自学 Sagemaker + 主动接 side project); (3) 跨团队协作 (易方达推动量化 + 行研对齐 + 说服产品组用研报标签系统); (4) 钻研 (中信 18 个月跟踪 NetEase Cloud Music 渠道数据 + 港交所翻招股书 8 季度).",
+    "inferred_roles": [
+      "公募 TMT / 互联网研究员",
+      "量化 + 基本面混合研究",
+      "卖方 TMT 助理"
+    ],
+    "inferred_tracks": [
+      "公募 TMT / 互联网",
+      "公募量化 + 行研融合",
+      "买方科技股投研"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "结构清晰 + 主动表达型, 讲实习经历时会自然带出 '我当时主动 / 我周末自己跑去 / 我没人让我但我做了 / 我对接了 N 个部门 / 我跟踪了 N 个月 / 我翻招股书' 这类强主语 + 强动作的句式. 不刻意吹, 也不刻意藏",
+    "verbal_tics": [
+      "'我当时主动找了'",
+      "'我周末自己跑去'",
+      "'我没人让我但我做了'",
+      "'我对接了 N 个部门'",
+      "'我跟踪了 N 个月'",
+      "'我翻招股书'",
+      "'我说服了产品组'",
+      "'我组织了 4 次跨组会'",
+      "'我自己跑到港交所现场'"
+    ],
+    "typical_message_length": "100-160 字, 主语清晰 ('我' 而不是 '我们'), 动作 + 数字 + 结果三段式",
+    "under_pressure": "被问深的 (比如 '渠道扫码数据怎么验证 / 怎么说服产品组接受 LLM 标签 / Sagemaker pipeline 你是怎么搭的') 能答出细节; 被问到自己不会的 (比如 '海外资产配置框架') 会承认 '这块我没系统做过'"
+  },
+  "target_jd_anchors": [
+    "互联网平台经济 thesis",
+    "AI / 大模型应用",
+    "渠道商业模式",
+    "公司治理跟踪"
+  ],
+  "hidden_highlights": [
+    "T-drive 强信号: 腾讯实习期间没人让做但周末自己跑深圳大学 ACM 内推接触 4 位字节工程师 + 自学 AWS Sagemaker + 主动接 OKR 之外的 side project — 应在 follow-up 被自然带出",
+    "T-team 强信号: 易方达推动量化 IT + 行研跨部门数据对齐 (组织 4 次跨组会拉通 4 个指标定义) + 说服产品组用研报标签系统 (做了 200 篇人工对标说服) — 跨部门协作 + 推动落地",
+    "T-grit 强信号: 中信跑去港交所翻 5 个互联网公司 8 季度招股书附注 (60 页交叉对比) + 跟踪 18 个月 NetEase Cloud Music 渠道扫码数据 (月活预测误差 0.9%) — 长期钻研 + 一手数据 + 验证闭环"
+  ],
+  "red_line_bullets": {
+    "trait_signal_recall": {
+      "internships[0].bullets[0]": "T-drive 强信号 #1: '没人让我做但我周末自己跑去深圳大学 ACM 内推接触 4 位字节工程师' — scoring 必须识别为 T-drive strong",
+      "internships[0].bullets[1]": "T-drive 强信号 #2: '下班后自学了 AWS Sagemaker' — 同上 T-drive strong",
+      "internships[0].bullets[2]": "T-drive 强信号 #3: '主动找了组内 mentor 申请加入了 OKR 之外的 side project' — 同上 T-drive strong",
+      "internships[1].bullets[0]": "T-team 强信号 #1: '推动了量化 IT + 行研跨部门数据对齐, 组织 4 次跨组会, 拉通 12 家公司 4 个指标定义' — scoring 必须识别为 T-team strong",
+      "internships[1].bullets[1]": "T-team 强信号 #2: '说服了产品组用我搭的内部研报标签系统 (做 200 篇人工对标说服)' — 同上 T-team strong",
+      "internships[1].bullets[4]": "T-team 强信号 #3: '组织过 2 次量化 × 行研跨部门内部分享会' — 同上 T-team strong",
+      "internships[2].bullets[0]": "T-grit 强信号 #1: '自己跑去港交所现场翻 5 个互联网公司 8 季度招股书附注, 60 页交叉对比表' — scoring 必须识别为 T-grit strong",
+      "internships[2].bullets[1]": "T-grit 强信号 #2: '跟踪了 18 个月 NetEase Cloud Music 渠道扫码数据 (从 22Q4 开始月度更新)' — 同上 T-grit strong",
+      "internships[2].bullets[3]": "T-grit 强信号 #3: '在 18 个月持续跟踪过程中, 整理 12 类渠道数据源 + 7 类用户调研问卷 + 内部数据集 300+ 行' — 同上 T-grit strong",
+      "expected_warning": false,
+      "warning_notes": "本案不触发 mismatch 警告. 验 trait_signals 召回率 ≥ 80% — 3 个 trait (T-drive / T-team / T-grit) 各有 3 个 strong evidence bullet, 总共 9 个 strong tag. scoring LLM 在 6-8 道题的 follow-up 里, 应至少识别出 T-drive ≥ 2 / T-team ≥ 2 / T-grit ≥ 2 个 strong tag (即整体 ≥ 6/9 = 67%), 理想 ≥ 8/9 = 89%. report.traits narrative 段必须明确聚到 3 个 trait — 如果只点出 1-2 个 trait, 或把 T-drive 误判成 T-team / T-grit, 即召回率 fail. 同时 report 不应过度发明 trait — 这个 persona 没有刻意展示 T-empathy / T-leadership-vision / T-creativity, 不要硬塞."
+    }
+  }
+}

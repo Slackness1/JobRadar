@@ -1,0 +1,165 @@
+{
+  "scenario_id": "mock_interview_P_bridge_S1_2026_05_21",
+  "scenario_config": {
+    "target_track": "公募基金宏观研究员 (利率 / 商品 / 大类资产配置)",
+    "target_jd_ref": "jds_real/22_xxx_macro_fixed_income",
+    "student_tier": "strong",
+    "is_cross_major": true,
+    "generation_notes": "软迁移子档典型案例 — 候选人主动讲清楚 'X 能搬到 Y / 但 Z 需要重学'. 上交数学本 + SAIF MF-G, 主战场是华泰证券衍生品做市 1 年 (期权 SVI 隐含波动率曲面建模 + 跨期价差套利 + Greeks). 但 resume bullets 里**已经有 2-3 段主动桥接**写法 — 把 SVI 曲面拟合搬到 OIS 利率曲线 bootstrap 上做了 side project / 把期权 vol surface ensemble 信号经验类比到 FICC 利率 carry / 下班自学 CFA Level 2 fixed income. 用来验 T-transfer trigger + transferability_signal=active_bridge — orchestrator 应识别候选人有跨 domain 经验但有**主动桥接行为**, 不应粗暴归到 mismatch 1-3 分, 而应给到 transferability 7-8 分 (体现 'X 能搬到 Y 已经动手 + Z 需要补' 的清晰自知). T-transfer 应触发, follow-up 应深挖 '你 OIS bootstrap 那个 side project 怎么验证收敛性 / 你觉得期权 vol ensemble 思路搬到利率 carry 上有哪些不能直接平移'."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "戴恒辰",
+      "headline": "上交数学本 + SAIF MF-G / 华泰衍生品做市 1 年 / 想转公募宏观 (利率 / 商品 / 大类资产配置)",
+      "email": "dai.hengchen@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.78/4.0, 班级排名 12/120",
+          "选修固定收益高阶 / 衍生品定价 / 大类资产配置",
+          "在读 CFA Level 2 (重点啃 fixed income + portfolio management)"
+        ]
+      },
+      {
+        "school": "上海交通大学 数学科学学院",
+        "degree": "本科",
+        "major": "数学与应用数学 (统计方向)",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.82/4.0, 专业排名 8/85",
+          "随机过程 94 / 数值分析 92 / 时间序列 95 / 优化理论 93",
+          "本科毕设: 高维稀疏波动率曲面的非线性最小二乘拟合 (SVI 参数化方法对比)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "华泰证券 · 金融工程部 · 场外衍生品做市组",
+        "role": "Quant 做市实习生",
+        "start_date": "2024-04",
+        "end_date": "2025-05",
+        "bullets": [
+          "覆盖上证 50 ETF + 沪深 300 ETF + 中证 1000 期权做市报价, 日均成交 8000+ 张, 维护 14 个标的的 SVI 隐含波动率曲面拟合",
+          "把 SVI 曲面的非线性最小二乘拟合思路搬到 OIS 利率曲线 bootstrap 上做了 1 个 side project (周末 3 周完成), 验证 1y / 5y / 10y 节点拟合残差 < 2bp, 提交给固收组 mentor 评审",
+          "做期权 vol surface 信号时, 对动量 + 均值回归的 ensemble 已有手感 (年化 alpha ~6%), FICC 利率 carry / momentum / valuation 也是类似 multi-signal 框架, 已在 CFA L2 + SAIF 大类资产课上系统补了一遍",
+          "跨期价差 (近月 vs 远月) 套利策略实盘 4 个月, IR 1.8, 最大回撤 -2.3%, 报告里梳理了 3 类失效场景 (临近交割 / 标的事件冲击 / 跨品种相关性突变)",
+          "做市岗位下班后自学 CFA Level 2 fixed income 全部 6 个 reading, 重点啃 forward rate / duration-convexity / OAS / MBS prepayment, 章节笔记 80 页",
+          "Greeks 风险管理 (Delta / Gamma / Vega / Theta) 日内动态对冲, 写了 1 套 Python 监控脚本自动报警 Greeks 超阈值"
+        ]
+      },
+      {
+        "company": "中金公司 · 固定收益研究部 (暑期)",
+        "role": "宏观利率研究实习生",
+        "start_date": "2023-06",
+        "end_date": "2023-09",
+        "bullets": [
+          "协助 sell-side 分析师跟踪 10Y 国债收益率 + 中美利差, 月度撰写利率周报 / 月报合计 11 份",
+          "做了 1 个 PMI / CPI / 社融 vs 10Y 收益率的因子回归小研究, 输出 30 页 PPT 给组内分享",
+          "整理了 2020-2023 央行 OMO / MLF / LPR 操作时点表, 复盘了 6 轮利率拐点的政策信号触发链路"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "SVI 隐含波动率曲面参数化方法对比 (本科毕设)",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕设, 比较 SVI / SSVI / SABR 三种参数化方法在 50ETF + 300ETF 期权上的拟合效果与套利无套利约束",
+        "bullets": [
+          "在 2 年 tick 数据上对比三种参数化方法的样本内拟合 RMSE + 样本外预测 RMSE, SSVI 在样本外稳定性最优",
+          "实现 Gatheral-Jacquier 提出的 g(k) 函数无静态套利检验, 修复了 1 处 SABR 在 short maturity 失效的边界 case",
+          "毕设答辩获评优秀 (前 5%), 论文被推荐至《数量经济技术经济研究》小修"
+        ]
+      },
+      {
+        "name": "OIS 利率曲线 bootstrap side project (主动桥接)",
+        "duration": "2024-11 至 2024-12 (做市实习期间周末)",
+        "description": "把 SVI 曲面的非线性最小二乘拟合思路类比搬到 OIS 利率曲线 bootstrap, 验证能否复用做市岗位 vol 曲面拟合的工程经验",
+        "bullets": [
+          "以 1d / 1w / 1m / 3m / 6m / 1y / 5y / 10y FR007 互换报价为节点, 用 cubic spline + Nelson-Siegel 双方法 bootstrap 即期曲线",
+          "把 SVI 的非线性最小二乘求解思路 (warm start + bounds 约束) 搬过来, 1y / 5y / 10y 节点拟合残差 < 2bp",
+          "在 mentor 评审时被提了 2 个问题: (1) bootstrap 在跨品种节点冲突时怎么处理 (2) OIS vs Shibor 曲线分离应该怎么做 — 我意识到自己之前 vol 曲面经验不能直接平移, 需要再补 multi-curve framework"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "期权定价 + Greeks (Black-Scholes / SVI / SSVI / SABR, 实战 1 年)",
+        "做市报价 + 跨期价差套利 (华泰场外衍生品, 实战 1 年)",
+        "Python 量化栈 (numpy / pandas / scipy / cvxpy / statsmodels, 熟练)",
+        "C++ 基础 (做市撮合接口, 能读能改)",
+        "时间序列建模 (ARIMA / GARCH / VAR, 学过 + 用过)",
+        "OIS / Shibor 曲线 bootstrap (side project 验过, 不算实战)"
+      ],
+      "tools": [
+        "Wind / iFinD (熟练)",
+        "Bloomberg Terminal (做市岗位日常用, 熟练 SWPM / FIT)",
+        "TradeStation / vn.py (策略回测)",
+        "Git / Linux 命令行"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 108, GRE 332, 能读英文研报 + 学术论文)"
+      ]
+    },
+    "awards": [
+      "上海交通大学优秀毕业设计 (2025, 前 5%)",
+      "全国大学生数学建模竞赛全国一等奖 (2023)",
+      "CFA Level 1 一次通过 (2024)",
+      "上海交通大学一等学业奖学金 (2022, 2023, 2024)"
+    ],
+    "candidate_summary": "上交数学本 + SAIF MF-G. 主战场是华泰证券衍生品做市 1 年 (期权 SVI 曲面建模 + 跨期价差套利 + Greeks 管理), 辅以中金固收研究 3 个月 (利率周报 + PMI/CPI 因子回归). 优势是数学功底 + 衍生品定价 + 工程实战; 跨领域到公募宏观 (利率 / 商品 / 大类资产) 的 transferability 是: SVI 曲面非线性最小二乘可以搬到 OIS bootstrap (周末 side project 已验), 期权 vol multi-signal ensemble 经验可类比 FICC carry / momentum / valuation 因子框架; 缺口是 multi-curve framework + 商品基差 / 库存周期 + 大类资产宏观叙事, 已在 CFA L2 + SAIF 课程系统补.",
+    "inferred_roles": [
+      "量化研究员",
+      "衍生品做市 Quant",
+      "固收 / 利率研究助理"
+    ],
+    "inferred_tracks": [
+      "公募宏观研究 (利率 / 商品 / 大类资产)",
+      "券商固收自营 / FICC",
+      "私募 CTA / 期权策略"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "理工严谨 + 主动桥接型, 讲做市 / 期权 / Greeks 时细节充足, 被问到利率 / 商品时会主动类比 'X 跟我之前做的 Y 类似 / 但 Z 我之前没碰过, 我是这样补的'",
+    "verbal_tics": [
+      "'跑了一下回测'",
+      "'IR 大概是'",
+      "'我之前做 SVI 的时候'",
+      "'这个跟期权类似 / 类比来说'",
+      "'我自己周末试了一下'",
+      "'CFA L2 fixed income 里讲'"
+    ],
+    "typical_message_length": "讲衍生品 / 数学时 120-180 字 (细节充足), 讲利率 / 商品 / 大类资产时 80-120 字 (主动桥接 + 自知缺口)",
+    "under_pressure": "被问 '你为什么觉得能做宏观' 时, 不会硬扛, 而是先承认 '商品基差 + 库存周期我之前没系统做过', 然后举出 OIS bootstrap side project 和 CFA L2 自学作为 evidence; 被问到深的 (比如 multi-curve framework / 商品 carry 因子细节) 会说 '我知道大概框架但没实操过, mentor 评审时被指出过 X 问题'"
+  },
+  "target_jd_anchors": [
+    "利率曲线建模",
+    "通胀预期",
+    "宏观资产配置",
+    "FICC",
+    "大类资产 momentum / carry / valuation 因子"
+  ],
+  "hidden_highlights": [
+    "OIS bootstrap side project 是主动桥接的 evidence, 不是 resume 凑数 — follow-up 应深挖 mentor 评审被指出的 multi-curve 问题",
+    "下班自学 CFA L2 fixed income 6 个 reading + 80 页笔记 是 T-drive 信号, 但本案重点验 T-transfer 不是 T-drive",
+    "中金 3 个月固收研究 (PMI/CPI vs 10Y 因子回归) 是利率领域的 minimum credible exposure, 不是 0 经验"
+  ],
+  "red_line_bullets": {
+    "active_bridge_signal": {
+      "internships[0].bullets[1]": "'把 SVI 曲面非线性最小二乘搬到 OIS 利率曲线 bootstrap 上' — 这是 active_bridge 强信号, transferability_signal 应识别为 active_bridge, 不是 mismatch",
+      "internships[0].bullets[2]": "'做期权 vol surface 信号时对 ensemble 已有手感, FICC carry / momentum / valuation 是类似 multi-signal 框架' — 主动类比 + 已系统补课的自知, transferability_signal 应识别为 active_bridge",
+      "internships[0].bullets[4]": "'做市岗位下班后自学 CFA Level 2 fixed income 全部 6 个 reading' — 主动补缺口的 evidence",
+      "projects[1].bullets[2]": "OIS bootstrap 项目里候选人主动暴露了 'mentor 评审时指出 multi-curve framework 我不会' — 这是 self-aware 强信号, scoring 应加分而非扣分",
+      "expected_warning": false,
+      "warning_notes": "本案不应触发 track_mismatch 警告. 反之, T-transfer trigger 应被触发, 第 2-3 轮 follow-up 应针对 OIS side project + vol ensemble 类比深挖 (e.g. 'bootstrap 收敛性怎么验 / OIS 跟 vol 曲面有哪些数学结构差异 / multi-curve 你打算怎么补'). transferability_signal 应给到 7-8 分, 不应粗暴归 mismatch 1-3 分. 若 AI 把候选人当 0 转译跨专业处理 (类似 M11 化工跨金融), 反而是判断失误 — 候选人已经主动桥接 + 自知缺口 + 在补."
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "scenario_id": "mock_interview_P_fake_S1_2026_05_21",
+  "scenario_config": {
+    "target_track": "公募基金股票行业研究 (大消费)",
+    "target_jd_ref": "jds_real/23_xxx_consumer_research",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "退回 mentor 子档 — resume bullets 写得**像样** (中欧基金 4 个月大消费实习, 覆盖白酒 + 调味品, 列出了具体动作如跑渠道 / 跟动销 / 维护 DDM), 但风险点在 persona_voice / answer pattern: 候选人在回答时**几乎所有判断都退给 PM 或组里** — '我们 PM 是这么看的 / 组里讨论的是 / 我们 mentor 觉得 / 我们组的判断是 / 我们 PM 内部 forward'. 用来验 T-real trigger 触发率 ≥ 60% — orchestrator 应在 follow-up 第 2-3 轮检测到候选人持续使用 '我们 PM / 组里 / mentor' 这类角色介词后追问 '你自己跑过吗 / 用了什么字段 / mentor 介入到什么程度 / 这个数字是你自己算的还是组里给你的'. 同时 credibility 也应被压低 — 不是数字编造 (resume 里数字本身可能是真的), 而是观点不独立 / 判断不是自己的. report.real_ownership 维度应被打到 3-4 分而非 7-8 分."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "麦颖琪",
+      "headline": "上交财金本 + SAIF MF / 中欧基金大消费实习 4 个月 / 想转公募大消费研究",
+      "email": "mai.yingqi@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF, General)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.55/4.0",
+          "选修股票研究方法 / 行业分析 / 估值建模",
+          "在读 CFA Level 1"
+        ]
+      },
+      {
+        "school": "上海交通大学 安泰经济与管理学院",
+        "degree": "本科",
+        "major": "金融学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.65/4.0, 专业排名 28/110",
+          "公司金融 88 / 投资学 90 / 财务分析 85 / 计量经济 87",
+          "本科毕设: 白酒行业 PE 估值与高端化趋势的相关性分析"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中欧基金 · 权益投资部 · 大消费组",
+        "role": "行业研究实习生",
+        "start_date": "2024-11",
+        "end_date": "2025-03",
+        "bullets": [
+          "覆盖白酒 (高端 + 次高端) + 调味品两个子赛道, 跟踪 12 家上市公司, 每周输出公司跟踪表 1 份",
+          "跟踪某高端白酒批价 + 终端动销 + 经销商库存周转, 每月撰写白酒月度跟踪报告 1 份, mentor 评 '动销跟踪较细致'",
+          "维护 8 家覆盖公司的 DDM / PE / EV-EBITDA 估值模型, 季度根据财报更新关键假设 (毛利率 / 渠道 / 费用率)",
+          "参与组内 PM 推票流程, 整理过 3 次 PM 推票 PPT 的素材, 协助梳理 thesis + risk + catalyst 三段式框架",
+          "完成华东 + 华南渠道调研 2 次 (杭州 + 成都), 走访 8 家经销商 + 12 家终端商超, 整理调研纪要 16 份"
+        ]
+      },
+      {
+        "company": "中信证券 · 食品饮料行业组 (暑期)",
+        "role": "卖方研究实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-09",
+        "bullets": [
+          "协助首席撰写白酒中报点评 + 调味品深度报告各 1 篇 (署名第三作者), 主要负责数据整理 + 财务三表填充",
+          "整理白酒板块 18 家上市公司的过去 5 年量价拆分, 给首席的渠道库存周期模型供数",
+          "参与 4 场上市公司业绩交流会, 整理调研纪要 4 份"
+        ]
+      },
+      {
+        "company": "毕马威 · 审计部 (寒假)",
+        "role": "审计实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-03",
+        "bullets": [
+          "参与某消费品上市公司年报审计的存货 + 应收账款科目 (B 级科目) 函证 + 监盘",
+          "完成 60 份客户函证发出 + 跟踪回函, 整理审计底稿 12 份",
+          "学到了基本的财务三表勾稽逻辑 + 存货跌价测试方法"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "白酒行业 PE 估值与高端化趋势相关性分析 (本科毕设)",
+        "duration": "2024-09 至 2025-06",
+        "description": "本科毕设, 研究 2015-2024 白酒上市公司 PE 估值与高端化收入占比 / 渠道结构 / 毛利率的相关性",
+        "bullets": [
+          "选取 19 家白酒上市公司的季度面板数据, 跑 PE 对高端化占比 + 毛利率 + ROE 的回归",
+          "高端化占比对 PE 的解释力 R²=0.42, 毛利率次之 R²=0.31",
+          "毕设答辩通过, 评分良好"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "DDM / PE / EV-EBITDA 估值建模 (中欧 + 中信实习用过, 熟练)",
+        "财务三表分析 + 勾稽逻辑 (毕马威审计 + 中信首席训练, 熟练)",
+        "渠道调研 + 终端动销跟踪 (中欧实习 2 次实地, 入门 +)",
+        "Excel 高阶 (透视表 / VBA 基础, 熟练)",
+        "Python 基础 (能跑回归 + 简单爬虫, 不算熟练)"
+      ],
+      "tools": [
+        "Wind / 同花顺 iFinD (熟练)",
+        "Bloomberg Terminal (基础)",
+        "草根调研 (能跑商超 + 经销商, 已实地)",
+        "PowerPoint / Excel (熟练)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (CET-6 593, 能读简单英文研报)"
+      ]
+    },
+    "awards": [
+      "上海交通大学优秀本科毕设 (2025)",
+      "全国大学生金融案例分析大赛二等奖 (2023, 队员)",
+      "上海交通大学三好学生 (2023)"
+    ],
+    "candidate_summary": "上交财金本 + SAIF MF. 3 段相关实习 (中欧大消费 4 个月 + 中信食品饮料暑期 3 个月 + 毕马威审计寒假 2 个月). 覆盖白酒 + 调味品, 做过批价 / 动销 / DDM 估值 / 渠道调研. 优势是路径正 (买方 + 卖方 + 审计三段闭环) + 大消费实习时长够; 待考察的是: 候选人讲实习经历时, 是否能讲清楚 '自己的判断是什么 / 这个数字是自己算的还是 mentor 给的 / mentor / PM 介入到什么程度'.",
+    "inferred_roles": [
+      "公募行业研究员",
+      "卖方研究助理",
+      "审计师"
+    ],
+    "inferred_tracks": [
+      "公募大消费",
+      "卖方食品饮料",
+      "审计 / 财务尽调"
+    ]
+  },
+  "persona_voice": {
+    "communication_style": "对答如流但 thesis 永远是别人的 — '我们 PM 是这么看的 / 组里讨论的是 / 我们 mentor 觉得 / 我们组的判断是'. 表面流畅, 听起来'像样', 但仔细追问 '你自己跑过吗 / 这个 view 是你独立形成的还是组里给你的' 就会卡住. 不是不老实, 是真的在实习里被 PM / mentor 喂养, 还没形成独立 view 的习惯",
+    "verbal_tics": [
+      "'我们 PM 是这么看的'",
+      "'组里讨论的是'",
+      "'我们 mentor 觉得'",
+      "'我们的判断是'",
+      "'我们 PM 内部 forward'",
+      "'组内的讨论是'",
+      "'PM 说让我'",
+      "'mentor 让我跟踪'",
+      "'我们组覆盖的'",
+      "'PM 那边给的'"
+    ],
+    "typical_message_length": "100-150 字, 句式流畅, 措辞专业, 但主语经常是 'PM / 组里 / mentor / 我们' 而不是 '我'",
+    "under_pressure": "被追问 '你自己怎么看' 时会卡顿 2-3 秒, 然后回 '我自己其实也是同意 PM 的, 因为...' 然后接着复述 PM 的观点; 被问 'mentor 介入到什么程度 / 这个数字是你自己算的还是组里给你的' 会承认 '估值模型框架是 mentor 给的 base, 我主要更新假设和勾稽 / 调研问题清单是 PM 拟的, 我去现场问'"
+  },
+  "target_jd_anchors": [
+    "白酒 / 食品饮料行业 thesis",
+    "渠道 / 终端动销跟踪",
+    "PE / EV-EBITDA 估值",
+    "PM 推票流程"
+  ],
+  "hidden_highlights": [
+    "中欧 4 个月 + 中信 3 个月 + 毕马威 2 个月 是大消费 + 财务的相对闭环路径, 不应被简单否定",
+    "渠道调研 2 次 + 走访 8 家经销商 + 12 家终端商超 是 minimum credible 实地接触, 不是 0 落地",
+    "白酒高端化 PE 回归毕设 R²=0.42 数字本身可信, 不是编造"
+  ],
+  "red_line_bullets": {
+    "ownership_real_signal": {
+      "persona_voice.verbal_tics": "候选人在 follow-up 中持续使用 '我们 PM / 组里 / mentor / PM 内部 / 我们的判断' 这类角色介词 (≥ 8 个 tics), 在 4 段实习经历回答里 100% 都退回 mentor 观点, 几乎没有 '我自己判断 / 我独立形成 view'",
+      "internships[0].bullets": "中欧 5 条 bullet 内容像样 (跟批价 + 动销 + DDM + 渠道调研 + 推票协助), 但**这些动作 candidate 是执行还是判断主体? **L3 T-real 应深挖: '维护估值模型时关键假设的数字是你自己拍的还是 mentor 给的 / 推票 PPT 你只是整理素材还是参与了 thesis 形成 / 调研问题清单是谁拟的'",
+      "internships[1].bullets": "中信 3 条暑期 bullet 明确说是 '协助首席' + '署名第三作者' + '整理数据填充三表' — 这是真实的卖方暑期实习模式 (实习生本来就不出 thesis), 但 candidate 在 follow-up 里被问到时, 如果还是停留在 '我们首席这么看 / 报告里的结论是首席的判断', 那 T-real 应被触发 — 暑期 3 个月实习生没有独立 thesis 是合理的, 但候选人不能把 mentor 观点当成自己的 view 卖给面试官",
+      "expected_warning": true,
+      "warning_notes": "本案验 T-real trigger 触发率 ≥ 60% — orchestrator 应在 follow-up 第 2-3 轮 (大概率第 2 轮就够) 检测到角色介词高频后追问 '你自己跑过吗 / 用了什么字段 / mentor 介入到什么程度 / 这个 view 是你独立形成的还是组里给你的'. credibility 维度不应因为'数字编造'被扣分 (resume 数字本身可信), 而应因为'观点不独立' 在 real_ownership 维度被打 3-4 分而非 7-8 分. report.feedback 应明确指出: 'candidate 4 段实习里 ≥3 段以 mentor / PM 的判断作为答题素材, 缺独立 view formation 的训练, 应该在简历改写时把 bullet 主语从 \"我们组\" 改成 \"我\", 并补充 1-2 句 \"我自己怎么判断 / 跟 mentor 哪里不一致 / 我修正了什么\".'. 不要触发 track_mismatch — track 是匹配的, 问题在 ownership 不是 fit."
+    }
+  }
+}
