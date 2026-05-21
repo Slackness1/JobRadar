@@ -122,8 +122,18 @@
       "Kaiser Permanente Case 大赛全国冠军 (2024, 队长)"
     ],
     "candidate_summary": "北大光华本 + SAIF MF, 3 段 strong 实习 (麦肯锡战略组金融服务 + 美团战略部 + 君联资本 PE Analyst). 战略咨询训练 + PE due diligence + ML 业务理解三层叠加, 已经能把咨询方法论 (单店模型 / CLV / MECE / 5C) 迁移到二级消费股估值范式. 核心差异化在 (1) 麦肯锡银行项目 CLV 模型业务方真采纳了 3 个 metric, (2) 君联新茶饮 deal 独立提出'拒绝投资'被 PM 接受, (3) 自己的论文用 CLV × 城市分层算出跟卖方主流不同的 P/S 估值锚. 希望加入头部公募大消费组 / 头部公募 TMT 组 (富国 / 易方达 / 中欧) 或顶级卖方研究 (中信 / 中金), 中期目标做基金经理.",
-    "inferred_roles": ["消费行业研究员", "TMT 行业研究员", "战略分析师", "买方研究员"],
-    "inferred_tracks": ["头部公募大消费组", "头部公募 TMT 组", "顶级卖方研究消费组", "战略咨询转金融"]
+    "inferred_roles": [
+      "消费行业研究员",
+      "TMT 行业研究员",
+      "战略分析师",
+      "买方研究员"
+    ],
+    "inferred_tracks": [
+      "头部公募大消费组",
+      "头部公募 TMT 组",
+      "顶级卖方研究消费组",
+      "战略咨询转金融"
+    ]
   },
   "persona_voice": {
     "communication_style": "咨询人风格 strong 版 — 先框架再下结论, 喜欢 '三个角度看 / 第一第二第三' 结构化, 数字精准, 偶尔过度结构化 '为结构化而结构化'",
@@ -135,7 +145,8 @@
       "'用 MECE 拆一下 ...'"
     ],
     "typical_message_length": "中等偏长 (80-130 字), 强迫症式分点",
-    "under_pressure": "被追问'你这套方法在二级股票上真的 work 吗'会承认'我没在真实买方实习过, 但我的 CLV / 单店模型 / unit economics 这套框架跟买方看消费股的范式是同源的'"
+    "under_pressure": "被追问'你这套方法在二级股票上真的 work 吗'会承认'我没在真实买方实习过, 但我的 CLV / 单店模型 / unit economics 这套框架跟买方看消费股的范式是同源的'",
+    "verbal_tics_style": "mixed"
   },
   "flow_padding_internship": {
     "company": "麦肯锡 (McKinsey & Company) · 大中华区战略组 · 金融服务业务",

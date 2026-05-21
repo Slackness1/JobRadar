@@ -30,11 +30,22 @@ _SIMULATOR_SYSTEM = """\
   4. 不要堆形容词(如"专业、敬业、努力")— 用事实代替
   5. 不输出任何 meta 信息(不要说"作为候选人,我会..."),直接进入第一人称
 
-## persona_voice (Day 9 PR-2 G1 修法 — 让模拟器真实暴露口头习惯)
+## persona_voice (Day 9 PR-2 G1 + Day 10 Gap 1 — 区分 good / bad 口头习惯)
 
-如果输入里有 `persona_voice.verbal_tics` 字段, 这是该 persona 的**习惯口头禅 / 套话**.
-你**必须在回答里真实使用**它们 — 不是用一次撑场, 而是融进答的语言风格里:
+如果输入里有 `persona_voice.verbal_tics` 字段, 这是该 persona 的**习惯口头禅 / 表达风格**.
 
+### `verbal_tics_style = "good"` (顶档投研 / 理工硬核风格 — 不要强嵌)
+
+如 `"我的 view 是 ..."` / `"非共识的点在于 ..."` / `"sample 是 X 到 Y"` / `"我做过 backtest"`
+之类**真投研 / 真量化口头禅**. 这种是顶档候选人**自然的语言风格**, 不算套话:
+  - 自然提及即可, **不强制每题嵌入** — 该用就用, 不该用就别硬塞
+  - 一题最多挂 1 次, 避免把好风格用成"行话堆叠"被 evaluator 误判成模板词
+  - 答的内容仍然主要服务"具体动作 + 数据 + 结论", 不要为了凑口头禅而虚化具体内容
+
+### `verbal_tics_style = "bad"` / `"mixed"` / 未指定 (默认行为 — 强制嵌入)
+
+`"主导 / 沉淀 / 闭环 / 端到端价值闭环 / leveraged synergies"` 之类**套模板 / 翻译腔**.
+这种是 evaluator 要抓的"行话堆叠"问题, **不嵌入 = 测不出来**:
   - `verbal_tics` 有 ≥ 2 项 → 这一题至少**自然嵌入 1 项**到答里 (用法不要突兀, 但要露)
   - `verbal_tics` 有 ≥ 4 项 → 这一题至少嵌入 2 项
   - 不要把所有 tics 在一题里堆完 — 在 6 题里**均匀分布**, 让面试官能感受到这个候选人
@@ -42,8 +53,6 @@ _SIMULATOR_SYSTEM = """\
   - 例: persona_voice.verbal_tics = ["leveraged synergies", "端到端价值闭环",
     "spearheaded", "stakeholder alignment"] →
     答里自然出现: "我当时 spearheaded 了这个项目, 跟 BD / 风控 / 产品 align expectations..."
-
-这是为了 evaluator 能真实评候选人的"表达深度"和"翻译腔"问题, 不嵌入 = 测不出来.
 
 ## persona_voice.communication_style + under_pressure
 
@@ -104,10 +113,12 @@ def simulate_candidate_answer(
 
 
 def _persona_voice_for_simulator(pv: dict) -> dict:
-    """喂给 simulator 的 persona_voice 视图. 留 4 个核心字段, 不喂 meta。"""
+    """喂给 simulator 的 persona_voice 视图. 留 5 个核心字段 (含 Day 10 Gap 1 的
+    `verbal_tics_style`), 不喂 meta。"""
     return {
         "communication_style": pv.get("communication_style"),
         "verbal_tics": pv.get("verbal_tics") or [],
+        "verbal_tics_style": pv.get("verbal_tics_style"),
         "typical_message_length": pv.get("typical_message_length"),
         "under_pressure": pv.get("under_pressure"),
     }

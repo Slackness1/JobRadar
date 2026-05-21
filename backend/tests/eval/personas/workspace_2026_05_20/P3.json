@@ -103,8 +103,16 @@
       "CFA Level I 通过 (2024)"
     ],
     "candidate_summary": "上交数学本 + SAIF MF (跨专业), 2 段中上行研实习 (国海富兰克林新能源 / 某 50 亿私募光伏). 优势是数学/编程底子扎实, 量化工具熟练; 劣势是财务/估值直觉还在补 (相比经金背景同学). 希望加入私募 / 资管 (高毅 / 景林 / 千合) 做基本面研究, 利用量化能力做差异化.",
-    "inferred_roles": ["买方研究员", "行业研究员", "量化基本面研究员"],
-    "inferred_tracks": ["头部私募研究员", "中型公募行研", "资管子公司行研"]
+    "inferred_roles": [
+      "买方研究员",
+      "行业研究员",
+      "量化基本面研究员"
+    ],
+    "inferred_tracks": [
+      "头部私募研究员",
+      "中型公募行研",
+      "资管子公司行研"
+    ]
   },
   "persona_voice": {
     "communication_style": "理工生风格, 偏严谨、爱说数据, 但不太擅长讲'感觉''sense'类内容",
@@ -115,7 +123,8 @@
       "'我做过 backtest'"
     ],
     "typical_message_length": "中等 (50-80 字), 倾向先抛数据再展开",
-    "under_pressure": "被问到'你怎么 sense 这个行业'时会停顿, 转回'我能用数据看出'这类回答"
+    "under_pressure": "被问到'你怎么 sense 这个行业'时会停顿, 转回'我能用数据看出'这类回答",
+    "verbal_tics_style": "good"
   },
   "flow_padding_internship": {
     "company": "国海富兰克林基金 · 行业研究部",

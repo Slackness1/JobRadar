@@ -123,8 +123,16 @@
       "高毅资产研究部 2025 上半年实习生 'PM 采纳 thesis 数' 内部第一"
     ],
     "candidate_summary": "复旦经济本 + SAIF MF, 3 段头部金融实习 (中信研医药 + 中欧医药健康 + 高毅资产研究部). 板块集中在创新药 + CXO + 创新药产业链, 卖方研究的体系化锤炼 + 公募的实盘跟踪 + 顶级阳光私募的独立 thesis 三层都打透了. 核心差异化在 (1) 有 PM 采纳的独立 thesis 跑出过 alpha, (2) 自建的 24 位一线产业链调研网络, (3) 独立 NPV 估值模型形成估值锚的独立判断. 希望加入头部阳光私募 (高毅 / 景林 / 重阳) 或顶部公募 (易方达 / 中欧 / 富国) 做长周期、高 conviction 的医药基本面研究, 中期目标做基金经理.",
-    "inferred_roles": ["行业研究员", "买方研究员", "权益投资分析师"],
-    "inferred_tracks": ["头部阳光私募研究员", "头部公募医药健康组", "外资行医药研究"]
+    "inferred_roles": [
+      "行业研究员",
+      "买方研究员",
+      "权益投资分析师"
+    ],
+    "inferred_tracks": [
+      "头部阳光私募研究员",
+      "头部公募医药健康组",
+      "外资行医药研究"
+    ]
   },
   "persona_voice": {
     "communication_style": "投研 strong 标准 — 倒金字塔, 给观点先于给证据, 敢给非共识 view, 数字精准到小数点后一位",
@@ -136,7 +144,8 @@
       "'PM 反馈是 ...'"
     ],
     "typical_message_length": "中等 (50-90 字), 先结论再 2-3 条证据",
-    "under_pressure": "被追问 conviction 时不缓冲不 reframing, 直接给反方证据 + '如果我看错了应该是 ... 没发生' 的可证伪条件"
+    "under_pressure": "被追问 conviction 时不缓冲不 reframing, 直接给反方证据 + '如果我看错了应该是 ... 没发生' 的可证伪条件",
+    "verbal_tics_style": "good"
   },
   "flow_padding_internship": {
     "company": "中欧基金 · 医药健康投研组",

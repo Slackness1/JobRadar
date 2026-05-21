@@ -239,3 +239,57 @@ def test_simulator_passes_persona_voice_into_payload():
     )
     payload = _json.loads(captured["user"])
     assert "persona_voice" not in payload
+
+
+def test_simulator_passes_verbal_tics_style_into_payload():
+    """Day 10 Gap 1: persona_voice 含 verbal_tics_style ("good" / "bad" / "mixed") 时,
+    必须透传给 simulator. simulator system prompt 根据这个字段决定是否强制嵌入 tics。"""
+    from tests.eval.simulator import simulate_candidate_answer, _SIMULATOR_SYSTEM
+
+    captured: dict = {}
+
+    class _Cap:
+        model = "stub"
+
+        def chat(self, messages, **_):
+            for m in messages:
+                if m.get("role") == "user":
+                    captured["user"] = m["content"]
+            return "ok"
+
+    profile = {"basic_info": {"name": "李四"}, "candidate_summary": "测试"}
+    # good 风格 (顶档投研口头禅) — 不强制嵌入
+    voice_good = {
+        "verbal_tics": ["'我的 view 是 ...'", "'非共识的点在于 ...'"],
+        "verbal_tics_style": "good",
+    }
+    simulate_candidate_answer(
+        simulator=_Cap(),
+        student_profile=profile,
+        interviewer_question="自我介绍",
+        prior_transcript=[],
+        persona_voice=voice_good,
+    )
+    import json as _json
+    payload = _json.loads(captured["user"])
+    assert payload["persona_voice"]["verbal_tics_style"] == "good"
+
+    # bad / 未指定 → backward compat
+    captured.clear()
+    voice_bad = {
+        "verbal_tics": ["leveraged synergies", "端到端价值闭环"],
+        "verbal_tics_style": "bad",
+    }
+    simulate_candidate_answer(
+        simulator=_Cap(),
+        student_profile=profile,
+        interviewer_question="自我介绍",
+        prior_transcript=[],
+        persona_voice=voice_bad,
+    )
+    payload = _json.loads(captured["user"])
+    assert payload["persona_voice"]["verbal_tics_style"] == "bad"
+
+    # simulator system prompt 必须把 good vs bad 的处理写进去 — 否则 LLM 不会区分
+    assert "verbal_tics_style" in _SIMULATOR_SYSTEM
+    assert "good" in _SIMULATOR_SYSTEM and "不强制" in _SIMULATOR_SYSTEM

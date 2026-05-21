@@ -175,6 +175,45 @@ def test_fab_number_guard_skips_when_profile_none():
     # 不 raise 即可
 
 
+def test_fab_number_guard_eval_extra_anchor_suppresses_weak_warning():
+    """Day 10 Gap 4: 在 eval 模式下, simulator 凭空注入的 color-number (e.g. "4.2% alpha")
+    通过 eval_extra_anchor 传入 → 不再判为 fab。但 strong fab ("实习生 own 80亿")
+    仍然由 _has_extreme_fab_signal 独立扫 transcript, cap credibility 安全网在。"""
+    from app.services.interview.report import _detect_fabricated_numbers_in_transcript
+
+    profile = {
+        'candidate_summary': '上交本科 + SAIF MF',
+        'internships': [{'company': '中欧基金', 'bullets': ['覆盖白酒 4 家']}],
+    }
+    # 候选人答里说了 "4.2% alpha" — simulator 凭空注入, 不在 profile
+    messages = [
+        {'role': 'assistant', 'content': '你的研究成果?'},
+        {'role': 'user', 'content': '我的研究累计贡献了 4.2% 的 alpha, 调研网络 24 家'},
+    ]
+    # 不传 eval_extra_anchor: 默认行为, 标 fab. _NUMERIC_PATTERN 抓 "4.2%" 带 % 号。
+    fab_default = _detect_fabricated_numbers_in_transcript(messages, profile)
+    assert '4.2%' in fab_default
+
+    # 传 eval_extra_anchor (含候选人所有数字, 镜像 runner 抽的格式) → fab 被白名单清空
+    fab_eval = _detect_fabricated_numbers_in_transcript(
+        messages, profile, eval_extra_anchor={'4.2%', '24'},
+    )
+    assert fab_eval == set()
+
+
+def test_fab_number_guard_eval_anchor_does_not_disable_strong_check():
+    """Day 10 Gap 4: 即使 eval_extra_anchor 把弱 fab 清空, _has_extreme_fab_signal
+    仍由 transcript 扫描自我归因 + 数字+量词共现 — 安全网不受 anchor 影响。"""
+    from app.services.interview.report import _has_extreme_fab_signal
+
+    # eval 模式 anchor 关掉了 fab_nums set, 但 strong 扫的是 transcript
+    transcript = "我 own 了 80 亿欧元的并购"
+    # 即使 fab_nums 是空 set (eval anchor 把它清了), strong 仍命中
+    assert _has_extreme_fab_signal(set(), transcript)
+    # 对照: 没有 self-attribution → 不命中
+    assert not _has_extreme_fab_signal(set(), "茅台市值 2 万亿")
+
+
 def test_4_segment_improvements_lint_flags_missing_markers():
     """4 段格式 lint: 缺任一 marker 的 improvement 进 bad list, _meta 会带 warning。"""
     from app.services.interview.report import _check_improvements_4_segments

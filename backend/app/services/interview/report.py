@@ -70,9 +70,30 @@ STAR-M = **S**ituation 情境 / **T**ask 任务 / **A**ction 行动 / **M** Meth
 - **每个维度起评 50 分**, 候选人没明显证据 = **50 分**, 不是 60 也不是 70。
 - 加分 / 扣分**必须在 comment 里逐字引候选人原话** (4-15 字, 用 「」 包) 作为依据。
   comment 里只说"答得不错" 而不给原话 = 视为无证据 = 必须改回 50 分。
-- **6 维必须有起伏**: ≥1 个最强 + ≥1 个最弱, 差距 ≥ 8 分。全部 60 / 全部 70 / 差距 ≤ 5 分 =
+- **6 维必须有起伏**: ≥1 个最强 + ≥1 个最弱, 差距 ≥ 4 分。全部 60 / 全部 70 / 差距 ≤ 2 分 =
   打分懒 = 学生看完不知道自己强在哪 → 反馈无效。
 - **弱档 / 跨专业 / 流水账** 候选人, 6 维出现 ≥1 个 ≤ 30 分是正常的, 全 60 分以上 = 漏判。
+
+### 顶档候选人**要给得敢 (Day 10 Gap 2)**
+
+"起评 50 + 加分必须有证据" 不等于"压低顶档". 候选人明确给出**量化 + 方法论 + 复盘**三件套,
+**80-90 要给得敢**, 否则漏判. 应给 8+ 的真实顶档片段范例:
+
+- ✅ `industry_sense = 80-90`: "批价 + 库销比 + 渠道扫码三维跟踪, IC 0.45, mentor 让我每周更新"
+- ✅ `credibility = 80-90`: "实习 5 个月覆盖白酒 4 家, 写过 6 篇点评其中 1 篇被 PM forward"
+  (数字都在简历能锚到, 角色对得上)
+- ✅ `expression_depth = 80-90`: "我选了批价做 driver 因为它领先 PE 2 个月, 我做了 10 年回测
+  IC=1.4, 我加了库销比反向验证, PM 采纳了组合 driver" (STAR-M 5 段全, M 段含回测 + 反向验证)
+
+### 好风格 verbal_tics 白名单 (Day 10 Gap 1 配合 — 不要误判)
+
+下面这些是**顶档投研 / 量化 / 投行习惯口头禅**, **不算套模板词**:
+- 真投研: "我的 view 是 ..." / "非共识的点在于 ..." / "估值锚应该看 ..." / "PM 反馈是 ..."
+- 量化: "IC / sharpe 是 ..." / "sample 是 X 到 Y" / "我做过 backtest"
+- 投行: "底稿里有 ..." / "监管口径上 ..." / "承做的逻辑是 ..."
+- 理工严谨: "数学上讲 ..." / "数据说明 ..." / "我的理解是 ..."
+
+**用了好词但后面是空话仍然要扣相应维度** — 关键看后面有没有具体内容。
 
 ## 输出规范 (严格 JSON, 无前后散文, 无 markdown fence)
 
@@ -126,8 +147,9 @@ STAR-M = **S**ituation 情境 / **T**ask 任务 / **A**ction 行动 / **M** Meth
 ## 严格约束 (一条都不能破)
 
 - 6 个 dimensions **必须全部出现**, name 和 id 必须和上方表完全一致 (`job_fit` / `info_selection` / `logic` / `industry_sense` / `credibility` / `expression_depth`)。dim score **必须**和当题候选人表现匹配, **起评 50/100**, 加分 / 扣分要有原话证据。**禁止鼓励式打分**。
-- **6 维必须有起伏**: 6 个 dim 必须**至少 1 个最强 + 1 个最弱, 最强 - 最弱 差距 ≥ 8 分**。
-  全部 60-65 / 全部 70-75 / 差距 ≤ 5 分 = 学生看完不知道自己强在哪, 整份报告被判无效。
+- **6 维必须有起伏**: 6 个 dim 必须**至少 1 个最强 + 1 个最弱, 最强 - 最弱 差距 ≥ 4 分**。
+  全部 60-65 / 全部 70-75 / 差距 ≤ 2 分 = 学生看完不知道自己强在哪, 整份报告被判无效。
+  (Day 10 Gap 3: 原 ≥ 8 太严, 强档真的全 80+ 是合理的, 不要为凑差距乱压低某个维度。)
 - **引用候选人原话的规则** (重要 — 上一版反馈系统大量编造原话被判无效):
   - 如果你能**逐字、完整**地从 transcript 里找到候选人说过的某个 4-15 字短语, 可以用 「」 包起来引用 (e.g. 「想了解一下团队氛围」)。
   - 如果你**不能 100% 确定**原话, 或者 transcript 里没有合适短语, **不要用 「」, 改用 paraphrase 描述** (e.g. "你在第 3 题谈到数据治理时", "你在反问环节问的是团队氛围方面的事")。
@@ -150,6 +172,7 @@ def generate_interview_report(
     session_id: str | None = None,
     profile: dict | None = None,
     turn_score_jsons: list[str] | None = None,
+    eval_extra_anchor: set[str] | None = None,
 ) -> dict:
     """Generate the full integrated report.
 
@@ -157,6 +180,13 @@ def generate_interview_report(
     used to aggregate `trait_signals` → `report.traits` narrative + roll up
     `transferability_signal` to `report._meta.transferability`. If not provided
     and (db + session_id) are, the function loads from InterviewTurn.score_json.
+
+    `eval_extra_anchor` (Day 10 Gap 4): extra numeric anchors to merge into the
+    fab-number whitelist. In eval mode the simulator may inject color-numbers
+    (e.g. "4.2% alpha") for realism — pass them here so the fab-number guard
+    doesn't add a "未在简历里出现" warning for legitimate role-play numbers.
+    强 fab 检测 (`_has_extreme_fab_signal`, e.g. "实习生 own 80 亿欧元") 仍然 run,
+    所以离谱量级仍会被 cap credibility, 这只关掉弱 warning。
     """
     transcript = '\n'.join(
         f"{'面试官' if m['role'] == 'assistant' else '候选人'}：{m['content']}"
@@ -276,27 +306,33 @@ def generate_interview_report(
     # 否则会误伤"茅台 2700 块" 这种引市场公开价格的真实候选人。
     if profile is not None:
         try:
-            fab_nums = _detect_fabricated_numbers_in_transcript(messages, profile)
+            fab_nums = _detect_fabricated_numbers_in_transcript(
+                messages, profile, eval_extra_anchor=eval_extra_anchor,
+            )
         except Exception as exc:
             logger.warning('fab-number guard failed: %s', exc)
             fab_nums = set()
-        if fab_nums:
-            preview = '、'.join(sorted(fab_nums)[:6])
-            transcript_for_signal = '\n'.join(
-                (m.get('content') or '') for m in messages if m.get('role') == 'user'
+        # Day 10 Gap 4: strong fab 扫 transcript 模式 (自我归因 + 数字+量词共现),
+        # 不依赖 fab_nums set, 所以**永远 run** — eval 模式 fab_nums 被 anchor 关空了,
+        # 但"实习生 own 80 亿欧元"这类离谱 self-attribution 仍要 cap credibility。
+        transcript_for_signal = '\n'.join(
+            (m.get('content') or '') for m in messages if m.get('role') == 'user'
+        )
+        strong_fab = _has_extreme_fab_signal(fab_nums, transcript_for_signal)
+        if strong_fab:
+            preview = '、'.join(sorted(fab_nums)[:6]) if fab_nums else '答题中'
+            report = _append_overall_warning(
+                report,
+                f'⚠️ 检测到强可疑数字 [{preview}], 已下调可信度分。',
             )
-            strong_fab = _has_extreme_fab_signal(fab_nums, transcript_for_signal)
-            if strong_fab:
-                report = _append_overall_warning(
-                    report,
-                    f'⚠️ 检测到强可疑数字 [{preview}], 已下调可信度分。',
-                )
-                _cap_credibility(report, cap=30)
-            else:
-                report = _append_overall_warning(
-                    report,
-                    f'⚠️ 答题数字 [{preview}] 未在简历里出现, 请核实是否准确 (未强制扣分)。',
-                )
+            _cap_credibility(report, cap=30)
+        elif fab_nums:
+            preview = '、'.join(sorted(fab_nums)[:6])
+            report = _append_overall_warning(
+                report,
+                f'⚠️ 答题数字 [{preview}] 未在简历里出现, 请核实是否准确 (未强制扣分)。',
+            )
+        if fab_nums:
             report['_fabricated_numbers'] = sorted(fab_nums)
             report['_fabricated_strong'] = strong_fab
 
@@ -595,12 +631,23 @@ def _call_report_llm(client, system_prompt: str, user_content: str, *, n_attempt
 _NUMERIC_PATTERN = re.compile(r'\d+(?:\.\d+)?%?')
 
 
-def _detect_fabricated_numbers_in_transcript(messages: list[dict], profile: dict) -> set[str]:
+def _detect_fabricated_numbers_in_transcript(
+    messages: list[dict],
+    profile: dict,
+    *,
+    eval_extra_anchor: set[str] | None = None,
+) -> set[str]:
     """Numbers in candidate user-messages that don't appear in (profile ∪ interviewer
-    questions). Filtered to "result-like" numbers (≥3 chars OR has % / 万 / 亿)
-    to drop noise from "我有 3 段实习" / "第 4 题".
+    questions ∪ eval_extra_anchor). Filtered to "result-like" numbers (≥3 chars OR
+    has % / 万 / 亿) to drop noise from "我有 3 段实习" / "第 4 题".
+
+    `eval_extra_anchor` (Day 10 Gap 4): caller-supplied numeric whitelist for eval
+    mode — simulator-injected color-numbers won't get flagged. Production callers
+    leave this as None and only profile + interviewer questions form the anchor.
     """
     anchor: set[str] = set()
+    if eval_extra_anchor:
+        anchor.update(eval_extra_anchor)
     # profile-side anchor (mirror chat._profile_anchor_numbers shape)
     chunks: list[str] = [str(profile.get('candidate_summary', '') or '')]
     for ed in profile.get('education', []) or []:

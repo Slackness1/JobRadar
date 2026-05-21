@@ -108,8 +108,15 @@
       "全国大学生英语辩论赛季军 (2023)"
     ],
     "candidate_summary": "北大经济本 + SAIF MF, 2 段顶级投行实习 (中金 IBD return offer + 高盛 GBM 暑期). 优势是 IBD + Markets 双线经验, 财务建模 + 估值能力扎实, 英文流畅; 弱势在 buy-side 研究 sense (从未接触). 希望加入顶级投行 IBD (中金 / 中信 / 高盛 / 摩根士丹利), 中期目标做 M&A 或行业组 VP.",
-    "inferred_roles": ["IBD Analyst", "投行业务岗"],
-    "inferred_tracks": ["内资头部投行 IBD", "外资投行 IBD", "外资投行 GBM"]
+    "inferred_roles": [
+      "IBD Analyst",
+      "投行业务岗"
+    ],
+    "inferred_tracks": [
+      "内资头部投行 IBD",
+      "外资投行 IBD",
+      "外资投行 GBM"
+    ]
   },
   "persona_voice": {
     "communication_style": "精炼、自信, 频繁中英混杂, 答题节奏快",
@@ -121,7 +128,8 @@
       "'long story short'"
     ],
     "typical_message_length": "短-中等 (40-70 字), 倾向 punchy 一句话总结",
-    "under_pressure": "被追问到 buy-side 视角时会用'IBD 的角度看是 X, 但我也知道 buy-side 会有不同 view'这种缓冲"
+    "under_pressure": "被追问到 buy-side 视角时会用'IBD 的角度看是 X, 但我也知道 buy-side 会有不同 view'这种缓冲",
+    "verbal_tics_style": "mixed"
   },
   "flow_padding_internship": {
     "company": "高盛 (Goldman Sachs) · Global Markets Division (GBM) · 暑期项目",

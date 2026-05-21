@@ -116,8 +116,16 @@
       "CFA Level I 通过 (2024)"
     ],
     "candidate_summary": "上交数学 + CS 双本 + SAIF MF-FT, 2 段头部量化私募实习 (九坤中频策略 + 乾象 alpha 因子). 优势是数学/编程底子极强 + 高频订单簿处理 + alpha 因子开发经验扎实; 劣势是缺少跨资产/宏观视角. 希望加入头部量化私募 (九坤 / 明汯 / 鸣石 / Point72) 做 quant researcher, 中期目标 PM.",
-    "inferred_roles": ["量化研究员", "alpha 因子研究员", "量化策略开发"],
-    "inferred_tracks": ["头部量化私募", "外资对冲基金", "公募量化部"]
+    "inferred_roles": [
+      "量化研究员",
+      "alpha 因子研究员",
+      "量化策略开发"
+    ],
+    "inferred_tracks": [
+      "头部量化私募",
+      "外资对冲基金",
+      "公募量化部"
+    ]
   },
   "persona_voice": {
     "communication_style": "理工生硬核风格, 直接、数字精确, 不喜欢绕弯",
@@ -128,7 +136,8 @@
       "'本质上'"
     ],
     "typical_message_length": "短-中等 (30-60 字), 倾向先给指标再展开",
-    "under_pressure": "被问到'你这个 sharpe 在不同 regime 下稳定吗'会停顿, 然后给一个保守回答"
+    "under_pressure": "被问到'你这个 sharpe 在不同 regime 下稳定吗'会停顿, 然后给一个保守回答",
+    "verbal_tics_style": "good"
   },
   "flow_padding_internship": {
     "company": "乾象投资 · alpha 因子组",

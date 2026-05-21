@@ -102,8 +102,15 @@
       "全国大学生数学建模竞赛二等奖 (2023)"
     ],
     "candidate_summary": "复旦经济本 + SAIF MF, 2 段头部卖方研究实习 (中金 TMT / 中信建投 TMT). 覆盖半导体设备 + 通信设备, 既有客户服务经验也有数据库建设经验. 希望加入头部券商研究所 (中金 / 中信 / 国君) 做 TMT 首席助理, 3 年内独立带新方向.",
-    "inferred_roles": ["卖方研究员", "行业分析师"],
-    "inferred_tracks": ["头部券商研究所 TMT", "外资行研究部 TMT", "公募 TMT 行研"]
+    "inferred_roles": [
+      "卖方研究员",
+      "行业分析师"
+    ],
+    "inferred_tracks": [
+      "头部券商研究所 TMT",
+      "外资行研究部 TMT",
+      "公募 TMT 行研"
+    ]
   },
   "persona_voice": {
     "communication_style": "条理清晰, 数字感强, 喜欢用具体数据支持观点",
@@ -114,7 +121,8 @@
       "'本质上'"
     ],
     "typical_message_length": "中等 (50-90 字), 倾向加 1-2 个数字",
-    "under_pressure": "被追问到知识盲点时会承认'这块我了解不深', 然后转回熟悉领域"
+    "under_pressure": "被追问到知识盲点时会承认'这块我了解不深', 然后转回熟悉领域",
+    "verbal_tics_style": "mixed"
   },
   "flow_padding_internship": {
     "company": "中信建投证券 · 研究发展部 · TMT 组",

@@ -121,6 +121,8 @@ def load_personas(dirs: list[Path]) -> list[Persona]:
 
 _REWRITE_PATTERNS = [r"可以改成", r"建议改成", r"建议:", r"改成[:：『「]", r"换成"]
 _COHORT_PATTERNS = [r"同期", r"同辈", r"同行候选", r"P50", r"P90", r"P25", r"行业及格", r"及格线"]
+# Day 10 Gap 4: 镜像 report._NUMERIC_PATTERN, 抽 candidate 答里的数字当 eval anchor。
+_NUMERIC_PATTERN = re.compile(r"\d+(?:\.\d+)?%?")
 _TRACK_TOKENS = [
     "公募", "卖方", "买方", "量化", "IBD", "投行", "资管", "对冲", "私募",
     "FinTech", "金科", "管培", "大宗", "能源", "TMT", "消费", "医药",
@@ -276,6 +278,15 @@ def run_one_persona(
                 turn_score_jsons.append(json.dumps(sc, ensure_ascii=False))
             except (TypeError, ValueError):
                 pass
+        # Day 10 Gap 4: eval 模式把 simulator 写的所有候选人侧数字加进 fab anchor 白名单 —
+        # simulator 凭空注入的 "4.2% alpha / 24 调研网络" 之类 color-number 不该被
+        # fab-number 守卫当作"未在简历出现"标黄, 但 strong fab ("实习生 own 80亿欧元"
+        # self-attribution + 数字+量词共现) 由 _has_extreme_fab_signal 独立扫 transcript,
+        # 仍会 cap credibility — 安全网在 (见 report.py Guard 2)。
+        eval_extra_anchor: set[str] = set()
+        for msg in transcript_messages:
+            if msg.get("role") == "user":
+                eval_extra_anchor.update(_NUMERIC_PATTERN.findall(msg.get("content") or ""))
         try:
             report = generate_interview_report(
                 target_job=p.target_job,
@@ -284,6 +295,7 @@ def run_one_persona(
                 db=db,
                 profile=p.profile,
                 turn_score_jsons=turn_score_jsons,
+                eval_extra_anchor=eval_extra_anchor,
             )
         except Exception as exc:
             logger.warning("[%s] report failed: %s", p.scenario_id, exc)
