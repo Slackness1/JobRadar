@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { DEMO_SESSION_ID, getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
 import { AuthModal } from './auth-modal';
-import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp, useLiveCount } from './hifi-primitives';
+import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp } from './hifi-primitives';
 
 const GUEST_DISPLAY_NAME = 'guest1';
 
@@ -63,9 +63,9 @@ export function HFHero() {
     setLoggedIn(isAuthenticated() || isGuestUser());
   }, []);
 
-  const companies = useCountUp(3486, 1600);
-  const jobs = useCountUp(12834, 1800);
-  const daily = useLiveCount(1087, 1400);
+  const companies = useCountUp(3884, 1600);
+  const jobs = useCountUp(126802, 1800);
+  const daily = useCountUp(2092, 1400);
 
   const handleCTA = (destination: string) => {
     if (isAuthenticated() || isGuestUser()) {
@@ -219,8 +219,8 @@ export function HFHero() {
             className="hf-hero-page__metrics"
           >
             <Metric value={companies.toLocaleString()} caption="重点覆盖公司" suffix="+" />
-            <Metric value={jobs.toLocaleString()} caption="今日新岗位" />
-            <Metric value={daily.toLocaleString()} caption="日均更新次数" highlight />
+            <Metric value={jobs.toLocaleString()} caption="累计岗位" suffix="+" />
+            <Metric value={daily.toLocaleString()} caption="近 7 日新增" suffix="+" highlight />
           </div>
         </div>
 
