@@ -362,8 +362,16 @@ def test_detect_mentor_fallback_strong_independent_does_not_trigger():
     assert _detect_mentor_fallback(transcript) == 0
 
 
-def test_cap_for_mentor_fallback_caps_overall_and_credibility():
-    """count ≥ 3 → overall ≤ 65, credibility ≤ 50, 标 _meta + warning."""
+def test_cap_for_mentor_fallback_caps_overall_credibility_and_drops_traits():
+    """count ≥ 3 → overall ≤ 65, credibility ≤ 50, 内驱力 trait 被 drop, 标 _meta + warning.
+
+    Day 11 v7 baseline 独立审查抓到 ordering bug: 这函数试图改 report['traits'],
+    但 generate_interview_report 之前在 trait aggregation 之**前**调它, 所以原来的
+    `suppressed_by_mentor_fallback` 标记永远是 dead code. v7final 修法:
+      - generate_interview_report 把 Guard 4 移到 trait aggregation 后
+      - 这函数 drop "内驱力" entry 而不是只标 strength=weak (避免 SAIF 老师扫
+        traits 区看到"内驱力 count=2 strong"与 "判断来源外部化" 警告矛盾)
+    """
     from app.services.interview.report import _cap_for_mentor_fallback
     report = {
         'overall_score': 82,
@@ -372,19 +380,79 @@ def test_cap_for_mentor_fallback_caps_overall_and_credibility():
             {'id': 'credibility', 'name': '可信度', 'score': 82, 'comment': ''},
         ],
         'overall_comment': '总体不错',
-        'traits': [{'trait': '内驱力', 'count': 2, 'hits': [], 'strength': 'strong'}],
+        'traits': [
+            {'trait': '内驱力', 'count': 2, 'hits': []},
+            {'trait': '钻研精神', 'count': 1, 'hits': []},   # 应保留
+        ],
     }
     _cap_for_mentor_fallback(report, count=5)
     assert report['overall_score'] == 65
     cred = next(d for d in report['dimensions'] if d['id'] == 'credibility')
     assert cred['score'] == 50
     assert report['_meta']['mentor_fallback_count'] == 5
-    # 内驱力 trait 被标 suppressed
-    assert report['traits'][0]['suppressed_by_mentor_fallback'] is True
-    assert report['traits'][0]['strength'] == 'weak'
+    # 内驱力 被 drop, 钻研精神 保留
+    trait_names = [t['trait'] for t in report['traits']]
+    assert '内驱力' not in trait_names
+    assert '钻研精神' in trait_names
     # warning 进 overall_comment
     assert 'mentor' in report['overall_comment'] or 'PM' in report['overall_comment']
     assert '⚠️' in report['overall_comment']
+
+
+def test_generate_interview_report_b3_drops_neidrli_in_mentor_fallback(monkeypatch):
+    """Day 11 v7 ordering bug 修法 — Guard 4 必须在 trait aggregation **之后**.
+
+    模拟 P-fake-S1 场景: turn_score_jsons 含 内驱力 strong + mentor-fallback transcript,
+    generate_interview_report 跑完后 report['traits'] 不应再有 内驱力.
+    """
+    import json as json_mod
+    from app.services.interview import report as report_mod
+
+    # mock LLM call to return a clean report (no fab quotes)
+    def fake_call_llm(client, system, user, *, n_attempts):
+        return json_mod.dumps({
+            'overall_score': 78,
+            'dimensions': [
+                {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 80, 'comment': ''},
+                {'id': 'credibility', 'name': '可信度', 'score': 78, 'comment': ''},
+            ],
+            'highlights': [],
+            'improvements': [],
+            'overall_comment': '基础不错',
+        }, ensure_ascii=False)
+    monkeypatch.setattr(report_mod, '_call_report_llm', fake_call_llm)
+    # mock 客户端构造 (避免 import OpenAI key)
+    monkeypatch.setattr(report_mod, 'build_resume_llm_client', lambda: object())
+
+    messages = [
+        {'role': 'assistant', 'content': '讲一个项目'},
+        {'role': 'user', 'content':
+            '我们PM觉得动销跟踪是核心。我们PM是这么看的, '
+            'mentor 给的基础模型, 我做假设更新。'
+            'PM 的 thesis 是市场过度担忧批价压力。'},
+    ]
+    # turn_score_jsons 含 内驱力 strong
+    score_jsons = [
+        json_mod.dumps({
+            'trait_signals': [
+                {'trait': '内驱力', 'strength': 'strong', 'evidence': '「自主调研」'},
+            ],
+            'transferability_signal': 'domain_match',
+        }),
+    ]
+
+    out = report_mod.generate_interview_report(
+        target_job='公募行研',
+        messages=messages,
+        turn_score_jsons=score_jsons,
+    )
+    # B3 守卫触发 (mentor_count ≥3)
+    assert (out.get('_meta') or {}).get('mentor_fallback_count', 0) >= 3
+    # overall capped
+    assert out['overall_score'] <= 65
+    # 内驱力 trait 被 drop — 不留在 report.traits 给 SAIF 老师看
+    trait_names = [t['trait'] for t in out.get('traits') or []]
+    assert '内驱力' not in trait_names
 
 
 def test_cap_for_mentor_fallback_does_not_raise_score():
@@ -405,24 +473,40 @@ def test_cap_for_mentor_fallback_does_not_raise_score():
 
 
 def test_cap_for_fabrication_suppression_caps_overall_and_high_dims():
-    """suppressed=True → overall + 每维 >60 都 cap 到 60, 标 _meta.score_capped_for_fabrication."""
+    """suppressed=True → overall + 每维 > cap 都 cap, 标 _meta.score_capped_for_fabrication.
+
+    Day 11 v7 baseline 后微调: default cap 60 → 69 (避免 P9/P7/M13 等 turn_mean 70+
+    的强档候选人 1-2 句 paraphrase 就被砸到 60).
+    """
     from app.services.interview.report import _cap_for_fabrication_suppression
     report = {
         'overall_score': 82,
         'dimensions': [
             {'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 85, 'comment': ''},
             {'id': 'logic', 'name': '逻辑性', 'score': 78, 'comment': ''},
-            {'id': 'credibility', 'name': '可信度', 'score': 55, 'comment': ''},  # 已 ≤60, 不动
+            {'id': 'credibility', 'name': '可信度', 'score': 65, 'comment': ''},  # ≤69, 不动
         ],
         'overall_comment': '',
     }
-    _cap_for_fabrication_suppression(report, cap=60)
-    assert report['overall_score'] == 60
+    _cap_for_fabrication_suppression(report)   # 用 default cap=69
+    assert report['overall_score'] == 69
     by_id = {d['id']: d for d in report['dimensions']}
-    assert by_id['job_fit']['score'] == 60
-    assert by_id['logic']['score'] == 60
-    assert by_id['credibility']['score'] == 55   # ≤60 → 不动
+    assert by_id['job_fit']['score'] == 69
+    assert by_id['logic']['score'] == 69
+    assert by_id['credibility']['score'] == 65   # ≤69 → 不动
     assert report['_meta']['score_capped_for_fabrication'] is True
+
+
+def test_cap_for_fabrication_suppression_default_cap_satisfies_ship_gate():
+    """Day 11 ship gate: 'suppressed=True AND overall ≥70 count = 0' — default cap 必须 ≤ 69."""
+    from app.services.interview.report import _cap_for_fabrication_suppression
+    report = {
+        'overall_score': 88,
+        'dimensions': [{'id': 'job_fit', 'name': '岗位能力匹配度', 'score': 90, 'comment': ''}],
+        'overall_comment': '',
+    }
+    _cap_for_fabrication_suppression(report)
+    assert report['overall_score'] < 70   # strict — ship gate compliance
 
 
 def test_cap_for_fabrication_suppression_does_not_raise_low_score():

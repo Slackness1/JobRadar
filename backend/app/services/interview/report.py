@@ -282,12 +282,16 @@ def generate_interview_report(
             report['highlights'] = []
             report = _append_overall_warning(report, _SUPPRESS_NOTE)
 
-    # ── Day 11 M1: suppressed 时数字分必须 cap ──
+    # ── Day 11 M1: suppressed 时数字分必须 cap (调到 ≤69) ──
     # full 27 baseline 里 8 个 reports `_fabrication_suppressed=True` AND overall ≥70 —
     # 文本被 suppress 但 LLM 仍给高数字分, "安全文案 + 高分" 自相矛盾.
-    # cap overall ≤60 + 每维 >60 都 cap, 标 _meta.score_capped_for_fabrication.
+    #
+    # 2026-05-22 Day 11 v7 baseline 抓到: 把 cap 设到 ≤60 把 P9 / P7 / P6 / M13 / M14
+    # (turn_mean 70-77 的 strong/mid 候选人) 全砸到 60, 因为 LLM 偶尔 paraphrase 1-2 句
+    # 就会触发 suppress. 调到 ≤69 仍满足 ship gate "suppress AND overall ≥70 count = 0",
+    # 但不再 crush 实际表现强的候选人. 维度同步 cap >69 → 69.
     if report.get('_fabrication_suppressed'):
-        _cap_for_fabrication_suppression(report, cap=60)
+        _cap_for_fabrication_suppression(report, cap=69)
 
     # ── Soft check: 4-字段 improvements 合规率 (Day 8 Bug B) ──
     # parse 时缺字段已被 drop, 所以 v2/raw 长度差 = 不合规条数。
@@ -349,14 +353,6 @@ def generate_interview_report(
     )
     _apply_report_pattern_caps(report, transcript_for_caps, target_job)
 
-    # ── Guard 4: mentor / PM ownership-deferral (Day 11 B3 — P-fake-S1 红线) ──
-    # 设计退回 mentor 框架的 persona 在 v6 被抬到 78-82, 完全绕过 SAIF 核心承诺.
-    # ≥3 次 "我们PM觉得 / mentor 让我 / 组里讨论决定 / PM 的 thesis" 类外部化判断
-    # → 强制 cap overall ≤65 / 可信度 ≤50 + 抑制 内驱力 strong trait.
-    mentor_count = _detect_mentor_fallback(transcript_for_caps)
-    if mentor_count >= 3:
-        _cap_for_mentor_fallback(report, mentor_count)
-
     # ── Day 9 PR-3: aggregate trait_signals + transferability_signal ──
     # 从 turn_score_jsons (eval runner 路径) 或 InterviewTurn.score_json (生产路径)
     # 聚 trait_signals (strong only) → report.traits narrative; transferability 投票 → _meta.
@@ -383,6 +379,17 @@ def generate_interview_report(
         if transferability:
             meta = report.setdefault('_meta', {})
             meta['transferability'] = transferability
+
+    # ── Guard 4: mentor / PM ownership-deferral (Day 11 B3 — P-fake-S1 红线) ──
+    # 设计退回 mentor 框架的 persona 在 v6 被抬到 78-82, 完全绕过 SAIF 核心承诺.
+    # ≥3 次 "我们PM觉得 / mentor 让我 / 组里讨论决定 / PM 的 thesis" 类外部化判断
+    # → 强制 cap overall ≤65 / 可信度 ≤50 + 抑制 内驱力 strong trait.
+    #
+    # **必须放在 trait aggregation 之后** — `_cap_for_mentor_fallback` 要改 report['traits'],
+    # 之前 (Day 11 first cut, v7 baseline 验过) 因为顺序错了, 抑制内驱力是 dead code.
+    mentor_count = _detect_mentor_fallback(transcript_for_caps)
+    if mentor_count >= 3:
+        _cap_for_mentor_fallback(report, mentor_count)
 
     return report
 
@@ -616,11 +623,14 @@ def _append_overall_warning(report: dict, note: str) -> dict:
     return report
 
 
-def _cap_for_fabrication_suppression(report: dict, *, cap: int = 60) -> None:
+def _cap_for_fabrication_suppression(report: dict, *, cap: int = 69) -> None:
     """Day 11 M1: `_fabrication_suppressed=True` 时把 overall + 每维 cap 到 ≤ cap.
 
     Why: full 27 baseline 8 个 reports suppressed=True 但 overall ≥70 — 文本层抑制
     + 数字层不动 = "文案安全, 分数仍高" 自相矛盾, 学生 / 老师 / 监控信号都被搞糊涂.
+
+    Default cap 69 (一档低于 70 的 "ship gate 不准过" 边界), 不是 60 — 60 会把
+    turn_mean 70+ 的 strong 候选人 1-2 句 mild paraphrase 直接砸到 60 太狠.
     """
     try:
         cur_overall = int(report.get('overall_score') or cap)
@@ -713,11 +723,13 @@ def _cap_for_mentor_fallback(report: dict, count: int) -> None:
     except (TypeError, ValueError):
         cur_overall = 65
     report['overall_score'] = min(cur_overall, 65)
-    # 抑制 内驱力 strong trait — 改成 weak, narrative 不再当 strong 展示
-    for t in report.get('traits') or []:
-        if isinstance(t, dict) and t.get('trait') == '内驱力':
-            t['suppressed_by_mentor_fallback'] = True
-            t['strength'] = 'weak'   # 若 narrative 读 strength 字段
+    # 抑制 内驱力 trait — 直接从 traits 列表里 drop, 不要让 SAIF 老师看到"内驱力 strong"
+    # 同时跟 overall_comment 的 "判断来源外部化" 警告矛盾.
+    # 这段必须在 generate_interview_report 完成 trait aggregation **之后**调用才有效.
+    traits = report.get('traits') or []
+    filtered = [t for t in traits if not (isinstance(t, dict) and t.get('trait') == '内驱力')]
+    if filtered != traits:
+        report['traits'] = filtered
     _append_overall_warning(
         report,
         f'⚠️ 检测到 {count} 次"mentor / PM / 组里"框架引用 (判断来源外部化), '
