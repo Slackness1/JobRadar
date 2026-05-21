@@ -322,6 +322,9 @@ def process_turn_synchronous(
     # 失败时(LLM 错误 / 解析失败) 默认 advance — 不连续追问总比追错好。
     should_follow_up = False
     interest_target_dimension: str | None = None
+    # Day 9 PR-2: 三层提问范式信号 (decider 没跑 → None → adaptive 用 fallback)
+    layer_target: str | None = None
+    l3_triggers: list[str] | None = None
 
     # 是不是反问环节(skeleton 最后一题)
     is_reverse_question_phase = False
@@ -381,9 +384,13 @@ def process_turn_synchronous(
         )
         should_follow_up = decision.should_continue
         interest_target_dimension = decision.target_dimension
+        layer_target = decision.layer_target
+        l3_triggers = decision.l3_triggers
         logger.info(
-            "interest_decider: continue=%s target=%r reasoning=%s",
-            decision.should_continue, decision.target_dimension, decision.reasoning[:120],
+            "interest_decider: continue=%s target=%r layer=%s triggers=%s reasoning=%s",
+            decision.should_continue, decision.target_dimension,
+            decision.layer_target, decision.l3_triggers,
+            decision.reasoning[:120],
         )
 
     parent_for_next: int | None = None
@@ -410,6 +417,8 @@ def process_turn_synchronous(
             current_main_question=prev_question if current_main_index is not None else "",
             current_main_answer=prev_user_answer if current_main_index is not None else "",
             recalled_experiences=recalled,
+            layer_target=layer_target,
+            l3_triggers=l3_triggers,
         )
         parent_for_next = current_main_index
     elif skeleton_count < len(skeleton_list):

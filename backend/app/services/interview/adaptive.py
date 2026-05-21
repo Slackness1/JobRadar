@@ -99,6 +99,31 @@ SKELETON_QUESTIONS: dict[str, list[str]] = {
 GENERIC_FALLBACK_QUESTION = "请详细讲讲你最近完成的项目里，你最自豪的一个细节。"
 
 
+# 2026-05-22 Day 9 PR-2: 三层提问范式 (借鉴腾讯校招 skill 的 表面 / 中间 / 深层 结构).
+# 每道 skeleton 题映射可考察的层 — orchestrator 用这个决定 follow-up 的 layer_target。
+#
+#   L1 表面: 简历 / 成绩 / 论文 / 获奖 / 实习经历 — 候选人讲"做了什么"
+#   L2 中间: 行为 / 技能 / 知识 — 候选人"怎么做、为什么这么做、有什么取舍"
+#   L3 深层: 真实性 / 可迁移性 / 内驱力 / 团队 / 钻研 — 候选人"是什么样的人"
+#
+# 与 SKELETON_TOPIC_LABELS 同构 (顺序一致), index N 对应 skeleton turn N。
+SKELETON_QUESTION_LAYERS: list[list[str]] = [
+    ["L1", "L2"],   # 0 自我介绍 — 简历表面 + 简短动机 (L2 入口)
+    ["L1", "L2"],   # 1 主导项目 (主桩) — L1 → L2 entry
+    ["L2"],         # 2 关键取舍 — L2 中间
+    ["L2", "L3"],   # 3 不确定决策 — L2 中间 + L3 内驱/钻研 入口
+    ["L1", "L2"],   # 4 为什么这家 — L1 认知 + L2 差异化判断
+    ["L1", "L3"],   # 5 反问环节 — L1 礼节 + L3 内驱力 hook
+]
+
+
+def current_main_layers(turn_index: int) -> list[str]:
+    """该 turn 主问题对应的可考察层。turn_index 超出 skeleton → 默认 [L2, L3]。"""
+    if 0 <= turn_index < len(SKELETON_QUESTION_LAYERS):
+        return SKELETON_QUESTION_LAYERS[turn_index]
+    return ["L2", "L3"]
+
+
 @dataclass(slots=True)
 class NextQuestion:
     question: str
@@ -125,6 +150,8 @@ def _build_followup_user_payload(
     current_main_question: str = "",
     current_main_answer: str = "",
     recalled_experiences: list[dict] | None = None,
+    layer_target: str | None = None,
+    l3_triggers: list[str] | None = None,
 ) -> str:
     payload: dict = {
         "target_job": target_job,
@@ -161,6 +188,12 @@ def _build_followup_user_payload(
                 "但绝不要照抄 raw_excerpt 原话。如果没有合适的钩子，就忽略这个字段。"
             ),
         }
+    # 2026-05-22 Day 9 PR-2: layer_target 状态机 — orchestrator 通过 interest_decider
+    # 决定下一题该挖哪一层 (L1→L2 入口 / L2 中 / L2→L3 深层), prompt 走对应分支。
+    if layer_target:
+        payload["layer_target"] = layer_target
+    if l3_triggers:
+        payload["l3_triggers"] = l3_triggers
     return json.dumps(payload, ensure_ascii=False)
 
 
@@ -174,6 +207,8 @@ def generate_followup_question(
     current_main_question: str = "",
     current_main_answer: str = "",
     recalled_experiences: list[dict] | None = None,
+    layer_target: str | None = None,
+    l3_triggers: list[str] | None = None,
 ) -> NextQuestion:
     """Force-ask a follow-up sub-question via LLM, regardless of skeleton state.
 
@@ -182,12 +217,19 @@ def generate_followup_question(
 
     `current_main_question` + `current_main_answer` 钉死 LLM 在当前正在深挖的
     项目上 — 没有这两个字段时 LLM 容易跳到候选人简历里的另一段经历。
+
+    `layer_target` + `l3_triggers` (Day 9 PR-2) — 三层提问范式信号:
+      "L1→L2"  → 找 JD ↔ 简历 cross-match 切口 (首轮入口)
+      "L2"     → 继续 L2 中间, 钻具体动作 / 取舍 / 量化结果
+      "L2→L3"  → 跳到深层, 用 l3_triggers 里的具体范式 (T-real/transfer/drive/team/grit)
     """
     user_payload = _build_followup_user_payload(
         target_job, chip_summary, weakness, asked_questions, jd_content,
         current_main_question=current_main_question,
         current_main_answer=current_main_answer,
         recalled_experiences=recalled_experiences,
+        layer_target=layer_target,
+        l3_triggers=l3_triggers,
     )
 
     try:

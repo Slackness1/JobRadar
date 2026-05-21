@@ -29,6 +29,27 @@ _SIMULATOR_SYSTEM = """\
   3. 如果面试官问的方向 profile 没有相关经历,坦率说"这块我没有直接经验,但我做过 X"
   4. 不要堆形容词(如"专业、敬业、努力")— 用事实代替
   5. 不输出任何 meta 信息(不要说"作为候选人,我会..."),直接进入第一人称
+
+## persona_voice (Day 9 PR-2 G1 修法 — 让模拟器真实暴露口头习惯)
+
+如果输入里有 `persona_voice.verbal_tics` 字段, 这是该 persona 的**习惯口头禅 / 套话**.
+你**必须在回答里真实使用**它们 — 不是用一次撑场, 而是融进答的语言风格里:
+
+  - `verbal_tics` 有 ≥ 2 项 → 这一题至少**自然嵌入 1 项**到答里 (用法不要突兀, 但要露)
+  - `verbal_tics` 有 ≥ 4 项 → 这一题至少嵌入 2 项
+  - 不要把所有 tics 在一题里堆完 — 在 6 题里**均匀分布**, 让面试官能感受到这个候选人
+    讲话**就是这种风格**, 而不是偶尔说了句行话
+  - 例: persona_voice.verbal_tics = ["leveraged synergies", "端到端价值闭环",
+    "spearheaded", "stakeholder alignment"] →
+    答里自然出现: "我当时 spearheaded 了这个项目, 跟 BD / 风控 / 产品 align expectations..."
+
+这是为了 evaluator 能真实评候选人的"表达深度"和"翻译腔"问题, 不嵌入 = 测不出来.
+
+## persona_voice.communication_style + under_pressure
+
+如果有 `persona_voice.communication_style` (e.g. "话多 / 简练 / 满嘴黑话"), 让答的风格
+跟它对得上. 如果有 `persona_voice.under_pressure` (e.g. "被追问就开始结巴"), 在 follow-up
+里表现出来。
 """
 
 
@@ -56,16 +77,22 @@ def simulate_candidate_answer(
     student_profile: dict,
     interviewer_question: str,
     prior_transcript: list[dict],
+    persona_voice: dict | None = None,
 ) -> str:
-    """让 simulator 给一道面试官问题生成候选人式回答。"""
-    user_payload = json.dumps(
-        {
-            "my_profile": _profile_for_simulator(student_profile),
-            "prior_transcript": prior_transcript,
-            "interviewer_question": interviewer_question,
-        },
-        ensure_ascii=False,
-    )
+    """让 simulator 给一道面试官问题生成候选人式回答。
+
+    `persona_voice` (Day 9 PR-2 G1 修法): {communication_style, verbal_tics,
+    typical_message_length, under_pressure}. verbal_tics ≥ 2 时 prompt 强制嵌入,
+    让 evaluator 真实测到候选人的翻译腔 / 套话风格。
+    """
+    payload: dict = {
+        "my_profile": _profile_for_simulator(student_profile),
+        "prior_transcript": prior_transcript,
+        "interviewer_question": interviewer_question,
+    }
+    if persona_voice:
+        payload["persona_voice"] = _persona_voice_for_simulator(persona_voice)
+    user_payload = json.dumps(payload, ensure_ascii=False)
     answer = simulator.chat(
         messages=[
             {"role": "system", "content": _SIMULATOR_SYSTEM},
@@ -74,6 +101,16 @@ def simulate_candidate_answer(
         temperature=0.7,   # 答题口语化,稍高 temperature
     )
     return answer.strip()
+
+
+def _persona_voice_for_simulator(pv: dict) -> dict:
+    """喂给 simulator 的 persona_voice 视图. 留 4 个核心字段, 不喂 meta。"""
+    return {
+        "communication_style": pv.get("communication_style"),
+        "verbal_tics": pv.get("verbal_tics") or [],
+        "typical_message_length": pv.get("typical_message_length"),
+        "under_pressure": pv.get("under_pressure"),
+    }
 
 
 def _profile_for_simulator(profile: dict) -> dict:

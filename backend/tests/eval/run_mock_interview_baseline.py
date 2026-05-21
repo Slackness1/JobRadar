@@ -214,6 +214,7 @@ def run_one_persona(
                     student_profile=p.profile,
                     interviewer_question=question,
                     prior_transcript=transcript_messages[:-1],
+                    persona_voice=p.persona_voice,
                 )
             except Exception as exc:
                 logger.warning("[%s] turn %d simulator failed: %s", p.scenario_id, idx, exc)
