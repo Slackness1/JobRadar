@@ -13,6 +13,7 @@ an ``AccountMemory`` row directly. This is the chokepoint that:
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -94,6 +95,9 @@ def write_memory(
     confidence: float = 1.0,
     auto_confirm_threshold: float = 0.85,
     commit: bool = True,
+    linked_field_paths: list[str] | None = None,
+    linked_track: str = '',
+    linked_job_id: str = '',
 ) -> WriteOutcome:
     """Insert-or-refresh a single account_memory row. Dedup keyed on
     (user_key, category, normalized summary).
@@ -171,6 +175,10 @@ def write_memory(
 
     # ── 6. insert ───────────────────────────────────────────────────────────
     auto_confirm = bool(confidence >= auto_confirm_threshold)
+    # `linked_field_paths` lets Plan 1 resync logic later find this row when
+    # the matching bullet text is edited. Caller (chat/plan extractor) passes
+    # paths like ["internships.0.bullets.2"]; empty/None → general memory.
+    safe_paths = [str(p) for p in (linked_field_paths or []) if p]
     row = AccountMemory(
         user_key=user_key,
         category=category,
@@ -185,6 +193,9 @@ def write_memory(
         user_confirmed=auto_confirm,
         captured_at=datetime.utcnow(),
         last_verified_at=datetime.utcnow(),
+        linked_field_paths=json.dumps(safe_paths),
+        linked_track=str(linked_track or '').strip(),
+        linked_job_id=str(linked_job_id or '').strip(),
     )
     db.add(row)
     if commit:

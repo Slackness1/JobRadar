@@ -602,6 +602,25 @@ class AccountMemory(Base):
     superseded_by_id = Column(Integer, nullable=True)   # FK-shaped but not enforced (intra-table)
     is_archived = Column(Boolean, default=False, index=True)
 
+    # Resume-edit sync (Plan 1, 2026-05-20).
+    # `linked_field_paths` = JSON list[str] of resume bullet paths this row was
+    # extracted from (e.g. ["internships.0.bullets.2"]). Empty list when memory
+    # is general / not tied to a bullet (preference rows, identity_fact, etc.).
+    # `needs_resync` set to True when user edits one of the linked bullets via
+    # the right-pane edit toolbar — ArchivePanel renders a 🔄 badge.
+    linked_field_paths = Column(Text, default="[]")
+    needs_resync = Column(Boolean, default=False)
+    # Plan ② (2026-05-20): canonical 赛道 name the student was working on
+    # when this memory was captured. Lets ArchivePanel render a track tag on
+    # the card + lets recall optionally filter by track. Empty string = not
+    # tagged (general / cross-track memory, e.g. preference rows).
+    linked_track = Column(Text, default="")
+    # Plan ② Job plan-mode (2026-05-21): job_id this memory was captured
+    # while customising for. Empty = general / track-level memory.
+    # ArchivePanel can show a job tag; rewrite recall can boost memory for
+    # the matching job.
+    linked_job_id = Column(Text, default="")
+
     __table_args__ = (
         UniqueConstraint("user_key", "summary_hash", name="uq_account_memory_user_summary"),
     )

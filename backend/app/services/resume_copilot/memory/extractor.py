@@ -471,12 +471,61 @@ def _persist_candidate(
     return "inserted", row
 
 
+def _resolve_active_track(db: Session, *, session_id: int) -> str:
+    """Return the canonical 赛道 string the student is currently working on.
+
+    Plan ② (2026-05-20): memory rows captured in chat get tagged with this
+    so ArchivePanel can render a track tag + future recall can filter.
+
+    Priority: explicit preferences.preferred_tracks[0] > profile.inferred_tracks[0].
+    Empty string when neither is set (we don't fabricate a track).
+    """
+    try:
+        import json as _json
+        from app.models import ResumeCopilotPreferences, ResumeConfirmedProfile
+        pref = (
+            db.query(ResumeCopilotPreferences)
+            .filter(ResumeCopilotPreferences.session_id == session_id)
+            .first()
+        )
+        if pref and pref.preferences_json:
+            try:
+                d = _json.loads(pref.preferences_json)
+                tracks = d.get('preferred_tracks') or []
+                if tracks and isinstance(tracks, list):
+                    first = str(tracks[0] or '').strip()
+                    if first:
+                        return first
+            except (ValueError, TypeError):
+                pass
+        profile = (
+            db.query(ResumeConfirmedProfile)
+            .filter(ResumeConfirmedProfile.session_id == session_id)
+            .first()
+        )
+        if profile and profile.profile_json:
+            try:
+                pd = _json.loads(profile.profile_json)
+                tracks = pd.get('inferred_tracks') or []
+                if tracks and isinstance(tracks, list):
+                    first = str(tracks[0] or '').strip()
+                    if first:
+                        return first
+            except (ValueError, TypeError):
+                pass
+    except Exception:  # noqa: BLE001 — never let track-tag lookup crash extraction
+        pass
+    return ''
+
+
 def _persist_to_account_memory(
     db: Session,
     *,
     user_key: str,
     source_session_id: Optional[int],
     candidate: "ExtractionCandidate",
+    active_track: str = '',
+    active_job_id: str = '',
 ) -> dict:
     """PR-2 dual-write second leg: route the candidate through the unified
     dispatcher into ``account_memory``. Returns a small counter dict.
@@ -519,6 +568,8 @@ def _persist_to_account_memory(
         source_session_id=source_session_id,
         raw_excerpt=candidate.raw_excerpt,
         confidence=candidate.confidence,
+        linked_track=active_track,
+        linked_job_id=active_job_id,
     )
     if primary_outcome.action == "inserted":
         counters["memory_inserted"] += 1
@@ -544,6 +595,8 @@ def _persist_to_account_memory(
             source_session_id=source_session_id,
             raw_excerpt=candidate.raw_excerpt,
             confidence=candidate.confidence,
+            linked_track=active_track,
+            linked_job_id=active_job_id,
         )
         if ev_outcome.action == "inserted":
             counters["evidence_inserted"] += 1
@@ -556,6 +609,7 @@ def extract_for_chat_turn(
     *,
     session_id: int,
     user_content: str,
+    active_job_id: str = '',
 ) -> dict:
     """Entry point invoked from BackgroundTasks after a chat turn.
 
@@ -614,6 +668,11 @@ def extract_for_chat_turn(
     candidates, rejections = extract_from_text(user_content or "")
     summary["rejections"] = rejections
 
+    # Plan ② (2026-05-20): tag every memory row written this turn with the
+    # student's active 赛道 (preferences > inferred_tracks). Empty when neither
+    # is set — leaves linked_track="" which UI treats as cross-track / general.
+    active_track = _resolve_active_track(db, session_id=session_id)
+
     for c in candidates:
         # Leg 1: legacy student_experiences (unchanged Phase 1 behavior).
         if STUDENT_KB_ENABLED:
@@ -637,6 +696,8 @@ def extract_for_chat_turn(
                 user_key=user_key,
                 source_session_id=session_id,
                 candidate=c,
+                active_track=active_track,
+                active_job_id=active_job_id,
             )
             for k, v in memory_counts.items():
                 summary[k] = summary.get(k, 0) + v

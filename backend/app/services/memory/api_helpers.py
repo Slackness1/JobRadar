@@ -58,6 +58,15 @@ def serialize_entry(row: AccountMemory) -> dict[str, Any]:
         payload = json.loads(str(row.payload_json or "{}"))
     except (json.JSONDecodeError, TypeError):
         payload = {}
+    # linked_field_paths — JSON list[str] of resume bullet paths this row was
+    # extracted from. Used by Plan 1 (Resume-edit ↔ memory sync) so the UI
+    # can route "🔄 needs_resync" entries back to plan-mode for that bullet.
+    try:
+        linked_paths = json.loads(str(getattr(row, 'linked_field_paths', '[]') or '[]'))
+        if not isinstance(linked_paths, list):
+            linked_paths = []
+    except (json.JSONDecodeError, TypeError):
+        linked_paths = []
     return {
         "id": int(row.id),
         "category": str(row.category or ""),
@@ -78,6 +87,10 @@ def serialize_entry(row: AccountMemory) -> dict[str, Any]:
         "captured_at": _to_iso(row.captured_at),
         "last_verified_at": _to_iso(row.last_verified_at),
         "last_used_at": _to_iso(row.last_used_at),
+        "linked_field_paths": [str(p) for p in linked_paths],
+        "needs_resync": bool(getattr(row, 'needs_resync', False)),
+        "linked_track": str(getattr(row, 'linked_track', '') or ''),
+        "linked_job_id": str(getattr(row, 'linked_job_id', '') or ''),
     }
 
 
@@ -136,14 +149,20 @@ def list_entries_by_category(
 #   (c) recall > precision: a noisy match is fine — the LLM filters by reading
 #       the bullet + memory rows together in-context.
 #
-# Categories surfaced: ``experience`` + ``skill_claim`` only — those are the
-# rows that carry concrete project / role detail. Preferences / goals don't
-# help bullet rewriting.
+# Categories surfaced: ``experience`` + ``skill_claim`` are the strong rows
+# (concrete project / role detail used to ground rewrites). ``preference`` is
+# pulled in as a SOFT boost (Fix #2, 2026-05-20) — preferences don't supply
+# detail but they signal target-track alignment (e.g. "想做 buy-side 消费"
+# helps a v2 rewrite emphasise consumer-research angle).
 
 _RELEVANT_CATEGORIES_FOR_BULLET: tuple[str, ...] = (
     "experience",
     "skill_claim",
 )
+_BOOST_CATEGORIES_FOR_BULLET: tuple[str, ...] = (
+    "preference",
+)
+_BOOST_MAX = 2  # at most 2 preference rows appended (most-used first)
 
 _CJK_OR_WORD_RE = re.compile(r"[一-鿿]|[A-Za-z0-9]+")
 
@@ -185,6 +204,7 @@ def relevant_memory_for_bullet(
     bullet_text: str,
     k: int = 3,
     min_score: float = 0.10,
+    active_job_id: str = '',
 ) -> list[dict[str, Any]]:
     """Top-k ``experience`` / ``skill_claim`` rows matching the bullet.
 
@@ -218,6 +238,7 @@ def relevant_memory_for_bullet(
         .all()
     )
 
+    active_job_id_clean = (active_job_id or "").strip()
     scored: list[tuple[float, AccountMemory]] = []
     for row in rows:
         # Use summary + raw_excerpt + payload behavioral_hook for token pool
@@ -237,6 +258,11 @@ def relevant_memory_for_bullet(
 
         candidate_tokens = _tokenize_for_match(" ".join(text_pool))
         score = _overlap_score(bullet_tokens, candidate_tokens)
+        # Plan ② Job plan-mode (2026-05-21): if rewriting in the context of a
+        # specific job, boost memory rows captured while customising for that
+        # same job by +0.5 — pushes per-job customisation evidence to the top.
+        if active_job_id_clean and str(getattr(row, 'linked_job_id', '') or '') == active_job_id_clean:
+            score += 0.5
         if score >= min_score:
             scored.append((score, row))
 
@@ -246,7 +272,127 @@ def relevant_memory_for_bullet(
         entry = serialize_entry(row)
         entry["match_score"] = round(float(score), 4)
         out.append(entry)
+
+    # Append up to _BOOST_MAX preference rows as a target-track signal (Fix #2,
+    # 2026-05-20). These are NOT re-ranked against bullet_tokens — they're
+    # global alignment hints, ordered by use_count desc then created_at desc.
+    boost_rows = (
+        db.query(AccountMemory)
+        .filter(
+            AccountMemory.user_key == key,
+            AccountMemory.category.in_(_BOOST_CATEGORIES_FOR_BULLET),
+            (AccountMemory.is_archived.is_(False)) | (AccountMemory.is_archived.is_(None)),
+            AccountMemory.superseded_by_id.is_(None),
+        )
+        .order_by(AccountMemory.use_count.desc(), AccountMemory.captured_at.desc())
+        .limit(_BOOST_MAX)
+        .all()
+    )
+    for row in boost_rows:
+        entry = serialize_entry(row)
+        entry["match_score"] = 0.0  # boost rows aren't scored against bullet
+        out.append(entry)
     return out
+
+
+def diff_changed_field_paths(
+    old_profile: dict | None,
+    new_profile: dict | None,
+) -> list[str]:
+    """Return field_paths whose bullet text differs between two profile dicts.
+
+    Used by `PUT /confirmed-profile` to detect which resume bullets the
+    student edited so the dispatcher can flag corresponding memory rows as
+    ``needs_resync=True`` (Plan 1, 2026-05-20).
+
+    Supported paths:
+      - ``internships.{i}.bullets.{j}``
+      - ``projects.{i}.bullets.{j}``
+      - ``education.{i}.highlights.{j}``
+      - ``candidate_summary``
+
+    A bullet counts as "changed" if its trimmed text differs (whitespace
+    normalised). New / deleted bullets also count — the index changes are
+    detected as content diffs at the corresponding position.
+    """
+    if not isinstance(old_profile, dict) or not isinstance(new_profile, dict):
+        return []
+
+    def _trim(s: object) -> str:
+        return ' '.join(str(s or '').split())
+
+    changed: list[str] = []
+
+    # candidate_summary (single field)
+    if _trim(old_profile.get('candidate_summary')) != _trim(new_profile.get('candidate_summary')):
+        changed.append('candidate_summary')
+
+    # iter through list-of-objects-with-bullets sections
+    for section, bullet_key in (
+        ('internships', 'bullets'),
+        ('projects', 'bullets'),
+        ('education', 'highlights'),
+    ):
+        old_items = old_profile.get(section) or []
+        new_items = new_profile.get(section) or []
+        n = max(len(old_items) if isinstance(old_items, list) else 0,
+                len(new_items) if isinstance(new_items, list) else 0)
+        for i in range(n):
+            old_item = old_items[i] if (isinstance(old_items, list) and i < len(old_items) and isinstance(old_items[i], dict)) else {}
+            new_item = new_items[i] if (isinstance(new_items, list) and i < len(new_items) and isinstance(new_items[i], dict)) else {}
+            old_bullets = old_item.get(bullet_key) or []
+            new_bullets = new_item.get(bullet_key) or []
+            m = max(len(old_bullets) if isinstance(old_bullets, list) else 0,
+                    len(new_bullets) if isinstance(new_bullets, list) else 0)
+            for j in range(m):
+                ob = old_bullets[j] if (isinstance(old_bullets, list) and j < len(old_bullets)) else ''
+                nb = new_bullets[j] if (isinstance(new_bullets, list) and j < len(new_bullets)) else ''
+                if _trim(ob) != _trim(nb):
+                    changed.append(f'{section}.{i}.{bullet_key}.{j}')
+
+    return changed
+
+
+def mark_memory_needs_resync(
+    db: Session,
+    *,
+    user_key: str,
+    changed_field_paths: list[str],
+) -> int:
+    """For each memory row whose ``linked_field_paths`` intersects
+    ``changed_field_paths``, set ``needs_resync = True``. Returns the row
+    count touched. No-op for reserved user_keys (multi-tenant guard).
+    """
+    key = (user_key or "").strip()
+    if not key or key in {"__demo__", "__guest__"}:
+        return 0
+    if not changed_field_paths:
+        return 0
+    changed_set = set(changed_field_paths)
+
+    rows = (
+        db.query(AccountMemory)
+        .filter(
+            AccountMemory.user_key == key,
+            (AccountMemory.is_archived.is_(False)) | (AccountMemory.is_archived.is_(None)),
+            AccountMemory.superseded_by_id.is_(None),
+        )
+        .all()
+    )
+    touched = 0
+    for row in rows:
+        try:
+            linked = json.loads(str(getattr(row, 'linked_field_paths', '[]') or '[]'))
+            if not isinstance(linked, list):
+                continue
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if any(str(p) in changed_set for p in linked):
+            row.needs_resync = True
+            touched += 1
+    if touched:
+        db.commit()
+    return touched
 
 
 __all__ = [
@@ -254,4 +400,6 @@ __all__ = [
     "serialize_entry",
     "list_entries_by_category",
     "relevant_memory_for_bullet",
+    "diff_changed_field_paths",
+    "mark_memory_needs_resync",
 ]
