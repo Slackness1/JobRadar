@@ -121,6 +121,16 @@ def _should_skip(url: str) -> bool:
 _UPDATE_SQL = text("UPDATE jobs SET link_status = :s, link_checked_at = :t WHERE id = :i")
 
 
+def _set_busy_timeout(db: Session, ms: int = 30_000) -> None:
+    """Tell SQLite to wait up to ms milliseconds for write lock before erroring out.
+
+    SessionLocal 默认 5s 来自 engine connect hook。link_prober batch commit 200 行
+    时可能撞上 jobradar service 的 background write → 5s 不够。给到 30s,基本能
+    覆盖所有正常写竞争。
+    """
+    db.execute(text(f"PRAGMA busy_timeout = {ms}"))
+
+
 def probe_active_jobs(db: Session, workers: int = 50) -> dict:
     """对所有 L1+L2 候选岗位并发 HEAD 探活。返回统计 dict。
 
@@ -128,6 +138,7 @@ def probe_active_jobs(db: Session, workers: int = 50) -> dict:
     (`_populate_job_canonical_track`)— 1000+ 次连续 ORM update 在 inner-flush
     钩子下会出 SAWarning + 进程异常退出。
     """
+    _set_busy_timeout(db, ms=30_000)
     now = datetime.utcnow()
     candidates = _select_candidate_jobs(db, now)
     total = len(candidates)
