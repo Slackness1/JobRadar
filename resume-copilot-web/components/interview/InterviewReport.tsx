@@ -31,6 +31,20 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
+function MetaChip({ tone, children }: { tone: 'warn' | 'info'; children: React.ReactNode }) {
+  const palette = tone === 'warn'
+    ? { bg: 'rgba(245,158,11,0.12)', fg: '#b45309', border: 'rgba(245,158,11,0.35)' }
+    : { bg: 'rgba(99,102,241,0.10)', fg: '#4338ca', border: 'rgba(99,102,241,0.30)' };
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+      style={{ background: palette.bg, color: palette.fg, border: `1px solid ${palette.border}` }}
+    >
+      {children}
+    </span>
+  );
+}
+
 function DimensionBar({ name, score, comment }: { name: string; score: number; comment: string }) {
   const color = score >= 80 ? '#4ade80' : score >= 60 ? 'var(--primary)' : '#f97316';
   return (
@@ -54,6 +68,12 @@ function formatDuration(seconds: number) {
 }
 
 export function InterviewReport({ report, targetJob, durationSeconds, onRestart }: Props) {
+  const fallbackReason = report._meta?.fallback_reason;
+  const isFallback = fallbackReason != null || report.overall_score == null;
+  const cappedForFab = report._meta?.score_capped_for_fabrication === true;
+  const mentorCount = report._meta?.mentor_fallback_count ?? 0;
+  const suppressed = report._fabrication_suppressed === true;
+
   return (
     <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
       <div className="mx-auto w-full max-w-xl space-y-5">
@@ -65,17 +85,50 @@ export function InterviewReport({ report, targetJob, durationSeconds, onRestart 
           <p className="text-[13px] text-[var(--muted)]">面试时长：{formatDuration(durationSeconds)}</p>
         </div>
 
-        <div className="rounded-[20px] bg-[var(--paper)] resume-paper-shadow px-6 py-5">
-          <p className="mb-4 text-[13px] font-semibold text-[var(--muted)]">综合评分</p>
-          <div className="flex items-center gap-6">
-            <ScoreRing score={report.overall_score} />
-            <p className="flex-1 text-[14px] leading-relaxed text-[var(--ink)]">
-              {report.overall_comment}
+        {isFallback ? (
+          <div
+            className="rounded-[20px] px-6 py-5"
+            style={{
+              background: 'rgba(245,158,11,0.08)',
+              border: '1px solid rgba(245,158,11,0.30)',
+            }}
+          >
+            <p className="mb-2 text-[13px] font-semibold" style={{ color: '#b45309' }}>
+              ⚠️ 反馈生成中断
+            </p>
+            <p className="text-[14px] leading-relaxed text-[var(--ink)]">
+              {report.overall_comment || '反馈系统暂时不可用，本次没有生成评分。请点击下方"重新面试"再试一次。'}
             </p>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-[20px] bg-[var(--paper)] resume-paper-shadow px-6 py-5">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <p className="text-[13px] font-semibold text-[var(--muted)]">综合评分</p>
+              <div className="flex flex-wrap items-center justify-end gap-1.5">
+                {suppressed || cappedForFab ? (
+                  <MetaChip tone="warn">⚑ 编造嫌疑 评分已下调</MetaChip>
+                ) : null}
+                {mentorCount >= 2 ? (
+                  <MetaChip tone="warn">⚑ {mentorCount} 次依赖外部判断</MetaChip>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex items-center gap-6">
+              <ScoreRing score={report.overall_score as number} />
+              <p className="flex-1 text-[14px] leading-relaxed text-[var(--ink)]">
+                {report.overall_comment}
+              </p>
+            </div>
+            <p
+              className="mt-3 border-t border-[var(--border)] pt-2.5 text-[11px] leading-relaxed text-[var(--muted)]"
+              title="AI 评分含主观判断，每次结果会有 ±5 分浮动属正常现象。看分数请关注区间（如 80-90 = 顶档）而非单个数字。"
+            >
+              ⓘ 评分含 ±5 分主观波动属正常 — 请参考分数区间而非单个数字
+            </p>
+          </div>
+        )}
 
-        {report.dimensions.length > 0 && (
+        {!isFallback && report.dimensions.length > 0 && (
           <div className="rounded-[20px] bg-[var(--paper)] resume-paper-shadow px-6 py-5">
             <p className="mb-4 text-[13px] font-semibold text-[var(--muted)]">各维度评分</p>
             {report.dimensions.map((d) => (

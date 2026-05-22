@@ -11,19 +11,28 @@ export interface ReportDimension {
   comment: string;
 }
 
+export interface ReportMeta {
+  fallback_reason?: string;
+  score_capped_for_fabrication?: boolean;
+  mentor_fallback_count?: number;
+  transferability?: string;
+}
+
 export interface InterviewReport {
-  overall_score: number;
+  overall_score: number | null;   // null when LLM fallback (Day 11 B1)
   dimensions: ReportDimension[];
   highlights: string[];
   improvements: string[];
   overall_comment: string;
+  _meta?: ReportMeta;
+  _fabrication_suppressed?: boolean;
 }
 
 export interface InterviewReportRow {
   id: number;
   target_job: string;
   duration_seconds: number;
-  overall_score: number;
+  overall_score: number | null;
   created_at: string;
 }
 
