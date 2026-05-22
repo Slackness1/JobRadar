@@ -58,14 +58,36 @@ PREF_ROLE_ALIASES: dict[str, tuple[str, ...]] = {
     '投研实习生': ('投研', '研究员', '研究助理', '行研', '研究部', '股票研究', '债券研究', '固收研究', '投行'),
 }
 
-PREF_TRACK_ALIASES: dict[str, tuple[str, ...]] = {
-    '金融科技': ('金融科技', 'fintech', '量化', '金融工程', '风控'),
-    '咨询': ('咨询', 'consulting', 'consultant', '顾问'),
-    '数据分析': ('数据分析', '数据科学', '商业分析', '量化', 'analyst', 'data'),
-    '产品运营': ('产品', '运营', '策划'),
-    '后端开发': ('后端', 'backend', '服务端', '研发'),
-    '投研': ('投研', '研究员', '研究助理', '行研', '投行', '研究所', '股票研究', '债券研究', '固收研究'),
-}
+# 2026-05-20 fix: PREF_TRACK_ALIASES historically only covered 6 legacy track
+# strings — the 8 canonical finance tracks (Phase C 2026-05-16) were never
+# threaded through here. Result: when a student's confirmed_profile carried a
+# canonical name like '二级买方·基本面', _pref_value_matches fell back to
+# literal substring (never matched job text) → preference_score=0 → terrible
+# recs (e.g. P1 林思远 got 中金 HK Risk / 抖音 / 国家电网 instead of 行研).
+#
+# Build the alias map from the canonical taxonomy reverse-index so the two
+# sources of truth stay in sync going forward.
+from app.services.taxonomy.canonical import (
+    CANONICAL_FINANCE_TRACKS as _CANON_TRACKS,
+    TRACK_ALIASES as _CANON_ALIASES,
+)
+
+def _build_pref_track_aliases() -> dict[str, tuple[str, ...]]:
+    # canonical → list of aliases (lower-cased substrings to look for in job_text)
+    bucket: dict[str, list[str]] = {t: [t] for t in _CANON_TRACKS}
+    for alias, canonical in _CANON_ALIASES.items():
+        if canonical in bucket and alias not in bucket[canonical]:
+            bucket[canonical].append(alias)
+    # Legacy non-finance keys — kept so existing tests / templates continue
+    # to work; can be retired when the picker fully migrates to canonicals.
+    bucket.setdefault('咨询', []).extend(['咨询', 'consulting', 'consultant', '顾问'])
+    bucket.setdefault('数据分析', []).extend(['数据分析', '数据科学', '商业分析', 'analyst', 'data'])
+    bucket.setdefault('产品运营', []).extend(['产品', '运营', '策划'])
+    bucket.setdefault('后端开发', []).extend(['后端', 'backend', '服务端', '研发'])
+    bucket.setdefault('投研', []).extend(['投研', '研究员', '研究助理', '行研', '研究所', '股票研究', '债券研究', '固收研究'])
+    return {k: tuple(dict.fromkeys(v)) for k, v in bucket.items()}
+
+PREF_TRACK_ALIASES: dict[str, tuple[str, ...]] = _build_pref_track_aliases()
 
 PREF_COMPANY_TYPE_ALIASES: dict[str, tuple[str, ...]] = {
     '互联网': ('互联网',),
@@ -403,18 +425,41 @@ def compute_objective_score(job: Job, profile: ResumeProfilePayload, profile_tok
     return token_matches * 3 + role_matches * 12
 
 
-def compute_preference_score(job: Job, preferences: ResumePreferencePayload | None) -> int:
-    if preferences is None or preferences.all_skipped:
-        return 0
+def compute_preference_score(
+    job: Job,
+    preferences: ResumePreferencePayload | None,
+    profile: ResumeProfilePayload | None = None,
+) -> int:
+    """Score this job against the student's explicit + inferred track signals.
 
+    2026-05-20 fix: when no preferences are set OR preferred_tracks is empty,
+    fall back to ``profile.inferred_tracks`` at 2/3 weight (12 vs 18). This
+    prevents the "upload PDF, get garbage recs" regression where students
+    who skip the preference picker were getting random brand-name jobs that
+    completely missed their target track (e.g. P1 林思远 公募行研 → 中金 HK
+    Risk / 抖音 / 国家电网).
+    """
     job_text = _build_job_text(job)
     score = 0
 
-    score += sum(6 for location in preferences.preferred_locations if location and location.lower() in job_text)
-    score += sum(8 for role in preferences.preferred_roles if _pref_value_matches(job_text, role, PREF_ROLE_ALIASES))
+    explicit_tracks: list[str] = []
+    if preferences is not None and not preferences.all_skipped:
+        score += sum(6 for location in preferences.preferred_locations if location and location.lower() in job_text)
+        score += sum(8 for role in preferences.preferred_roles if _pref_value_matches(job_text, role, PREF_ROLE_ALIASES))
+        score += sum(4 for company_type in preferences.preferred_company_types if _pref_value_matches(job_text, company_type, PREF_COMPANY_TYPE_ALIASES))
+        explicit_tracks = list(preferences.preferred_tracks or [])
+
     # track 是用户最强信号 — 拉到主导权重 (18),让"投研+上海"碾压"任意+上海大厂"
-    score += sum(18 for track in preferences.preferred_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
-    score += sum(4 for company_type in preferences.preferred_company_types if _pref_value_matches(job_text, company_type, PREF_COMPANY_TYPE_ALIASES))
+    score += sum(18 for track in explicit_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
+
+    # Inferred-track fallback fires only when preferences were never collected
+    # (preferences is None). If the user explicitly opted out via
+    # `all_skipped=True`, respect that — they don't want us guessing.
+    if (preferences is None) and not explicit_tracks and profile is not None:
+        inferred_tracks = [t for t in (profile.inferred_tracks or []) if t]
+        # Lower weight (12) — inferred is softer evidence than explicit picker.
+        score += sum(12 for track in inferred_tracks if _pref_value_matches(job_text, track, PREF_TRACK_ALIASES))
+
     return score
 
 
@@ -478,6 +523,24 @@ def _matched_role_family(profile: ResumeProfilePayload, preferences: ResumePrefe
     return next((role.strip() for role in roles if role and role.strip()), '')
 
 
+_INTERN_TITLE_KEYWORDS: tuple[str, ...] = ('实习', 'intern', 'internship', '暑期')
+_INTERN_STAGE_KEYWORDS: tuple[str, ...] = ('实习', 'internship', 'intern')
+
+
+def _is_internship_job(job: Job) -> bool:
+    """Decide whether a Job is an internship vs a full-time / campus position.
+
+    Stage is the primary signal (crawler-populated, ~91% coverage of campus
+    vs ~5% intern). Title fallback catches the long tail and edge cases where
+    stage is null or labeled ambiguously (e.g. '管培生' which is full-time).
+    """
+    stage = str(getattr(job, 'job_stage', '') or '').strip().lower()
+    if stage in _INTERN_STAGE_KEYWORDS:
+        return True
+    title = str(getattr(job, 'job_title', '') or '').lower()
+    return any(kw.lower() in title for kw in _INTERN_TITLE_KEYWORDS)
+
+
 def _topic_key(job: Job, role_family: str) -> str:
     company = re.sub(r'\s+', '', str(job.company or 'unknown'))
     role = re.sub(r'\s+', '', role_family or str(job.job_title or '岗位'))
@@ -500,7 +563,7 @@ def compute_rule_score(
     target_category_keys: set[str] | None = None,
 ) -> tuple[int, int, int, int, int]:
     objective_score = compute_objective_score(job, profile, profile_tokens=profile_tokens)
-    preference_score = compute_preference_score(job, preferences)
+    preference_score = compute_preference_score(job, preferences, profile=profile)
     base_job_score = compute_base_job_score(job, profile, preferences)
     priority = compute_company_priority(job)
     student_priority_score = _student_priority_bonus(priority, target_category_keys or set())
@@ -784,6 +847,26 @@ def recommend_jobs_for_profile(
     target_category_keys = _target_category_keys(profile, preferences)
 
     for job in jobs:
+        # R2-2 (2026-05-21): matched_track_label per-job derivation。
+        # R3-C (2026-05-21): R2 修复 fallback canonicalize_track(job_title) 时,
+        # canonicalize_track 找不到 match 会返回原文(可能含 HTML / 公司名 /
+        # 乱七八糟). 这次加 gate: 只接受 ∈ 10 canonical 的结果。 其它情况
+        # 回到学生 preference (matched_track_label) 作为后备 — 至少保证
+        # 学生看到的 chip 一定是 canonical 之一, FE 不会渲染坏掉的 chip。
+        canonical_set = set(CANONICAL_FINANCE_TRACKS)
+        per_job_canon = str(getattr(job, 'canonical_track', '') or '').strip()
+        this_label = ''
+        if per_job_canon and per_job_canon in canonical_set:
+            this_label = per_job_canon
+        else:
+            from_title = canonicalize_track(str(job.job_title or ''))
+            if from_title and from_title in canonical_set:
+                this_label = from_title
+        if not this_label:
+            # 兜底回学生 preference (本身已是 canonical), 或空串让 UI 不渲染 chip
+            this_label = matched_track_label if matched_track_label in canonical_set else ''
+        this_key = (this_label or '').lower()
+
         objective_score, preference_score, base_job_score, company_priority_score, rule_score = compute_rule_score(
             job,
             profile,
@@ -824,8 +907,8 @@ def recommend_jobs_for_profile(
                 base_match_score=base_match_score,
                 enhanced_score=enhanced_score,
                 final_score=final_score_value,
-                matched_track_key=matched_track_key,
-                matched_track_label=matched_track_label,
+                matched_track_key=this_key,
+                matched_track_label=this_label,
                 matched_role_family=matched_role_family,
                 company_priority_tier=priority.tier,
                 company_priority_label=priority.label,
@@ -834,6 +917,7 @@ def recommend_jobs_for_profile(
                 tier_label=tier_label_value,
                 priority_letter=priority_letter_value,
                 track_match_kind=track_match_kind,
+                is_internship=_is_internship_job(job),
                 why_recommended=[
                     value
                     for value in [
@@ -886,7 +970,14 @@ def recommend_jobs_for_profile(
     )
 
     if ai_top_n > 0:
-        ai_slice = recommendations[:ai_top_n]
+        # 2026-05-20: partition the rerank slice so 校招 + 实习 each get a
+        # fair shot at the LLM rerank — otherwise the higher-scoring stream
+        # (usually 校招 after canonical-track alias coverage) starves the
+        # other stream entirely (observed: 10 校招 / 0 实习 on P1).
+        # Take ai_top_n of each stream, max 2*ai_top_n combined into the slice.
+        ai_slice_campus = [it for it in recommendations if not it.is_internship][:ai_top_n]
+        ai_slice_intern = [it for it in recommendations if it.is_internship][:ai_top_n]
+        ai_slice = ai_slice_campus + ai_slice_intern
         if ai_slice:
             fallback_reason = ''
             provider = ai_provider
@@ -974,17 +1065,23 @@ def _apply_top_n_with_threshold(
 ) -> list[ResumeRecommendationItem]:
     """BE-3 (D-6): enforce top-N + 50-score floor on a sorted recommendation list.
 
+    2026-05-20: extended to partition the result into 2 streams (校招 +
+    实习), taking top-N of EACH so the frontend can show two tabs without
+    one stream starving the other. Returns ≤2*N items (10 校招 first,
+    then 10 实习), still sorted within each partition.
+
     ``items`` must already be sorted by descending ``final_score``. The score
     floor (``RECOMMEND_MIN_SCORE``) is applied unconditionally — passing a
     large ``limit`` does NOT bring back sub-floor items. ``limit`` acts only
-    as a cap; the effective top-N is ``min(limit, RECOMMEND_TOP_N)`` so the
-    caller can shrink (e.g. preview slot) but never expand past 10.
+    as a cap; the effective per-stream top-N is ``min(limit, RECOMMEND_TOP_N)``.
     """
     cap = top_n if limit is None else min(int(limit), top_n)
     if cap <= 0:
         return []
     filtered = [item for item in items if int(item.final_score or 0) >= min_score]
-    return filtered[:cap]
+    campus = [item for item in filtered if not item.is_internship][:cap]
+    intern = [item for item in filtered if item.is_internship][:cap]
+    return campus + intern
 
 
 def should_debounce_recommend(

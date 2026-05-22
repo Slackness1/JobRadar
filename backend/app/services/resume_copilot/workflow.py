@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime, timedelta
 
 from app.database import SessionLocal
@@ -23,6 +24,115 @@ from app.services.resume_copilot.agent.tools import build_tools
 from app.services.resume_copilot.recommendation import ResumeRecommendationProvider, recommend_jobs_for_profile
 
 RESUME_RECOMMENDATION_LIMIT = 100
+
+
+# B2 (2026-05-21): "蚂蚁集团" 和 "蚂蚁科技集团股份有限公司" 是同一家公司
+# 两个法人名, 实测 P7 推荐 20 条全是这两家, 学生立刻判定坏掉。 这里做轻量
+# 公司归一: 去掉法人后缀 + 常见 "集团 / 股份有限公司 / 控股 / SH / HK / Inc"
+# 等去重 — 一律用清洗后的 token 作为 per-employer cap 的 key, 让真实多样性
+# 出来。
+_COMPANY_SUFFIX_STRIP = re.compile(
+    r'('
+    r'股份有限公司|有限责任公司|有限公司|控股集团|集团股份有限公司|'
+    r'科技集团股份有限公司|科技集团有限公司|科技集团|集团|控股|'
+    r'\(集团\)|（集团）|\(中国\)|（中国）|\(SH\)|\(HK\)|\(US\)|'
+    r'Co\.,\s*Ltd\.?|Co\.\s*Ltd\.?|Limited|Ltd\.?|Inc\.?|Corp\.?|Group|Holdings?'
+    r')$'
+)
+
+
+# R2-2 (2026-05-21) — 已知一对一 alias (公司常用名 → 归一 key)。 后缀剥
+# 不掉的情况, 这里手工列。 例: "中金公司" 和 "中国国际金融股份有限公司"
+# 是同一家。
+_COMPANY_ALIAS: dict[str, str] = {
+    '中金公司': 'cicc',
+    '中国国际金融': 'cicc',
+    '中国国际金融股份有限公司': 'cicc',
+    'cicc': 'cicc',
+    '工商银行': 'icbc',
+    '中国工商银行': 'icbc',
+    '建设银行': 'ccb',
+    '中国建设银行': 'ccb',
+    '中国银行': 'boc',
+    '农业银行': 'abc',
+    '中国农业银行': 'abc',
+}
+
+
+def _canonical_employer_key(company: str) -> str:
+    """归一公司名 → 一个去重 key。 "蚂蚁集团" 和 "蚂蚁科技集团股份有限公司"
+    应该归到同一个 key ("蚂蚁")。
+
+    粗规则: trim 空白 → 反复剥常见法人后缀 → 查 alias → 小写化。 不做语义
+    同义合并 (e.g. "Tencent" vs "腾讯" 仍算两家) — 那也走 alias 表。
+    """
+    s = (company or '').strip()
+    if not s:
+        return ''
+    for _ in range(3):  # 最多剥 3 层后缀
+        new = _COMPANY_SUFFIX_STRIP.sub('', s).strip()
+        if new == s:
+            break
+        s = new
+    s_low = s.lower()
+    return _COMPANY_ALIAS.get(s_low, _COMPANY_ALIAS.get(s, s_low))
+
+
+def _balance_two_streams(
+    finalized,
+    candidates,
+    *,
+    per_stream: int = 10,
+    per_employer_cap: int = 3,
+):
+    """Ensure the React agent's output has up to ``per_stream`` items in each
+    stream (校招 + 实习). The agent typically returns ~10 mixed; pad each
+    side from ``candidates`` (rule-scored, sorted) so the workspace's two
+    tabs both have content.
+
+    Items already in ``finalized`` keep their LLM-enriched fields (strengths,
+    risks, etc.); padding items come straight from rule scoring.
+
+    B2 (2026-05-21): per_employer_cap (default 3) limits how many rows from
+    the same canonical company (e.g. "蚂蚁" — both 蚂蚁集团 and
+    蚂蚁科技集团股份有限公司 normalize to this) can appear in each stream.
+    Prevents the P7-style "20 条全是蚂蚁" failure mode.
+    """
+    finalized_ids = {str(it.job_id) for it in finalized}
+    fin_campus = [it for it in finalized if not it.is_internship]
+    fin_intern = [it for it in finalized if it.is_internship]
+
+    def _topup(target_list, want_intern):
+        # 先按 employer key 给 finalized 部分做一次 cap (LLM 输出本身也可能
+        # 集中, 不能只在 padding 时去重)
+        employer_counts: dict[str, int] = {}
+        capped: list = []
+        for it in target_list:
+            key = _canonical_employer_key(str(getattr(it, 'company', '') or ''))
+            if key and employer_counts.get(key, 0) >= per_employer_cap:
+                continue
+            employer_counts[key] = employer_counts.get(key, 0) + 1
+            capped.append(it)
+        target_list = capped
+        if len(target_list) >= per_stream:
+            return target_list[:per_stream]
+        for cand in candidates:
+            if str(cand.job_id) in finalized_ids:
+                continue
+            if cand.is_internship is bool(want_intern):
+                key = _canonical_employer_key(str(getattr(cand, 'company', '') or ''))
+                if key and employer_counts.get(key, 0) >= per_employer_cap:
+                    continue
+                employer_counts[key] = employer_counts.get(key, 0) + 1
+                target_list.append(cand)
+                finalized_ids.add(str(cand.job_id))
+                if len(target_list) >= per_stream:
+                    break
+        return target_list[:per_stream]
+
+    campus = _topup(fin_campus, want_intern=False)
+    intern = _topup(fin_intern, want_intern=True)
+    return campus + intern
 _AGENT_TRACE_CAP = 50
 
 
@@ -196,12 +306,16 @@ def run_resume_generate_workflow(
                     rejected_job_ids = [str(j) for j in parsed if str(j).strip()]
             except json.JSONDecodeError:
                 rejected_job_ids = []
+        # 2026-05-20: bump per-stream top_n to 30 so the React agent has
+        # enough candidates to choose ~10 from, and so the post-finalize
+        # `_balance_two_streams` topup has room to pad each stream to ~10.
         candidates, used_ai, fallback_reason = recommend_jobs_for_profile(
             db, profile, preferences,
             limit=RESUME_RECOMMENDATION_LIMIT,
             ai_provider=recommendation_provider,
             ai_top_n=0,
             rejected_job_ids=rejected_job_ids,
+            top_n=30,
         )
         _append_agent_trace(db, session_id, agent_trace, 'Agent',
                             f'规则初筛完成，召回 {len(candidates)} 个候选岗位。', 'completed')
@@ -245,6 +359,10 @@ def run_resume_generate_workflow(
             trace_recorder=agent_trace_recorder,
             direction_results=direction_results,
         )
+        # 2026-05-20: ensure each tab (校招 / 实习) has ~10 items. The React
+        # agent's finalize typically returns ~10 mixed; pad each stream from
+        # the upstream candidate pool so the UI's two tabs don't starve.
+        recommendations = _balance_two_streams(recommendations, candidates, per_stream=10)
         recommendation_run = db.query(ResumeRecommendationRun).filter(
             ResumeRecommendationRun.session_id == session_id
         ).first()
