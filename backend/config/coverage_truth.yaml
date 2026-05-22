@@ -526,6 +526,37 @@ tracks:
       title 关键词覆盖各行管培项目的常用品牌词:招行「金葵花/管培」、工行「青苗」、
       建行「启航/管理培训生」、中行「金种子」、平安「薪兰」、邮储「储备干部」等。
 
+  # ─────────────────────── 互联网金科 (P7) ──────────────────────
+  # 用户 2026-05-23 P1-D: 京东金融 / 度小满 / 微众银行 / 网商银行 / 360 数科。
+  # 数据实测: 度小满 138 (legacy+Tata) + 微众银行 11 (Tata) 已覆盖;
+  # 京东金融 / 网商 / 360 数科目前 0 条,P1-0 spy 找到他们用 Moka:
+  #   度小满 app.mokahr.com/campus_apply/duxiaoman/{1482,74050}
+  #   微众银行 app-tc.mokahr.com/campus-recruitment/webankhr/18005
+  #   360 数科 app.mokahr.com/campus_apply/360jinrong/26697
+  # 季节性当前 fetched=0,P1-B 通用 SPA handler 落地后激活。
+  - id: internet_fintech
+    name: 互联网金科
+    canonical_tracks: [FinTech]
+    mode: derived_company
+    company_keywords_include:
+      - 京东金融
+      - 京东科技
+      - 京东数科
+      - 度小满
+      - 微众银行
+      - WeBank
+      - 网商银行
+      - MyBank
+      - 360数科
+      - 360金科
+      - 360金融
+    company_keywords_exclude: []
+    window_days: 60  # 互金 Tata 来源更新频次较低,30 天会丢微众银行
+    note: |
+      派生赛道。SAIF P7 学生主战场。当前主要靠 Tata + legacy crawler 顺带捕获
+      (度小满 138 + 微众 11)。京东金融/网商/360 数科本身 0 条,Moka tenant 已
+      探明 (duxiaoman / webankhr / 360jinrong),等 P1-B SPA handler 落地后激活。
+
   # ───────────────────────── 银行金科子 ──────────────────────────
   # mode=derived_company：金科子公司基本走母行 ATS (招行/工行/建行/平安等)。
   # 用户 2026-05-23 P0 #100: 招银网络科技 / 工银科技 / 建信金科 / 平安金科。

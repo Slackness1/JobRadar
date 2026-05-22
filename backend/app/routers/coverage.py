@@ -50,7 +50,10 @@ def _query_active_by_company_keywords(
         return {}
     since = datetime.utcnow() - timedelta(days=days)
     filters = [Job.company.like(f"%{kw}%") for kw in include]
-    q = db.query(Job.company).filter(or_(*filters), Job.created_at >= since)
+    # Use scraped_at if present, else created_at (some legacy rows lack created_at).
+    # COALESCE-style: row in window if scraped_at OR created_at falls in window.
+    age_filter = or_(Job.scraped_at >= since, Job.created_at >= since)
+    q = db.query(Job.company).filter(or_(*filters), age_filter)
     if exclude:
         for kw in exclude:
             q = q.filter(~Job.company.like(f"%{kw}%"))
