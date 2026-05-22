@@ -182,6 +182,8 @@ class ResumeRecommendationItem(BaseModel):
     tier_label: str = ''         # '强匹配' | '可迁移' | '有差距' — 三档说理
     priority_letter: str = ''    # 'A' | 'B' | 'C' | 'D' — 投递分层 (rule 算)
     track_match_kind: str = ''   # 'hit'|'null_hit'|'transferable'|'ambiguous'|'mismatch'|'no_pref' (debug)
+    # 2026-05-20: 实习 / 校招 分流。frontend 据此 split into 两个 tab。
+    is_internship: bool = False
 
 
 class ResumeRecommendationResultOut(BaseModel):
@@ -282,6 +284,10 @@ class RewriteVersionV2(BaseModel):
     text: str
     needs_plan_mode: bool = False
     warnings: list[RewriteWarning] = []
+    # Optional non-blocking hint shown under the v2 box when memory is empty
+    # but a profile-bullet rewrite is still possible (Fix #2): e.g.
+    # "📝 你还没在 plan-mode 聊过这段经历,改写仅基于简历表层。"
+    soft_hint: str = ''
 
 
 class RewriteV0V2In(BaseModel):
@@ -319,6 +325,11 @@ class ResumeCopilotMessageOut(BaseModel):
 
 class ChatMessageIn(BaseModel):
     content: str
+    # Plan ② Job plan-mode (2026-05-21): when the student is in chat after
+    # clicking "🎯 针对这家定制" on a recommend card, the frontend tags this
+    # turn with the job_id so memory extracted from this turn is bound to
+    # the job (linked_job_id) — not just the active track.
+    active_job_id: str = ''
 
 
 class ApplyRewriteIn(BaseModel):
@@ -334,10 +345,23 @@ class ApplyRewriteOut(BaseModel):
 # ─── Plan-mode I/O ──────────────────────────────────────────────────────────
 
 class PlanStartIn(BaseModel):
-    """Body for POST /sessions/{id}/plan/start. Currently empty — derived
-    counts come from the persisted parsed profile. Reserved for future
-    template overrides."""
-    pass
+    """Body for POST /sessions/{id}/plan/start.
+
+    2026-05-21: ``focus_kind`` + ``focus_id`` are wired through end-to-end so
+    when the student picks a specific 实习 / 项目 in PlanFocusPicker, the BE
+    sets ``current_item_id`` to the matching plan item (instead of always
+    anchoring to the first one — old behaviour confused students who picked
+    "中金 IBD" and saw the AI grill them about "高盛 GBM").
+
+    - ``focus_kind`` currently always ``"experience"``; reserved for future
+      kinds like "skill_claim" / "education".
+    - ``focus_id``: ``account_memory.id`` (memory entry id) — BE resolves to
+      a plan item via ``linked_field_paths`` (e.g. ``"internships.2.bullets.0"``
+      → 3rd internship's plan item). If unresolvable, BE falls back to the
+      first parent-level item silently.
+    """
+    focus_kind: str | None = None
+    focus_id: int | None = None
 
 
 class AgentActionIn(BaseModel):
@@ -391,6 +415,17 @@ class MemoryEntryOut(BaseModel):
     captured_at: str | None = None
     last_verified_at: str | None = None
     last_used_at: str | None = None
+    # Plan 1 (2026-05-20): resume-edit ↔ memory sync. UI uses these to
+    # render the 🔄 "内容已变,建议重聊" badge and to route the student to
+    # plan-mode focused on the right bullet.
+    linked_field_paths: list[str] = []
+    needs_resync: bool = False
+    # Plan ② (2026-05-20): which 赛道 was active when this memory was captured.
+    # Empty string = general / cross-track. UI shows a tag on the card.
+    linked_track: str = ''
+    # Plan ② Job plan-mode (2026-05-21): job_id this memory was captured
+    # while customising for. Empty = general / track-level.
+    linked_job_id: str = ''
 
 
 class MemoryGroupedOut(BaseModel):

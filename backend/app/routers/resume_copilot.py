@@ -295,13 +295,60 @@ def put_resume_copilot_confirmed_profile(
     _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
+
+    # Plan 1 (2026-05-20): compute which bullet field_paths changed vs the
+    # previous confirmed snapshot — used to flag related memory rows as
+    # needs_resync so the ArchivePanel surfaces a 🔄 badge.
+    previous_profile_dict: dict | None = None
+    if profile and profile.profile_json:
+        try:
+            previous_profile_dict = json.loads(str(profile.profile_json))
+        except (json.JSONDecodeError, TypeError):
+            previous_profile_dict = None
+
     if not profile:
         profile = ResumeConfirmedProfile(session_id=session_id)
         db.add(profile)
-    profile.profile_json = json.dumps(payload.profile.model_dump())
+    new_profile_dict = payload.profile.model_dump()
+    profile.profile_json = json.dumps(new_profile_dict)
     session = _get_session_or_404(db, session_id)
     session.updated_at = datetime.utcnow()
     db.commit()
+
+    # Mark memory rows stale AFTER the profile commit so the diff sees the
+    # actual saved state. Failures here must NOT poison the write — the
+    # profile save already succeeded; sync is a best-effort signal.
+    try:
+        from app.services.memory.api_helpers import (
+            diff_changed_field_paths,
+            mark_memory_needs_resync,
+        )
+        changed_paths = diff_changed_field_paths(previous_profile_dict, new_profile_dict)
+        if changed_paths:
+            user_key = str(getattr(session_obj, 'user_key', '') or '')
+            mark_memory_needs_resync(
+                db, user_key=user_key, changed_field_paths=changed_paths,
+            )
+    except Exception:  # noqa: BLE001 — sync is best-effort
+        pass
+
+    # Plan ② (2026-05-21): first-time confirm → seed archive from parsed
+    # bullets so plan-mode has something to deepen instead of starting cold.
+    # Dispatcher dedupes by summary_hash, so re-uploading the same resume is
+    # idempotent. Failures are swallowed inside the seeder.
+    if previous_profile_dict is None:
+        try:
+            from app.services.resume_copilot.memory.seeding import seed_memory_from_profile
+            from app.services.resume_copilot.memory.extractor import _resolve_active_track
+            user_key = str(getattr(session_obj, 'user_key', '') or '')
+            active_track = _resolve_active_track(db, session_id=session_id)
+            seed_memory_from_profile(
+                db, user_key=user_key, session_id=session_id,
+                profile=new_profile_dict, active_track=active_track,
+            )
+        except Exception:  # noqa: BLE001 — seeding is best-effort
+            pass
+
     return ResumeConfirmedProfileOut(session_id=session_id, profile=payload.profile)
 
 
@@ -369,22 +416,76 @@ def get_resume_copilot_preferences(
 def put_resume_copilot_preferences(
     session_id: int,
     payload: ResumePreferenceIn,
+    response: Response,
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
+    """Save student preferences.
+
+    2026-05-21 (B3 fix): canonicalize any free-text track strings that come
+    in (persona JSON, faculty-typed docs, external imports) to one of the
+    canonical SAIF MF tracks. Previously the recommend pipeline silently
+    returned 0 items when an "外部" string like
+    ``"卖方研究 TMT (sell-side research)"`` didn't match exactly. Now we
+    map via ``canonicalize_track`` and surface a header
+    ``X-Unknown-Tracks`` listing any inputs that didn't resolve so the
+    frontend can show "你的赛道名 X 我们不识别, 已替换为 Y" toast instead
+    of letting the student walk into a 0-rec dead end.
+    """
+    from app.services.taxonomy.canonical import (
+        CANONICAL_FINANCE_TRACKS,
+        canonicalize_track,
+    )
+
     session_obj = _get_session_or_404(db, session_id)
     _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
+
+    # Canonicalize preferred_tracks before persisting. Track strings that
+    # don't map are echoed in X-Unknown-Tracks so the FE can warn the user.
+    canon_set = set(CANONICAL_FINANCE_TRACKS)
+    canon_tracks: list[str] = []
+    unknown_tracks: list[str] = []
+    seen: set[str] = set()
+    for raw_track in (payload.preferences.preferred_tracks or []):
+        raw_str = str(raw_track or '').strip()
+        if not raw_str:
+            continue
+        canon = canonicalize_track(raw_str)
+        if canon in canon_set:
+            if canon not in seen:
+                canon_tracks.append(canon)
+                seen.add(canon)
+        else:
+            # Map failed — keep the raw value so the student doesn't silently
+            # lose their intent, but flag it for the FE to surface.
+            if raw_str not in seen:
+                canon_tracks.append(raw_str)
+                seen.add(raw_str)
+                unknown_tracks.append(raw_str)
+    normalized_prefs = payload.preferences.model_copy(
+        update={'preferred_tracks': canon_tracks},
+    )
+
     preference_profile = db.query(ResumePreferenceProfile).filter(ResumePreferenceProfile.session_id == session_id).first()
     if not preference_profile:
         preference_profile = ResumePreferenceProfile(session_id=session_id)
         db.add(preference_profile)
-    preference_profile.preferences_json = json.dumps(payload.preferences.model_dump())
-    preference_profile.all_skipped = 1 if payload.preferences.all_skipped else 0
+    preference_profile.preferences_json = json.dumps(normalized_prefs.model_dump())
+    preference_profile.all_skipped = 1 if normalized_prefs.all_skipped else 0
     session = _get_session_or_404(db, session_id)
     session.updated_at = datetime.utcnow()
     db.commit()
-    return ResumePreferenceOut(session_id=session_id, preferences=payload.preferences)
+
+    if unknown_tracks:
+        # HTTP headers are latin-1 only — URL-encode the CJK characters so the
+        # FE can decodeURIComponent() the value back to display the unknown
+        # track names to the student.
+        from urllib.parse import quote
+        response.headers['X-Unknown-Tracks'] = ','.join(
+            quote(t, safe='') for t in unknown_tracks
+        )
+    return ResumePreferenceOut(session_id=session_id, preferences=normalized_prefs)
 
 
 @router.post(
@@ -689,11 +790,14 @@ def post_chat_message(
         _dispatch_student_kb_extraction,
         session_id=session_id,
         user_content=payload.content,
+        active_job_id=str(payload.active_job_id or ''),
     )
     return response
 
 
-def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> None:
+def _dispatch_student_kb_extraction(
+    *, session_id: int, user_content: str, active_job_id: str = '',
+) -> None:
     """BackgroundTasks entry point. Opens own SessionLocal because the request
     DB session is closed by the time this runs."""
     from app.database import SessionLocal
@@ -701,7 +805,10 @@ def _dispatch_student_kb_extraction(*, session_id: int, user_content: str) -> No
 
     db = SessionLocal()
     try:
-        extract_for_chat_turn(db, session_id=session_id, user_content=user_content)
+        extract_for_chat_turn(
+            db, session_id=session_id, user_content=user_content,
+            active_job_id=active_job_id,
+        )
     except Exception:
         # Memory extraction failures must never surface to the user — log and drop.
         import logging
@@ -808,7 +915,7 @@ def _parsed_counts_from_profile(session: ResumeCopilotSession) -> dict[str, int]
 @router.post('/sessions/{session_id}/plan/start', response_model=PlanStateOut)
 def post_plan_start(
     session_id: int,
-    _: PlanStartIn = PlanStartIn(),
+    payload: PlanStartIn = PlanStartIn(),
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -816,9 +923,16 @@ def post_plan_start(
 
     Returns 409 if a plan already exists (clients should call GET first).
     Lands the session in ``plan_status=awaiting_plan_approval`` — user
-    reviews/edits, then calls /plan/approve to enter the clarify loop."""
-    from app.services.resume_copilot.plan import init_plan_from_template
+    reviews/edits, then calls /plan/approve to enter the clarify loop.
+
+    ``payload.focus_id`` (account_memory entry id) is resolved to a plan item
+    via the memory row's ``linked_field_paths``, so the student who picked
+    "中金 IBD" in PlanFocusPicker actually anchors on that internship's plan
+    item rather than the first one.
+    """
+    from app.services.resume_copilot.plan import ItemKind, init_plan_from_template
     from app.services.resume_copilot.tag_extractor import attach_parsed_evidence
+    from app.models import AccountMemory
 
     session_obj = _get_session_or_404(db, session_id)
     _assert_session_owner(session_obj, x_resume_user_key)
@@ -842,6 +956,75 @@ def post_plan_start(
     if parsed_dict:
         plan = attach_parsed_evidence(plan, parsed_dict)
 
+    # ── focus_id → plan item resolution ─────────────────────────────────────
+    # FE picker passes the memory entry id; parser_seed rows stored a
+    # linked_field_paths array like ["internships.0.bullets.0", ...]. The
+    # first segment ("internships" / "projects") + index tells us which
+    # parent-level plan item to anchor on. parent-level plan items are
+    # ordered by (kind, i) inside init_plan_from_template, so the i-th
+    # internship-kind parent is the match for "internships.<i>.*".
+    focus_item_id: str | None = None
+    if payload.focus_id is not None:
+        user_key = str(getattr(session_obj, 'user_key', '') or '')
+        mem_row = (
+            db.query(AccountMemory)
+            .filter(
+                AccountMemory.id == int(payload.focus_id),
+                AccountMemory.user_key == user_key,
+            )
+            .first()
+        )
+        if mem_row is not None:
+            try:
+                raw_paths = json.loads(mem_row.linked_field_paths or '[]')
+            except json.JSONDecodeError:
+                raw_paths = []
+            kind_index: tuple[str, int] | None = None
+            for p in raw_paths:
+                parts = str(p or '').split('.')
+                if len(parts) < 2:
+                    continue
+                head, idx_str = parts[0], parts[1]
+                try:
+                    idx = int(idx_str)
+                except ValueError:
+                    continue
+                if head == 'internships':
+                    kind_index = ('internship', idx)
+                    break
+                if head == 'projects':
+                    kind_index = ('project', idx)
+                    break
+                if head == 'education':
+                    kind_index = ('education', idx)
+                    break
+            if kind_index is not None:
+                kind_str, idx = kind_index
+                try:
+                    target_kind = ItemKind(kind_str)
+                except ValueError:
+                    target_kind = None
+                if target_kind is not None:
+                    same_kind_parents = [
+                        it for it in plan.items
+                        if it.parent_id is None and it.kind == target_kind
+                    ]
+                    if 0 <= idx < len(same_kind_parents):
+                        focus_item_id = same_kind_parents[idx].id
+
+    # Fallback: first parent-level item — keeps coach UI from rendering blank
+    # for legacy callers / focus_id that doesn't resolve.
+    if focus_item_id is None:
+        first_parent = next(
+            (it for it in plan.items if it.parent_id is None),
+            None,
+        )
+        if first_parent is not None:
+            focus_item_id = first_parent.id
+
+    if focus_item_id is not None:
+        plan.current_item_id = focus_item_id
+
     _save_plan(session_obj, plan)
     db.commit()
     db.refresh(session_obj)
@@ -860,6 +1043,33 @@ def get_plan(
     if plan is None:
         raise HTTPException(status_code=404, detail='NO_PLAN — call POST /plan/start first')
     return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.delete(
+    '/sessions/{session_id}/plan',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_plan(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Clear the existing plan_json so a fresh /plan/start can run.
+
+    Added 2026-05-21: students were getting stuck when an old session had a
+    stale plan (clarifying with current_item_id=None) — /plan/start would
+    409 PLAN_ALREADY_EXISTS, /plan/turn had nothing meaningful to do, and
+    they sat there waiting. With DELETE the FE can wipe + restart with the
+    right focus_id."""
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    if getattr(session_obj, 'plan_json', None) or getattr(session_obj, 'plan_status', None):
+        session_obj.plan_json = None
+        session_obj.plan_status = 'idle'
+        db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post('/sessions/{session_id}/plan/approve', response_model=PlanStateOut)
@@ -929,6 +1139,67 @@ def post_plan_turn(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     return PlanStateOut(**new_plan.model_dump(mode='json'))
+
+
+from pydantic import BaseModel as _BaseModel  # H 2026-05-22
+
+class PlanDistillOut(_BaseModel):
+    """H 2026-05-22: 入档前 LLM 精炼输出, FE 拿这个 POST /memory.
+
+    把 plan item.draft.text + 所有 evidence.text 提炼成:
+    - summary: 干净一句话标题 (≤ 120 字, 公司 · 角色 · 1 个 outcome)
+    - star: 4 段 STAR 分别
+    - quantified: {metric: value} dict, 去重
+    - raw_excerpt_clean: 去重后的"原话出处", 不含聊天回声
+    """
+    summary: str
+    star: dict[str, str] = {}
+    quantified: dict[str, str] = {}
+    raw_excerpt_clean: str = ''
+    used_evidence_ids: list[str] = []
+
+
+@router.post(
+    '/sessions/{session_id}/plan/distill',
+    response_model=PlanDistillOut,
+)
+def post_plan_distill(
+    session_id: int,
+    item_id: str | None = None,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> PlanDistillOut:
+    """H 2026-05-22: 学生反馈"入档时有很多重复的原话, 应该让 LLM 精炼"。
+
+    FE 在 handleArchiveDraft 之前调这个, 拿到 distilled payload 后再 POST
+    /memory。 BE 这里用 LLM 把 draft + evidence 精炼成结构化档案条目。
+    """
+    from app.services.resume_copilot.archive_distill import distill_for_archive
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN')
+
+    target_item = None
+    if item_id:
+        target_item = next((it for it in plan.items if it.id == item_id), None)
+    if target_item is None and plan.current_item_id:
+        target_item = next((it for it in plan.items if it.id == plan.current_item_id), None)
+    if target_item is None:
+        raise HTTPException(status_code=404, detail='ITEM_NOT_FOUND')
+    if target_item.draft is None:
+        raise HTTPException(status_code=409, detail='ITEM_HAS_NO_DRAFT')
+
+    distilled = distill_for_archive(
+        item_title=target_item.title or '',
+        draft_text=target_item.draft.text,
+        evidence_texts=[ev.text for ev in target_item.evidence if ev.text],
+    )
+    return PlanDistillOut(**distilled)
 
 
 @router.post('/sessions/{session_id}/plan/actions', response_model=PlanStateOut)
@@ -1186,6 +1457,11 @@ def patch_session_memory_entry(
     # AccountMemory has no `updated_at` column — bump ``last_verified_at``
     # which carries the "I touched this row" semantic for read-side ordering.
     row.last_verified_at = datetime.utcnow()
+    # Plan 1 (2026-05-20): an explicit PATCH means the student dealt with
+    # whatever changed → clear the 🔄 resync flag so the ArchivePanel badge
+    # disappears. Re-sync naturally re-triggers if they later edit the
+    # bullet again.
+    row.needs_resync = False
     db.commit()
     db.refresh(row)
     return MemoryEntryOut.model_validate(serialize_entry(row))
