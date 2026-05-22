@@ -30,7 +30,11 @@ from app.services.memory.api_helpers import relevant_memory_for_bullet
 from app.services.resume_copilot.chat import (
     _build_fabrication_warnings,
     _detect_fabricated_numbers_in_text,
+    _extract_numbers,
     _format_memory_block,
+    _is_risky_number,
+    _profile_strong_anchor_numbers,
+    _profile_weak_anchor_numbers,
     propose_rewrite_v0_v2,
 )
 
@@ -202,7 +206,9 @@ def test_relevant_memory_for_bullet_returns_empty_when_no_match():
     assert matches == []
 
 
-def test_relevant_memory_for_bullet_excludes_other_categories():
+def test_relevant_memory_for_bullet_includes_preference_as_boost():
+    """Fix #2 (2026-05-20): preference rows ARE returned as soft boost so the
+    v2 rewrite can align with the target track (e.g. '想做 buy-side 消费')."""
     factory = _make_factory()
     db = factory()
     _seed_memory(
@@ -217,8 +223,10 @@ def test_relevant_memory_for_bullet_excludes_other_categories():
         k=3,
     )
     db.close()
-    # preference category should NOT be returned (only experience + skill_claim)
-    assert matches == []
+    # preference SHOULD now be returned (as boost row, match_score=0.0)
+    assert len(matches) == 1
+    assert matches[0]['category'] == 'preference'
+    assert matches[0]['match_score'] == 0.0
 
 
 # ─── Tests: propose_rewrite_v0_v2 ────────────────────────────────────────────
@@ -257,12 +265,17 @@ def test_propose_rewrite_v0_v2_happy_path_returns_v0_and_v2():
     assert len(provider.called_with) == 1
 
 
-def test_propose_rewrite_v0_v2_empty_memory_returns_needs_plan_mode_without_calling_llm():
+def test_propose_rewrite_v0_v2_empty_memory_still_rewrites_with_soft_hint():
+    """Fix #2 (2026-05-20): memory-empty no longer hard-gates the rewrite.
+    LLM IS called; v2 carries a soft_hint suggesting plan-mode for sharper
+    output, but needs_plan_mode stays False."""
     factory = _make_factory()
     db = factory()
     session_id = _seed_session(db, user_key='uk-empty')
     # NO memory rows for this user
-    provider = _NeverCalledProvider()
+    provider = _StubV2Provider(
+        text='中信证券实习, 基于消费行业基本面分析提出非共识 buy 建议',
+    )
     out = propose_rewrite_v0_v2(
         session_id=session_id,
         bullet_text='跟踪 5 只半导体股票,撰写 3 篇深度报告',
@@ -273,11 +286,62 @@ def test_propose_rewrite_v0_v2_empty_memory_returns_needs_plan_mode_without_call
     db.close()
 
     assert out.v0.text == '跟踪 5 只半导体股票,撰写 3 篇深度报告'
+    assert out.v2.needs_plan_mode is False
+    assert '需要更多经历细节' not in out.v2.text
+    assert out.v2.text == provider.text
+    # Soft hint surfaces so UI can render the "chat in coach" nudge.
+    # (Renamed plan-mode → coach in user-facing copy on 2026-05-21.)
+    assert out.v2.soft_hint != ''
+    assert 'coach' in out.v2.soft_hint
+    assert out.memory_refs == []
+    assert len(provider.called_with) == 1  # LLM IS called
+
+
+def test_propose_rewrite_v0_v2_empty_bullet_falls_back_to_plan_mode():
+    """Empty bullet input → nothing to rewrite → fall back to plan-mode
+    guidance and DO NOT call the LLM. (Defensive — UI never sends empty.)"""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-empty')
+    provider = _NeverCalledProvider()
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='   ',  # whitespace only
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+
     assert out.v2.needs_plan_mode is True
     assert '需要更多经历细节' in out.v2.text
-    assert out.v2.warnings == []
-    assert out.memory_refs == []
+    assert out.v2.soft_hint == ''
     assert provider.called is False
+
+
+def test_propose_rewrite_v0_v2_with_memory_does_not_set_soft_hint():
+    """When memory IS present, no soft_hint — the rewrite is grounded."""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-1')
+    _seed_memory(
+        db, user_key='uk-1',
+        summary='半导体行研深度报告',
+        raw_excerpt='跟过半导体, 觉得车规 MCU 有 alpha',
+    )
+    provider = _StubV2Provider()
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票,撰写 3 篇深度报告',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+
+    assert out.v2.needs_plan_mode is False
+    assert out.v2.soft_hint == ''
+    assert len(out.memory_refs) == 1
 
 
 def test_propose_rewrite_v0_v2_fabricated_number_emits_warning_with_3_suggestions():
@@ -433,3 +497,224 @@ def test_rewrite_v0_v2_out_schema_roundtrip():
     # Round-trip
     reloaded = RewriteV0V2Out.model_validate(dumped)
     assert reloaded.v2.warnings[0].suggestion_options[0].action == 'fill_real'
+
+
+# ─── Tests: Fix #1 — strong/weak anchor split + risky filter ─────────────────
+# Closes P8 PVSyst red-line gap: student-written fictional numbers in bullets
+# (weak anchor) must NOT shield the AI's v2 output from a fabrication warning.
+
+
+def test_extract_numbers_captures_unit_suffix_and_normalises_whitespace():
+    extracted = _extract_numbers('节约 100 万欧元, 提升 30%, 跟踪 5 只')
+    assert '100万欧元' in extracted
+    assert '30%' in extracted
+    assert '5' in extracted
+    # No whitespace between number and unit also works.
+    assert _extract_numbers('deal size 80亿') == {'80亿'}
+
+
+def test_extract_numbers_captures_western_currency_for_anti_laundering():
+    """The AI sometimes 'launders' 100 万欧元 → €1M during rewrite. Detector
+    must see both notation families so PVSyst-style fabrications can't slip
+    through a unit-rewrite."""
+    extracted = _extract_numbers('节约 €1M / $500K / ¥10000')
+    assert '€1M' in extracted
+    assert '$500K' in extracted
+    assert '¥10000' in extracted
+
+
+def test_is_risky_number_classification():
+    # Suffix → always risky
+    assert _is_risky_number('100万欧元') is True
+    assert _is_risky_number('30%') is True
+    assert _is_risky_number('1亿') is True
+    # ≥2 digit bare numbers → risky
+    assert _is_risky_number('99') is True
+    assert _is_risky_number('80') is True
+    # 1-digit bare numbers → not risky (noise: "wrote 5 papers", "Q3 财报")
+    assert _is_risky_number('5') is False
+    assert _is_risky_number('3') is False
+
+
+def test_profile_strong_anchor_excludes_bullet_numbers():
+    """The strong-anchor set must come only from parsed structured fields,
+    never from free-form internship/project bullets a student typed."""
+    profile = {
+        'candidate_summary': 'GPA 3.7 / SAIF MF',
+        'education': [{'school': '清华', 'degree': 'BSc', 'major': '经济'}],
+        'skills': {'technical': ['Python', '5 年量化经验'], 'tools': [], 'languages': []},
+        'awards': ['1 等奖'],
+        'internships': [{
+            'company': 'X', 'role': 'Y',
+            'bullets': ['节约 100 万欧元, 跟踪 99 只股票'],   # ← MUST NOT count as strong
+        }],
+        'projects': [],
+    }
+    strong = _profile_strong_anchor_numbers(profile)
+    weak = _profile_weak_anchor_numbers(profile)
+    # Strong = numbers from summary + skills + awards only.
+    assert '3.7' in strong
+    assert '5' in strong  # "5 年" from skills
+    assert '1' in strong  # "1 等奖"
+    # The student-written internship bullet numbers MUST NOT be strong.
+    assert '100万欧元' not in strong
+    assert '99' not in strong
+    # ... but they ARE weak.
+    assert '100万欧元' in weak
+    assert '99' in weak
+
+
+def test_build_fabrication_warnings_flags_weak_only_number_pvsyst_case():
+    """P8 red-line case: student wrote '节约 100 万欧元' in bullet (fictional),
+    AI v2 keeps '100 万欧元'. Pre-fix this was silenced (anchor unioned weak);
+    post-fix this MUST fire because weak is excluded from the safe set."""
+    profile = {
+        'education': [{'school': '上交', 'degree': '本', 'major': '能源工程'}],
+        'skills': {'technical': ['Python'], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': '某能源研究院', 'role': '能源工程实习',
+            'bullets': ['运用 PVSyst 完成 50MW 光伏电站设计, 节约项目成本 100 万欧元'],
+        }],
+        'projects': [],
+    }
+    v2_text = '主导 PVSyst 50MW 光伏电站设计, 实现 100 万欧元项目成本节约, 提交业主决策'
+    warnings = _build_fabrication_warnings(v2_text, profile, memory_entries=None)
+    flagged = {w.number for w in warnings}
+    assert '100万欧元' in flagged, f'PVSyst red-line miss; got {flagged}'
+    # And the canonical 3 suggestion options must still attach.
+    for w in warnings:
+        if w.number == '100万欧元':
+            actions = {s.action for s in w.suggestion_options}
+            assert actions == {'fill_real', 'delete_number', 'vague'}
+
+
+def test_build_fabrication_warnings_safe_when_memory_corroborates_number():
+    """If the student already confirmed the number in chat (memory row), no
+    warning — memory is treated as authoritative."""
+    profile = {
+        'education': [{'school': '上交', 'degree': '本', 'major': '能源'}],
+        'skills': {'technical': [], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': '某能源研究院', 'role': '能源工程实习',
+            'bullets': ['完成 PVSyst 设计'],
+        }],
+        'projects': [],
+    }
+    v2_text = '完成 PVSyst 设计, 节约 100 万欧元'
+    memory = [
+        {
+            'category': 'experience',
+            'summary': '光伏项目优化案例',
+            'raw_excerpt': '当时业主反馈节约了 100 万欧元这个数字是 IRR 模型算的',
+        },
+    ]
+    warnings = _build_fabrication_warnings(v2_text, profile, memory_entries=memory)
+    flagged = {w.number for w in warnings}
+    assert '100万欧元' not in flagged, f'memory corroborated but still flagged: {flagged}'
+
+
+def test_build_fabrication_warnings_skips_small_integer_without_unit():
+    """Bare 1-digit numbers (Q3, 5 papers) are too noisy to flag."""
+    profile = {
+        'education': [{'school': '清华', 'degree': '本', 'major': '经济'}],
+        'skills': {'technical': ['Python'], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': 'X', 'role': 'Y',
+            'bullets': ['跟踪 5 只股票'],
+        }],
+        'projects': [],
+    }
+    # AI v2 introduces a bare "7" — not in any anchor, but 1 digit, no unit.
+    warnings = _build_fabrication_warnings('Q3 财报跟 7 只股票', profile, memory_entries=None)
+    flagged = {w.number for w in warnings}
+    # Both 3 (from Q3) and 7 are 1-digit no-unit → must NOT fire.
+    assert flagged == set(), f'1-digit numbers should be filtered as noise; got {flagged}'
+
+
+def test_build_fabrication_warnings_low_stakes_v0_sameness_keeps_real_percentages_safe():
+    """Fix #1 refine (2026-05-20 P8 verification): real LightGBM bullet has
+    "MAPE 90%" and "96 时段" which the AI carries forward unchanged. Both
+    are low-stakes (% and bare ≤2-digit), so v0-sameness should make them
+    safe — no warning fires. Prevents the eval false positive."""
+    profile = {
+        'education': [{'school': '上交', 'degree': '本', 'major': '能源'}],
+        'skills': {'technical': ['LightGBM'], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': '某能源研究院', 'role': '能源算法实习',
+            'bullets': ['管道每天凌晨自动跑批, 输出次日 96 时段电价点预测 + 90% 置信区间, MAPE 约 8-12%'],
+        }],
+        'projects': [],
+    }
+    v0 = '管道每天凌晨自动跑批, 输出次日 96 时段电价点预测 + 90% 置信区间, MAPE 约 8-12%'
+    v2 = '独立部署 LightGBM 电价预测管道, 每日自动跑批输出次日 96 时段点预测及 90% 置信区间'
+    warnings = _build_fabrication_warnings(v2, profile, memory_entries=None, original_bullet=v0)
+    # 96 and 90% are both in v0 → low-stakes → safe via v0-sameness
+    assert warnings == [], f'real bullet should not flag carried-forward numbers; got {[w.number for w in warnings]}'
+
+
+def test_build_fabrication_warnings_catches_currency_laundering():
+    """AI rewrote '100 万欧元' as '€1M' (same value, different notation).
+    Detector must flag €1M because Western currency is high-stakes and
+    v0-sameness is not granted to high-stakes tokens (and €1M ≠ 100万欧元
+    by string equality anyway). This closes the laundering escape path
+    observed in P8 first re-run."""
+    profile = {
+        'education': [{'school': '上交', 'degree': '本', 'major': '能源'}],
+        'skills': {'technical': ['PVSyst'], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': '某能源公司', 'role': '能源工程实习',
+            'bullets': ['运用 PVSyst 完成 50MW 光伏电站设计, 节约项目成本 100 万欧元'],
+        }],
+        'projects': [],
+    }
+    v0 = '运用 PVSyst 完成 50MW 光伏电站设计, 节约项目成本 100 万欧元'
+    v2 = '主导 PVSyst 50MW 光伏电站设计, 实现 €1M 项目成本节约'
+    warnings = _build_fabrication_warnings(v2, profile, memory_entries=None, original_bullet=v0)
+    flagged = {w.number for w in warnings}
+    assert '€1M' in flagged, f'currency-laundered €1M must fire; got {flagged}'
+
+
+def test_build_fabrication_warnings_high_stakes_no_v0_trust_keeps_pvsyst_red_line():
+    """Even when the student wrote '100 万欧元' in v0 (PVSyst case), the AI
+    carrying that forward must still flag — high-stakes currency does NOT
+    get v0-sameness trust. This is the post-refine PVSyst red-line guard."""
+    profile = {
+        'education': [{'school': '上交', 'degree': '本', 'major': '能源'}],
+        'skills': {'technical': ['PVSyst'], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': '某新能源公司', 'role': '能源工程实习',
+            'bullets': ['运用 PVSyst 完成 50MW 光伏电站设计, 节约项目成本 100 万欧元'],
+        }],
+        'projects': [],
+    }
+    v0 = '运用 PVSyst 完成 50MW 光伏电站设计, 节约项目成本 100 万欧元'
+    v2 = '主导 PVSyst 50MW 光伏电站设计, 实现 100 万欧元项目成本节约'
+    warnings = _build_fabrication_warnings(v2, profile, memory_entries=None, original_bullet=v0)
+    flagged = {w.number for w in warnings}
+    # Even though 100 万欧元 is in v0, it's high-stakes so v0-sameness
+    # does NOT grant safety — student must confirm via memory.
+    assert '100万欧元' in flagged, f'PVSyst high-stakes must still fire even with v0 sameness; got {flagged}'
+
+
+def test_build_fabrication_warnings_strong_anchor_keeps_education_numbers_safe():
+    """A v2 number matching a strong anchor (e.g. GPA 3.7 from education) is
+    safe even if no bullet / memory mentions it."""
+    profile = {
+        'candidate_summary': 'GPA 3.7',
+        'education': [{'school': '清华', 'degree': '本', 'major': '经济'}],
+        'skills': {'technical': [], 'tools': [], 'languages': []},
+        'awards': [],
+        'internships': [{
+            'company': 'X', 'role': 'Y',
+            'bullets': ['做了一些研究'],
+        }],
+        'projects': [],
+    }
+    warnings = _build_fabrication_warnings('GPA 3.7, 完成深度研究', profile, memory_entries=None)
+    assert warnings == []

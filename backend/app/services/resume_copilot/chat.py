@@ -272,33 +272,152 @@ class OpenAICompatibleChatLLMProvider:
 # and the user could miss the issue silently. Surfacing a warning lets them
 # decide whether to apply, edit, or regenerate.
 
-_NUMERIC_PATTERN = re.compile(r'\d+(?:\.\d+)?%?')
+# Recognised suffixes split into two tiers:
+#   HIGH-STAKES — currency / magnitude tokens that move stakeholder belief
+#     materially. PVSyst-style fictional "100 万欧元" lives here. The student
+#     does NOT get v0-sameness trust for these — we want them to verify via
+#     plan-mode/memory regardless of whether they typed the lie themselves.
+#   LOW-STAKES — percent + plain counts. A student-written "MAPE 90%" should
+#     pass through if the AI keeps it unchanged (v0-sameness OK).
+_HIGH_STAKES_UNITS: tuple[str, ...] = (
+    '万欧元', '万美元', '万元', '亿元',
+    '亿', '万',
+)
+_LOW_STAKES_UNITS: tuple[str, ...] = ('%',)
+_UNIT_SUFFIXES: tuple[str, ...] = _HIGH_STAKES_UNITS + _LOW_STAKES_UNITS
+_UNIT_ALT = '|'.join(re.escape(u) for u in _UNIT_SUFFIXES)
+# Number with optional decimal + optional whitespace + optional unit suffix.
+# Examples captured: "5", "30%", "3.7", "100 万欧元", "80亿".
+_NUMERIC_PATTERN = re.compile(rf'\d+(?:\.\d+)?\s*(?:{_UNIT_ALT})?')
+
+# Western currency notation — covers the AI's notation-laundering escape
+# path (rewriting "100 万欧元" as "€1M"). Captures €/$/¥/£ + digits with
+# optional western magnitude suffix (K/M/B). Always high-stakes.
+_WESTERN_CURRENCY_PREFIXES: tuple[str, ...] = ('€', '$', '¥', '£')
+_WESTERN_CURRENCY_PATTERN = re.compile(r'[€$¥£]\s*\d+(?:\.\d+)?\s*[KMB]?')
 
 
 def _extract_numbers(text: str) -> set[str]:
-    return set(_NUMERIC_PATTERN.findall(text or ''))
+    """Token set of numeric tokens, whitespace stripped so "100 万欧元",
+    "100万欧元", "€ 1M" and "€1M" hash to the same token. Combines the
+    Chinese-style suffix pattern and the Western currency pattern so both
+    notation families are visible to the fabrication detector."""
+    src = text or ''
+    chinese = {re.sub(r'\s+', '', m) for m in _NUMERIC_PATTERN.findall(src)}
+    western = {re.sub(r'\s+', '', m) for m in _WESTERN_CURRENCY_PATTERN.findall(src)}
+    return chinese | western
+
+
+def _has_unit_suffix(token: str) -> bool:
+    return any(token.endswith(u) for u in _UNIT_SUFFIXES)
+
+
+def _is_western_currency(token: str) -> bool:
+    return bool(token) and token[0] in _WESTERN_CURRENCY_PREFIXES
+
+
+def _is_high_stakes_number(token: str) -> bool:
+    """True for currency / magnitude tokens — these skip v0-sameness trust
+    because PVSyst-class fabrications hide here.
+
+    Covers Chinese suffix forms (万欧元 / 亿 / 万 etc.) AND Western currency
+    prefix forms (€1M / $500K / ¥1000 etc.). The latter is critical because
+    LLMs often "launder" 100 万欧元 → €1M during rewrite to evade naive
+    suffix-only detection.
+    """
+    if any(token.endswith(u) for u in _HIGH_STAKES_UNITS):
+        return True
+    return _is_western_currency(token)
+
+
+def _is_risky_number(token: str) -> bool:
+    """Risk filter for v2 numbers not in the safe set.
+
+    Risky = anything with a currency/magnitude/percent suffix, a Western
+    currency prefix (€/$/¥/£), OR a bare digit-run ≥ 2 chars. Single bare
+    digits ("wrote 5 papers", "Q3 财报") are too noisy to flag and rarely
+    the kind of fabrication SAIF cares about. Note this is orthogonal to
+    v0-sameness — see ``_build_fabrication_warnings`` for the full safe-set
+    logic.
+    """
+    if _has_unit_suffix(token):
+        return True
+    if _is_western_currency(token):
+        return True
+    digits = re.sub(r'[^\d]', '', token)
+    return len(digits) >= 2
+
+
+def _profile_strong_anchor_numbers(profile_dict: dict) -> set[str]:
+    """Numbers from structured profile fields parsed from the PDF — trusted.
+
+    Includes ``candidate_summary``, ``education`` (school/degree/major/dates),
+    ``skills`` (technical/tools/languages), ``awards``, ``languages``. These
+    came out of the resume parser pass, not free-form student-typed bullets,
+    so any number a v2 rewrite carries over from here is treated as factual.
+    """
+    chunks: list[str] = [str(profile_dict.get('candidate_summary', '') or '')]
+    for ed in profile_dict.get('education', []) or []:
+        if isinstance(ed, dict):
+            chunks.extend(str(ed.get(k, '') or '') for k in ('school', 'degree', 'major', 'start_date', 'end_date'))
+    skills = profile_dict.get('skills', {}) or {}
+    if isinstance(skills, dict):
+        for k in ('technical', 'tools', 'languages'):
+            chunks.extend(str(s or '') for s in (skills.get(k) or []))
+    for award in (profile_dict.get('awards') or []):
+        chunks.append(str(award or ''))
+    for lang in (profile_dict.get('languages') or []):
+        chunks.append(str(lang or ''))
+    return _extract_numbers(' '.join(chunks))
+
+
+def _profile_weak_anchor_numbers(profile_dict: dict) -> set[str]:
+    """Numbers from student-written bullet text — internships / projects /
+    education.highlights.
+
+    These are NOT safe anchors: a student can write "节约 100 万欧元" in a
+    bullet that's pure fiction. A v2 number that only matches weak anchor
+    (i.e. was already in the student-written bullet text) is still risky
+    unless corroborated by ``memory_entries`` (which had to pass the chat
+    extractor's 3-anchor rule). Returned for diagnostic use; callers should
+    NOT union this into the "safe" set.
+    """
+    chunks: list[str] = []
+    for ed in profile_dict.get('education', []) or []:
+        if isinstance(ed, dict):
+            chunks.extend(str(h or '') for h in (ed.get('highlights') or []))
+    for it in profile_dict.get('internships', []) or []:
+        if isinstance(it, dict):
+            chunks.extend(str(b or '') for b in (it.get('bullets') or []))
+    for pr in profile_dict.get('projects', []) or []:
+        if isinstance(pr, dict):
+            chunks.extend(str(b or '') for b in (pr.get('bullets') or []))
+    return _extract_numbers(' '.join(chunks))
+
+
+def _memory_anchor_numbers(memory_entries: list[dict] | None) -> set[str]:
+    """Numbers that show up in account_memory rows (student-confirmed in chat).
+
+    Memory rows already passed the dispatcher's 3-anchor rule for ``experience``
+    entries, so a number that appears in a memory summary/excerpt is treated
+    as corroborated.
+    """
+    if not memory_entries:
+        return set()
+    chunks: list[str] = []
+    for entry in memory_entries:
+        for k in ('summary', 'raw_excerpt'):
+            v = entry.get(k)
+            if isinstance(v, str):
+                chunks.append(v)
+    return _extract_numbers(' '.join(chunks))
 
 
 def _profile_anchor_numbers(profile_dict: dict) -> set[str]:
-    chunks: list[str] = []
-    chunks.append(str(profile_dict.get('candidate_summary', '') or ''))
-    for ed in profile_dict.get('education', []) or []:
-        if not isinstance(ed, dict):
-            continue
-        chunks.extend(str(ed.get(k, '') or '') for k in ('school', 'degree', 'major', 'start_date', 'end_date'))
-        chunks.extend(str(h or '') for h in (ed.get('highlights') or []))
-    for it in profile_dict.get('internships', []) or []:
-        if not isinstance(it, dict):
-            continue
-        chunks.extend(str(it.get(k, '') or '') for k in ('company', 'role', 'start_date', 'end_date'))
-        chunks.extend(str(b or '') for b in (it.get('bullets') or []))
-    for pr in profile_dict.get('projects', []) or []:
-        if not isinstance(pr, dict):
-            continue
-        chunks.extend(str(pr.get(k, '') or '') for k in ('name', 'role'))
-        chunks.extend(str(b or '') for b in (pr.get('bullets') or []))
-        chunks.extend(str(t or '') for t in (pr.get('tech_stack') or []))
-    return _extract_numbers(' '.join(chunks))
+    """Legacy union of strong + weak — kept only for the older `_annotate_fabrications`
+    path on the multi-option rewrite. The v0/v2 path uses the split functions
+    plus memory corroboration instead."""
+    return _profile_strong_anchor_numbers(profile_dict) | _profile_weak_anchor_numbers(profile_dict)
 
 
 def _detect_fabricated_numbers(improved: list[str], anchor: set[str]) -> set[str]:
@@ -486,6 +605,26 @@ def _audit_rewrite_options(options: list[RewriteOption], profile_dict: dict) -> 
       - B6 (2026-05-19): per-section 隔离 — audit 该 option 的 field_path 对应段
         evidence + 全局; 防止跨段编造 (e.g. McKinsey 段的"客户访谈"挂到 BCG 段)
     """
+    # B1 (2026-05-21): plausibility 层 — 学生在简历里就编了大规模数字
+    # (P8 PVSyst case), 单 audit_draft 看 evidence-string anchor 看不出。
+    # 这里也对 rewrite improved 跑一次 plausibility, 把 implausible_scale
+    # 加进 audit_risks。
+    from app.services.resume_copilot.plan import (
+        ItemKind,
+        PlanItem,
+        audit_plausibility,
+    )
+
+    def _field_path_to_item_kind(field_path: str) -> ItemKind:
+        head = (field_path or '').split('.')[0]
+        if head == 'internships':
+            return ItemKind.INTERNSHIP
+        if head == 'projects':
+            return ItemKind.PROJECT
+        if head == 'education':
+            return ItemKind.EDUCATION
+        return ItemKind.INTERNSHIP  # 兜底, 反正只对 intern/project 触发 plausibility
+
     for opt in options:
         # B6: 按 option 的 field_path 取 scoped evidence
         evidence = _profile_to_evidence_list(profile_dict, opt.field_path or '')
@@ -498,6 +637,16 @@ def _audit_rewrite_options(options: list[RewriteOption], profile_dict: dict) -> 
         risk_flags = audit_draft(draft_text, evidence)
         original_text = '\n'.join(opt.original or [])
         risk_flags = _filter_audit_risks_against_original(risk_flags, original_text)
+
+        # B1: plausibility 层 — 不受 _filter_audit_risks_against_original 影响
+        # (原文里有 "50MW + 100万欧元" 这种本身就要被警告, 不能因为"原文也这样"
+        # 就放过)。 用 field_path 派生一个临时 PlanItem 给 audit_plausibility 用。
+        synth_item = PlanItem(
+            kind=_field_path_to_item_kind(opt.field_path or ''),
+            title=opt.field_path or '',
+        )
+        risk_flags.extend(audit_plausibility(draft_text, synth_item))
+
         if not risk_flags:
             continue
 
@@ -527,6 +676,8 @@ _HUMAN_KIND_LABEL = {
     'vague_verb': '动词太虚 (e.g. "参与/负责"),建议改具体动作',
     'vague_quantification': '模糊量级词 (e.g. "千万级 / 日均约"),看似量化实则没法验证',
     'evidence_scope_unverified': '虚构调研规模 (e.g. "引用 N 次专家访谈纪要"),原经历无证据',
+    'implausible_scale': '规模 × 角色对不上 (e.g. 实习生说"独立完成 50MW 电站 / 节约 100 万欧元"),需要补"团队多少人 / 你具体负责什么"',
+    'student_introduced_number': '这个数字是聊天里第一次出现, 简历原文没有 — 入档前确认下是不是真有',
 }
 
 
@@ -812,7 +963,14 @@ _REWRITE_V2_SYSTEM_PROMPT = """\
 
 
 _REWRITE_V2_NO_MEMORY_MESSAGE = (
-    "需要更多经历细节,建议用 plan-mode 跟 AI 聊聊这段经历"
+    "需要更多经历细节,建议用 coach 跟 AI 聊聊这段经历"
+)
+
+# Fix #2 (2026-05-20): when memory is empty but the profile bullet exists, we
+# still rewrite — just attach this hint so the student knows the rewrite is
+# surface-level and chatting in plan-mode would make it sharper. Non-blocking.
+_REWRITE_V2_SOFT_HINT_NO_MEMORY = (
+    "📝 你还没在 coach 聊过这段经历,改写仅基于简历表层。聊一聊会更精准。"
 )
 
 
@@ -829,23 +987,58 @@ _FABRICATED_NUMBER_SUGGESTIONS: list[dict[str, str]] = [
 ]
 
 
-def _build_fabrication_warnings(text: str, profile_dict: dict) -> list[RewriteWarning]:
+def _build_fabrication_warnings(
+    text: str,
+    profile_dict: dict,
+    memory_entries: list[dict] | None = None,
+    original_bullet: str = '',
+) -> list[RewriteWarning]:
     """Run the v0/v2 v2-text through fabrication detector and return a structured
     RewriteWarning list. Empty list = no fabrications detected.
+
+    Two-tier safe-set logic (Fix #1 refined 2026-05-20 after P8 eval):
+
+      - **High-stakes numbers** (currency / magnitude: 万欧元 / 亿 / 万 etc.):
+        ``safe = strong ∪ memory``. v0-sameness gives NO trust; this is the
+        PVSyst red line — a student writing a fictional "100 万欧元" in a
+        bullet does not immunise the AI's v2 output. Verification must come
+        from structured profile fields or chat-confirmed memory rows.
+
+      - **Low-stakes numbers** (percent + bare digits): ``safe = strong ∪
+        memory ∪ v0_of_this_bullet``. v0-sameness OK — if the student already
+        wrote "MAPE 90%" or "96 时段" in this bullet, the AI carrying that
+        forward unchanged is not a fabrication. We only fire on numbers the
+        AI introduced (not present in v0 of the source bullet) or numbers
+        copied across to a *different* bullet.
 
     Each fabricated number becomes ONE warning with the canonical 3-option
     suggestion set (填实数 / 删数 / 接受模糊版本). The set is fixed by C-5
     spec — don't trim it; the UI renders the buttons directly from it."""
-    anchor = _profile_anchor_numbers(profile_dict)
-    if not anchor:
-        # No anchor numbers anywhere in the profile — can't decide if v2 numbers
-        # are fabricated. Skip the warning (false-positive risk too high).
+    strong = _profile_strong_anchor_numbers(profile_dict)
+    weak = _profile_weak_anchor_numbers(profile_dict)
+    memory_nums = _memory_anchor_numbers(memory_entries)
+    v0_nums = _extract_numbers(original_bullet)
+    if not strong and not weak and not memory_nums and not v0_nums:
+        # No anchor numbers anywhere — can't decide if v2 numbers are
+        # fabricated. Skip the warning (false-positive risk too high).
         return []
-    fabricated = _detect_fabricated_numbers_in_text(text, anchor)
-    if not fabricated:
+    safe_high: set[str] = strong | memory_nums              # strict (PVSyst tier)
+    safe_low: set[str] = strong | memory_nums | v0_nums    # v0-sameness OK
+    v2_nums = _extract_numbers(text)
+    risky: set[str] = set()
+    for n in v2_nums:
+        if not _is_risky_number(n):
+            continue
+        if _is_high_stakes_number(n):
+            if n not in safe_high:
+                risky.add(n)
+        else:
+            if n not in safe_low:
+                risky.add(n)
+    if not risky:
         return []
     warnings: list[RewriteWarning] = []
-    for num in sorted(fabricated):
+    for num in sorted(risky):
         warnings.append(RewriteWarning(
             type='fabricated_number',
             number=num,
@@ -853,7 +1046,7 @@ def _build_fabrication_warnings(text: str, profile_dict: dict) -> list[RewriteWa
                 RewriteWarningSuggestion(action=s['action'], label=s['label'])
                 for s in _FABRICATED_NUMBER_SUGGESTIONS
             ],
-            detail=f"改写引入了原简历里没有的数字 {num},请核实或选择处理方式。",
+            detail=f"改写引入了原简历里没有 memory 旁证的数字 {num},请核实或选择处理方式。",
         ))
     return warnings
 
@@ -947,12 +1140,14 @@ def propose_rewrite_v0_v2(
 
     Pipeline:
       1. Echo the bullet → ``v0``.
-      2. Look up the session's ``user_key``; fetch top-3 relevant ``experience``
-         + ``skill_claim`` rows from ``account_memory`` via
-         ``relevant_memory_for_bullet``.
-      3. **Empty memory → short-circuit**: return ``v2.needs_plan_mode=True``
-         with the canonical guidance message. The LLM is NOT called.
-      4. Otherwise call the v2 LLM with: JD + bullet + memory block.
+      2. Look up the session's ``user_key``; fetch top-3 relevant
+         ``experience`` / ``skill_claim`` rows (+ up to 2 ``preference`` rows
+         as target-track boost) from ``account_memory``.
+      3. **Empty bullet → short-circuit**: nothing to rewrite, fall back to
+         plan-mode guidance. (Fix #2, 2026-05-20: empty *memory* no longer
+         short-circuits; we now rewrite from profile text and attach a soft
+         hint suggesting plan-mode for sharper output.)
+      4. Call the v2 LLM with: JD + bullet + memory block (block can be empty).
       5. Run ``_build_fabrication_warnings`` against ``v2.text``; attach warnings
          (with the 3 canonical suggestion_options) but DO NOT strip the number.
 
@@ -969,14 +1164,15 @@ def propose_rewrite_v0_v2(
     )
     profile_dict = _load_profile_dict(session_id, db)
 
-    # Step 2: fetch relevant memory
+    # Step 2: fetch relevant memory (experience/skill_claim + preference boost)
     from app.services.memory.api_helpers import relevant_memory_for_bullet
     memory_entries = relevant_memory_for_bullet(
         db, user_key=user_key, bullet_text=cleaned_bullet, k=3,
     )
 
-    # Step 3: empty memory → guide to plan-mode, don't burn LLM tokens.
-    if not memory_entries:
+    # Step 3: empty bullet → nothing to rewrite, fall back. (Defensive — the UI
+    # never sends empty bullet_text, but other callers might.)
+    if not cleaned_bullet:
         return RewriteV0V2Out(
             field_path=field_path,
             section=section,
@@ -986,14 +1182,16 @@ def propose_rewrite_v0_v2(
                 text=_REWRITE_V2_NO_MEMORY_MESSAGE,
                 needs_plan_mode=True,
                 warnings=[],
+                soft_hint='',
             ),
             rationale='',
             memory_refs=[],
         )
 
-    # Step 4: call LLM
+    # Step 4: call LLM. Memory block may be empty (Fix #2 — soft boost mode).
     _provider = provider or OpenAICompatibleV2RewriteLLMProvider()
-    memory_block = _format_memory_block(memory_entries)
+    memory_block = _format_memory_block(memory_entries) if memory_entries else ''
+    soft_hint = '' if memory_entries else _REWRITE_V2_SOFT_HINT_NO_MEMORY
 
     user_payload = {
         'target_job_description': target_job_description or '',
@@ -1014,7 +1212,12 @@ def propose_rewrite_v0_v2(
     rationale = str(raw.get('rationale', '') or '').strip()
 
     # Step 5: fabrication warnings — DO NOT strip, surface them.
-    warnings = _build_fabrication_warnings(v2_text, profile_dict)
+    # `original_bullet` enables low-stakes v0-sameness (a student's MAPE 90%
+    # carried unchanged into v2 isn't a fabrication). High-stakes currency /
+    # magnitude tokens skip this trust path; see _build_fabrication_warnings.
+    warnings = _build_fabrication_warnings(
+        v2_text, profile_dict, memory_entries, original_bullet=cleaned_bullet,
+    )
 
     return RewriteV0V2Out(
         field_path=field_path,
@@ -1025,6 +1228,7 @@ def propose_rewrite_v0_v2(
             text=v2_text,
             needs_plan_mode=False,
             warnings=warnings,
+            soft_hint=soft_hint,
         ),
         rationale=rationale,
         memory_refs=[int(e.get('id', 0)) for e in memory_entries if e.get('id')],
