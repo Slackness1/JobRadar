@@ -45,6 +45,9 @@ class ResumeProfilePayload(BaseModel):
     candidate_summary: str = ''
     inferred_roles: list[str] = []
     inferred_tracks: list[str] = []
+    # 2026-05-22 P3: 推断学生目标 office 区域,值域 {'hk','sg','mainland','global'}
+    # 用于 confirm 页 pre-fill location chip + 推荐时优先该区域岗位
+    inferred_offices: list[str] = []
 
 
 class DirectionTierResult(BaseModel):

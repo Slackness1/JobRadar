@@ -35,6 +35,7 @@ const COMMON_LOCATIONS: string[] = [
   '上海',
   '深圳',
   '香港',
+  '新加坡',
   '杭州',
   '广州',
   '南京',
@@ -43,6 +44,23 @@ const COMMON_LOCATIONS: string[] = [
   '其他',
 ];
 const DEFAULT_LOCATIONS = ['北京', '上海'];
+
+// 2026-05-22 P3: parser 推断的 office 区域 → 预勾选城市映射
+// 当 inferred_offices ≠ [] 时覆盖 DEFAULT_LOCATIONS, 让外资 IB / 咨询学生
+// 一进 confirm 页就看到港新已被勾上 (而不是默认北京上海, 然后他们手动取消重选)。
+const OFFICE_TO_LOCATIONS: Record<string, string[]> = {
+  hk: ['香港'],
+  sg: ['新加坡'],
+  mainland: ['北京', '上海'],
+  global: ['香港', '新加坡', '上海'],
+};
+// 中文显示 (供 hint 文案 + chip subtitle 用)
+const OFFICE_LABEL_CN: Record<string, string> = {
+  hk: '香港',
+  sg: '新加坡',
+  mainland: '中国大陆',
+  global: '海外 / 全球流动',
+};
 
 export interface WorkspaceConfirmGuideProps {
   sessionId: number;
@@ -87,6 +105,20 @@ export function WorkspaceConfirmGuide({ sessionId, onConfirmed }: WorkspaceConfi
         );
         if (inferredValid.length > 0) {
           setSelectedTracks(inferredValid);
+        }
+        // 2026-05-22 P3: 如 parser 推断出 inferred_offices, 用它覆盖默认地点。
+        // 避免外资 / 港新学生看到默认勾的"北京上海", 然后手动取消重勾的 friction。
+        const inferredOffices = (parsed.profile.inferred_offices ?? []).filter(
+          (o) => o in OFFICE_TO_LOCATIONS,
+        );
+        if (inferredOffices.length > 0) {
+          const prefilled = new Set<string>();
+          for (const off of inferredOffices) {
+            (OFFICE_TO_LOCATIONS[off] ?? []).forEach((c) => prefilled.add(c));
+          }
+          if (prefilled.size > 0) {
+            setSelectedLocations(Array.from(prefilled));
+          }
         }
       } catch (e) {
         if (cancelled) return;
@@ -244,7 +276,12 @@ export function WorkspaceConfirmGuide({ sessionId, onConfirmed }: WorkspaceConfi
                   目标城市
                 </h3>
                 <span className="workspace-hifi__confirm-guide-section-hint">
-                  默认勾选北京 + 上海 — 加多个城市推荐会更全
+                  {fetchState.kind === 'ready' &&
+                  (fetchState.profile.inferred_offices ?? []).length > 0
+                    ? `AI 看你简历像偏「${(fetchState.profile.inferred_offices ?? [])
+                        .map((o) => OFFICE_LABEL_CN[o] ?? o)
+                        .join(' / ')}」, 已帮你预勾对应城市 — 想加上海/北京可自己勾`
+                    : '默认勾选北京 + 上海 — 加多个城市推荐会更全'}
                 </span>
               </header>
               <div className="workspace-hifi__confirm-guide-chips">

@@ -65,6 +65,113 @@ ROLE_KEYWORDS = [
 TRACK_KEYWORDS = ['Internet', 'AI', 'Finance', '互联网', 'AI', '金融']
 
 
+# 2026-05-22 P3: 推断学生目标 office 区域 — 用于 confirm 页 pre-fill location chip
+# + 推荐时优先该区域岗位。值域固定 4 个: hk / sg / mainland / global
+OFFICE_VALUES: set[str] = {'hk', 'sg', 'mainland', 'global'}
+
+# 港新外资 IB / 咨询学生最强信号: 港校 + HK 实习。匹配为小写子串。
+HK_HEURISTIC_KEYWORDS: tuple[str, ...] = (
+    'hkust', '港科大', '香港科技大学',
+    'cuhk', '港中文', '香港中文大学', '中大商学院',
+    'hku', '港大', '香港大学',
+    'hkbu', '香港浸会',
+    'cityu hk', '香港城市大学',
+    'hong kong', '香港',
+    # 外资 IB / consulting 港岗实习强信号
+    'goldman sachs hong kong', 'gs hk', 'morgan stanley hk', 'jpm hk',
+    'ubs hk', 'credit suisse hk',
+    'hk office', 'based in hong kong',
+)
+
+SG_HEURISTIC_KEYWORDS: tuple[str, ...] = (
+    'nus', '新加坡国立',
+    'ntu', '南洋理工',
+    'smu', '新加坡管理大学',
+    'singapore', '新加坡',
+    'goldman sachs singapore', 'gs sg', 'jpm sg', 'ms singapore',
+    'sg office', 'based in singapore',
+)
+
+# 中国大陆 — 用作明确的中国院校信号(避免英文简历空 inferred_offices)
+MAINLAND_HEURISTIC_KEYWORDS: tuple[str, ...] = (
+    '清华', 'tsinghua', '北京大学', 'peking university',
+    '复旦', 'fudan', '上海交通大学', 'sjtu', '上海交大',
+    '中国人民大学', '人大', '浙江大学', '浙大', 'zhejiang university',
+    '南京大学', '中山大学',
+    'saif', '高级金融学院',
+    'cicc', '中金', '中信证券', '中信建投', '招商证券', '招行',
+)
+
+
+def _is_english_dominant_resume(resume_text: str) -> bool:
+    """简历主体是否英文。判断依据:中文字符占英文字符比 < 0.3 视为英文简历。"""
+    chinese_chars = sum(1 for c in resume_text if '一' <= c <= '鿿')
+    english_chars = sum(1 for c in resume_text if c.isascii() and c.isalpha())
+    if english_chars == 0:
+        return False
+    return chinese_chars / max(english_chars, 1) < 0.3
+
+
+def _infer_offices_from_resume_text(resume_text: str) -> list[str]:
+    """Heuristic 推断学生目标 office 区域,返 {hk, sg, mainland, global} 子集。
+
+    设计原则(2026-05-22 P3):
+      - **没信号就空,不强制 fallback 到 mainland** — 尊重学生空意图
+      - **多信号都输出** — 简历同时有清华本科 + Goldman HK 实习 → ['hk', 'mainland']
+      - 英文简历主体 + 无明确港新本科 → 加 'global'(可能在求海外 mobility)
+      - 'hk'/'sg' 一旦命中,'mainland' 才会跟着出现(意图明显偏港新,弱化 mainland default)
+    """
+    if not resume_text:
+        return []
+    text_l = resume_text.lower()
+    hk_hit = any(kw in text_l for kw in HK_HEURISTIC_KEYWORDS)
+    sg_hit = any(kw in text_l for kw in SG_HEURISTIC_KEYWORDS)
+    mainland_hit = any(kw in text_l for kw in MAINLAND_HEURISTIC_KEYWORDS)
+    english_dom = _is_english_dominant_resume(resume_text)
+
+    offices: list[str] = []
+    if hk_hit:
+        offices.append('hk')
+    if sg_hit:
+        offices.append('sg')
+    if mainland_hit:
+        offices.append('mainland')
+    # 英文简历但没明确港新院校信号 — 标 global(可能外资 mobility 求职)
+    if english_dom and not (hk_hit or sg_hit):
+        if 'global' not in offices:
+            offices.append('global')
+    return offices
+
+
+def _normalize_offices(value: Any) -> list[str]:
+    """清洗 LLM / 用户输入,只保留合法 4 值(hk / sg / mainland / global)。"""
+    if not value:
+        return []
+    if isinstance(value, str):
+        items = [value]
+    elif isinstance(value, list):
+        items = value
+    else:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        s = str(item).strip().lower()
+        # 兼容常见别名
+        if s in {'hong kong', '香港', 'hongkong'}:
+            s = 'hk'
+        elif s in {'singapore', '新加坡'}:
+            s = 'sg'
+        elif s in {'cn', 'china', '中国', '大陆', 'mainland china'}:
+            s = 'mainland'
+        elif s in {'overseas', 'international', '海外'}:
+            s = 'global'
+        if s in OFFICE_VALUES and s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
 def _canonicalize_track_list(values: list[str]) -> list[str]:
     """Phase C (2026-05-16): 把 inferred_tracks 里的 free-text 跑 canonicalize_track
     映到 8 canonical(无 mapping 的保留原值,e.g. '互联网' / 'AI' 不属 8 canonical
@@ -166,7 +273,23 @@ class OpenAICompatibleResumeParserProvider:
                     'content': (
                         'Extract the resume into JSON with keys: basic_info, education, '
                         'internships, projects, skills, languages, awards, '
-                        'candidate_summary, inferred_roles, inferred_tracks.\n'
+                        'candidate_summary, inferred_roles, inferred_tracks, '
+                        'inferred_offices.\n'
+                        # 2026-05-22 P3: inferred_offices 推断学生目标 office 区域,值域固定
+                        # 4 个: "hk" / "sg" / "mainland" / "global"。多信号都输出(e.g.
+                        # 清华本 + Goldman HK 实习 → ["hk", "mainland"])。
+                        # 判断依据(综合权重):
+                        #   - 港校 (HKUST/CUHK/HKU/港中文/港大) → "hk"
+                        #   - 新校 (NUS/NTU/SMU) → "sg"
+                        #   - 港 office 实习 (Goldman HK / GS HK / JPM HK / 等) → "hk"
+                        #   - 新 office 实习 (GS SG / JPM SG 等) → "sg"
+                        #   - 清华 / 北大 / 复旦 / 上交 / SAIF / 内资 IB 实习 → "mainland"
+                        #   - 简历主体英文 + 多国经历 + 无明确港新院校 → "global"
+                        # 没明确信号就空数组 [] — 不要强制 fallback 到 mainland。
+                        'For inferred_offices: detect the student\'s target office region(s) '
+                        'from their resume. Output a JSON array containing any subset of '
+                        '["hk", "sg", "mainland", "global"]. Multiple signals → multiple items. '
+                        'No clear signal → empty array [].\n'
                         'Put contact facts only in basic_info using normalized keys '
                         'name, email, phone, github, linkedin, website, location, headline.\n'
                         'For every education item output all of: school, degree, major, '
@@ -882,6 +1005,12 @@ def _merge_profile_with_heuristics(raw_profile: Any, heuristic_profile: ResumePr
         inferred_tracks=_canonicalize_track_list(
             _normalize_string_list(raw_dict.get('inferred_tracks', [])) or heuristic_profile.inferred_tracks
         ),
+        # 2026-05-22 P3: LLM inferred_offices 优先(LLM 能识别 Objective 段 / 隐含
+        # 偏好), heuristic 兜底(LLM 漏掉 / 不输出此字段时不要丢)。 取并集 dedupe。
+        inferred_offices=_dedupe_preserve_order(
+            _normalize_offices(raw_dict.get('inferred_offices', []))
+            + heuristic_profile.inferred_offices
+        ),
     )
     return profile
 
@@ -952,6 +1081,8 @@ def build_heuristic_resume_profile(resume_text: str) -> ResumeProfilePayload:
         candidate_summary=summary,
         inferred_roles=inferred_roles,
         inferred_tracks=inferred_tracks,
+        # 2026-05-22 P3: heuristic 也填 inferred_offices(纯 keyword 匹配, LLM 挂时兜底)
+        inferred_offices=_infer_offices_from_resume_text(resume_text),
     )
 
 

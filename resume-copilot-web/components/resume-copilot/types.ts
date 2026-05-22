@@ -39,6 +39,8 @@ export interface ResumeProfilePayload {
   candidate_summary: string;
   inferred_roles: string[];
   inferred_tracks: string[];
+  // 2026-05-22 P3: 学生目标 office 区域,值域 {'hk','sg','mainland','global'}
+  inferred_offices: string[];
 }
 
 export interface ResumePreferencePayload {
@@ -253,6 +255,7 @@ export const EMPTY_PROFILE: ResumeProfilePayload = {
   candidate_summary: '',
   inferred_roles: [],
   inferred_tracks: [],
+  inferred_offices: [],
 };
 
 export const EMPTY_PREFERENCES: ResumePreferencePayload = {
