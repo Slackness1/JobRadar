@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 from typing import Iterable
 
 import requests
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, text
 from sqlalchemy.orm import Session
 
 from app.models import Job
@@ -84,13 +84,18 @@ def _head_one(url: str) -> tuple[int | None, str | None]:
         return None, type(exc).__name__
 
 
-def _select_candidate_jobs(db: Session, now: datetime) -> list[Job]:
-    """L1+L2 通过且需要(re-)check 的岗位."""
+def _select_candidate_jobs(db: Session, now: datetime) -> list[tuple[int, str]]:
+    """L1+L2 通过且需要(re-)check 的岗位. 返回 [(id, detail_url), ...]
+
+    用 db.query(Job.id, Job.detail_url) tuple 模式而不是返 Job 对象 — 避免后续
+    update 时触发 ORM before_update event (canonical_track hook 会在 inner-flush
+    时把 1000+ 个 update 拖崩)。
+    """
     active_cutoff = now - timedelta(days=_ACTIVE_WINDOW_DAYS)
     recheck_cutoff = now - timedelta(days=_RECRAWL_RECHECK_DAYS)
 
     return (
-        db.query(Job)
+        db.query(Job.id, Job.detail_url)
         .filter(
             or_(Job.deadline.is_(None), Job.deadline > now),
             Job.scraped_at.isnot(None),
@@ -113,8 +118,16 @@ def _should_skip(url: str) -> bool:
     return any(deny in url for deny in _SOURCE_DOMAIN_DENYLIST)
 
 
+_UPDATE_SQL = text("UPDATE jobs SET link_status = :s, link_checked_at = :t WHERE id = :i")
+
+
 def probe_active_jobs(db: Session, workers: int = 50) -> dict:
-    """对所有 L1+L2 候选岗位并发 HEAD 探活。返回统计 dict。"""
+    """对所有 L1+L2 候选岗位并发 HEAD 探活。返回统计 dict。
+
+    update 用 raw SQL 而不走 ORM,避免触发 Job 上的 before_update event listener
+    (`_populate_job_canonical_track`)— 1000+ 次连续 ORM update 在 inner-flush
+    钩子下会出 SAWarning + 进程异常退出。
+    """
     now = datetime.utcnow()
     candidates = _select_candidate_jobs(db, now)
     total = len(candidates)
@@ -126,23 +139,25 @@ def probe_active_jobs(db: Session, workers: int = 50) -> dict:
 
     t0 = time.time()
     BATCH_COMMIT = 200
-    pending = 0
+    pending_updates: list[dict] = []
 
-    def _probe(job: Job) -> tuple[int, str | None]:
-        if _should_skip(job.detail_url):
-            return job.id, "skip"
-        code, err = _head_one(job.detail_url)
-        new_status = _classify_status(code, err)
-        return job.id, new_status
+    def _probe(job_id: int, url: str) -> tuple[int, str | None]:
+        if _should_skip(url):
+            return job_id, "skip"
+        code, err = _head_one(url)
+        return job_id, _classify_status(code, err)
+
+    last_print = t0
+    done_count = 0
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futs = {pool.submit(_probe, j): j for j in candidates}
+        futs = {pool.submit(_probe, jid, url): jid for jid, url in candidates}
         for fut in as_completed(futs):
-            job = futs[fut]
+            done_count += 1
             try:
-                _, new_status = fut.result()
+                job_id, new_status = fut.result()
             except Exception as exc:
-                logger.debug("probe failed for job %d: %s", job.id, exc)
+                logger.debug("probe failed: %s", exc)
                 continue
             if new_status == "skip":
                 stats["skipped"] += 1
@@ -150,16 +165,22 @@ def probe_active_jobs(db: Session, workers: int = 50) -> dict:
             if new_status is None:
                 stats["unchanged"] += 1
                 continue
-            # Update on the existing job object (still attached to session)
-            job.link_status = new_status
-            job.link_checked_at = now
+            pending_updates.append({"s": new_status, "t": now, "i": job_id})
             stats[new_status] += 1
-            pending += 1
-            if pending >= BATCH_COMMIT:
+            if len(pending_updates) >= BATCH_COMMIT:
+                db.execute(_UPDATE_SQL, pending_updates)
                 db.commit()
-                pending = 0
+                pending_updates.clear()
+            if time.time() - last_print > 30:
+                rate = done_count / (time.time() - t0)
+                eta = (total - done_count) / max(rate, 0.1) / 60
+                print(f"  [{done_count}/{total}] alive={stats['alive']} dead={stats['dead']} "
+                      f"unchanged={stats['unchanged']} skipped={stats['skipped']} "
+                      f"rate={rate:.1f}/s eta={eta:.1f}min", flush=True)
+                last_print = time.time()
 
-    if pending:
+    if pending_updates:
+        db.execute(_UPDATE_SQL, pending_updates)
         db.commit()
 
     stats["elapsed_seconds"] = round(time.time() - t0, 1)
