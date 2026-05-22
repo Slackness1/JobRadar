@@ -447,6 +447,7 @@ def test_put_confirmed_profile_upserts_profile_json():
             'candidate_summary': 'Backend focused candidate',
             'inferred_roles': ['Backend Engineer'],
             'inferred_tracks': ['Internet'],
+            'inferred_offices': [],  # P3 (2026-05-22): schema 加的字段, default []
         }
     }
 
@@ -540,7 +541,13 @@ def test_put_preferences_upserts_preferences_json_and_all_skipped():
     get_response = client.get(f'/api/resume-copilot/sessions/{seeded_id}/preferences')
 
     assert first_response.status_code == 200
-    assert first_response.json() == {'session_id': seeded_id, 'preferences': payload['preferences']}
+    # P1 (2026-05-22): PUT /preferences 现在会 canonicalize_track,
+    # 'Banking' → '一级市场' (longest-match-wins via 'investment banking' alias).
+    expected_first = {
+        **payload['preferences'],
+        'preferred_tracks': ['Internet', '一级市场'],
+    }
+    assert first_response.json() == {'session_id': seeded_id, 'preferences': expected_first}
     assert second_response.status_code == 200
     assert second_response.json() == {'session_id': seeded_id, 'preferences': skipped_payload['preferences']}
     assert get_response.status_code == 200
@@ -760,6 +767,7 @@ def test_get_recommendations_returns_persisted_result():
                 'tier_label': '',
                 'priority_letter': '',
                 'track_match_kind': '',
+                'is_internship': False,  # 2026-05-20: 校招/实习 分流字段, default False
             }
         ],
     }

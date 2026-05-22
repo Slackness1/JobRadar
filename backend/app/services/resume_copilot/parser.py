@@ -24,7 +24,26 @@ URL_PATTERN = re.compile(
     r'(?:(?:https?://)?(?:www\.)?)'
     r'(?:github\.com/[A-Za-z0-9_.-]+|linkedin\.com/in/[A-Za-z0-9_.-]+|[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[^\s，,；;|]+)'
 )
-DATE_RANGE_PATTERN = re.compile(r'(?P<start>\d{4}[./-]\d{2})\s*[–—-]\s*(?P<end>至今|\d{4}[./-]\d{2})')
+# 2026-05-22 #114 Phase 2: 支持英文日期格式。原来只匹配 "2024.09 – 2025.12",
+# 现在还匹配:
+#   "Sep 2024 – Dec 2025" / "September 2024 – Present" / "09/2024 – 12/2025" /
+#   "2020 – 2024" (年-年 — 学校经历常用) / "Sep 2024 – Present"
+# 注意: 年份限 1900-2099, 不然 "Annual budget 1000 - 2000" 这种 salary range 会
+# 被当成 date range, _split_section_entries 误判 entry 边界。
+_MONTH_NAME = r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*'
+_YEAR = r'(?:19|20)\d{2}'        # 1900-2099, 拦 salary/budget false positive
+_DATE_ALTS: tuple[str, ...] = (
+    rf'{_YEAR}[./-]\d{{1,2}}',       # 2024.09 / 2024-09 / 2024/09
+    rf'\d{{1,2}}[./-]{_YEAR}',       # 09/2024
+    rf'{_MONTH_NAME}\.?\s+{_YEAR}',  # Sep 2024 / September 2024
+    _YEAR,                            # 2024 (孤立年, 学校多年区间用)
+)
+_DATE_TOKEN = '(?:' + '|'.join(_DATE_ALTS) + ')'
+_DATE_END_TOKEN = '(?:' + '|'.join(('至今', 'present', 'now', 'current') + _DATE_ALTS) + ')'
+DATE_RANGE_PATTERN = re.compile(
+    rf'(?P<start>{_DATE_TOKEN})\s*[–—\-~]\s*(?P<end>{_DATE_END_TOKEN})',
+    re.IGNORECASE,
+)
 BULLET_PREFIX_PATTERN = re.compile(r'^[•·●▪■*-]\s*')
 # 2026-05-21: 删了独字母 'C' / 'Go' — 这俩太短, substring match 会在
 # "CICC" / "consumer" / "google" / "going" 里全命中, 让每份简历凭空多出
@@ -62,7 +81,24 @@ ROLE_KEYWORDS = [
     'Data Engineer', 'Machine Learning Engineer', 'Product Manager', 'Operations',
     '后端开发', '前端开发', '全栈开发', '数据分析', '数据工程', '算法工程师', '产品经理', '运营',
 ]
-TRACK_KEYWORDS = ['Internet', 'AI', 'Finance', '互联网', 'AI', '金融']
+# 2026-05-22 #114 Phase 2: TRACK_KEYWORDS 加 EN finance 信号(SAIF 港新外资方向)。
+# 这些 keyword 会先做 substring match (lowercase),再走 canonicalize_track 映到 10 个
+# canonical。优先级靠列表顺序 — 高精度短词在前(IBD / PE / VC),容易撞 false positive
+# 的通用词(Consulting / Trading)在后。
+TRACK_KEYWORDS = [
+    # CN (旧)
+    '互联网', 'AI', '金融',
+    'Internet',  # FE-only generic, 兜底
+    # EN finance — 高精度先
+    'Investment Banking', 'Equity Research', 'Sell-side Research',
+    'Private Equity', 'Venture Capital', 'Asset Management',
+    'Hedge Fund', 'Sales and Trading', 'Quantitative',
+    'Management Consulting', 'Strategy Consulting',
+    'Corporate Banking', 'FinTech',
+    'IBD', 'PE', 'VC', 'S&T',
+    # EN finance — 通用词 (canonicalize_track 兜底)
+    'Quant', 'Consulting', 'Commodities',
+]
 
 
 # 2026-05-22 P3: 推断学生目标 office 区域 — 用于 confirm 页 pre-fill location chip
@@ -187,14 +223,54 @@ def _canonicalize_track_list(values: list[str]) -> list[str]:
             seen.add(canon)
             out.append(canon)
     return out
+# 2026-05-22 #114 Phase 2: SECTION_ALIASES 同时收中英两套 heading。匹配走
+# _normalize_section_heading() 做 lowercase + 去 trailing colon, 所以这里写一种
+# 形式即可(无需把 EDUCATION / Education / education 重复列)。
 SECTION_ALIASES = {
-    'summary': {'个人介绍', '个人简介', '自我介绍', '自我评价', 'Profile', 'Summary'},
-    'education': {'教育背景', '教育经历', '教育'},
-    'internships': {'实习经历', '工作经历', '职业经历', '实习/工作经历'},
-    'projects': {'项目经历', '项目经验', '项目与论文', '项目/论文', '科研项目'},
-    'skills': {'技能与资质', '技能', '专业技能', '技能证书'},
+    'summary': {
+        '个人介绍', '个人简介', '自我介绍', '自我评价',
+        'profile', 'summary', 'professional summary', 'personal summary',
+        'about', 'about me', 'objective',
+    },
+    'education': {
+        '教育背景', '教育经历', '教育',
+        'education', 'educational background', 'academic background',
+        'academic qualifications', 'academics',
+    },
+    'internships': {
+        '实习经历', '工作经历', '职业经历', '实习/工作经历',
+        'experience', 'work experience', 'professional experience',
+        'internship', 'internships', 'internship experience',
+        'employment', 'employment history', 'career',
+    },
+    'projects': {
+        '项目经历', '项目经验', '项目与论文', '项目/论文', '科研项目',
+        'projects', 'project experience', 'selected projects',
+        'research', 'research projects', 'research experience',
+        'publications',
+    },
+    'skills': {
+        '技能与资质', '技能', '专业技能', '技能证书',
+        'skills', 'technical skills', 'core skills', 'skills & certifications',
+        'certifications', 'languages & tools', 'tools',
+    },
 }
 SECTION_HEADING_ALIASES = {alias for aliases in SECTION_ALIASES.values() for alias in aliases}
+
+
+def _normalize_section_heading(line: str) -> str:
+    """Return a folded form of `line` suitable for SECTION_ALIASES lookup.
+
+    Lowercases, strips trailing colon (en/cn variants) and surrounding
+    whitespace so English headings like ``Education:`` / ``EDUCATION`` /
+    ``Education`` all collapse to ``education``. Chinese headings unchanged
+    (lowercase is a no-op for CJK)."""
+    s = (line or '').strip()
+    if not s:
+        return ''
+    # strip trailing : / : / ; / 。 etc.
+    s = re.sub(r'[\s:：;；。．\.]+$', '', s)
+    return s.lower()
 BASIC_INFO_KEY_ALIASES = {
     '姓名': 'name',
     'name': 'name',
@@ -275,6 +351,14 @@ class OpenAICompatibleResumeParserProvider:
                         'internships, projects, skills, languages, awards, '
                         'candidate_summary, inferred_roles, inferred_tracks, '
                         'inferred_offices.\n'
+                        # 2026-05-22 #114 Phase 2: 简历语言可能中/英任意一种,
+                        # 或中英混合 (大陆 SAIF 学生申港新外资经常有英文 bullet)。
+                        # LLM 必须按原文语言 extract,不要翻译。中文 bullet 保留中文,
+                        # 英文 bullet 保留英文,bullets 数组里允许同时存在两种语言。
+                        'The resume may be written in Chinese, English, or a mix. '
+                        'Extract every field verbatim in the original language — '
+                        'NEVER translate. A bullets[] entry may be Chinese or English; '
+                        'keep it as written.\n'
                         # 2026-05-22 P3: inferred_offices 推断学生目标 office 区域,值域固定
                         # 4 个: "hk" / "sg" / "mainland" / "global"。多信号都输出(e.g.
                         # 清华本 + Goldman HK 实习 → ["hk", "mainland"])。
@@ -609,16 +693,19 @@ def _extract_sections(resume_text: str) -> dict[str, list[str]]:
     sections = {key: [] for key in SECTION_ALIASES}
     current_section: str | None = None
 
+    # Pre-fold SECTION_ALIASES once so each line check is a set lookup.
+    folded: dict[str, str] = {}
+    for section_name, aliases in SECTION_ALIASES.items():
+        for alias in aliases:
+            folded[_normalize_section_heading(alias)] = section_name
+
     for raw_line in resume_text.splitlines():
         line = _clean_line(raw_line)
         if not line:
             continue
 
-        matched_section = None
-        for section_name, aliases in SECTION_ALIASES.items():
-            if line in aliases:
-                matched_section = section_name
-                break
+        norm = _normalize_section_heading(line)
+        matched_section = folded.get(norm)
 
         if matched_section is not None:
             current_section = matched_section
