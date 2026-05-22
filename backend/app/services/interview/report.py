@@ -382,13 +382,17 @@ def generate_interview_report(
 
     # ── Guard 4: mentor / PM ownership-deferral (Day 11 B3 — P-fake-S1 红线) ──
     # 设计退回 mentor 框架的 persona 在 v6 被抬到 78-82, 完全绕过 SAIF 核心承诺.
-    # ≥3 次 "我们PM觉得 / mentor 让我 / 组里讨论决定 / PM 的 thesis" 类外部化判断
+    # ≥2 次 "我们PM觉得 / mentor 让我 / 组里讨论决定 / PM 的 thesis" 类外部化判断
     # → 强制 cap overall ≤65 / 可信度 ≤50 + 抑制 内驱力 strong trait.
+    #
+    # 2026-05-22 N=3 验证: 旧阈值 ≥3 在 run3 没触发 (regex 只命中 2 次),
+    # P-fake-S1 overall 飙到 73 突破 hard cap. 修法: 扩大 regex 覆盖 (mentor 告诉 /
+    # 带着我 / base 是组里 等执行依赖模式) + 阈值降到 ≥2 (扩展后 P-fake-S1 一定 ≥4).
     #
     # **必须放在 trait aggregation 之后** — `_cap_for_mentor_fallback` 要改 report['traits'],
     # 之前 (Day 11 first cut, v7 baseline 验过) 因为顺序错了, 抑制内驱力是 dead code.
     mentor_count = _detect_mentor_fallback(transcript_for_caps)
-    if mentor_count >= 3:
+    if mentor_count >= 2:
         _cap_for_mentor_fallback(report, mentor_count)
 
     return report
@@ -661,44 +665,56 @@ def _cap_credibility(report: dict, *, cap: int) -> None:
 
 
 # Day 11 B3: ownership-deferral 守卫 — 红线 persona P-fake-S1 被 v6 抬到 78-82.
-# 设计期待 50-65 (持续退回 mentor / PM 框架, 缺自主独立思考). 这里检测候选人答里
-# "把**判断的来源** attribute 到 mentor / PM / 组里" 的强语言模式, ≥3 次 → 强制 cap.
+# 设计期待 50-65 (持续退回 mentor / PM 框架, 缺自主独立思考). 检测候选人答里
+# "把**判断的来源 / 学习路径的来源** attribute 到 mentor / PM / 组里" 的语言模式.
 #
-# 必须只检测"判断的来源是外部" 不要把"执行方向是 mentor 给的"(正常实习)
-# 或"PM 引用我的工作"(强档候选人)当成 deferral. 反例 (不该触发):
-#   ✗ "PM 让我搭模型" — 执行方向, 不是判断来源
-#   ✗ "PM 说"用起来比之前顺"" — 上级评价 (强档候选人被表扬)
-#   ✗ "不是 mentor 让我做的" — 显式否定 deferral
-#   ✗ "我们组内的讨论是 X, 但我判断 Y" — 框架引用 + 独立判断
-# ✓ 触发:
-#   ✓ "我们 PM 觉得..." / "我们 PM 是这么看的" / "PM 的 thesis 是"
-#   ✓ "PM 倾向于把 X 作为先行指标" / "PM forward 的标的"
-#   ✓ "mentor 给的基础模型 / 框架 / 思路 / view"
-#   ✓ "组里讨论形成共识" / "组里讨论得出结论"
-#   ✓ "是 mentor 给的 / 让的 / 说的 / 教的 / 定的"
+# 2026-05-22 N=3 重测发现: 单次 LLM 模拟 P-fake-S1 transcript 的表达模式漂移很大,
+# 有时 "我们PM 是这么看的" 满屏 (run1=5, run2=4 命中), 有时简化成 "mentor 告诉我"
+# "我们组给的" "mentor带着我" (run3 只命中 2 次 → 守卫没触发 → overall 飙到 73,
+# 突破 hard cap 65). 必须扩 regex + 降阈值.
+#
+# ✓ 强信号 (判断来源外部):
+#   ✓ "我们PM/mentor/senior 觉得 / 是这么看的 / 倾向于"
+#   ✓ "PM/mentor 给我的框架 / 思路 / 模型 / view / 信号 / 建议"
+#   ✓ "组里讨论形成共识"
+# ✓ 弱信号 (学习路径依赖外部, 实习生常用):
+#   ✓ "mentor 一开始就告诉我..."
+#   ✓ "mentor带着我打电话"
+#   ✓ "我们组对 X 给的区间是..." / "我们组的判断是"
+#   ✓ "我跟 mentor 对过一次, 他认可了" — 检验需要他人 endorse
+# ✗ 不触发 (要排除):
+#   ✗ "PM 让我搭模型" — 纯执行方向
+#   ✗ "不是 mentor 让我做的" — 显式否定
+#   ✗ "我们组内的讨论是 X, 但我判断 Y" — 框架引用 + 独立判断 (后面带"但我..." 才能识别)
 _MENTOR_FALLBACK_RE = re.compile(
-    # P1: 我们PM/mentor/senior/老师 + 判断动词/名词性短语
-    r'我们\s*(?:PM|mentor|senior|老师)\s*(?:觉得|是这么看|倾向于|forward|定的|教的|的(?:thesis|判断|看法|框架|观点|思路))'
-    # P2: 独立 PM/mentor/senior + 觉得/是这么看/倾向于/forward/thesis
-    r'|(?<![A-Za-z])(?:PM|mentor|senior)\s*(?:觉得|是这么看|倾向于|forward|的\s*thesis)'
-    # P3: mentor / PM / 老师 + 给的 + 框架|基础|思路|模型|判断|结论|view  (执行模型来自上级)
-    r'|(?:mentor|PM|老师)\s*给(?:的|了我)\s*(?:框架|基础|思路|模型|判断|结论|view)'
+    # P1: 我们 + (PM|mentor|senior|老师|组) + 判断/告知/教学 动词或名词
+    r'我们\s*(?:PM|mentor|senior|老师|组)\s*(?:觉得|是这么看|倾向于?|forward|定的|教的|说|告诉|带着|给的|对(?:[^。!?]{0,15})给|的(?:thesis|判断|看法|框架|观点|思路|讨论|结论|意见|共识|区间|参考))'
+    # P2: 独立 PM/mentor/senior/老师 + 判断 / 教导 / 带教 动词
+    r'|(?<![A-Za-z])(?:PM|mentor|senior|老师)\s*(?:觉得|是这么看|倾向于?|forward|告诉(?:我|过我)?|带着我|教我|让我跟|让我跟着|的\s*thesis|一开始就|认可了)'
+    # P3: mentor/PM/老师/组里/组内/我们组 + 给(的|了我) + 框架/思路/模型/基础/view/参考/信号/建议
+    r'|(?:mentor|PM|老师|组里|组内|我们组)\s*给(?:的|了我)\s*(?:框架|基础|思路|模型|判断|结论|view|参考|信号|建议|区间)'
     # P4: 是 + mentor/PM/我们PM/组里/老师 + 给的|让的|说的|教的|定的
-    r'|是\s*(?:mentor|PM|我们PM|我们mentor|组里|老师)\s*(?:给的|让的|说的|教的|定的)'
-    # P5: 组里/组内 + 讨论 + 形成共识|得出结论|定的|决定的 (强 collective judgment)
-    r'|组(?:里|内)\s*讨论\s*(?:形成共识|得出结论|定的|决定的)',
+    r'|是\s*(?:mentor|PM|我们PM|我们mentor|组里|组内|老师|我们组)\s*(?:给的|让的|说的|教的|定的|带的|跟我说的)'
+    # P5: 组里/组内/我们组 + 讨论/的 + 看法|判断|共识|结论|意见
+    r'|(?:组(?:里|内)|我们组)\s*(?:讨论\s*(?:形成共识|得出结论|定的|决定的|的是)|的(?:看法|判断|结论|意见|共识))'
+    # P6 (Day 11 v8): base 是 / 起点是 + 组里/PM/mentor (说明思考起点来自外部)
+    r'|(?:base|起点|前提)\s*是\s*(?:组里|组内|我们组|mentor|PM|老师|senior)',
     re.IGNORECASE,
 )
 
 
 def _detect_mentor_fallback(transcript: str) -> int:
-    """Count ownership-deferral phrases in candidate transcript.
+    """Count DISTINCT ownership-deferral phrases in candidate transcript.
 
-    Empty transcript → 0. Returns raw match count (no dedupe by pattern bucket).
+    Empty transcript → 0.
+    Dedup identical literal matches — 重复 "我们组的观点是" 6 次是 simulator verbal_tic
+    (M2 案例), 不是 6 次独立 deferral. P-fake-S1 真退档则会命中多种不同模式 (我们PM /
+    mentor 给的 / 组里讨论 等), dedup 后仍 ≥3.
     """
     if not transcript:
         return 0
-    return len(_MENTOR_FALLBACK_RE.findall(transcript))
+    hits = _MENTOR_FALLBACK_RE.findall(transcript)
+    return len({h.lower().strip() for h in hits})
 
 
 def _cap_for_mentor_fallback(report: dict, count: int) -> None:

@@ -339,12 +339,12 @@ def test_apply_report_pattern_caps_two_translation_phrases_still_caps():
 
 
 def test_detect_mentor_fallback_p_fake_s1_pattern_hits_threshold():
-    """P-fake-S1 真实 transcript 模式 — ≥3 次外部化判断 → 触发."""
+    """P-fake-S1 真实 transcript 模式 — ≥2 次不同外部化判断 → 触发."""
     from app.services.interview.report import _detect_mentor_fallback
     transcript = (
         "我们PM觉得动销跟踪是衡量渠道健康度的核心。"
         "我们PM是这么看的——五粮液在千元价位带的品牌力是唯一可以对标茅台的。"
-        "组里讨论形成的共识是用 PE 而不是 DDM。"
+        "组里讨论形成共识是用 PE 而不是 DDM。"
         "mentor 给的基础模型, 我主要做假设更新。"
         "PM 的 thesis 是市场对某高端白酒批价压力的担忧过头了。"
     )
@@ -360,6 +360,36 @@ def test_detect_mentor_fallback_strong_independent_does_not_trigger():
         "我的非共识判断是市场过分担忧批价压力。"
     )
     assert _detect_mentor_fallback(transcript) == 0
+
+
+def test_detect_mentor_fallback_dedupes_repeated_phrase():
+    """Day 11 v8 修法 — 重复同一句 (simulator verbal_tic) dedup, 不算多次 deferral.
+
+    M2 真实 transcript 含 "我们组的观点是" 重复 6 次 (simulator 模板), 旧实现命中 6 次
+    会触发 cap. 修后: dedup 同 literal 后只算 1 次, 不再误伤强档候选人.
+    """
+    from app.services.interview.report import _detect_mentor_fallback
+    # 6 次重复同一短语 — dedup 后算 1
+    transcript = "\n".join(["我们组的观点是 X. 我具体..."] * 6)
+    assert _detect_mentor_fallback(transcript) == 1   # dedup 生效
+    # 对比: 6 个不同的 deferral 模式
+    diverse = (
+        "我们PM觉得 A. "
+        "mentor 给的基础模型. "
+        "组里讨论形成共识. "
+        "是组里给的. "
+        "我们组的观点是 B. "
+        "base 是组里 PM 给的."
+    )
+    assert _detect_mentor_fallback(diverse) >= 4   # 6 不同模式 → 全保留
+
+
+def test_detect_mentor_fallback_threshold_is_two_after_dedup():
+    """阈值降到 ≥2 (dedup 后) — N=3 重测 P-fake-S1 必须 3/3 触发."""
+    from app.services.interview.report import _detect_mentor_fallback
+    # 只 2 个不同模式 → 触发阈值
+    transcript = "我们PM觉得 X. mentor 给的基础模型."
+    assert _detect_mentor_fallback(transcript) == 2
 
 
 def test_cap_for_mentor_fallback_caps_overall_credibility_and_drops_traits():
