@@ -130,6 +130,33 @@ def test_propose_returns_write_action():
     assert action.payload["used_evidence_ids"] == [ev.id]
 
 
+def test_propose_converts_premature_write_to_ask():
+    """LLM may eagerly draft from parsed resume evidence while item is still
+    pending. Guard it into an ask so /plan/turn does not illegal-transition."""
+    ev = Evidence(source="parsed_resume", text="完成 80 亿项目财务模型核查")
+    item = PlanItem(
+        kind=ItemKind.INTERNSHIP, title="x", order=0,
+        status=ItemStatus.PENDING, evidence=[ev],
+    )
+    plan = _plan_with_items([item])
+    fake = _fake_caller({
+        "action": "write",
+        "item_id": item.id,
+        "payload": {
+            "draft_text": "完成 80 亿项目财务模型核查",
+            "used_evidence_ids": [ev.id],
+        },
+    })
+    action = propose_next_action(
+        profile=_profile(), preferences=None, plan=plan,
+        user_message="我做了模型核查",
+        llm_caller=fake,
+    )
+    assert action.action == "ask"
+    assert action.item_id == item.id
+    assert "核心的动作" in action.payload["question_text"]
+
+
 def test_propose_injects_item_id_when_missing():
     """LLM sometimes omits item_id when it's obvious — we fill it from the picker."""
     item = PlanItem(kind=ItemKind.PROJECT, title="x", order=0, status=ItemStatus.PENDING)

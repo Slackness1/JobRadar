@@ -90,6 +90,14 @@ RiskKind = Literal[
     "overclaim", "missing_metric", "vague_verb",
     "tech_unverified", "leadership_unverified",
     "vague_quantification", "evidence_scope_unverified",  # B5 (2026-05-19)
+    # B1 (2026-05-21): SAIF P8 红线 — 简历上"本科 / 短期实习 + 独立完成
+    # 50MW 光伏 / 节约 100 万欧元"这种规模 × 角色不匹配。 仅靠 evidence-string
+    # 检测搞不定 (数字本来就在简历里), 需要 plausibility 这一层。
+    "implausible_scale",
+    # M5 (2026-05-21): coach 聊天里学生现编的数字 (e.g. "200 SKU / 12 经销商")
+    # — 简历原文没有, 是 chat 里第一次出现。 不直接拒收 (学生可能就是要补真
+    # 数字), 但 UI 上要打 yellow warning 让学生入档前确认。
+    "student_introduced_number",
 ]
 
 
@@ -256,19 +264,52 @@ def audit_draft(draft_text: str, evidence: list[Evidence]) -> list[RiskFlag]:
     tech_unverified) cause ``apply_action(write)`` to raise
     ``EvidenceAuditFailed``. Non-blocking flags (missing_metric/vague_verb)
     are attached to the draft for UI display but don't reject the write.
+
+    M5 (2026-05-21): evidence with source='user_clarification' (i.e. answers
+    the student typed in coach chat) is treated as WEAKER than evidence from
+    source='parsed_resume'. Numbers that only appear in user_clarification
+    raise a ``student_introduced_number`` warn flag — not blocking (student
+    is allowed to bring new true info via chat), but the UI should surface
+    so they confirm before archiving.
     """
     flags: list[RiskFlag] = []
 
-    tag_metrics = {t.value for ev in evidence for t in ev.tags if t.type == "metric"}
+    # Strong evidence = anything not from user_clarification. Weak = from chat.
+    strong_evidence = [ev for ev in evidence if ev.source != "user_clarification"]
+    weak_evidence = [ev for ev in evidence if ev.source == "user_clarification"]
+
+    tag_metrics_strong = {t.value for ev in strong_evidence for t in ev.tags if t.type == "metric"}
+    tag_metrics_weak = {t.value for ev in weak_evidence for t in ev.tags if t.type == "metric"}
     tag_techs = {t.value for ev in evidence for t in ev.tags if t.type == "tech"}
     verb_subjects = {t.value for ev in evidence for t in ev.tags if t.type == "verb_subject"}
-    all_text = " ".join(ev.text for ev in evidence)
+    strong_text = " ".join(ev.text for ev in strong_evidence)
+    weak_text = " ".join(ev.text for ev in weak_evidence)
+    all_text = strong_text + " " + weak_text
 
+    seen_chat_numbers: set[str] = set()
     for m in _NUMERIC_RE.finditer(draft_text):
         num = m.group().strip()
         if num in {"1", "1%", "2", "3"}:
             continue
-        if num in all_text or num in tag_metrics:
+        # 简历原文里已有 → 完全 anchored, no flag
+        if num in strong_text or num in tag_metrics_strong:
+            continue
+        # 学生 chat 里 introduced → 非 blocking warn (M5)
+        if num in weak_text or num in tag_metrics_weak:
+            if num not in seen_chat_numbers:
+                seen_chat_numbers.add(num)
+                flags.append(RiskFlag(
+                    kind="student_introduced_number",
+                    detail=(
+                        f"draft contains {num!r} — only seen in your chat reply, "
+                        "not in the original resume. Confirm before archiving."
+                    ),
+                    blocking=False,
+                ))
+            continue
+        # 简历 + chat 都没有 → 真编造, blocking
+        if num in all_text:
+            # 兜底, 不应该走到 (上两个分支应该已经命中), 但留个保险
             continue
         flags.append(RiskFlag(
             kind="overclaim",
@@ -340,6 +381,99 @@ def audit_draft(draft_text: str, evidence: list[Evidence]) -> list[RiskFlag]:
             break
 
     return flags
+
+
+# ─── B1: plausibility audit (2026-05-21) ────────────────────────────────────
+# 红线 P8 暴露的漏: fabrication detector 只看"draft 编了 evidence 没的数字",
+# 不看"简历上的数字本身离不离谱"。 学生在 PVSyst 那段说"我独立完成 50MW 光伏
+# / 节约 100 万欧元", 数字早就在 evidence 里, fabrication 检测视为"已 anchored"。
+# 真实情况: 本科生短期实习不可能 own 50MW 商业光伏电站设计。
+#
+# 这里加一层"规模 × 角色"常识检测: 命中 high-scale 标记 + 独立 / 主导这类
+# 强 ownership 词时, 不直接拒收 (有时学生真的就独立完成了小项目), 而是
+# 走 EvidenceAuditFailed → coach 强制问一个 "这段你具体负责什么 / 团队
+# 多大 / 谁拍板" 的 clarifying。
+
+# Scale tokens: 真实事故级 (MW 量级电站) / 高金额 (≥ 100 万欧元 / ≥ 1 亿)
+_HIGH_SCALE_REGEX = re.compile(
+    r'(?:'
+    r'\d+(?:\.\d+)?\s*MW|'                          # 50MW / 100 MW (光伏 / 电站)
+    r'\d+(?:\.\d+)?\s*GW|'                          # GW 级
+    r'\d+(?:\.\d+)?\s*亿(?:元|欧元|美元|人民币|RMB|USD|EUR)?|'  # 1亿 / 80亿 deal size
+    r'\d{3,}(?:\.\d+)?\s*万欧元|'                    # ≥ 100 万欧元 (PVSyst case)
+    r'\d{3,}(?:\.\d+)?\s*万美元|'                    # ≥ 100 万美元
+    r'[€$£]\s*\d+(?:\.\d+)?\s*[MB](?:USD|EUR|GBP)?|'  # €1M / $5B
+    r'\d+(?:\.\d+)?\s*million\s*(?:USD|EUR|GBP|dollars?|euros?)?|'
+    r'\d+(?:\.\d+)?\s*billion\s*(?:USD|EUR|GBP|dollars?|euros?)?'
+    r')',
+    re.IGNORECASE,
+)
+# Strong ownership claim — 学生不是简单的"参与", 是声称自己一手包办
+_OWNERSHIP_TOKENS = (
+    '独立完成', '独立设计', '独立负责', '独立完成', '独立交付', '独立',
+    '主导', '主创', '主笔', '一手', '亲自', '从零', '从0', '从 0',
+    '独自', '负责整个', '主控', '统筹', '操盘',
+)
+
+
+def audit_plausibility(
+    draft_text: str,
+    item: PlanItem,
+    *,
+    student_seniority: str = "intern",
+) -> list[RiskFlag]:
+    """Check 规模 × 角色匹配度. 见上面"B1"注释。
+
+    ``student_seniority``:
+      - "intern" — 实习生 (覆盖本科 / 硕士实习两种, 默认就是这档)
+      - "senior" — 在职多年 / SAIF FT 等更资深的画像
+
+    触发规则: draft 同时含 high-scale 数字 + 独立/主导 类 ownership 词
+    → blocking 一条 RiskFlag。
+
+    Round 2 (2026-05-21): **不再 gate item.kind**。 Worker C 发现: coach
+    在 self_intro 这种 default-current_item 上也能 draft 出 PVSyst 50MW
+    内容 (`_pick_item_for_user_answer` 不会 topic-hop), 之前的 kind gate
+    让 audit silently no-op。 现在改成只看 draft 本身的信号 — 把 scale +
+    ownership 这种实际危险信号当 universal 兜底, 不管 anchored 到哪个 item。
+    """
+    flags: list[RiskFlag] = []
+    if student_seniority == "senior":
+        return flags
+
+    scale_hits = [m.group().strip() for m in _HIGH_SCALE_REGEX.finditer(draft_text)]
+    if not scale_hits:
+        return flags
+
+    ownership_hits = [tok for tok in _OWNERSHIP_TOKENS if tok in draft_text]
+    if not ownership_hits:
+        return flags
+
+    flags.append(RiskFlag(
+        kind="implausible_scale",
+        detail=(
+            f"draft claims solo ownership ({ownership_hits[0]!r}) over high-scale "
+            f"work ({scale_hits[0]!r}) — typically too large for an intern. "
+            "Coach should challenge: team size? who decided? what was actually owned? "
+            f"(anchored to item kind={item.kind.value} title={item.title!r})"
+        ),
+        blocking=True,
+    ))
+    return flags
+
+
+# ─── M2: open_questions dedup (2026-05-21) ──────────────────────────────────
+# Coach 死循环根因 — LLM 在 audit fallback / _fallback_ask 等多个路径都拼
+# 类似的问题串, append 到 open_questions, 学生看 chat 是同一句重复 N 次。
+# 这里给一个轻量归一: 去标点 + 空白 + 大小写, 取前 80 字符, 命中视为同问。
+
+_QUESTION_DEDUP_PUNCT_RE = re.compile(r'[\s　，。？?！!,.​]+')
+
+
+def _normalize_question_for_dedup(text: str) -> str:
+    if not text:
+        return ''
+    return _QUESTION_DEDUP_PUNCT_RE.sub('', (text or '').lower())[:80]
 
 
 # ─── Init plan from fixed template ──────────────────────────────────────────
@@ -452,7 +586,18 @@ def apply_action(
         item = _find_item(new_plan, action.item_id)
         _check_transition(item, ItemStatus.CLARIFYING)
         payload = AskActionPayload.model_validate(action.payload)
-        item.open_questions.append(OpenQuestion(text=payload.question_text))
+        # M2 (2026-05-21): 去重 — Worker A/B/C 都见过 coach 死循环 (同一问题
+        # 反复 append 到 open_questions)。 哈希比较前 80 字符 (允许末尾标点
+        # 差异), 命中已存在的问题就跳过 append; status / current_item_id 仍
+        # 然更新, 但不再多挂一份重复问题。
+        new_q = payload.question_text or ''
+        new_q_key = _normalize_question_for_dedup(new_q)
+        already_exists = any(
+            _normalize_question_for_dedup(q.text) == new_q_key
+            for q in item.open_questions
+        )
+        if not already_exists:
+            item.open_questions.append(OpenQuestion(text=new_q))
         item.status = ItemStatus.CLARIFYING
         item.last_transition_at = _now()
         new_plan.current_item_id = item.id
@@ -470,6 +615,9 @@ def apply_action(
         payload = WriteActionPayload.model_validate(action.payload)
         used_ev = [ev for ev in item.evidence if ev.id in payload.used_evidence_ids]
         flags = audit_draft(payload.draft_text, used_ev)
+        # B1 (2026-05-21): 加 plausibility 层 — 抓 "本科 / 实习 + 独立完成
+        # 大规模项目" 这类红线场景 (P8 PVSyst case)。
+        flags.extend(audit_plausibility(payload.draft_text, item))
         blocking = [f for f in flags if f.blocking]
         if blocking:
             raise EvidenceAuditFailed(blocking)

@@ -53,6 +53,12 @@ SYSTEM_PROMPT = """\
 2. 一次只返回一个 JSON 对象。不要前后加 markdown、不要解释、不要写多个候选。
 3. 问题要**聚焦**——一次只问一个细节（数据规模？你的角色？结果指标？），不要复合问题。
 4. 中文回复，避免"参与/协助/帮助"这类含糊动词。
+5. 只有 current_item.status == "ready_to_write" 时才允许返回 write。
+   pending / clarifying 阶段必须继续 ask 或返回 ready_to_write，不能跳过状态机直接 write。
+6. **draft 是累加的，不是覆盖**：如果 current_item.draft 已经存在（上一轮 coach
+   就写过一版），新的 draft_text **必须以已有 draft 为基础扩写 / 合并新 evidence**，
+   而不是丢掉前一版重写。 学生看到 "我聊了 4 个细节，draft 只保留最后一个" 会非常困惑。
+   做法: 把新 evidence 串进 draft 已有结构里 (S/T/A/R 顺序保留，新事实加在对应位置)。
 """
 
 
@@ -158,12 +164,28 @@ def _build_user_prompt(
         },
     }
 
+    # M4 (2026-05-21): 把 prior draft 单独提到顶层 + 加一个 instructional
+    # 字段, 给 LLM 一个明显的"如果有 prior_draft, 用它做基础扩写"信号。
+    # 之前 prior draft 埋在 current_item.draft 里, LLM 总是从 evidence 重起。
+    prior_draft_text = (
+        current_item.draft.text if current_item.draft is not None else None
+    )
+    extension_hint = (
+        '此 item 已有 draft (见 prior_draft) — 写 write action 时, draft_text '
+        '必须以 prior_draft 为基础, 把本轮 user_message 提供的新事实合并进去, '
+        '不要丢掉 prior_draft 的内容。'
+    ) if prior_draft_text else (
+        '此 item 没有 prior draft — 如果 evidence 够, 第一次写 draft 即可。'
+    )
+
     return json.dumps(
         {
             "profile": profile_summary,
             "preferences": prefs_summary,
             "plan_summary": plan_summary,
             "current_item": _compact_item(current_item),
+            "prior_draft": prior_draft_text,
+            "extension_hint": extension_hint,
             "recent_chat": last_messages[-6:],
             "user_message": user_message,
         },
@@ -176,6 +198,24 @@ def _fallback_ask(item: PlanItem, reason: str = "请补充一下这条经历的�
         action="ask",
         item_id=item.id,
         payload={"question_text": reason},
+    )
+
+
+def _guard_premature_write(action: AgentAction, current: PlanItem) -> AgentAction:
+    """Prevent LLM from jumping around the plan state machine.
+
+    The state machine requires READY_TO_WRITE before WRITE. Real resumes often
+    arrive with parsed evidence attached, so the LLM may eagerly return a
+    draft while the item is still pending/clarifying. Convert that into a
+    focused ask so the coach stays conversational and /plan/turn never 500s.
+    """
+    if action.action != "write":
+        return action
+    if current.status == ItemStatus.READY_TO_WRITE:
+        return action
+    return _fallback_ask(
+        current,
+        "我已经看到简历里有一些材料。先确认一个关键点:这段经历里你本人最核心的动作是什么?",
     )
 
 
@@ -227,6 +267,7 @@ def propose_next_action(
             action = AgentAction.model_validate(data)
             if action.item_id is None and action.action != "replan":
                 action = action.model_copy(update={"item_id": current.id})
+            action = _guard_premature_write(action, current)
             return action
         except (json.JSONDecodeError, ValidationError) as exc:
             last_error = str(exc)
