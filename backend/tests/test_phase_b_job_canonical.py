@@ -64,7 +64,10 @@ def test_source_map_skips_ambiguous() -> None:
         # 1:1 source 命中(title 无信号)
         ('bank_official', '总行管培生', '银行·总行核心'),
         ('internet_official', '蚂蚁集团 数据分析师', '金融科技'),
-        ('state_owned_official', '中石油 综合岗', '监管·体制内'),
+        # 2026-05-22: 2026-05-21 加 '中石油' → '大宗·能源' alias 后, title 主导优先于
+        # source 兜底. 业务上 "中石油综合岗" 走能源 placement 比体制内更精准 (SAIF MF
+        # 学生眼里 中石油国际是 trading desk, 不是政府岗位).
+        ('state_owned_official', '中石油 综合岗', '大宗·能源'),
         # legacy CSV
         ('bank-legacy-csv', '招商银行 网点客户经理', '银行·总行核心'),
         # 无信号

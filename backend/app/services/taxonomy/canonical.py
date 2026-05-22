@@ -79,6 +79,9 @@ TRACK_ALIASES: dict[str, str] = {
     '量化': '量化',
     '量化研究': '量化',
     '量化私募': '量化',
+    '公募量化': '量化',          # P1 (2026-05-22): 修 P6 "公募量化部" — 拆 tie
+    '量化对冲': '量化',
+    '量化策略': '量化',
     'quant': '量化',
     'quantitative': '量化',
     '做市': '量化',
@@ -132,12 +135,19 @@ TRACK_ALIASES: dict[str, str] = {
     'sell-side': '卖方研究·S&T',
     'sell side': '卖方研究·S&T',
     'research analyst': '卖方研究·S&T',
+    # P1 (2026-05-22): 修 P1/P2 "外资行研究部" — 不应被 '外资行' 抢去银行
+    '外资行研究': '卖方研究·S&T',
+    '外资研究部': '卖方研究·S&T',
 
     # 银行·总行核心
     '银行': '银行·总行核心',
     '银行总行': '银行·总行核心',
     '总行': '银行·总行核心',
     '总行管培': '银行·总行核心',
+    '管培': '银行·总行核心',          # P1 (2026-05-22): 修 P4 "股份行管培" / "国有大行总行管培"
+    '管培生': '银行·总行核心',
+    '股份行': '银行·总行核心',        # P1 (2026-05-22): 修 P4 "股份行管培" — '股份制银行' 字符不同
+    '综合金融': '银行·总行核心',      # P1 (2026-05-22): 修 P4 "券商综合金融" (默认银行,SAIF 学生口径)
     'fmt': '银行·总行核心',         # bank financial markets trainee
     '国有大行': '银行·总行核心',
     '股份制银行': '银行·总行核心',
@@ -168,6 +178,8 @@ TRACK_ALIASES: dict[str, str] = {
 
     # 金融科技
     '金融科技': '金融科技',
+    '金融科技子公司': '金融科技',  # P1 (2026-05-22): 修 P7 "银行金融科技子公司" — 应金科不应银行
+    '金融科技部': '金融科技',      # P1 (2026-05-22): 修 P7 "券商金融科技部"
     'fintech': '金融科技',
     '金科': '金融科技',        # 学生口语缩写
     '互金': '金融科技',
@@ -237,12 +249,16 @@ TRACK_ALIASES['咨询'] = '管理咨询·MBB'
 
 
 def canonicalize_track(label: str) -> str:
-    """把任意 track 文本映射到 8 个 canonical 之一。映射不到就原样返回。
+    """把任意 track 文本映射到 10 个 canonical 之一。映射不到就原样返回。
 
-    映射规则:
-      1. label 跟某 alias 完全相等(忽略大小写) → canon
-      2. label 是某 alias 的子串,或 alias 是 label 的子串 → canon
-      3. 都不命中 → 原样返回 label (不强制改)
+    映射规则 (2026-05-22 P0 重写,longest-match-wins,修 P2/P6/P7 等
+    复合短语被短 alias 劫持的 bug):
+      1. exact match (忽略大小写) → canon
+      2. 收集所有"alias ⊆ label"(forward)命中,**按 alias 长度 desc** 选最 specific —
+         避免 '私募'(短)劫持 '量化私募'(长)→ 量化
+      3. 没有 forward 命中时,fallback "label ⊆ alias"(reverse)— **按 alias
+         长度 asc** 选最近似(避免用户输 '投' 被 'investment banking' 拐走)
+      4. 都不命中 → 原样返回 label (不强制改)
     """
     if not label:
         return ''
@@ -253,11 +269,21 @@ def canonicalize_track(label: str) -> str:
     for alias, canon in TRACK_ALIASES.items():
         if alias.lower() == label_l:
             return canon
-    # 2. substring (双向)
+    # 2 / 3. forward (alias ⊆ label) vs reverse (label ⊆ alias)
+    forward_hits: list[tuple[int, str]] = []
+    reverse_hits: list[tuple[int, str]] = []
     for alias, canon in TRACK_ALIASES.items():
         a_l = alias.lower()
-        if a_l in label_l or label_l in a_l:
-            return canon
+        if a_l in label_l:
+            forward_hits.append((len(a_l), canon))
+        elif label_l in a_l:
+            reverse_hits.append((len(a_l), canon))
+    if forward_hits:
+        forward_hits.sort(key=lambda x: -x[0])
+        return forward_hits[0][1]
+    if reverse_hits:
+        reverse_hits.sort(key=lambda x: x[0])
+        return reverse_hits[0][1]
     return label
 
 

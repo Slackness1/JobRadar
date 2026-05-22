@@ -111,7 +111,8 @@ def test_applies_to_returns_true_on_target_job_text() -> None:
 
 def test_applies_to_returns_false_without_signal() -> None:
     p = TrackKnowledgeProvider()
-    req = _mk_req(target_job="生物医药研发岗", user_question="如何转行?")
+    # 2026-05-22: '生物医药' 现已映 二级买方·基本面, 换非金融岗测 no-signal 契约
+    req = _mk_req(target_job="元宇宙游戏开发工程师", user_question="如何转行?")
     assert p.applies_to(req) is False
 
 
@@ -159,7 +160,8 @@ def test_fetch_output_format() -> None:
 
 def test_fetch_returns_empty_when_no_match() -> None:
     p = TrackKnowledgeProvider()
-    req = _mk_req(target_job="生物医药岗")
+    # 2026-05-22: 同 test_applies_to_returns_false_without_signal — '生物医药' 现已 mapped
+    req = _mk_req(target_job="元宇宙游戏后端开发")
     assert p.fetch(req) == ""
 
 
