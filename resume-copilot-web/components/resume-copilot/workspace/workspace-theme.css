@@ -596,6 +596,28 @@
   font-weight: 500;
 }
 
+/* 2026-05-22 #114 Phase 1: 港新学生英文 bullet — IB/MBB style.
+ * 用偏冷的 sage / mint 调跟 v2 (terracotta 暖调) 区分,让中英两版一眼可辨。 */
+.workspace-hifi__diff-row--en {
+  margin-top: 4px;
+}
+
+.workspace-hifi__diff-label--en {
+  color: #2f6a3f;
+}
+
+.workspace-hifi__diff-text--en {
+  color: var(--ink);
+  background: #eef5f0;
+  border-left: 2px solid #b6d6c1;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-style: normal;
+}
+
 .workspace-hifi__diff-arrow {
   text-align: center;
   color: var(--terracotta);
@@ -1216,6 +1238,53 @@
 .workspace-hifi__rec-card-priority--B { background: var(--terracotta); }
 .workspace-hifi__rec-card-priority--C { background: var(--warm-silver); }
 .workspace-hifi__rec-card-priority--D { background: var(--crimson); }
+
+/* 2026-05-22 P4: office region chip — inline 在 company line 旁边,一眼分辨 */
+.workspace-hifi__rec-card-region {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+  padding: 1px 6px 1px 4px;
+  border-radius: var(--r-pill);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  vertical-align: 1px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.workspace-hifi__rec-card-region--hk {
+  background: #e3eef7;
+  color: #2b5a87;
+  border-color: #c1d6e8;
+}
+
+.workspace-hifi__rec-card-region--sg {
+  background: #e0f1ec;
+  color: #1f6b54;
+  border-color: #bfe1d3;
+}
+
+.workspace-hifi__rec-card-region--mainland {
+  background: #f0eadf;
+  color: #6b5a3f;
+  border-color: #d8cdb6;
+}
+
+.workspace-hifi__rec-card-region--remote {
+  background: #ece4f1;
+  color: #5a4477;
+  border-color: #d3c4dd;
+}
+
+.workspace-hifi__rec-card-region--global {
+  background: #ece9e3;
+  color: #5a5648;
+  border-color: #cfcabe;
+}
 
 /* Collapsed: one-line summary */
 .workspace-hifi__rec-card-summary {
@@ -2100,6 +2169,27 @@
   padding: 10px 12px;
   border-radius: var(--r-md);
   white-space: pre-wrap;
+}
+
+.workspace-hifi__plan-draft-risks {
+  border: 1px solid rgba(201, 100, 66, 0.24);
+  background: rgba(201, 100, 66, 0.08);
+  border-radius: var(--r-md);
+  padding: 9px 11px;
+  color: var(--terracotta-strong);
+}
+
+.workspace-hifi__plan-draft-risks-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.workspace-hifi__plan-draft-risks ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 11.5px;
+  line-height: 1.5;
 }
 
 .workspace-hifi__plan-draft-evidence summary {

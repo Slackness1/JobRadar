@@ -71,6 +71,32 @@ function priorityTone(letter: string): 'A' | 'B' | 'C' | 'D' | '' {
   return '';
 }
 
+/** 2026-05-22 P4: 把 location 自由文本归一化成 office region chip。
+ *  4 个 region 与 parser inferred_offices 对齐(hk/sg/mainland/global),
+ *  外加 remote 表 work-from-home。 */
+type RegionKey = 'hk' | 'sg' | 'mainland' | 'remote' | 'global';
+function regionChip(location: string): { key: RegionKey; label: string } | null {
+  const raw = (location || '').trim();
+  if (!raw) return null;
+  const l = raw.toLowerCase();
+  if (/(香港|hong\s*kong|\bhk\b)/i.test(raw)) return { key: 'hk', label: 'HK' };
+  if (/(新加坡|singapore|\bsg\b)/i.test(raw)) return { key: 'sg', label: 'SG' };
+  if (/(远程|远端|remote|wfh|work\s*from\s*home)/i.test(l)) return { key: 'remote', label: '远程' };
+  // 常见大陆城市 — 给个短 label,其他不匹配就当 global 兜底
+  const mainlandCities = [
+    ['北京', '北京'], ['上海', '上海'], ['深圳', '深圳'], ['广州', '广州'],
+    ['杭州', '杭州'], ['南京', '南京'], ['苏州', '苏州'], ['成都', '成都'],
+    ['武汉', '武汉'], ['西安', '西安'], ['重庆', '重庆'], ['天津', '天津'],
+    ['青岛', '青岛'], ['厦门', '厦门'], ['长沙', '长沙'], ['合肥', '合肥'],
+  ];
+  for (const [needle, label] of mainlandCities) {
+    if (raw.includes(needle)) return { key: 'mainland', label };
+  }
+  // 兜底:如果含「中国」就当 mainland,否则当 global
+  if (/(中国|mainland|china)/i.test(raw)) return { key: 'mainland', label: '大陆' };
+  return { key: 'global', label: raw.length > 6 ? raw.slice(0, 6) : raw };
+}
+
 export function RecommendCard({
   item,
   rank,
@@ -84,6 +110,7 @@ export function RecommendCard({
   const whyBullets = (item.why_recommended ?? []).slice(0, 5);
   const tone = priorityTone(item.priority_letter ?? '');
   const tierLabel = item.tier_label || '';
+  const region = regionChip(item.location);
 
   const handleHeaderClick = () => {
     if (rejectOpen) {
@@ -118,8 +145,16 @@ export function RecommendCard({
             {item.job_title}
           </div>
           <div className="workspace-hifi__rec-card-company">
-            {item.company}
-            {item.location ? ` · ${item.location}` : ''}
+            <span>{item.company}</span>
+            {region && (
+              <span
+                className={`workspace-hifi__rec-card-region workspace-hifi__rec-card-region--${region.key}`}
+                title={item.location}
+              >
+                <span aria-hidden>📍</span>
+                <span>{region.label}</span>
+              </span>
+            )}
           </div>
         </div>
         <div className="workspace-hifi__rec-card-scores" aria-label="两层分">

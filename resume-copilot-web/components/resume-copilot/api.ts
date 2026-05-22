@@ -383,6 +383,9 @@ export interface RewriteVersionV2Dto {
   /** Non-blocking nudge when memory is empty (Fix #2). Empty string when
    *  memory had hits; UI renders as a soft banner under v2 text. */
   soft_hint?: string;
+  /** 2026-05-22 #114 Phase 1: 港新学生 (inferred_offices ⊇ {hk,sg}) 的英文 bullet。
+   *  其它学生为空字符串,UI 不渲染英文块。 */
+  en_text?: string;
 }
 
 export interface RewriteV0V2Out {

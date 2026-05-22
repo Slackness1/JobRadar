@@ -681,7 +681,7 @@ _HUMAN_KIND_LABEL = {
     'vague_verb': '动词太虚 (e.g. "参与/负责"),建议改具体动作',
     'vague_quantification': '模糊量级词 (e.g. "千万级 / 日均约"),看似量化实则没法验证',
     'evidence_scope_unverified': '虚构调研规模 (e.g. "引用 N 次专家访谈纪要"),原经历无证据',
-    'implausible_scale': '规模 × 角色对不上 (e.g. 实习生说"独立完成 50MW 电站 / 节约 100 万欧元"),需要补"团队多少人 / 你具体负责什么"',
+    'implausible_scale': '规模 × 角色对不上: 这段项目规模 / 金额对实习角色来说偏大,需要补"团队多少人 / 谁拍板 / 你具体负责什么"',
     'student_introduced_number': '这个数字是聊天里第一次出现, 简历原文没有 — 入档前确认下是不是真有',
 }
 
@@ -967,6 +967,34 @@ _REWRITE_V2_SYSTEM_PROMPT = """\
 """
 
 
+# 2026-05-22 #114 Phase 1: 港新学生的英文 bullet。仅在 profile.inferred_offices
+# 含 hk 或 sg 时拼到 _REWRITE_V2_SYSTEM_PROMPT 后面, 让 LLM 同时输出 en_text。
+# 风格目标: 外资 IB / MBB 的 resume bullet 风格 — strong verb-led, quantified,
+# concise (避免中式直译的冗长副词)。
+_REWRITE_V2_EN_TEXT_INSTRUCTION = """\
+
+附加任务 (港新方向 — 学生目标投 HK / SG 外资 IB / consulting):
+
+除了中文 `text` 外, 还要输出 `en_text` — **同一条 bullet 的英文版**, 风格按
+外资 IB / MBB resume 标准:
+- **Action verb-led** (Led / Built / Drove / Analyzed / Modeled / Sourced / ...),
+  不要 "Was responsible for" / "Participated in" 这种弱动词。
+- **Quantified result** — 数字要跟中文 `text` 完全对齐, 不要在英文里额外加数字。
+- **Concise** — 通常 1 行 25-35 词, 避免中式直译的 "which / that" 长句。
+- **专业术语用英文行话** — 例 "中台" → "middle office", "覆盖" → "coverage",
+  "投后管理" → "portfolio monitoring", "尽调" → "due diligence (DD)"。
+- 学生身份保持 — 原文 "协助/参与" → "Supported / Assisted",
+  不要升级成 "Led / Owned"。
+
+输出严格 JSON (en_text 必填, 不能为空字符串):
+{
+  "text": "中文 thesis-aware 改写后的 bullet",
+  "en_text": "English version of the same bullet, IB/MBB style",
+  "rationale": "为什么这样改 (1-2 句)"
+}
+"""
+
+
 _REWRITE_V2_NO_MEMORY_MESSAGE = (
     "需要更多经历细节,建议用 coach 跟 AI 聊聊这段经历"
 )
@@ -1198,13 +1226,23 @@ def propose_rewrite_v0_v2(
     memory_block = _format_memory_block(memory_entries) if memory_entries else ''
     soft_hint = '' if memory_entries else _REWRITE_V2_SOFT_HINT_NO_MEMORY
 
+    # 2026-05-22 #114 Phase 1: 港新学生 (inferred_offices ⊇ {hk, sg}) 走带英文
+    # 输出的 prompt。其它学生默认中文-only,避免无谓 token 消耗。
+    offices = profile_dict.get('inferred_offices') or []
+    wants_en = any(o in ('hk', 'sg') for o in offices)
+
     user_payload = {
         'target_job_description': target_job_description or '',
         'original_bullet': cleaned_bullet,
         'field_path': field_path,
     }
 
-    system_content = _REWRITE_V2_SYSTEM_PROMPT + '\n\n' + memory_block
+    system_content = _REWRITE_V2_SYSTEM_PROMPT
+    if wants_en:
+        system_content += _REWRITE_V2_EN_TEXT_INSTRUCTION
+    if memory_block:
+        system_content += '\n\n' + memory_block
+
     messages_payload: list[dict] = [
         {'role': 'system', 'content': system_content},
         {'role': 'user', 'content': json.dumps(user_payload, ensure_ascii=False)},
@@ -1212,9 +1250,11 @@ def propose_rewrite_v0_v2(
 
     raw: Any = _provider.generate_v2(messages_payload)
     if not isinstance(raw, dict):
-        raw = {'text': cleaned_bullet, 'rationale': ''}
+        raw = {'text': cleaned_bullet, 'rationale': '', 'en_text': ''}
     v2_text = str(raw.get('text', '') or '').strip() or cleaned_bullet
     rationale = str(raw.get('rationale', '') or '').strip()
+    # 只在港新学生模式下读 en_text;非港新学生即使 LLM 误输出英文,也丢弃保持纯净
+    en_text = str(raw.get('en_text', '') or '').strip() if wants_en else ''
 
     # Step 5: fabrication warnings — DO NOT strip, surface them.
     # `original_bullet` enables low-stakes v0-sameness (a student's MAPE 90%
@@ -1234,6 +1274,7 @@ def propose_rewrite_v0_v2(
             needs_plan_mode=False,
             warnings=warnings,
             soft_hint=soft_hint,
+            en_text=en_text,
         ),
         rationale=rationale,
         memory_refs=[int(e.get('id', 0)) for e in memory_entries if e.get('id')],

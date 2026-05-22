@@ -122,6 +122,18 @@ export function BulletRewriteDiff({
             </span>
           </div>
 
+          {/* #114 Phase 1: 港新学生英文 bullet (IB/MBB style) */}
+          {v2?.en_text ? (
+            <div className="workspace-hifi__diff-row workspace-hifi__diff-row--en">
+              <span className="workspace-hifi__diff-label workspace-hifi__diff-label--en">
+                EN · IB/MBB style
+              </span>
+              <span className="workspace-hifi__diff-text workspace-hifi__diff-text--en">
+                {v2.en_text}
+              </span>
+            </div>
+          ) : null}
+
           {/* 编数字红警告 (C-5) — 不许 suppress */}
           {v2?.warnings && v2.warnings.length > 0 ? (
             <FabricationWarning
@@ -166,6 +178,20 @@ export function BulletRewriteDiff({
             >
               采用 v2 (复制到剪贴板)
             </button>
+            {v2?.en_text ? (
+              <button
+                type="button"
+                className="workspace-hifi__diff-btn"
+                onClick={() => {
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    void navigator.clipboard.writeText(v2.en_text || '');
+                  }
+                }}
+                title="复制英文版到剪贴板 (港新外资 IB / MBB 投递用)"
+              >
+                复制 EN
+              </button>
+            ) : null}
             <button type="button" className="workspace-hifi__diff-btn" onClick={onDismiss}>
               关闭
             </button>

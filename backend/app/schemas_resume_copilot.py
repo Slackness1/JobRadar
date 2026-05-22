@@ -291,6 +291,10 @@ class RewriteVersionV2(BaseModel):
     # but a profile-bullet rewrite is still possible (Fix #2): e.g.
     # "📝 你还没在 plan-mode 聊过这段经历,改写仅基于简历表层。"
     soft_hint: str = ''
+    # 2026-05-22 #114 Phase 1: 港新学生的英文 bullet。当 profile.inferred_offices
+    # 含 hk 或 sg 时,LLM 会同时输出英文版,前端在中文 v2 旁边展示「EN」切换。
+    # 其它学生默认为空,前端 UI 不渲染英文块。
+    en_text: str = ''
 
 
 class RewriteV0V2In(BaseModel):

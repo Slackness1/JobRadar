@@ -31,12 +31,14 @@ from app.services.resume_copilot.chat import (
     _build_fabrication_warnings,
     _detect_fabricated_numbers_in_text,
     _extract_numbers,
+    _format_audit_risks,
     _format_memory_block,
     _is_risky_number,
     _profile_strong_anchor_numbers,
     _profile_weak_anchor_numbers,
     propose_rewrite_v0_v2,
 )
+from app.services.resume_copilot.plan import RiskFlag
 
 
 # ─── Fixtures / helpers ──────────────────────────────────────────────────────
@@ -52,7 +54,12 @@ def _make_factory():
     return sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def _seed_session(db: Session, *, user_key: str = 'student-uk-1') -> int:
+def _seed_session(
+    db: Session,
+    *,
+    user_key: str = 'student-uk-1',
+    inferred_offices: list[str] | None = None,
+) -> int:
     session = ResumeCopilotSession(
         file_name='cv.pdf',
         user_key=user_key,
@@ -86,6 +93,7 @@ def _seed_session(db: Session, *, user_key: str = 'student-uk-1') -> int:
         'candidate_summary': '',
         'inferred_roles': [],
         'inferred_tracks': [],
+        'inferred_offices': inferred_offices or [],
     }
     db.add(ResumeConfirmedProfile(
         session_id=session.id,
@@ -589,6 +597,20 @@ def test_build_fabrication_warnings_flags_weak_only_number_pvsyst_case():
             assert actions == {'fill_real', 'delete_number', 'vague'}
 
 
+def test_implausible_scale_warning_copy_does_not_leak_p8_example():
+    text = _format_audit_risks([
+        RiskFlag(
+            kind='implausible_scale',
+            detail='draft claims solo ownership over high-scale work',
+            blocking=True,
+        ),
+    ])
+
+    assert '50MW' not in text
+    assert '100 万欧元' not in text
+    assert '项目规模' in text
+
+
 def test_build_fabrication_warnings_safe_when_memory_corroborates_number():
     """If the student already confirmed the number in chat (memory row), no
     warning — memory is treated as authoritative."""
@@ -718,3 +740,114 @@ def test_build_fabrication_warnings_strong_anchor_keeps_education_numbers_safe()
     }
     warnings = _build_fabrication_warnings('GPA 3.7, 完成深度研究', profile, memory_entries=None)
     assert warnings == []
+
+
+# ─── #114 Phase 1: en_text for HK/SG students ────────────────────────────────
+
+
+class _StubV2ProviderEN:
+    """Stub that always includes en_text in its response — used to verify the
+    bilingual path threads en_text through unchanged."""
+    def __init__(self, text: str = '', en_text: str = '', rationale: str = ''):
+        self.text = text or '跟踪 5 只半导体股票时, 提出非共识 buy 建议'
+        self.en_text = en_text or 'Tracked 5 semiconductor names; surfaced contrarian buy thesis on auto-grade MCU mispricing.'
+        self.rationale = rationale or 'thesis-aware with EN version for HK/SG'
+        self.system_prompts: list[str] = []
+
+    def generate_v2(self, messages_payload: list[dict]) -> dict:
+        # Capture the system prompt so tests can assert the EN instruction was injected.
+        for m in messages_payload:
+            if m.get('role') == 'system':
+                self.system_prompts.append(str(m.get('content', '')))
+        return {'text': self.text, 'en_text': self.en_text, 'rationale': self.rationale}
+
+
+def test_propose_rewrite_v0_v2_hk_student_gets_en_text():
+    """#114 Phase 1: profile.inferred_offices=['hk'] → v2.en_text 透传到 schema。"""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-hk', inferred_offices=['hk'])
+    provider = _StubV2ProviderEN()
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票,撰写 3 篇深度报告',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+    assert out.v2.en_text == provider.en_text
+    # System prompt should include the EN instruction (sanity-check the trigger)
+    joined = '\n'.join(provider.system_prompts)
+    assert 'en_text' in joined and 'IB' in joined
+
+
+def test_propose_rewrite_v0_v2_sg_student_gets_en_text():
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-sg', inferred_offices=['sg'])
+    provider = _StubV2ProviderEN()
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票,撰写 3 篇深度报告',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+    assert out.v2.en_text != ''
+
+
+def test_propose_rewrite_v0_v2_mainland_only_student_no_en_text():
+    """非港新学生即使 LLM 误输出 en_text 也被丢弃,保持纯中文结果。"""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-cn', inferred_offices=['mainland'])
+    provider = _StubV2ProviderEN(en_text='this should be discarded')
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票,撰写 3 篇深度报告',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+    assert out.v2.en_text == ''
+    # 而且 system prompt 里不能有 EN 指令
+    joined = '\n'.join(provider.system_prompts)
+    assert 'en_text' not in joined
+
+
+def test_propose_rewrite_v0_v2_no_offices_student_no_en_text():
+    """完全没 inferred_offices 字段的旧 session,也应当走纯中文路径(向后兼容)。"""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-noinf')  # inferred_offices defaults to []
+    provider = _StubV2ProviderEN(en_text='nope')
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+    assert out.v2.en_text == ''
+
+
+def test_propose_rewrite_v0_v2_global_office_does_not_trigger_en_text():
+    """global 不等于 hk/sg — 不触发英文版,符合 prompt 设计。"""
+    factory = _make_factory()
+    db = factory()
+    session_id = _seed_session(db, user_key='uk-glob', inferred_offices=['global'])
+    provider = _StubV2ProviderEN(en_text='nope global')
+    out = propose_rewrite_v0_v2(
+        session_id=session_id,
+        bullet_text='跟踪 5 只半导体股票',
+        field_path='internships.0.bullets.0',
+        db=db,
+        provider=provider,
+    )
+    db.close()
+    assert out.v2.en_text == ''
+
