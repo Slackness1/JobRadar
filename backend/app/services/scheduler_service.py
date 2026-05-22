@@ -29,6 +29,8 @@ TIER_CRAWL_JOB_ID = "daily_tier_crawl"
 DEFAULT_TIER_CRON = "0 9 * * *"
 DIGEST_JOB_ID = "daily_digest"
 DEFAULT_DIGEST_CRON = "35 9 * * *"
+LINK_PROBE_JOB_ID = "daily_link_probe"
+DEFAULT_LINK_PROBE_CRON = "0 10 * * *"  # 10:00 Asia/Shanghai, after tier crawl + digest
 
 
 def _daily_crawl_job():
@@ -232,6 +234,23 @@ def _daily_digest_job():
         db.close()
 
 
+def _daily_link_probe_job():
+    """L3: HEAD detail_url on L1+L2 candidate pool, mark dead links."""
+    db = SessionLocal()
+    try:
+        from app.services.link_prober import probe_active_jobs
+        stats = probe_active_jobs(db, workers=50)
+        print(
+            f"[LINK PROBE] total={stats['total']} alive={stats['alive']} dead={stats['dead']} "
+            f"skipped={stats['skipped']} unchanged={stats['unchanged']} "
+            f"elapsed={stats.get('elapsed_seconds', 0):.1f}s"
+        )
+    except Exception as exc:
+        print(f"[LINK PROBE ERROR] {exc}")
+    finally:
+        db.close()
+
+
 def _guest_cleanup_job():
     try:
         result = cleanup_expired_guest_records()
@@ -279,6 +298,14 @@ def start_scheduler():
             CronTrigger.from_crontab(NOWCODER_INTEL_CRON, timezone=SCHEDULER_TZ),
             id=NOWCODER_INTEL_JOB_ID,
             replace_existing=True,
+        )
+        scheduler.add_job(
+            _daily_link_probe_job,
+            CronTrigger.from_crontab(DEFAULT_LINK_PROBE_CRON, timezone=SCHEDULER_TZ),
+            id=LINK_PROBE_JOB_ID,
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1,
         )
         scheduler.start()
 

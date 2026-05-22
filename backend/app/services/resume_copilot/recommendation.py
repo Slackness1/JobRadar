@@ -756,15 +756,15 @@ _ACTIVE_RECRAWL_DAYS = 14
 
 
 def _active_job_cond():
-    """L1 + L2 推荐过滤,排除"很可能已停招"的岗位。
+    """L1 + L2 + L3 推荐过滤,排除"很可能已停招"的岗位。
 
     - L1 (deadline):有填 deadline 字段且已过期 → 排除。NULL 不动(68% 的源不填)。
     - L2 (scraped_at):最近 14 天复爬还能抓到 → 活岗。超 14 天没爬到 → 大概率源头已下架。
+    - L3 (link_status):每日 10:00 cron HEAD detail_url,显式标 'dead' 的排除。
+      NULL = 首次部署后未探到 / 探活信号不足,不算 dead(保守放过)。
 
-    实测 prod (2026-05-22 / 127K 行):L1 砍 33K,L2 (14d) 再砍 65K,候选池剩 28.6K。
-    主要砍的是 5.5 万 Tata 历史老岗位 + 1.4 万 legacy 历史快照 — 这两类源头都已不再
-    返回这些岗位,留在 DB 里就是死链。Internet/state_owned/insurance/foreign_ibs 等
-    主动爬虫的 7d 复爬覆盖 >95%,不会被误伤。
+    实测 prod (2026-05-22 / 127K 行):L1 砍 33K,L2 (14d) 再砍 65K,L3 再砍 ~500
+    显式 4xx/5xx 死链,候选池约 28K。
     """
     now = datetime.utcnow()
     recrawl_cutoff = now - timedelta(days=_ACTIVE_RECRAWL_DAYS)
@@ -772,6 +772,7 @@ def _active_job_cond():
         or_(Job.deadline.is_(None), Job.deadline > now),
         Job.scraped_at.isnot(None),
         Job.scraped_at > recrawl_cutoff,
+        or_(Job.link_status.is_(None), Job.link_status != "dead"),
     )
 
 

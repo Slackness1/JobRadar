@@ -269,6 +269,10 @@ class Job(Base):
     # 写入。None = 1:N 歧义 source 且 job_title 无信号,留给下游 LLM rerank。
     # 与 track_predicted (LLM 自由文本) 平级,canonical_track 是 enum-constrained。
     canonical_track = Column(Text, nullable=True, index=True)
+    # L3 (2026-05-22): detail_url HEAD 探活结果。NULL=未探过, alive/dead/uncertain。
+    # cron 每天 10:00 跑 link_prober 更新; 推荐 SQL 排除 link_status='dead'。
+    link_status = Column(Text, nullable=True, index=True)
+    link_checked_at = Column(DateTime, nullable=True)
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
 
