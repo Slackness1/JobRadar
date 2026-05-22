@@ -1,0 +1,23 @@
+{
+  "runtime": {
+    "worktree": "/home/chuanbo/projects/JobRadar",
+    "branch": "feat/workspace-redesign-2026-05-20",
+    "backend": "http://127.0.0.1:8000",
+    "frontend": "http://127.0.0.1:3004"
+  },
+  "personas": [
+    {"id": "P1", "session_id": 122, "chat_turns": 5, "chat_assertions": [true, true, true], "coach_turn_statuses": [200, 200, 200, 500], "draft_after_coach": true, "finalize_probe": "finalized_first_try", "blockers": ["plan_turn_after_draft_500"]},
+    {"id": "P2", "session_id": 125, "chat_turns": 5, "chat_assertions": [true, false, true], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": true, "finalize_probe": "draft_first_try_finalized_second_try", "blockers": []},
+    {"id": "P3", "session_id": 123, "chat_turns": 5, "chat_assertions": [true, true, true], "coach_turn_statuses": [200, 200, 200, 200, 200, 500], "draft_after_coach": true, "finalize_probe": "finalized_first_try", "blockers": ["plan_turn_after_draft_500"]},
+    {"id": "P4", "session_id": 127, "chat_turns": 5, "chat_assertions": [true, true, true], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": false, "finalize_probe": "still_clarifying_after_two_finalize_phrases", "blockers": ["no_draft_after_6_turns_and_finalize"]},
+    {"id": "P5", "session_id": 128, "chat_turns": 5, "chat_assertions": [true, true, false], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": false, "finalize_probe": "still_clarifying_after_two_finalize_phrases", "blockers": ["no_draft_after_6_turns_and_finalize", "irrelevant_p8_redline_copy_leaked"]},
+    {"id": "P6", "session_id": 124, "chat_turns": 5, "chat_assertions": [false, true, false], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": true, "finalize_probe": "finalized_first_try", "blockers": []},
+    {"id": "P7", "session_id": 130, "chat_turns": 5, "chat_assertions": [true, true, true], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": true, "finalize_probe": "draft_first_try_finalized_second_try", "blockers": []},
+    {"id": "P8", "session_id": 126, "chat_turns": 5, "chat_assertions": [true, true, true], "coach_turn_statuses": [200, 200, 200, 200, 200, 200], "draft_after_coach": true, "finalize_probe": "finalized_first_try", "blockers": []}
+  ],
+  "notes": {
+    "recommendation_smoke": "Non-empty recommendation responses observed; not deeply audited in this run.",
+    "playwright": "Not captured because Playwright is not installed in this runtime.",
+    "finalize_item_422": "The original eval script uses stale action finalize_item; user-phrase finalize probes were run separately."
+  }
+}

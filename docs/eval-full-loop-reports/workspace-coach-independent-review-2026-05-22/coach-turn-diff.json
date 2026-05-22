@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "visible_assistant_replies": "P1-P8 chat histories show user/assistant pairing after plan turns.",
+    "draft_success": ["P1", "P2", "P3", "P6", "P7", "P8"],
+    "draft_failure": ["P4", "P5"],
+    "server_errors": [{"persona": "P1", "phase": "plan_turn4", "status": 500}, {"persona": "P3", "phase": "plan_turn6", "status": 500}],
+    "stale_eval_action": "step4_plan_mode.py calls finalize_item and receives 422; API accepts finalize."
+  },
+  "finalize_probe": {
+    "P1": {"before": "awaiting_review_with_draft", "after": "finalized", "assistant": "已敲定。"},
+    "P2": {"before": "draft_but_clarifying", "after_first": "awaiting_review", "after_second": "finalized"},
+    "P3": {"before": "awaiting_review_with_draft", "after": "finalized", "assistant": "已敲定。"},
+    "P4": {"before": "clarifying_no_draft", "after_two_finalize_phrases": "clarifying_no_draft", "assistant": "keeps asking 主导度需要佐证"},
+    "P5": {"before": "clarifying_no_draft", "after_two_finalize_phrases": "clarifying_no_draft", "assistant": "keeps asking and leaks 50MW/100万欧元 example"},
+    "P6": {"before": "awaiting_review_with_draft", "after": "finalized", "assistant": "已敲定。"},
+    "P7": {"before": "draft_but_clarifying", "after_first": "awaiting_review", "after_second": "finalized"},
+    "P8": {"before": "awaiting_review_with_draft", "after": "finalized", "assistant": "已敲定。"}
+  },
+  "ux_risks": [
+    "Plan item titles are generic internship #1 rather than company/role.",
+    "Assistant says reply 定下来 and I will archive, but /plan/turn only finalizes plan state.",
+    "P4/P5 show no draft after enough turns, so users have no obvious next action."
+  ]
+}
