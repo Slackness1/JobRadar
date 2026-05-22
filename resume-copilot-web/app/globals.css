@@ -234,3 +234,10 @@ textarea {
   to { --border-beam-angle: 360deg; }
 }
 
+/* AI orb breathing — shared by interview AIOrb + coach thinking indicator.
+   Kept global (not scoped) so AIOrb works on /resume-copilot too. */
+@keyframes itv-orb {
+  0%, 100% { transform: scale(1);     filter: brightness(1);    }
+  50%      { transform: scale(1.045); filter: brightness(1.08); }
+}
+

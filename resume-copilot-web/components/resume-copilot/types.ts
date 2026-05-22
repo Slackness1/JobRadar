@@ -152,6 +152,8 @@ export interface ResumeRecommendationItem {
   tier_label?: string;       // '强匹配' | '可迁移' | '有差距'
   priority_letter?: string;  // 'A' | 'B' | 'C' | 'D'
   track_match_kind?: string; // debug
+  /** 2026-05-20: 校招 / 实习 分流 — LeftRecommendRail 据此切 tab。 */
+  is_internship?: boolean;
 }
 
 export interface ResumeAgentTraceItem {

@@ -263,11 +263,46 @@ export function getResumeCopilotPreferences(sessionId: number) {
   return requestJson<ResumePreferenceOut>(`/api/resume-copilot/sessions/${sessionId}/preferences`);
 }
 
-export function putResumeCopilotPreferences(sessionId: number, preferences: ResumePreferencePayload) {
-  return requestJson<ResumePreferenceOut>(`/api/resume-copilot/sessions/${sessionId}/preferences`, {
+/** #3 (2026-05-21): 拓展 PUT /preferences 返回值, 把后端 `X-Unknown-Tracks`
+ *  header 一起带出, FE 可据此 toast 提示"你填的赛道 X 已自动映射为 Y"。
+ *  老调用方期望 ResumePreferenceOut 形状 — 用 PromiseLike 加属性的方式扩展,
+ *  既不破坏现有 destructure, 又能让新调用拿到 unknownTracks 数组。
+ */
+export interface ResumePreferenceOutWithMeta extends ResumePreferenceOut {
+  unknownTracks?: string[];
+}
+
+export async function putResumeCopilotPreferences(
+  sessionId: number,
+  preferences: ResumePreferencePayload,
+): Promise<ResumePreferenceOutWithMeta> {
+  const userKey = getOrCreateUserKey();
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Resume-User-Key': userKey,
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (!token && isGuestUser()) headers['X-Guest'] = '1';
+
+  const response = await fetch(`/api/resume-copilot/sessions/${sessionId}/preferences`, {
     method: 'PUT',
+    headers,
     body: JSON.stringify({ preferences }),
   });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Request failed with ${response.status}`);
+  }
+  const body = (await response.json()) as ResumePreferenceOut;
+  // 后端把未识别的赛道 URL-encode 后塞 X-Unknown-Tracks header (latin-1 限制)
+  const raw = response.headers.get('x-unknown-tracks') || '';
+  const unknownTracks = raw
+    ? raw.split(',').map((s) => {
+        try { return decodeURIComponent(s); } catch { return s; }
+      }).filter(Boolean)
+    : undefined;
+  return { ...body, unknownTracks };
 }
 
 export function postResumeCopilotGenerate(sessionId: number) {
@@ -296,10 +331,16 @@ export function getChatMessages(sessionId: number) {
   );
 }
 
-export function postChatMessage(sessionId: number, content: string) {
+export function postChatMessage(
+  sessionId: number,
+  content: string,
+  opts?: { activeJobId?: string },
+) {
+  const body: { content: string; active_job_id?: string } = { content };
+  if (opts?.activeJobId) body.active_job_id = opts.activeJobId;
   return requestJson<CopilotMessage>(`/api/resume-copilot/sessions/${sessionId}/chat`, {
     method: 'POST',
-    body: JSON.stringify({ content }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -339,6 +380,9 @@ export interface RewriteVersionV2Dto {
   text: string;
   needs_plan_mode: boolean;
   warnings: RewriteWarningDto[];
+  /** Non-blocking nudge when memory is empty (Fix #2). Empty string when
+   *  memory had hits; UI renders as a soft banner under v2 text. */
+  soft_hint?: string;
 }
 
 export interface RewriteV0V2Out {
@@ -536,6 +580,13 @@ export interface MemoryEntry {
   captured_at: string | null;
   last_verified_at: string | null;
   last_used_at: string | null;
+  /** Plan 1 (2026-05-20): which resume bullets this memory came from. */
+  linked_field_paths?: string[];
+  /** Set to true when student edited a linked bullet — UI shows 🔄 badge. */
+  needs_resync?: boolean;
+  /** Plan ② (2026-05-20): canonical 赛道 name when captured (e.g.
+   *  '二级买方·基本面'). Empty = general / cross-track. UI shows a tag. */
+  linked_track?: string;
 }
 
 export interface MemoryGroupedResponse {
@@ -691,6 +742,36 @@ export function postPlanStart(sessionId: number, payload?: PlanStartIn) {
 export function getPlan(sessionId: number) {
   return requestJson<PlanStateOut>(
     `/api/resume-copilot/sessions/${sessionId}/plan`,
+  );
+}
+
+/** H 2026-05-22: 入档前 LLM 精炼。 学生反馈 "入档时有很多重复的原话",
+ *  这个 endpoint 把 draft + raw evidence 喂 LLM, 返回干净的 summary + STAR +
+ *  去重 quantified + 精简 raw_excerpt_clean, FE 拿这个再 POST /memory 入档。
+ */
+export interface PlanDistillOut {
+  summary: string;
+  star: { situation: string; task: string; action: string; result: string };
+  quantified: Record<string, string>;
+  raw_excerpt_clean: string;
+  used_evidence_ids: string[];
+}
+
+export function postPlanDistill(sessionId: number, itemId?: string): Promise<PlanDistillOut> {
+  const qs = itemId ? `?item_id=${encodeURIComponent(itemId)}` : '';
+  return requestJson<PlanDistillOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/distill${qs}`,
+    { method: 'POST' },
+  );
+}
+
+/** Wipe the existing plan_json so /plan/start can run fresh.
+ *  Added 2026-05-21 to unstick sessions with stale clarifying plans
+ *  whose current_item_id is null (the "click coach → 5 min nothing" bug). */
+export function deletePlan(sessionId: number): Promise<void> {
+  return requestJson<void>(
+    `/api/resume-copilot/sessions/${sessionId}/plan`,
+    { method: 'DELETE' },
   );
 }
 

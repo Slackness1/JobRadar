@@ -18,10 +18,14 @@
 .workspace-hifi {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* Lock to viewport so the inner 3-pane grid can give each pane a definite
+   * height — otherwise `pane-body { flex: 1; overflow-y: auto }` has nothing
+   * to scroll against and content silently overflows out of the screen. */
+  height: 100vh;
   background: var(--parchment);
   color: var(--ink);
   font-family: var(--font-sans);
+  overflow: hidden;
 }
 
 /* ── Top track bar (E-5) ─────────────────────────────────────────────────── */
@@ -88,14 +92,55 @@
 .workspace-hifi__grid {
   flex: 1;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 420px;
+  /* Default template — WorkspaceShell overrides inline via style prop when
+   * the user drags the resize handles (persisted to localStorage). 5 columns:
+   *   leftPane | resize-handle | middlePane | resize-handle | rightPane
+   */
+  grid-template-columns: 280px 6px minmax(0, 1fr) 6px 420px;
   min-height: 0;
 }
 
 @media (max-width: 1280px) {
   .workspace-hifi__grid {
-    grid-template-columns: 260px minmax(0, 1fr) 380px;
+    grid-template-columns: 260px 6px minmax(0, 1fr) 6px 380px;
   }
+}
+
+/* ── Resize handles (FE-1 polish, 2026-05-20) ────────────────────────────── */
+
+.workspace-hifi__resize-handle {
+  position: relative;
+  cursor: col-resize;
+  background: transparent;
+  border-left: 1px solid var(--border-warm);
+  border-right: 1px solid var(--border-warm);
+  transition: background 120ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.workspace-hifi__resize-handle:hover,
+.workspace-hifi__resize-handle:focus {
+  background: var(--terracotta-wash);
+  outline: none;
+}
+
+.workspace-hifi__resize-handle-grip {
+  width: 2px;
+  height: 32px;
+  background: var(--border-strong);
+  border-radius: 2px;
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.workspace-hifi__resize-handle:hover .workspace-hifi__resize-handle-grip,
+.workspace-hifi__resize-handle:focus .workspace-hifi__resize-handle-grip {
+  opacity: 1;
+  background: var(--terracotta);
 }
 
 .workspace-hifi__pane {
@@ -150,6 +195,65 @@
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0;
+}
+
+/* ── Recommendation rail tabs (2026-05-20 校招 / 实习 分流) ─────────────── */
+
+.workspace-hifi__rec-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 14px;
+  margin: 0;
+  background: var(--library-rail);
+  border-bottom: 1px solid var(--border-warm);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__rec-tab {
+  flex: 1;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--olive);
+  padding: 10px 8px 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 500;
+  transition: color 120ms, border-color 120ms;
+}
+
+.workspace-hifi__rec-tab:hover {
+  color: var(--ink);
+}
+
+.workspace-hifi__rec-tab.is-active {
+  color: var(--terracotta-strong);
+  border-bottom-color: var(--terracotta);
+}
+
+.workspace-hifi__rec-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone);
+  background: var(--warm-sand);
+  border-radius: var(--r-pill);
+}
+
+.workspace-hifi__rec-tab.is-active .workspace-hifi__rec-tab-count {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
 }
 
 /* ── Pane body (scroll area) ─────────────────────────────────────────────── */
@@ -225,13 +329,17 @@
   background: var(--ivory);
   border: 1px solid var(--border-warm);
   border-radius: var(--r-lg);
-  padding: 22px 22px 18px;
+  /* CSS vars consumed from the edit toolbar (页边距 / 模块边距 / 行间距 /
+   * 字体大小). Fallbacks match the previous fixed values. */
+  padding: var(--resume-page-margin, 22px);
   font-family: var(--font-sans);
   color: var(--ink);
-  font-size: 13.5px;
-  line-height: 1.55;
-  flex: 1 1 auto;
-  min-height: 0;
+  font-size: var(--resume-font-size, 13.5px);
+  line-height: var(--resume-line-height, 1.55);
+  /* Intrinsic height (no flex grow/shrink) so the white card border ALWAYS
+   * wraps the full resume content. Vertical scroll is owned by the parent
+   * `.workspace-hifi__pane-body` (overflow-y: auto). */
+  flex: 0 0 auto;
 }
 
 .workspace-hifi__resume-header {
@@ -263,7 +371,8 @@
 }
 
 .workspace-hifi__resume-section {
-  margin-top: 14px;
+  /* Driven by edit toolbar 模块边距 slider; fallback matches old fixed value. */
+  margin-top: var(--resume-section-gap, 14px);
 }
 
 .workspace-hifi__resume-section-title {
@@ -522,6 +631,38 @@
   line-height: 1.5;
 }
 
+/* Fix #2 soft hint — memory 空但仍改写时,引导去 plan-mode. 软提示,不阻塞 */
+.workspace-hifi__diff-soft-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: var(--parchment-soft, var(--ivory));
+  border-left: 3px solid var(--emerald, #3f9a5d);
+  padding: 7px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__diff-soft-hint-btn {
+  appearance: none;
+  border: 1px solid var(--emerald, #3f9a5d);
+  background: transparent;
+  color: var(--emerald, #3f9a5d);
+  font: inherit;
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.workspace-hifi__diff-soft-hint-btn:hover {
+  background: var(--emerald, #3f9a5d);
+  color: white;
+}
+
 .workspace-hifi__diff-rationale-label {
   font-weight: 600;
   color: var(--terracotta-strong);
@@ -704,11 +845,13 @@
   color: var(--stone);
 }
 
-/* ── Archive slot (FE-4 owns; FE-3 just reserves ~20vh) ──────────────────── */
+/* ── Archive slot (FE-4 owns; intrinsic height) ──────────────────────────── */
 
 .workspace-hifi__archive-slot {
+  /* Intrinsic height — collapsed ArchivePanel is just a ~48px bar; reserving
+   * 20vh here pushed the resume card up and made it visually overflow into
+   * the archive area. Let it size to its content; pane-body scrolls. */
   flex-shrink: 0;
-  min-height: 20vh;
   margin-top: 16px;
   padding-bottom: 18px;
 }
@@ -895,9 +1038,13 @@
 
 .workspace-hifi__rec-card-header {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
+  /* Two-row layout: title row gets the full width (= card width - logo).
+   * Scores drop to row 2, right-aligned. Solves "(2026 年暑期..." truncation
+   * in the narrow rail column. */
+  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 6px 10px;
   padding: 10px 12px;
   background: transparent;
   border: none;
@@ -906,6 +1053,22 @@
   color: var(--ink);
   font-family: var(--font-sans);
   width: 100%;
+}
+
+.workspace-hifi__rec-card-logo {
+  grid-row: 1 / span 2; /* logo spans both rows for visual anchoring */
+  align-self: start;
+}
+
+.workspace-hifi__rec-card-headline {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.workspace-hifi__rec-card-scores {
+  grid-row: 2;
+  grid-column: 2;
+  justify-content: flex-end;
 }
 
 .workspace-hifi__rec-card-header:focus-visible {
@@ -968,13 +1131,18 @@
   grid-row: 1;
   grid-column: 2;
   min-width: 0;
+  /* Two-line clamp instead of single-line ellipsis so longer 项目实习生 /
+   * Project Internship titles don't get cut to "项目实..." at 280px column. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
   font-size: 13.5px;
   font-weight: 500;
   color: var(--ink);
   letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .workspace-hifi__rec-card-company {
@@ -983,9 +1151,13 @@
   font-size: 11.5px;
   color: var(--olive);
   line-height: 1.4;
+  /* Two-line clamp so "中国国际金融股份有限公司 · 上海" doesn't cut to
+   * "中国国际金..." in the narrow rail column. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
 }
 
 .workspace-hifi__rec-card-scores {
@@ -1201,6 +1373,20 @@
   border-color: #e7c3bd;
   background: #fbe7e3;
   color: #9a3622;
+}
+
+/* Plan ② Job plan-mode 2026-05-21: "🎯 针对这家定制" entry button. */
+.workspace-hifi__rec-card-action--customise {
+  background: var(--terracotta-wash);
+  border-color: var(--terracotta-ring);
+  color: var(--terracotta-strong);
+  font-weight: 500;
+}
+
+.workspace-hifi__rec-card-action--customise:hover {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: white;
 }
 
 /* ─── Reject inline form (D-2 / D-3) ──────────────────────────────────────── */
@@ -1653,10 +1839,43 @@
 
 .workspace-hifi__plan-progress {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
   font-size: 11.5px;
+}
+
+.workspace-hifi__plan-progress-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workspace-hifi__plan-progress-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--terracotta-strong);
+  letter-spacing: 0.01em;
+}
+
+.workspace-hifi__plan-progress-count {
+  font-size: 11px;
+  color: var(--olive);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-hifi__plan-progress-subtitle {
+  margin-top: -2px;
+  color: var(--olive);
+  font-size: 11px;
+}
+
+.workspace-hifi__plan-progress-steps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .workspace-hifi__plan-progress-step {
@@ -2302,6 +2521,33 @@
   flex-shrink: 0;
 }
 
+/* Plan 1 (2026-05-20): 🔄 重聊 badge — shown when student edited a linked
+ * bullet so AI's recollection is now stale; click opens plan-mode focused. */
+.workspace-hifi__archive-card-resync {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 8px;
+  font-size: 10.5px;
+  border-radius: var(--r-pill);
+  background: var(--amber-bg, #fdf3d4);
+  color: var(--amber-fg, #8a5a05);
+  border: 1px solid var(--amber-fg, #c08a2c);
+  font-weight: 600;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.workspace-hifi__archive-card-resync:hover {
+  background: var(--amber-fg, #c08a2c);
+  color: #fff;
+}
+
+.workspace-hifi__archive-card.is-needs-resync {
+  border-left: 3px solid var(--amber-fg, #c08a2c);
+}
+
 .workspace-hifi__archive-card-meta-row {
   display: flex;
   align-items: center;
@@ -2324,6 +2570,22 @@
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--stone);
+}
+
+/* Plan ② 2026-05-20: 赛道 tag on archive cards (visible cross-track context). */
+.workspace-hifi__archive-card-track {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .workspace-hifi__archive-card-menu-wrap {
@@ -2538,4 +2800,737 @@
 
 .workspace-hifi__archive-card-edit-btn:hover:not(:disabled) {
   filter: brightness(0.96);
+}
+
+/* ── Right-pane edit toolbar (4 popover layout controls + 导出 + 保存) ──── */
+
+.workspace-hifi__edit-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--library-rail);
+  border-bottom: 1px solid var(--border-warm);
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__edit-toolbar-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__edit-toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.workspace-hifi__edit-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 14px;
+  z-index: 30;
+  width: 320px;
+  background: var(--ivory);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md, 8px);
+  box-shadow: 0 12px 32px rgba(15,23,42,0.14);
+  padding: 14px 14px 12px;
+}
+
+.workspace-hifi__edit-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__edit-popover-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__edit-popover-value {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  color: var(--olive);
+  background: var(--warm-sand);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.workspace-hifi__edit-popover-desc {
+  font-size: 11.5px;
+  color: var(--stone);
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__edit-popover-slider {
+  width: 100%;
+  accent-color: var(--terracotta);
+  cursor: pointer;
+}
+
+.workspace-hifi__edit-popover-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--stone);
+  margin-top: 4px;
+}
+
+/* ── Middle-pane archive slot (top of chat, 2026-05-20 relocated) ────────── */
+
+.workspace-hifi__middle-archive-slot {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+/* CoachThinkingIndicator (2026-05-21 v5) — 改成竖排 orb + 文案 + 计时,
+ * 不再用 border-beam / 横排 spinner。 视觉与 mock-interview AIOrb 完全一致。
+ * 大部分布局靠组件内联 style, 这里只保留卡片外壳。 */
+.workspace-hifi__coach-thinking {
+  position: relative;
+  margin: 6px 0;
+  background: var(--ivory, #faf9f5);
+  border: 1px solid var(--warm-sand, #e8e6dc);
+  border-radius: var(--r-md, 12px);
+}
+
+/* Plan-mode kickoff prompt (2026-05-21 v2 — orb 内嵌)
+ * 左边一个常驻 mini AIOrb (呼吸效果), 右边是引导文本。 解决了 "进 coach
+ * 后什么动画都没有, 显得 AI 没在场" 的问题, 让学生进入 coach 那一刻就看到
+ * 那个赤陶球在呼吸。 */
+.workspace-hifi__plan-kickoff {
+  margin: 6px 0 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--ivory, #faf9f5);
+  border: 1px solid var(--warm-sand, #e8e6dc);
+  border-left: 3px solid var(--terracotta, #c96442);
+  border-radius: var(--r-md, 12px);
+  color: var(--ink, #141413);
+}
+
+.workspace-hifi__plan-kickoff-orb {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.workspace-hifi__plan-kickoff-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__plan-kickoff-head {
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink, #141413);
+}
+
+.workspace-hifi__plan-kickoff-body {
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 4px 0;
+  color: var(--ink-soft, #3d3d3a);
+}
+
+.workspace-hifi__plan-kickoff-body strong {
+  font-weight: 600;
+  color: var(--terracotta-strong, #a14e30);
+}
+
+.workspace-hifi__plan-kickoff-body em {
+  font-style: normal;
+  color: var(--olive, #6b6757);
+  font-size: 12.5px;
+}
+
+/* Plan ② Job plan-mode banner (2026-05-21) — sticky on top of chat-stream */
+.workspace-hifi__job-context-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--terracotta-wash);
+  border: 1px solid var(--terracotta-ring);
+  border-left: 3px solid var(--terracotta);
+  border-radius: var(--r-md, 8px);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__job-context-icon {
+  font-size: 16px;
+}
+
+.workspace-hifi__job-context-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__job-context-text strong {
+  font-size: 13px;
+  color: var(--terracotta-strong);
+  font-weight: 600;
+}
+
+.workspace-hifi__job-context-detail {
+  font-size: 12px;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__job-context-clear {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--terracotta);
+  color: var(--terracotta-strong);
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__job-context-clear:hover {
+  background: var(--terracotta);
+  color: white;
+}
+
+/* ── WorkspaceConfirmGuide overlay (awaiting_user_confirmation gate) ─────── */
+
+.workspace-hifi__confirm-guide-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* 2026-05-21 v3 (option A): 加了赛道+地点 chip 区, 卡片从 520→680 撑得开
+   10 个 track chip 两列。token fallback 同 TrackPickerModal — workspace scope
+   没定义 --ivory 等, 不加 fallback 会变透明。 */
+.workspace-hifi__confirm-guide-card {
+  max-width: 680px;
+  width: 100%;
+  background: var(--ivory, #faf9f5);
+  border: 1px solid var(--border-warm, #d3d0c2);
+  border-radius: var(--r-lg, 16px);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+  padding: 28px 28px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  gap: 12px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  color: var(--ink, #141413);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.workspace-hifi__confirm-guide-subtitle {
+  margin: -2px 0 6px;
+  font-size: 12.5px;
+  color: var(--olive, #6b6757);
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* 赛道 / 城市 多选区块 */
+.workspace-hifi__confirm-guide-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--library-rail, #efece2);
+  border: 1px solid var(--border-warm, #d3d0c2);
+  border-radius: var(--r-md, 12px);
+}
+
+.workspace-hifi__confirm-guide-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__confirm-guide-section-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #141413);
+  letter-spacing: -0.005em;
+}
+
+.workspace-hifi__confirm-guide-section-hint {
+  font-size: 11.5px;
+  color: var(--olive, #6b6757);
+  line-height: 1.4;
+}
+
+.workspace-hifi__confirm-guide-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.workspace-hifi__confirm-guide-chip {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  background: var(--ivory, #faf9f5);
+  color: var(--ink, #141413);
+  border: 1px solid var(--border-warm, #d3d0c2);
+  border-radius: var(--r-pill, 999px);
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms, box-shadow 120ms;
+  max-width: 100%;
+}
+
+.workspace-hifi__confirm-guide-chip:hover:not(:disabled) {
+  border-color: var(--terracotta-ring, rgba(201,100,66,0.4));
+  background: var(--parchment, #f5f4ed);
+}
+
+.workspace-hifi__confirm-guide-chip.is-checked {
+  background: var(--terracotta, #c96442);
+  color: #faf9f5;
+  border-color: var(--terracotta, #c96442);
+  box-shadow: 0 1px 2px rgba(201, 100, 66, 0.25);
+}
+
+.workspace-hifi__confirm-guide-chip.is-checked:hover:not(:disabled) {
+  background: var(--terracotta-strong, #a14e30);
+  border-color: var(--terracotta-strong, #a14e30);
+}
+
+.workspace-hifi__confirm-guide-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__confirm-guide-chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.workspace-hifi__confirm-guide-chip-label {
+  white-space: nowrap;
+}
+
+.workspace-hifi__confirm-guide-chip-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: var(--r-sm, 4px);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--terracotta-strong, #a14e30);
+  border: 1px solid var(--terracotta-ring, rgba(201,100,66,0.4));
+}
+
+.workspace-hifi__confirm-guide-chip.is-checked .workspace-hifi__confirm-guide-chip-badge {
+  background: rgba(255, 255, 255, 0.18);
+  color: #faf9f5;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.workspace-hifi__confirm-guide-chip--loc {
+  /* 城市 chip 不带 icon 留更紧凑的 padding */
+  padding: 6px 14px;
+}
+
+.workspace-hifi__confirm-guide-card > .workspace-hifi__confirm-guide-icon,
+.workspace-hifi__confirm-guide-card > .workspace-hifi__confirm-guide-title {
+  align-self: center;
+  text-align: center;
+}
+
+.workspace-hifi__confirm-guide-loading {
+  text-align: center;
+  font-size: 13px;
+  color: var(--olive);
+  padding: 12px 0;
+}
+
+.workspace-hifi__confirm-guide-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 12px;
+  padding: 12px 14px;
+  background: var(--library-rail);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md, 8px);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.workspace-hifi__confirm-guide-preview-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  column-gap: 12px;
+  align-items: baseline;
+  margin: 0;
+}
+
+.workspace-hifi__confirm-guide-preview-row dt {
+  color: var(--stone);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.workspace-hifi__confirm-guide-preview-row dd {
+  margin: 0;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.workspace-hifi__confirm-guide-preview-extra {
+  color: var(--olive);
+  font-size: 12px;
+}
+
+.workspace-hifi__confirm-guide-preview-list {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__confirm-guide-preview-list li::before {
+  content: '· ';
+  color: var(--stone);
+}
+
+.workspace-hifi__confirm-guide-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.workspace-hifi__confirm-guide-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__confirm-guide-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.workspace-hifi__confirm-guide-body code {
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  background: var(--warm-sand);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.workspace-hifi__confirm-guide-error {
+  font-size: 12.5px;
+  color: #9a3622;
+  background: #fbe7e3;
+  border-left: 3px solid #9a3622;
+  padding: 6px 10px;
+  border-radius: 4px;
+  width: 100%;
+  text-align: left;
+}
+
+.workspace-hifi__confirm-guide-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__confirm-guide-btn {
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workspace-hifi__confirm-guide-btn:hover:not(:disabled) {
+  background: var(--warm-sand);
+}
+
+.workspace-hifi__confirm-guide-btn--primary {
+  background: var(--terracotta);
+  color: white;
+  border-color: var(--terracotta);
+}
+
+.workspace-hifi__confirm-guide-btn--primary:hover:not(:disabled) {
+  background: var(--terracotta-strong);
+  border-color: var(--terracotta-strong);
+}
+
+.workspace-hifi__confirm-guide-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── TrackPickerModal (换赛道 overlay, 2026-05-21) ───────────────────────── */
+
+.workspace-hifi__track-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(15, 23, 42, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+/* 2026-05-21: workspace 页根本没定义 --ivory/--border-warm 等 HiFi token,
+   原来 var(--ivory) fallback 到 transparent → 弹窗变透明背景。
+   每个 var() 都加一个具体颜色 fallback, 保证在任何 scope 都能渲染。 */
+.workspace-hifi__track-picker-card {
+  width: 100%;
+  max-width: 720px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--ivory, #faf9f5);
+  border: 1px solid var(--border-warm, #d3d0c2);
+  border-radius: var(--r-lg, 16px);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.4);
+  padding: 22px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  color: var(--ink, #141413);
+}
+
+.workspace-hifi__track-picker-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workspace-hifi__track-picker-title {
+  margin: 0;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink, #141413);
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__track-picker-close {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--border-warm, #d3d0c2);
+  color: var(--stone, #87867f);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm, 6px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-hifi__track-picker-close:hover {
+  background: var(--warm-sand, #e8e6dc);
+  color: var(--ink, #141413);
+}
+
+.workspace-hifi__track-picker-sub {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--olive, #6b6757);
+  line-height: 1.55;
+}
+
+.workspace-hifi__track-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .workspace-hifi__track-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.workspace-hifi__track-picker-item {
+  position: relative;
+  appearance: none;
+  text-align: left;
+  background: var(--parchment, #f5f4ed);
+  border: 1px solid var(--border-warm, #d3d0c2);
+  border-radius: var(--r-md, 12px);
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink, #141413);
+  transition: border-color 120ms, background 120ms, box-shadow 120ms;
+}
+
+.workspace-hifi__track-picker-item:hover:not(:disabled) {
+  border-color: var(--terracotta-ring, rgba(201,100,66,0.4));
+  background: var(--ivory, #faf9f5);
+}
+
+.workspace-hifi__track-picker-item.is-selected {
+  border-color: var(--terracotta, #c96442);
+  background: var(--terracotta-wash, #faeae3);
+  box-shadow: 0 0 0 2px var(--terracotta-ring, rgba(201,100,66,0.4)) inset;
+}
+
+.workspace-hifi__track-picker-item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__track-picker-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.workspace-hifi__track-picker-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.workspace-hifi__track-picker-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink, #141413);
+}
+
+.workspace-hifi__track-picker-blurb {
+  font-size: 11.5px;
+  color: var(--olive, #6b6757);
+  line-height: 1.45;
+}
+
+.workspace-hifi__track-picker-current-tag {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10.5px;
+  color: var(--terracotta-strong, #a14e30);
+  background: var(--ivory, #faf9f5);
+  border: 1px solid var(--terracotta-ring, rgba(201,100,66,0.4));
+  border-radius: var(--r-pill, 999px);
+  padding: 1px 6px;
+}
+
+.workspace-hifi__track-picker-error {
+  font-size: 12.5px;
+  color: #9a3622;
+  background: #fbe7e3;
+  border-left: 3px solid #9a3622;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.workspace-hifi__track-picker-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.workspace-hifi__track-picker-btn {
+  appearance: none;
+  border: 1px solid var(--border-strong, #d3d0c2);
+  background: transparent;
+  color: var(--ink, #141413);
+  font: inherit;
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: var(--r-sm, 6px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workspace-hifi__track-picker-btn:hover:not(:disabled) {
+  background: var(--warm-sand, #e8e6dc);
+}
+
+.workspace-hifi__track-picker-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__track-picker-btn--primary {
+  background: var(--terracotta, #c96442);
+  color: white;
+  border-color: var(--terracotta, #c96442);
+}
+
+.workspace-hifi__track-picker-btn--primary:hover:not(:disabled) {
+  background: var(--terracotta-strong, #a14e30);
+  border-color: var(--terracotta-strong, #a14e30);
 }

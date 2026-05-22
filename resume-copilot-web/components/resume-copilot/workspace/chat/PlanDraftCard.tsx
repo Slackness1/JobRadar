@@ -50,7 +50,7 @@ export function PlanDraftCard({
     <div
       className="workspace-hifi__plan-draft"
       role="region"
-      aria-label="plan-mode 草稿 review"
+      aria-label="coach 草稿 review"
     >
       <header className="workspace-hifi__plan-draft-header">
         <span className="workspace-hifi__plan-draft-badge">📝 加厚后的草稿</span>

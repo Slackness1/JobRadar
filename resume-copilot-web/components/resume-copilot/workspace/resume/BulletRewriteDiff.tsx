@@ -93,7 +93,7 @@ export function BulletRewriteDiff({
       {needsPlan ? (
         <div className="workspace-hifi__diff-plan-hint">
           <div className="workspace-hifi__diff-plan-hint-text">
-            📌 这段经历在你的档案里证据不足。建议切到 <strong>plan-mode</strong> 跟 AI 聊聊
+            📌 这段经历在你的档案里证据不足。建议切到 <strong>coach</strong> 跟 AI 聊聊
             这段经历的关键决策 / 量化结果,再回来改写效果会强很多。
           </div>
           {onPlanModeRequest ? (
@@ -102,7 +102,7 @@ export function BulletRewriteDiff({
               className="workspace-hifi__diff-btn workspace-hifi__diff-btn--primary"
               onClick={() => onPlanModeRequest(fieldPath, originalBullet)}
             >
-              切到 plan-mode 聊这段
+              切到 coach 聊这段
             </button>
           ) : null}
           <button
@@ -133,6 +133,22 @@ export function BulletRewriteDiff({
                 )
               }
             />
+          ) : null}
+
+          {/* 软提示 (Fix #2) — memory 空但仍改写时,引导去 plan-mode 让结果更精准 */}
+          {v2?.soft_hint ? (
+            <div className="workspace-hifi__diff-soft-hint">
+              {v2.soft_hint}
+              {onPlanModeRequest ? (
+                <button
+                  type="button"
+                  className="workspace-hifi__diff-soft-hint-btn"
+                  onClick={() => onPlanModeRequest(fieldPath, originalBullet)}
+                >
+                  去 coach 聊聊
+                </button>
+              ) : null}
+            </div>
           ) : null}
 
           {result.rationale ? (

@@ -29,6 +29,7 @@ import {
   postRejectRecommendation,
   type RecommendRejectReason,
 } from '../api';
+import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
 import { RecommendCard } from './recommend/RecommendCard';
 import { useFlipAnimation } from './recommend/use-flip-animation';
 
@@ -45,6 +46,9 @@ export interface LeftRecommendRailProps {
   /** 推荐列表变化(reject 成功后)— 父可选择重新拉 recommendations。
    *  不传也 OK,本组件用本地 hidden set 做即时 UI 反馈。 */
   onRecommendationsChanged?: () => void;
+  /** Plan ② Job plan-mode (2026-05-21): 学生在卡上点 "🎯 针对这家定制" 触发,
+   *  父切到 plan-mode 并把 job_id 当作 chat turn 的 active_job_id 发回后端。 */
+  onCustomiseForJob?: (item: ResumeRecommendationItem) => void;
 }
 
 function readLastSeen(sessionId: number | undefined): number {
@@ -66,6 +70,7 @@ export function LeftRecommendRail({
   onRejectRecommendation,
   onRequestRewrite,
   onRecommendationsChanged,
+  onCustomiseForJob,
 }: LeftRecommendRailProps) {
   // FE-2 reserves this prop for future C-6 cross-pane signal (推荐卡 → 改写).
   void onRequestRewrite;
@@ -94,11 +99,24 @@ export function LeftRecommendRail({
   const flip = useFlipAnimation<string>();
 
   // ── Derived list (filter out hidden ids) ───────────────────────────────────
-  const items: ResumeRecommendationItem[] = useMemo(() => {
+  const allItems: ResumeRecommendationItem[] = useMemo(() => {
     const raw = recommendations?.items ?? [];
     if (hiddenJobIds.size === 0) return raw;
     return raw.filter((r) => !hiddenJobIds.has(String(r.job_id)));
   }, [recommendations, hiddenJobIds]);
+
+  // 2026-05-20: split 校招 / 实习 — backend tags each item with
+  // is_internship; show two tabs, default 校招.
+  const campusItems = useMemo(
+    () => allItems.filter((it) => !it.is_internship),
+    [allItems],
+  );
+  const internItems = useMemo(
+    () => allItems.filter((it) => it.is_internship),
+    [allItems],
+  );
+  const [activeTab, setActiveTab] = useState<'campus' | 'intern'>('campus');
+  const items = activeTab === 'campus' ? campusItems : internItems;
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -171,6 +189,7 @@ export function LeftRecommendRail({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   const sessionReady = session?.has_recommendations === true;
+  const isGeneratingRecommendations = session?.recommendation_status === 'running';
   const totalCount = items.length;
   const isUnderfilled = sessionReady && totalCount > 0 && totalCount < 5;
   const isEmpty = sessionReady && totalCount === 0;
@@ -187,6 +206,29 @@ export function LeftRecommendRail({
         </span>
       </header>
 
+      {sessionReady && (
+        <div className="workspace-hifi__rec-tabs" role="tablist" aria-label="推荐类型">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'campus'}
+            className={`workspace-hifi__rec-tab${activeTab === 'campus' ? ' is-active' : ''}`}
+            onClick={() => setActiveTab('campus')}
+          >
+            校招 <span className="workspace-hifi__rec-tab-count">{campusItems.length}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'intern'}
+            className={`workspace-hifi__rec-tab${activeTab === 'intern' ? ' is-active' : ''}`}
+            onClick={() => setActiveTab('intern')}
+          >
+            实习 <span className="workspace-hifi__rec-tab-count">{internItems.length}</span>
+          </button>
+        </div>
+      )}
+
       <div className="workspace-hifi__pane-body">
         {showBanner && (
           <div className="workspace-hifi__rec-banner" role="status">
@@ -202,7 +244,21 @@ export function LeftRecommendRail({
           </div>
         )}
 
-        {!sessionReady && (
+        {!sessionReady && isGeneratingRecommendations && (
+          <div className="workspace-hifi__rec-empty">
+            <CoachThinkingIndicator
+              active
+              label="AI 正在生成推荐"
+              orbSize={128}
+              minVisibleMs={2500}
+            />
+            <span className="workspace-hifi__rec-empty-hint">
+              正在结合你的赛道、城市和简历经历生成第一批岗位。
+            </span>
+          </div>
+        )}
+
+        {!sessionReady && !isGeneratingRecommendations && (
           <div className="workspace-hifi__rec-empty">
             <span className="workspace-hifi__rec-empty-title">等待生成推荐</span>
             <span className="workspace-hifi__rec-empty-hint">
@@ -238,6 +294,7 @@ export function LeftRecommendRail({
                     isExpanded={expandedJobId === jobId}
                     onToggle={() => handleToggle(jobId)}
                     onReject={(reason, note) => handleReject(jobId, reason, note)}
+                    onCustomiseForJob={onCustomiseForJob}
                   />
                 </div>
               );

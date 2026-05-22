@@ -76,6 +76,7 @@ import { DemoBanner } from '@/components/hifi/demo-banner';
 import { HFLogo, HFRadarPulse } from '@/components/hifi/hifi-primitives';
 import { StudentKbDrawer } from './student-kb-drawer';
 import { WorkspaceShell } from './workspace/WorkspaceShell';
+import { TrackPickerModal } from './workspace/TrackPickerModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1140,11 +1141,20 @@ export function PublicResumeCopilot() {
     return () => { cancelled = true; };
   }, [sessionId, session?.feedback_status]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const refreshChatMessages = useCallback(async (): Promise<void> => {
+    if (!sessionId) return;
+    const msgs = await getChatMessages(sessionId);
+    setChatMessages(msgs);
+  }, [sessionId]);
+
   const updateProfile = (updater: (profile: ResumeProfilePayload) => ResumeProfilePayload) => {
     setProfile((previous) => updater(previous ?? EMPTY_PROFILE));
   };
 
-  const sendChatMessage = async (content: string): Promise<void> => {
+  const sendChatMessage = async (
+    content: string,
+    opts?: { activeJobId?: string },
+  ): Promise<void> => {
     if (!sessionId || isSendingChat) return;
     const trimmed = content.trim();
     if (!trimmed) return;
@@ -1160,7 +1170,7 @@ export function PublicResumeCopilot() {
     setIsSendingChat(true);
     setError('');
     try {
-      const assistantMsg = await postChatMessage(sessionId, trimmed);
+      const assistantMsg = await postChatMessage(sessionId, trimmed, opts);
       const refreshed = await getChatMessages(sessionId).catch(() => null);
       if (refreshed) {
         setChatMessages(refreshed);
@@ -1518,11 +1528,29 @@ export function PublicResumeCopilot() {
         isDemo={sessionId === DEMO_SESSION_ID}
         sendChatMessage={sendChatMessage}
         applyRewriteOption={applyRewriteOption}
+        refreshChatMessages={refreshChatMessages}
         onExport={exportPdf}
         onChangeTrack={() => setEditorOpen(true)}
         onOpenArchive={() => setKbDrawerOpen(true)}
-        currentTrackName={null}
+        currentTrackName={profile?.inferred_tracks?.[0] ?? null}
         currentFitScore={null}
+        onSessionConfirmed={() => {
+          if (sessionId) loadSession(sessionId).catch(() => {});
+        }}
+      />
+      <TrackPickerModal
+        open={editorOpen}
+        sessionId={sessionId}
+        currentTrack={
+          savedPreferences.preferred_tracks?.[0] ??
+          profile?.inferred_tracks?.[0] ??
+          null
+        }
+        currentPreferences={savedPreferences}
+        onChanged={() => {
+          if (sessionId) loadSession(sessionId).catch(() => {});
+        }}
+        onClose={() => setEditorOpen(false)}
       />
     </main>
   );

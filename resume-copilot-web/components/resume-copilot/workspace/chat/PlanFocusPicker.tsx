@@ -89,7 +89,7 @@ export function PlanFocusPicker({
           type="button"
           className="workspace-hifi__plan-picker-close"
           onClick={onCancel}
-          aria-label="取消 plan-mode"
+          aria-label="取消 coach"
         >
           ✕
         </button>

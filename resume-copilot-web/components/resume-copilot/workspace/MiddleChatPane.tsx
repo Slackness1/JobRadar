@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * MiddleChatPane — 中栏 chat / plan-mode 主区 (B-1 / B-2 简 / B-3 / B-4 / E-3).
+ * MiddleChatPane — 中栏 chat / coach 主区 (B-1 / B-2 简 / B-3 / B-4 / E-3).
  *
  * Phase 2 FE-4 (2026-05-20).
  *
@@ -12,17 +12,16 @@
  *
  * Mode 切换 (B-1):
  *   - normal → sendChatMessage(content)(老 chat router /chat)
- *   - plan   → 走 plan-mode 流程:
+ *   - plan   → 走 coach 流程:
  *       a) 启动:展示 PlanFocusPicker 让学生选 entry → postPlanStart
  *       b) approve:plan 处 `awaiting_plan_approval` → postPlanApprove → CLARIFYING
  *       c) turn:学生每次 send → postPlanTurn(content) → 刷 plan state
- *       d) finalize:4 anchor 全 ✓ → postPlanFinalize(active item)
- *       e) draft review:PlanDraftCard 出现,学生入档 / 再聊几轮
+ *       d) draft review:PlanDraftCard 出现,学生入档 / 再聊几轮
  *
  * 学生切回 normal mid-flight (B-3):弹确认 → onCancelPlan
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { CopilotMessage, ResumeCopilotSession } from '../types';
 import { HFBtn, I } from '@/components/hifi/hifi-primitives';
@@ -30,13 +29,16 @@ import {
   postPlanStart,
   postPlanApprove,
   postPlanTurn,
-  postPlanFinalize,
   getPlan,
+  deletePlan,
+  postPlanDistill,
   postSessionMemory,
   type PlanStateOut,
   type PlanItemWire,
 } from '../api';
 import { RewriteThinkingBubble } from './chat/RewriteThinkingBubble';
+import { CoachThinkingIndicator, type CoachThinkingPhase } from './chat/CoachThinkingIndicator';
+import { AIOrb } from '@/components/interview/primitives';
 import { ChatMessageBubble } from './chat/ChatMessageBubble';
 import {
   PlanProgressBar,
@@ -50,11 +52,11 @@ export type ChatComposerMode = 'normal' | 'plan';
 
 /** Plan-mode internal phases (FE-only — BE has its own plan_status enum). */
 type PlanPhase =
-  | 'idle'         // 还没切到 plan-mode 或刚回 normal
+  | 'idle'         // 还没切到 coach 或刚回 normal
   | 'picking'      // 显示 PlanFocusPicker, 等学生选 entry
   | 'starting'     // postPlanStart in-flight
   | 'turning'      // 正常 plan 对话中
-  | 'finalizing'   // 4 anchor 全 ✓, 在调 postPlanFinalize
+  | 'finalizing'   // reserved for future explicit finalize action
   | 'reviewing'    // 草稿出来了, 展示 PlanDraftCard
   | 'archiving';   // 学生点入档, 在调 postSessionMemory
 
@@ -63,18 +65,28 @@ export interface MiddleChatPaneProps {
   chatMessages: CopilotMessage[];
   isSendingChat: boolean;
   applyingOption: string | null;
-  sendChatMessage: (content: string) => Promise<void>;
+  sendChatMessage: (content: string, opts?: { activeJobId?: string }) => Promise<void>;
   applyRewriteOption: (messageId: number, optionId: string) => Promise<void>;
+  /** plan-mode /plan/turn writes chat messages on the backend; refresh parent rail. */
+  refreshChatMessages?: () => Promise<void>;
   /** 当前 composer mode(B-1); 父可控/不控均可 */
   composerMode?: ChatComposerMode;
   onComposerModeChange?: (mode: ChatComposerMode) => void;
   isDemo?: boolean;
-  /** 父传一个回调用于 ArchivePanel banner → 自动开 plan-mode + 预选 entry */
+  /** 父传一个回调用于 ArchivePanel banner → 自动开 coach + 预选 entry */
   planFocusRequest?: { focusKind: 'experience'; focusId?: number } | null;
   /** 父消费完 planFocusRequest 后调一次,清空(防止重复触发) */
   onPlanFocusRequestConsumed?: () => void;
   /** 入档成功后让外层刷新 ArchivePanel */
   onMemoryArchived?: () => void;
+  /** ArchivePanel 节点(2026-05-20:从右栏底部搬到中栏顶部,提升可见性) */
+  archiveSlot?: React.ReactNode;
+  /** Plan ② Job coach (2026-05-21): when set, every chat turn this pane
+   *  sends includes `active_job_id` so the backend tags extracted memory
+   *  with linked_job_id for per-job customisation. Banner shown at top. */
+  activeJobContext?: { job_id: string; company: string; job_title: string } | null;
+  /** "退出岗位定制模式" — clears the job context banner. */
+  onClearJobContext?: () => void;
 }
 
 const PLAN_TERMINAL_STATUSES = new Set([
@@ -90,12 +102,16 @@ export function MiddleChatPane({
   applyingOption,
   sendChatMessage,
   applyRewriteOption,
+  refreshChatMessages,
   composerMode: composerModeProp,
   onComposerModeChange,
   isDemo = false,
   planFocusRequest,
   onPlanFocusRequestConsumed,
   onMemoryArchived,
+  archiveSlot,
+  activeJobContext,
+  onClearJobContext,
 }: MiddleChatPaneProps) {
   // ── mode + composer state ───────────────────────────────────────────────
   const [internalMode, setInternalMode] = useState<ChatComposerMode>('normal');
@@ -111,7 +127,7 @@ export function MiddleChatPane({
   const [draft, setDraft] = useState('');
   const [confirmCancelPlan, setConfirmCancelPlan] = useState(false);
 
-  // ── plan-mode state ─────────────────────────────────────────────────────
+  // ── coach state ─────────────────────────────────────────────────────
   const [planPhase, setPlanPhase] = useState<PlanPhase>('idle');
   const [planState, setPlanState] = useState<PlanStateOut | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
@@ -119,7 +135,6 @@ export function MiddleChatPane({
   const [preselectedEntryId, setPreselectedEntryId] = useState<number | undefined>(
     undefined,
   );
-  const finalizeTriggeredRef = useRef(false);
 
   const sessionId = session?.id ?? null;
   const feedbackReady = session?.feedback_status === 'completed';
@@ -183,9 +198,17 @@ export function MiddleChatPane({
       }
       setMode(next);
       if (next === 'plan' && sessionId != null && !isDemo) {
-        // 已有 active plan → 直接进 turning;否则进 picking
+        // 已有 active plan → 直接进 turning;否则进 picking。
+        // 2026-05-21: clarifying 但 current_item_id 是 null 是"陈旧 plan
+        // (重启后 / approve 没跑) — 进 turning 会渲染空白让学生干等。
+        // 这种情况强制 picking,让 picker 重新挑入口。
         const status = String(planState?.status ?? '');
-        if (planState && (status === 'clarifying' || status === 'reviewing')) {
+        const hasLiveFocus = planState?.current_item_id != null;
+        if (
+          planState &&
+          hasLiveFocus &&
+          (status === 'clarifying' || status === 'reviewing')
+        ) {
           setPlanPhase('turning');
         } else {
           setPlanPhase('picking');
@@ -202,6 +225,10 @@ export function MiddleChatPane({
     setMode('normal');
     setPlanPhase('idle');
     setPreselectedEntryId(undefined);
+    // 2026-05-21: 不清掉 planState 的话, 重进 coach 时 status 还是
+    // 'clarifying', handleSwitchMode 走 turning 分支, picker 不出来 →
+    // 学生看到空白。所以这里强制清回 null, 让重进时回到 picker。
+    setPlanState(null);
   }, [setMode]);
 
   // ── Plan flow handlers ─────────────────────────────────────────────────
@@ -219,9 +246,16 @@ export function MiddleChatPane({
           });
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
-          // 409 PLAN_ALREADY_EXISTS — rehydrate then continue
+          // 409 PLAN_ALREADY_EXISTS — 2026-05-21: 老版本走 getPlan 拉旧
+          // plan 继续, 但旧 plan 经常 current_item_id=null + 没 anchor →
+          // 学生 click coach 后 turning 空白 5 分钟干等。 现在改成: 删了
+          // 旧 plan, 用学生这次选的 focus_id 重新 start, 一定是 fresh state。
           if (msg.includes('PLAN_ALREADY_EXISTS')) {
-            state = await getPlan(sessionId);
+            await deletePlan(sessionId);
+            state = await postPlanStart(sessionId, {
+              focus_kind: params.focusKind,
+              focus_id: params.focusId,
+            });
           } else {
             throw err;
           }
@@ -241,7 +275,7 @@ export function MiddleChatPane({
         setPreselectedEntryId(undefined);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        setPlanError(`plan-mode 启动失败:${msg}`);
+        setPlanError(`coach 启动失败:${msg}`);
         setPlanPhase('picking');
       }
     },
@@ -262,8 +296,17 @@ export function MiddleChatPane({
       try {
         const next = await postPlanTurn(sessionId, { user_message: content });
         setPlanState(next);
-        // 重置 finalize guard
-        finalizeTriggeredRef.current = false;
+        const current =
+          next.items.find((item) => item.id === next.current_item_id) ??
+          next.items.find((item) => String(item.status) === 'awaiting_review');
+        if (current?.draft?.text || String(current?.status) === 'awaiting_review') {
+          setPlanPhase('reviewing');
+        } else {
+          setPlanPhase('turning');
+        }
+        await refreshChatMessages?.().catch(() => {
+          /* plan state already advanced; a later session refresh will recover messages */
+        });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         setPlanError(`plan turn 失败:${msg}`);
@@ -271,40 +314,8 @@ export function MiddleChatPane({
         setPlanTurnInFlight(false);
       }
     },
-    [sessionId],
+    [refreshChatMessages, sessionId],
   );
-
-  // ── Finalize on 4-anchor complete ─────────────────────────────────────
-  useEffect(() => {
-    if (sessionId == null) return;
-    if (planPhase !== 'turning') return;
-    if (!anchors.allFilled) return;
-    if (!anchors.activeItemId) return;
-    if (finalizeTriggeredRef.current) return;
-    finalizeTriggeredRef.current = true;
-    setPlanPhase('finalizing');
-    (async () => {
-      try {
-        const next = await postPlanFinalize(sessionId, {
-          item_id: anchors.activeItemId!,
-          expected_version: anchors.expectedVersion,
-        });
-        setPlanState(next);
-        setPlanPhase('reviewing');
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setPlanError(`finalize 失败:${msg}`);
-        setPlanPhase('turning');
-        finalizeTriggeredRef.current = false;
-      }
-    })();
-  }, [
-    anchors.allFilled,
-    anchors.activeItemId,
-    anchors.expectedVersion,
-    planPhase,
-    sessionId,
-  ]);
 
   // ── Reviewing → 入档 / 再聊几轮 ────────────────────────────────────────
   const draftItem: PlanItemWire | null = useMemo(() => {
@@ -326,31 +337,49 @@ export function MiddleChatPane({
     setPlanPhase('archiving');
     setPlanError(null);
     try {
+      // H 2026-05-22: 先调 /plan/distill, 用 LLM 把 draft + evidence 精炼成
+      // 干净的 STAR + 去重 quantified + 去回声 raw_excerpt。 失败了 fall back
+      // 到原 raw join 路径, 至少能入档不丢数据。
+      let distilled: Awaited<ReturnType<typeof postPlanDistill>> | null = null;
+      try {
+        distilled = await postPlanDistill(sessionId, draftItem.id);
+      } catch (_err) {
+        // 静默 fallback — 入档优先, 精炼是 nice-to-have
+        distilled = null;
+      }
+      const summary =
+        distilled?.summary
+        || draftItem.draft?.text?.slice(0, 200)
+        || draftItem.title;
+      const star = distilled?.star
+        ?? { situation: '', task: '', action: '', result: '' };
+      const rawExcerpt =
+        distilled?.raw_excerpt_clean
+        || (draftItem.evidence ?? [])
+            .map((ev) => ev.text)
+            .filter(Boolean)
+            .join('\n')
+            .slice(0, 2000);
       await postSessionMemory(sessionId, {
         category: 'experience',
-        summary: draftItem.draft?.text?.slice(0, 200) || draftItem.title,
+        summary,
         payload: {
           name: draftItem.title,
           behavioral_hook: draftItem.draft?.text || '',
-          // STAR-derived; FE 端做合理映射, BE 后期可加 schema 强校验
-          situation: '',
-          task: '',
-          action: '',
-          result: '',
+          situation: star.situation,
+          task: star.task,
+          action: star.action,
+          result: star.result,
+          quantified: distilled?.quantified ?? {},
         },
-        raw_excerpt: (draftItem.evidence ?? [])
-          .map((ev) => ev.text)
-          .filter(Boolean)
-          .join('\n')
-          .slice(0, 2000),
+        raw_excerpt: rawExcerpt,
         confidence: 0.9,
       });
       onMemoryArchived?.();
-      // Reset plan-mode UI
+      // Reset coach UI
       setPlanState(null);
       setPlanPhase('idle');
       setMode('normal');
-      finalizeTriggeredRef.current = false;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setPlanError(`入档失败:${msg}`);
@@ -360,7 +389,6 @@ export function MiddleChatPane({
 
   const handleContinuePlan = useCallback(() => {
     setPlanPhase('turning');
-    finalizeTriggeredRef.current = false;
   }, []);
 
   // ── Composer send (normal or plan turn) ───────────────────────────────
@@ -381,14 +409,19 @@ export function MiddleChatPane({
     const text = draft.trim();
     if (!text) return;
     if (sendDisabled) return;
+    // Plan ② Job coach (2026-05-21): pass active_job_id when in
+    // job-customisation mode, so backend tags extracted memory with the job.
+    const opts = activeJobContext?.job_id
+      ? { activeJobId: activeJobContext.job_id }
+      : undefined;
     if (mode === 'plan') {
       setDraft('');
       await handlePlanTurnSend(text);
     } else {
       setDraft('');
-      await sendChatMessage(text);
+      await sendChatMessage(text, opts);
     }
-  }, [draft, handlePlanTurnSend, mode, sendChatMessage, sendDisabled]);
+  }, [draft, handlePlanTurnSend, mode, sendChatMessage, sendDisabled, activeJobContext]);
 
   // ── Render ────────────────────────────────────────────────────────────
   return (
@@ -404,24 +437,68 @@ export function MiddleChatPane({
         <span className="workspace-hifi__pane-header-count">
           {feedbackReady
             ? mode === 'plan'
-              ? `plan-mode · ${planPhase}`
+              ? `coach · ${planPhase}`
               : `${messageCount} 条对话`
             : '等待简历就绪'}
         </span>
       </header>
 
       <div className="workspace-hifi__pane-body workspace-hifi__pane-body--middle">
+        {/* 📌 我的档案 — 顶部贴条 (2026-05-20: 从右栏底部搬过来, 更显眼).
+            Same ArchivePanel collapsed/expanded behaviour, just placed
+            above the chat thread for visibility. */}
+        {archiveSlot ? (
+          <div className="workspace-hifi__middle-archive-slot">{archiveSlot}</div>
+        ) : null}
+
+        {/* Plan ② Job coach banner — when student has clicked
+            "🎯 针对这家定制" on a recommend card, every chat turn from
+            now on is tagged with this job. Banner explains + offers exit. */}
+        {activeJobContext ? (
+          <div className="workspace-hifi__job-context-banner" role="status">
+            <span className="workspace-hifi__job-context-icon" aria-hidden>🎯</span>
+            <span className="workspace-hifi__job-context-text">
+              <strong>针对这家定制中</strong>
+              <span className="workspace-hifi__job-context-detail">
+                {activeJobContext.company} · {activeJobContext.job_title}
+              </span>
+            </span>
+            <button
+              type="button"
+              className="workspace-hifi__job-context-clear"
+              onClick={onClearJobContext}
+              title="退出岗位定制模式 — 回到赛道通用对话"
+            >
+              退出
+            </button>
+          </div>
+        ) : null}
+
         {/* FE-3 cross-pane thinking bubble (sticky top, only renders when 右栏触发) */}
         <RewriteThinkingBubble />
 
         <div className="workspace-hifi__chat-stream">
-          {chatMessages.length === 0 && (
+          {/* Parsing/feedback indicator — 2026-05-21 v6: 必须独立挂载, 不能
+              嵌在 chatMessages.length === 0 分支里, 否则 dashboard 消息一插
+              整个分支 unmount, 动画跟着没掉, 看起来就是"一闪而过"。 现在只
+              要 feedback 没完成就一直显示, 与 chatMessages 解耦。 */}
+          {!feedbackReady && (
             <div className="workspace-hifi__chat-empty">
-              {feedbackReady
-                ? mode === 'plan'
-                  ? '切到了 plan-mode — 选一段经历或自由聊新经历开始。'
-                  : '从输入框发起问题,AI 会带着你的真实经历聊。'
-                : '简历正在分析中,稍候即可开聊。'}
+              <CoachThinkingIndicator
+                active={!feedbackReady}
+                phase="parsing"
+                minVisibleMs={2500}
+              />
+              <span style={{ marginTop: 8, fontSize: 12, color: 'var(--olive)' }}>
+                简历正在分析中,稍候即可开聊。首次上传约 20-40 秒。
+              </span>
+            </div>
+          )}
+          {chatMessages.length === 0 && feedbackReady && (
+            <div className="workspace-hifi__chat-empty">
+              {mode === 'plan'
+                ? '切到了 coach — 选一段经历或自由聊新经历开始。'
+                : '从输入框发起问题,AI 会带着你的真实经历聊。'}
             </div>
           )}
           {chatMessages.map((m) => (
@@ -436,9 +513,73 @@ export function MiddleChatPane({
           {isSendingChat && mode === 'normal' && (
             <div className="workspace-hifi__chat-typing">AI 思考中…</div>
           )}
-          {planTurnInFlight && mode === 'plan' && (
-            <div className="workspace-hifi__chat-typing">AI 在 plan-mode 反问中…</div>
+          {mode === 'plan' && (
+            <CoachThinkingIndicator
+              active={
+                planTurnInFlight ||
+                planPhase === 'starting' ||
+                planPhase === 'finalizing' ||
+                planPhase === 'archiving'
+              }
+              phase={
+                (planPhase === 'starting'
+                  ? 'starting'
+                  : planPhase === 'finalizing'
+                    ? 'finalizing'
+                    : planPhase === 'archiving'
+                      ? 'archiving'
+                      : 'turning') as CoachThinkingPhase
+              }
+              minVisibleMs={2500}
+            />
           )}
+
+          {/* 2026-05-21: turning 进来时 BE 不会自动产生第一个问题, 学生不知
+              道该干嘛就傻等 (用户在 v4 复现的"5 分钟没下一步"根因)。
+              这里加一张显式开场卡 — 只在 turning + 当前 item 还没动起来
+              时出, 学生一发第一句话就消失。 */}
+          {mode === 'plan' &&
+            planPhase === 'turning' &&
+            !planTurnInFlight &&
+            planState?.current_item_id != null && (() => {
+              const cur = planState.items.find(
+                (it) => it.id === planState.current_item_id,
+              );
+              if ((cur?.open_questions ?? []).length > 0) return null;
+              const title = cur?.title ?? '这段经历';
+              return (
+                <div
+                  className="workspace-hifi__plan-kickoff"
+                  role="status"
+                  style={{
+                    // AIOrb 需要这些 token, workspace 默认没定义
+                    ['--terracotta' as string]: '#c96442',
+                    ['--terracotta-strong' as string]: '#a14e30',
+                    ['--border' as string]: '#e8e6dc',
+                    ['--border-strong' as string]: '#d3d0c2',
+                  }}
+                >
+                  <div className="workspace-hifi__plan-kickoff-orb" aria-hidden>
+                    <AIOrb size={72} />
+                  </div>
+                  <div className="workspace-hifi__plan-kickoff-text">
+                    <div className="workspace-hifi__plan-kickoff-head">
+                      <span aria-hidden style={{ marginRight: 6 }}>📌</span>
+                      AI coach 已就绪 — 现在轮到你说
+                    </div>
+                    <p className="workspace-hifi__plan-kickoff-body">
+                      我会按 STAR 4 个 anchor 带你聊
+                      <strong>「{title}」</strong>:
+                      <em>背景 → 你的任务 → 你做了什么 → 结果</em>。
+                    </p>
+                    <p className="workspace-hifi__plan-kickoff-body">
+                      <strong>请先 2-3 句简单说一下你做了什么</strong>,
+                      我顺着追问把它聊透。
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
 
           {/* Plan-mode card stack (B-2 / B-4) */}
           {mode === 'plan' && planPhase === 'picking' && sessionId != null && (
@@ -480,7 +621,7 @@ export function MiddleChatPane({
               }`}
               onClick={() => handleSwitchMode('normal')}
             >
-              💬 普通
+              💬 chat
             </button>
             <button
               type="button"
@@ -493,11 +634,11 @@ export function MiddleChatPane({
               disabled={isDemo || sessionId == null}
               title={
                 isDemo
-                  ? 'Demo 只读 — 上传自己的简历后可用 plan-mode'
-                  : 'plan-mode:AI 带你 4 个 anchor 把一段经历聊透'
+                  ? 'Demo 只读 — 上传自己的简历后可用 coach'
+                  : 'coach:AI 带你 4 个 anchor 把一段经历聊透'
               }
             >
-              📌 plan-mode
+              📌 coach
             </button>
           </div>
 
@@ -538,7 +679,7 @@ export function MiddleChatPane({
                       ? '先在上面选一段经历…'
                       : planPhase === 'turning'
                         ? '回答 AI 的问题,把这段经历聊透…'
-                        : 'plan-mode 进行中…'
+                        : 'coach 进行中…'
                     : canChat
                       ? '问我如何优化这份简历…'
                       : '等待首次分析完成后可对话…'
@@ -567,9 +708,9 @@ export function MiddleChatPane({
           aria-modal="true"
         >
           <div className="workspace-hifi__chat-confirm">
-            <h4>退出 plan-mode?</h4>
+            <h4>退出 coach?</h4>
             <p>
-              plan-mode 未完成。退出后已聊的内容会暂存在 plan_json 里,下次切回
+              coach 未完成。退出后已聊的内容会暂存在 plan_json 里,下次切回
               📌 还能继续 — 但当前 anchor 进度不会自动入档。
             </p>
             <div className="workspace-hifi__chat-confirm-actions">
@@ -578,7 +719,7 @@ export function MiddleChatPane({
                 className="workspace-hifi__chat-confirm-btn"
                 onClick={() => setConfirmCancelPlan(false)}
               >
-                继续 plan-mode
+                继续 coach
               </button>
               <button
                 type="button"

@@ -313,6 +313,7 @@ export function ArchivePanel({
                       onEdited={handleEntryEdited}
                       onDeleted={handleEntryDeleted}
                       onToast={showToast}
+                      onResyncClick={(e) => onStartPlanMode?.(String(e.category), e.id)}
                     />
                   );
                 })}
@@ -369,6 +370,7 @@ export function ArchivePanel({
                               onEdited={handleEntryEdited}
                               onDeleted={handleEntryDeleted}
                               onToast={showToast}
+                              onResyncClick={(e) => onStartPlanMode?.(String(e.category), e.id)}
                             />
                           );
                         })}
@@ -385,7 +387,7 @@ export function ArchivePanel({
             <div className="workspace-hifi__archive-cta-text">
               {total === 0
                 ? '档案还是空的 — 让 AI 跟你聊聊每段经历,自动归档。'
-                : '想把某段经历聊得更细?切到 plan-mode,AI 会带你 4 个 anchor 补齐。'}
+                : '想把某段经历聊得更细?切到 coach,AI 会带你 4 个 anchor 补齐。'}
             </div>
             <button
               type="button"

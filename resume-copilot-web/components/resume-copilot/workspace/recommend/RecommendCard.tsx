@@ -25,6 +25,9 @@ export interface RecommendCardProps {
   onToggle: () => void;
   /** Parent handles fetch + FLIP + toast — card just relays. */
   onReject: (reason: RecommendRejectReason, note: string) => Promise<void>;
+  /** Plan ② Job plan-mode (2026-05-21): "🎯 针对这家定制" entry. Parent
+   *  switches MiddleChatPane into plan-mode tagged with this job_id. */
+  onCustomiseForJob?: (item: ResumeRecommendationItem) => void;
 }
 
 /** First letter of company for the logo placeholder — there's no logo CDN in
@@ -74,6 +77,7 @@ export function RecommendCard({
   isExpanded,
   onToggle,
   onReject,
+  onCustomiseForJob,
 }: RecommendCardProps) {
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -212,6 +216,17 @@ export function RecommendCard({
                   查看岗位
                   <span aria-hidden style={{ display: 'inline-flex' }}>{I.arrowRight(12)}</span>
                 </a>
+              )}
+              {onCustomiseForJob && (
+                <button
+                  type="button"
+                  className="workspace-hifi__rec-card-action workspace-hifi__rec-card-action--customise"
+                  onClick={() => onCustomiseForJob(item)}
+                  title="进入 coach 把简历针对这家的 JD 定制一遍"
+                >
+                  <span aria-hidden>🎯</span>
+                  <span>针对这家定制</span>
+                </button>
               )}
               <button
                 type="button"

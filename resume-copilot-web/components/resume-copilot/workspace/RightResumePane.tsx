@@ -35,6 +35,7 @@ import {
 import { useRewriteState } from './RewriteContext';
 import { ResumePreview, type ActiveRewrite } from './resume/ResumePreview';
 import type { FabricationWarningAction } from './resume/FabricationWarning';
+import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
 
 export interface RightResumePaneProps {
   session: ResumeCopilotSession | null;
@@ -48,12 +49,8 @@ export interface RightResumePaneProps {
   /** 当前关联的 target job — 关联 chat 里 active 推荐时填,用于改写 prompt 引导
    *  (后续 FE-2 wire 完后真填) */
   targetJob?: { title?: string; description?: string } | null;
-  /** FE-4 ArchivePanel slot (由 WorkspaceShell 从外部传 ReactNode 进来) */
-  archiveSlot?: React.ReactNode;
   /** 学生从 inline diff 里点 "切到 plan-mode" 触发 — WorkspaceShell 串到 MiddleChatPane */
   onPlanModeRequest?: (fieldPath: string, originalBullet: string) => void;
-  /** 学生点档案浮条触发(FE-4) */
-  onOpenArchive?: () => void;
   /** 学生点 "导出 PDF" 触发 — 由 WorkspaceShell 提供 */
   onExport?: () => void;
 }
@@ -66,9 +63,7 @@ export function RightResumePane({
   isDemo,
   xResumeUserKey,
   targetJob,
-  archiveSlot,
   onPlanModeRequest,
-  onOpenArchive,
   onExport,
 }: RightResumePaneProps) {
   // referenced — header surfaces session readiness; xResumeUserKey reserved for
@@ -79,6 +74,75 @@ export function RightResumePane({
   const [activeRewrite, setActiveRewrite] = useState<ActiveRewrite | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const rewriteCtx = useRewriteState();
+
+  // ── Edit mode (2026-05-20): layout adjust toolbar with 4 popover buttons
+  // (页边距 / 模块边距 / 行间距 / 字体大小) — mirrors the original
+  // EditableResumeCanvas pattern (public-resume-copilot.tsx
+  // `ResumeLayoutControls`, line ~2616) but uses workspace HiFi shells.
+  //
+  // Single 编辑 button in header collapses everything; click → reveal
+  // toolbar. Settings persist to localStorage so they survive reloads
+  // (richer-than-original; OLD version was session-ephemeral).
+  const [editMode, setEditMode] = useState(false);
+  const [activeControl, setActiveControl] =
+    useState<'pagePadding' | 'moduleGap' | 'lineHeight' | 'fontSize' | null>(null);
+
+  const readNum = (key: string, fallback: number, lo: number, hi: number): number => {
+    if (typeof window === 'undefined') return fallback;
+    try {
+      const v = Number(window.localStorage.getItem(key));
+      if (Number.isFinite(v) && v >= lo && v <= hi) return v;
+    } catch { /* no-op */ }
+    return fallback;
+  };
+  // Defaults + bounds match original DEFAULT_RESUME_LAYOUT + RESUME_LAYOUT_CONTROL_META.
+  const [pagePaddingX, setPagePaddingX] = useState<number>(() => readNum('jr.resume.pagePaddingX', 22, 8, 48));
+  const [moduleGap, setModuleGap] = useState<number>(() => readNum('jr.resume.moduleGap', 18, 6, 36));
+  const [lineHeight, setLineHeight] = useState<number>(() => readNum('jr.resume.lineHeight', 1.55, 1.0, 2.5));
+  const [fontSize, setFontSize] = useState<number>(() => readNum('jr.resume.fontSize', 13.5, 11, 18));
+
+  const persistAndSet = (
+    key: string,
+    setter: (n: number) => void,
+  ) => (n: number) => {
+    setter(n);
+    try { window.localStorage.setItem(key, String(n)); } catch { /* no-op */ }
+  };
+
+  const LAYOUT_CONTROLS = [
+    {
+      key: 'pagePadding' as const, title: '页边距', unit: 'px',
+      value: pagePaddingX, min: 8, max: 48, step: 1,
+      onChange: persistAndSet('jr.resume.pagePaddingX', setPagePaddingX),
+      description: '调整简历卡片四周留白',
+    },
+    {
+      key: 'moduleGap' as const, title: '模块边距', unit: 'px',
+      value: moduleGap, min: 6, max: 36, step: 1,
+      onChange: persistAndSet('jr.resume.moduleGap', setModuleGap),
+      description: '调整模块之间的距离',
+    },
+    {
+      key: 'lineHeight' as const, title: '行间距', unit: '',
+      value: lineHeight, min: 1.0, max: 2.5, step: 0.05,
+      onChange: persistAndSet('jr.resume.lineHeight', setLineHeight),
+      description: '调整简历文本的行间距',
+    },
+    {
+      key: 'fontSize' as const, title: '字体大小', unit: 'px',
+      value: fontSize, min: 11, max: 18, step: 0.5,
+      onChange: persistAndSet('jr.resume.fontSize', setFontSize),
+      description: '调整简历正文的字体大小',
+    },
+  ];
+  const active = activeControl ? LAYOUT_CONTROLS.find((c) => c.key === activeControl) : null;
+
+  const resumeStyleVars: React.CSSProperties = {
+    ['--resume-page-margin' as string]: `${pagePaddingX}px`,
+    ['--resume-section-gap' as string]: `${moduleGap}px`,
+    ['--resume-line-height' as string]: String(lineHeight),
+    ['--resume-font-size' as string]: `${fontSize}px`,
+  };
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -186,7 +250,7 @@ export function RightResumePane({
   const handlePlanModeRequest = useCallback(
     (fieldPath: string, originalBullet: string) => {
       onPlanModeRequest?.(fieldPath, originalBullet);
-      showToast('已请求切到 plan-mode 聊这段经历。');
+      showToast('已请求切到 coach 聊这段经历。');
       // 关闭 diff,让学生去 chat 区
       setActiveRewrite(null);
       rewriteCtx.reset();
@@ -231,21 +295,90 @@ export function RightResumePane({
           {ready ? (name || '已解析') : '解析中'}
           {isDemo ? ' · DEMO' : ''}
         </span>
-        {onExport ? (
-          <HFBtn
-            variant="ghost"
-            size="sm"
-            disabled={!canExport || isExporting}
-            onClick={onExport}
-            style={{ marginLeft: 8, height: 30, padding: '0 10px', fontSize: 12 }}
-            title={canExport ? '导出 PDF 简历' : '解析完成后可导出'}
-          >
-            {isExporting ? '导出中…' : '导出 PDF'}
-          </HFBtn>
-        ) : null}
+        <HFBtn
+          variant={editMode ? 'primary' : 'ghost'}
+          size="sm"
+          onClick={() => setEditMode((v) => !v)}
+          style={{ marginLeft: 'auto', height: 30, padding: '0 12px', fontSize: 12 }}
+          title="调整页边距 / 行距 / 字体大小"
+          aria-pressed={editMode}
+        >
+          {editMode ? '✓ 完成' : '✏️ 编辑'}
+        </HFBtn>
       </header>
 
-      <div className="workspace-hifi__pane-body workspace-hifi__pane-body--right">
+      {/* Edit toolbar — 4 buttons (popover pattern) + 导出 PDF + 保存.
+       *  Mirrors ResumeLayoutControls from public-resume-copilot.tsx
+       *  (~line 2616). Settings persist to localStorage. */}
+      {editMode ? (
+        <div className="workspace-hifi__edit-toolbar" role="toolbar" aria-label="简历排版调整">
+          <div className="workspace-hifi__edit-toolbar-controls">
+            {LAYOUT_CONTROLS.map((c) => (
+              <HFBtn
+                key={c.key}
+                variant={activeControl === c.key ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveControl((cur) => (cur === c.key ? null : c.key))}
+                style={{ height: 28, padding: '0 10px', fontSize: 12 }}
+              >
+                {c.title}
+              </HFBtn>
+            ))}
+          </div>
+          <div className="workspace-hifi__edit-toolbar-actions">
+            {onExport ? (
+              <HFBtn
+                variant="ghost"
+                size="sm"
+                disabled={!canExport || isExporting}
+                onClick={onExport}
+                style={{ height: 28, padding: '0 10px', fontSize: 12 }}
+                title={canExport ? '导出 PDF 简历' : '解析完成后可导出'}
+              >
+                {isExporting ? '导出中…' : '📥 导出 PDF'}
+              </HFBtn>
+            ) : null}
+            <HFBtn
+              variant="primary"
+              size="sm"
+              onClick={() => { setActiveControl(null); setEditMode(false); }}
+              style={{ height: 28, padding: '0 12px', fontSize: 12 }}
+              title="保存调整并关闭工具栏"
+            >
+              ✓ 保存
+            </HFBtn>
+          </div>
+
+          {/* Popover for the active layout control — only one open at a time. */}
+          {active ? (
+            <div className="workspace-hifi__edit-popover" role="dialog" aria-label={active.title}>
+              <div className="workspace-hifi__edit-popover-head">
+                <div className="workspace-hifi__edit-popover-title">{active.title}</div>
+                <div className="workspace-hifi__edit-popover-value">
+                  {Number.isInteger(active.value) ? active.value : active.value.toFixed(2)}{active.unit}
+                </div>
+              </div>
+              <div className="workspace-hifi__edit-popover-desc">{active.description}</div>
+              <input
+                className="workspace-hifi__edit-popover-slider"
+                type="range"
+                min={active.min} max={active.max} step={active.step}
+                value={active.value}
+                onChange={(e) => active.onChange(Number(e.target.value))}
+              />
+              <div className="workspace-hifi__edit-popover-range">
+                <span>{active.min}{active.unit}</span>
+                <span>{active.max}{active.unit}</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div
+        className="workspace-hifi__pane-body workspace-hifi__pane-body--right"
+        style={resumeStyleVars}
+      >
         {ready ? (
           <ResumePreview
             profile={profile}
@@ -259,35 +392,16 @@ export function RightResumePane({
           />
         ) : (
           <div className="workspace-hifi__placeholder">
-            <span className="workspace-hifi__placeholder-todo">解析中</span>
-            <span className="workspace-hifi__placeholder-title">简历正在 parse</span>
+            <CoachThinkingIndicator
+              active={!ready}
+              phase="parsing"
+              minVisibleMs={800}
+            />
             <span className="workspace-hifi__placeholder-hint">
-              后端正在抽取教育 / 实习 / 项目 / 技能,稍候即可看到预览 + 改写入口。
+              首次上传通常 20-40 秒;parse 完成后这里会自动出现可改写的简历预览。
             </span>
           </div>
         )}
-
-        {/* ── Archive slot (FE-4) ────────────────────────────────────────────── */}
-        <div className="workspace-hifi__archive-slot">
-          {archiveSlot ? (
-            archiveSlot
-          ) : (
-            <div className="workspace-hifi__archive-stub">
-              <button
-                type="button"
-                className="workspace-hifi__archive-stub-btn"
-                onClick={onOpenArchive}
-                aria-label="打开档案面板"
-              >
-                <span className="workspace-hifi__archive-stub-dot" aria-hidden />
-                📌 我的档案
-                <span className="workspace-hifi__archive-stub-hint">
-                  (FE-4 重做为内嵌面板)
-                </span>
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Toast (兼容老 PublicResumeCopilot 没有全局 toast 系统的情况) */}

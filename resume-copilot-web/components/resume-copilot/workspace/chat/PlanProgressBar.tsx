@@ -7,7 +7,7 @@
  *
  * 设计意图 (per main-workspace-redesign-2026-05-20 §2 B-3):
  *   plan turn 响应里的 AI 反问 + 4 anchor 进度,FE 在 composer 上方
- *   显示 `时间 ✓ 行动 ✓ 工具 ○ 结果 ○`,4 anchor 全 ✓ → 父自动 finalize.
+ *   显示 `时间 ✓ 行动 ✓ 工具 ○ 结果 ○`,让学生知道这一轮 coach 还差什么。
  *
  * 4 anchor 是 STAR 风格简化:
  *   - 时间 (situation):映射 BE 的 `duration` evidence tag
@@ -26,7 +26,7 @@
  *   const anchors = derivePlanAnchors(planState);
  *   <PlanProgressBar anchors={anchors} />
  *   ```
- *   父可以 `useEffect(() => { if (anchors.allFilled) finalize(); })`.
+ *   写作/收尾由后端 plan state 决定;这个组件只负责展示进度。
  *
  * 设计系统:
  *   - 所有样式 scope `.workspace-hifi`
@@ -43,6 +43,14 @@ export const ANCHOR_LABELS: Record<AnchorKey, string> = {
   result: '结果',
 };
 
+// User-facing tooltip for each anchor — hover shows what AI will ask.
+export const ANCHOR_HINTS: Record<AnchorKey, string> = {
+  situation: '什么时候做的 / 项目持续多久(让经历可考证)',
+  action: '你具体做了什么 / 角色是什么(动词 + 主语)',
+  tool: '用了什么方法 / 工具 / 模型 / 框架',
+  result: '产出是什么 / 量化指标 / 业务影响',
+};
+
 // EvidenceTagType (BE) → 4 anchor 映射
 const TAG_TO_ANCHOR: Record<string, AnchorKey> = {
   duration: 'situation',
@@ -57,11 +65,13 @@ const TAG_TO_ANCHOR: Record<string, AnchorKey> = {
 
 export interface AnchorState {
   filled: Record<AnchorKey, boolean>;
-  /** true 当 4 个 anchor 全部 ✓ — 父可据此自动 finalize。 */
+  /** true 当 4 个 anchor 全部 ✓。 */
   allFilled: boolean;
-  /** active item id;父调 finalize 时需要 */
+  /** active item id. */
   activeItemId: string | null;
-  /** plan version, 给 finalize 做乐观锁 */
+  /** user-visible title of the item currently being coached. */
+  activeItemTitle: string | null;
+  /** plan version. */
   expectedVersion: number;
 }
 
@@ -70,6 +80,7 @@ export function emptyAnchorState(): AnchorState {
     filled: { situation: false, action: false, tool: false, result: false },
     allFilled: false,
     activeItemId: null,
+    activeItemTitle: null,
     expectedVersion: 0,
   };
 }
@@ -100,6 +111,10 @@ export function derivePlanAnchors(plan: PlanStateOut | null): AnchorState {
   };
   if (item) {
     for (const ev of item.evidence ?? []) {
+      // Parsed resume evidence is useful context for the AI, but it made this
+      // progress row look half-complete before the student had actually
+      // answered anything. Show only what the coach conversation collected.
+      if (String(ev.source) !== 'user_clarification') continue;
       for (const tag of ev.tags ?? []) {
         const anchor = TAG_TO_ANCHOR[String(tag.type)];
         if (anchor) filled[anchor] = true;
@@ -115,6 +130,7 @@ export function derivePlanAnchors(plan: PlanStateOut | null): AnchorState {
     filled,
     allFilled,
     activeItemId: item?.id ?? null,
+    activeItemTitle: item?.title ?? null,
     expectedVersion: plan.version,
   };
 }
@@ -127,32 +143,52 @@ export interface PlanProgressBarProps {
 
 export function PlanProgressBar({ anchors, onAnchorClick }: PlanProgressBarProps) {
   const order: AnchorKey[] = ['situation', 'action', 'tool', 'result'];
+  const doneCount = order.filter((k) => anchors.filled[k]).length;
   return (
     <div
       className={`workspace-hifi__plan-progress${anchors.allFilled ? ' is-complete' : ''}`}
       role="group"
-      aria-label="plan-mode 4 anchor 进度"
+      aria-label="coach 4 anchor 进度"
     >
-      {order.map((k) => {
-        const done = anchors.filled[k];
-        return (
-          <button
-            key={k}
-            type="button"
-            className={`workspace-hifi__plan-progress-step${done ? ' is-done' : ''}`}
-            onClick={onAnchorClick ? () => onAnchorClick(k) : undefined}
-            disabled={!onAnchorClick}
-            title={done ? `${ANCHOR_LABELS[k]} 已补齐` : `${ANCHOR_LABELS[k]} 待补充`}
-          >
-            <span className="workspace-hifi__plan-progress-mark" aria-hidden>
-              {done ? '✓' : '○'}
-            </span>
-            <span className="workspace-hifi__plan-progress-label">
-              {ANCHOR_LABELS[k]}
-            </span>
-          </button>
-        );
-      })}
+      {/* Header explains what the row is — without it, students just see
+       *  four mysterious circles. 2026-05-21. */}
+      <div className="workspace-hifi__plan-progress-header">
+        <span className="workspace-hifi__plan-progress-title">
+          {anchors.activeItemTitle
+            ? `正在 coach: ${anchors.activeItemTitle}`
+            : 'AI 想问你这 4 件事'}
+        </span>
+        <span className="workspace-hifi__plan-progress-count">
+          {doneCount} / 4
+        </span>
+      </div>
+      {anchors.activeItemTitle && (
+        <div className="workspace-hifi__plan-progress-subtitle">
+          AI 会按这 4 个点把这一段聊清楚
+        </div>
+      )}
+      <div className="workspace-hifi__plan-progress-steps">
+        {order.map((k) => {
+          const done = anchors.filled[k];
+          return (
+            <button
+              key={k}
+              type="button"
+              className={`workspace-hifi__plan-progress-step${done ? ' is-done' : ''}`}
+              onClick={onAnchorClick ? () => onAnchorClick(k) : undefined}
+              disabled={!onAnchorClick}
+              title={`${ANCHOR_LABELS[k]} — ${ANCHOR_HINTS[k]}${done ? ' (已补齐)' : ' (待补充)'}`}
+            >
+              <span className="workspace-hifi__plan-progress-mark" aria-hidden>
+                {done ? '✓' : '○'}
+              </span>
+              <span className="workspace-hifi__plan-progress-label">
+                {ANCHOR_LABELS[k]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
       {anchors.allFilled && (
         <span className="workspace-hifi__plan-progress-hint">
           4 个 anchor 已齐 — 自动收尾中…

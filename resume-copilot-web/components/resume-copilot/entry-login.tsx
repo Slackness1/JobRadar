@@ -9,6 +9,14 @@ import { markAsGuest } from './api';
 const GUEST_USERNAME = 'guest1';
 const GUEST_PASSWORD = '123456';
 
+// Dev account (2026-05-21): 给 PM / 测试用,登录后 user_key 固定为
+// 'dev-slackness', 所有上传 session 都归这个稳定 key,不会跟 guest 的随机
+// UUID 混淆。和 guest 模式并行,不破坏老流程。
+const DEV_USERNAME = 'slackness';
+const DEV_PASSWORD = '991060';
+const DEV_STABLE_USER_KEY = 'dev-slackness';
+const USER_KEY_STORAGE_KEY = 'jobradar.resumeCopilot.userKey';
+
 const { Title, Paragraph } = Typography;
 
 const COMPANY_COVERAGE_TARGET = 3486;
@@ -112,13 +120,26 @@ function EntryLoginPageWithDestination({ destination }: { destination: string })
   const liveUpdates = useAnimatedMetric(LIVE_UPDATE_TARGET, true);
 
   const handleFinish = async (values: LoginFormValues) => {
-    if (values.username !== GUEST_USERNAME || values.password !== GUEST_PASSWORD) {
+    const isGuest =
+      values.username === GUEST_USERNAME && values.password === GUEST_PASSWORD;
+    const isDev =
+      values.username === DEV_USERNAME && values.password === DEV_PASSWORD;
+    if (!isGuest && !isDev) {
       void message.error('账号或密码错误');
       return;
     }
     setSubmitting(true);
     try {
-      markAsGuest();
+      if (isDev) {
+        // 写一个稳定 user_key, 跨 session 不变, 上传的简历都归这个 key
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(USER_KEY_STORAGE_KEY, DEV_STABLE_USER_KEY);
+          window.sessionStorage.removeItem('jobradar.resumeCopilot.isGuest');
+        }
+        void message.success('已登录开发账号 (user_key=dev-slackness)');
+      } else {
+        markAsGuest();
+      }
       router.push(destination);
     } finally {
       window.setTimeout(() => setSubmitting(false), 200);

@@ -198,7 +198,7 @@ export function ResumePreview(props: ResumePreviewProps) {
       <ResumeSection
         title="教育背景"
         count={profile.education.length}
-        emptyHint="解析时未拿到教育背景 — 可在 plan-mode 补充"
+        emptyHint="解析时未拿到教育背景 — 可在 coach 补充"
       >
         {profile.education.map((edu, i) => (
           <div key={`edu-${i}`} className="workspace-hifi__resume-entry">

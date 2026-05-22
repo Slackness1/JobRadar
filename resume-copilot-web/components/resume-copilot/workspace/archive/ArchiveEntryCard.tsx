@@ -38,6 +38,9 @@ export interface ArchiveEntryCardProps {
   onEdited?: (entry: MemoryEntry) => void;
   onDeleted?: (entryId: number) => void;
   onToast?: (msg: string) => void;
+  /** Plan 1 (2026-05-20): 学生点 🔄 "内容已变,建议重聊" badge → 进 plan-mode
+   *  focus 这条记忆对应的 bullet。 父 (ArchivePanel) 转发到 MiddleChatPane。 */
+  onResyncClick?: (entry: MemoryEntry) => void;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -51,15 +54,65 @@ const CATEGORY_LABELS: Record<string, string> = {
   weakness_signal: '弱点信号',
 };
 
+/**
+ * 入库时间格式 — 用户口径 (2026-05-21):
+ *   - 今天                  → "今天 HH:mm"
+ *   - 昨天                  → "昨天 HH:mm"
+ *   - 本周内(早于昨天)       → "星期X HH:mm"
+ *   - 同年内(早于本周)       → "MM-DD"
+ *   - 跨年                  → "YYYY-MM-DD"
+ *
+ * 时间 = 北京时间 (UTC+8). 后端用 naive UTC 存; new Date() 把无时区的
+ * ISO 串当成本地, 不可靠 — 这里直接把 ms 加 8h 偏移再走 UTC getters。
+ */
+const WEEKDAY_CN = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+function toBeijing(input: string): Date {
+  // 后端 captured_at 形如 "2026-05-21T06:54:48.424684" (naive UTC).
+  // 加 'Z' 强制按 UTC 解析, 再 +8h 偏移得到北京时间。
+  let s = input;
+  if (!/Z|[+-]\d{2}:?\d{2}$/.test(s)) s = s.replace(/\s+/, 'T') + 'Z';
+  const utcMs = new Date(s).valueOf();
+  return new Date(utcMs + 8 * 3600 * 1000);
+}
+
+function beijingNow(): Date {
+  return new Date(Date.now() + 8 * 3600 * 1000);
+}
+
 function formatCaptured(value?: string | null): string {
   if (!value) return '';
   try {
-    const d = new Date(value);
+    const d = toBeijing(value);
     if (Number.isNaN(d.valueOf())) return value;
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    const now = beijingNow();
+
+    // 用 UTC getters 因为我们把"北京时间"塞进了 UTC 字段里。
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mi = String(d.getUTCMinutes()).padStart(2, '0');
+    const time = `${hh}:${mi}`;
+
+    // 比较时只看年/月/日(都按北京算)
+    const dDay = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    const nowDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const dayDiff = Math.round((nowDay - dDay) / 86400000);
+
+    if (dayDiff === 0) return `今天 ${time}`;
+    if (dayDiff === 1) return `昨天 ${time}`;
+
+    // 本周 = 距今 < 7 天, 且周一到周日同一个 ISO 周
+    // 简化:dayDiff 在 2..6 之间, 且和今天属于同一个"周起点 (周一)"
+    const dWeekStart = nowDay - ((now.getUTCDay() + 6) % 7) * 86400000;
+    if (dDay >= dWeekStart && dayDiff < 7) {
+      return `${WEEKDAY_CN[d.getUTCDay()]} ${time}`;
+    }
+
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    if (d.getUTCFullYear() === now.getUTCFullYear()) {
+      return `${mm}-${dd}`;
+    }
+    return `${d.getUTCFullYear()}-${mm}-${dd}`;
   } catch {
     return value;
   }
@@ -72,6 +125,7 @@ export function ArchiveEntryCard({
   onEdited,
   onDeleted,
   onToast,
+  onResyncClick,
 }: ArchiveEntryCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -172,11 +226,13 @@ export function ArchiveEntryCard({
     return Object.entries(pl as Record<string, unknown>);
   }, [entry.payload]);
 
+  const needsResync = entry.needs_resync === true;
+
   return (
     <li
       className={`workspace-hifi__archive-card${expanded ? ' is-expanded' : ''}${
         isNew ? ' is-new' : ''
-      }`}
+      }${needsResync ? ' is-needs-resync' : ''}`}
     >
       <div className="workspace-hifi__archive-card-head">
         <button
@@ -191,15 +247,37 @@ export function ArchiveEntryCard({
               新
             </span>
           )}
+          {needsResync && (
+            <button
+              type="button"
+              className="workspace-hifi__archive-card-resync"
+              onClick={(e) => { e.stopPropagation(); onResyncClick?.(entry); }}
+              title="你改了对应的简历段落 — AI 的理解可能已过时, 点这里去 coach 重聊一下"
+              aria-label="内容已变,建议去 coach 重聊"
+            >
+              🔄 重聊
+            </button>
+          )}
           <span className="workspace-hifi__archive-card-summary-text">{entry.summary}</span>
         </button>
         <div className="workspace-hifi__archive-card-meta-row">
           <span className="workspace-hifi__archive-card-category" data-cat={entry.category}>
             {categoryLabel}
           </span>
+          {entry.linked_track ? (
+            <span
+              className="workspace-hifi__archive-card-track"
+              title={`聊这条经历时, 当时在准备的赛道是「${entry.linked_track}」`}
+            >
+              🎯 {entry.linked_track}
+            </span>
+          ) : null}
           {entry.captured_at && (
-            <span className="workspace-hifi__archive-card-captured">
-              {formatCaptured(entry.captured_at)}
+            <span
+              className="workspace-hifi__archive-card-captured"
+              title={`这条经历是在 ${formatCaptured(entry.captured_at)} 入档的`}
+            >
+              📅 入库 {formatCaptured(entry.captured_at)}
             </span>
           )}
           <div className="workspace-hifi__archive-card-menu-wrap">
