@@ -1,0 +1,108 @@
+{
+  "scenario_id": "workspace_P2_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "卖方研究 TMT (sell-side research)",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P2 (Fudan Econ + SAIF MF, CICC Research TMT + CSC Securities TMT). Sell-side equity research TMT."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Gu Tianyu",
+      "headline": "Fudan Econ + SAIF MF / Sell-side TMT research / Semiconductor + Comms",
+      "email": "gu.tianyu@saif.sjtu.edu.cn",
+      "location": "Shanghai"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.75/4.0, Equity Research Methods A+",
+          "SAIF TMT Research Society — sector lead",
+          "Advisor focus: semiconductor capex cycle and domestic substitution"
+        ]
+      },
+      {
+        "school": "Fudan University, School of Economics",
+        "degree": "BSc",
+        "major": "Economics",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.80/4.0, dept rank 12/95",
+          "Editor-in-Chief, Fudan Investment Review",
+          "Honors thesis on semiconductor equipment domestic substitution rate"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "CICC (China International Capital Corporation) Research · TMT Team",
+        "role": "Sell-side Equity Research Intern",
+        "start_date": "Jun 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Covered 4 semiconductor-equipment names (NAURA / AMEC / Tuojing / Changchuan); co-authored 9 earnings notes + 2 deep-dive reports with the chief analyst",
+          "Built a semiconductor-equipment localization-rate tracker (SEMI + customs + financial-filing sources), weekly refresh, 2,300+ data points cumulative",
+          "Serviced 38 institutional client calls (mutual funds / insurers / hedge funds); attended 22 conference calls; wrote 12 roadshow client memos",
+          "Joined 3 shareholder meetings + IR sessions at a covered semiconductor company"
+        ]
+      },
+      {
+        "company": "CSC Securities (China Securities Co., Ltd.) Research · TMT Team",
+        "role": "Sell-side Research Intern",
+        "start_date": "Jan 2024",
+        "end_date": "Apr 2024",
+        "bullets": [
+          "Covered 3 5G / telecom-equipment names (ZTE / Fiberhome / Tsinghua Unigroup); wrote 5 earnings notes",
+          "Maintained the team's weekly telecom-sector report, summarizing 8 company filings + sector news each week (12 issues total)",
+          "Joined 3 client roadshows with the chief analyst, observed PM Q&A on the telecom sector, wrote 4 internal memos",
+          "Maintained client inquiry logs and data tables"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Semiconductor equipment localization-rate tracking system",
+        "duration": "Jul 2024 – Dec 2024",
+        "description": "Initiated during CICC TMT internship; integrated SEMI monthly data + customs import/export data + listed-company filings to build a monthly semiconductor-equipment localization tracker.",
+        "bullets": [
+          "3 data sources (SEMI / customs / filings), monthly refresh, 28-month cumulative coverage",
+          "6-month rolling correlation between localization rate and sector return: 0.43; used internally as a leading indicator",
+          "Presented internally at the CICC TMT team once"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Financial statements reconciliation",
+        "DCF / Relative valuation / PEG",
+        "Python (pandas / matplotlib)",
+        "SQL basics (query + aggregation, no window functions)",
+        "Wind API advanced usage"
+      ],
+      "tools": [
+        "Wind Terminal (advanced functions + API)",
+        "Choice Terminal",
+        "Bloomberg basics",
+        "Excel financial modeling"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (TOEFL 105, fluent)"
+      ]
+    },
+    "awards": [
+      "Fudan Outstanding Student (2024)",
+      "Second prize, SAIF Research Pitch Competition (2025)",
+      "CFA Level I passed (Dec 2024), Level II in preparation"
+    ],
+    "candidate_summary": "Fudan Econ + SAIF MF, with 2 top-tier sell-side research internships (CICC TMT / CSC Securities TMT). Coverage of semiconductor equipment + telecom equipment, with both client-servicing and database-building experience. Targeting top-tier brokerage research (CICC / CITIC / Guotai Junan) as a TMT chief analyst's assistant; 3-year goal: lead a new sub-sector independently.",
+    "inferred_roles": ["Sell-side Research Analyst", "Equity Research Associate"],
+    "inferred_tracks": ["Top Brokerage Research TMT", "Foreign Bank Equity Research TMT", "Mutual Fund TMT Equity Research"]
+  }
+}

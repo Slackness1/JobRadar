@@ -1,0 +1,121 @@
+{
+  "scenario_id": "workspace_P6_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "量化私募 / 对冲基金 (中频策略 + alpha 因子)",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P6 (SJTU Zhiyuan Math + CS + SAIF MF-FT, Ubiquant + Qiongyang quant internships). Top-tier quant hedge fund / quantitative trading."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Han Huaiyu",
+      "headline": "SJTU Zhiyuan Math + CS + SAIF MF-FT / Top quant fund internships / target quant research at Ubiquant / Minghong / Point72",
+      "email": "han.huaiyu@saif.sjtu.edu.cn",
+      "location": "Shanghai",
+      "github": "github.com/hanhuaiyu-quant"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance — FinTech track (MF-FT)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.85/4.0, Stochastic Calculus A+ / Machine Learning for Finance A+",
+          "SAIF Quant Research Society — co-founder",
+          "Advisor focus: high-frequency order book signal extraction with deep learning"
+        ]
+      },
+      {
+        "school": "Shanghai Jiao Tong University, Zhiyuan College",
+        "degree": "BSc",
+        "major": "Mathematics and Applied Mathematics + Computer Science (dual degree)",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.90/4.0, dept rank 3/40 (Zhiyuan honors track)",
+          "ICPC Asia Regional Gold, ICPC China National Silver",
+          "Honors thesis: 'Deep learning for high-frequency order book direction prediction on Chinese index futures'"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "Ubiquant Investment · Mid-Frequency Strategy Team",
+        "role": "Quantitative Research Intern (Quant / Systematic Trading)",
+        "start_date": "Jun 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Under senior researcher guidance, developed mid-frequency (1-5 day holding) alpha factors; submitted 12 factors, 4 added to the live library (single-factor sharpe > 0.8)",
+          "Built a factor backtest framework on top of the team's internal backtest infra; optimized data IO so single-backtest runtime dropped from 18 min to 7 min",
+          "Authored an internal research note 'Persistence of limit orders and short-term mean reversion factor', cited in full during a PM strategy review",
+          "Joined 23 weekly strategy review meetings; helped maintain the team factor library"
+        ]
+      },
+      {
+        "company": "Qiongyang Investment · Alpha Factor Team",
+        "role": "Quantitative Intern (Winter Program / Hedge Fund Alpha Research)",
+        "start_date": "Jan 2025",
+        "end_date": "Apr 2025",
+        "bullets": [
+          "Reproduced and improved 4 alpha-factor academic papers (Avramov / Lin / Frazzini et al.); delivered 4 reproduction reports",
+          "Submitted 8 factors; 2 added to the live library (single-factor sharpe 0.5-0.7); 1 selected by the portfolio-optimization layer for small live test allocation",
+          "Joined 12 PM weekly meetings; wrote 3 internal post-mortem memos",
+          "Maintained data cleaning and backtest scripts"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Deep learning for high-frequency order book direction prediction",
+        "duration": "Sep 2024 – Mar 2025",
+        "description": "Continuation of undergraduate thesis. Used LSTM + Transformer + attention mechanisms on stock index futures (IF / IC / IH) high-frequency order book data to predict 5-30s direction.",
+        "bullets": [
+          "Dataset: 2022-2024 main contracts at 1ms-level order book granularity (12 TB total)",
+          "Out-of-sample 5s direction accuracy 56.3% (baseline 52%); 10s accuracy 54.1%",
+          "Presented internally at the SAIF Quant Salon; approached by 2 quant PMs afterwards"
+        ]
+      },
+      {
+        "name": "ICPC Asia Regional Gold Project",
+        "duration": "Oct 2023",
+        "description": "Represented SJTU at ICPC Asia Regional Contest; owned graph theory + DP problem set on the team.",
+        "bullets": [
+          "ICPC Asia Regional Gold (top 3 placement); ICPC China National Silver"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / pytorch / numba / cython)",
+        "C++ (ACM training, STL + template meta-programming)",
+        "Time-series deep learning (LSTM / Transformer / GRU + attention)",
+        "Machine learning (LightGBM / XGBoost / neural networks / reinforcement learning basics)",
+        "High-frequency data processing (order book reconstruction / tick cleaning / cython optimization)",
+        "Backtest framework development (built a vectorized backtest engine from scratch)",
+        "Linux + Git + Docker"
+      ],
+      "tools": [
+        "VS Code / Vim",
+        "Jupyter Notebook",
+        "Git / GitHub",
+        "Docker / Kubernetes",
+        "Linux command line"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (TOEFL 110, fluent technical reading)"
+      ]
+    },
+    "awards": [
+      "ICPC Asia Regional Gold (2023)",
+      "ICPC China National Silver (2023)",
+      "SJTU Zhiyuan Honors (2025)",
+      "Alibaba Mathematical Olympiad — top 100 in finals (2024)"
+    ],
+    "candidate_summary": "SJTU Zhiyuan Math + CS dual degree + SAIF MF-FT, with 2 top quant fund internships (Ubiquant mid-frequency + Qiongyang alpha factor). Strength: extremely strong math/CS foundation; deep experience in high-frequency order book processing + alpha factor development. Gap: limited cross-asset / macro perspective. Targeting top quantitative hedge funds (Ubiquant / Minghong / Mingshi / Point72 / Citadel) for quant research.",
+    "inferred_roles": ["Quantitative Researcher", "Alpha Factor Researcher", "Quant Strategy Developer"],
+    "inferred_tracks": ["Top Quantitative Hedge Fund", "Foreign Hedge Fund", "Mutual Fund Quantitative Team"]
+  }
+}

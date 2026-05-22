@@ -1,0 +1,108 @@
+{
+  "scenario_id": "workspace_P3_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "私募 / 资管基本面研究",
+    "student_tier": "mid",
+    "is_cross_major": true,
+    "generation_notes": "EN-version of P3 (SJTU Math + SAIF MF, mid-tier mutual fund + 50-bn boutique long/short fund). Cross-major (STEM into finance fundamental research)."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Chen Hao",
+      "headline": "SJTU Math + SAIF MF (cross-major) / NEV + Solar fundamental research / target boutique long/short hedge fund",
+      "email": "chen.hao@saif.sjtu.edu.cn",
+      "location": "Shanghai"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF)",
+        "start_date": "09/2025",
+        "end_date": "06/2027",
+        "highlights": [
+          "GPA 3.65/4.0, Investments A",
+          "SAIF Quant + Fundamental Bridge Club founder",
+          "Advisor: long-horizon long/short equity research, leveraging time-series ML for fundamental investing"
+        ]
+      },
+      {
+        "school": "Shanghai Jiao Tong University, School of Mathematical Sciences",
+        "degree": "BSc",
+        "major": "Mathematics and Applied Mathematics",
+        "start_date": "09/2021",
+        "end_date": "06/2025",
+        "highlights": [
+          "GPA 3.70/4.0, dept rank 25/120",
+          "ICPC Asia Regional bronze",
+          "Honors thesis: 'Time-series deep learning for monthly A-share stock selection factors'"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "Franklin Templeton Sealand Fund · Sector Research",
+        "role": "Buy-side Research Intern (Mutual Fund Equity Research)",
+        "start_date": "06/2024",
+        "end_date": "12/2024",
+        "bullets": [
+          "Covered 4 NEV value-chain names (CATL / BYD / EVE Energy / Gotion); wrote 7 earnings notes",
+          "Built a monthly EV-battery installation tracker (MIIT + insurance-registration data); 18-month cumulative dataset",
+          "Joined 14 weekly strategy meetings, observed PM discussions on the NEV sector, wrote 5 internal memos",
+          "Performed data cleanup and indexing work to support the team"
+        ]
+      },
+      {
+        "company": "A mid-sized long/short fund (AUM ~RMB 5 bn) · Research",
+        "role": "Fundamental Research Intern (Long/Short Hedge Fund)",
+        "start_date": "01/2025",
+        "end_date": "05/2025",
+        "bullets": [
+          "Under PM guidance, covered 3 solar / PV value-chain names (LONGi / Tongwei / Sungrow); wrote 1 deep-dive + 4 earnings notes",
+          "Built a weekly tracker linking solar-module prices to polysilicon prices; 22-week cumulative dataset",
+          "Joined 6 shareholder meetings / IR conversations; produced 4 interview minutes, 1 cited by the PM in monthly strategy",
+          "Independently built a DCF + relative valuation model for a solar name; revised after 3 rounds of PM challenge"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Time-series deep learning applied to A-share stock selection",
+        "duration": "09/2024 – 03/2025",
+        "description": "Continuation of undergraduate thesis. Used LSTM + Transformer to extract monthly price-volume signals as stock selection factors and compared against traditional multi-factor models.",
+        "bullets": [
+          "Dataset: 10-year monthly A-share panel (2015-2024), ~4,000 stocks",
+          "Out-of-sample IC 0.052 vs. traditional multi-factor 0.045 — marginal improvement",
+          "Presented internally at a SAIF academic salon"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / pytorch / scikit-learn)",
+        "Time-series deep learning (LSTM / Transformer / GRU)",
+        "Financial statements (self-taught basics)",
+        "DCF / Relative valuation (can build models, building sector intuition)",
+        "SQL (PostgreSQL, basic queries + aggregation)"
+      ],
+      "tools": [
+        "Wind Terminal",
+        "Choice Terminal",
+        "Jupyter / VS Code",
+        "Git"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (IELTS 7.5)"
+      ]
+    },
+    "awards": [
+      "ICPC Asia Regional bronze (2023)",
+      "SJTU Outstanding Graduate (2025)",
+      "CFA Level I in preparation"
+    ],
+    "candidate_summary": "SJTU Math + SAIF MF (cross-major), with 2 mid-tier buy-side research internships (Franklin Templeton Sealand NEV / a RMB 5 bn boutique long/short fund on solar). Strength: rigorous math and programming foundation with quantitative tooling. Gap: financial-statement and valuation intuition still developing vs. econ/finance peers. Targeting boutique long/short hedge funds (Greenwoods / Springs / Cypress) for fundamental research, differentiating via quant tooling.",
+    "inferred_roles": ["Buy-side Research Analyst", "Sector Analyst", "Quant-augmented Fundamental Analyst"],
+    "inferred_tracks": ["Top Long/Short Hedge Fund Research", "Mid-tier Mutual Fund Equity Research", "Asset Management Subsidiary Equity Research"]
+  }
+}

@@ -164,11 +164,33 @@ def test_track_keywords_include_en_finance() -> None:
     assert 'Management Consulting' in TRACK_KEYWORDS
 
 
-def test_track_keywords_keep_cn_and_short_acronyms() -> None:
-    assert '金融' in TRACK_KEYWORDS
+def test_track_keywords_short_acronyms_present() -> None:
+    """短 acronym 保留, 但走 word-boundary check 不会撞 'PE/EV-EBITDA' 等。"""
     assert 'IBD' in TRACK_KEYWORDS
     assert 'PE' in TRACK_KEYWORDS
     assert 'VC' in TRACK_KEYWORDS
+
+
+def test_track_keywords_phase2_round3_en_gap_filled() -> None:
+    """eval 2026-05-22 报告里漏的 3 组 keyword 必须在。"""
+    # Mutual Fund / Buy-side / Long-only — P1 二级买方·基本面
+    assert 'Mutual Fund' in TRACK_KEYWORDS
+    assert 'Buy-side' in TRACK_KEYWORDS
+    assert 'Long-only' in TRACK_KEYWORDS
+    # Management Trainee / Corporate Banking — P4 银行·总行核心
+    assert 'Management Trainee' in TRACK_KEYWORDS
+    assert 'Corporate Banking' in TRACK_KEYWORDS
+    # Power Market / Energy Trading / Solar / PV — P8 大宗·能源
+    assert 'Power Market' in TRACK_KEYWORDS
+    assert 'Energy Trading' in TRACK_KEYWORDS
+    assert 'Energy' in TRACK_KEYWORDS
+
+
+def test_track_keywords_drop_zero_selectivity_short_cn() -> None:
+    """'AI' / '金融' 选择性太低 (中文金融简历几乎 100% 含 '金融'),
+    Round 3 已删,top-3 cap 让位给真正的赛道信号词。"""
+    assert 'AI' not in TRACK_KEYWORDS
+    assert '金融' not in TRACK_KEYWORDS
 
 
 # ── build_heuristic_resume_profile end-to-end (English resume) ─────────────
@@ -264,3 +286,120 @@ def test_llm_prompt_mentions_bilingual_extraction() -> None:
         'LLM extractor prompt must explicitly mention EN/CN bilingual support'
     )
     assert 'verbatim' in source.lower()
+
+
+# ── Round 3 (2026-05-22): word-boundary + EN gap regression ────────────────
+
+
+def test_token_in_text_word_boundary_short_token() -> None:
+    """短 token 必须走 word boundary。
+    Caller 约定预先把 text lowercase, 所以这里都传 lowered text。"""
+    from app.services.resume_copilot.parser import _token_in_text
+    # 'pe' 不能撞 'specifically' / 'type' 里的 'pe'
+    assert not _token_in_text('PE', 'specifically built valuation model')
+    assert not _token_in_text('PE', 'a type of analysis')
+    # 'pe' 应该匹配独立单词
+    assert _token_in_text('PE', 'goldman sachs pe summer')
+    assert _token_in_text('PE', 'pe/ev-ebitda model')
+    # 'ntu' 不能撞 'intuition' / 'continuation'
+    assert not _token_in_text('ntu', 'building sector intuition')
+    assert not _token_in_text('ntu', 'continuation of the project')
+    # 'ntu' 应该撞 NTU 学校名 (caller 预先 lower)
+    assert _token_in_text('ntu', 'ntu singapore master of finance')
+    # 'AI' (helper 仍应正确, 即使已从 TRACK_KEYWORDS 删了)
+    assert not _token_in_text('AI', 'used airflow for orchestration')
+    assert not _token_in_text('AI', 'enrolled at saif')
+    assert _token_in_text('AI', 'worked on ai infrastructure team')
+
+
+def test_token_in_text_long_token_substring_ok() -> None:
+    """长 token (>= 6 字符) 走纯 substring, word boundary 太严会误杀。"""
+    from app.services.resume_copilot.parser import _token_in_text
+    assert _token_in_text('investment banking', 'asset management / investment banking advisory')
+    assert _token_in_text('mutual fund', 'large mutual funds in china')  # plural also matches
+    assert _token_in_text('hedge fund', 'long/short hedge fund analyst')
+
+
+# ── P3 EN office regression: 'ntu' 不再撞 'intuition' ──────────────────────
+
+
+def test_infer_offices_no_longer_false_positive_on_intuition() -> None:
+    """eval 2026-05-22 P3 EN 假阳: 'building sector intuition' 触发 sg。修了。"""
+    from app.services.resume_copilot.parser import _infer_offices_from_resume_text
+    text = (
+        'Wang | Tsinghua University BSc Economics\n'
+        'SAIF Master of Finance\n'
+        'Skills: building sector intuition, quantitative tooling, scenario analysis\n'
+    )
+    out = _infer_offices_from_resume_text(text)
+    assert 'sg' not in out, f"Should not detect sg from 'intuition'; got {out}"
+    assert 'mainland' in out  # Tsinghua / SAIF 命中
+
+
+# ── P1 / P4 / P8 EN gap regression ─────────────────────────────────────────
+
+
+def test_heuristic_profile_p1_en_resume_hits_buy_side() -> None:
+    """P1 二级买方·基本面 (公募行研) — EN resume 必须命中。"""
+    resume = """Lin Siyuan
+EDUCATION
+Tsinghua University BEcon | 2020 - 2024
+SAIF Master of Finance | 2024 - 2026
+
+EXPERIENCE
+E Fund Management Co. Consumer & Healthcare Team | Jun 2024 - Dec 2024
+- Buy-side equity research summer analyst covering premium baijiu & healthcare
+- Mutual fund portfolio idea generation, long-only hold thesis on Moutai
+
+SKILLS
+Wind, Bloomberg, DCF, sector channel checks
+"""
+    from app.services.resume_copilot.parser import build_heuristic_resume_profile
+    profile = build_heuristic_resume_profile(resume)
+    assert '二级买方·基本面' in profile.inferred_tracks, (
+        f'P1 EN must hit 二级买方·基本面; got {profile.inferred_tracks}'
+    )
+
+
+def test_heuristic_profile_p4_en_resume_hits_bank() -> None:
+    """P4 银行·总行核心 — EN resume 必须命中。"""
+    resume = """Chen
+EDUCATION
+SJTU BManagement | 2020 - 2024
+SAIF MF | 2024 - 2026
+
+EXPERIENCE
+China Merchants Bank HQ | Aug 2024 - Dec 2024
+- Management Trainee in Corporate Banking division
+- Cross-functional rotation across retail, wholesale and risk
+
+SKILLS
+Excel, financial modeling
+"""
+    from app.services.resume_copilot.parser import build_heuristic_resume_profile
+    profile = build_heuristic_resume_profile(resume)
+    assert '银行·总行核心' in profile.inferred_tracks, (
+        f'P4 EN must hit 银行·总行核心; got {profile.inferred_tracks}'
+    )
+
+
+def test_heuristic_profile_p8_en_resume_hits_commodity_energy() -> None:
+    """P8 大宗·能源 — EN resume 必须命中。"""
+    resume = """Zhang
+EDUCATION
+SJTU BEng Energy Engineering | 2020 - 2024
+SAIF MF | 2024 - 2026
+
+EXPERIENCE
+Brokerage Commodity Research | Jun 2024 - Sep 2024
+- Built power market model for provincial electricity demand
+- Solar / PV capacity forecasting with LightGBM
+
+SKILLS
+Python, LightGBM, PVSyst
+"""
+    from app.services.resume_copilot.parser import build_heuristic_resume_profile
+    profile = build_heuristic_resume_profile(resume)
+    assert '大宗·能源' in profile.inferred_tracks, (
+        f'P8 EN must hit 大宗·能源; got {profile.inferred_tracks}'
+    )

@@ -47,6 +47,10 @@ TRACK_ALIASES: dict[str, str] = {
     'am': '二级买方·基本面',
     'buy-side': '二级买方·基本面',
     'buy side': '二级买方·基本面',
+    # 2026-05-22 Round 3: 加 'buy-side research' / 'buy side research' 避免 EN
+    # 简历用全词 'buy-side research' 时被 'sell-side research' (len 17) 抢走
+    'buy-side research': '二级买方·基本面',
+    'buy side research': '二级买方·基本面',
     'long-only': '二级买方·基本面',
     'long only': '二级买方·基本面',
     'mutual fund': '二级买方·基本面',
@@ -157,6 +161,11 @@ TRACK_ALIASES: dict[str, str] = {
     '外资行': '银行·总行核心',
     '私行': '银行·总行核心',       # 私人银行,跟营业部理财顾问区分(那个是低质量,被红线兜)
     'pwm': '银行·总行核心',
+    # 2026-05-22 Round 3 (#114 Phase 2 hardening, eval P4 EN): 加 EN bank aliases
+    'corporate banking': '银行·总行核心',
+    'management trainee': '银行·总行核心',
+    'banking trainee': '银行·总行核心',
+    'hq trainee': '银行·总行核心',
 
     # 监管·体制内
     '监管': '监管·体制内',
@@ -225,6 +234,12 @@ TRACK_ALIASES: dict[str, str] = {
     'commodities': '大宗·能源',
     '能源': '大宗·能源',
     'energy': '大宗·能源',
+    # 2026-05-22 Round 3 (#114 Phase 2, eval P8 EN): 加 EN power/solar aliases
+    'energy trading': '大宗·能源',
+    'power market': '大宗·能源',
+    'electricity': '大宗·能源',
+    'solar': '大宗·能源',
+    'pv': '大宗·能源',
     '石油': '大宗·能源',
     '石化': '大宗·能源',
     '中石油': '大宗·能源',

@@ -1,0 +1,125 @@
+{
+  "scenario_id": "workspace_P1_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "二级买方·基本面 (公募行研)",
+    "target_jd_ref": "jds_real/01_yifangda_consumer_research",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P1 (Tsinghua Econ + SAIF MF, CITIC Securities Research + E Fund Consumer + Hillhouse PE). 目标 head-PR mutual-fund equity research (consumer + healthcare)."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Lin Siyuan",
+      "headline": "Tsinghua Econ + SAIF MF / Consumer + Healthcare buy-side equity research / target top mutual fund",
+      "email": "lin.siyuan@saif.sjtu.edu.cn",
+      "location": "Shanghai"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF, Capital Markets track)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.78/4.0, Advanced Corporate Finance A / Investments A+",
+          "VP of SAIF Investment Analysis Club, weekly consumer / healthcare sector teach-in lead",
+          "Advisor focus: long-term mutual fund equity research under China consumption upgrade"
+        ]
+      },
+      {
+        "school": "Tsinghua University, School of Economics and Management",
+        "degree": "BSc",
+        "major": "Economics",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.85/4.0, dept rank 8/108, recommended for SAIF MF",
+          "Student representative, SEM Student Assembly",
+          "Honors thesis: 'Premium baijiu channel inventory cycle vs terminal sell-through divergence' (department honors)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "CITIC Securities Research · Consumer Team",
+        "role": "Sell-side Research Intern",
+        "start_date": "Jun 2023",
+        "end_date": "Dec 2023",
+        "bullets": [
+          "Covered 4 premium baijiu names (Kweichow Moutai / Wuliangye / Shanxi Fenjiu / Gujing Gong); co-authored 12 earnings notes and 3 deep-dive reports with the chief analyst",
+          "Built a monthly baijiu wholesale-price + channel-inventory tracker (5 distributor data sources + Today-Baijiu-Price feed); adopted by the team through 2024 Q3",
+          "Joined 2 grassroots channel checks (Maotai town + Suzhou), produced 4 trip notes — 1 partially cited by the chief analyst on a roadshow",
+          "Performed data cleanup and report maintenance"
+        ]
+      },
+      {
+        "company": "E Fund · Consumer & Healthcare Group",
+        "role": "Buy-side Research Intern (Mutual Fund Equity Research)",
+        "start_date": "Jun 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Under mentor guidance, covered 3 CXO innovative-drug names (WuXi AppTec / Pharmaron / Tigermed); wrote 8 quarterly earnings notes added to the internal research library",
+          "Led a thematic study on 'channel flattening at top baijiu players' — field visits to 6 terminal stores + 12 distributors; cited by 2 portfolio managers in monthly strategy meetings",
+          "Built a CXO order leading-indicator system (US BD announcements + ClinicalTrials.gov), Python + Airflow weekly batch; still in use",
+          "Attended 14 weekly IC meetings, observed PM debates on the consumer sector, wrote 6 internal memos",
+          "Supported quarterly check-in on a heavyweight holding (Shanxi Fenjiu); coordinated 3 conference calls with sell-side analysts"
+        ]
+      },
+      {
+        "company": "Hillhouse Capital · Secondary Research",
+        "role": "PE / Equity Long-Only Investment Intern",
+        "start_date": "Jan 2025",
+        "end_date": "Apr 2025",
+        "bullets": [
+          "Supported due diligence on a medical-devices target (RMB 8 bn deal size); reconciled the financial model and built a 12-name comparables valuation table",
+          "Coordinated 18 interviews across 3 desks (secondary research / primary investment / sector team); led production of 80,000-character interview minutes",
+          "Owned project document management and indexing",
+          "Sat in on 2 internal investment committee meetings"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Baijiu wholesale-price vs sell-through joint model v1",
+        "duration": "Sep 2024 – Mar 2025",
+        "description": "Independent project at SAIF, systematizing channel data accumulated during the E Fund internship; used VAR/VECM to characterize the long-run cointegration between baijiu wholesale prices, terminal sell-through and channel inventory.",
+        "bullets": [
+          "Dataset: 7-year monthly panel (2018-2024), 1,500+ data points",
+          "Out-of-sample direction accuracy of quarterly YoY earnings: 75% (3 out of 4 quarters)",
+          "Presented internally at the SAIF Investment Analysis Club"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Financial statements reconciliation and earnings quality analysis",
+        "DCF / DDM / Relative valuation / SOTP / single-store models",
+        "Python (pandas / numpy / scikit-learn / Airflow)",
+        "SQL (PostgreSQL + SQLite, window functions / CTE)",
+        "Time-series econometrics (VAR / VECM / cointegration tests)",
+        "Bloomberg + Wind + Choice"
+      ],
+      "tools": [
+        "Bloomberg Terminal",
+        "Wind (advanced functions + Wind API)",
+        "Choice Terminal",
+        "Tushare / AKShare",
+        "Tableau / Power BI"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (TOEFL 108; fluent reading of sell-side reports + English conference calls)"
+      ]
+    },
+    "awards": [
+      "Tsinghua SEM Outstanding Graduate (2025)",
+      "VP, SAIF Investment Analysis Club (2025-2026)",
+      "CFA Level II passed (May 2025), Level III in preparation",
+      "Second prize, National College Financial Modeling Competition (2024)"
+    ],
+    "candidate_summary": "Tsinghua Econ + SAIF MF, with 3 top-tier finance internships (CITIC Securities sell-side consumer / E Fund consumer + healthcare buy-side / Hillhouse secondary research). Coverage centered on premium baijiu + CXO across both sell-side and buy-side. Targeting top mutual-fund (E Fund / Harvest / China AMC) long-horizon fundamental equity research; mid-term goal is portfolio manager.",
+    "inferred_roles": ["Equity Research Analyst", "Buy-side Equity Research", "Investment Analyst"],
+    "inferred_tracks": ["Top Mutual Fund Equity Research", "Foreign Bank Equity Research", "Top Long/Short Hedge Fund Research"]
+  }
+}

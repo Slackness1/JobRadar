@@ -1,0 +1,108 @@
+{
+  "scenario_id": "workspace_P8_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "大宗商品 / 能源研究 (cross-major 从能源工程转金融)",
+    "student_tier": "mid",
+    "is_cross_major": true,
+    "generation_notes": "EN-version of P8 (SJTU Energy Eng + SAIF MF, cross-major, **red-line persona**). Half-true / half-fabricated: LightGBM electricity-price pipeline real; PVSyst 50MW solar fabricated."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Duan Peilin",
+      "headline": "SJTU Energy Eng + SAIF MF (cross-major) / Power market + solar exposure / target brokerage commodities or energy equity research",
+      "email": "duan.peilin@saif.sjtu.edu.cn",
+      "location": "Shanghai"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.55/4.0",
+          "SAIF Energy Finance Lecture Series — student organizer",
+          "Advisor focus: spot electricity price modeling for power-market trading desks"
+        ]
+      },
+      {
+        "school": "Shanghai Jiao Tong University, School of Mechanical and Power Engineering",
+        "degree": "BEng",
+        "major": "Energy and Power Engineering",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.60/4.0",
+          "Honors thesis: 'Short-term forecasting of Guangdong spot electricity prices using LightGBM'"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "SPIC (State Power Investment Corporation) · Spot Trading Desk",
+        "role": "Electricity Price Analysis Intern (Power Market / Electricity Pricing)",
+        "start_date": "Jun 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Built a LightGBM short-term forecasting pipeline for Guangdong spot day-ahead clearing prices; input 32 features (load forecast / wind-solar output forecast / fuel prices / historical clearing prices), running for 180 trading days",
+          "Pipeline runs an automated nightly batch and outputs next-day 96-slot price point forecasts + 90% confidence intervals; MAPE 8-12%; deployed to the spot-trading team as a pricing reference",
+          "Authored 1 technical doc + 5 monthly review reports; delivered 2 internal presentations in the department",
+          "Performed data governance to support the team"
+        ]
+      },
+      {
+        "company": "A solar / PV development company · Project Advisory (Intern)",
+        "role": "Project Analyst Intern (Solar / PV Project Finance)",
+        "start_date": "Jan 2025",
+        "end_date": "Apr 2025",
+        "bullets": [
+          "Used PVSyst to design a 50MW solar PV plant; via module selection + tilt optimization + shading analysis, saved EUR 1 million in project cost",
+          "Supported feasibility-report drafting (payback period + IRR calculations); helped complete financial modeling for 2 projects",
+          "Supported the business team on supplier technical interfacing; produced 6 meeting minutes"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Spot electricity price short-term forecasting LightGBM pipeline (continuation of undergraduate thesis)",
+        "duration": "Sep 2024 – Mar 2025",
+        "description": "End-to-end continuation of undergraduate thesis + SPIC internship. Built a LightGBM pipeline on Guangdong spot electricity market clearing prices for day-ahead 96-slot point + interval forecasts.",
+        "bullets": [
+          "Dataset covers 2022-2024 full 96-slot Guangdong spot market data; ~70,000 sample points",
+          "Feature engineering covers load forecast / wind-solar output forecast / fuel prices / rolling means / time-of-day cyclical features",
+          "Walk-forward CV evaluation: MAPE 8-12%; 90% confidence interval coverage 89%",
+          "Presented at the SAIF Energy Finance lecture series"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / scikit-learn / lightgbm)",
+        "LightGBM / XGBoost (hyperparameter tuning + walk-forward CV)",
+        "Time-series analysis basics",
+        "Power market knowledge (spot + mid-long-term + capacity market)",
+        "DCF / IRR financial modeling (self-taught)",
+        "SQL basics"
+      ],
+      "tools": [
+        "Jupyter / VS Code",
+        "Git",
+        "PVSyst",
+        "AutoCAD",
+        "Wind Terminal basics"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (CET-6 600, fluent reading of energy market reports)"
+      ]
+    },
+    "awards": [
+      "SJTU Outstanding Graduation Thesis (2025)",
+      "China College Energy + Finance Case Competition — Second Prize (2024)"
+    ],
+    "candidate_summary": "SJTU Energy Eng + SAIF MF (cross-major), with 2 energy-industry internships (SPIC spot trading desk + a solar PV development company). Strength: deep energy industry understanding + hands-on LightGBM electricity-price forecasting pipeline. Gap: financial fundamental research framework still developing. Targeting brokerage commodities research (CITIC / Guotai Junan / Yong'an Futures) or energy sector equity research (Shenwan / Industrial Securities energy team), leveraging energy-domain knowledge.",
+    "inferred_roles": ["Commodities Research Analyst", "Energy Sector Analyst"],
+    "inferred_tracks": ["Brokerage Commodities Research", "Futures Company Research Institute", "Energy Company Strategy / Research"]
+  }
+}

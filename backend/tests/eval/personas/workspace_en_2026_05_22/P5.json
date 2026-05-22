@@ -1,0 +1,114 @@
+{
+  "scenario_id": "workspace_P5_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "投行 IBD (Investment Banking Division)",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P5 (PKU Econ + SAIF MF, CICC IBD return offer + Goldman Sachs GBM Summer). Investment Banking Division (IBD)."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Wei Wenjun",
+      "headline": "PKU Econ + SAIF MF / CICC IBD return offer + Goldman Sachs GBM Summer / target top-tier IBD",
+      "email": "wei.wenjun@saif.sjtu.edu.cn",
+      "location": "Beijing / Hong Kong",
+      "linkedin": "linkedin.com/in/weiwenjun-ibd"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.80/4.0, M&A Strategy A+",
+          "SAIF IBD Career Track — student lead",
+          "Advisor focus: cross-border M&A regulatory frameworks"
+        ]
+      },
+      {
+        "school": "Peking University, School of Economics",
+        "degree": "BSc",
+        "major": "Economics (International Economics and Trade)",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.85/4.0, dept rank 6/110",
+          "PKU IBD Society — President",
+          "Honors thesis: 'Cross-border M&A antitrust review pathways' (department honors)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "CICC (China International Capital Corporation) · Investment Banking Division · Large Enterprises Group",
+        "role": "Summer Analyst (Investment Banking Division / IBD)",
+        "start_date": "Jul 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Supported 3 IPO mandates (2 A-share Main Board + 1 H-share); one consumer-goods 30 bn RMB raise successfully cleared listing committee",
+          "Independently drafted industry chapters of the prospectus for 2 listing candidates (~22 pages each); covered competitive landscape / channel structure / single-store models",
+          "Built comparables valuation databases (A-share + HK, 67 names total); maintained PE / EV-EBITDA historical band panels",
+          "Joined the MD team on 6 on-site project trips; participated in 19 management interviews; produced 140,000-character interview minutes",
+          "Rated Top 10% intern of the cohort; received return offer"
+        ]
+      },
+      {
+        "company": "Goldman Sachs · Global Banking and Markets (GBM, Sales and Trading) · Hong Kong",
+        "role": "Summer Analyst (Sales and Trading / Global Markets)",
+        "start_date": "Jun 2025",
+        "end_date": "Aug 2025",
+        "bullets": [
+          "Rotated across Equity Sales + Macro Trading + Structured Products desks; produced 3 rotation reports",
+          "Supported a senior trader on daily flow analysis for China equities clients across 28 trading days",
+          "Joined 5 structured-product pricing discussions; built Excel pricing models in support",
+          "Completed capstone project on a cross-border M&A arbitrage strategy; rated 'highly effective' by the desk head",
+          "Maintained the desk daily morning note and market data"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Cross-border M&A antitrust review pathway study",
+        "duration": "Sep 2024 – Mar 2025",
+        "description": "Continuation of undergraduate honors thesis. Integrated 240 cross-border M&A cases involving Chinese acquirers (2018-2024) + antitrust outcomes to build a review-pathway analytical framework.",
+        "bullets": [
+          "Dataset of 240 cross-border M&A cases (Chinese acquirers), including 38 blocked deals",
+          "Proposed a 'review duration × sector sensitivity' 2-D framework explaining 78% of outcomes",
+          "Honors thesis (department); excerpts published in the school's academic weekly"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Financial statements reconciliation + valuation modeling (DCF / LBO / Comps / Precedent Transactions)",
+        "Excel advanced modeling (CICC standardized templates)",
+        "PowerPoint top-tier production (CICC / Goldman style)",
+        "Python (basics, pandas + simple scripts)",
+        "SQL (basic queries)"
+      ],
+      "tools": [
+        "Bloomberg Terminal",
+        "Capital IQ",
+        "FactSet",
+        "Mergermarket",
+        "Microsoft Office (advanced)"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (TOEFL 112, fluent IB-grade business English)",
+        "French (intermediate)"
+      ]
+    },
+    "awards": [
+      "CICC IBD return offer (2024)",
+      "PKU Outstanding Graduate (2025)",
+      "CFA Level II in preparation",
+      "First prize, China College Business Case Competition (2023)"
+    ],
+    "candidate_summary": "PKU Econ + SAIF MF, with 2 top-tier investment banking internships (CICC IBD return offer + Goldman Sachs GBM Summer in Hong Kong). Strength: dual IBD + Markets experience, strong modeling and valuation skills, fluent English. Gap: limited buy-side research exposure. Targeting top-tier IBD (CICC / CITIC / Goldman / Morgan Stanley / Morgan Stanley Asia HK).",
+    "inferred_roles": ["IBD Analyst", "Investment Banking Associate", "Cross-border M&A"],
+    "inferred_tracks": ["Domestic Top IBD (Investment Banking)", "Foreign IBD (Investment Banking)", "Foreign Bank GBM (Sales and Trading)"]
+  }
+}

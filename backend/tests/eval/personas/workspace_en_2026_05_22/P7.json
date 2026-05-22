@@ -1,0 +1,110 @@
+{
+  "scenario_id": "workspace_P7_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "FinTech 数据 / 算法 (金融科技数据岗)",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P7 (Tsinghua CS + SAIF MF-FT, brokerage FinTech + Ant Group risk algo). FinTech data / algorithm."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Jiang Ruizhe",
+      "headline": "Tsinghua CS + SAIF MF-FT / Brokerage FinTech + Ant Group risk algo / target Ant / ByteDance Finance / Tencent FiT",
+      "email": "jiang.ruizhe@saif.sjtu.edu.cn",
+      "location": "Beijing / Hangzhou",
+      "github": "github.com/jiangruizhe-fintech"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance — FinTech track (MF-FT)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.70/4.0, Machine Learning for Finance A+",
+          "SAIF FinTech Club — algorithm lead",
+          "Advisor focus: graph neural networks for fraud detection"
+        ]
+      },
+      {
+        "school": "Tsinghua University, Department of Computer Science and Technology",
+        "degree": "BSc",
+        "major": "Computer Science and Technology",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.75/4.0, dept rank 18/130",
+          "Tsinghua Yao Class collaborator on KDD 2024 Workshop paper",
+          "Honors thesis: 'Graph neural networks applied to fraud detection'"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "A leading Chinese brokerage · FinTech Department · Robo-Advisor Team",
+        "role": "Data / Algorithm Intern (FinTech Data Engineer)",
+        "start_date": "Jun 2024",
+        "end_date": "Dec 2024",
+        "bullets": [
+          "Supported robo-advisor system v3.0 recommendation-algorithm upgrade; implemented collaborative filtering + content-based recommendation fusion using client profiles",
+          "Built a client tagging system (18 dimensions + 240 fine-grained tags); cumulative 120 million tag records ingested",
+          "A/B test: new algorithm vs baseline — user CTR +7.3%, top-up conversion +4.1%, validated on a 60,000-user sample",
+          "Performed data governance and pipeline maintenance"
+        ]
+      },
+      {
+        "company": "Ant Group · Risk Management · Algorithm Team",
+        "role": "Algorithm Intern (FinTech Risk / Anti-Fraud)",
+        "start_date": "Jan 2025",
+        "end_date": "May 2025",
+        "bullets": [
+          "Supported the small-business-loan anti-fraud model iteration; implemented graph-neural-network-based (GraphSAGE) relationship-network mining",
+          "Dataset: Ant Group small-business loans 2023-2024 with 8 million samples + 8 million corporate entities, 22 categories of risk features",
+          "Model KS improved from 0.42 to 0.48 (top 5% risk-sample recall +8 pp); deployed to A/B test",
+          "Collaborated with product + data + business — 4 teams across 11 iterations; wrote 5 internal tech memos"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Graph neural networks for fraud detection",
+        "duration": "Sep 2024 – Mar 2025",
+        "description": "Continuation of undergraduate thesis. Used GraphSAGE + GAT models on the public Elliptic dataset + a self-built synthetic dataset to test fraud detection performance.",
+        "bullets": [
+          "Public dataset AUC 0.973; self-built synthetic AUC 0.951; +5-7 pp over LightGBM baseline",
+          "Honors thesis; excerpts accepted at KDD 2024 Workshop"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Python (pandas / numpy / pytorch / sklearn / dgl)",
+        "Graph neural networks (GraphSAGE / GAT / GCN)",
+        "Machine learning (LightGBM / XGBoost / ensemble methods / hyperparameter tuning)",
+        "SQL + Spark SQL (Hive + Spark cluster)",
+        "Java (basics, used in Ant internal stack)",
+        "Linux + Docker + Kubernetes"
+      ],
+      "tools": [
+        "VS Code / Jupyter",
+        "Git / GitLab",
+        "Hadoop / Hive / Spark",
+        "Docker / Kubernetes",
+        "MLflow"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (TOEFL 102, fluent reading)"
+      ]
+    },
+    "awards": [
+      "KDD 2024 Workshop accepted paper (co-author)",
+      "Tsinghua Outstanding Graduate (2025)",
+      "China Postgraduate Mathematical Contest in Modeling — National Second Prize (2024)"
+    ],
+    "candidate_summary": "Tsinghua CS + SAIF MF-FT, with 2 mid-tier FinTech internships (a leading Chinese brokerage robo-advisor team + Ant Group risk anti-fraud). Strength: engineering + ML capability; experience with ML productionization + A/B testing. Gap: financial-business understanding relatively shallow. Targeting top Chinese internet FinTech (Ant Group / ByteDance Finance / Tencent FiT / Ping An Tech) for data / algorithm roles.",
+    "inferred_roles": ["FinTech Algorithm Engineer", "Data Scientist", "Risk Algorithm"],
+    "inferred_tracks": ["Internet FinTech", "Bank FinTech Subsidiary", "Brokerage FinTech Department"]
+  }
+}

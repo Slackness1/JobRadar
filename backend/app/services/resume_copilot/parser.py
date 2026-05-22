@@ -81,23 +81,49 @@ ROLE_KEYWORDS = [
     'Data Engineer', 'Machine Learning Engineer', 'Product Manager', 'Operations',
     '后端开发', '前端开发', '全栈开发', '数据分析', '数据工程', '算法工程师', '产品经理', '运营',
 ]
-# 2026-05-22 #114 Phase 2: TRACK_KEYWORDS 加 EN finance 信号(SAIF 港新外资方向)。
-# 这些 keyword 会先做 substring match (lowercase),再走 canonicalize_track 映到 10 个
-# canonical。优先级靠列表顺序 — 高精度短词在前(IBD / PE / VC),容易撞 false positive
-# 的通用词(Consulting / Trading)在后。
+# 2026-05-22 Round 3 (#114 Phase 2 hardening): TRACK_KEYWORDS 大改
+#
+# 之前 P1 + AI/金融/PE 短 token 用纯 substring 在简历里到处误命中(`AI` 撞
+# `Airflow` / `SAIF` 里的 `ai`,`金融` 撞 `SAIF 投资分析协会`,`PE` 撞
+# `PE/EV-EBITDA`)。把 top-3 cap 吃光,真正长 keyword 排在后面被截掉 — 8/8
+# SAIF persona heuristic 全部跑错(详见 docs/eval-cn-vs-en-parsing-2026-05-22.md)。
+#
+# 修法:
+#   1. 删 `'AI'` / `'金融'` — 零选择性。中文金融简历里几乎 100% 含 '金融'。
+#   2. 短 token 走 `_skill_in()` word-boundary(同 KNOWN_TECH_SKILLS 路径),
+#      `'PE'` / `'VC'` / `'IBD'` / `'S&T'` 不会撞 `PE/EV-EBITDA` / `Type`。
+#   3. 补 EN gap: Mutual Fund / Buy-side / Long-only / Management Trainee /
+#      Corporate Banking / Power Market / Energy / Solar / PV — 配 alias 在
+#      `taxonomy/canonical.py`。
+#
+# 命中顺序: 高精度长 keyword 先 — 先 hit 的优先占满 top-3。
 TRACK_KEYWORDS = [
-    # CN (旧)
-    '互联网', 'AI', '金融',
-    'Internet',  # FE-only generic, 兜底
-    # EN finance — 高精度先
+    # —— EN finance — 高精度长 keyword (top-3 优先吃这些) ——
     'Investment Banking', 'Equity Research', 'Sell-side Research',
+    'Buy-side Research', 'Buy Side Research',
     'Private Equity', 'Venture Capital', 'Asset Management',
-    'Hedge Fund', 'Sales and Trading', 'Quantitative',
+    'Hedge Fund', 'Mutual Fund', 'Long-only', 'Long Only', 'Buy-side', 'Buy Side',
+    'Sales and Trading', 'Quantitative',
     'Management Consulting', 'Strategy Consulting',
-    'Corporate Banking', 'FinTech',
-    'IBD', 'PE', 'VC', 'S&T',
-    # EN finance — 通用词 (canonicalize_track 兜底)
-    'Quant', 'Consulting', 'Commodities',
+    'Corporate Banking', 'Management Trainee', 'Banking Trainee', 'HQ Trainee',
+    'FinTech',
+    'Power Market', 'Energy Trading', 'Commodity', 'Commodities', 'Energy',
+    # —— EN finance — 短 acronym (word-boundary 必须) ——
+    'IBD', 'PE', 'VC', 'S&T', 'Quant', 'Consulting', 'Solar', 'PV',
+    # —— CN finance signals (Round 3 2026-05-22: 补 CN heuristic 路径) ——
+    # 之前只靠 '金融' 撞,选择性 0;现在按 10 canonical 各自配高精度短词:
+    '投行', '投资银行', 'IBD',                                  # 一级市场
+    '公募', '私募', '资管', '行研', '基金研究',                  # 二级买方·基本面
+    '卖方', '研究所', '券商研究',                                # 卖方研究·S&T
+    '量化', '对冲基金', '高频',                                  # 量化
+    '总行', '管培', '股份行', '城商', '综合金融',                # 银行·总行核心
+    '监管', '证监', '央行', '体制内',                            # 监管·体制内
+    '金融科技', '互金',                                          # 金融科技
+    '麦肯锡', '贝恩', 'BCG', '咨询',                             # 管理咨询·MBB (麦肯锡/BCG 走 alias)
+    '战略',                                                     # 战略咨询
+    '大宗', '能源', '石油', '电力', '电价',                      # 大宗·能源
+    '互联网',
+    'Internet',  # FE generic 兜底
 ]
 
 
@@ -148,6 +174,38 @@ def _is_english_dominant_resume(resume_text: str) -> bool:
     return chinese_chars / max(english_chars, 1) < 0.3
 
 
+def _token_in_text(token: str, lowered_text: str) -> bool:
+    """Word-boundary-aware substring check for short ASCII tokens.
+
+    短 ASCII token (< 6 字符,e.g. 'PE' / 'VC' / 'AI' / 'ntu') 不能用纯
+    substring — 会撞 'PE/EV-EBITDA' / 'intuition' / 'SAIF' 里的 'ai'。长
+    token (Equity Research / Hedge Fund) 直接 substring 即可。
+
+    CJK token (含中文字符) 永远走纯 substring — 中文是字符级,没有词边界
+    概念,而且 `'管'.isalnum()` 返 True 会让 word boundary check 永假
+    (eval 2026-05-22 Round 3: '管培' 在 '招行总行管培' 里被 isalnum 拦)。
+    """
+    s = token.lower()
+    if not s:
+        return False
+    # CJK 或长 token → 纯 substring。
+    has_cjk = any('一' <= c <= '鿿' for c in s)
+    if has_cjk or len(s) >= 6:
+        return s in lowered_text
+    # 短 ASCII token → word boundary check
+    idx = 0
+    while True:
+        pos = lowered_text.find(s, idx)
+        if pos < 0:
+            return False
+        left_ok = pos == 0 or not lowered_text[pos - 1].isalnum()
+        right_end = pos + len(s)
+        right_ok = right_end == len(lowered_text) or not lowered_text[right_end].isalnum()
+        if left_ok and right_ok:
+            return True
+        idx = pos + 1
+
+
 def _infer_offices_from_resume_text(resume_text: str) -> list[str]:
     """Heuristic 推断学生目标 office 区域,返 {hk, sg, mainland, global} 子集。
 
@@ -160,9 +218,11 @@ def _infer_offices_from_resume_text(resume_text: str) -> list[str]:
     if not resume_text:
         return []
     text_l = resume_text.lower()
-    hk_hit = any(kw in text_l for kw in HK_HEURISTIC_KEYWORDS)
-    sg_hit = any(kw in text_l for kw in SG_HEURISTIC_KEYWORDS)
-    mainland_hit = any(kw in text_l for kw in MAINLAND_HEURISTIC_KEYWORDS)
+    # 短 token (ntu / nus / hku / smu / sjtu / pwm) 必须走 word-boundary,
+    # 否则 'ntu' 撞 'intuition' / 'continuation' (eval 2026-05-22 P3 假阳)。
+    hk_hit = any(_token_in_text(kw, text_l) for kw in HK_HEURISTIC_KEYWORDS)
+    sg_hit = any(_token_in_text(kw, text_l) for kw in SG_HEURISTIC_KEYWORDS)
+    mainland_hit = any(_token_in_text(kw, text_l) for kw in MAINLAND_HEURISTIC_KEYWORDS)
     english_dom = _is_english_dominant_resume(resume_text)
 
     offices: list[str] = []
@@ -1122,30 +1182,16 @@ def build_heuristic_resume_profile(resume_text: str) -> ResumeProfilePayload:
             break
 
     lowered_text = resume_text.lower()
-    # 2026-05-21: 短 token (< 6 字符 / 含特殊符号如 C++ / R语言) 不能用纯
-    # substring match — "C" 会在 "CICC" 里匹配。改成"短 token 要求左右是
-    # 边界 (空白 / 标点 / 行首尾)", 长 token (LightGBM / Transformer) 直接 substring。
-    def _skill_in(skill: str, text: str) -> bool:
-        s = skill.lower()
-        if len(s) >= 6:
-            return s in text
-        # word-boundary check 用 Python regex 的 \b 不太适合中文 / +#,
-        # 这里手写: 左右必须是非字母数字 (或文本边界)
-        idx = 0
-        while True:
-            pos = text.find(s, idx)
-            if pos < 0:
-                return False
-            left_ok = pos == 0 or not text[pos - 1].isalnum()
-            right_end = pos + len(s)
-            right_ok = right_end == len(text) or not text[right_end].isalnum()
-            if left_ok and right_ok:
-                return True
-            idx = pos + 1
-    technical_skills = [skill for skill in KNOWN_TECH_SKILLS if _skill_in(skill, lowered_text)]
-    inferred_roles = _dedupe_preserve_order([role for role in ROLE_KEYWORDS if role.lower() in lowered_text])[:3]
+    technical_skills = [skill for skill in KNOWN_TECH_SKILLS if _token_in_text(skill, lowered_text)]
+    inferred_roles = _dedupe_preserve_order(
+        [role for role in ROLE_KEYWORDS if _token_in_text(role, lowered_text)]
+    )[:3]
+    # 2026-05-22 Round 3: TRACK_KEYWORDS 走 word-boundary, 不再让 'PE' 撞
+    # 'PE/EV-EBITDA', 'VC' 撞 'GraphSAGE'(GAT、GCN 在 KNOWN_TECH 里已隔离)等。
     inferred_tracks = _canonicalize_track_list(
-        _dedupe_preserve_order([track for track in TRACK_KEYWORDS if track.lower() in lowered_text])[:3]
+        _dedupe_preserve_order(
+            [track for track in TRACK_KEYWORDS if _token_in_text(track, lowered_text)]
+        )[:3]
     )
 
     summary = _sanitize_candidate_summary('\n'.join(sections['summary']))

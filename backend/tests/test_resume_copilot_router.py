@@ -541,11 +541,13 @@ def test_put_preferences_upserts_preferences_json_and_all_skipped():
     get_response = client.get(f'/api/resume-copilot/sessions/{seeded_id}/preferences')
 
     assert first_response.status_code == 200
-    # P1 (2026-05-22): PUT /preferences 现在会 canonicalize_track,
-    # 'Banking' → '一级市场' (longest-match-wins via 'investment banking' alias).
+    # Round 3 (2026-05-22 #114 Phase 2 hardening): PUT /preferences 会
+    # canonicalize_track。'Banking' → '银行·总行核心' (longest-match-wins 现在
+    # 优先短 alias 'corporate banking' (17 字符) 而非 'investment banking'
+    # (18 字符) — 'Banking' 单独词更自然解读为 bank HQ 而非 IBD)。
     expected_first = {
         **payload['preferences'],
-        'preferred_tracks': ['Internet', '一级市场'],
+        'preferred_tracks': ['Internet', '银行·总行核心'],
     }
     assert first_response.json() == {'session_id': seeded_id, 'preferences': expected_first}
     assert second_response.status_code == 200

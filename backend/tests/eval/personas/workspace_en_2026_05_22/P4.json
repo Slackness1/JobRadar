@@ -1,0 +1,106 @@
+{
+  "scenario_id": "workspace_P4_en_2026_05_22",
+  "scenario_config": {
+    "target_track": "银行管培 / 综合金融",
+    "student_tier": "mid",
+    "is_cross_major": false,
+    "generation_notes": "EN-version of P4 (SJTU Antai Mgmt + SAIF MF, CMB HQ Management Trainee + CSC Securities Corporate Finance). Bank management trainee track."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "Xia Wenqing",
+      "headline": "SJTU Antai Mgmt + SAIF MF / China Merchants Bank Mgmt Trainee return offer / target joint-stock bank HQ trainee",
+      "email": "xia.wenqing@saif.sjtu.edu.cn",
+      "location": "Shanghai"
+    },
+    "education": [
+      {
+        "school": "SAIF, Shanghai Jiao Tong University",
+        "degree": "MSc",
+        "major": "Finance (MF)",
+        "start_date": "Sep 2025",
+        "end_date": "Jun 2027",
+        "highlights": [
+          "GPA 3.60/4.0",
+          "SAIF Banking Career Club — co-organizer",
+          "Advisor focus: retail-bank product strategy"
+        ]
+      },
+      {
+        "school": "Shanghai Jiao Tong University, Antai College of Economics & Management",
+        "degree": "BBA",
+        "major": "Business Administration",
+        "start_date": "Sep 2021",
+        "end_date": "Jun 2025",
+        "highlights": [
+          "GPA 3.55/4.0",
+          "Antai Student Union — Vice President",
+          "Honors thesis: 'High-net-worth client profiling at joint-stock banks'"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "China Merchants Bank HQ · Management Trainee Summer Program",
+        "role": "HQ Management Trainee Intern (Bank General Management Trainee)",
+        "start_date": "Jul 2024",
+        "end_date": "Aug 2024",
+        "bullets": [
+          "Rotated through 4 HQ business lines (Retail / Wholesale / Private Banking / Risk Mgmt); produced 4 rotation reports",
+          "Interviewed 12 HNW clients + relationship managers on the Private Banking line; built 8 client profile briefs",
+          "Delivered final program presentation to HQ VP audience; rated Top 5 of 50 interns; received return offer",
+          "Handled team administrative and document-management tasks"
+        ]
+      },
+      {
+        "company": "CSC Securities · Investment Banking Department · Corporate Finance Team",
+        "role": "Investment Banking Intern (Corporate Finance / Comprehensive Banking)",
+        "start_date": "Jan 2025",
+        "end_date": "Apr 2025",
+        "bullets": [
+          "Supported 2 IPO mandates (manufacturing + consumer goods) — produced industry chapters of the prospectus (~18 pages each)",
+          "Built comparables valuation tables covering 28 companies; supported MD on valuation-range report",
+          "Joined 9 on-site interviews (distributors + suppliers); produced 50,000-character interview minutes",
+          "Organized team documents and trackers"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "CMB Private Banking HNW client profiling study",
+        "duration": "Jul 2024 – Aug 2024",
+        "description": "Initiated during the CMB internship. Integrated 12 client interviews + public annual reports to produce a private-banking HNW client profile report.",
+        "bullets": [
+          "Sample of 12 HNW clients; tagged investment preferences + asset allocation",
+          "Report forwarded by line head to the product team for client-segment input"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "Excel pivot tables + financial modeling",
+        "PowerPoint advanced animation + charting",
+        "Financial statements (basics)",
+        "DCF / Relative valuation (basics)",
+        "SPSS basic statistical analysis"
+      ],
+      "tools": [
+        "Microsoft Office (Excel / PPT / Word)",
+        "Tableau basics",
+        "SPSS"
+      ],
+      "languages": [
+        "Mandarin (native)",
+        "English (CET-6 580)"
+      ]
+    },
+    "awards": [
+      "CMB Management Trainee Top 5 of 50 (return offer, 2024)",
+      "Antai Outstanding Student Leader (2024)",
+      "CFA Level I in preparation"
+    ],
+    "candidate_summary": "SJTU Antai Mgmt + SAIF MF, with 2 mid-tier finance internships (CMB HQ Management Trainee return offer / CSC Securities Corporate Finance / Comprehensive Banking). Strength: organization, communication, end-to-end business understanding. Gap: quantitative analysis is relatively weak. Targeting joint-stock bank HQ Management Trainee positions (CMB / Industrial Bank / Ping An Bank); mid-term goal: product/business lead.",
+    "inferred_roles": ["Bank Management Trainee", "Relationship Manager", "Corporate Banking Generalist"],
+    "inferred_tracks": ["Joint-Stock Bank HQ Management Trainee", "State-owned Bank HQ Management Trainee", "Brokerage Corporate Banking"]
+  }
+}
