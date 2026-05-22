@@ -142,10 +142,13 @@ sites:
     note: 2026-05-10 Wintalent 自助站 sc.hotjob.cn/wt/bosera/，校招/社招/实习全开放，~60 条。
 
   - name: 工银瑞信基金
-    entry_url: https://www.icbccs.com.cn/cn/index/Recruit/RecruitList.shtml
-    ats_family: other
+    entry_url: https://icbccs.hotjob.cn/SU60419b4dbef57c66a923b081/pb/index
+    ats_family: hotjob
     category: 头部公募
-    note: 2026-05-23 重探：RecruitList.shtml 仍 246 bytes 空 SPA shell + WAF (WebFetch returns "URL was rejected")。icbccs.zhiye.com / icbccs.mokahr.com / icbccs.hotjob.cn 均未注册。P1 需 Playwright 渲染。
+    hotjob_suite: SU60419b4dbef57c66a923b081
+    recruit_types: ["1", "3"]
+    max_pages: 10
+    note: "2026-05-23 P1-0 搜索引擎 spy 找到 icbccs.hotjob.cn (之前误判无渠道,因为只试 sc.hotjob.cn/wt/icbccs)。实测 SU60419b4d...listPosition fetched=0 (季节空,春招结束)。秋招开闸自动收。"
 
   - name: 兴证全球基金
     entry_url: https://sc.hotjob.cn/wt/AIFMC/web/index/campus
@@ -193,7 +196,10 @@ sites:
     note: 官网当前 502，backlog。
 
   - name: 永赢基金
-    entry_url: https://www.yyfund.com.cn/
-    ats_family: other
+    entry_url: https://maxwealthfund.hotjob.cn/SU628a429c0dcad41af38720c0/pb/index
+    ats_family: hotjob
     category: 头部公募
-    note: 2026-05-23 探：yyfund.com.cn / yyfund.com 从 dev VPS HTTP 000 (DNS/firewall block)，yyfund.zhiye.com / yyfund.mokahr.com 均未注册。P1 需切换 IP 或上 Playwright 重探。
+    hotjob_suite: SU628a429c0dcad41af38720c0
+    recruit_types: ["1", "3"]
+    max_pages: 10
+    note: "2026-05-23 P1-0 搜索引擎 spy 找到 maxwealthfund.hotjob.cn (之前误判无渠道,因为用错域名 yyfund.com.cn 而非 maxwealthfund)。实测 fetched=1 「FOF研究员 上海市」。"

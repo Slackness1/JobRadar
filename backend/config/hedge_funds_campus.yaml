@@ -44,22 +44,24 @@ sites:
 
   # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家量化 (确认无公开 ATS) ----
   - name: 明汯投资
-    entry_url: https://www.minghongtouzi.com/
+    entry_url: https://join.mhfunds.com/index
     ats_family: other
     category: 量化私募
-    note: "2026-05-23 复探: minghong.zhiye.com / mokahr/minghong / sc.hotjob/minghong 全部未注册。官网 minghongtouzi.com 从 dev VPS HTTP 000 不通。招聘走公众号 + 邮件 + LinkedIn,无公开 ATS listing。"
+    note: "2026-05-23 P1-0 spy 找到自建 portal join.mhfunds.com (URL pattern /index/m/position/{id}/detail)。SPA,需 P1-B 通用 Playwright handler。HR 邮箱 HR@mhfunds.com。注: minghongtouzi.com 域名 parked。"
 
   - name: 因诺资产
-    entry_url: https://www.innoasset.com/
+    entry_url: http://www.innoam.com/
     ats_family: other
     category: 量化私募
-    note: "2026-05-23 复探: 官网 innoasset.com 仅 114 bytes 空 shell, innoasset.zhiye.com / mokahr/innoasset 均未注册。同 backlog。"
+    note: "2026-05-23 P1-0 spy 真域名是 innoam.com (非 innoasset.com)。无 ATS,走邮箱 resume@innoam.com + 微信公众号 因诺资产 + 第三方 (Liepin/Lagou/51job)。无新增爬虫价值。"
 
   - name: 进化论资产
-    entry_url: https://www.jinhualun.com/
-    ats_family: other
+    entry_url: https://app.mokahr.com/campus_apply/jhlfund/46284
+    ats_family: moka_embedded
     category: 量化私募
-    note: "2026-05-23 复探: jinhualun.com 从 dev VPS HTTP 000 不通,jinhualun.zhiye.com / mokahr/jinhualun 均未注册。同 backlog。"
+    moka_org_id: jhlfund
+    moka_site_id: "46284"
+    note: "2026-05-23 P1-0 搜索引擎 spy 找到 Moka tenant=jhlfund (jhl=进化论拼音首字母,之前用错 slug evolutionasset)。campus board=46284 302 redirect 合法,fetched=0 (季节空)。注: jinhualun.com 域名已过期 (CNAME 到 overdue.aliyun.com),社招 board=46283。"
 
   - name: 磐松量化
     entry_url: https://www.pansongasset.com/
@@ -71,16 +73,16 @@ sites:
   # 主观私募公开招聘极少 (年招几人到几十人),靠校友内推 / WeChat 公众号,无 ATS。
   # 加入 yaml 是为了在 /sites + /coverage 显式标 "在调研中,暂无公开渠道"。
   - name: 景林资产
-    entry_url: https://www.greenwoodsasset.com/
+    entry_url: https://cn.greenwoodsasset.com/
     ats_family: other
     category: 主观多头私募
-    note: "2026-05-23 复探: greenwoods/jinglin* 各类 slug 在 zhiye / mokahr / sc.hotjob 均未注册。头部主观多头年招 <20 人,走 WeChat + 校友内推,无公开 listing。"
+    note: "2026-05-23 P1-0 spy 真域名是 cn.greenwoodsasset.com / greenwoodsasset.com.cn (非 .com)。无 ATS,走 HR@greenwoodsasset.com 邮箱 + LinkedIn。头部主观多头年招 <20 人,无新增爬虫价值。"
 
   - name: 淡水泉投资
-    entry_url: https://www.dansheng.com/
+    entry_url: https://www.dswt.com.cn/
     ats_family: other
     category: 主观多头私募
-    note: "2026-05-23 复探: dansheng/dswq/shuofeng 在 zhiye / mokahr / hotjob 均未注册。同 backlog,极少公开校招。"
+    note: "2026-05-23 P1-0 spy: 淡水泉走应届生网/牛客网 + 邮箱,无独立 ATS。dswt.com.cn 真域名待复探。无新增爬虫价值。"
 
   - name: 千合资本
     entry_url: http://www.qianhecap.com/
