@@ -752,6 +752,29 @@ def _build_track_condition(preferences: ResumePreferencePayload):
     return or_(*branches) if branches else None
 
 
+_ACTIVE_RECRAWL_DAYS = 14
+
+
+def _active_job_cond():
+    """L1 + L2 推荐过滤,排除"很可能已停招"的岗位。
+
+    - L1 (deadline):有填 deadline 字段且已过期 → 排除。NULL 不动(68% 的源不填)。
+    - L2 (scraped_at):最近 14 天复爬还能抓到 → 活岗。超 14 天没爬到 → 大概率源头已下架。
+
+    实测 prod (2026-05-22 / 127K 行):L1 砍 33K,L2 (14d) 再砍 65K,候选池剩 28.6K。
+    主要砍的是 5.5 万 Tata 历史老岗位 + 1.4 万 legacy 历史快照 — 这两类源头都已不再
+    返回这些岗位,留在 DB 里就是死链。Internet/state_owned/insurance/foreign_ibs 等
+    主动爬虫的 7d 复爬覆盖 >95%,不会被误伤。
+    """
+    now = datetime.utcnow()
+    recrawl_cutoff = now - timedelta(days=_ACTIVE_RECRAWL_DAYS)
+    return and_(
+        or_(Job.deadline.is_(None), Job.deadline > now),
+        Job.scraped_at.isnot(None),
+        Job.scraped_at > recrawl_cutoff,
+    )
+
+
 def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | None) -> list[Job]:
     """Pre-filter jobs by track (canonical typed + NULL alias fallback + transferable),
     location, and company type before full scoring.
@@ -763,9 +786,13 @@ def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | N
       4. location ∨ company_type                   — 放宽 track (老逻辑)
       5. 全表                                       — 兜底
     第一个 size >= _MIN_FILTERED_CANDIDATES 的层级胜出。
+
+    所有层级都额外 AND 上 _active_job_cond() (L1: deadline 未过期),避免推已停招岗位。
     """
+    active = _active_job_cond()
+
     if not preferences or preferences.all_skipped:
-        return db.query(Job).all()
+        return db.query(Job).filter(active).all()
 
     location_conds = [
         Job.location.like(f'%{loc}%')
@@ -782,16 +809,16 @@ def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | N
 
     # 1. 最严格: track ∧ (location ∨ company_type)
     if track_cond is not None and loc_or_company is not None:
-        rows = db.query(Job).filter(and_(track_cond, loc_or_company)).all()
+        rows = db.query(Job).filter(and_(active, track_cond, loc_or_company)).all()
         if len(rows) >= _MIN_FILTERED_CANDIDATES:
             return rows
         # 2. track ∧ location only
         if location_conds:
-            rows = db.query(Job).filter(and_(track_cond, or_(*location_conds))).all()
+            rows = db.query(Job).filter(and_(active, track_cond, or_(*location_conds))).all()
             if len(rows) >= _MIN_FILTERED_CANDIDATES:
                 return rows
         # 3. track only (放弃地点,优先保赛道)
-        rows = db.query(Job).filter(track_cond).all()
+        rows = db.query(Job).filter(and_(active, track_cond)).all()
         if len(rows) >= _MIN_FILTERED_CANDIDATES:
             return rows
         if rows:
@@ -799,12 +826,12 @@ def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | N
 
     # 4. 老逻辑兜底:location ∨ company_type
     if loc_or_company is not None:
-        rows = db.query(Job).filter(loc_or_company).all()
+        rows = db.query(Job).filter(and_(active, loc_or_company)).all()
         if len(rows) >= _MIN_FILTERED_CANDIDATES:
             return rows
 
     # 5. 全表
-    return db.query(Job).all()
+    return db.query(Job).filter(active).all()
 
 
 RECOMMEND_TOP_N = 10
