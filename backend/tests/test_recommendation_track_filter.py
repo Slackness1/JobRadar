@@ -56,7 +56,7 @@ class TestExpandUmbrella:
 class TestTransferable:
     def test_投研_可迁移_2个(self):
         canons = set(transferable_for('投研'))
-        assert canons == {'金融咨询', '银行·总行核心'}
+        assert canons == {'管理咨询·MBB', '银行·总行核心'}
 
     def test_未知伞返空(self):
         assert transferable_for('客户经理') == []
@@ -100,7 +100,7 @@ class TestClassifyTrackMatch:
         assert _classify_track_match(job, touyan_prefs) == ('hit', 0)
 
     def test_transferable_可迁移canonical(self, touyan_prefs):
-        job = Job(job_title='Senior Consultant', canonical_track='金融咨询', source='consulting_official')
+        job = Job(job_title='Senior Consultant', canonical_track='管理咨询·MBB', source='consulting_official')
         assert _classify_track_match(job, touyan_prefs) == ('transferable', 0)
 
     def test_ambiguous_1N_source_NULL(self, touyan_prefs):
