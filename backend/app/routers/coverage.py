@@ -55,7 +55,13 @@ def _query_active_by_company_keywords(
         for kw in exclude:
             q = q.filter(~Job.company.like(f"%{kw}%"))
     if title_keywords_include:
-        title_filters = [Job.job_title.like(f"%{kw}%") for kw in title_keywords_include]
+        # Check BOTH job_title AND department — sub-direction signals often live in
+        # the department field (e.g., 中金 dept="投资银行" / 华泰 dept="投资管理业务"
+        # / 招商 dept="招商证券资产管理有限公司")。
+        title_filters = []
+        for kw in title_keywords_include:
+            title_filters.append(Job.job_title.like(f"%{kw}%"))
+            title_filters.append(Job.department.like(f"%{kw}%"))
         q = q.filter(or_(*title_filters))
     out: dict[str, int] = {}
     for (company,) in q.all():

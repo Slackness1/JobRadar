@@ -413,6 +413,82 @@ tracks:
       不列 T1 名册，仅显示最近 7 天 active 公司绝对数。
       当前 ~119 家有效活跃，覆盖国资委 100 大的 ~60%（部分子公司散落在不同 source）。
 
+  # ───────────────────────── 投行 IBD ────────────────────────────
+  # 用户 2026-05-23 P1-2 (option 2): 内资头部券商投行 sub-direction。
+  # 子公司常 piggyback 母券商 ATS (华泰联合 → 华泰证券 SU6419 hotjob,
+  # 中信证券 IBD → careers.citics.com 母公司),title/department 含 IBD 信号。
+  # 数据点 (dev DB 实测): 中金 dept="投资银行" 31 条, title 含 "股权融资业务" 数十条;
+  # 招商证券 title="投行项目承做岗"; 中信建投 dept="投资银行" 5 条。
+  - id: investment_banking
+    name: 投行 IBD
+    canonical_tracks: [一级买方·IBD]
+    mode: derived_company
+    company_keywords_include:
+      - 中金
+      - 中信证券
+      - 华泰证券
+      - 华泰联合
+      - 国泰海通
+      - 中信建投
+      - 招商证券
+      - 广发证券
+      - 海通证券
+      - 光大证券
+      - 国信证券
+      - 申万宏源
+    company_keywords_exclude:
+      - 中信银行       # 防止"中信"误命中银行
+    title_keywords_include:
+      - 投行
+      - IBD
+      - 股权融资
+      - 承做
+      - 承销
+      - 并购
+      - 兼并收购
+      - 投资银行
+      - DCM
+      - ECM
+    window_days: 30
+    note: |
+      派生赛道。母券商 ATS 已爬,投行子公司/IBD 部门通过 title+department 关键词识别。
+      华泰联合证券 piggyback 华泰证券 SU6419 hotjob。
+
+  # ───────────────────────── 券商资管 ────────────────────────────
+  # 用户 2026-05-23 P1-2: 头部券商资管子公司 sub-direction。
+  # 大部分资管子直接 piggyback 母券商 ATS:中金资管/招商资管/华泰资管(新加 P0)等。
+  # 数据点: 中金 dept="资产管理" 8 / "固定收益" 27 / "私募股权" 25;
+  # 华泰 dept="投资管理业务" 35; 招商 dept="招商证券资产管理有限公司"。
+  - id: securities_am
+    name: 券商资管
+    canonical_tracks: [二级买方·基本面, 二级买方·量化]
+    mode: derived_company
+    company_keywords_include:
+      - 中金
+      - 中信证券
+      - 华泰证券
+      - 国泰海通
+      - 中信建投
+      - 招商证券
+      - 广发证券
+      - 海通证券
+      - 光大证券
+      - 国信证券
+    company_keywords_exclude:
+      - 中信银行       # 防止"中信"误命中银行
+    title_keywords_include:
+      - 资管
+      - 资产管理
+      - 投资管理      # 华泰 dept="投资管理业务" 用此
+      - 固定收益
+      - 权益投资
+    window_days: 30
+    note: |
+      派生赛道。和 asset_mgmt 不同 — 后者按 company name 抓"理财/资管"独立公司;
+      此 track 按母券商 + title/department 关键词抓 piggyback 子公司岗位。
+      P0 新加华泰资管 (htam.zhiye.com) 也会通过 company="华泰资管" 命中 asset_mgmt
+      和这里 — 不重复计数 (各 track 独立呈现)。
+
   # ───────────────────────── 大行管培 ────────────────────────────
   # mode=derived_company + title 关键词：4 大行管培岗位本身已被 bank_official
   # crawler 抓到 (招行 158 / 兴业 162 / 工行 announcement-list / 建行 4491)，
