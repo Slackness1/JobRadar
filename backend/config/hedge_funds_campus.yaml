@@ -41,3 +41,55 @@ sites:
     category: 量化私募
     max_pages: 10
     note: 2026-05-17 上海量化 (mingshiim.zhiye.com),通用 /api/Jobad endpoint 实测 7 records。其余 SAIF 量化清单 (明汯/灵均/千象/宁泉/聚宽/宽德/因诺/思勰/金锝/盘京/衡量/玖瀛) 均无公开 ATS,backlog。
+
+  # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家量化 (确认无公开 ATS) ----
+  - name: 明汯投资
+    entry_url: https://www.minghongtouzi.com/
+    ats_family: other
+    category: 量化私募
+    note: "2026-05-23 复探: minghong.zhiye.com / mokahr/minghong / sc.hotjob/minghong 全部未注册。官网 minghongtouzi.com 从 dev VPS HTTP 000 不通。招聘走公众号 + 邮件 + LinkedIn,无公开 ATS listing。"
+
+  - name: 因诺资产
+    entry_url: https://www.innoasset.com/
+    ats_family: other
+    category: 量化私募
+    note: "2026-05-23 复探: 官网 innoasset.com 仅 114 bytes 空 shell, innoasset.zhiye.com / mokahr/innoasset 均未注册。同 backlog。"
+
+  - name: 进化论资产
+    entry_url: https://www.jinhualun.com/
+    ats_family: other
+    category: 量化私募
+    note: "2026-05-23 复探: jinhualun.com 从 dev VPS HTTP 000 不通,jinhualun.zhiye.com / mokahr/jinhualun 均未注册。同 backlog。"
+
+  - name: 磐松量化
+    entry_url: https://www.pansongasset.com/
+    ats_family: other
+    category: 量化私募
+    note: "2026-05-23 复探: pansongasset.com 从 dev VPS HTTP 000 不通,pansong.zhiye.com / mokahr/pansong / sc.hotjob/pansong 均未注册。canonical_track 中 12 条历史 record 来自 Tata 抓取的同名公司而非官网,backlog。"
+
+  # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家主观多头 (确认无公开 ATS) ----
+  # 主观私募公开招聘极少 (年招几人到几十人),靠校友内推 / WeChat 公众号,无 ATS。
+  # 加入 yaml 是为了在 /sites + /coverage 显式标 "在调研中,暂无公开渠道"。
+  - name: 景林资产
+    entry_url: https://www.greenwoodsasset.com/
+    ats_family: other
+    category: 主观多头私募
+    note: "2026-05-23 复探: greenwoods/jinglin* 各类 slug 在 zhiye / mokahr / sc.hotjob 均未注册。头部主观多头年招 <20 人,走 WeChat + 校友内推,无公开 listing。"
+
+  - name: 淡水泉投资
+    entry_url: https://www.dansheng.com/
+    ats_family: other
+    category: 主观多头私募
+    note: "2026-05-23 复探: dansheng/dswq/shuofeng 在 zhiye / mokahr / hotjob 均未注册。同 backlog,极少公开校招。"
+
+  - name: 千合资本
+    entry_url: http://www.qianhecap.com/
+    ats_family: other
+    category: 主观多头私募
+    note: "2026-05-23 复探: qianhe/qianhecap/wyhasset (王亚伟) 在 zhiye / mokahr / hotjob 均未注册。同 backlog,极少公开校招。"
+
+  - name: 睿郡资产
+    entry_url: https://www.ruijunasset.com/
+    ats_family: other
+    category: 主观多头私募
+    note: "2026-05-23 复探: ruijun/ruijunasset 在 zhiye / mokahr / hotjob 均未注册。同 backlog。"

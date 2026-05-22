@@ -412,3 +412,68 @@ tracks:
       国资委央企 100 大集团 + 重点省企 ~50 + 上市国企众多。
       不列 T1 名册，仅显示最近 7 天 active 公司绝对数。
       当前 ~119 家有效活跃，覆盖国资委 100 大的 ~60%（部分子公司散落在不同 source）。
+
+  # ───────────────────────── 大行管培 ────────────────────────────
+  # mode=derived_company + title 关键词：4 大行管培岗位本身已被 bank_official
+  # crawler 抓到 (招行 158 / 兴业 162 / 工行 announcement-list / 建行 4491)，
+  # 只是「管理培训生 / 管培」title 没单独 surface。这里用 title 关键词 AND
+  # 母行 company 过滤,从母行 listing 中提取子赛道。
+  - id: bank_mt
+    name: 大行管培
+    canonical_tracks: [监管·体制内]
+    mode: derived_company
+    company_keywords_include:
+      - 工商银行
+      - 建设银行
+      - 中国银行
+      - 农业银行
+      - 招商银行
+      - 交通银行
+      - 邮储银行
+      - 兴业银行
+      - 中信银行
+      - 平安银行
+      - 民生银行
+    title_keywords_include:
+      - 管理培训生
+      - 管培生
+      - 管培
+      - 青苗
+      - 金种子
+      - 启航
+      - 薪兰
+      - 储备干部
+    company_keywords_exclude: []
+    window_days: 30
+    note: |
+      派生赛道（用户 2026-05-23 P0 #101）。沪行金融科技/资管子已分开（bank_fintech / asset_mgmt）。
+      title 关键词覆盖各行管培项目的常用品牌词:招行「金葵花/管培」、工行「青苗」、
+      建行「启航/管理培训生」、中行「金种子」、平安「薪兰」、邮储「储备干部」等。
+
+  # ───────────────────────── 银行金科子 ──────────────────────────
+  # mode=derived_company：金科子公司基本走母行 ATS (招行/工行/建行/平安等)。
+  # 用户 2026-05-23 P0 #100: 招银网络科技 / 工银科技 / 建信金科 / 平安金科。
+  # 子公司岗位通常在母行 listing 里以"科技/网络/金融科技"部门标识。
+  - id: bank_fintech
+    name: 银行金科
+    canonical_tracks: [FinTech]
+    mode: derived_company
+    company_keywords_include:
+      - 招银网络科技
+      - 工银科技
+      - 建信金科
+      - 平安金科
+      - 中银金科
+      - 交银金科
+      - 兴业数金
+      - 浦银金融科技
+      - 民生金科
+      - 中信金科
+    company_keywords_exclude:
+      - 信息技术       # "上海银行信息技术" 等非金科子
+    window_days: 30
+    note: |
+      派生赛道。子公司多 piggyback 母行 ATS (招行 cmbchina / 平安 careers.pingan
+      / 工行 announcement-list / 建行 WCCMainPlatV5)，无独立 ATS 必要。
+      4 家 P0 重点：招银网络科技 / 工银科技 / 建信金科 / 平安金科。
+      P1 可扩展到 7 家全梳 (+中银 / 交银 / 兴业数金)。

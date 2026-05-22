@@ -105,6 +105,13 @@ sites:
     max_pages: 10
     note: 2026-05-16 上游切 SPA, /api/Jobad/GetJobAdPageList 通用 endpoint 仍可用 (~20 条/page)。
 
+  - name: 景顺长城基金
+    entry_url: https://invescogreatwall.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
+    category: 头部公募
+    max_pages: 10
+    note: 2026-05-23 Beisen CMS Portal (stc-cms.beisen.com)，table 结构同华夏基金。当前 0 条「无任何在招职位」(季节性，秋招开闸时自动收)。
+
   # ---- BACKLOG (ats_family=other → 跳过)。每条都有真实 portal，只是当前公开
   # 数据为 0 或需要新写 SPA parser，不值得在 90 min 内硬刚。 ----
   - name: 易方达基金
@@ -138,7 +145,7 @@ sites:
     entry_url: https://www.icbccs.com.cn/cn/index/Recruit/RecruitList.shtml
     ats_family: other
     category: 头部公募
-    note: 官网 RecruitList.shtml 200 但 247 bytes，疑似空 SPA shell，backlog。
+    note: 2026-05-23 重探：RecruitList.shtml 仍 246 bytes 空 SPA shell + WAF (WebFetch returns "URL was rejected")。icbccs.zhiye.com / icbccs.mokahr.com / icbccs.hotjob.cn 均未注册。P1 需 Playwright 渲染。
 
   - name: 兴证全球基金
     entry_url: https://sc.hotjob.cn/wt/AIFMC/web/index/campus
@@ -153,7 +160,7 @@ sites:
     entry_url: https://www.phfund.com.cn/about/recruit/recruit_index.shtml
     ats_family: other
     category: 头部公募
-    note: 自家招聘静态页 2.5kB，无 listing，backlog。
+    note: 2026-05-23 重探：自家 Vue SPA (manifest/vendor/app.js)，HTML 2.5kB shell，招聘列表全 JS 渲染。phfund.zhiye.com / phfund.mokahr.com 均未注册。P1 需 Playwright 渲染。
 
   - name: 大成基金
     entry_url: https://www.dcfund.com.cn/
@@ -184,3 +191,9 @@ sites:
     ats_family: other
     category: 头部公募
     note: 官网当前 502，backlog。
+
+  - name: 永赢基金
+    entry_url: https://www.yyfund.com.cn/
+    ats_family: other
+    category: 头部公募
+    note: 2026-05-23 探：yyfund.com.cn / yyfund.com 从 dev VPS HTTP 000 (DNS/firewall block)，yyfund.zhiye.com / yyfund.mokahr.com 均未注册。P1 需切换 IP 或上 Playwright 重探。

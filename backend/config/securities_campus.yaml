@@ -207,3 +207,35 @@ sites:
     ats_family: other
     category: B档券商
     note: 2026-04-15 官网根域可访问，但未发现公开校招/招聘站入口，真值层与聚合库也无精确华创证券春招信号，暂记大概率未开公开春招。
+
+  # ---- 用户 2026-05-23 P0 清单新增: 内资投行 + 资管子公司 ----
+  - name: 华泰资管
+    entry_url: https://htam.zhiye.com/
+    ats_family: zhiye
+    category: 资管子公司
+    max_pages: 10
+    note: "2026-05-23 探 htam.zhiye.com (北森 zhiye), API /api/Jobad/GetJobAdPageList 实测 Total=0 Data=[] (季节空, Count=1)。<title> 华泰资产</title>。秋招开闸自动收。"
+
+  - name: 华泰联合证券
+    entry_url: https://www.htsclh.com/
+    ats_family: other
+    category: 投行
+    note: "2026-05-23 探 htsclh.com / heshunhua.com / hslh.com 从 dev VPS HTTP 000 不通,hlcs/hltunited/huataiunited 等 slug 在 zhiye / mokahr / hotjob 均未注册。可能 piggyback 华泰证券母公司 SU6419 hotjob,P1 需切换 IP 复探或归到母公司 sub-direction 重分类。"
+
+  - name: 中金资管
+    entry_url: https://www.cicc.com/
+    ats_family: other
+    category: 资管子公司
+    note: "2026-05-23 探 cicc-am / ciccam / cicc-asset 等 slug 在 zhiye / mokahr 均未注册。母公司中金 (cicc.zhiye.com) 已爬,中金资管岗位可能含在母公司 listing 中 (走 sub-direction 重分类) — 推荐 P0 #101 流程一并处理。"
+
+  - name: 招商资管
+    entry_url: https://www.cmschina.com.cn/
+    ats_family: other
+    category: 资管子公司
+    note: "2026-05-23 探 cmsam / cmsc-am / cmschina-am 等 slug 均未注册。母公司招商证券 (wecruit.hotjob.cn/SU629d...) 已爬,招商资管岗位可能 piggyback 母公司 listing (走 sub-direction 重分类)。"
+
+  - name: 国君海通资管
+    entry_url: https://hr.gtht.com/recruitment/main/recruit2
+    ats_family: other
+    category: 资管子公司
+    note: "2026-05-23 探 gtja-am / gtht-am 等 slug 均未注册。母公司国泰海通 (hr.gtht.com) 本身 station 不稳定 (ERR_EMPTY_RESPONSE),子公司大概率同。P1 等母公司站点稳定后复探。"

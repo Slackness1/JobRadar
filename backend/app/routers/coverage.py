@@ -30,11 +30,20 @@ router = APIRouter(prefix="/api/coverage", tags=["coverage"])
 
 
 def _query_active_by_company_keywords(
-    db: Session, include: list[str], exclude: list[str], days: int = 7
+    db: Session,
+    include: list[str],
+    exclude: list[str],
+    days: int = 7,
+    title_keywords_include: list[str] | None = None,
 ) -> dict[str, int]:
     """For `derived_company` mode: pull from jobs table directly by company-name
     keyword, since these companies are surfaced through other crawlers (banks /
     insurers / etc) rather than having dedicated CompanyCrawlLog rows.
+
+    Optional `title_keywords_include`: further AND-filter by job_title LIKE.
+    Used for sub-direction tracks like "大行管培" where the parent crawler
+    already collected the bank rows, and we just need to surface a subset.
+
     Returns {company: count_in_window}.
     """
     if not include:
@@ -45,6 +54,9 @@ def _query_active_by_company_keywords(
     if exclude:
         for kw in exclude:
             q = q.filter(~Job.company.like(f"%{kw}%"))
+    if title_keywords_include:
+        title_filters = [Job.job_title.like(f"%{kw}%") for kw in title_keywords_include]
+        q = q.filter(or_(*title_filters))
     out: dict[str, int] = {}
     for (company,) in q.all():
         if not company:
@@ -149,12 +161,14 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
         if mode == "derived_company":
             include = track.get("company_keywords_include") or []
             exclude = track.get("company_keywords_exclude") or []
+            title_include = track.get("title_keywords_include") or []
             # Default 30d for derived tracks: parent crawlers re-pull weekly
             # at best, and futures/trust seasonal cycles mean 7d misses 90% of
             # data. 30d strikes the right balance.
             window_days = int(track.get("window_days") or 30)
             active_map = _query_active_by_company_keywords(
-                db, include, exclude, days=window_days
+                db, include, exclude, days=window_days,
+                title_keywords_include=title_include or None,
             )
             tracks_out.append({
                 "id": track["id"],
