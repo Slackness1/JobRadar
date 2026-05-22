@@ -71,21 +71,6 @@ class JobIntelComment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow)
 
 
-class JobIntelSnapshot(Base):
-    __tablename__ = "job_intel_snapshots"
-
-    id = Column(Integer, primary_key=True)
-    job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
-    snapshot_type = Column(Text, default="")
-    summary_text = Column(Text, default="")
-    evidence_count = Column(Integer, default=0)
-    source_platforms_json = Column(Text, default="[]")
-    confidence_score = Column(Float, default=0)
-    generated_at = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-
-
 class ResumeCopilotSession(Base):
     __tablename__ = "resume_copilot_sessions"
 
@@ -105,6 +90,13 @@ class ResumeCopilotSession(Base):
     expires_at = Column(DateTime, nullable=True, index=True)
     plan_json = Column(Text, nullable=True)
     plan_status = Column(Text, default="idle", index=True)
+    # BE-3 of main-workspace-redesign-2026-05-20 (D-2 / D-3 / D-5):
+    # rejected_job_ids_json — session-scoped list of job_ids the user has
+    # ✗-rejected from recommendations; filtered out on every regenerate.
+    # last_recommend_trigger_at — used by should_debounce_recommend() to
+    # collapse rapid back-to-back regenerate triggers.
+    rejected_job_ids_json = Column(Text, default="[]", nullable=True)
+    last_recommend_trigger_at = Column(DateTime, nullable=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
@@ -609,6 +601,25 @@ class AccountMemory(Base):
     # Evolution (versioning via supersession chain)
     superseded_by_id = Column(Integer, nullable=True)   # FK-shaped but not enforced (intra-table)
     is_archived = Column(Boolean, default=False, index=True)
+
+    # Resume-edit sync (Plan 1, 2026-05-20).
+    # `linked_field_paths` = JSON list[str] of resume bullet paths this row was
+    # extracted from (e.g. ["internships.0.bullets.2"]). Empty list when memory
+    # is general / not tied to a bullet (preference rows, identity_fact, etc.).
+    # `needs_resync` set to True when user edits one of the linked bullets via
+    # the right-pane edit toolbar — ArchivePanel renders a 🔄 badge.
+    linked_field_paths = Column(Text, default="[]")
+    needs_resync = Column(Boolean, default=False)
+    # Plan ② (2026-05-20): canonical 赛道 name the student was working on
+    # when this memory was captured. Lets ArchivePanel render a track tag on
+    # the card + lets recall optionally filter by track. Empty string = not
+    # tagged (general / cross-track memory, e.g. preference rows).
+    linked_track = Column(Text, default="")
+    # Plan ② Job plan-mode (2026-05-21): job_id this memory was captured
+    # while customising for. Empty = general / track-level memory.
+    # ArchivePanel can show a job tag; rewrite recall can boost memory for
+    # the matching job.
+    linked_job_id = Column(Text, default="")
 
     __table_args__ = (
         UniqueConstraint("user_key", "summary_hash", name="uq_account_memory_user_summary"),

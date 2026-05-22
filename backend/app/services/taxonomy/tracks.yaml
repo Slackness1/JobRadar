@@ -348,7 +348,7 @@ tracks:
       - 你怎么看央行数字货币 e-CNY 对支付市场的影响?
       - 跨境支付里最难的合规问题是什么?
 
-  - canonical: 金融咨询
+  - canonical: 管理咨询·MBB
     description: MBB + Tier-2 战略咨询 / 四大 Deals & Strategy / FAS 财务咨询。金融行业相关的咨询项目。
     typical_employers:
       - 麦肯锡
@@ -394,3 +394,97 @@ tracks:
       - 客户给的方向和你独立分析出来的方向冲突,你怎么处理?
       - PE 客户做 CDD 和买方公司做 CDD 关注点有什么不同?
       - 一周时间完成 FDD,你是怎么 prioritize 工作的?哪些必须做,哪些可以 skip?
+
+  - canonical: 战略咨询
+    description: 非金融行业聚焦的 strategy 岗 / 公司战略组 / 通用咨询。新增于 2026-05-21,与 管理咨询·MBB 区分。
+    typical_employers:
+      - 罗兰贝格
+      - 埃森哲战略
+      - IBM 咨询
+      - Oliver Wyman
+      - Kearney 科尔尼
+      - 中欧国际工商学院 CDC
+      - 阿里战略组
+      - 美团战略与投资部
+      - 字节跳动战略部
+      - 腾讯战略发展部
+    typical_roles:
+      - 战略咨询顾问
+      - 公司战略 Senior Associate
+      - Corp Dev / Strategy
+      - 战略分析师
+      - 业务咨询顾问
+    high_quality_signals:
+      - 行业分析 / 竞争格局
+      - 商业模式 / 增长曲线
+      - market entry strategy
+      - 战略复盘 / 业务诊断
+      - 三年规划 / OKR 拆解
+      - 跨部门访谈 / stakeholder 对齐
+      - 增长引擎拆解
+    low_quality_signals:
+      - 销售战略
+      - 营销策划
+      - 渠道执行
+    star_examples:
+      - context: 罗兰贝格 Summer Associate,客户是头部新能源车企
+        task: 评估海外建厂 vs 出口策略哪条路径 ROI 更高
+        action: 跑 10+ 国家政策梳理 + 制造成本拆解 + 与销售/供应链 6 个 stakeholder 访谈
+        result: 报告促成客户战略指导委员会通过墨西哥建厂方案,客户 review 拿 strong
+      - context: 美团战略部实习,核心议题为同城零售竞争格局
+        task: 拆解 美团/京东到家/朴朴/叮咚 4 家增长引擎差异
+        action: 用 unit economics 框架对比单仓 GMV/履约成本/复购率,跑 30+ 一线运营访谈
+        result: 输出 deck 进入战略月会,推动公司加大社区集采补贴 SKU 池 1.5x
+    followup_templates:
+      - 你怎么界定 战略咨询 vs 管理咨询 项目的边界?这次属于哪种?
+      - 多个 stakeholder 给出冲突方向时你怎么收敛?用了什么框架?
+      - 你提的方案在落地阶段遇到最大的阻力是什么?
+      - 如果重做这个项目你会改哪一步?
+
+  - canonical: 大宗·能源
+    description: 大宗商品贸易 / 能源 / 航运 / 矿业 / 农产品。LDC / Cargill / 托克 / 中石油国际 等。新增于 2026-05-21。
+    typical_employers:
+      - 路易达孚 LDC
+      - Cargill 嘉吉
+      - 托克 Trafigura
+      - 嘉能可 Glencore
+      - COFCO 国际
+      - 中石油国际事业部
+      - 中海油 CNOOC
+      - 中远海运 COSCO
+      - AESC 远景动力
+      - 国家能源集团
+      - 紫金矿业 海外
+    typical_roles:
+      - 大宗商品贸易员 trader
+      - 能源 / 化工 分析师
+      - 航运租船
+      - 农产品采购
+      - 风险管理 / 套保
+      - 矿业研究
+    high_quality_signals:
+      - 期现套利 / basis 交易
+      - 现货合约谈判
+      - VaR / 套期保值
+      - 航运 freight 拆解
+      - FOB / CIF / DAP Incoterms
+      - 原油裂解价差 crack spread
+      - 库存周期判断
+    low_quality_signals:
+      - 个人黄金理财
+      - 期货零售经纪
+      - 大宗电商运营
+    star_examples:
+      - context: 路易达孚北京豆粕组实习,跟一位资深 trader 学一个交易周期
+        task: 跟踪南美雷亚尔汇率 + 巴西豆农压港数据,判断 CBOT 大豆基差走势
+        action: 每天 4 套数据(港口船期/汇率/天气/CFTC 持仓)交叉验证,周报输给 trader 决策参考
+        result: 建议带 trader 锁定一笔 50 万吨基差合同,周末美豆出口数据出炉后 PnL +120 万美元
+      - context: 中石油国际事业部燃料油团队实习,负责亚太 380 cst 高硫燃料油
+        task: 分析 IMO 限硫令影响下高硫 vs 低硫价差走势
+        action: 拆 refinery 升级进度 + scrubber 安装船舶数 + 中东供应弹性,出月度供需平衡表
+        result: 推动公司将 Q4 高硫货源往韩国/新加坡套保头寸调整,锁定毛利 6 美元/吨
+    followup_templates:
+      - 你跟踪过最重要的 3 个 fundamentals 数据源是什么?为什么是这几个?
+      - 现货和期货的 basis 一般什么时候会扩大 / 收窄?讲一个你看过的案例
+      - 大宗交易和股票投研最大的差别在哪?你为什么选大宗?
+      - 你怎么处理一个看起来正确但市场就是不走的 view?

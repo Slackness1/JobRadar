@@ -26,11 +26,36 @@ URL_PATTERN = re.compile(
 )
 DATE_RANGE_PATTERN = re.compile(r'(?P<start>\d{4}[./-]\d{2})\s*[–—-]\s*(?P<end>至今|\d{4}[./-]\d{2})')
 BULLET_PREFIX_PATTERN = re.compile(r'^[•·●▪■*-]\s*')
+# 2026-05-21: 删了独字母 'C' / 'Go' — 这俩太短, substring match 会在
+# "CICC" / "consumer" / "google" / "going" 里全命中, 让每份简历凭空多出
+# "C" / "Go" 两个根本不在简历里的技能 (4/8 persona 实测中招)。
+# 同时大幅扩充 ML / 金融数据 / 量化 词库 — Worker C 发现 P7/P8 的
+# LightGBM / XGBoost / LSTM / Transformer / GraphSAGE 等头部差异化技能
+# 全被丢, 这些是 SAIF "深度 > 广度" persona 的命门。
 KNOWN_TECH_SKILLS = [
-    'Python', 'Java', 'C++', 'C', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'SQL',
-    'React', 'Vue', 'Node', 'FastAPI', 'Django', 'Flask', 'Spring', 'MySQL',
-    'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'TensorFlow', 'PyTorch',
-    '机器学习', '深度学习', '数据分析', '爬虫', '后端', '前端', '算法',
+    # languages — 删 'C' / 'Go' (false-positive 高);保留多字母明确的
+    'Python', 'Java', 'C++', 'C#', 'Rust', 'JavaScript', 'TypeScript', 'SQL',
+    'R语言', 'MATLAB', 'Scala', 'Kotlin', 'Swift', 'PHP', 'Ruby',
+    # web
+    'React', 'Vue', 'Angular', 'Node.js', 'FastAPI', 'Django', 'Flask', 'Spring',
+    # storage
+    'MySQL', 'PostgreSQL', 'Redis', 'MongoDB', 'Elasticsearch', 'ClickHouse',
+    # infra
+    'Docker', 'Kubernetes', 'Airflow', 'Spark', 'Flink', 'Kafka', 'Hadoop', 'Hive',
+    # ml frameworks
+    'TensorFlow', 'PyTorch', 'scikit-learn', 'XGBoost', 'LightGBM', 'CatBoost',
+    'Keras', 'JAX', 'Hugging Face', 'Transformers',
+    # ml/dl 概念
+    'LSTM', 'Transformer', 'GRU', 'CNN', 'RNN', 'BERT', 'GPT', 'Attention',
+    'GraphSAGE', 'GAT', 'GCN', 'DGL', '强化学习',
+    '机器学习', '深度学习', '时间序列', '时序模型', '神经网络', '集成学习',
+    # 金融 / 量化 specifics
+    'Wind', 'Bloomberg', 'Choice', 'iFinD', 'Tushare', 'AKShare',
+    'DCF', 'LBO', 'IRR', 'NPV', 'WACC', 'CAPM', 'M&A',
+    'Alpha', 'Beta', 'Sharpe', 'Black-Scholes',
+    'PVSyst', 'AutoCAD',
+    # data
+    '数据分析', '数据治理', '爬虫', '后端', '前端', '算法',
 ]
 ROLE_KEYWORDS = [
     'Backend Engineer', 'Frontend Engineer', 'Full Stack Engineer', 'Data Analyst',
@@ -152,10 +177,41 @@ class OpenAICompatibleResumeParserProvider:
                         'end_date, bullets (list of strings — copy each bullet from the resume '
                         'verbatim, preserve every one of them, do not summarize, do not merge, '
                         'do not cap the count).\n'
+                        # #1 (2026-05-21): SAIF P7 实测 LLM 把 "AB 测试 …" 和
+                        # "做了一些数据维护工作" 两个独立 bullet 合并成一条,  下游
+                        # 改写测试整个失效。 用 - / • / ● / ▪ / * 或换行后的首字符
+                        # 作为 bullet 边界, 即使一条只有 5 个字也独立出条目。
+                        'Bullet boundary rule (STRICT): in the source text, each line that '
+                        'starts with `-` / `•` / `●` / `▪` / `*` / a number prefix `1.`/`(1)`, '
+                        'OR each blank-line-separated paragraph inside the bullets region, '
+                        'is one logical bullet. NEVER concatenate two source lines into one '
+                        'bullets[] entry even if the second is short ("做了一些 X" 也独立成条). '
+                        'NEVER drop a short bullet because it looks like padding.\n'
                         'For every project item output all of: name, role, tech_stack (list), '
                         'bullets (list of strings — copy each bullet from the resume verbatim, '
                         'preserve every one of them, do not summarize, do not merge, do not cap '
                         'the count).\n'
+                        # 2026-05-21: SAIF persona eval 发现 LLM 经常把头部技能词
+                        # (LightGBM / XGBoost / LSTM / Transformer / GraphSAGE 等)
+                        # summarize 成 "Python / SQL", 摧毁学生差异化。这条 prompt
+                        # 是 non-negotiable。Round 2 收紧: 单 term 不带描述。
+                        'For skills.technical / skills.tools: copy EVERY technical term '
+                        'verbatim from the resume\'s skill section. Do NOT collapse 类别 '
+                        '("机器学习") to omit the specific tools beneath it. Each item is '
+                        'a single skill name (e.g. "LightGBM", "XGBoost", "LSTM", '
+                        '"Transformer", "时间序列分析"). Do not add skills that are not '
+                        'mentioned in the source text — no defaults, no inferences. '
+                        'skills.tools must be a LIST of strings, never a single concatenated '
+                        'string.\n'
+                        # Round 2 (2026-05-21): LLM 把 "Python (3 年实战经验)" 拆出来
+                        # 放成两个 skill ("Python" 和 "3 年实战经验"), FE 渲染"技能:
+                        # 3 年实战经验" 像废话。明确禁止带描述/年限/级别。
+                        'Each skill item MUST be a single noun (e.g. "Python", "Wind") — '
+                        'NOT a phrase with year ("3 年实战经验"), level ("高级用法"), '
+                        'context ("窗口函数"), or count. Strip parentheses content. '
+                        'If the resume says "Python (3 年实战经验, 熟练 pandas/numpy)", '
+                        'output ["Python", "pandas", "numpy"] — NEVER include "3 年实战经验" '
+                        'or "熟练 pandas/numpy".\n'
                         'Dates should be in the resume original format (e.g. "2024.09 – 2025.12").\n'
                         'Do not put education, contact details, dates, projects, skills, '
                         'or work-history facts into candidate_summary. candidate_summary '
@@ -266,6 +322,54 @@ def _split_text_items(value: str) -> list[str]:
     return items
 
 
+# R2-3 (2026-05-21): LLM 给 skills.technical 时偶尔会塞 "3 年实战经验" / "熟练
+# 窗口函数" 这类描述短语。 prompt 已经收紧, 这里再做一道后处理:
+#   - 剥括号内容: "Python (3 年)" → "Python"
+#   - 丢弃含数字 + 年/年限/月/经验/级 的整条
+#   - 丢弃以"熟练 / 精通 / 掌握 / 了解 / 使用"开头的描述句
+#   - 丢弃超过 25 字符的(技能名几乎不会这么长)
+_SKILL_PAREN_RE = re.compile(r'[\(（].*?[\)）]')
+# 描述性后缀 (年限 / 级 / 熟练度 / 用法 / 应用 / 实战) — 出现这些就剥掉对应段
+_SKILL_DESCRIPTOR_SUFFIX_RE = re.compile(
+    r'\s*(?:'
+    r'\d+\s*(?:年|月|周|个月|年限|年实战|年经验)|'
+    r'(?:高级|初级|中级)\s*用法|'
+    r'(?:实战|经验|用法|应用|基础|入门|进阶|熟练度)'
+    r')\s*.*$'
+)
+# 描述句开头 — "熟练 X" / "精通 X" 整条丢
+_SKILL_DESCRIPTOR_PREFIX_RE = re.compile(r'^(?:熟练|精通|掌握|了解|使用|掌握)')
+
+
+def _clean_skill_items(items: list[str]) -> list[str]:
+    """R3-3 (2026-05-21): + case-insensitive dedup — "pytorch" 和 "PyTorch"
+    应该合并 (保留首次出现的 casing); 同时把 tools 的 long string + split parts
+    并存的情况通过 split + dedup 自然解决。
+    """
+    out: list[str] = []
+    seen_lower: set[str] = set()
+    for raw in items:
+        s = _SKILL_PAREN_RE.sub('', raw or '').strip()
+        if not s:
+            continue
+        # 先按 + / / 、 , 拆成 sub-parts,  再逐个 validate (顺序很重要 —
+        # 整条 "Bloomberg + Wind + Choice 高级用法" 整体长度超 25 会被误丢)
+        for part in re.split(r'[+/、,，]\s*', s):
+            part = part.strip()
+            # 剥尾巴的描述后缀 ("Choice 高级用法" → "Choice")
+            part = _SKILL_DESCRIPTOR_SUFFIX_RE.sub('', part).strip()
+            if not part or len(part) > 25:
+                continue
+            if _SKILL_DESCRIPTOR_PREFIX_RE.match(part):
+                continue
+            key = part.lower()
+            if key in seen_lower:
+                continue
+            seen_lower.add(key)
+            out.append(part)
+    return out
+
+
 def _normalize_string_list(value: Any) -> list[str]:
     if value is None:
         return []
@@ -295,6 +399,11 @@ def _normalize_string_list(value: Any) -> list[str]:
     return _dedupe_preserve_order(result)
 
 
+# R3 (2026-05-21): LLM 在缺字段时偶尔返回字符串 "None" / "null" / "N/A" 而不是
+# omit 这个 key, 下游 UI 会渲染 "电话: None" 这种废话。 这里统一过滤。
+_BASIC_INFO_NULLISH = {'none', 'null', 'n/a', 'na', '-', '—', '无', '不详', '未提供'}
+
+
 def _normalize_basic_info(value: Any) -> dict[str, str]:
     if not isinstance(value, dict):
         return {}
@@ -303,6 +412,9 @@ def _normalize_basic_info(value: Any) -> dict[str, str]:
         cleaned_key = str(key).strip()
         normalized_key = BASIC_INFO_KEY_ALIASES.get(cleaned_key, BASIC_INFO_KEY_ALIASES.get(cleaned_key.lower(), cleaned_key))
         cleaned_value = _clean_line(str(raw_value))
+        # R3 过滤 "None" 类 nullish value, 不写入 dict
+        if cleaned_value.lower() in _BASIC_INFO_NULLISH:
+            continue
         if normalized_key and cleaned_value:
             normalized[normalized_key] = cleaned_value
     return normalized
@@ -625,7 +737,11 @@ def _normalize_internship_items(value: Any) -> list[ResumeInternshipItem]:
                 role=_clean_line(str(raw_item.get('role', ''))),
                 start_date=_clean_line(str(raw_item.get('start_date', ''))),
                 end_date=_clean_line(str(raw_item.get('end_date', ''))),
-                bullets=_merge_detail_lines(_normalize_string_list(raw_item.get('bullets', []))),
+                # #1 (2026-05-21): LLM 输出 bullets 已经按"逻辑条目"分好,
+                # 不再走 _merge_detail_lines (那个原本是给 heuristic 路径用
+                # 修 PDF 行 wrap 的, 在 LLM 输出上会反方向 glue 把"做了一些
+                # 数据维护工作"粘到前一条 "AB 测试..." 上 — Worker C P7-1)。
+                bullets=_normalize_string_list(raw_item.get('bullets', [])),
             )
         )
     return [item for item in items if item.company or item.role or item.bullets]
@@ -646,7 +762,8 @@ def _normalize_project_items(value: Any) -> list[ResumeProjectItem]:
                 name=_clean_line(str(raw_item.get('name', ''))),
                 role=_clean_line(str(raw_item.get('role', ''))),
                 tech_stack=_normalize_string_list(raw_item.get('tech_stack', [])),
-                bullets=_merge_detail_lines(_normalize_string_list(raw_item.get('bullets', []))),
+                # #1 (2026-05-21): 同 internship, 不再 merge LLM 已分好的 bullets
+                bullets=_normalize_string_list(raw_item.get('bullets', [])),
             )
         )
     return [item for item in items if item.name or item.role or item.bullets]
@@ -723,8 +840,8 @@ def _merge_profile_with_heuristics(raw_profile: Any, heuristic_profile: ResumePr
         **_normalize_basic_info(raw_dict.get('basic_info', {})),
     }
 
-    technical = _normalize_string_list(skills_dict.get('technical', []))
-    tools = _normalize_string_list(skills_dict.get('tools', []))
+    technical = _clean_skill_items(_normalize_string_list(skills_dict.get('technical', [])))
+    tools = _clean_skill_items(_normalize_string_list(skills_dict.get('tools', [])))
     skill_languages = _normalize_string_list(skills_dict.get('languages', []))
     languages = _normalize_string_list(raw_dict.get('languages', []))
 
@@ -742,10 +859,20 @@ def _merge_profile_with_heuristics(raw_profile: Any, heuristic_profile: ResumePr
             _normalize_project_items(raw_dict.get('projects', [])),
             heuristic_profile.projects,
         ),
+        # 2026-05-21: skills 三栏改成 LLM ∪ heuristic 并集而不是"LLM or heuristic"。
+        # 原来 LLM 给 ["Python","SQL"] 就直接覆盖, heuristic 通过 KNOWN_TECH_SKILLS
+        # 在简历里实锤找到的 LightGBM/XGBoost/LSTM 等被丢。 现在两边各自的 hits 都
+        # 保留, dedupe 保序 (LLM 优先, heuristic 补全)。
         skills=ResumeSkillsPayload(
-            technical=technical or heuristic_profile.skills.technical,
-            tools=tools or heuristic_profile.skills.tools,
-            languages=skill_languages or heuristic_profile.skills.languages,
+            technical=_dedupe_preserve_order(
+                list(technical) + list(heuristic_profile.skills.technical)
+            ),
+            tools=_dedupe_preserve_order(
+                list(tools) + list(heuristic_profile.skills.tools)
+            ),
+            languages=_dedupe_preserve_order(
+                list(skill_languages) + list(heuristic_profile.skills.languages)
+            ),
         ),
         languages=languages or heuristic_profile.languages,
         awards=_normalize_string_list(raw_dict.get('awards', [])) or heuristic_profile.awards,
@@ -779,7 +906,27 @@ def build_heuristic_resume_profile(resume_text: str) -> ResumeProfilePayload:
             break
 
     lowered_text = resume_text.lower()
-    technical_skills = [skill for skill in KNOWN_TECH_SKILLS if skill.lower() in lowered_text]
+    # 2026-05-21: 短 token (< 6 字符 / 含特殊符号如 C++ / R语言) 不能用纯
+    # substring match — "C" 会在 "CICC" 里匹配。改成"短 token 要求左右是
+    # 边界 (空白 / 标点 / 行首尾)", 长 token (LightGBM / Transformer) 直接 substring。
+    def _skill_in(skill: str, text: str) -> bool:
+        s = skill.lower()
+        if len(s) >= 6:
+            return s in text
+        # word-boundary check 用 Python regex 的 \b 不太适合中文 / +#,
+        # 这里手写: 左右必须是非字母数字 (或文本边界)
+        idx = 0
+        while True:
+            pos = text.find(s, idx)
+            if pos < 0:
+                return False
+            left_ok = pos == 0 or not text[pos - 1].isalnum()
+            right_end = pos + len(s)
+            right_ok = right_end == len(text) or not text[right_end].isalnum()
+            if left_ok and right_ok:
+                return True
+            idx = pos + 1
+    technical_skills = [skill for skill in KNOWN_TECH_SKILLS if _skill_in(skill, lowered_text)]
     inferred_roles = _dedupe_preserve_order([role for role in ROLE_KEYWORDS if role.lower() in lowered_text])[:3]
     inferred_tracks = _canonicalize_track_list(
         _dedupe_preserve_order([track for track in TRACK_KEYWORDS if track.lower() in lowered_text])[:3]

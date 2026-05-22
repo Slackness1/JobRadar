@@ -263,11 +263,46 @@ export function getResumeCopilotPreferences(sessionId: number) {
   return requestJson<ResumePreferenceOut>(`/api/resume-copilot/sessions/${sessionId}/preferences`);
 }
 
-export function putResumeCopilotPreferences(sessionId: number, preferences: ResumePreferencePayload) {
-  return requestJson<ResumePreferenceOut>(`/api/resume-copilot/sessions/${sessionId}/preferences`, {
+/** #3 (2026-05-21): 拓展 PUT /preferences 返回值, 把后端 `X-Unknown-Tracks`
+ *  header 一起带出, FE 可据此 toast 提示"你填的赛道 X 已自动映射为 Y"。
+ *  老调用方期望 ResumePreferenceOut 形状 — 用 PromiseLike 加属性的方式扩展,
+ *  既不破坏现有 destructure, 又能让新调用拿到 unknownTracks 数组。
+ */
+export interface ResumePreferenceOutWithMeta extends ResumePreferenceOut {
+  unknownTracks?: string[];
+}
+
+export async function putResumeCopilotPreferences(
+  sessionId: number,
+  preferences: ResumePreferencePayload,
+): Promise<ResumePreferenceOutWithMeta> {
+  const userKey = getOrCreateUserKey();
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Resume-User-Key': userKey,
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (!token && isGuestUser()) headers['X-Guest'] = '1';
+
+  const response = await fetch(`/api/resume-copilot/sessions/${sessionId}/preferences`, {
     method: 'PUT',
+    headers,
     body: JSON.stringify({ preferences }),
   });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Request failed with ${response.status}`);
+  }
+  const body = (await response.json()) as ResumePreferenceOut;
+  // 后端把未识别的赛道 URL-encode 后塞 X-Unknown-Tracks header (latin-1 限制)
+  const raw = response.headers.get('x-unknown-tracks') || '';
+  const unknownTracks = raw
+    ? raw.split(',').map((s) => {
+        try { return decodeURIComponent(s); } catch { return s; }
+      }).filter(Boolean)
+    : undefined;
+  return { ...body, unknownTracks };
 }
 
 export function postResumeCopilotGenerate(sessionId: number) {
@@ -296,10 +331,16 @@ export function getChatMessages(sessionId: number) {
   );
 }
 
-export function postChatMessage(sessionId: number, content: string) {
+export function postChatMessage(
+  sessionId: number,
+  content: string,
+  opts?: { activeJobId?: string },
+) {
+  const body: { content: string; active_job_id?: string } = { content };
+  if (opts?.activeJobId) body.active_job_id = opts.activeJobId;
   return requestJson<CopilotMessage>(`/api/resume-copilot/sessions/${sessionId}/chat`, {
     method: 'POST',
-    body: JSON.stringify({ content }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -309,6 +350,71 @@ export function postApplyRewrite(sessionId: number, messageId: number, optionId:
     {
       method: 'POST',
       body: JSON.stringify({ message_id: messageId, option_id: optionId }),
+    }
+  );
+}
+
+// ── Rewrite v0/v2 (C-1 thesis-aware, P1 BE-2) ────────────────────────────────
+// v0 = 学生原文 (echo); v2 = thesis-aware 改写.
+// FE-3 hooks this on bullet hover ✏️ → inline diff in RightResumePane.
+// Apply 链路暂未接 (see RightResumePane README) — 本助手只拉 v0/v2 + warnings,
+// 学生用 "复制到剪贴板" 自行粘贴回简历;完整 apply P1 末尾再接.
+
+export interface RewriteWarningSuggestionDto {
+  action: 'fill_real' | 'delete_number' | 'vague' | string;
+  label: string;
+}
+
+export interface RewriteWarningDto {
+  type: 'fabricated_number' | string;
+  number: string;
+  suggestion_options: RewriteWarningSuggestionDto[];
+  detail: string;
+}
+
+export interface RewriteVersionV0Dto {
+  text: string;
+}
+
+export interface RewriteVersionV2Dto {
+  text: string;
+  needs_plan_mode: boolean;
+  warnings: RewriteWarningDto[];
+  /** Non-blocking nudge when memory is empty (Fix #2). Empty string when
+   *  memory had hits; UI renders as a soft banner under v2 text. */
+  soft_hint?: string;
+}
+
+export interface RewriteV0V2Out {
+  field_path: string;
+  section: string;
+  target_title: string;
+  v0: RewriteVersionV0Dto;
+  v2: RewriteVersionV2Dto;
+  rationale: string;
+  memory_refs: number[];
+}
+
+export interface RewriteV0V2In {
+  bullet_text: string;
+  field_path: string;
+  target_job_description?: string;
+  target_title?: string;
+  section?: string;
+}
+
+export function postRewriteV0V2(sessionId: number, payload: RewriteV0V2In) {
+  return requestJson<RewriteV0V2Out>(
+    `/api/resume-copilot/sessions/${sessionId}/rewrite/v0v2`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        bullet_text: payload.bullet_text,
+        field_path: payload.field_path,
+        target_job_description: payload.target_job_description ?? '',
+        target_title: payload.target_title ?? '',
+        section: payload.section ?? '',
+      }),
     }
   );
 }
@@ -396,4 +502,336 @@ export function deleteStudentExperience(expId: number) {
     `/api/student-kb/experiences/${expId}`,
     { method: 'DELETE' }
   );
+}
+
+// ── Recommendation reject (BE-3, D-2 / D-3) ──────────────────────────────────
+
+/** Canonical reason keys accepted by BE-3 reject endpoint. */
+export type RecommendRejectReason =
+  | 'wrong_track'
+  | 'company_disliked'
+  | 'school_mismatch'
+  | 'timing'
+  | 'other';
+
+export interface RecommendRejectIn {
+  reason: RecommendRejectReason;
+  note?: string;
+}
+
+export interface RecommendRejectOut {
+  ok: boolean;
+  memory_entry_id: number | null;
+  rejected_count: number;
+}
+
+/** D-2/D-3: 学生 ✗ 拒绝一个推荐岗。BE 会写一条 account_memory.preference
+ *  + 把 job_id 追加到 session.rejected_job_ids_json,下次 recommend 会过滤掉。 */
+export function postRejectRecommendation(
+  sessionId: number,
+  jobId: string,
+  payload: RecommendRejectIn,
+) {
+  return requestJson<RecommendRejectOut>(
+    `/api/resume-copilot/sessions/${sessionId}/recommendations/${encodeURIComponent(jobId)}/reject`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        reason: payload.reason,
+        note: payload.note ?? '',
+      }),
+    },
+  );
+}
+
+// ── Account memory (Phase 0 P0-2 + BE-1; FE-4 consumer) ─────────────────────
+//
+// 8 canonical categories: experience / skill_claim / preference / identity_fact
+// / evidence / goal / commitment / weakness_signal.
+// (A-4 简: 当前 chat extractor 只写 experience / skill_claim / preference,
+//  其余 5 类暂留以兼容旧 writers。)
+
+export const MEMORY_CATEGORIES = [
+  'experience',
+  'skill_claim',
+  'preference',
+  'identity_fact',
+  'evidence',
+  'goal',
+  'commitment',
+  'weakness_signal',
+] as const;
+
+export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
+
+export interface MemoryEntry {
+  id: number;
+  category: MemoryCategory | string;
+  summary: string;
+  payload: Record<string, unknown>;
+  confidence: number;
+  user_confirmed: boolean;
+  use_count: number;
+  is_archived: boolean;
+  superseded_by_id: number | null;
+  source_module: string;
+  source_session_id: number | null;
+  raw_excerpt: string;
+  captured_at: string | null;
+  last_verified_at: string | null;
+  last_used_at: string | null;
+  /** Plan 1 (2026-05-20): which resume bullets this memory came from. */
+  linked_field_paths?: string[];
+  /** Set to true when student edited a linked bullet — UI shows 🔄 badge. */
+  needs_resync?: boolean;
+  /** Plan ② (2026-05-20): canonical 赛道 name when captured (e.g.
+   *  '二级买方·基本面'). Empty = general / cross-track. UI shows a tag. */
+  linked_track?: string;
+}
+
+export interface MemoryGroupedResponse {
+  session_id: number;
+  user_key: string;
+  entries: Record<string, MemoryEntry[]>;
+}
+
+export function getSessionMemory(sessionId: number) {
+  return requestJson<MemoryGroupedResponse>(
+    `/api/resume-copilot/sessions/${sessionId}/memory`,
+  );
+}
+
+export interface MemoryCreateIn {
+  category: MemoryCategory | string;
+  summary: string;
+  payload?: Record<string, unknown>;
+  raw_excerpt?: string;
+  confidence?: number;
+}
+
+export function postSessionMemory(sessionId: number, payload: MemoryCreateIn) {
+  return requestJson<MemoryEntry>(
+    `/api/resume-copilot/sessions/${sessionId}/memory`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        category: payload.category,
+        summary: payload.summary,
+        payload: payload.payload ?? {},
+        raw_excerpt: payload.raw_excerpt ?? '',
+        confidence: payload.confidence ?? 1.0,
+      }),
+    },
+  );
+}
+
+export interface MemoryPatchIn {
+  summary?: string;
+  payload?: Record<string, unknown>;
+}
+
+export function patchSessionMemoryEntry(
+  sessionId: number,
+  entryId: number,
+  body: MemoryPatchIn,
+) {
+  const payload: Record<string, unknown> = {};
+  if (body.summary !== undefined) payload.summary = body.summary;
+  if (body.payload !== undefined) payload.payload = body.payload;
+  return requestJson<MemoryEntry>(
+    `/api/resume-copilot/sessions/${sessionId}/memory/${entryId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function deleteSessionMemoryEntry(sessionId: number, entryId: number) {
+  return requestJson<void>(
+    `/api/resume-copilot/sessions/${sessionId}/memory/${entryId}`,
+    { method: 'DELETE' },
+  );
+}
+
+// ── Plan-mode (B-1 / B-2 简 / B-3 / B-4) ────────────────────────────────────
+//
+// Backend lives in app/routers/resume_copilot.py around /plan/* — the schema
+// is the rich PlanState (items[], evidence, drafts, …).  FE-4 only needs:
+//   1. start  → POST /plan/start (body is empty in current BE; the prompt
+//      contract carries focus_kind/focus_id which BE silently ignores today —
+//      see report §9. We still send it so the wire matches the design doc.)
+//   2. turn   → POST /plan/turn   (composer message → AI follow-up + state)
+//   3. finalize → POST /plan/actions {action:"finalize", item_id, expected_version}
+//      (BE has no /plan/finalize endpoint; the "finalize" semantic lives in
+//      apply_action.)
+//   4. get    → GET /plan          (rehydrate after refresh)
+
+export interface PlanEvidenceTagWire {
+  type: string;
+  value: string;
+  raw: string;
+}
+
+export interface PlanEvidenceWire {
+  id: string;
+  source: string;
+  text: string;
+  tags: PlanEvidenceTagWire[];
+  citation_msg_id: string | null;
+  extracted_at: string;
+}
+
+export interface PlanOpenQuestionWire {
+  id: string;
+  text: string;
+  asked_at: string;
+  answered_at: string | null;
+  answer_msg_id: string | null;
+}
+
+export interface PlanDraftWire {
+  text: string;
+  used_evidence_ids: string[];
+  risk_flags: Array<{ kind: string; detail: string; blocking: boolean }>;
+  generated_at: string;
+}
+
+export interface PlanItemWire {
+  id: string;
+  kind: string;
+  title: string;
+  parent_id: string | null;
+  order: number;
+  status: string;
+  evidence: PlanEvidenceWire[];
+  draft: PlanDraftWire | null;
+  open_questions: PlanOpenQuestionWire[];
+  rationale: string | null;
+  last_transition_at: string;
+}
+
+export interface PlanStateOut {
+  version: number;
+  status: string;
+  current_item_id: string | null;
+  items: PlanItemWire[];
+  replan_count: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PlanStartIn {
+  /** Designed contract per main-workspace-redesign-2026-05-20 §2 B-2 简.
+   *  BE silently ignores until P1.x — included so the wire matches and we
+   *  can flip BE later without touching FE. */
+  focus_kind?: 'experience' | string;
+  focus_id?: number;
+}
+
+export function postPlanStart(sessionId: number, payload?: PlanStartIn) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/start`,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload ?? {}),
+    },
+  );
+}
+
+export function getPlan(sessionId: number) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan`,
+  );
+}
+
+/** H 2026-05-22: 入档前 LLM 精炼。 学生反馈 "入档时有很多重复的原话",
+ *  这个 endpoint 把 draft + raw evidence 喂 LLM, 返回干净的 summary + STAR +
+ *  去重 quantified + 精简 raw_excerpt_clean, FE 拿这个再 POST /memory 入档。
+ */
+export interface PlanDistillOut {
+  summary: string;
+  star: { situation: string; task: string; action: string; result: string };
+  quantified: Record<string, string>;
+  raw_excerpt_clean: string;
+  used_evidence_ids: string[];
+}
+
+export function postPlanDistill(sessionId: number, itemId?: string): Promise<PlanDistillOut> {
+  const qs = itemId ? `?item_id=${encodeURIComponent(itemId)}` : '';
+  return requestJson<PlanDistillOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/distill${qs}`,
+    { method: 'POST' },
+  );
+}
+
+/** Wipe the existing plan_json so /plan/start can run fresh.
+ *  Added 2026-05-21 to unstick sessions with stale clarifying plans
+ *  whose current_item_id is null (the "click coach → 5 min nothing" bug). */
+export function deletePlan(sessionId: number): Promise<void> {
+  return requestJson<void>(
+    `/api/resume-copilot/sessions/${sessionId}/plan`,
+    { method: 'DELETE' },
+  );
+}
+
+export function postPlanApprove(sessionId: number) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/approve`,
+    { method: 'POST' },
+  );
+}
+
+export interface PlanTurnIn {
+  user_message: string;
+  target_item_id?: string | null;
+}
+
+export function postPlanTurn(sessionId: number, body: PlanTurnIn) {
+  const qs =
+    body.target_item_id != null
+      ? `?target_item_id=${encodeURIComponent(body.target_item_id)}`
+      : '';
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/turn${qs}`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content: body.user_message }),
+    },
+  );
+}
+
+export interface PlanActionIn {
+  action: 'finalize' | 'ready_to_write' | 'drop' | 'block' | string;
+  item_id: string;
+  payload?: Record<string, unknown>;
+  expected_version?: number;
+}
+
+export function postPlanAction(sessionId: number, body: PlanActionIn) {
+  return requestJson<PlanStateOut>(
+    `/api/resume-copilot/sessions/${sessionId}/plan/actions`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        action: body.action,
+        item_id: body.item_id,
+        payload: body.payload ?? {},
+        expected_version: body.expected_version ?? null,
+      }),
+    },
+  );
+}
+
+/** Convenience wrapper requested by the FE-4 task spec.  Maps to BE's
+ *  apply_action("finalize") on the currently-active item. */
+export function postPlanFinalize(
+  sessionId: number,
+  body: { item_id: string; expected_version?: number },
+) {
+  return postPlanAction(sessionId, {
+    action: 'finalize',
+    item_id: body.item_id,
+    expected_version: body.expected_version,
+  });
 }

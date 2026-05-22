@@ -84,6 +84,20 @@ def _fake_caller(response: dict):
     return _call
 
 
+def _fake_sequence(responses):
+    calls = []
+
+    def _call(messages):
+        calls.append(messages)
+        response = responses[len(calls) - 1]
+        if callable(response):
+            response = response(messages)
+        return json.dumps(response)
+
+    _call.calls = calls
+    return _call
+
+
 def test_run_plan_turn_persists_user_message(db_with_session):
     db, sid, item_id = db_with_session
     fake = _fake_caller({
@@ -98,6 +112,75 @@ def test_run_plan_turn_persists_user_message(db_with_session):
     assert msgs[0].content == '字节实习'
     assert msgs[1].role == 'assistant'
     assert '数据量' in msgs[1].content
+
+
+def test_run_plan_turn_records_user_answer_as_evidence(db_with_session):
+    db, sid, item_id = db_with_session
+    fake = _fake_caller({
+        "action": "ask",
+        "item_id": item_id,
+        "payload": {"question_text": "结果是什么?"},
+    })
+    new_plan, _ = run_plan_turn(db, sid, "我用 Excel 做了模型核查，输出估值表", llm_caller=fake)
+    item = new_plan.items[0]
+    user_evidence = [ev for ev in item.evidence if ev.source == 'user_clarification']
+    assert len(user_evidence) == 1
+    assert user_evidence[0].citation_msg_id is not None
+    assert {tag.type for tag in user_evidence[0].tags} >= {'verb_subject', 'tool'}
+
+
+def test_run_plan_turn_auto_writes_after_ready_to_write(db_with_session):
+    db, sid, item_id = db_with_session
+
+    # #2 (2026-05-21): min-turn floor 要求 item 至少 2 条 user_clarification
+    # evidence 才允许 inline ready_to_write→write 自动写草稿。 给这个 item 预先
+    # 挂一条 evidence (模拟"已经聊过一轮"), 让这一回合的答复触发 inline write。
+    from app.services.resume_copilot.plan import (
+        Evidence as _Evidence, PlanState as _PlanState
+    )
+    s = db.query(ResumeCopilotSession).filter_by(id=sid).first()
+    _plan_state = _PlanState.model_validate_json(s.plan_json)
+    _plan_state.items[0].evidence.append(_Evidence(
+        source='user_clarification',
+        text='上次我说过用了 Excel 跑了一遍数据',
+        tags=[],
+    ))
+    s.plan_json = _plan_state.model_dump_json()
+    db.commit()
+
+    def write_from_current_item(messages):
+        prompt = json.loads(messages[-1]["content"])
+        evidence_ids = [ev["id"] for ev in prompt["current_item"]["evidence"]]
+        return {
+            "action": "write",
+            "item_id": item_id,
+            "payload": {
+                "draft_text": "使用 Excel 完成模型核查并输出估值表",
+                "used_evidence_ids": evidence_ids,
+            },
+        }
+
+    fake = _fake_sequence([
+        {"action": "ready_to_write", "item_id": item_id, "payload": {}},
+        write_from_current_item,
+    ])
+    new_plan, action = run_plan_turn(
+        db, sid, "我用 Excel 做了模型核查，输出估值表", llm_caller=fake,
+    )
+    assert action.action == "write"
+    assert new_plan.items[0].status == ItemStatus.AWAITING_REVIEW
+    assert new_plan.items[0].draft is not None
+    assert new_plan.items[0].draft.text == "使用 Excel 完成模型核查并输出估值表"
+
+    msgs = db.query(ResumeCopilotMessage).filter_by(session_id=sid).order_by(ResumeCopilotMessage.id).all()
+    assert len(msgs) == 2
+    assert msgs[-1].role == 'assistant'
+    # R2 polish (2026-05-21): message rewriten to "我按现在的 evidence 写了一版给你看"
+    # so student sees the 2-step finalize ritual more clearly. Still asserts the
+    # draft text shows up + finalize prompt is present.
+    assert '写了一版' in msgs[-1].content
+    assert '使用 Excel 完成模型核查并输出估值表' in msgs[-1].content
+    assert ('定下来' in msgs[-1].content) or ('就这样' in msgs[-1].content)
 
 
 def test_run_plan_turn_applies_action_and_bumps_version(db_with_session):
@@ -132,7 +215,12 @@ def test_run_plan_turn_converts_failing_write_into_followup_ask(db_with_session)
     # the orchestrator must NOT propagate the audit error; instead it converts
     # to an ask so the user is asked for the missing source
     assert action.action == "ask"
-    assert "overclaim" in action.payload.get("question_text", "") or "出处" in action.payload.get("question_text", "")
+    # M1 (2026-05-21): tag 名 ("overclaim" / "tech_unverified") 必须被翻成
+    # 自然中文 — 之前直接拼 tag 字符串到学生眼前 (Worker B 实测)。
+    qt = action.payload.get("question_text", "")
+    assert "overclaim" not in qt, f'raw tag leak: {qt}'
+    assert "tech_unverified" not in qt, f'raw tag leak: {qt}'
+    assert "动词太强" in qt or "具体负责" in qt or "确认一下" in qt, f'unexpected qt: {qt}'
     assert new_plan.items[0].status == ItemStatus.CLARIFYING
 
 

@@ -4,13 +4,12 @@ from typing import Any, Callable
 
 from sqlalchemy.orm import Session
 
-from app.models import Job, JobIntelSnapshot
+from app.models import Job
 from app.schemas_resume_copilot import (
     ResumePreferencePayload,
     ResumeProfilePayload,
     ResumeRecommendationItem,
 )
-from app.services.resume_copilot.quick_enrichment import search_web as _search_web
 from app.services.resume_copilot.recommendation import compute_company_priority
 
 
@@ -57,7 +56,6 @@ def build_tools(
                 'location': i.location,
                 'base_match_score': i.base_match_score,
                 'company_tier': i.company_priority_label or '',
-                'need_enrichment': i.need_enrichment,
             }
             for i in top
         ]
@@ -89,42 +87,29 @@ def build_tools(
         )
 
     def get_company_intel(company_name: str) -> ToolResult:
+        # Phase 0 (D-4): snapshot read removed — tool now returns
+        # priority/tier metadata only. The `cached_summary` field stays in the
+        # response shape (empty string) so prompt templates/LLM JSON parsers
+        # built on the old contract don't break.
         job = db.query(Job).filter(Job.company.like(f'%{company_name}%')).first()
         if not job:
             return ToolResult(summary=f'未找到公司「{company_name}」的记录', data={})
         priority = compute_company_priority(job)
-        snapshot = (
-            db.query(JobIntelSnapshot)
-            .filter(JobIntelSnapshot.job_id == job.id)
-            .order_by(JobIntelSnapshot.generated_at.desc())
-            .first()
-        )
         data = {
             'company': company_name,
             'tier': priority.tier,
             'tier_label': priority.label,
             'category': priority.category_label,
             'high_info_asymmetry': priority.high_info_asymmetry,
-            'cached_summary': str(snapshot.summary_text or '') if snapshot else '',
+            'cached_summary': '',
         }
         summary = f'{company_name}：{priority.label or "未收录"}'
         if priority.high_info_asymmetry:
             summary += '（高信息不对称）'
-        if snapshot:
-            summary += '，有缓存情报'
         return ToolResult(summary=summary, data=data)
-
-    def search_web(query: str) -> ToolResult:
-        results = _search_web(query, max_results=4)
-        rows = [{'title': r.title, 'url': r.url, 'snippet': r.snippet} for r in results]
-        return ToolResult(
-            summary=f'搜索到 {len(rows)} 条外部结果',
-            data=rows,
-        )
 
     return {
         'search_candidates': search_candidates,
         'inspect_jobs': inspect_jobs,
         'get_company_intel': get_company_intel,
-        'search_web': search_web,
     }

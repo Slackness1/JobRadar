@@ -1,12 +1,26 @@
 # TASKS
 
-> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-16 深夜.**
+> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-18 深夜.**
 
 ## 收官 ✅ (2026-05-16 深夜)
 
 **Taxonomy 项目级铺线 sprint 全部完成** —— 6 phase 全 ship,8 canonical 贯穿 backend model + parser + provider + scoring,frontend picker,eval fixtures + judge prompt,DB jobs + tracks 全模块。142 unit tests pass。
 
-## Active sprint (空) — 等用户指派下一段
+## 收官 ✅ (2026-05-18)
+
+**模拟面试评分接入 ContextProvider + personalization directive (C')** —— scoring.py 新增可选 db/user_key/profile/preferences 参数；总是 append directive；orchestrator 透传 user_key。10/10 scoring test pass。**已 push (`efb0ffe`)**。配套 demo: `backend/scripts/demo_abc_scoring_touyan.py` 一键复跑 4 版对照（投研嘉实场景）。
+
+## Active sprint — 真实闭环验证 + SAIF demo 准备
+
+### 🔴 P0 (本次正在跑) — 上游记忆→面试 真实链路检验
+
+- [ ] **跑通：简历上传 → chat 修改 → 模拟面试**，验证上游写入的记忆是否真的被面试的出题 / 评分读到、有没有改变 LLM 行为
+- [ ] 输出对照报告：同一假学生 fixture，跑两遍模拟面试 —— 一次 user_key 是新的（无上游记忆），一次走完整链路后用（有上游记忆），看出题 + 反馈差异
+
+### 🟡 P1 (依赖 P0 发现，下一步)
+
+- [ ] **接通：模拟面试→学生档案 的写入** —— 当前断在这里：面试算出来的弱点只写在 `interview_reports` 表，没存进 `account_memory`，所以"做完面试 → 系统记下来 → 下次面试调用"这个闭环根本不存在。预计半天～一天。改完后"同一学生连做两次面试，第二次反馈引用第一次"才成立。
+- [ ] **系统内"热展示"形态选型**：3 个候选 —— (A) 同一学生网页上连做 2 次面试，反馈引用上次  (B) 面试页侧边露 "AI 当下用了什么" 小窗  (C) 反馈下加 "看看不带历史版本" 切换按钮。A 是最直观演示，B 是产品长期卖点，C 是 A 的快捷补充。等 P0/P1 跑通后定。
 
 详见 `HANDOFF.md` "下次会话建议接什么"。
 

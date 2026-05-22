@@ -234,8 +234,12 @@ def test_extract_for_chat_turn_skips_guest_user_key(mock_client, db_factory):
 
 
 @patch('app.services.resume_copilot.memory.extractor.STUDENT_KB_ENABLED', False)
+@patch('app.services.resume_copilot.memory.extractor.UNIFIED_MEMORY_ENABLED', False)
 @patch('app.services.resume_copilot.memory.extractor._build_llm_client')
 def test_extract_for_chat_turn_skips_when_flag_off(mock_client, db_factory):
+    """Phase 0 (P0-1) flipped both memory flags ON by default — the
+    flag_off short-circuit now requires BOTH to be False, so this test
+    patches both to verify the kill-switch still works."""
     from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
 
     sid = _make_session(db_factory, user_key='real_user_123')
@@ -309,5 +313,142 @@ def test_low_confidence_stores_unconfirmed(mock_client, db_factory):
         extract_for_chat_turn(db, session_id=sid, user_content=VALID_SOURCE)
         row = db.query(StudentExperience).filter(StudentExperience.user_key == 'real_user_low').one()
         assert row.user_confirmed is False
+    finally:
+        db.close()
+
+
+# ---------- A-4 简(main-workspace-redesign-2026-05-20): 3-类抽取限制 ---------
+# Chat extractor 简化为只产 experience / skill_claim / preference;
+# identity_fact / evidence / goal / commitment / weakness_signal 类不再写入。
+
+
+def test_allowed_categories_is_three_classes_only():
+    """Module-level constant pin: 防止后续无意把 5 类老类别加回来。"""
+    from app.services.resume_copilot.memory.extractor import ALLOWED_CATEGORIES
+
+    assert set(ALLOWED_CATEGORIES) == {'experience', 'skill_claim', 'preference'}
+    # Categories explicitly removed in A-4 简 — keep this list explicit so a
+    # future refactor that re-adds one of these has to delete the assertion.
+    forbidden = {'identity_fact', 'evidence', 'goal', 'commitment', 'weakness_signal'}
+    assert not (forbidden & set(ALLOWED_CATEGORIES))
+
+
+@patch('app.services.resume_copilot.memory.extractor._build_llm_client')
+def test_identity_fact_category_rejected_post_a4(mock_client):
+    """LLM emitting identity_fact (old 4-class behavior) must be rejected by
+    the category whitelist, not silently inserted as identity_fact."""
+    from app.services.resume_copilot.memory.extractor import extract_from_text
+
+    bad = {
+        **VALID_CANDIDATE,
+        'category': 'identity_fact',
+        'identity_fact_kind': 'school',
+        'identity_fact_value': '上海交大',
+        'star_dimensions': [],
+        'has_temporal_anchor': False,
+        'has_concrete_action': False,
+        'has_outcome': False,
+    }
+    fake = MagicMock()
+    fake.chat.completions.create.return_value = _make_llm_response([bad])
+    mock_client.return_value = fake
+
+    candidates, rejections = extract_from_text(VALID_SOURCE)
+    assert candidates == []
+    assert any(r.startswith('invalid_category') for r in rejections)
+
+
+@patch('app.services.resume_copilot.memory.extractor._build_llm_client')
+def test_only_three_categories_emerge_from_mixed_batch(mock_client):
+    """Mixed batch: 2 valid (experience + skill_claim) + 2 forbidden
+    (identity_fact + evidence) — only the 2 allowed ones come through."""
+    from app.services.resume_copilot.memory.extractor import extract_from_text
+
+    skill = {
+        **VALID_CANDIDATE,
+        'category': 'skill_claim',
+        'summary': '熟悉 Python pandas',
+        'skill_name': 'Python pandas',
+        'skill_level': 'advanced',
+        'star_dimensions': [],
+        'raw_excerpt': '我大三时组织过一次',
+        'has_temporal_anchor': False,
+        'has_concrete_action': False,
+        'has_outcome': False,
+    }
+    pref = {
+        **VALID_CANDIDATE,
+        'category': 'preference',
+        'summary': '只接受上海岗',
+        'preference_dimension': 'city',
+        'preference_value': '上海',
+        'star_dimensions': [],
+        'raw_excerpt': '我大三时',
+        'has_temporal_anchor': False,
+        'has_concrete_action': False,
+        'has_outcome': False,
+    }
+    identity = {
+        **VALID_CANDIDATE,
+        'category': 'identity_fact',
+        'summary': '上海交大 MF',
+        'identity_fact_kind': 'school',
+        'identity_fact_value': '上海交大',
+        'star_dimensions': [],
+        'raw_excerpt': '我大三时',
+        'has_temporal_anchor': False,
+        'has_concrete_action': False,
+        'has_outcome': False,
+    }
+    fake = MagicMock()
+    # Order matters — extractor slices to STUDENT_KB_MAX_CANDIDATES_PER_TURN (=3)
+    # *before* validation. Put identity_fact in the first 3 so it has to be
+    # rejected by the whitelist (not silently sliced off).
+    fake.chat.completions.create.return_value = _make_llm_response(
+        [VALID_CANDIDATE, identity, skill, pref],
+    )
+    mock_client.return_value = fake
+
+    candidates, rejections = extract_from_text(VALID_SOURCE)
+    cats = {c.category for c in candidates}
+    # experience + skill_claim come through; identity_fact is rejected;
+    # preference is sliced by the 3-candidate cap. The whitelist + cap together
+    # mean at most 3 candidates and never any of the 5 forbidden categories.
+    assert 'experience' in cats
+    assert 'identity_fact' not in cats
+    forbidden = {'identity_fact', 'evidence', 'goal', 'commitment', 'weakness_signal'}
+    assert not (cats & forbidden)
+    assert any(r.startswith('invalid_category') for r in rejections)
+
+
+@patch('app.services.resume_copilot.memory.extractor.STUDENT_KB_ENABLED', True)
+@patch('app.services.resume_copilot.memory.extractor.UNIFIED_MEMORY_ENABLED', True)
+@patch('app.services.resume_copilot.memory.extractor._build_llm_client')
+def test_no_evidence_rows_written_for_experience(mock_client, db_factory):
+    """A-4 简:experience candidate 不再派生 evidence 行写入 account_memory。"""
+    from app.models import AccountMemory
+    from app.services.resume_copilot.memory.extractor import extract_for_chat_turn
+
+    fake = MagicMock()
+    fake.chat.completions.create.return_value = _make_llm_response([VALID_CANDIDATE])
+    mock_client.return_value = fake
+
+    sid = _make_session(db_factory, user_key='real_user_a4')
+    db = db_factory()
+    try:
+        result = extract_for_chat_turn(db, session_id=sid, user_content=VALID_SOURCE)
+        # Experience row inserted in account_memory.
+        assert result['memory_inserted'] == 1
+        # No evidence rows derived.
+        assert result['evidence_inserted'] == 0
+        ev_rows = (
+            db.query(AccountMemory)
+            .filter(
+                AccountMemory.user_key == 'real_user_a4',
+                AccountMemory.category == 'evidence',
+            )
+            .all()
+        )
+        assert ev_rows == []
     finally:
         db.close()

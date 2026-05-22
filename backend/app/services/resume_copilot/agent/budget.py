@@ -5,7 +5,7 @@ DEFAULT_PER_TOOL_LIMITS: dict[str, int] = {
     'search_candidates': 4,
     'inspect_jobs': 3,
     'get_company_intel': 5,
-    'search_web': 3,
+    # Phase 0 (D-4): 'search_web' tool removed with snapshot system.
     'finalize': 1,
 }
 

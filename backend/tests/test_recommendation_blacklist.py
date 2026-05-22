@@ -138,10 +138,10 @@ TRACK_CANONICAL_CASES: list[tuple[str, str]] = [
     ('蚂蚁', '金融科技'),
     ('Fintech', '金融科技'),
     ('跨境支付', '金融科技'),
-    # 咨询
-    ('MBB', '金融咨询'),
-    ('麦肯锡', '金融咨询'),
-    ('四大', '金融咨询'),
+    # 管理咨询·MBB (2026-05-21 renamed from 金融咨询)
+    ('MBB', '管理咨询·MBB'),
+    ('麦肯锡', '管理咨询·MBB'),
+    ('四大', '管理咨询·MBB'),
 ]
 
 
@@ -165,5 +165,6 @@ def test_canonical_tracks_no_duplicates() -> None:
 
 
 def test_canonical_tracks_count() -> None:
-    """文档说 8 个,跟代码绑死防意外增删。"""
-    assert len(CANONICAL_FINANCE_TRACKS) == 8
+    """2026-05-21: 10 个 — 在 8 个基础上拆出"战略咨询"+"大宗·能源"(SAIF 老师反馈)。
+    跟代码绑死防意外增删。"""
+    assert len(CANONICAL_FINANCE_TRACKS) == 10

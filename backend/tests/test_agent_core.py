@@ -101,7 +101,6 @@ def test_agent_respects_tool_budget():
         'search_candidates': 0,
         'inspect_jobs': 0,
         'get_company_intel': 0,
-        'search_web': 0,
         'finalize': 1,
     })
     tools = {'search_candidates': MagicMock()}

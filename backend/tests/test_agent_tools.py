@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from app.services.resume_copilot.agent.tools import build_tools, ToolResult
 from app.schemas_resume_copilot import (
     ResumeProfilePayload, ResumePreferencePayload, ResumeRecommendationItem,
@@ -9,7 +9,7 @@ def _make_candidate(job_id='J1', company='测试公司', job_title='数据分析
                     location='上海', base_match_score=50,
                     company_priority_label='', company_priority_tier='',
                     matched_track_key='', matched_track_label='',
-                    matched_role_family='', need_enrichment=False) -> ResumeRecommendationItem:
+                    matched_role_family='') -> ResumeRecommendationItem:
     return ResumeRecommendationItem(
         job_id=job_id, company=company, job_title=job_title, location=location,
         objective_score=10, preference_score=5, base_job_score=20,
@@ -21,7 +21,6 @@ def _make_candidate(job_id='J1', company='测试公司', job_title='数据分析
         matched_track_key=matched_track_key,
         matched_track_label=matched_track_label,
         matched_role_family=matched_role_family,
-        need_enrichment=need_enrichment,
     )
 
 
@@ -69,12 +68,9 @@ def test_get_company_intel_unknown_company():
     assert '未找到' in result.summary
 
 
-def test_search_web_returns_tool_result():
+def test_search_web_tool_removed():
+    """Phase 0 (D-4): 'search_web' tool removed with the snapshot system.
+    Verify it no longer registers in the tool dict."""
     db = MagicMock()
-    with patch('app.services.resume_copilot.agent.tools._search_web') as mock_search:
-        from app.services.resume_copilot.quick_enrichment import SearchResult
-        mock_search.return_value = [SearchResult(title='面经', url='http://x.com', snippet='挺好的')]
-        tools = build_tools(db, ResumeProfilePayload(), None, [])
-        result = tools['search_web'](query='中信证券面经')
-    assert len(result.data) == 1
-    assert result.data[0]['title'] == '面经'
+    tools = build_tools(db, ResumeProfilePayload(), None, [])
+    assert 'search_web' not in tools

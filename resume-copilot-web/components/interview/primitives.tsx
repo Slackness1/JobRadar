@@ -96,6 +96,14 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 /* ─── AI orb — pulsing terracotta sphere with three concentric rings ───────── */
 
 export function AIOrb({ size = 220 }: { size?: number }) {
+  // The original mock-interview orb was designed at 220px with fixed
+  // insets. Workspace coach reuses it at 56-140px, so keep the 220px look
+  // as the reference and scale every ring proportionally.
+  const outerInset = size * (24 / 220);
+  const innerRingInset = size * (48 / 220);
+  const coreInset = size * (30 / 220);
+  const sparkleSize = Math.max(12, size * (38 / 220));
+
   return (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
       <div
@@ -104,23 +112,23 @@ export function AIOrb({ size = 220 }: { size?: number }) {
       />
       <div
         className="absolute rounded-full border"
-        style={{ inset: 24, borderColor: 'var(--border)' }}
+        style={{ inset: outerInset, borderColor: 'var(--border)' }}
       />
       <div
         className="absolute rounded-full border"
-        style={{ inset: 48, borderColor: 'var(--border)' }}
+        style={{ inset: innerRingInset, borderColor: 'var(--border)' }}
       />
       <div
         className="absolute grid place-items-center rounded-full"
         style={{
-          inset: 30,
+          inset: coreInset,
           background:
             'radial-gradient(circle at 35% 30%, #e38066 0%, var(--terracotta) 45%, var(--terracotta-strong) 100%)',
           boxShadow: '0 20px 50px rgba(201,100,66,0.28)',
           animation: 'itv-orb 2.4s ease-in-out infinite',
         }}
       >
-        <Sparkles size={38} strokeWidth={1.4} color="#faf9f5" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
+        <Sparkles size={sparkleSize} strokeWidth={1.4} color="#faf9f5" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
       </div>
     </div>
   );

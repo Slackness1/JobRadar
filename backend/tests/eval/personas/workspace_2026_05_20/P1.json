@@ -119,16 +119,8 @@
       "全国大学生金融建模大赛二等奖 (2024)"
     ],
     "candidate_summary": "清华经济本 + SAIF MF, 3 段头部金融实习 (中信研究所消费组 / 易方达消费+大健康组 / 高瓴二级 PE 助理). 覆盖经验集中在白酒 + CXO 双赛道, 既有卖方研究的体系化锤炼, 也有买方研究的真实持仓跟踪经历. 希望加入头部公募 (易方达 / 嘉实 / 华夏) 做长周期、高 conviction 的基本面研究, 中期目标做基金经理.",
-    "inferred_roles": [
-      "行业研究员",
-      "买方研究员",
-      "权益投资分析师"
-    ],
-    "inferred_tracks": [
-      "头部公募行研",
-      "外资行研究部",
-      "头部私募研究员"
-    ]
+    "inferred_roles": ["行业研究员", "买方研究员", "权益投资分析师"],
+    "inferred_tracks": ["头部公募行研", "外资行研究部", "头部私募研究员"]
   },
   "persona_voice": {
     "communication_style": "结构化、专业, 喜欢用术语. 答题习惯先给 framework 再展开案例.",
@@ -139,8 +131,7 @@
       "'某种意义上讲'"
     ],
     "typical_message_length": "中等偏长 (60-120 字), 喜欢分点",
-    "under_pressure": "被追问 conviction 时会用'我先 organize 一下我的 thinking'缓冲, 用 reframing 化解",
-    "verbal_tics_style": "mixed"
+    "under_pressure": "被追问 conviction 时会用'我先 organize 一下我的 thinking'缓冲, 用 reframing 化解"
   },
   "flow_padding_internship": {
     "company": "中信证券研究所 · 消费组",

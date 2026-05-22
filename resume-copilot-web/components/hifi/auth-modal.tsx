@@ -115,8 +115,12 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const handleLogin = async (values: LoginFormValues) => {
     setSubmitting(true);
     try {
+      // 2026-05-21: 允许 dev 用户用 "slackness" 短账号登录,自动补域名。
+      // 不影响真实邮箱登录(已经带 @ 的不动)。
+      let email = values.email.trim().toLowerCase();
+      if (email === 'slackness') email = 'slackness@jobcopilot.top';
       const result = await apiLogin({
-        email: values.email.trim().toLowerCase(),
+        email,
         password: values.password,
       });
       if (!result.email_verified) {
@@ -186,10 +190,19 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
                         name="email"
                         rules={[
                           { required: true, message: '请输入邮箱' },
-                          { type: 'email', message: '邮箱格式不正确' },
+                          {
+                            validator: async (_, value) => {
+                              const v = String(value || '').trim().toLowerCase();
+                              if (!v) return;
+                              if (v === 'slackness') return;
+                              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                                throw new Error('邮箱格式不正确');
+                              }
+                            },
+                          },
                         ]}
                       >
-                        <Input autoComplete="email" placeholder="name@example.com" />
+                        <Input autoComplete="email" placeholder="name@example.com 或 slackness" />
                       </Form.Item>
                       <Form.Item
                         label="密码"

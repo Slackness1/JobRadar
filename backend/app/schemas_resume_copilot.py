@@ -143,22 +143,6 @@ class ResumeGenerateOut(BaseModel):
     status: str
 
 
-class ResumeQuickEnrichmentSource(BaseModel):
-    title: str = ''
-    url: str = ''
-    snippet: str = ''
-
-
-class ResumeQuickEnrichmentProfile(BaseModel):
-    summary: str = ''
-    likely_orientation: str = ''
-    likely_department: str = ''
-    target_track_fit: str = ''
-    uncertainty_points: list[str] = []
-    search_queries: list[str] = []
-    sources: list[ResumeQuickEnrichmentSource] = []
-
-
 class ResumeAgentTraceItem(BaseModel):
     agent: str
     message: str
@@ -186,12 +170,10 @@ class ResumeRecommendationItem(BaseModel):
     matched_role_family: str = ''
     company_priority_tier: str = ''
     company_priority_label: str = ''
-    need_enrichment: bool = False
-    enrichment_reason: str = ''
     topic_key: str = ''
-    topic_cache_status: str = 'not_needed'
-    topic_summary: str = ''
-    quick_enrichment_profile: ResumeQuickEnrichmentProfile = Field(default_factory=ResumeQuickEnrichmentProfile)
+    # Phase 0 (D-4): snapshot/enrichment fields removed —
+    # need_enrichment / enrichment_reason / topic_cache_status / topic_summary /
+    # quick_enrichment_profile no longer part of the recommendation contract.
     used_ai: bool = False
     why_recommended: list[str] = []
     strengths: list[str] = []
@@ -200,6 +182,8 @@ class ResumeRecommendationItem(BaseModel):
     tier_label: str = ''         # '强匹配' | '可迁移' | '有差距' — 三档说理
     priority_letter: str = ''    # 'A' | 'B' | 'C' | 'D' — 投递分层 (rule 算)
     track_match_kind: str = ''   # 'hit'|'null_hit'|'transferable'|'ambiguous'|'mismatch'|'no_pref' (debug)
+    # 2026-05-20: 实习 / 校招 分流。frontend 据此 split into 两个 tab。
+    is_internship: bool = False
 
 
 class ResumeRecommendationResultOut(BaseModel):
@@ -259,6 +243,77 @@ class RewriteOption(BaseModel):
         return [str(value)]
 
 
+# ─── Rewrite v0/v2 (Phase 1 BE-2 — C-1 简) ─────────────────────────────────
+#
+# v0 = 学生当前简历原文 (echo, 不改)
+# v2 = thesis-aware 改写 (基于 account_memory 注入学生独立判断 / 非共识 view)
+# 没有 v1 STAR (C-1 简化决策, 见 docs/main-workspace-redesign-2026-05-20.md §0.6)
+
+
+class RewriteWarningSuggestion(BaseModel):
+    """One actionable choice attached to a rewrite warning (C-5)."""
+    action: str        # 'fill_real' | 'delete_number' | 'vague'
+    label: str         # 学生可见的中文按钮文案
+
+
+class RewriteWarning(BaseModel):
+    """Structured rewrite-warning. Today's only ``type`` is
+    ``fabricated_number`` (C-5 red line). Schema is open for future kinds
+    (overclaim / leadership_unverified etc.) without bumping the wire format.
+    """
+    type: str                        # 'fabricated_number' (for now)
+    number: str = ''                 # the offending token, when type=fabricated_number
+    suggestion_options: list[RewriteWarningSuggestion] = []
+    detail: str = ''                 # optional free-text human description
+
+
+class RewriteVersionV0(BaseModel):
+    """v0 — 学生当前原文。Echo of the bullet, no AI rewrite."""
+    text: str
+
+
+class RewriteVersionV2(BaseModel):
+    """v2 — thesis-aware 改写, 基于 account_memory entries 注入个人化判断 / 非共识 view.
+
+    ``needs_plan_mode=True`` 表示 memory 拉不到相关 entries, 此时 ``text`` 是
+    引导文案而非真实改写 — 学生应去 plan-mode 跟 AI 聊聊这段经历再回来。
+
+    ``warnings`` 由 ``_detect_fabricated_numbers`` 填; 学生应用前必须看到 —
+    CLAUDE.md 红线: AI 不可在 v2 里编造原简历没有的数字。
+    """
+    text: str
+    needs_plan_mode: bool = False
+    warnings: list[RewriteWarning] = []
+    # Optional non-blocking hint shown under the v2 box when memory is empty
+    # but a profile-bullet rewrite is still possible (Fix #2): e.g.
+    # "📝 你还没在 plan-mode 聊过这段经历,改写仅基于简历表层。"
+    soft_hint: str = ''
+
+
+class RewriteV0V2In(BaseModel):
+    """Request body for POST /sessions/{id}/rewrite/v0v2 (C-1)."""
+    bullet_text: str
+    field_path: str
+    target_job_description: str = ''
+    target_title: str = ''
+    section: str = ''
+
+
+class RewriteV0V2Out(BaseModel):
+    """Response shape for the C-1 simplified rewrite path: v0 + v2 only.
+
+    ``field_path`` / ``target_title`` mirror ``RewriteOption`` so the same
+    ``apply_rewrite`` traversal logic can later be reused (FE-3 wires up the
+    apply button against this schema)."""
+    field_path: str            # e.g. 'internships.0.bullets.0' or 'internships.0.bullets'
+    section: str = ''          # 'internships' | 'projects' | 'candidate_summary'
+    target_title: str = ''     # "字节跳动 · 产品实习生"
+    v0: RewriteVersionV0
+    v2: RewriteVersionV2
+    rationale: str = ''        # why v2 is shaped this way — visible in the diff panel
+    memory_refs: list[int] = []  # account_memory.id of injected entries (audit/debug)
+
+
 class ResumeCopilotMessageOut(BaseModel):
     id: int
     role: str           # "system" | "user" | "assistant"
@@ -270,6 +325,11 @@ class ResumeCopilotMessageOut(BaseModel):
 
 class ChatMessageIn(BaseModel):
     content: str
+    # Plan ② Job plan-mode (2026-05-21): when the student is in chat after
+    # clicking "🎯 针对这家定制" on a recommend card, the frontend tags this
+    # turn with the job_id so memory extracted from this turn is bound to
+    # the job (linked_job_id) — not just the active track.
+    active_job_id: str = ''
 
 
 class ApplyRewriteIn(BaseModel):
@@ -285,10 +345,23 @@ class ApplyRewriteOut(BaseModel):
 # ─── Plan-mode I/O ──────────────────────────────────────────────────────────
 
 class PlanStartIn(BaseModel):
-    """Body for POST /sessions/{id}/plan/start. Currently empty — derived
-    counts come from the persisted parsed profile. Reserved for future
-    template overrides."""
-    pass
+    """Body for POST /sessions/{id}/plan/start.
+
+    2026-05-21: ``focus_kind`` + ``focus_id`` are wired through end-to-end so
+    when the student picks a specific 实习 / 项目 in PlanFocusPicker, the BE
+    sets ``current_item_id`` to the matching plan item (instead of always
+    anchoring to the first one — old behaviour confused students who picked
+    "中金 IBD" and saw the AI grill them about "高盛 GBM").
+
+    - ``focus_kind`` currently always ``"experience"``; reserved for future
+      kinds like "skill_claim" / "education".
+    - ``focus_id``: ``account_memory.id`` (memory entry id) — BE resolves to
+      a plan item via ``linked_field_paths`` (e.g. ``"internships.2.bullets.0"``
+      → 3rd internship's plan item). If unresolvable, BE falls back to the
+      first parent-level item silently.
+    """
+    focus_kind: str | None = None
+    focus_id: int | None = None
 
 
 class AgentActionIn(BaseModel):
@@ -316,3 +389,106 @@ class PlanStateOut(BaseModel):
     replan_count: int = 0
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+# ─── Memory API (Phase 0 P0-2) ──────────────────────────────────────────────
+
+class MemoryEntryOut(BaseModel):
+    """One ``account_memory`` row as returned by the memory endpoints.
+
+    Payload shape varies per category — kept as a free-form dict here so the
+    HTTP contract isn't tied to the 8 category-specific pydantic schemas
+    (which live in ``app.services.memory.schemas``). Frontend can switch on
+    ``category`` to render the right view."""
+    id: int
+    category: str
+    summary: str
+    payload: dict = {}
+    confidence: float = 0.0
+    user_confirmed: bool = False
+    use_count: int = 0
+    is_archived: bool = False
+    superseded_by_id: int | None = None
+    source_module: str = ''
+    source_session_id: int | None = None
+    raw_excerpt: str = ''
+    captured_at: str | None = None
+    last_verified_at: str | None = None
+    last_used_at: str | None = None
+    # Plan 1 (2026-05-20): resume-edit ↔ memory sync. UI uses these to
+    # render the 🔄 "内容已变,建议重聊" badge and to route the student to
+    # plan-mode focused on the right bullet.
+    linked_field_paths: list[str] = []
+    needs_resync: bool = False
+    # Plan ② (2026-05-20): which 赛道 was active when this memory was captured.
+    # Empty string = general / cross-track. UI shows a tag on the card.
+    linked_track: str = ''
+    # Plan ② Job plan-mode (2026-05-21): job_id this memory was captured
+    # while customising for. Empty = general / track-level.
+    linked_job_id: str = ''
+
+
+class MemoryGroupedOut(BaseModel):
+    """Response for ``GET /sessions/{id}/memory`` — entries grouped by the
+    8 canonical categories. Each value is the list of non-archived rows for
+    that category (most recently captured first)."""
+    session_id: int
+    user_key: str
+    entries: dict[str, list[MemoryEntryOut]]
+
+
+class MemoryEntryCreateIn(BaseModel):
+    """Request body for ``POST /sessions/{id}/memory``.
+
+    ``category`` must be one of the 8 canonical categories; ``payload`` is
+    validated against the matching pydantic schema inside the dispatcher."""
+    category: str
+    summary: str
+    payload: dict = {}
+    raw_excerpt: str = ''
+    confidence: float = 1.0
+
+
+class MemoryEntryPatchIn(BaseModel):
+    """Request body for ``PATCH /sessions/{id}/memory/{entry_id}``.
+
+    A-3 简(main-workspace-redesign-2026-05-20 Phase 1 BE-1):学生只能改两个
+    字段 —— ``summary`` (常驻索引短句) 和 ``payload`` (结构化字段)。
+    其它字段(category / confidence / raw_excerpt …)由 writer 一次性写入,
+    不允许学生修改 —— 改 category 会破坏 reader 的语义,改 raw_excerpt 会破坏
+    anti-hallucination 审计链。
+
+    两个字段均 optional;只提供哪个就改哪个,都不提供 → 422。"""
+
+    summary: str | None = None
+    payload: dict | None = None
+
+
+# ─── Recommendation reject (BE-3, D-2 / D-3) ─────────────────────────────────
+
+REJECT_REASON_LABELS: dict[str, str] = {
+    'wrong_track': '赛道不对',
+    'company_disliked': '公司不喜欢',
+    'school_mismatch': '学校段位不匹配',
+    'timing': '时间不合适',
+    'other': '其他',
+}
+
+
+class RecommendRejectIn(BaseModel):
+    """Request body for POST /sessions/{id}/recommendations/{job_id}/reject.
+
+    ``reason`` must be one of ``REJECT_REASON_LABELS``. ``note`` is the
+    optional free-text the user typed in the inline form (≤2000 chars).
+    """
+    reason: str
+    note: str = ''
+
+
+class RecommendRejectOut(BaseModel):
+    """Response for the reject endpoint. ``memory_entry_id`` lets the frontend
+    show "已记入档案: id=..." for testing/debugging; ``rejected_count`` is the
+    session-scoped list length after dedupe so the UI can show a small badge."""
+    ok: bool = True
+    memory_entry_id: int | None = None
+    rejected_count: int = 0

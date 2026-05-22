@@ -6,7 +6,7 @@ from typing import Optional, List, Dict, Any
 
 from sqlalchemy.orm import Session
 
-from app.models import Job, JobIntelTask, JobIntelRecord, JobIntelSnapshot
+from app.models import Job, JobIntelTask, JobIntelRecord
 from app.schemas_job_intel import JobIntelTaskCreatedOut
 from app.services.platform_intel.adapters.xiaohongshu import XiaohongshuIntelAdapter
 
@@ -66,7 +66,6 @@ def run_intel_task(db: Session, task_id: int) -> JobIntelTask:
     db.commit()
 
     db.query(JobIntelRecord).filter(JobIntelRecord.task_id == task.id).delete(synchronize_session=False)
-    db.query(JobIntelSnapshot).filter(JobIntelSnapshot.job_id == task.job_id).delete(synchronize_session=False)
     db.commit()
 
     try:
@@ -123,10 +122,7 @@ def run_intel_task(db: Session, task_id: int) -> JobIntelTask:
             )
         )
 
-    snapshots = _build_snapshots(task.job_id, records_to_insert)
-    for snap in snapshots:
-        db.add(snap)
-
+    # Phase 0 (D-4): snapshot building removed — _build_snapshots() deleted.
     task.status = "done"
     task.result_count = len(records_to_insert)
     task.error_message = ""
@@ -204,56 +200,6 @@ def _build_mock_records(job_id: int) -> List[Dict[str, Any]]:
             "confidence_score": 0.7,
             "sentiment": "positive",
         }
-    ]
-
-
-def _build_snapshots(job_id: int, records: List[Dict[str, Any]]) -> List[JobIntelSnapshot]:
-    xhs_records = [r for r in records if r.get("platform") == "xiaohongshu"]
-    interview_records = [r for r in records if "面经" in (r.get("keywords_json") or "")]
-
-    interview_summary = (
-        f"共发现 {len(interview_records)} 条面试相关线索。"
-        if interview_records
-        else "当前未抓到明确面试线索。"
-    )
-
-    salary_summary = (
-        f"小红书侧共发现 {len(xhs_records)} 条内容，可继续提炼薪资/强度信息。"
-        if xhs_records
-        else "当前小红书结果不足，建议扩大关键词或补充登录态。"
-    )
-
-    return [
-        JobIntelSnapshot(
-            job_id=job_id,
-            snapshot_type="interview",
-            summary_text=interview_summary,
-            evidence_count=len(interview_records),
-            source_platforms_json=json.dumps(sorted({r.get("platform", "") for r in interview_records}), ensure_ascii=False),
-            confidence_score=0.7 if interview_records else 0.4,
-            generated_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-        ),
-        JobIntelSnapshot(
-            job_id=job_id,
-            snapshot_type="salary",
-            summary_text=salary_summary,
-            evidence_count=len(xhs_records),
-            source_platforms_json=json.dumps(["xiaohongshu"] if xhs_records else [], ensure_ascii=False),
-            confidence_score=0.6 if xhs_records else 0.3,
-            generated_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-        ),
-        JobIntelSnapshot(
-            job_id=job_id,
-            snapshot_type="wlb",
-            summary_text="MVP 阶段：建议后续接入评论抓取与多平台交叉验证。",
-            evidence_count=0,
-            source_platforms_json=json.dumps([], ensure_ascii=False),
-            confidence_score=0.5,
-            generated_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-        ),
     ]
 
 

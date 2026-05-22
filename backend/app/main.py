@@ -148,6 +148,77 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="JobRadar API", lifespan=lifespan)
 
+
+# Access-log middleware (2026-05-21 #4) — uvicorn 自带 access log 在 dev
+# 跑久了会被各种因素吃掉(stdout 缓冲 / log config 漂移),  debug 时彻底瞎。
+# 这里加一道显式 ASGI middleware 写 method/path/status/elapsed_ms 一行,
+# 异常单独捕获 + 打 traceback 到同一个 logger。
+import logging as _stdlib_logging
+import sys as _stdlib_sys
+import time as _stdlib_time
+import traceback as _stdlib_traceback
+
+
+def _ensure_access_logger() -> _stdlib_logging.Logger:
+    """uvicorn 的 access log 默认在 dev 跑久了会消失 (stdout 缓冲 / 配置漂移)。
+    显式给 jobradar.access 挂一个 stderr handler, 一次性的, 防重复挂。
+    """
+    logger = _stdlib_logging.getLogger("jobradar.access")
+    if any(getattr(h, "_jobradar_access_marker", False) for h in logger.handlers):
+        return logger
+    handler = _stdlib_logging.StreamHandler(_stdlib_sys.stderr)
+    handler.setLevel(_stdlib_logging.INFO)
+    handler.setFormatter(
+        _stdlib_logging.Formatter('[%(levelname)s] %(asctime)s %(message)s', '%H:%M:%S')
+    )
+    handler._jobradar_access_marker = True  # type: ignore[attr-defined]
+    logger.addHandler(handler)
+    logger.setLevel(_stdlib_logging.INFO)
+    logger.propagate = False
+    return logger
+
+
+_access_logger = _ensure_access_logger()
+
+
+@app.middleware("http")
+async def _access_log_middleware(request, call_next):
+    start = _stdlib_time.monotonic()
+    try:
+        response = await call_next(request)
+    except Exception as exc:  # noqa: BLE001 — last-mile catch for visibility
+        elapsed_ms = int((_stdlib_time.monotonic() - start) * 1000)
+        msg = (
+            f"[ERROR] {request.method} {request.url.path} → EXCEPTION ({elapsed_ms}ms) "
+            f"{type(exc).__name__}\n{_stdlib_traceback.format_exc()}"
+        )
+        print(msg, file=_stdlib_sys.stderr, flush=True)
+        raise
+    elapsed_ms = int((_stdlib_time.monotonic() - start) * 1000)
+    status_code = getattr(response, "status_code", 0)
+    # 5xx / 4xx 标 ERROR / WARN 让眼一扫就看见
+    level = (
+        _stdlib_logging.ERROR if status_code >= 500
+        else _stdlib_logging.WARNING if status_code >= 400
+        else _stdlib_logging.INFO
+    )
+    # 直接 print 绕开 logging 配置漂移问题 — uvicorn dev 跑久了, custom logger
+    # 的 handler 时不时被吃掉 (gunicorn worker reload / uvicorn fileobj 重定向
+    # 重置); print(flush=True) 反而是最稳的兜底。
+    level_tag = (
+        "ERROR" if status_code >= 500
+        else "WARN" if status_code >= 400
+        else "INFO"
+    )
+    print(
+        f"[{level_tag}] {request.method} {request.url.path} → {status_code} ({elapsed_ms}ms)",
+        file=_stdlib_sys.stderr,
+        flush=True,
+    )
+    _ = level  # 保留变量以防之后切回 logger 路径
+    return response
+
+
 # Add read-only guest middleware (must be added before CORS middleware)
 app.add_middleware(ReadOnlyGuestMiddleware)
 app.add_middleware(LlmQuotaContextMiddleware)

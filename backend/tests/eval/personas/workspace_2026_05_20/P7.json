@@ -103,16 +103,8 @@
       "Kaggle 比赛银牌 (2024, 反欺诈类)"
     ],
     "candidate_summary": "清华计算机本 + SAIF MF-FT, 2 段中部 FinTech 实习 (某券商智能投顾 + 蚂蚁金服反欺诈). 优势是工程能力 + 算法能力扎实, 有 ML 工程化与 AB 测试经验; 劣势是金融业务理解相对薄弱. 希望加入头部互联网金融 (蚂蚁 / 字节金融 / 腾讯 FiT / 平安科技) 做数据 / 算法岗, 中期目标做技术 lead.",
-    "inferred_roles": [
-      "FinTech 算法工程师",
-      "数据科学家",
-      "风控算法岗"
-    ],
-    "inferred_tracks": [
-      "互联网金融科技",
-      "银行金融科技子公司",
-      "券商金融科技部"
-    ]
+    "inferred_roles": ["FinTech 算法工程师", "数据科学家", "风控算法岗"],
+    "inferred_tracks": ["互联网金融科技", "银行金融科技子公司", "券商金融科技部"]
   },
   "persona_voice": {
     "communication_style": "技术风, 数据驱动, 偶尔讲业务但不深, 喜欢用'metric'/'AUC'/'KS'",
@@ -123,8 +115,7 @@
       "'本质上是一个 ranking 问题'"
     ],
     "typical_message_length": "中等 (50-90 字), 倾向数字 + 简短业务背景",
-    "under_pressure": "被问到'为什么这个 metric 提升对业务有意义'时会用'我跟业务 team 沟通过, 他们说 ...'缓冲",
-    "verbal_tics_style": "mixed"
+    "under_pressure": "被问到'为什么这个 metric 提升对业务有意义'时会用'我跟业务 team 沟通过, 他们说 ...'缓冲"
   },
   "flow_padding_internship": {
     "company": "某券商 · 金融科技部 · 智能投顾组",

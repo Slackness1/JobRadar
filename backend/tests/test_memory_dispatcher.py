@@ -433,3 +433,194 @@ def test_hash_different_categories_different_hashes():
     a = compute_summary_hash("alice", "preference", "x")
     b = compute_summary_hash("alice", "skill_claim", "x")
     assert a != b
+
+
+# ─── Plan 1 (2026-05-20): resume-edit ↔ memory sync ──────────────────────────
+
+import json as _json
+from app.services.memory.api_helpers import (
+    diff_changed_field_paths,
+    mark_memory_needs_resync,
+)
+
+
+def _factory_plan1():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(bind=engine)
+    return sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def test_diff_changed_field_paths_detects_edits_and_inserts_and_summary():
+    old = {
+        "candidate_summary": "aa",
+        "internships": [
+            {"bullets": ["第一条", "第二条"]},
+            {"bullets": ["公司2-b1"]},
+        ],
+        "projects": [],
+        "education": [{"highlights": ["edu-hi-1"]}],
+    }
+    new = {
+        "candidate_summary": "aa  ",  # whitespace-only → not changed
+        "internships": [
+            {"bullets": ["第一条 修改", "第二条"]},  # b0 changed
+            {"bullets": ["公司2-b1", "新增 b2"]},     # b1 added
+        ],
+        "projects": [],
+        "education": [{"highlights": ["edu-hi-1 修订"]}],  # changed
+    }
+    out = diff_changed_field_paths(old, new)
+    assert "internships.0.bullets.0" in out
+    assert "internships.1.bullets.1" in out
+    assert "education.0.highlights.0" in out
+    assert "candidate_summary" not in out  # whitespace ignored
+    assert "internships.0.bullets.1" not in out  # unchanged
+
+
+def test_diff_changed_field_paths_handles_none_and_empty_profiles():
+    assert diff_changed_field_paths(None, {}) == []
+    assert diff_changed_field_paths({}, None) == []
+    assert diff_changed_field_paths(None, None) == []
+
+
+@patch("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_mark_memory_needs_resync_flags_matching_rows_only():
+    db = _factory_plan1()()
+    # Row A: linked to bullets.0 → should flip
+    rowA = AccountMemory(
+        user_key="alice", category="experience", summary="A",
+        summary_hash="hA", payload_json="{}",
+        linked_field_paths=_json.dumps(["internships.0.bullets.0"]),
+    )
+    # Row B: linked to bullets.5 → should NOT flip
+    rowB = AccountMemory(
+        user_key="alice", category="experience", summary="B",
+        summary_hash="hB", payload_json="{}",
+        linked_field_paths=_json.dumps(["internships.0.bullets.5"]),
+    )
+    # Row C: orphan (no links) → should NOT flip
+    rowC = AccountMemory(
+        user_key="alice", category="preference", summary="C",
+        summary_hash="hC", payload_json="{}",
+        linked_field_paths="[]",
+    )
+    db.add_all([rowA, rowB, rowC])
+    db.commit()
+
+    touched = mark_memory_needs_resync(
+        db, user_key="alice",
+        changed_field_paths=["internships.0.bullets.0"],
+    )
+    assert touched == 1
+    db.refresh(rowA); db.refresh(rowB); db.refresh(rowC)
+    assert rowA.needs_resync is True
+    assert rowB.needs_resync is False
+    assert rowC.needs_resync is False
+
+
+@patch("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_mark_memory_needs_resync_reserved_user_keys_are_noop():
+    db = _factory_plan1()()
+    for key in ("", "__demo__", "__guest__"):
+        out = mark_memory_needs_resync(
+            db, user_key=key,
+            changed_field_paths=["internships.0.bullets.0"],
+        )
+        assert out == 0
+
+
+@patch("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_write_memory_persists_linked_field_paths():
+    from app.services.memory.dispatcher import write_memory
+    db = _factory_plan1()()
+    outcome = write_memory(
+        db, user_key="alice", category="preference",
+        summary="想去上海", payload={"dimension": "city", "value": "上海"},
+        source_module="test",
+        linked_field_paths=["internships.0.bullets.2"],
+    )
+    assert outcome.action == "inserted"
+    assert outcome.row is not None
+    linked = _json.loads(str(outcome.row.linked_field_paths or "[]"))
+    assert linked == ["internships.0.bullets.2"]
+
+
+# ─── Plan ② parser_seed (2026-05-21) ─────────────────────────────────────────
+
+from unittest.mock import patch as _patch_seed
+from app.services.resume_copilot.memory.seeding import seed_memory_from_profile
+
+
+@_patch_seed("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_seed_memory_from_profile_one_row_per_experience():
+    """2026-05-21 v2: one archive card per internship / project, not per
+    bullet. All the bullets of that experience live in behavioral_hook +
+    linked_field_paths.
+    """
+    db = _factory_plan1()()
+    profile = {
+        "internships": [
+            {"company": "中信证券", "role": "行研助理",
+             "bullets": ["跟踪 5 只半导体股票", "撰写 3 篇深度报告"]},
+            {"company": "易方达", "role": "研究助理",
+             "bullets": ["白酒板块覆盖"]},
+        ],
+        "projects": [
+            {"name": "市场量化", "bullets": ["搭建因子模型"]},
+        ],
+    }
+    out = seed_memory_from_profile(
+        db, user_key="seedtest", session_id=999,
+        profile=profile, active_track="二级买方·基本面",
+    )
+    # 2 internships + 1 project = 3 archive cards, not per-bullet 4
+    assert out["inserted"] == 3
+    rows = db.query(AccountMemory).filter_by(user_key="seedtest").all()
+    assert len(rows) == 3
+    # First internship: 2 bullets → 2 linked_field_paths
+    ints_zhongxin = next(r for r in rows if "中信证券" in r.summary)
+    linked = _json.loads(str(ints_zhongxin.linked_field_paths or "[]"))
+    assert linked == ["internships.0.bullets.0", "internships.0.bullets.1"]
+    # behavioral_hook in payload contains both bullet lines
+    payload = _json.loads(str(ints_zhongxin.payload_json))
+    assert "跟踪 5 只半导体股票" in payload["behavioral_hook"]
+    assert "撰写 3 篇深度报告" in payload["behavioral_hook"]
+    for r in rows:
+        assert r.category == "experience"
+        assert r.source_module == "parser_seed"
+        assert r.linked_track == "二级买方·基本面"
+        assert r.user_confirmed is False
+
+
+@_patch_seed("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_seed_memory_from_profile_idempotent_on_reupload():
+    db = _factory_plan1()()
+    profile = {
+        "internships": [
+            {"company": "X", "role": "Y", "bullets": ["aa", "bb"]},
+        ],
+        "projects": [],
+    }
+    out1 = seed_memory_from_profile(db, user_key="u1", session_id=1, profile=profile)
+    assert out1["inserted"] == 1  # one card per internship
+    out2 = seed_memory_from_profile(db, user_key="u1", session_id=1, profile=profile)
+    assert out2["inserted"] == 0
+    assert out2["refreshed"] == 1  # dedup hit on the single card
+    rows = db.query(AccountMemory).filter_by(user_key="u1").count()
+    assert rows == 1
+
+
+@_patch_seed("app.services.memory.dispatcher.UNIFIED_MEMORY_ENABLED", True)
+def test_seed_memory_from_profile_reserved_keys_noop():
+    db = _factory_plan1()()
+    profile = {
+        "internships": [{"bullets": ["aa"]}],
+        "projects": [],
+    }
+    for k in ("", "__demo__", "__guest__"):
+        out = seed_memory_from_profile(db, user_key=k, session_id=1, profile=profile)
+        assert out["inserted"] == 0

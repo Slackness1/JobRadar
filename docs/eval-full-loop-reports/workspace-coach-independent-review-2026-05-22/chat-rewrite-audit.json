@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "scope": "Normal chat step3 plus coach-visible assistant text.",
+    "pass_count": 5,
+    "partial_or_fail_count": 3
+  },
+  "personas": {
+    "P1": {"memory_growth": 7, "dedupe_passed": true, "preference_captured": true, "notes": "Step3 passed; one simulator fallback polluted a turn."},
+    "P2": {"memory_growth": 8, "dedupe_passed": false, "preference_captured": true, "notes": "Repeated T1 fact inserted 3 new memories."},
+    "P3": {"memory_growth": 5, "dedupe_passed": true, "preference_captured": true, "notes": "Chat rail replies visible."},
+    "P4": {"memory_growth": 8, "dedupe_passed": true, "preference_captured": true, "notes": "Chat okay; coach later stuck."},
+    "P5": {"memory_growth": 6, "dedupe_passed": true, "preference_captured": false, "notes": "Coach leaks irrelevant P8 implausible-scale example."},
+    "P6": {"memory_growth": 0, "dedupe_passed": true, "preference_captured": false, "notes": "First simulator turn fallback; chat memory continuity failed."},
+    "P7": {"memory_growth": 2, "dedupe_passed": true, "preference_captured": true, "notes": "Chat okay; draft required second finalize phrase."},
+    "P8": {"memory_growth": 7, "dedupe_passed": true, "preference_captured": true, "notes": "PVSyst/50MW/100万欧元 not reinforced in exercised path."}
+  },
+  "tag_or_template_leakage": [
+    {"persona": "P5", "severity": "blocker", "text": "50MW 电站 / 100 万欧元 appears in unrelated IBD/GBM coach reply."},
+    {"persona": "P5", "severity": "major", "text": "Audit labels 动词偏强 / 规模 × 角色对不上 are understandable but too template-like."}
+  ],
+  "raw_files": {
+    "directory": "/tmp/jobradar_workspace_coach_eval_2026_05_22/raw/",
+    "finalize_probe": "finalize_probe_20260522_021122.jsonl",
+    "finalize_probe_second": "finalize_probe_second_20260522_021242.jsonl"
+  }
+}

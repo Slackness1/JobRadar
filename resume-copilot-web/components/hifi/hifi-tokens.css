@@ -1,4 +1,11 @@
 /* JobRadar hi-fi tokens — Claude terracotta system, scoped to .hf */
+/* === HiFi design bundle merge 2026-05-20 ===
+ * Reviewed /tmp/design-package/jobradar/project/hifi-tokens.css.
+ * All surface/text/brand/border/semantic/type/radii/shadow tokens already
+ * present below. Project file is a strict superset (adds HFRadarPulse + ping
+ * animations + scoped logo hardcoded colors). No values overridden.
+ * === end merge note ===
+ */
 .hf {
   /* Surface */
   --parchment:    #f5f4ed;
