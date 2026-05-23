@@ -1,30 +1,47 @@
-"""Top 头部私募 (hedge funds) crawler — Phase 9.
+"""Top 头部私募 (hedge funds) crawler — Phase 9 + Phase 11 海外 elite quants。
 
 Mirrors funds_crawler.py's dispatcher pattern: load yaml, dispatch to existing
 handler primitives (moka_embedded / hotjob / zhiye_beisen_cms / wintalent_sc),
 stamp `source='hedge_funds_*'` so the /sites monitor + coverage panel can
 distinguish them from 公募基金.
 
-Companies wired this round (2026-05-11 subagent scout):
-  - 幻方量化   — Moka embedded   (tenant=high-flyer / board=4605)
-  - 九坤投资   — Moka embedded   (tenant=ubiquantrecruit / board=37031)
-  - 高毅资产   — hotjob suite    (gyasset)
-  - 衍复投资   — Beisen zhiye CMS
+Companies wired:
+  Phase 9 (2026-05-11):
+    - 幻方量化   — Moka embedded
+    - 九坤投资   — Moka embedded
+    - 高毅资产   — hotjob suite (gyasset)
+    - 衍复投资   — Beisen zhiye CMS
+  2026-05-17:
+    - 鸣石投资   — Beisen zhiye CMS
+  Phase 11 (2026-05-23) — 海外 elite quants:
+    - Point72    — Greenhouse boards API (~240 jobs global, ~30 Asia)
+    - Millennium — Eightfold API (~230 jobs global)
+    - Citadel    — wp-admin AJAX (custom WordPress, ~64 jobs, ~7 Asia 全是
+                   Quant/SWE — 比例最高的 SAIF 量化梦想清单一家)
 
-Skipped this round (see scout report deferred_reason in coverage_truth.yaml):
-  - 明汯投资 (Feishu ATS, new engine family — backlog)
-  - 灵均投资 (Moka-CNAME, needs verification — backlog)
-  - 景林 / 淡水泉 / 礼仁 / 进化论 (relationship-driven hiring / no public ATS)
+Skipped:
+  - Two Sigma  — RSS feed only exposes 20 US jobs, 0 Asia visible (backlog)
+  - 明汯 / 灵均 / 景林 / 淡水泉 — relationship-driven hiring,无公开 ATS
 """
 from __future__ import annotations
 
 import hashlib
+import html as _html
+import json as _json
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import requests
 import yaml
 from sqlalchemy.orm import Session
+
+# curl_cffi for chrome TLS fingerprint impersonation — needed for Citadel
+try:
+    from curl_cffi import requests as curl_cffi_requests
+except ImportError:
+    curl_cffi_requests = None  # type: ignore[assignment]
 
 from app.models import Job
 from app.services.company_crawl_logger import company_crawl_log
@@ -33,6 +50,7 @@ from app.services.funds_crawler import (
     crawl_wintalent_sc_target,
     crawl_zhiye_beisen_cms_target,
 )
+from app.services.pe_vc_tier_crawler import _is_asia, _ua_headers, _parse_dt
 from app.services.securities_crawler import (
     crawl_hotjob_target,
     crawl_moka_embedded_target,
@@ -45,7 +63,10 @@ HEDGE_FUNDS_CONFIG_PATH = (
 )
 
 
-_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc"}
+_KNOWN = {
+    "hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc",
+    "greenhouse", "eightfold", "citadel_wp_ajax",
+}
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "hotjob":            "hedge_funds_hotjob",
@@ -53,6 +74,9 @@ _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "moka_embedded":     "hedge_funds_moka_embedded",
     "zhiye_beisen_cms":  "hedge_funds_zhiye_beisen_cms",
     "wintalent_sc":      "hedge_funds_wintalent_sc",
+    "greenhouse":        "hedge_funds_greenhouse",
+    "eightfold":         "hedge_funds_eightfold",
+    "citadel_wp_ajax":   "hedge_funds_citadel_wp",
 }
 
 
@@ -78,6 +102,204 @@ def _override_source(records: List[Dict[str, Any]], family: str) -> None:
         m = re.search(r":([^:]+)$", sc)
         if m:
             rec["job_id"] = _hash_id(new_source, rec["company"], m.group(1))
+
+
+# ─── 海外 elite quants handlers (Phase 11, 2026-05-23) ─────────────────────
+
+def _fetch_greenhouse_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Greenhouse boards API — `/v1/boards/<slug>/jobs`. 用于 Point72 等公开
+    Greenhouse 板。post-hoc Asia 过滤,job_id 用 GH 自带 id。"""
+    slug = target.get("greenhouse_slug") or target["name"].lower()
+    company = target["name"]
+    portal_url = target.get("portal_url") or f"https://boards.greenhouse.io/{slug}"
+    try:
+        r = requests.get(
+            f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+            timeout=20, headers=_ua_headers(),
+        )
+    except Exception:
+        return []
+    if r.status_code != 200:
+        return []
+    data = r.json() or {}
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for j in (data.get("jobs") or []):
+        jid = str(j.get("id") or "").strip()
+        if not jid or jid in seen:
+            continue
+        title = str(j.get("title") or "").strip()
+        if not title:
+            continue
+        loc = ((j.get("location") or {}).get("name") or "").strip()
+        if not _is_asia(loc):
+            continue
+        seen.add(jid)
+        out.append({
+            "job_id": "",  # filled by _override_source
+            "source": "hedge_funds_greenhouse",
+            "company": company,
+            "company_type_industry": "私募 (Hedge Fund) - 海外",
+            "company_tags": "hedge_fund_overseas",
+            "department": "",
+            "job_title": title,
+            "location": loc or "未知",
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": "campus" if any(k in title.lower() for k in ("intern", "graduate", "campus", "university", "phd")) else "social",
+            "source_config_id": f"hedge_funds_api:greenhouse:{slug}:{jid}",
+            "publish_date": _parse_dt(j.get("updated_at") or j.get("first_published")),
+            "deadline": None,
+            "detail_url": str(j.get("absolute_url") or f"{portal_url}/jobs/{jid}"),
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
+
+
+def _fetch_eightfold_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Eightfold AI `/api/apply/v2/jobs` — 用于 Millennium 等 Eightfold 客户。
+
+    Asia city loop 节流:每 location 拉一页 50 条,合并去重。
+    """
+    subdomain = target["eightfold_subdomain"]
+    domain = target.get("eightfold_domain") or f"{subdomain}.com"
+    company = target["name"]
+    portal_url = target.get("portal_url") or f"https://{subdomain}.eightfold.ai/careers"
+    queries = target.get("search_locations") or ["Hong Kong", "Singapore", "Tokyo", "Shanghai"]
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for loc_query in queries:
+        try:
+            r = requests.get(
+                f"https://{subdomain}.eightfold.ai/api/apply/v2/jobs",
+                params={"domain": domain, "start": 0, "num": 50, "location_name": loc_query, "query": ""},
+                headers={**_ua_headers(), "Accept": "application/json"},
+                timeout=20,
+            )
+        except Exception:
+            continue
+        if r.status_code != 200:
+            continue
+        try:
+            data = r.json()
+        except Exception:
+            continue
+        for p in (data.get("positions") or []):
+            if not isinstance(p, dict):
+                continue
+            pid = str(p.get("id") or p.get("position_id") or "").strip()
+            if not pid or pid in seen:
+                continue
+            title = str(p.get("name") or "").strip()
+            if not title:
+                continue
+            locs = p.get("locations") or []
+            if isinstance(locs, list) and locs and isinstance(locs[0], dict):
+                loc_text = ", ".join(l.get("name", "") for l in locs if l.get("name"))
+            else:
+                loc_text = str(p.get("location") or "")
+            if not _is_asia(loc_text):
+                continue
+            seen.add(pid)
+            duty_raw = str(p.get("job_description") or p.get("description") or "")
+            duty_clean = re.sub(r"<[^>]+>", " ", duty_raw)
+            duty_clean = re.sub(r"\s+", " ", duty_clean).strip()
+            out.append({
+                "job_id": "",  # filled by _override_source
+                "source": "hedge_funds_eightfold",
+                "company": company,
+                "company_type_industry": "私募 (Hedge Fund) - 海外",
+                "company_tags": "hedge_fund_overseas",
+                "department": str(p.get("department") or ""),
+                "job_title": title,
+                "location": loc_text or "未知",
+                "major_req": "",
+                "job_req": "",
+                "job_duty": duty_clean[:4000],
+                "application_status": "待申请",
+                "job_stage": "campus" if any(k in title.lower() for k in ("intern", "graduate", "campus", "university", "phd")) else "social",
+                "source_config_id": f"hedge_funds_api:eightfold:{subdomain}:{pid}",
+                "publish_date": _parse_dt(p.get("posted_date") or p.get("created_at")),
+                "deadline": None,
+                "detail_url": f"{portal_url.rstrip('/')}/job/{pid}",
+                "scraped_at": datetime.utcnow(),
+            })
+    return out
+
+
+_CITADEL_CARD_RE = re.compile(
+    r'<a[^>]+href="(https?://[^"]+)"[^>]*data-position="([^"]+)"[^>]*>(.*?)</a>',
+    re.S,
+)
+_CITADEL_LOC_RE = re.compile(
+    r'careers-listing-card__location"\s*>\s*(?:&[a-z]+;)?\s*([^<\n\t]+?)\s*<', re.S,
+)
+
+
+def _fetch_citadel_wp_ajax(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Citadel — WordPress wp-admin AJAX action=careers_listing_filter。
+
+    Pagination 实测 current_page/paged 参数被忽略,只能拿首 20 条。但 found_posts
+    显示 ~64 total。**这 20 条里 ~7 是 Asia 高度 SAIF 相关**(Quant Research /
+    Software Engineer Asia / Intern HK+SG)。pagination 真有需要将来再逆向。
+
+    curl_cffi chrome120 必需,plain requests 触发 403。
+    """
+    if curl_cffi_requests is None:
+        return []
+    company = target["name"]
+    portal_url = target.get("portal_url") or "https://www.citadel.com/careers/"
+    try:
+        r = curl_cffi_requests.get(
+            "https://www.citadel.com/wp-admin/admin-ajax.php",
+            params={"action": "careers_listing_filter", "per_page": 20, "current_page": 1},
+            impersonate="chrome120", timeout=15,
+        )
+    except Exception:
+        return []
+    if r.status_code != 200:
+        return []
+    try:
+        data = r.json()
+    except Exception:
+        return []
+    content_html = data.get("content") or ""
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for href, pos, body in _CITADEL_CARD_RE.findall(content_html):
+        title = _html.unescape(pos).replace("–", "-").strip()
+        if not title or href in seen:
+            continue
+        # slug = trailing path segment as stable id
+        slug = href.rstrip("/").rsplit("/", 1)[-1]
+        loc_m = _CITADEL_LOC_RE.search(body)
+        loc = loc_m.group(1).strip() if loc_m else ""
+        if not _is_asia(loc):
+            continue
+        seen.add(href)
+        out.append({
+            "job_id": "",  # filled by _override_source
+            "source": "hedge_funds_citadel_wp",
+            "company": company,
+            "company_type_industry": "私募 (Hedge Fund) - 海外",
+            "company_tags": "hedge_fund_overseas",
+            "department": "",
+            "job_title": title,
+            "location": loc or "未知",
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": "campus" if any(k in title.lower() for k in ("intern", "graduate", "campus", "university", "phd")) else "social",
+            "source_config_id": f"hedge_funds_api:citadel:{slug}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": href,
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
 
 
 def crawl_hedge_funds(
@@ -122,6 +344,12 @@ def crawl_hedge_funds(
                     crawled = crawl_zhiye_beisen_cms_target(target)
                 elif family == "wintalent_sc":
                     crawled = crawl_wintalent_sc_target(target)
+                elif family == "greenhouse":
+                    crawled = _fetch_greenhouse_target(target)
+                elif family == "eightfold":
+                    crawled = _fetch_eightfold_target(target)
+                elif family == "citadel_wp_ajax":
+                    crawled = _fetch_citadel_wp_ajax(target)
                 else:
                     crawled = []
             except Exception:

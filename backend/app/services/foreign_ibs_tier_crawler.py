@@ -7,14 +7,17 @@ Workday CXS pagination strategy:
   dedupe by job_id and post-filter with `_is_asia` to remove noise. Expected
   ~80 requests/company, ~40s.
 
-Companies wired (Workday CXS verified 200):
-  - Citi          (citi.wd5.myworkdayjobs.com/wday/cxs/citi/2/jobs)
-  - Morgan Stanley (ms.wd5.myworkdayjobs.com/wday/cxs/ms/External/jobs)
+Companies wired:
+  - Citi / Morgan Stanley (plain requests OK)
+  - Goldman Sachs (自建 GraphQL `_fetch_goldman_graphql`)
+  - UBS (Oracle Taleo SPA `_fetch_ubs_taleo_spa`)
+  - **Barclays** (Workday CXS, 但 plain requests 返 406;`tls_impersonate: chrome120`
+    切换到 curl_cffi 仿真 Chrome120 TLS fingerprint 后 200 OK — D-10 应用)
 
-Skipped — all return Workday 422 with our minimal payload (endpoint exists
-but rejects request; likely needs per-tenant facets/session prep):
-  - Goldman Sachs / JPM / UBS / HSBC / BofA / BNP / Standard Chartered /
-    Nomura / Daiwa CM
+Still skipped — Workday 422 with curl_cffi chrome120 仍然失败,说明是业务层
+reject 不是 TLS fingerprint;需要 per-tenant facets 或 session prep:
+  - JPM / HSBC / BofA / BNP / Standard Chartered / Nomura / Daiwa CM
+  - Deutsche Bank (use 自有 prod2.master.db.com ATS,obscure schema,backlog)
 """
 from __future__ import annotations
 
@@ -26,6 +29,12 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 import yaml
 from sqlalchemy.orm import Session
+
+# curl_cffi for chrome TLS fingerprint impersonation — D-10 备选引擎
+try:
+    from curl_cffi import requests as curl_cffi_requests
+except ImportError:
+    curl_cffi_requests = None  # type: ignore[assignment]
 
 from app.models import Job
 from app.services.company_crawl_logger import company_crawl_log
@@ -62,12 +71,19 @@ def _fetch_workday_filtered(
     source: str = "foreign_ibs_official",
     industry: str = "外资投行",
     tags: str = "foreign_ib",
+    tls_impersonate: str = "",
 ) -> List[Dict[str, Any]]:
     """Pagination with server-side searchText filter — much faster than
-    crawling the entire global jobs board."""
+    crawling the entire global jobs board.
+
+    `tls_impersonate`: 当 plain requests 触发 406 (TLS fingerprint 被 CDN/WAF
+    挡掉) 时,传入 'chrome120' 等让 curl_cffi 仿真 Chrome TLS handshake。
+    Barclays 实测必需,Citi/MS 不需要。
+    """
     base_origin = endpoint.split("/wday/")[0]
     seen: set[str] = set()
     out: List[Dict[str, Any]] = []
+    use_curl_cffi = bool(tls_impersonate) and curl_cffi_requests is not None
 
     for query in queries:
         for p in range(max_pages_per_query):
@@ -77,18 +93,20 @@ def _fetch_workday_filtered(
                 "searchText": query,
                 "appliedFacets": {},
             }
+            headers = {
+                **_ua_headers(),
+                "Content-Type": "application/json",
+                "Origin": base_origin,
+                "Referer": f"{base_origin}/en-US/",
+            }
             try:
-                r = requests.post(
-                    endpoint,
-                    json=body,
-                    headers={
-                        **_ua_headers(),
-                        "Content-Type": "application/json",
-                        "Origin": base_origin,
-                        "Referer": f"{base_origin}/en-US/",
-                    },
-                    timeout=20,
-                )
+                if use_curl_cffi:
+                    r = curl_cffi_requests.post(
+                        endpoint, json=body, headers=headers,
+                        impersonate=tls_impersonate, timeout=20,
+                    )
+                else:
+                    r = requests.post(endpoint, json=body, headers=headers, timeout=20)
             except Exception:
                 break
             if r.status_code != 200:
@@ -492,6 +510,7 @@ def crawl_foreign_ibs(
                     queries=queries,
                     page_size=page_size,
                     max_pages_per_query=max_pages,
+                    tls_impersonate=entry.get("tls_impersonate", ""),
                 )
             elif handler == "goldman_graphql":
                 records = _fetch_goldman_graphql(

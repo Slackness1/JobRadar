@@ -97,3 +97,27 @@ sites:
     ats_family: other
     category: 主观多头私募
     note: "2026-05-23 复探: ruijun/ruijunasset 在 zhiye / mokahr / hotjob 均未注册。同 backlog。"
+
+  # ---- Phase 11 (2026-05-23) 海外 elite quants — Asia roles ----
+  # 4 家中 3 家接入,Two Sigma RSS 0 Asia 留 backlog。
+  - name: Point72
+    ats_family: greenhouse
+    greenhouse_slug: point72
+    portal_url: https://careers.point72.com
+    category: 海外对冲基金
+    note: 2026-05-23 Greenhouse boards API,total ~240 全球岗,Asia (HK/SG/Tokyo) ~30 条,含 Academy 校招/分析师/Quant Research。
+
+  - name: Millennium
+    ats_family: eightfold
+    eightfold_subdomain: mlp
+    eightfold_domain: mlp.com
+    portal_url: https://mlp.eightfold.ai/careers
+    search_locations: ["Hong Kong", "Singapore", "Tokyo", "Shanghai"]
+    category: 海外对冲基金
+    note: 2026-05-23 Eightfold AI /api/apply/v2/jobs,total ~236 全球。
+
+  - name: Citadel
+    ats_family: citadel_wp_ajax
+    portal_url: https://www.citadel.com/careers/
+    category: 海外对冲基金
+    note: 2026-05-23 WordPress wp-admin AJAX (action=careers_listing_filter),curl_cffi chrome120 必需,plain requests 403。pagination param 被忽略只能拿首 20,但其中 ~7 是 Asia 高度 SAIF 相关 (Quant Research/SWE Asia/Intern HK+SG)。pagination 逆向 backlog。

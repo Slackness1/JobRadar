@@ -54,3 +54,24 @@ sites:
   #   handler: hsbc_html
   #   portal_url: https://mycareer.hsbc.com
   #   page_size: 50
+
+  # Barclays — 2026-05-23 D-10 应用突破:plain requests 触发 Workday 406,
+  # curl_cffi.impersonate=chrome120 一次过 200。Asia city (HK+SG+Tokyo) +
+  # IBD/Research 关键词,post-hoc Asia 过滤 → ~60 unique Asia SAIF 相关岗。
+  # tls_impersonate 是 _fetch_workday_filtered 的新参数:有则走 curl_cffi、
+  # 无则 plain requests(Citi/MS 保持原路径)。
+  - name: Barclays
+    handler: workday
+    endpoint: https://barclays.wd3.myworkdayjobs.com/wday/cxs/barclays/External_Career_Site_Barclays/jobs
+    portal_url: https://barclays.wd3.myworkdayjobs.com/en-US/External_Career_Site_Barclays
+    page_size: 20
+    max_pages_per_query: 8
+    search_queries: ["Hong Kong", "Singapore", "Tokyo", "Investment Banking", "Research"]
+    tls_impersonate: chrome120
+    note: 2026-05-23 D-10 应用 — Workday 406 → curl_cffi chrome120 解锁。
+
+  # JPM / HSBC Workday — 2026-05-23 即便 curl_cffi chrome120 仍 422,业务层
+  # reject 不是 TLS fingerprint。需要 per-tenant facets 或 cookie session
+  # prep,non-trivial,backlog。
+  # Deutsche Bank — careers.db.com 用自建 prod2.master.db.com ATS,
+  # obscure schema,逆向工程成本高,backlog。
