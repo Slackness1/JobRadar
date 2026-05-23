@@ -1,0 +1,2559 @@
+{
+  "baseline": "/home/ubuntu/projects/JobRadar/backend/tests/eval/_out/mock_interview_post_v6_full_2026_05_22.json",
+  "full_rerun": "/tmp/mock_interview_independent_full_27_2026_05_22.json",
+  "count": 27,
+  "runner_summary": {
+    "by_tier": {
+      "extreme": {
+        "n_personas": 4,
+        "turn_score_mean": 44.7,
+        "turn_score_stdev": 16.39,
+        "report_overall_mean": 44.75,
+        "dim_spread_mean": 12.02
+      },
+      "strong": {
+        "n_personas": 9,
+        "turn_score_mean": 69.59,
+        "turn_score_stdev": 10.18,
+        "report_overall_mean": 80.33,
+        "dim_spread_mean": 7.38
+      },
+      "mid": {
+        "n_personas": 13,
+        "turn_score_mean": 66.48,
+        "turn_score_stdev": 11.4,
+        "report_overall_mean": 75.62,
+        "dim_spread_mean": 3.1
+      },
+      "weak": {
+        "n_personas": 1,
+        "turn_score_mean": 59.5,
+        "turn_score_stdev": 11.62,
+        "report_overall_mean": 65.0,
+        "dim_spread_mean": 7.07
+      }
+    },
+    "spread_strong_vs_weak": 15.33,
+    "spread_strong_vs_extreme": 35.58,
+    "feedback_quality": {
+      "n_reports": 27,
+      "ref_jd_anchor_any_pct": 0.333,
+      "ref_track_token_pct": 1.0,
+      "has_rewrite_demo_pct": 0.519,
+      "has_cohort_anchor_pct": 0.556,
+      "any_fabrication_pct": 0.963,
+      "fabrication_suppressed_pct": 0.407,
+      "fab_numbers_detected_pct": 0.0,
+      "improvements_4seg_compliant_pct": 0.0,
+      "fallback_invoked_pct": 0.037,
+      "avg_report_chars": 798.6
+    }
+  },
+  "bug_criteria_counts": {
+    "overall_drift_ge_10": 13,
+    "turn_overall_none": 5,
+    "report_fallback": 1,
+    "suppressed_but_high_score": 8,
+    "strong_below_70": 2
+  },
+  "results": [
+    {
+      "scenario_id": "mock_interview_M13_2026_05_21",
+      "tier": "strong",
+      "target_track": "顶级股份制银行总行管培 / 大型央企集团战略发展部管培",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 58,
+        "full_rerun": 88,
+        "delta": 30
+      },
+      "turn_mean_full": 70.0,
+      "turn_overall_none_count": 1,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "full_rerun": 85,
+          "delta": 5
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 87,
+          "delta": 2
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "full_rerun": 88,
+          "delta": 3
+        },
+        "行业感": {
+          "baseline": 30,
+          "full_rerun": 86,
+          "delta": 56
+        },
+        "表达深度": {
+          "baseline": 40,
+          "full_rerun": 92,
+          "delta": 52
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "full_rerun": 90,
+          "delta": 60
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 3,
+          "学习能力": 1
+        },
+        "full_rerun": {
+          "内驱力": 2,
+          "钻研精神": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1547,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 901,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "turn_overall_none"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P5_2026_05_20",
+      "tier": "strong",
+      "target_track": "投行 IBD (Investment Banking Division)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 85,
+        "full_rerun": 57,
+        "delta": -28
+      },
+      "turn_mean_full": 56.7,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 82,
+          "full_rerun": 73,
+          "delta": -9
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 85,
+          "delta": 0
+        },
+        "岗位能力匹配度": {
+          "baseline": 86,
+          "full_rerun": 85,
+          "delta": -1
+        },
+        "行业感": {
+          "baseline": 87,
+          "full_rerun": 30,
+          "delta": -57
+        },
+        "表达深度": {
+          "baseline": 86,
+          "full_rerun": 40,
+          "delta": -46
+        },
+        "逻辑性": {
+          "baseline": 84,
+          "full_rerun": 30,
+          "delta": -54
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 4,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "钻研精神": 3,
+          "内驱力": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 727,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1269,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "strong_below_70"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M16_2026_05_21",
+      "tier": "mid",
+      "target_track": "人民银行总行 (北京) / 国家外汇管理局 / 上交所审核 / 中国投资有限责任公司",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 85,
+        "full_rerun": 62,
+        "delta": -23
+      },
+      "turn_mean_full": 67.7,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "full_rerun": 60,
+          "delta": -20
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 58,
+          "delta": -27
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "full_rerun": 65,
+          "delta": -20
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 68,
+          "delta": -22
+        },
+        "表达深度": {
+          "baseline": 85,
+          "full_rerun": 55,
+          "delta": -30
+        },
+        "逻辑性": {
+          "baseline": 85,
+          "full_rerun": 63,
+          "delta": -22
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 824,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 492,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_P_fake_S1_2026_05_21",
+      "tier": "mid",
+      "target_track": "公募基金股票行业研究 (大消费)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 59,
+        "full_rerun": 82,
+        "delta": 23
+      },
+      "turn_mean_full": 65.0,
+      "turn_overall_none_count": 1,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 45,
+          "full_rerun": 83,
+          "delta": 38
+        },
+        "可信度": {
+          "baseline": 60,
+          "full_rerun": 82,
+          "delta": 22
+        },
+        "岗位能力匹配度": {
+          "baseline": 65,
+          "full_rerun": 85,
+          "delta": 20
+        },
+        "行业感": {
+          "baseline": 60,
+          "full_rerun": 88,
+          "delta": 28
+        },
+        "表达深度": {
+          "baseline": 70,
+          "full_rerun": 74,
+          "delta": 4
+        },
+        "逻辑性": {
+          "baseline": 55,
+          "full_rerun": 80,
+          "delta": 25
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "内驱力": 2,
+          "钻研精神": 2,
+          "团队合作": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1010,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1019,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "turn_overall_none"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M12_2026_05_21",
+      "tier": "extreme",
+      "target_track": "S&T 销售交易 / 卖方衍生品 (MF-FinTech 量化背景)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 51,
+        "full_rerun": 33,
+        "delta": -18
+      },
+      "turn_mean_full": 45.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 70,
+          "full_rerun": 40,
+          "delta": -30
+        },
+        "可信度": {
+          "baseline": 72,
+          "full_rerun": 35,
+          "delta": -37
+        },
+        "岗位能力匹配度": {
+          "baseline": 78,
+          "full_rerun": 45,
+          "delta": -33
+        },
+        "行业感": {
+          "baseline": 30,
+          "full_rerun": 30,
+          "delta": 0
+        },
+        "表达深度": {
+          "baseline": 25,
+          "full_rerun": 20,
+          "delta": -5
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "full_rerun": 30,
+          "delta": 0
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 2,
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1889,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1473,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_P_bridge_S1_2026_05_21",
+      "tier": "strong",
+      "target_track": "公募基金宏观研究员 (利率 / 商品 / 大类资产配置)",
+      "is_cross_major": true,
+      "overall": {
+        "baseline": 78,
+        "full_rerun": 61,
+        "delta": -17
+      },
+      "turn_mean_full": 66.3,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 75,
+          "full_rerun": 55,
+          "delta": -20
+        },
+        "可信度": {
+          "baseline": 72,
+          "full_rerun": 58,
+          "delta": -14
+        },
+        "岗位能力匹配度": {
+          "baseline": 80,
+          "full_rerun": 58,
+          "delta": -22
+        },
+        "行业感": {
+          "baseline": 82,
+          "full_rerun": 55,
+          "delta": -27
+        },
+        "表达深度": {
+          "baseline": 85,
+          "full_rerun": 72,
+          "delta": -13
+        },
+        "逻辑性": {
+          "baseline": 78,
+          "full_rerun": 65,
+          "delta": -13
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 4,
+          "内驱力": 3
+        },
+        "full_rerun": {
+          "内驱力": 5,
+          "学习能力": 2,
+          "钻研精神": 1
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "full_rerun": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1104,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1112,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "strong_below_70"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P1_2026_05_20",
+      "tier": "strong",
+      "target_track": "二级买方·基本面 (公募行研)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 69,
+        "full_rerun": 86,
+        "delta": 17
+      },
+      "turn_mean_full": 71.2,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 66,
+          "full_rerun": 88,
+          "delta": 22
+        },
+        "可信度": {
+          "baseline": 68,
+          "full_rerun": 82,
+          "delta": 14
+        },
+        "岗位能力匹配度": {
+          "baseline": 71,
+          "full_rerun": 87,
+          "delta": 16
+        },
+        "行业感": {
+          "baseline": 73,
+          "full_rerun": 89,
+          "delta": 16
+        },
+        "表达深度": {
+          "baseline": 65,
+          "full_rerun": 86,
+          "delta": 21
+        },
+        "逻辑性": {
+          "baseline": 70,
+          "full_rerun": 90,
+          "delta": 20
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 2,
+          "学习能力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 5,
+          "内驱力": 3,
+          "学习能力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 494,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1314,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M1_2026_05_20",
+      "tier": "mid",
+      "target_track": "二级买方·基本面 (公募行研, 大消费/食品饮料组)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 66,
+        "full_rerun": 82,
+        "delta": 16
+      },
+      "turn_mean_full": 66.2,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 65,
+          "full_rerun": 78,
+          "delta": 13
+        },
+        "可信度": {
+          "baseline": 70,
+          "full_rerun": 83,
+          "delta": 13
+        },
+        "岗位能力匹配度": {
+          "baseline": 75,
+          "full_rerun": 82,
+          "delta": 7
+        },
+        "行业感": {
+          "baseline": 65,
+          "full_rerun": 85,
+          "delta": 20
+        },
+        "表达深度": {
+          "baseline": 50,
+          "full_rerun": 82,
+          "delta": 32
+        },
+        "逻辑性": {
+          "baseline": 68,
+          "full_rerun": 80,
+          "delta": 12
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 3,
+          "学习能力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 675,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1360,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M14_2026_05_21",
+      "tier": "mid",
+      "target_track": "中等股份制银行总行管培 / 城商行总行管培",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 73,
+        "full_rerun": 60,
+        "delta": -13
+      },
+      "turn_mean_full": 66.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 72,
+          "full_rerun": 60,
+          "delta": -12
+        },
+        "可信度": {
+          "baseline": 75,
+          "full_rerun": 60,
+          "delta": -15
+        },
+        "岗位能力匹配度": {
+          "baseline": 70,
+          "full_rerun": 60,
+          "delta": -10
+        },
+        "行业感": {
+          "baseline": 78,
+          "full_rerun": 60,
+          "delta": -18
+        },
+        "表达深度": {
+          "baseline": 68,
+          "full_rerun": 60,
+          "delta": -8
+        },
+        "逻辑性": {
+          "baseline": 75,
+          "full_rerun": 60,
+          "delta": -15
+        }
+      },
+      "traits": {
+        "baseline": {},
+        "full_rerun": {}
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": null
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 923,
+          "ref_jd_anchor_count": 3,
+          "ref_jd_anchor_pct": 0.375,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 327,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 0,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": "report_llm_silent"
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "report_fallback"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P6_2026_05_20",
+      "tier": "strong",
+      "target_track": "量化私募 / 对冲基金 (中频策略 + alpha 因子)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 82,
+        "full_rerun": 95,
+        "delta": 13
+      },
+      "turn_mean_full": 78.6,
+      "turn_overall_none_count": 1,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 82,
+          "full_rerun": 92,
+          "delta": 10
+        },
+        "可信度": {
+          "baseline": 78,
+          "full_rerun": 93,
+          "delta": 15
+        },
+        "岗位能力匹配度": {
+          "baseline": 88,
+          "full_rerun": 96,
+          "delta": 8
+        },
+        "行业感": {
+          "baseline": 80,
+          "full_rerun": 95,
+          "delta": 15
+        },
+        "表达深度": {
+          "baseline": 85,
+          "full_rerun": 97,
+          "delta": 12
+        },
+        "逻辑性": {
+          "baseline": 80,
+          "full_rerun": 94,
+          "delta": 14
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 6,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "钻研精神": 4,
+          "内驱力": 1,
+          "学习能力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 767,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 642,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "turn_overall_none"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M6_2026_05_21",
+      "tier": "weak",
+      "target_track": "公募行研 (目标方向, 政策驱动板块)",
+      "is_cross_major": true,
+      "overall": {
+        "baseline": 53,
+        "full_rerun": 65,
+        "delta": 12
+      },
+      "turn_mean_full": 59.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 45,
+          "full_rerun": 55,
+          "delta": 10
+        },
+        "可信度": {
+          "baseline": 42,
+          "full_rerun": 60,
+          "delta": 18
+        },
+        "岗位能力匹配度": {
+          "baseline": 62,
+          "full_rerun": 60,
+          "delta": -2
+        },
+        "行业感": {
+          "baseline": 60,
+          "full_rerun": 70,
+          "delta": 10
+        },
+        "表达深度": {
+          "baseline": 55,
+          "full_rerun": 75,
+          "delta": 20
+        },
+        "逻辑性": {
+          "baseline": 55,
+          "full_rerun": 70,
+          "delta": 15
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 3
+        },
+        "full_rerun": {
+          "钻研精神": 2,
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "full_rerun": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 382,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 463,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M9_2026_05_20",
+      "tier": "extreme",
+      "target_track": "二级买方·基本面 (公募行研 / 卖方研究, 通用方向)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 25,
+        "full_rerun": 37,
+        "delta": 12
+      },
+      "turn_mean_full": 23.2,
+      "turn_overall_none_count": 1,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 30,
+          "full_rerun": 30,
+          "delta": 0
+        },
+        "可信度": {
+          "baseline": 15,
+          "full_rerun": 45,
+          "delta": 30
+        },
+        "岗位能力匹配度": {
+          "baseline": 30,
+          "full_rerun": 52,
+          "delta": 22
+        },
+        "行业感": {
+          "baseline": 20,
+          "full_rerun": 40,
+          "delta": 20
+        },
+        "表达深度": {
+          "baseline": 25,
+          "full_rerun": 25,
+          "delta": 0
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "full_rerun": 30,
+          "delta": 0
+        }
+      },
+      "traits": {
+        "baseline": {},
+        "full_rerun": {}
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1423,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 736,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.2,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "turn_overall_none"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_P_trait_S1_2026_05_21",
+      "tier": "strong",
+      "target_track": "公募基金股票行业研究 (TMT / 互联网)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 88,
+        "full_rerun": 77,
+        "delta": -11
+      },
+      "turn_mean_full": 75.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 88,
+          "full_rerun": 70,
+          "delta": -18
+        },
+        "可信度": {
+          "baseline": 92,
+          "full_rerun": 76,
+          "delta": -16
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "full_rerun": 75,
+          "delta": -10
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 82,
+          "delta": -8
+        },
+        "表达深度": {
+          "baseline": 88,
+          "full_rerun": 85,
+          "delta": -3
+        },
+        "逻辑性": {
+          "baseline": 85,
+          "full_rerun": 78,
+          "delta": -7
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 3
+        },
+        "full_rerun": {
+          "内驱力": 6,
+          "钻研精神": 3,
+          "团队合作": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1009,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 468,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M3_2026_05_20",
+      "tier": "mid",
+      "target_track": "投行 IBD / 资本市场 (中型券商投行部)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 63,
+        "full_rerun": 72,
+        "delta": 9
+      },
+      "turn_mean_full": 63.3,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 60,
+          "full_rerun": 68,
+          "delta": 8
+        },
+        "可信度": {
+          "baseline": 55,
+          "full_rerun": 74,
+          "delta": 19
+        },
+        "岗位能力匹配度": {
+          "baseline": 65,
+          "full_rerun": 75,
+          "delta": 10
+        },
+        "行业感": {
+          "baseline": 60,
+          "full_rerun": 72,
+          "delta": 12
+        },
+        "表达深度": {
+          "baseline": 65,
+          "full_rerun": 70,
+          "delta": 5
+        },
+        "逻辑性": {
+          "baseline": 65,
+          "full_rerun": 73,
+          "delta": 8
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "内驱力": 2,
+          "钻研精神": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 567,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 8,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 562,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P8_2026_05_21",
+      "tier": "strong",
+      "target_track": "顶级阳光私募 / 公募基金 行业研究员 (医药 CXO + 创新药产业链)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 87,
+        "full_rerun": 92,
+        "delta": 5
+      },
+      "turn_mean_full": 76.8,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 86,
+          "full_rerun": 90,
+          "delta": 4
+        },
+        "可信度": {
+          "baseline": 88,
+          "full_rerun": 93,
+          "delta": 5
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "full_rerun": 93,
+          "delta": 8
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 95,
+          "delta": 5
+        },
+        "表达深度": {
+          "baseline": 90,
+          "full_rerun": 91,
+          "delta": 1
+        },
+        "逻辑性": {
+          "baseline": 88,
+          "full_rerun": 92,
+          "delta": 4
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 6,
+          "内驱力": 3
+        },
+        "full_rerun": {
+          "钻研精神": 5,
+          "内驱力": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 855,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 596,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P9_2026_05_21",
+      "tier": "strong",
+      "target_track": "顶级公募 / 卖方研究 (大消费 + TMT), 战略咨询背景转金融",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 88,
+        "full_rerun": 83,
+        "delta": -5
+      },
+      "turn_mean_full": 64.8,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 88,
+          "full_rerun": 78,
+          "delta": -10
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 30,
+          "delta": -55
+        },
+        "岗位能力匹配度": {
+          "baseline": 80,
+          "full_rerun": 82,
+          "delta": 2
+        },
+        "行业感": {
+          "baseline": 94,
+          "full_rerun": 85,
+          "delta": -9
+        },
+        "表达深度": {
+          "baseline": 90,
+          "full_rerun": 86,
+          "delta": -4
+        },
+        "逻辑性": {
+          "baseline": 92,
+          "full_rerun": 83,
+          "delta": -9
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 3
+        },
+        "full_rerun": {
+          "钻研精神": 3,
+          "内驱力": 2,
+          "学习能力": 2
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "full_rerun": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 844,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 481,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M8_2026_05_21",
+      "tier": "mid",
+      "target_track": "二级买方·基本面 (公募行研, 汽车/高端装备方向)",
+      "is_cross_major": true,
+      "overall": {
+        "baseline": 86,
+        "full_rerun": 83,
+        "delta": -3
+      },
+      "turn_mean_full": 74.3,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 85,
+          "full_rerun": 78,
+          "delta": -7
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 82,
+          "delta": -3
+        },
+        "岗位能力匹配度": {
+          "baseline": 90,
+          "full_rerun": 75,
+          "delta": -15
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 90,
+          "delta": 0
+        },
+        "表达深度": {
+          "baseline": 85,
+          "full_rerun": 83,
+          "delta": -2
+        },
+        "逻辑性": {
+          "baseline": 80,
+          "full_rerun": 85,
+          "delta": 5
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 6,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "钻研精神": 5,
+          "内驱力": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1291,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 572,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P2_2026_05_20",
+      "tier": "strong",
+      "target_track": "卖方研究 TMT (sell-side research)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 87,
+        "full_rerun": 84,
+        "delta": -3
+      },
+      "turn_mean_full": 67.6,
+      "turn_overall_none_count": 1,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 84,
+          "full_rerun": 80,
+          "delta": -4
+        },
+        "可信度": {
+          "baseline": 88,
+          "full_rerun": 80,
+          "delta": -8
+        },
+        "岗位能力匹配度": {
+          "baseline": 86,
+          "full_rerun": 85,
+          "delta": -1
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 86,
+          "delta": -4
+        },
+        "表达深度": {
+          "baseline": 86,
+          "full_rerun": 88,
+          "delta": 2
+        },
+        "逻辑性": {
+          "baseline": 85,
+          "full_rerun": 84,
+          "delta": -1
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 3,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "内驱力": 2,
+          "钻研精神": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 651,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 456,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score",
+        "turn_overall_none"
+      ]
+    },
+    {
+      "scenario_id": "workspace_P4_2026_05_20",
+      "tier": "mid",
+      "target_track": "银行管培 / 综合金融",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 79,
+        "full_rerun": 82,
+        "delta": 3
+      },
+      "turn_mean_full": 61.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 76,
+          "full_rerun": 82,
+          "delta": 6
+        },
+        "可信度": {
+          "baseline": 80,
+          "full_rerun": 85,
+          "delta": 5
+        },
+        "岗位能力匹配度": {
+          "baseline": 75,
+          "full_rerun": 85,
+          "delta": 10
+        },
+        "行业感": {
+          "baseline": 82,
+          "full_rerun": 80,
+          "delta": -2
+        },
+        "表达深度": {
+          "baseline": 85,
+          "full_rerun": 75,
+          "delta": -10
+        },
+        "逻辑性": {
+          "baseline": 78,
+          "full_rerun": 83,
+          "delta": 5
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 3,
+          "团队合作": 1,
+          "钻研精神": 1
+        },
+        "full_rerun": {
+          "内驱力": 2,
+          "团队合作": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1096,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 717,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 8,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M5_2026_05_20",
+      "tier": "mid",
+      "target_track": "FinTech 数据 / 算法 (券商金科 / 互联网风控)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 77,
+        "full_rerun": 76,
+        "delta": -1
+      },
+      "turn_mean_full": 74.2,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "full_rerun": 75,
+          "delta": -5
+        },
+        "可信度": {
+          "baseline": 80,
+          "full_rerun": 78,
+          "delta": -2
+        },
+        "岗位能力匹配度": {
+          "baseline": 78,
+          "full_rerun": 80,
+          "delta": 2
+        },
+        "行业感": {
+          "baseline": 75,
+          "full_rerun": 75,
+          "delta": 0
+        },
+        "表达深度": {
+          "baseline": 68,
+          "full_rerun": 72,
+          "delta": 4
+        },
+        "逻辑性": {
+          "baseline": 78,
+          "full_rerun": 78,
+          "delta": 0
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 3,
+          "钻研精神": 2
+        },
+        "full_rerun": {
+          "钻研精神": 4,
+          "内驱力": 2,
+          "学习能力": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 976,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 579,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.16666666666666666,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "suppressed_but_high_score"
+      ]
+    },
+    {
+      "scenario_id": "mock_interview_M7_2026_05_20",
+      "tier": "mid",
+      "target_track": "二级买方 / 卖方研究 (公募行研 + 卖方助理两投)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 69,
+        "full_rerun": 60,
+        "delta": -9
+      },
+      "turn_mean_full": 52.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 70,
+          "full_rerun": 55,
+          "delta": -15
+        },
+        "可信度": {
+          "baseline": 65,
+          "full_rerun": 60,
+          "delta": -5
+        },
+        "岗位能力匹配度": {
+          "baseline": 65,
+          "full_rerun": 60,
+          "delta": -5
+        },
+        "行业感": {
+          "baseline": 72,
+          "full_rerun": 65,
+          "delta": -7
+        },
+        "表达深度": {
+          "baseline": 72,
+          "full_rerun": 60,
+          "delta": -12
+        },
+        "逻辑性": {
+          "baseline": 68,
+          "full_rerun": 60,
+          "delta": -8
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 4,
+          "内驱力": 2
+        },
+        "full_rerun": {
+          "学习能力": 1,
+          "钻研精神": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 565,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 391,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "mock_interview_M2_2026_05_20",
+      "tier": "mid",
+      "target_track": "卖方研究 (消费/医药 sector, 中型券商研究所)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 71,
+        "full_rerun": 64,
+        "delta": -7
+      },
+      "turn_mean_full": 57.8,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 67,
+          "full_rerun": 70,
+          "delta": 3
+        },
+        "可信度": {
+          "baseline": 65,
+          "full_rerun": 70,
+          "delta": 5
+        },
+        "岗位能力匹配度": {
+          "baseline": 75,
+          "full_rerun": 75,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 70,
+          "full_rerun": 75,
+          "delta": 5
+        },
+        "表达深度": {
+          "baseline": 72,
+          "full_rerun": 60,
+          "delta": -12
+        },
+        "逻辑性": {
+          "baseline": 75,
+          "full_rerun": 65,
+          "delta": -10
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 444,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1018,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "mock_interview_M11_2026_05_21",
+      "tier": "extreme",
+      "target_track": "实业 corp dev / M&A (含 corporate finance) — 化工跨专业目标",
+      "is_cross_major": true,
+      "overall": {
+        "baseline": 60,
+        "full_rerun": 55,
+        "delta": -5
+      },
+      "turn_mean_full": 55.5,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 52,
+          "full_rerun": 45,
+          "delta": -7
+        },
+        "可信度": {
+          "baseline": 75,
+          "full_rerun": 70,
+          "delta": -5
+        },
+        "岗位能力匹配度": {
+          "baseline": 30,
+          "full_rerun": 30,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 70,
+          "full_rerun": 75,
+          "delta": 5
+        },
+        "表达深度": {
+          "baseline": 70,
+          "full_rerun": 55,
+          "delta": -15
+        },
+        "逻辑性": {
+          "baseline": 65,
+          "full_rerun": 55,
+          "delta": -10
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5
+        },
+        "full_rerun": {
+          "钻研精神": 5,
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "full_rerun": "no_attempt"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 574,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1001,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "mock_interview_M15_2026_05_21",
+      "tier": "mid",
+      "target_track": "顶级券商 FICC 销售交易 / 卖方衍生品做市 / 海外做市商 (Citadel/Jane Street 中国)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 87,
+        "full_rerun": 91,
+        "delta": 4
+      },
+      "turn_mean_full": 74.8,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 84,
+          "full_rerun": 88,
+          "delta": 4
+        },
+        "可信度": {
+          "baseline": 86,
+          "full_rerun": 90,
+          "delta": 4
+        },
+        "岗位能力匹配度": {
+          "baseline": 88,
+          "full_rerun": 90,
+          "delta": 2
+        },
+        "行业感": {
+          "baseline": 92,
+          "full_rerun": 95,
+          "delta": 3
+        },
+        "表达深度": {
+          "baseline": 88,
+          "full_rerun": 93,
+          "delta": 5
+        },
+        "逻辑性": {
+          "baseline": 88,
+          "full_rerun": 92,
+          "delta": 4
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 6,
+          "内驱力": 3
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 816,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 832,
+          "ref_jd_anchor_count": 2,
+          "ref_jd_anchor_pct": 0.25,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "workspace_P3_2026_05_20",
+      "tier": "mid",
+      "target_track": "私募 / 资管基本面研究",
+      "is_cross_major": true,
+      "overall": {
+        "baseline": 82,
+        "full_rerun": 85,
+        "delta": 3
+      },
+      "turn_mean_full": 65.8,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "full_rerun": 80,
+          "delta": 0
+        },
+        "可信度": {
+          "baseline": 30,
+          "full_rerun": 85,
+          "delta": 55
+        },
+        "岗位能力匹配度": {
+          "baseline": 78,
+          "full_rerun": 85,
+          "delta": 7
+        },
+        "行业感": {
+          "baseline": 72,
+          "full_rerun": 88,
+          "delta": 16
+        },
+        "表达深度": {
+          "baseline": 86,
+          "full_rerun": 87,
+          "delta": 1
+        },
+        "逻辑性": {
+          "baseline": 90,
+          "full_rerun": 82,
+          "delta": -8
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 2,
+          "学习能力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 4,
+          "内驱力": 3
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 756,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 8,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 1023,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "workspace_P7_2026_05_20",
+      "tier": "mid",
+      "target_track": "FinTech 数据 / 算法 (金融科技数据岗)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 86,
+        "full_rerun": 84,
+        "delta": -2
+      },
+      "turn_mean_full": 74.3,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "full_rerun": 80,
+          "delta": 0
+        },
+        "可信度": {
+          "baseline": 85,
+          "full_rerun": 85,
+          "delta": 0
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "full_rerun": 85,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 90,
+          "full_rerun": 80,
+          "delta": -10
+        },
+        "表达深度": {
+          "baseline": 90,
+          "full_rerun": 88,
+          "delta": -2
+        },
+        "逻辑性": {
+          "baseline": 88,
+          "full_rerun": 85,
+          "delta": -3
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 4,
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 4,
+          "内驱力": 2,
+          "学习能力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 707,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 779,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "scenario_id": "mock_interview_M10_2026_05_20",
+      "tier": "extreme",
+      "target_track": "二级买方 / 量化研究 (公募 / 量化私募, 通用方向)",
+      "is_cross_major": false,
+      "overall": {
+        "baseline": 54,
+        "full_rerun": 54,
+        "delta": 0
+      },
+      "turn_mean_full": 51.0,
+      "turn_overall_none_count": 0,
+      "empty_answer_count": 0,
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 58,
+          "full_rerun": 60,
+          "delta": 2
+        },
+        "可信度": {
+          "baseline": 38,
+          "full_rerun": 30,
+          "delta": -8
+        },
+        "岗位能力匹配度": {
+          "baseline": 75,
+          "full_rerun": 67,
+          "delta": -8
+        },
+        "行业感": {
+          "baseline": 40,
+          "full_rerun": 35,
+          "delta": -5
+        },
+        "表达深度": {
+          "baseline": 62,
+          "full_rerun": 70,
+          "delta": 8
+        },
+        "逻辑性": {
+          "baseline": 50,
+          "full_rerun": 62,
+          "delta": 12
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 1
+        },
+        "full_rerun": {
+          "钻研精神": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "full_rerun": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 544,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "full_rerun": {
+          "len_chars": 979,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    }
+  ]
+}

@@ -1,0 +1,1030 @@
+{
+  "baseline": "/home/ubuntu/projects/JobRadar/backend/tests/eval/_out/mock_interview_post_v6_full_2026_05_22.json",
+  "worker_outputs": {
+    "A": "/tmp/mock_interview_worker_A_2026_05_22.json",
+    "B": "/tmp/mock_interview_worker_B_2026_05_22.json",
+    "C": "/tmp/mock_interview_worker_C_2026_05_22.json"
+  },
+  "count": 11,
+  "systemic_trigger": true,
+  "systemic_trigger_reasons": [
+    "P8 report_llm_silent fallback on a strong transcript",
+    "M13 strong persona report score drift +30 with nearly unchanged turn mean",
+    "P-fake-S1 fake/mentor fallback over-promotion to 78 with fabrication_suppressed=True"
+  ],
+  "bug_criteria_counts": {
+    "overall_drift_ge_10": 6,
+    "report_fallback": 1,
+    "suppressed_but_high_score": 1
+  },
+  "results": [
+    {
+      "worker": "A",
+      "scenario_id": "mock_interview_P_bridge_S1_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 78,
+        "targeted": 70,
+        "delta": -8
+      },
+      "turn_mean": {
+        "baseline": 68.2,
+        "targeted": 61.3
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 75,
+          "targeted": 70,
+          "delta": -5
+        },
+        "可信度": {
+          "baseline": 72,
+          "targeted": 65,
+          "delta": -7
+        },
+        "岗位能力匹配度": {
+          "baseline": 80,
+          "targeted": 65,
+          "delta": -15
+        },
+        "行业感": {
+          "baseline": 82,
+          "targeted": 65,
+          "delta": -17
+        },
+        "表达深度": {
+          "baseline": 85,
+          "targeted": 80,
+          "delta": -5
+        },
+        "逻辑性": {
+          "baseline": 78,
+          "targeted": 75,
+          "delta": -3
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 4,
+          "内驱力": 3
+        },
+        "targeted": {
+          "钻研精神": 5,
+          "内驱力": 4
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "targeted": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1104,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 873,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "worker": "A",
+      "scenario_id": "workspace_P8_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 87,
+        "targeted": 60,
+        "delta": -27
+      },
+      "turn_mean": {
+        "baseline": 78.8,
+        "targeted": 79.2
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 86,
+          "targeted": 60,
+          "delta": -26
+        },
+        "可信度": {
+          "baseline": 88,
+          "targeted": 60,
+          "delta": -28
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "targeted": 60,
+          "delta": -25
+        },
+        "行业感": {
+          "baseline": 90,
+          "targeted": 60,
+          "delta": -30
+        },
+        "表达深度": {
+          "baseline": 90,
+          "targeted": 60,
+          "delta": -30
+        },
+        "逻辑性": {
+          "baseline": 88,
+          "targeted": 60,
+          "delta": -28
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 6,
+          "内驱力": 3
+        },
+        "targeted": {}
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": null
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 855,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 1,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 343,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 0,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": "report_llm_silent"
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "report_fallback"
+      ]
+    },
+    {
+      "worker": "A",
+      "scenario_id": "workspace_P9_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 88,
+        "targeted": 83,
+        "delta": -5
+      },
+      "turn_mean": {
+        "baseline": 71.3,
+        "targeted": 69.0
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 88,
+          "targeted": 82,
+          "delta": -6
+        },
+        "可信度": {
+          "baseline": 85,
+          "targeted": 78,
+          "delta": -7
+        },
+        "岗位能力匹配度": {
+          "baseline": 80,
+          "targeted": 80,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 94,
+          "targeted": 84,
+          "delta": -10
+        },
+        "表达深度": {
+          "baseline": 90,
+          "targeted": 88,
+          "delta": -2
+        },
+        "逻辑性": {
+          "baseline": 92,
+          "targeted": 86,
+          "delta": -6
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 3
+        },
+        "targeted": {
+          "钻研精神": 4,
+          "内驱力": 2,
+          "学习能力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "targeted": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 844,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 919,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 2,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "worker": "B",
+      "scenario_id": "mock_interview_M13_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 58,
+        "targeted": 88,
+        "delta": 30
+      },
+      "turn_mean": {
+        "baseline": 71.3,
+        "targeted": 71.0
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 80,
+          "targeted": 85,
+          "delta": 5
+        },
+        "可信度": {
+          "baseline": 85,
+          "targeted": 88,
+          "delta": 3
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "targeted": 85,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 30,
+          "targeted": 90,
+          "delta": 60
+        },
+        "表达深度": {
+          "baseline": 40,
+          "targeted": 90,
+          "delta": 50
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "targeted": 88,
+          "delta": 58
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 3,
+          "学习能力": 1
+        },
+        "targeted": {
+          "钻研精神": 2,
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1547,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1156,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "worker": "B",
+      "scenario_id": "mock_interview_M14_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 73,
+        "targeted": 69,
+        "delta": -4
+      },
+      "turn_mean": {
+        "baseline": 57.2,
+        "targeted": 62.7
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 72,
+          "targeted": 65,
+          "delta": -7
+        },
+        "可信度": {
+          "baseline": 75,
+          "targeted": 70,
+          "delta": -5
+        },
+        "岗位能力匹配度": {
+          "baseline": 70,
+          "targeted": 70,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 78,
+          "targeted": 65,
+          "delta": -13
+        },
+        "表达深度": {
+          "baseline": 68,
+          "targeted": 70,
+          "delta": 2
+        },
+        "逻辑性": {
+          "baseline": 75,
+          "targeted": 75,
+          "delta": 0
+        }
+      },
+      "traits": {
+        "baseline": {},
+        "targeted": {
+          "学习能力": 1,
+          "钻研精神": 1
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 923,
+          "ref_jd_anchor_count": 3,
+          "ref_jd_anchor_pct": 0.375,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1384,
+          "ref_jd_anchor_count": 2,
+          "ref_jd_anchor_pct": 0.25,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "worker": "B",
+      "scenario_id": "mock_interview_P_trait_S1_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 88,
+        "targeted": 72,
+        "delta": -16
+      },
+      "turn_mean": {
+        "baseline": 61.3,
+        "targeted": 65.8
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 88,
+          "targeted": 55,
+          "delta": -33
+        },
+        "可信度": {
+          "baseline": 92,
+          "targeted": 70,
+          "delta": -22
+        },
+        "岗位能力匹配度": {
+          "baseline": 85,
+          "targeted": 75,
+          "delta": -10
+        },
+        "行业感": {
+          "baseline": 90,
+          "targeted": 80,
+          "delta": -10
+        },
+        "表达深度": {
+          "baseline": 88,
+          "targeted": 80,
+          "delta": -8
+        },
+        "逻辑性": {
+          "baseline": 85,
+          "targeted": 75,
+          "delta": -10
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5,
+          "内驱力": 3
+        },
+        "targeted": {
+          "内驱力": 4,
+          "钻研精神": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1009,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1164,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "worker": "C",
+      "scenario_id": "mock_interview_M11_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 60,
+        "targeted": 42,
+        "delta": -18
+      },
+      "turn_mean": {
+        "baseline": 52.7,
+        "targeted": 51.0
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 52,
+          "targeted": 40,
+          "delta": -12
+        },
+        "可信度": {
+          "baseline": 75,
+          "targeted": 80,
+          "delta": 5
+        },
+        "岗位能力匹配度": {
+          "baseline": 30,
+          "targeted": 30,
+          "delta": 0
+        },
+        "行业感": {
+          "baseline": 70,
+          "targeted": 30,
+          "delta": -40
+        },
+        "表达深度": {
+          "baseline": 70,
+          "targeted": 40,
+          "delta": -30
+        },
+        "逻辑性": {
+          "baseline": 65,
+          "targeted": 30,
+          "delta": -35
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 5
+        },
+        "targeted": {
+          "内驱力": 1
+        }
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "targeted": "active_bridge"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 574,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1706,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "worker": "C",
+      "scenario_id": "mock_interview_M12_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 51,
+        "targeted": 48,
+        "delta": -3
+      },
+      "turn_mean": {
+        "baseline": 53.7,
+        "targeted": 53.7
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 70,
+          "targeted": 65,
+          "delta": -5
+        },
+        "可信度": {
+          "baseline": 72,
+          "targeted": 60,
+          "delta": -12
+        },
+        "岗位能力匹配度": {
+          "baseline": 78,
+          "targeted": 70,
+          "delta": -8
+        },
+        "行业感": {
+          "baseline": 30,
+          "targeted": 30,
+          "delta": 0
+        },
+        "表达深度": {
+          "baseline": 25,
+          "targeted": 30,
+          "delta": 5
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "targeted": 30,
+          "delta": 0
+        }
+      },
+      "traits": {
+        "baseline": {
+          "内驱力": 1
+        },
+        "targeted": {
+          "内驱力": 2,
+          "钻研精神": 2
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1889,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1762,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "worker": "C",
+      "scenario_id": "mock_interview_M6_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 53,
+        "targeted": 42,
+        "delta": -11
+      },
+      "turn_mean": {
+        "baseline": 61.7,
+        "targeted": 39.2
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 45,
+          "targeted": 30,
+          "delta": -15
+        },
+        "可信度": {
+          "baseline": 42,
+          "targeted": 50,
+          "delta": 8
+        },
+        "岗位能力匹配度": {
+          "baseline": 62,
+          "targeted": 55,
+          "delta": -7
+        },
+        "行业感": {
+          "baseline": 60,
+          "targeted": 55,
+          "delta": -5
+        },
+        "表达深度": {
+          "baseline": 55,
+          "targeted": 30,
+          "delta": -25
+        },
+        "逻辑性": {
+          "baseline": 55,
+          "targeted": 30,
+          "delta": -25
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 3
+        },
+        "targeted": {}
+      },
+      "transferability": {
+        "baseline": "active_bridge",
+        "targeted": "no_attempt"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 382,
+          "ref_jd_anchor_count": 1,
+          "ref_jd_anchor_pct": 0.125,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 1407,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 4,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10"
+      ]
+    },
+    {
+      "worker": "C",
+      "scenario_id": "mock_interview_M9_2026_05_20",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 25,
+        "targeted": 22,
+        "delta": -3
+      },
+      "turn_mean": {
+        "baseline": 27.8,
+        "targeted": 23.0
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 30,
+          "targeted": 25,
+          "delta": -5
+        },
+        "可信度": {
+          "baseline": 15,
+          "targeted": 15,
+          "delta": 0
+        },
+        "岗位能力匹配度": {
+          "baseline": 30,
+          "targeted": 35,
+          "delta": 5
+        },
+        "行业感": {
+          "baseline": 20,
+          "targeted": 20,
+          "delta": 0
+        },
+        "表达深度": {
+          "baseline": 25,
+          "targeted": 10,
+          "delta": -15
+        },
+        "逻辑性": {
+          "baseline": 30,
+          "targeted": 25,
+          "delta": -5
+        }
+      },
+      "traits": {
+        "baseline": {},
+        "targeted": {}
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1423,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": true,
+          "fabrication_warnings": 7,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 398,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 6,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": []
+    },
+    {
+      "worker": "C",
+      "scenario_id": "mock_interview_P_fake_S1_2026_05_21",
+      "tier": null,
+      "target_track": null,
+      "overall": {
+        "baseline": 59,
+        "targeted": 78,
+        "delta": 19
+      },
+      "turn_mean": {
+        "baseline": 66.7,
+        "targeted": 64.3
+      },
+      "dimensions": {
+        "信息选取与侧重": {
+          "baseline": 45,
+          "targeted": 75,
+          "delta": 30
+        },
+        "可信度": {
+          "baseline": 60,
+          "targeted": 75,
+          "delta": 15
+        },
+        "岗位能力匹配度": {
+          "baseline": 65,
+          "targeted": 75,
+          "delta": 10
+        },
+        "行业感": {
+          "baseline": 60,
+          "targeted": 80,
+          "delta": 20
+        },
+        "表达深度": {
+          "baseline": 70,
+          "targeted": 85,
+          "delta": 15
+        },
+        "逻辑性": {
+          "baseline": 55,
+          "targeted": 80,
+          "delta": 25
+        }
+      },
+      "traits": {
+        "baseline": {
+          "钻研精神": 2,
+          "内驱力": 1
+        },
+        "targeted": {
+          "钻研精神": 5,
+          "内驱力": 3
+        }
+      },
+      "transferability": {
+        "baseline": "domain_match",
+        "targeted": "domain_match"
+      },
+      "report_audit": {
+        "baseline": {
+          "len_chars": 1010,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": true,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 3,
+          "fabrication_suppressed": false,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        },
+        "targeted": {
+          "len_chars": 571,
+          "ref_jd_anchor_count": 0,
+          "ref_jd_anchor_pct": 0.0,
+          "ref_track_token": true,
+          "has_rewrite_demo": false,
+          "has_cohort_anchor": false,
+          "fabrication_warnings": 5,
+          "fabrication_suppressed": true,
+          "fabricated_numbers": 0,
+          "improvements_4seg_bad_count": 0,
+          "improvements_4seg_total": null,
+          "fallback_reason": null
+        }
+      },
+      "bug_criteria_hit": [
+        "overall_drift_ge_10",
+        "suppressed_but_high_score"
+      ]
+    }
+  ]
+}

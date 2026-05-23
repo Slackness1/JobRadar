@@ -1,0 +1,830 @@
+{
+  "source": "/home/ubuntu/projects/JobRadar/backend/tests/eval/_out/mock_interview_post_v6_full_2026_05_22.json",
+  "summary": {
+    "by_tier": {
+      "extreme": {
+        "n_personas": 4,
+        "turn_score_mean": 43.29,
+        "turn_score_stdev": 13.94,
+        "report_overall_mean": 47.5,
+        "dim_spread_mean": 14.16
+      },
+      "strong": {
+        "n_personas": 9,
+        "turn_score_mean": 70.11,
+        "turn_score_stdev": 10.26,
+        "report_overall_mean": 80.22,
+        "dim_spread_mean": 5.38
+      },
+      "mid": {
+        "n_personas": 13,
+        "turn_score_mean": 67.71,
+        "turn_score_stdev": 8.62,
+        "report_overall_mean": 75.62,
+        "dim_spread_mean": 5.32
+      },
+      "weak": {
+        "n_personas": 1,
+        "turn_score_mean": 61.67,
+        "turn_score_stdev": 8.56,
+        "report_overall_mean": 53.0,
+        "dim_spread_mean": 7.34
+      }
+    },
+    "spread_strong_vs_weak": 27.22,
+    "spread_strong_vs_extreme": 32.72,
+    "feedback_quality": {
+      "n_reports": 27,
+      "ref_jd_anchor_any_pct": 0.259,
+      "ref_track_token_pct": 1.0,
+      "has_rewrite_demo_pct": 0.519,
+      "has_cohort_anchor_pct": 0.37,
+      "any_fabrication_pct": 1.0,
+      "fabrication_suppressed_pct": 0.333,
+      "fab_numbers_detected_pct": 0.0,
+      "improvements_4seg_compliant_pct": 0.0,
+      "fallback_invoked_pct": 0.0,
+      "avg_report_chars": 868.9
+    }
+  },
+  "rows": [
+    {
+      "scenario_id": "mock_interview_M10_2026_05_20",
+      "tier": "extreme",
+      "overall": 54,
+      "dim_avg": 53.8,
+      "dim_min": 38,
+      "dim_max": 75,
+      "dim_spread": 12.84,
+      "n_traits": 1,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 544,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 5,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M11_2026_05_21",
+      "tier": "extreme",
+      "overall": 60,
+      "dim_avg": 60.3,
+      "dim_min": 30,
+      "dim_max": 75,
+      "dim_spread": 15.35,
+      "n_traits": 1,
+      "transferability": "active_bridge",
+      "audit": {
+        "len_chars": 574,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 3,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M12_2026_05_21",
+      "tier": "extreme",
+      "overall": 51,
+      "dim_avg": 50.8,
+      "dim_min": 25,
+      "dim_max": 78,
+      "dim_spread": 22.69,
+      "n_traits": 1,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1889,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 5,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M13_2026_05_21",
+      "tier": "strong",
+      "overall": 58,
+      "dim_avg": 58.3,
+      "dim_min": 30,
+      "dim_max": 85,
+      "dim_spread": 25.28,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1547,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.125,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 7,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M14_2026_05_21",
+      "tier": "mid",
+      "overall": 73,
+      "dim_avg": 73.0,
+      "dim_min": 68,
+      "dim_max": 78,
+      "dim_spread": 3.37,
+      "n_traits": 0,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 923,
+        "ref_jd_anchor_count": 3,
+        "ref_jd_anchor_pct": 0.375,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 6,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M15_2026_05_21",
+      "tier": "mid",
+      "overall": 87,
+      "dim_avg": 87.7,
+      "dim_min": 84,
+      "dim_max": 92,
+      "dim_spread": 2.43,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 816,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M16_2026_05_21",
+      "tier": "mid",
+      "overall": 85,
+      "dim_avg": 85.0,
+      "dim_min": 80,
+      "dim_max": 90,
+      "dim_spread": 2.89,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 824,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.125,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 5,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M1_2026_05_20",
+      "tier": "mid",
+      "overall": 66,
+      "dim_avg": 65.5,
+      "dim_min": 50,
+      "dim_max": 75,
+      "dim_spread": 7.72,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 675,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 2,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M2_2026_05_20",
+      "tier": "mid",
+      "overall": 71,
+      "dim_avg": 70.7,
+      "dim_min": 65,
+      "dim_max": 75,
+      "dim_spread": 3.77,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 444,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M3_2026_05_20",
+      "tier": "mid",
+      "overall": 63,
+      "dim_avg": 61.7,
+      "dim_min": 55,
+      "dim_max": 65,
+      "dim_spread": 3.73,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 567,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.16666666666666666,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 8,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M5_2026_05_20",
+      "tier": "mid",
+      "overall": 77,
+      "dim_avg": 76.5,
+      "dim_min": 68,
+      "dim_max": 80,
+      "dim_spread": 4.15,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 976,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M6_2026_05_21",
+      "tier": "weak",
+      "overall": 53,
+      "dim_avg": 53.2,
+      "dim_min": 42,
+      "dim_max": 62,
+      "dim_spread": 7.34,
+      "n_traits": 1,
+      "transferability": "active_bridge",
+      "audit": {
+        "len_chars": 382,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.125,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 7,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M7_2026_05_20",
+      "tier": "mid",
+      "overall": 69,
+      "dim_avg": 68.7,
+      "dim_min": 65,
+      "dim_max": 72,
+      "dim_spread": 2.92,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 565,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 7,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M8_2026_05_21",
+      "tier": "mid",
+      "overall": 86,
+      "dim_avg": 85.8,
+      "dim_min": 80,
+      "dim_max": 90,
+      "dim_spread": 3.44,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1291,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 4,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_M9_2026_05_20",
+      "tier": "extreme",
+      "overall": 25,
+      "dim_avg": 25.0,
+      "dim_min": 15,
+      "dim_max": 30,
+      "dim_spread": 5.77,
+      "n_traits": 0,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1423,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 7,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_P_bridge_S1_2026_05_21",
+      "tier": "strong",
+      "overall": 78,
+      "dim_avg": 78.7,
+      "dim_min": 72,
+      "dim_max": 85,
+      "dim_spread": 4.31,
+      "n_traits": 2,
+      "transferability": "active_bridge",
+      "audit": {
+        "len_chars": 1104,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 3,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_P_fake_S1_2026_05_21",
+      "tier": "mid",
+      "overall": 59,
+      "dim_avg": 59.2,
+      "dim_min": 45,
+      "dim_max": 70,
+      "dim_spread": 7.86,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1010,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 3,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "mock_interview_P_trait_S1_2026_05_21",
+      "tier": "strong",
+      "overall": 88,
+      "dim_avg": 88.0,
+      "dim_min": 85,
+      "dim_max": 92,
+      "dim_spread": 2.52,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1009,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 4,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P1_2026_05_20",
+      "tier": "strong",
+      "overall": 69,
+      "dim_avg": 68.8,
+      "dim_min": 65,
+      "dim_max": 73,
+      "dim_spread": 2.79,
+      "n_traits": 3,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 494,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 4,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P2_2026_05_20",
+      "tier": "strong",
+      "overall": 87,
+      "dim_avg": 86.5,
+      "dim_min": 84,
+      "dim_max": 90,
+      "dim_spread": 1.98,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 651,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 2,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P3_2026_05_20",
+      "tier": "mid",
+      "overall": 82,
+      "dim_avg": 72.7,
+      "dim_min": 30,
+      "dim_max": 90,
+      "dim_spread": 19.92,
+      "n_traits": 3,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 756,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": false,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 8,
+        "fabrication_suppressed": true,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P4_2026_05_20",
+      "tier": "mid",
+      "overall": 79,
+      "dim_avg": 79.3,
+      "dim_min": 75,
+      "dim_max": 85,
+      "dim_spread": 3.45,
+      "n_traits": 3,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 1096,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.16666666666666666,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 6,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P5_2026_05_20",
+      "tier": "strong",
+      "overall": 85,
+      "dim_avg": 85.0,
+      "dim_min": 82,
+      "dim_max": 87,
+      "dim_spread": 1.63,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 727,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P6_2026_05_20",
+      "tier": "strong",
+      "overall": 82,
+      "dim_avg": 82.2,
+      "dim_min": 78,
+      "dim_max": 88,
+      "dim_spread": 3.39,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 767,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P7_2026_05_20",
+      "tier": "mid",
+      "overall": 86,
+      "dim_avg": 86.3,
+      "dim_min": 80,
+      "dim_max": 90,
+      "dim_spread": 3.5,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 707,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": true,
+        "fabrication_warnings": 2,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P8_2026_05_21",
+      "tier": "strong",
+      "overall": 87,
+      "dim_avg": 87.8,
+      "dim_min": 85,
+      "dim_max": 90,
+      "dim_spread": 1.86,
+      "n_traits": 2,
+      "transferability": "domain_match",
+      "audit": {
+        "len_chars": 855,
+        "ref_jd_anchor_count": 1,
+        "ref_jd_anchor_pct": 0.125,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 1,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    },
+    {
+      "scenario_id": "workspace_P9_2026_05_21",
+      "tier": "strong",
+      "overall": 88,
+      "dim_avg": 88.2,
+      "dim_min": 80,
+      "dim_max": 94,
+      "dim_spread": 4.63,
+      "n_traits": 2,
+      "transferability": "active_bridge",
+      "audit": {
+        "len_chars": 844,
+        "ref_jd_anchor_count": 0,
+        "ref_jd_anchor_pct": 0.0,
+        "ref_track_token": true,
+        "has_rewrite_demo": true,
+        "has_cohort_anchor": false,
+        "fabrication_warnings": 3,
+        "fabrication_suppressed": false,
+        "fabricated_numbers": 0,
+        "improvements_4seg_bad_count": 0,
+        "improvements_4seg_total": null,
+        "fallback_reason": null
+      }
+    }
+  ],
+  "issues": [
+    {
+      "severity": "blocker",
+      "persona": "mock_interview_M13_2026_05_21",
+      "title": "M13 strong misclassified low",
+      "detail": "M13 is marked strong but scored 58; must inspect transcript/report to decide if persona is mislabeled or scoring is over-penalizing.",
+      "evidence": {
+        "dims": [
+          85,
+          80,
+          30,
+          30,
+          85,
+          40
+        ]
+      }
+    },
+    {
+      "severity": "blocker",
+      "persona": "mock_interview_M13_2026_05_21",
+      "title": "strong persona overall < 70",
+      "detail": "mock_interview_M13_2026_05_21 tier=strong but overall=58.",
+      "evidence": {
+        "dims": [
+          85,
+          80,
+          30,
+          30,
+          85,
+          40
+        ]
+      }
+    },
+    {
+      "severity": "blocker",
+      "persona": "workspace_P1_2026_05_20",
+      "title": "strong persona overall < 70",
+      "detail": "workspace_P1_2026_05_20 tier=strong but overall=69.",
+      "evidence": {
+        "dims": [
+          71,
+          66,
+          70,
+          73,
+          68,
+          65
+        ]
+      }
+    },
+    {
+      "severity": "major",
+      "persona": "ALL",
+      "title": "fabrication_suppressed_pct high",
+      "detail": "fabrication_suppressed_pct=0.333 — inspect whether useful quote evidence is being suppressed too often.",
+      "evidence": {}
+    },
+    {
+      "severity": "major",
+      "persona": "ALL",
+      "title": "improvements_4seg_compliant_pct is 0",
+      "detail": "All reports fail the expected 4-seg improvements audit; this is called out in v6 report as known unresolved.",
+      "evidence": {}
+    },
+    {
+      "severity": "major",
+      "persona": "mock_interview_M14_2026_05_21",
+      "title": "trait recall missing on targeted persona",
+      "detail": "mock_interview_M14_2026_05_21 has 0 report.traits.",
+      "evidence": {
+        "overall": 73
+      }
+    },
+    {
+      "severity": "major",
+      "persona": "workspace_P3_2026_05_20",
+      "title": "high overall with collapsed dimension",
+      "detail": "overall=82 but one dimension=30; may be a contradictory report.",
+      "evidence": {
+        "dims": [
+          78,
+          80,
+          90,
+          72,
+          30,
+          86
+        ]
+      }
+    },
+    {
+      "severity": "minor",
+      "persona": "ALL",
+      "title": "cohort anchor recall below 50%",
+      "detail": "has_cohort_anchor_pct=0.37",
+      "evidence": {}
+    },
+    {
+      "severity": "minor",
+      "persona": "ALL",
+      "title": "rewrite demo recall below 60%",
+      "detail": "has_rewrite_demo_pct=0.519",
+      "evidence": {}
+    }
+  ]
+}

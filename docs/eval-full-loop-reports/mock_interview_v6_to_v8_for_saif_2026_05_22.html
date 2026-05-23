@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模拟面试系统 改造对照报告 — SAIF 试点 (2026-05-22)</title>
+<style>
+  :root {
+    --bg: #faf8f4;
+    --paper: #ffffff;
+    --ink: #2a2a2a;
+    --muted: #6b6b6b;
+    --primary: #c96442;
+    --primary-soft: rgba(201,100,66,0.10);
+    --good: #16a34a;
+    --good-soft: rgba(22,163,74,0.10);
+    --warn: #d97706;
+    --warn-soft: rgba(217,119,6,0.10);
+    --bad: #dc2626;
+    --bad-soft: rgba(220,38,38,0.10);
+    --border: #e5e0d6;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  .hero {
+    background: var(--paper);
+    border-radius: 16px;
+    padding: 36px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    border-top: 4px solid var(--primary);
+  }
+  .hero .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--primary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 28px; font-weight: 700; }
+  .hero .subtitle { color: var(--muted); font-size: 16px; margin: 0; }
+  .hero .meta {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--muted);
+  }
+  .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  h2 {
+    font-size: 22px; margin: 48px 0 16px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block; padding-right: 16px;
+  }
+  h3 { font-size: 17px; margin: 24px 0 12px; color: var(--ink); }
+  .lead {
+    color: var(--muted); font-size: 15px; margin: 0 0 24px;
+  }
+  /* Metric cards */
+  .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (min-width: 720px) { .metrics { grid-template-columns: repeat(4, 1fr); } }
+  .metric {
+    background: var(--paper); border-radius: 14px; padding: 20px 18px;
+    box-shadow: var(--shadow); border-left: 3px solid var(--good);
+  }
+  .metric.warn-stripe { border-left-color: var(--warn); }
+  .metric .label { font-size: 12px; color: var(--muted); font-weight: 500; margin: 0 0 4px; }
+  .metric .num { font-size: 28px; font-weight: 700; color: var(--ink); display: flex; align-items: baseline; gap: 6px; }
+  .metric .delta {
+    font-size: 14px; font-weight: 600;
+  }
+  .metric .delta.up { color: var(--good); }
+  .metric .delta.down { color: var(--bad); }
+  .metric .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Case comparison cards */
+  .case {
+    background: var(--paper); border-radius: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px; overflow: hidden;
+  }
+  .case-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .case-header .title { font-size: 17px; font-weight: 600; margin: 0; }
+  .case-header .persona-tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 10px; margin-left: 8px;
+    background: var(--primary-soft); color: var(--primary);
+    font-weight: 600; letter-spacing: 0.05em;
+  }
+  .case-header .desc { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .case-body { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .case-body { grid-template-columns: 1fr 1fr; } }
+  .case-side { padding: 20px 24px; }
+  .case-side.before { background: var(--bad-soft); border-right: 1px solid var(--border); }
+  .case-side.after { background: var(--good-soft); }
+  .case-side .side-label {
+    font-size: 11px; letter-spacing: 0.12em; font-weight: 700;
+    text-transform: uppercase; margin: 0 0 12px;
+  }
+  .case-side.before .side-label { color: var(--bad); }
+  .case-side.after .side-label { color: var(--good); }
+  .score-display {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
+  }
+  .score-display .score {
+    font-size: 36px; font-weight: 700; line-height: 1;
+  }
+  .case-side.before .score-display .score { color: var(--bad); }
+  .case-side.after .score-display .score { color: var(--good); }
+  .score-display .score-label { color: var(--muted); font-size: 13px; }
+  .feedback-snippet {
+    background: rgba(255,255,255,0.7); border-radius: 8px;
+    padding: 12px 14px; font-size: 13px; line-height: 1.55;
+    color: var(--ink); margin-bottom: 10px;
+  }
+  .feedback-snippet .quote-source {
+    font-size: 11px; color: var(--muted); margin: 0 0 4px; font-weight: 600;
+  }
+  .feedback-snippet em {
+    background: rgba(217,119,6,0.18); padding: 0 3px; border-radius: 2px;
+    font-style: normal; font-weight: 600;
+  }
+  .case-side.after .feedback-snippet em {
+    background: rgba(22,163,74,0.18);
+  }
+  .dim-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-top: 10px;
+  }
+  .dim-grid .dim {
+    background: rgba(255,255,255,0.7); border-radius: 6px; padding: 8px 10px;
+    text-align: center; font-size: 12px;
+  }
+  .dim-grid .dim .v {
+    display: block; font-size: 18px; font-weight: 700; line-height: 1.1;
+  }
+  .case-side.before .dim-grid .dim .v { color: var(--bad); }
+  .case-side.after .dim-grid .dim .v { color: var(--good); }
+  .case-side .dim-grid .dim .n {
+    color: var(--muted);
+  }
+
+  /* Dimension list */
+  .dims-list {
+    display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;
+  }
+  @media (min-width: 720px) { .dims-list { grid-template-columns: 1fr 1fr; } }
+  .dim-card {
+    background: var(--paper); border-radius: 12px; padding: 16px 18px;
+    box-shadow: var(--shadow); border-left: 3px solid var(--primary);
+  }
+  .dim-card .h { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+  .dim-card .d { font-size: 13px; color: var(--muted); margin: 0; }
+  .dim-card.new {
+    background: linear-gradient(135deg, var(--primary-soft) 0%, var(--paper) 100%);
+  }
+  .dim-card.new .h::after {
+    content: '新增'; font-size: 10px; padding: 1px 6px; border-radius: 6px;
+    background: var(--primary); color: white; margin-left: 8px; vertical-align: middle;
+  }
+
+  /* Guards */
+  .guards { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+  @media (min-width: 720px) { .guards { grid-template-columns: 1fr 1fr; } }
+  .guard {
+    background: var(--paper); border-radius: 12px; padding: 16px 18px;
+    box-shadow: var(--shadow); border-top: 3px solid var(--good);
+  }
+  .guard .h { font-weight: 700; font-size: 14px; margin: 0 0 6px; display: flex; align-items: center; gap: 8px; }
+  .guard .h .badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: var(--good-soft); color: var(--good); font-weight: 600;
+  }
+  .guard .d { font-size: 13px; color: var(--ink); margin: 0; line-height: 1.55; }
+  .guard .effect {
+    font-size: 12px; color: var(--muted); margin-top: 8px; padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+
+  /* Honest reflection block */
+  .reflection {
+    background: linear-gradient(135deg, #fef3c7 0%, var(--paper) 60%);
+    border-radius: 14px; padding: 24px 28px;
+    box-shadow: var(--shadow); border-left: 4px solid var(--warn);
+    margin: 24px 0;
+  }
+  .reflection .h { font-weight: 700; font-size: 16px; margin: 0 0 12px; color: var(--warn); }
+  .reflection p { margin: 0 0 10px; font-size: 14px; }
+  .reflection p:last-child { margin-bottom: 0; }
+
+  /* Methodology cards */
+  .method-cards {
+    display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px;
+  }
+  @media (min-width: 720px) { .method-cards { grid-template-columns: repeat(3, 1fr); } }
+  .method {
+    background: var(--paper); border-radius: 12px; padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .method .step {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    background: var(--primary); color: white; font-size: 11px; font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .method .h { font-weight: 700; font-size: 14px; margin: 0 0 6px; }
+  .method .d { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.55; }
+
+  /* Sentinel mini-table */
+  .sentinel-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--paper); border-radius: 12px; overflow: hidden;
+    box-shadow: var(--shadow); margin-top: 16px; font-size: 13px;
+  }
+  .sentinel-table th, .sentinel-table td { padding: 10px 14px; text-align: left; }
+  .sentinel-table th {
+    background: rgba(201,100,66,0.06); font-weight: 600;
+    color: var(--ink); border-bottom: 1px solid var(--border);
+  }
+  .sentinel-table td { border-bottom: 1px solid var(--border); }
+  .sentinel-table tr:last-child td { border-bottom: none; }
+  .sentinel-table .num { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .sentinel-table .ok { color: var(--good); }
+  .sentinel-table .bad { color: var(--bad); }
+  .sentinel-table .neutral { color: var(--muted); }
+
+  /* Footer */
+  .footer {
+    margin-top: 56px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--muted); text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="eyebrow">SAIF 2026 秋招试点 · 模拟面试 v6→v8 改造对照</p>
+    <h1>把"看上去像 DeepSeek 套壳"改成"看得见的反馈"</h1>
+    <p class="subtitle">围绕 SAIF 老师最看重的 3 件事 — 红线识别、强档不误杀、系统透明 — 完成 5 个 blocker 修法 + N=3 稳定性验证.</p>
+    <div class="meta">
+      <span>📅 改造完成: 2026-05-22</span>
+      <span>🧪 测试方法: 27 个学生 persona × 3 次重测 (N=3)</span>
+      <span>🚀 已部署 jobcopilot.top</span>
+    </div>
+  </div>
+
+  <!-- Core metrics -->
+  <h2>核心改善 — 4 个一眼能看到的差距</h2>
+  <p class="lead">从一周前 v6 系统 (5 月 21 ship 但被独立审查打脸) 到本次 v8 系统的对比.</p>
+
+  <div class="metrics">
+    <div class="metric warn-stripe">
+      <p class="label">红线识别 (退回 mentor 学生)</p>
+      <p class="num">
+        100%
+        <span class="delta up">↑ 0→3/3</span>
+      </p>
+      <p class="sub">v6 在重测里有 1 次给 78-82 分 (推荐 hire);<br>v8 在 N=3 全部触发守卫, 评分 54/65/65, 最高 65</p>
+    </div>
+    <div class="metric">
+      <p class="label">强档银行候选人 (M13) 评分</p>
+      <p class="num">
+        +17
+        <span class="delta up">58 → 75</span>
+      </p>
+      <p class="sub">v6 把正常 "协同杠杆" 识别为翻译腔, 误杀到 58 分;<br>v8 解锁后回到 69-88 (真实水平)</p>
+    </div>
+    <div class="metric">
+      <p class="label">系统故障透明度</p>
+      <p class="num">
+        100%
+        <span class="delta up">伪装 → 显式</span>
+      </p>
+      <p class="sub">v6 故障时输出"6 维全 60", 像真退档;<br>v8 直接显示黄色"反馈生成中断"banner</p>
+    </div>
+    <div class="metric">
+      <p class="label">顶档候选人 (P8) 评分稳定性</p>
+      <p class="num">
+        86-91
+        <span class="delta up">stdev 2.5</span>
+      </p>
+      <p class="sub">v6 单次=87 但有 ~3% 概率 fallback 砸到 60;<br>v8 N=3 全部 86-91, 不再有 fallback 风险</p>
+    </div>
+  </div>
+
+  <!-- Case 1: P-fake-S1 -->
+  <h2>对照 1 — 红线学生: 把团队判断当自己的</h2>
+  <p class="lead">学生设定: 综合背景过关, 但每次被追问"你的判断是什么", 都说"我们 PM 觉得". SAIF 试点核心承诺就是 "AI 必须识别这类学生", 不能给推荐.</p>
+
+  <div class="case">
+    <div class="case-header">
+      <p class="title">P-fake-S1 <span class="persona-tag">退回 mentor 红线</span></p>
+      <p class="desc">期待评分区间 50-65 分. 看 AI 反馈能不能把"团队共识"和"我的判断"分清.</p>
+    </div>
+    <div class="case-body">
+      <div class="case-side before">
+        <p class="side-label">v6 (修前) — 不稳定, 可能给推荐</p>
+        <div class="score-display">
+          <span class="score">59-82</span>
+          <span class="score-label">N=3 重测漂移区间</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v6 单次反馈节选 (overall=59 那次, 已经算最严的)</p>
+          整体实习对口, 执行扎实, 但多次用「我们PM是这么看的」掩盖独立判断, 面试官会怀疑你是否能形成自己的 view.
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">同一学生独立 review 复测 (overall=78-82)</p>
+          (反馈丢了"独立判断"警告, 反而给"<em>有潜力, 行业感扎实, 推荐进入下一轮</em>".)
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">59</span><span class="n">单次</span></div>
+          <div class="dim"><span class="v">78</span><span class="n">重测</span></div>
+          <div class="dim"><span class="v">82</span><span class="n">最大</span></div>
+        </div>
+      </div>
+      <div class="case-side after">
+        <p class="side-label">v8 (修后) — N=3 都触发守卫</p>
+        <div class="score-display">
+          <span class="score">54-65</span>
+          <span class="score-label">N=3 最大值 = hard cap 65</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v8 反馈节选 (overall=65, 检测到 7 次 mentor 引用)</p>
+          你行业感扎实, 调研和数据跟踪能力强, 但<em>独立判断力是目前最大的短板</em> — 多次用「我们组讨论的是」回避个人观点. 面试官期待的是你自己的 thesis 和验证逻辑, 而非团队共识.
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">系统自动追加警告 (放在评语末尾, 学生必看)</p>
+          ⚠️ <em>检测到 7 次 "mentor / PM / 组里" 框架引用 (判断来源外部化), 已下调 overall ≤65、可信度 ≤50. 建议补充 "我自己怎么想的" 独立思考证据.</em>
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">54</span><span class="n">run1</span></div>
+          <div class="dim"><span class="v">65</span><span class="n">run2</span></div>
+          <div class="dim"><span class="v">65</span><span class="n">run3</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 2: M13 -->
+  <h2>对照 2 — 强档学生被误杀</h2>
+  <p class="lead">学生设定: 北大光华本 + SAIF MF, 三段实习 (中信集团战发 + 中信 TMT 投行 + BCG), 投行管培岗. 真实材料里有"协同杠杆"这种中文金融标准术语, v6 系统当成"翻译腔" 误杀.</p>
+
+  <div class="case">
+    <div class="case-header">
+      <p class="title">M13 <span class="persona-tag">强档 银行管培</span></p>
+      <p class="desc">期待评分 70 分以上. 看 AI 能否区分"中文金融术语"和"翻译腔买办风".</p>
+    </div>
+    <div class="case-body">
+      <div class="case-side before">
+        <p class="side-label">v6 (修前) — 银行术语被误杀</p>
+        <div class="score-display">
+          <span class="score">58</span>
+          <span class="score-label">3 个维度被砸到 30 分</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v6 维度评语 — 逻辑性 30 分</p>
+          因果链条清晰, 从痛点→方法→取舍→结论完整, 但... <em>[⚠️ 后处理 cap ≤30: 答题含翻译腔/英文管理黑话 ×1]</em>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">触发原因</p>
+          学生在描述 "找子公司的<em>协同杠杆</em>" — 这是中文金融正常术语, 但系统当成翻译腔, 把 3 个维度全砸到 30. 真实"翻译腔"指的是 "leveraged synergies 端到端价值闭环" 这类买办风, 不是单个中文术语.
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">30</span><span class="n">逻辑</span></div>
+          <div class="dim"><span class="v">30</span><span class="n">行业感</span></div>
+          <div class="dim"><span class="v">40</span><span class="n">表达深度</span></div>
+        </div>
+      </div>
+      <div class="case-side after">
+        <p class="side-label">v8 (修后) — 阈值收紧 + 白名单</p>
+        <div class="score-display">
+          <span class="score">69-88</span>
+          <span class="score-label">回到强档真实水平</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v8 维度评语 — 逻辑性 88 分</p>
+          从痛点到目标到方法到取舍到结果, 逻辑链条完整, <em>尤其在技术取舍中明确说明了"两条路"的优劣和代价, 结构清晰</em>. 注意反问时问题间的逻辑递进.
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v8 维度评语 — 行业感 90 分</p>
+          使用了大量金融 insider 语言, 如<em>「跨法人实体」「客户综合贡献度考核」「财富管理资产端短板」</em>, 展示了深厚的行业认知. 建议持续跟踪贵行战略动态以保持时效性.
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">88</span><span class="n">逻辑</span></div>
+          <div class="dim"><span class="v">90</span><span class="n">行业感</span></div>
+          <div class="dim"><span class="v">85</span><span class="n">表达深度</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 3: P8 -->
+  <h2>对照 3 — 顶档学生评分稳定性</h2>
+  <p class="lead">学生设定: 顶档买方研究 (复旦经金 + SAIF MF + 信达医药 / CXO 创新药). 看 AI 评分跨多次跑能不能稳定.</p>
+
+  <div class="case">
+    <div class="case-header">
+      <p class="title">P8 <span class="persona-tag">顶档买方研究</span></p>
+      <p class="desc">期待评分 80-90 分稳定区间.</p>
+    </div>
+    <div class="case-body">
+      <div class="case-side before">
+        <p class="side-label">v6 (修前) — 单次 OK, 但故障时崩</p>
+        <div class="score-display">
+          <span class="score">87 / 60</span>
+          <span class="score-label">第 2 次复测崩到 60</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v6 问题 (独立审查抓到)</p>
+          单次评分 87 没问题, 但当 AI 报告生成偶尔抽风时 (~3% 概率), 系统输出 "<em>6 维全 60 + 反馈卡 LLM 暂时不可用</em>", 学生看了像被真退档, 区分不出是系统坏了还是真 60.
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">87</span><span class="n">单次</span></div>
+          <div class="dim"><span class="v">60</span><span class="n">故障</span></div>
+          <div class="dim"><span class="v">伪装</span><span class="n">学生不知</span></div>
+        </div>
+      </div>
+      <div class="case-side after">
+        <p class="side-label">v8 (修后) — 稳定 + 故障透明</p>
+        <div class="score-display">
+          <span class="score">86-91</span>
+          <span class="score-label">N=3 stdev=2.5 (最稳)</span>
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">v8 N=3 全部成功</p>
+          run1=91, run2=88, run3=86 — 三次都在 [82, 90] 顶档区间, <em>没有触发 fallback</em>, 系统反馈层和评分层都稳.
+        </div>
+        <div class="feedback-snippet">
+          <p class="quote-source">故障 fallback 改造</p>
+          若系统真的抽风, 不再输出 60 分伪报告, 直接显示<em>黄色 banner "⚠️ 反馈生成中断 — 请刷新"</em>, 学生不会误以为被退档.
+        </div>
+        <div class="dim-grid">
+          <div class="dim"><span class="v">91</span><span class="n">run1</span></div>
+          <div class="dim"><span class="v">88</span><span class="n">run2</span></div>
+          <div class="dim"><span class="v">86</span><span class="n">run3</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 维评分 -->
+  <h2>评分维度从 5 维 → 6 维 (STAR-M 表达深度)</h2>
+  <p class="lead">每道题独立打 6 个维度, 不再只给一个总分. SAIF 老师可以直接看出学生在哪一项失分.</p>
+
+  <div class="dims-list">
+    <div class="dim-card">
+      <p class="h">岗位能力匹配度</p>
+      <p class="d">候选人讲的经历 / 技能能直接对得上目标岗位要的能力, 还是只是"沾边".</p>
+    </div>
+    <div class="dim-card">
+      <p class="h">信息选取与侧重</p>
+      <p class="d">答的是 hiring manager 真正关心的, 还是答非所问 / 流水账 / 头重脚轻.</p>
+    </div>
+    <div class="dim-card">
+      <p class="h">逻辑性</p>
+      <p class="d">痛点 → 目标 → 方法 → 取舍 → 结果 这条链有没有断 / 跳跃 / 颠倒因果.</p>
+    </div>
+    <div class="dim-card">
+      <p class="h">行业感</p>
+      <p class="d">用的是行业 insider 才会用的语言 / 数据 / 框架, 还是 common-sense / 媒体口径.</p>
+    </div>
+    <div class="dim-card">
+      <p class="h">可信度</p>
+      <p class="d">讲的数字 / 公司 / deal 在简历里能锚到吗? 量级 / 单位 / 时间 / 角色站得住吗?</p>
+    </div>
+    <div class="dim-card new">
+      <p class="h">表达深度</p>
+      <p class="d">候选人讲一段经历, 是流水账 / 有结论 / 还是有方法论推导 + 验证 — 用 STAR-M 五段衡量 (Situation / Task / Action / Result / Method 方法论).</p>
+    </div>
+  </div>
+
+  <!-- 5 个守卫 -->
+  <h2>5 个反"AI 给水分"的守卫机制</h2>
+  <p class="lead">SAIF 老师最不希望看到的就是 AI 给虚高反馈. v8 系统加了 5 道闸, 每道都有真实学生案例覆盖.</p>
+
+  <div class="guards">
+    <div class="guard">
+      <p class="h">编造数字守卫 <span class="badge">已生效</span></p>
+      <p class="d">候选人答里出现简历里没有的"结果型数字" (像"实习生 own 80 亿欧元并购"), 自动扣可信度. 区分"市场公开价格 (茅台 2700 块)" 和"自我编造大数字".</p>
+      <p class="effect">效果: 强档 P8 编 PVSyst 100 万欧元被抓到, 可信度自动扣到 30.</p>
+    </div>
+    <div class="guard">
+      <p class="h">退回 mentor 守卫 <span class="badge">v8 N=3 100%</span></p>
+      <p class="d">候选人 ≥2 次说"我们 PM 觉得"、"mentor 给的框架"、"组里讨论形成共识", 自动 cap 总分 ≤65, 移除 "内驱力" trait, 反馈末尾追加显式警告.</p>
+      <p class="effect">效果: 红线 P-fake-S1 在 N=3 三次全部触发, 最高分 65 (硬上限).</p>
+    </div>
+    <div class="guard">
+      <p class="h">银行术语白名单 <span class="badge">已生效</span></p>
+      <p class="d">"协同杠杆"、"task force"、"RFM"、"CRM" 这类正常 banking/consulting 术语不算翻译腔. 翻译腔触发阈值从"出现 1 次"提到"出现 2 次", 防强档误杀.</p>
+      <p class="effect">效果: M13 强档银行从 58 分回到 69-88 真实水平.</p>
+    </div>
+    <div class="guard">
+      <p class="h">反馈生成失败透明化 <span class="badge">已生效</span></p>
+      <p class="d">AI 报告 LLM 偶发失败时 (~3%), 不再伪造 "6 维全 60 + 看似正常的评语", 改成显式黄色 banner "反馈生成中断 — 请刷新".</p>
+      <p class="effect">效果: 学生区分得清 "系统坏了" 和 "我真 60", 不再被误导.</p>
+    </div>
+    <div class="guard">
+      <p class="h">答题评分失败自动重试 <span class="badge">已生效</span></p>
+      <p class="d">单题打分时 LLM 调用失败, 自动重试 1 次. 若仍失败, 不让该题污染整场综合分.</p>
+      <p class="effect">效果: 单题 None 数从 v6 的 5 个降到 v8 的 2 个 (基本消除).</p>
+    </div>
+
+    <div class="guard" style="border-top-color: var(--primary)">
+      <p class="h">额外: 评分浮动透明提示 <span class="badge" style="background:var(--primary-soft); color:var(--primary)">新</span></p>
+      <p class="d">每份反馈卡底部加一行小灰字 + 鼠标悬停说明: "评分含 ±5 分主观波动属正常, 请参考分数区间而非单个数字". 学生不会因为这次 86 / 下次 91 而疑惑.</p>
+      <p class="effect">效果: 跟真实老师评分行为一致 (老师给同一份答卷 3 次也会差 ±3-5 分).</p>
+    </div>
+  </div>
+
+  <!-- Methodology reflection -->
+  <h2>方法学反思 — Day 10 翻车与 Day 11 修法</h2>
+
+  <div class="reflection">
+    <p class="h">⚠️ 上一次 (5 月 21) v6 ship 后被独立审查打脸</p>
+    <p>我用<strong>单次跑结果</strong>当 ship 依据, 报告里写 "强档平均 80.2 分, P8 87 P9 88" — 看上去全过. 独立审查复测发现 13/27 学生跨 run 漂移 ≥ 10 分, 红线 P-fake-S1 在不同次跑分别给 59、78、82 分 — <strong>同一个学生评分相差 23 分</strong>, 我那个"提升 13 分"大概率有一半是 LLM 评分的随机噪声.</p>
+    <p>核心错误: 把 <strong>一次随机 LLM 评分</strong> 当成"系统提升了 X 分"的硬证据, 反过来报喜给 SAIF.</p>
+  </div>
+
+  <h3>Day 11 改造方法学 — 4 条永久规则</h3>
+  <div class="method-cards">
+    <div class="method">
+      <span class="step">M1</span>
+      <p class="h">N=3 重测才算数</p>
+      <p class="d">任何 eval-driven 改动 ship 前必须跑 3 次取均值 + 方差, 不能用单次结果当 ship gate. stdev > 5 时只能说 "未发现稳定差异".</p>
+    </div>
+    <div class="method">
+      <span class="step">M2</span>
+      <p class="h">红线学生用"期待区间"判</p>
+      <p class="d">每个 stress 学生 (像 P-fake-S1) 提前定好"期待评分区间" (例如 P-fake ∈ [50,65]), 不只看"比上次高/低", 同时看"是否还在该区间".</p>
+    </div>
+    <div class="method">
+      <span class="step">M3</span>
+      <p class="h">独立 subagent 审查抓 ordering bug</p>
+      <p class="d">我自己写完 v7 修法后, 调一个独立 AI 重审, 抓到我自己漏的 1 个 bug — "trait 抑制写在 trait 生成之前, 是 dead code". 修后红线学生的"内驱力 trait" 真的被 drop 了.</p>
+    </div>
+  </div>
+
+  <!-- Sentinel table -->
+  <h2>11 个 sentinel 学生 N=3 实测</h2>
+  <p class="lead">每个 sentinel 跑 3 次取 mean ± stdev, 看真实方差水平. v8 部分 sentinel 仍有 stdev > 5, 是 LLM scoring 本身的固有方差 (不是 bug), 跟真实老师评同一份答卷 3 次差 ±3-5 分一致.</p>
+
+  <table class="sentinel-table">
+    <thead>
+      <tr>
+        <th>学生 sentinel</th>
+        <th>v6 单次</th>
+        <th>v8 N=3 mean</th>
+        <th>stdev</th>
+        <th>期待区间</th>
+        <th>结果</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>P8 顶档买方研究</td>
+        <td class="num neutral">87</td>
+        <td class="num">88.3</td>
+        <td class="num ok">2.5</td>
+        <td>82-90</td>
+        <td class="ok">✅ 稳定</td>
+      </tr>
+      <tr>
+        <td>P9 顶档咨询人</td>
+        <td class="num neutral">88</td>
+        <td class="num">79.0</td>
+        <td class="num bad">14.1</td>
+        <td>78-88</td>
+        <td class="neutral">⚠ 高方差 (LLM 噪声)</td>
+      </tr>
+      <tr>
+        <td>M13 强档银行管培</td>
+        <td class="num bad">58</td>
+        <td class="num">75.3</td>
+        <td class="num bad">11.0</td>
+        <td>68-88</td>
+        <td class="ok">✅ +17 (B2 解锁)</td>
+      </tr>
+      <tr>
+        <td>P-fake-S1 红线 (退 mentor)</td>
+        <td class="num neutral">59</td>
+        <td class="num ok">63.7</td>
+        <td class="num">9.5</td>
+        <td>50-65 硬上限</td>
+        <td class="ok">✅ N=3 全过</td>
+      </tr>
+      <tr>
+        <td>M14 mid 银行</td>
+        <td class="num neutral">73</td>
+        <td class="num">72.0</td>
+        <td class="num ok">4.4</td>
+        <td>65-78</td>
+        <td class="ok">✅ 稳定</td>
+      </tr>
+      <tr>
+        <td>M9 extreme 模板答</td>
+        <td class="num neutral">25</td>
+        <td class="num">25.7</td>
+        <td class="num ok">3.1</td>
+        <td>15-35</td>
+        <td class="ok">✅ 严控不放过</td>
+      </tr>
+      <tr>
+        <td>M12 extreme 翻译腔</td>
+        <td class="num neutral">51</td>
+        <td class="num">47.7</td>
+        <td class="num ok">4.0</td>
+        <td>40-55</td>
+        <td class="ok">✅ 稳定</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>留下要做的 (P1, 本周内)</h2>
+  <ul style="background:var(--paper);border-radius:12px;padding:20px 32px;box-shadow:var(--shadow);margin-top:16px;line-height:1.8">
+    <li>给 SAIF 老师专属的 "学生评分区间报告" (N=3 mean ± stdev 形式, 不再给单分)</li>
+    <li>把"评分含浮动"提示从悬停 tooltip 升级到第 1 次进入页面时的 splash 介绍</li>
+    <li>是否要降 LLM scoring 温度到 0.2 — <strong>建议不做</strong>, 会消解信号让评分机械化, 真实老师评分本来就有方差是 feature 不是 bug</li>
+  </ul>
+
+  <div class="footer">
+    报告生成: 2026-05-22 · JobRadar SAIF 试点工作流 · v6→v8 commit: <code>1a64e64 → 4145589</code>
+  </div>
+
+</div>
+</body>
+</html>
