@@ -115,10 +115,13 @@ sites:
   # ---- BACKLOG (ats_family=other → 跳过)。每条都有真实 portal，只是当前公开
   # 数据为 0 或需要新写 SPA parser，不值得在 90 min 内硬刚。 ----
   - name: 易方达基金
-    entry_url: https://www.efunds.com.cn/
-    ats_family: other
+    entry_url: https://wecruit.hotjob.cn/SU67ac68866202cc7916aea66e/pb/school.html
+    ats_family: hotjob
     category: 头部公募
-    note: 2026-05-08 官网首页可访问但无独立 ATS；招聘信息以邮件为主，无公开 listing。
+    hotjob_suite: SU67ac68866202cc7916aea66e
+    recruit_types: ["1", "3", "12"]
+    max_pages: 10
+    note: "2026-05-23 飞书表 spy 出 hotjob 真渠道 SU67ac68866202cc7916aea66e。实测 rt=1 校招 0 (季节空)、rt=12 精英实习生 1 页 ~15 岗、rt=2 社招 10 页 (不属校招池,过滤掉)。秋招开闸 rt=1 自动收。"
 
   - name: 广发基金
     entry_url: https://www.gffunds.com.cn/
@@ -127,10 +130,11 @@ sites:
     note: 自家 SPA，未发现 ATS 嵌入；待用户提供真实校招入口再激活。
 
   - name: 汇添富基金
-    entry_url: https://www.99fund.com/
-    ats_family: other
+    entry_url: http://htffund.zhiye.com/campus
+    ats_family: zhiye_beisen_cms
     category: 头部公募
-    note: 自家 SPA 体量大但无外露 ATS 路径，backlog。
+    max_pages: 10
+    note: "2026-05-23 飞书表 spy 出真渠道 htffund.zhiye.com (旧 Beisen CMS Portal,不是新 stc-cms SPA)。HTML 含 6 个 jobAdId (春招/暑期实习活岗)。99fund.com 是品牌门户。"
 
   - name: 博时基金
     entry_url: https://sc.hotjob.cn/wt/bosera/web/index
@@ -148,7 +152,7 @@ sites:
     hotjob_suite: SU60419b4dbef57c66a923b081
     recruit_types: ["1", "3"]
     max_pages: 10
-    note: "2026-05-23 P1-0 搜索引擎 spy 找到 icbccs.hotjob.cn (之前误判无渠道,因为只试 sc.hotjob.cn/wt/icbccs)。实测 SU60419b4d...listPosition fetched=0 (季节空,春招结束)。秋招开闸自动收。"
+    note: "2026-05-23 P1-0 搜索引擎 spy 找到 icbccs.hotjob.cn (之前误判无渠道,因为只试 sc.hotjob.cn/wt/icbccs)。实测 SU60419b4d...listPosition fetched=0 (季节空,春招结束)。秋招开闸自动收。补注 2026-05-23 P1-feishu: 飞书表里另一入口 icbcubs.hotjob.cn 通过 /wecruit/common/getSLD 跳转到同一个 suite SU60419b4d...,确认 icbccs/icbcubs 共用一个后端。"
 
   - name: 兴证全球基金
     entry_url: https://sc.hotjob.cn/wt/AIFMC/web/index/campus

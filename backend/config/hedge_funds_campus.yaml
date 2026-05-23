@@ -50,10 +50,12 @@ sites:
     note: "2026-05-23 P1-0 spy 找到自建 portal join.mhfunds.com (URL pattern /index/m/position/{id}/detail)。SPA,需 P1-B 通用 Playwright handler。HR 邮箱 HR@mhfunds.com。注: minghongtouzi.com 域名 parked。"
 
   - name: 因诺资产
-    entry_url: http://www.innoam.com/
-    ats_family: other
+    entry_url: https://app.mokahr.com/campus_apply/innoam/142310
+    ats_family: moka_embedded
     category: 量化私募
-    note: "2026-05-23 P1-0 spy 真域名是 innoam.com (非 innoasset.com)。无 ATS,走邮箱 resume@innoam.com + 微信公众号 因诺资产 + 第三方 (Liepin/Lagou/51job)。无新增爬虫价值。"
+    moka_org_id: innoam
+    moka_site_id: "142310"
+    note: "2026-05-23 P1-feishu spy 飞书表里发现春招 (2026-03-03) Moka 入口 innoam/142310。当前直连返回 Content-Length=2 (board 已下线), /apply/innoam 全 board 都 404。秋招开闸时 Moka 通常会重启同 tenant,届时自动收;若秋招用新 board ID 需要 P2 复探。"
 
   - name: 进化论资产
     entry_url: https://app.mokahr.com/campus_apply/jhlfund/46284

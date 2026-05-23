@@ -239,3 +239,11 @@ sites:
     ats_family: other
     category: 资管子公司
     note: "2026-05-23 探 gtja-am / gtht-am 等 slug 均未注册。母公司国泰海通 (hr.gtht.com) 本身 station 不稳定 (ERR_EMPTY_RESPONSE),子公司大概率同。P1 等母公司站点稳定后复探。"
+
+  # ---- 期货 (Phase P1-feishu, 2026-05-23) ----
+  - name: 南华期货
+    entry_url: https://nawaa.zhiye.com/campus
+    ats_family: zhiye
+    category: 期货
+    max_pages: 10
+    note: "2026-05-23 飞书表 spy 真渠道 nawaa.zhiye.com (北森 zhiye)。API /api/Jobad/GetJobAdPageList 实测 Total=0 (春招 3 月已结束,季节空,秋招开闸自动收)。期货 9 家中目前唯一找到独立 ATS。"

@@ -47,6 +47,17 @@ _BEISEN_ROW_RE = re.compile(
     re.S,
 )
 
+# 汇添富 / 类似租户用 zwlblit span 模板而不是 td。
+# Returns (title, category, location, pub_date, jobadid).
+_BEISEN_ROW_V2_RE = re.compile(
+    r'<span class="zwlbtxt275">([^<]+)</span>'
+    r'\s*<span class="zwlbtxt100">([^<]+)</span>'
+    r'\s*<span class="zwlbtxt250"[^>]*title="([^"]*)"[^>]*>[^<]*</span>'
+    r'\s*<span class="zwlbtxt210">([^<]+)</span>'
+    r'.*?jobadid="(\d+)"',
+    re.S,
+)
+
 _TOTAL_PAGES_RE = re.compile(r"当前第\d+/(\d+)页")
 
 
@@ -97,11 +108,24 @@ def crawl_zhiye_beisen_cms_target(target: Dict[str, Any]) -> List[Dict[str, Any]
             if tm:
                 total_pages = int(tm.group(1))
         rows = _BEISEN_ROW_RE.findall(page_html)
+        used_v2 = False
+        if not rows:
+            v2_rows = _BEISEN_ROW_V2_RE.findall(page_html)
+            if v2_rows:
+                # Normalize to v1 5-tuple: (title, detail_path, ptype, location, pub)
+                rows = [
+                    (title, f"/Portal/Resume/ResumeItem?jid={jid}", ptype.strip(), loc, pub)
+                    for (title, ptype, loc, pub, jid) in v2_rows
+                ]
+                used_v2 = True
         if not rows:
             break
         added_this_page = 0
         for raw_title, detail_path, ptype, location, pub in rows:
-            key_match = re.search(r"/zpdetail/(\d+)", detail_path)
+            if used_v2:
+                key_match = re.search(r"jid=(\d+)", detail_path)
+            else:
+                key_match = re.search(r"/zpdetail/(\d+)", detail_path)
             job_key = key_match.group(1) if key_match else detail_path
             if job_key in seen:
                 continue
