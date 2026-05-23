@@ -46,6 +46,7 @@ sites:
   - name: 明汯投资
     entry_url: https://join.mhfunds.com/index
     ats_family: other
+    backlog_status: official_dynamic_ok
     category: 量化私募
     note: "2026-05-23 P1-0 spy 找到自建 portal join.mhfunds.com (URL pattern /index/m/position/{id}/detail)。SPA,需 P1-B 通用 Playwright handler。HR 邮箱 HR@mhfunds.com。注: minghongtouzi.com 域名 parked。"
 
@@ -68,8 +69,9 @@ sites:
   - name: 磐松量化
     entry_url: https://www.pansongasset.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 量化私募
-    note: "2026-05-23 复探: pansongasset.com 从 dev VPS HTTP 000 不通,pansong.zhiye.com / mokahr/pansong / sc.hotjob/pansong 均未注册。canonical_track 中 12 条历史 record 来自 Tata 抓取的同名公司而非官网,backlog。"
+    note: "2026-05-23 复探: pansongasset.com 从 dev VPS HTTP 000 不通,pansong.zhiye.com / mokahr/pansong / sc.hotjob/pansong 均未注册。canonical_track 中 12 条历史 record 来自 Tata 抓取的同名公司而非官网。头部量化私募年招 <30,主走校友内推 + 公众号。"
 
   # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家主观多头 (确认无公开 ATS) ----
   # 主观私募公开招聘极少 (年招几人到几十人),靠校友内推 / WeChat 公众号,无 ATS。
@@ -77,26 +79,30 @@ sites:
   - name: 景林资产
     entry_url: https://cn.greenwoodsasset.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 主观多头私募
-    note: "2026-05-23 P1-0 spy 真域名是 cn.greenwoodsasset.com / greenwoodsasset.com.cn (非 .com)。无 ATS,走 HR@greenwoodsasset.com 邮箱 + LinkedIn。头部主观多头年招 <20 人,无新增爬虫价值。"
+    note: "2026-05-23 P1-0 spy 真域名是 cn.greenwoodsasset.com / greenwoodsasset.com.cn (非 .com)。无 ATS,走 HR@greenwoodsasset.com 邮箱 + LinkedIn。头部主观多头年招 <20 人,SAIF 学生主要靠校友/CDC 内推。"
 
   - name: 淡水泉投资
     entry_url: https://www.dswt.com.cn/
     ats_family: other
+    backlog_status: referral_heavy
     category: 主观多头私募
-    note: "2026-05-23 P1-0 spy: 淡水泉走应届生网/牛客网 + 邮箱,无独立 ATS。dswt.com.cn 真域名待复探。无新增爬虫价值。"
+    note: "2026-05-23 P1-0 spy: 淡水泉走应届生网/牛客网 + 邮箱,无独立 ATS。头部主观多头年招少,SAIF 学生主要走校友 + CDC 内推。"
 
   - name: 千合资本
     entry_url: http://www.qianhecap.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 主观多头私募
-    note: "2026-05-23 复探: qianhe/qianhecap/wyhasset (王亚伟) 在 zhiye / mokahr / hotjob 均未注册。同 backlog,极少公开校招。"
+    note: "2026-05-23 复探: qianhe/qianhecap/wyhasset (王亚伟) 在 zhiye / mokahr / hotjob 均未注册。极少公开校招,SAIF 学生靠校友 + CDC 内推。"
 
   - name: 睿郡资产
     entry_url: https://www.ruijunasset.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 主观多头私募
-    note: "2026-05-23 复探: ruijun/ruijunasset 在 zhiye / mokahr / hotjob 均未注册。同 backlog。"
+    note: "2026-05-23 复探: ruijun/ruijunasset 在 zhiye / mokahr / hotjob 均未注册。极少公开校招,SAIF 学生靠校友 + CDC 内推。"
 
   # ---- Phase 11 (2026-05-23) 海外 elite quants — Asia roles ----
   # 4 家中 3 家接入,Two Sigma RSS 0 Asia 留 backlog。

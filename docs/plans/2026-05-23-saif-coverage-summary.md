@@ -68,7 +68,27 @@
 
 ---
 
-## 三、本季度进展节点
+## 三、Backlog 状态分类（2026-05-24 修订）
+
+> 之前文档把所有未爬的公司笼统标为 "LinkedIn-only"，**不准确**。许多公司有官方 portal，只是技术阻断 / SPA 渲染 / 招聘量少；真正"只能靠 LinkedIn"的极少。本节给出 6 状态精确分类。
+
+| 状态 | 含义 | 当前数 | 处理路径 |
+|---|---|---|---|
+| `official_static_ok` | requests 可抓 | 0（已通的不算 backlog） | — |
+| `official_dynamic_ok` | 官方 portal 在，需 Playwright 渲染 | **3**（广发 / 鹏华 / 明汯） | 下一 sprint 上 SPA handler 即可激活 |
+| `official_ats_blocked` | Workday / Oracle / Eightfold / 自建反爬，技术问题 | **2**（中信证券 405 / 国泰海通 TLS 阻断） | 需 session 预热 + per-tenant facets，工程量 1-2 工日/家 |
+| `linkedin_mirror` | 官方 portal 在，LinkedIn 更及时，可作为补充 | 0 | — |
+| `linkedin_only_unverified` | 真没找到官方 ATS | **4**（大成 / 国投瑞银 / 浦银安盛公募 + 民生证券） | 低优先级，公开渠道暂未发现 |
+| `referral_heavy` | 公司存在但年招 <30，主要靠校友 / CDC 内推 | **12**（摩根资产 / 摩根士丹利华鑫 / 磐松 / 景林 / 淡水泉 / 千合 / 睿郡 / 华创证券 / 华泰联合 / 中金资管 / 招商资管 / 国君海通资管） | 不爬，UI 给"目标池，无公开岗，建议关注 LinkedIn + 校友"提示 |
+
+**关键修订**：
+- **Citadel / Point72 / Two Sigma / Millennium** 之前误判 `linkedin-only`，实际官方有 HK/Singapore 校招页（Quant Research Analyst 等），SAIF 流量小但不能简单标 LinkedIn-only。在 `coverage_truth.yaml` 已标 `deferred`，下一 sprint 加 backlog_status=`referral_heavy`（年招 <10）。
+- **JPMorgan / Deutsche Bank / Barclays / HSBC** 不是 LinkedIn-only — 都有官方 Early Careers / Graduate Programmes 页面，HSBC 走 Eightfold（不是 Workday），DB 走 SmartRecruiters。状态应是 `official_ats_blocked`。这 4 家不在 foreign_ibs_campus.yaml 里，下一 sprint 加 entry 并标 ats_blocked。
+- **UBS** 已经在 yaml 里走 `ubs_taleo_spa` handler，是 `official_dynamic_ok`（不是 backlog，状态正常）。
+
+---
+
+## 四、本季度进展节点
 
 | 阶段 | 日期 | 关键交付 |
 |---|---|---|
@@ -80,7 +100,7 @@
 
 ---
 
-## 四、下一步建议（按 ROI 排）
+## 五、下一步建议（按 ROI 排）
 
 | # | 任务 | ROI | 工作量 | 提升 |
 |---|---|---|---|---|
@@ -95,7 +115,7 @@
 
 ---
 
-## 五、不做的事（范围边界，保持纪律）
+## 六、不做的事（范围边界，保持纪律）
 
 - ❌ **LinkedIn 爬虫**（除非学生明确提对冲基金/高瓴/红杉强需求）
 - ❌ **抖音 / 小红书内推帖**（不在 ATS 范畴）

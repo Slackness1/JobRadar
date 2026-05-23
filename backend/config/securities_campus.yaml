@@ -10,8 +10,9 @@ sites:
   - name: 中信证券
     entry_url: https://careers.citics.com/campus/headquarters
     ats_family: other
+    backlog_status: official_ats_blocked
     category: A档券商
-    note: 当前真实校招站已迁至 careers.citics.com，前端 bundle 可识别 getPositionList/getPositionInfo 等接口与公开 detail_url 信号，但当前环境直连列表接口返回 405，仍需浏览器环境或后续适配补抓。
+    note: "当前真实校招站已迁至 careers.citics.com,前端 bundle 可识别 getPositionList/getPositionInfo 等接口与公开 detail_url 信号,但直连列表接口返回 405 (CORS/CSRF)。需 Playwright session 提取 X-Requested-With + ticket。一线券商,SAIF 关键。下一 sprint 优先攻关。"
 
   - name: 华泰证券
     entry_url: https://wecruit.hotjob.cn/SU6419745cbef57c635fe10142/pb/school.html?projectCode=105904
@@ -33,8 +34,9 @@ sites:
   - name: 国泰海通
     entry_url: https://hr.gtht.com/recruitment/main/recruit2
     ats_family: other
+    backlog_status: official_ats_blocked
     category: A档券商
-    note: 用户新提供真实入口；第四轮经代理+浏览器复核仍返回 ERR_EMPTY_RESPONSE / unsafe legacy renegotiation，当前处于 no-public-campus-data boundary（站点链路可见但不可稳定抓取）。
+    note: "用户新提供真实入口;第四轮经代理+浏览器复核仍返回 ERR_EMPTY_RESPONSE / unsafe legacy renegotiation,站点链路可见但 TLS 协商不稳定。需要 IP 切换 + per-session 重试。一线券商合并后第二大,SAIF 关键。"
 
   - name: 东方证券
     entry_url: https://app.mokahr.com/campus_apply/dfzq/4928#/jobs?keyword=
@@ -199,14 +201,16 @@ sites:
   - name: 民生证券
     entry_url: https://mszq.hotjob.cn/
     ats_family: other
+    backlog_status: linkedin_only_unverified
     category: B档券商
-    note: 2026-04-15 复核根域已迁至 Hotjob，但公开根页仅指向 wt/mszq/web/index 且当前返回权限不足；聚合库无精确民生证券岗位信号，暂记待更换环境复核。
+    note: "2026-04-15 复核根域已迁至 Hotjob,但公开根页仅指向 wt/mszq/web/index 且返回权限不足(403);聚合库无精确岗位信号。Hotjob suite 未找到。"
 
   - name: 华创证券
     entry_url: https://www.hczq.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: B档券商
-    note: 2026-04-15 官网根域可访问，但未发现公开校招/招聘站入口，真值层与聚合库也无精确华创证券春招信号，暂记大概率未开公开春招。
+    note: "2026-04-15 官网根域可访问,但未发现公开校招/招聘站入口,真值层与聚合库也无精确华创证券春招信号。B 档券商,SAIF 流量较低,公开招聘体量小。"
 
   # ---- 用户 2026-05-23 P0 清单新增: 内资投行 + 资管子公司 ----
   - name: 华泰资管
@@ -219,26 +223,30 @@ sites:
   - name: 华泰联合证券
     entry_url: https://www.htsclh.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 投行
-    note: "2026-05-23 探 htsclh.com / heshunhua.com / hslh.com 从 dev VPS HTTP 000 不通,hlcs/hltunited/huataiunited 等 slug 在 zhiye / mokahr / hotjob 均未注册。可能 piggyback 华泰证券母公司 SU6419 hotjob,P1 需切换 IP 复探或归到母公司 sub-direction 重分类。"
+    note: "2026-05-23 探 htsclh.com / heshunhua.com / hslh.com 从 dev VPS HTTP 000 不通,hlcs/hltunited/huataiunited 等 slug 在 zhiye / mokahr / hotjob 均未注册。Boutique-style 投行子公司,大概率 piggyback 华泰证券母公司 hotjob suite。SAIF 关键 prestige,但岗位走母公司 sub-direction 拆分,不单独立 ATS。"
 
   - name: 中金资管
     entry_url: https://www.cicc.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 资管子公司
-    note: "2026-05-23 探 cicc-am / ciccam / cicc-asset 等 slug 在 zhiye / mokahr 均未注册。母公司中金 (cicc.zhiye.com) 已爬,中金资管岗位可能含在母公司 listing 中 (走 sub-direction 重分类) — 推荐 P0 #101 流程一并处理。"
+    note: "2026-05-23 探 cicc-am / ciccam / cicc-asset 等 slug 在 zhiye / mokahr 均未注册。母公司中金 (cicc.zhiye.com) 已爬,中金资管岗位含在母公司 listing 中,走 sub-direction LLM 重分类(任务 #111 已部分完成)。无独立 ATS。"
 
   - name: 招商资管
     entry_url: https://www.cmschina.com.cn/
     ats_family: other
+    backlog_status: referral_heavy
     category: 资管子公司
-    note: "2026-05-23 探 cmsam / cmsc-am / cmschina-am 等 slug 均未注册。母公司招商证券 (wecruit.hotjob.cn/SU629d...) 已爬,招商资管岗位可能 piggyback 母公司 listing (走 sub-direction 重分类)。"
+    note: "2026-05-23 探 cmsam / cmsc-am / cmschina-am 等 slug 均未注册。母公司招商证券 (wecruit.hotjob.cn/SU629d...) 已爬,招商资管岗位 piggyback 母公司 listing,走 sub-direction LLM 重分类。无独立 ATS。"
 
   - name: 国君海通资管
     entry_url: https://hr.gtht.com/recruitment/main/recruit2
     ats_family: other
+    backlog_status: referral_heavy
     category: 资管子公司
-    note: "2026-05-23 探 gtja-am / gtht-am 等 slug 均未注册。母公司国泰海通 (hr.gtht.com) 本身 station 不稳定 (ERR_EMPTY_RESPONSE),子公司大概率同。P1 等母公司站点稳定后复探。"
+    note: "2026-05-23 探 gtja-am / gtht-am 等 slug 均未注册。母公司国泰海通 (hr.gtht.com) 本身 station 不稳定,子公司大概率同。子公司无独立 ATS,岗位走母公司 sub-direction 重分类。"
 
   # ---- 期货 (Phase P1-feishu, 2026-05-23) ----
   - name: 南华期货

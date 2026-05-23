@@ -124,10 +124,11 @@ sites:
     note: "2026-05-23 飞书表 spy 出 hotjob 真渠道 SU67ac68866202cc7916aea66e。实测 rt=1 校招 0 (季节空)、rt=12 精英实习生 1 页 ~15 岗、rt=2 社招 10 页 (不属校招池,过滤掉)。秋招开闸 rt=1 自动收。"
 
   - name: 广发基金
-    entry_url: https://www.gffunds.com.cn/
+    entry_url: https://www.gffunds.com.cn/recruitment
     ats_family: other
+    backlog_status: official_dynamic_ok
     category: 头部公募
-    note: 自家 SPA，未发现 ATS 嵌入；待用户提供真实校招入口再激活。
+    note: "2026-05-23 飞书表 spy 出双入口: (a) 自家 SPA gffunds.com.cn/recruitment (b) 飞书招聘 portal gffunds.jobs.feishu.cn/833056。(a) 全 JS 渲染需 Playwright,(b) 是飞书招聘第三方,有公开 API 但需 anon token。下一 sprint 二选一上 SPA handler 即可激活。"
 
   - name: 汇添富基金
     entry_url: http://htffund.zhiye.com/campus
@@ -166,38 +167,44 @@ sites:
   - name: 鹏华基金
     entry_url: https://www.phfund.com.cn/about/recruit/recruit_index.shtml
     ats_family: other
+    backlog_status: official_dynamic_ok
     category: 头部公募
-    note: 2026-05-23 重探：自家 Vue SPA (manifest/vendor/app.js)，HTML 2.5kB shell，招聘列表全 JS 渲染。phfund.zhiye.com / phfund.mokahr.com 均未注册。P1 需 Playwright 渲染。
+    note: "2026-05-23 重探：自家 Vue SPA (manifest/vendor/app.js)，HTML 2.5kB shell，招聘列表全 JS 渲染。phfund.zhiye.com / phfund.mokahr.com 均未注册。下一 sprint 上 Playwright handler 即可激活。"
 
   - name: 大成基金
     entry_url: https://www.dcfund.com.cn/
     ats_family: other
+    backlog_status: linkedin_only_unverified
     category: 头部公募
-    note: 官网首页 1.5kB shell，backlog。
+    note: "官网首页 1.5kB shell + dcfund.zhiye/mokahr/hotjob 均未注册。中尾部公募,SAIF 流量低。LinkedIn 偶发岗位,公开 ATS 入口未找到。低优先级。"
 
   - name: 国投瑞银基金
     entry_url: http://www.ubssdic.com/
     ats_family: other
+    backlog_status: linkedin_only_unverified
     category: 头部公募
-    note: HTTPS SSL UNEXPECTED_EOF；HTTP 首页 16kB 无 ATS 链接，backlog。
+    note: "HTTPS SSL UNEXPECTED_EOF；HTTP 首页 16kB 无 ATS 链接。ubssdic/ubssdic-fund 在 zhiye/mokahr/hotjob 均未注册。中尾部公募,公开渠道未找到。"
 
   - name: 摩根资产管理
     entry_url: https://www.cifm.com/
     ats_family: other
+    backlog_status: referral_heavy
     category: 头部公募
-    note: cifm.com 大型 SPA，未抓到 ATS 钩子；上投摩根/JPMorgan 改名后官网整合中，backlog。
+    note: "cifm.com 大型 SPA,未抓到 ATS 钩子;上投摩根/JPMorgan 改名后官网整合中。外资合资公募中型,年招少,主要走校友内推 + 校招宣讲。"
 
   - name: 摩根士丹利华鑫基金
     entry_url: https://www.morganstanleyfunds.com.cn/
     ats_family: other
+    backlog_status: referral_heavy
     category: 头部公募
-    note: 官网首页 99kB 但 /about/recruit 404，backlog。
+    note: "官网首页 99kB 但 /about/recruit 404。外资合资公募小型,年招 <10 人,主要走校友内推 + 总部 MS 招聘平台。"
 
   - name: 浦银安盛基金
     entry_url: http://www.spdbaxa.com/
     ats_family: other
+    backlog_status: linkedin_only_unverified
     category: 头部公募
-    note: 官网当前 502，backlog。
+    note: "官网当前 502。spdbaxa/spdbaxa-fund 在 zhiye/mokahr/hotjob 均未注册。中尾部公募,公开 ATS 入口未找到。"
 
   - name: 永赢基金
     entry_url: https://maxwealthfund.hotjob.cn/SU628a429c0dcad41af38720c0/pb/index
