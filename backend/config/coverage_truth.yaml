@@ -193,29 +193,28 @@ tracks:
     mode: enumerate
     t1_companies:
       - name: 易方达基金
-        deferred_reason: 自家 SPA，无外露 ATS
+        deferred_reason: 自家 SPA，无外露 ATS (飞书 hotjob 实测 1 条)
       - name: 华夏基金
       - name: 嘉实基金
       - name: 广发基金
         deferred_reason: Feishu Hire (gffunds.jobs.feishu.cn)，endpoint 在 webpack chunk 后段，待逆向
       - name: 南方基金
-        deferred_reason: 暂未探查
+        deferred_reason: hotjob ok (SU6138665)，季节性空档，秋招开闸自动收
       - name: 工银瑞信
-        deferred_reason: hotjob engine 通但当前 dataCount=0 季节空
+        deferred_reason: hotjob ok (icbccs.hotjob.cn)，季节性空档，秋招开闸自动收
       - name: 博时基金
       - name: 招商基金
-        deferred_reason: 暂未探查
+        deferred_reason: zhiye ok (cmfchina.zhiye.com)，季节性空档
       - name: 富国基金
       - name: 兴证全球基金
       - name: 鹏华基金
       - name: 永赢基金
       - name: 汇添富基金
-        deferred_reason: 域名不响应
       - name: 海富通基金
       - name: 大成基金
-        deferred_reason: 老 Beisen CmsPortal，当前 0 岗位
+        deferred_reason: LinkedIn only，无公开 ATS (dcfund.zhiye/mokahr/hotjob 均未注册)
       - name: 银华基金
-        deferred_reason: 暂未探查
+        deferred_reason: moka ok (yhfund/78005)，季节性空档，秋招开闸自动收
 
   # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
   - id: hedge_funds
