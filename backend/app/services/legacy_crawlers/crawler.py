@@ -309,12 +309,21 @@ def crawl_with_pagination(page, target: Dict[str, Any], company: str, base_url: 
     seen_ids: Set[str] = set()
     empty_rounds = 0
     current_url = target['url']
+    skip_goto = False
 
     page_limit = max_pages or int(target.get('max_pages') or MAX_PAGES)
 
     for page_no in range(1, page_limit + 1):
         logger.info(f'{company} - 第 {page_no}/{page_limit} 页')
-        goto_and_wait(page, current_url, timeout=timeout, extra_sleep=extra_sleep)
+        if not skip_goto:
+            goto_and_wait(page, current_url, timeout=timeout, extra_sleep=extra_sleep)
+        else:
+            try:
+                page.wait_for_load_state('networkidle', timeout=10000)
+            except Exception:
+                pass
+            time.sleep(extra_sleep)
+        skip_goto = False
         if scroll:
             scroll_until_stable(page)
 
@@ -335,10 +344,14 @@ def crawl_with_pagination(page, target: Dict[str, Any], company: str, base_url: 
         else:
             empty_rounds = 0
 
+        url_before_click = page.url
         next_clicked = click_next_page(page)
         if next_clicked:
             time.sleep(2)
-            current_url = page.url
+            if page.url == url_before_click:
+                skip_goto = True
+            else:
+                current_url = page.url
             continue
 
         parsed = urlparse(target['url'])
@@ -444,6 +457,10 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
     # same browser context, so we do a hard goto to the target page number every N pages to
     # reset the session and let the response interceptor pick up fresh API results.
     BYTEDANCE_SESSION_RESET_INTERVAL = 150
+    # Bumped from MAX_EMPTY_PAGES=2 to 6 — even with deterministic
+    # wait_for_response, async response handler ordering can still produce
+    # transient empty reads. 6 buys ~6s of slack before declaring exhaustion.
+    BYTEDANCE_MAX_EMPTY_PAGES = 6
     empty_rounds = 0
     for pg in range(2, pages_needed + 1):
         before = len(jobs)
@@ -459,7 +476,7 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
                 added = len(jobs) - before
                 if added == 0:
                     empty_rounds += 1
-                    if empty_rounds >= MAX_EMPTY_PAGES:
+                    if empty_rounds >= BYTEDANCE_MAX_EMPTY_PAGES:
                         logger.info(f'字节跳动: 会话重置后仍空，终止于第 {pg} 页')
                         break
                 else:
@@ -474,7 +491,20 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
                 logger.info(f'字节跳动: 第 {pg} 页找不到下一页按钮，终止')
                 break
             next_btn.click(timeout=5000)
-            time.sleep(1.0)
+            # 异步竞争修复 (2026-05-08)：原本用 time.sleep(1.0) 等 API 响应；
+            # 但 on_post_response 是 async 触发，sleep 完 fresh_posts 仍可能空
+            # → added=0 假阳性 → MAX_EMPTY_PAGES=2 提前 kill。
+            # 改成 deterministically wait_for_response 让 fresh_posts 必有数据
+            # 再读，然后 sleep 0.3 缓冲。subagent 实测：原版 38/600 页就 break
+            # (~349 jobs)；upstream 实际 7834 条。
+            try:
+                page.wait_for_response(
+                    lambda r: 'search/job/posts' in r.url,
+                    timeout=8000,
+                )
+                page.wait_for_timeout(300)  # tiny buffer for callback to fully drain
+            except Exception:
+                time.sleep(1.0)  # fallback if no API response captured
         except Exception as e:
             logger.warning(f'字节跳动第 {pg} 页点击失败: {e}，尝试 goto fallback')
             try:
@@ -492,8 +522,8 @@ def crawl_bytedance(page, target) -> List[JobInfo]:
 
         if added == 0:
             empty_rounds += 1
-            if empty_rounds >= MAX_EMPTY_PAGES:
-                logger.info(f'字节跳动: 连续 {MAX_EMPTY_PAGES} 页空结果，终止于第 {pg} 页')
+            if empty_rounds >= BYTEDANCE_MAX_EMPTY_PAGES:
+                logger.info(f'字节跳动: 连续 {BYTEDANCE_MAX_EMPTY_PAGES} 页空结果，终止于第 {pg} 页')
                 break
         else:
             empty_rounds = 0
@@ -994,46 +1024,251 @@ def crawl_huawei(page, target) -> List[JobInfo]:
 
 
 def crawl_didi(page, target) -> List[JobInfo]:
-    return crawl_with_pagination(
-        page, target, '滴滴', 'https://campus.didiglobal.com',
-        selectors=['[class*="job-item"]', '[class*="position-item"]', 'li[class*="item"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """滴滴 (MokaHR-hosted SPA): wire response is encrypted (data+necromancer
+    blob), so we let the browser decrypt and read the rendered DOM. Scroll
+    to drive infinite-scroll pagination.
+
+    History: this DOM-scrape was first added in commit 86bef1b (1 → 31 jobs),
+    then accidentally overwritten in 9ebbaad (when fixing 携程) and reverted
+    to a generic crawl_with_pagination shim that only catches "隐私协议" link
+    (1 row). Restored 2026-05-08 as part of Phase 2.
+    """
+    from playwright.sync_api import TimeoutError as PWTimeoutError
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    url = target.get('url') or 'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/jobs'
+    base = 'https://campus.didiglobal.com'
+
+    try:
+        goto_and_wait(page, url, timeout=45000, extra_sleep=4)
+    except Exception as e:
+        logger.warning(f'滴滴页面加载失败: {e}')
+        return jobs
+
+    try:
+        page.wait_for_selector('a[href*="#/job/"], [class*="JobItem"], [class*="ItemContent"]',
+                               timeout=20000)
+    except PWTimeoutError:
+        logger.warning('滴滴: 首屏未渲染 job 卡片')
+
+    total_hint = 0
+    try:
+        text = page.locator('body').inner_text(timeout=2000)
+        m = re.search(r'共\s*(\d{1,4})\s*个', text or '')
+        if m:
+            total_hint = int(m.group(1))
+            logger.info(f'滴滴: 页面 total={total_hint}')
+    except Exception:
+        pass
+
+    max_scrolls = int(target.get('max_pages') or MAX_PAGES) * 2
+    prev_count = 0
+    stagnant = 0
+    for _ in range(max_scrolls):
+        try:
+            page.mouse.wheel(0, 4000)
+            page.wait_for_timeout(900)
+            try:
+                btn = page.locator('button:has-text("加载更多"), button:has-text("更多")').first
+                if btn.is_visible(timeout=300):
+                    btn.click(timeout=1000)
+                    page.wait_for_timeout(900)
+            except Exception:
+                pass
+        except Exception:
+            break
+
+        cur = len(page.locator('a[href*="#/job/"]').all())
+        if cur <= prev_count:
+            stagnant += 1
+            if stagnant >= 3:
+                break
+        else:
+            stagnant = 0
+            prev_count = cur
+        if total_hint and cur >= total_hint:
+            break
+
+    try:
+        anchors = page.locator('a[href*="#/job/"]').all()
+    except Exception:
+        anchors = []
+
+    for a in anchors:
+        try:
+            href = a.get_attribute('href') or ''
+            if not href or '#/job/' not in href:
+                continue
+            jid = href.split('#/job/')[-1].rstrip('/').split('?')[0]
+            full_url = f'https://campus.didiglobal.com/campus_apply/didiglobal/96064#/job/{jid}'
+            if not jid or jid in seen:
+                continue
+            text = (a.inner_text(timeout=500) or '').strip()
+            if not text:
+                continue
+            lines = [norm_text(x) for x in text.split('\n') if x.strip()]
+            # 滴滴 2026-05 起在卡片首行加了"急"等 badge（1-2 字纯中文短 tag），
+            # 跳过这些 tag 行直到拿到真正的岗位标题。
+            BADGE_TAGS = {'急', '热', '新', '荐', '紧急', '热招', '推荐', '新发布'}
+            while lines and lines[0] in BADGE_TAGS:
+                lines.pop(0)
+            title = lines[0] if lines else ''
+            meta = ' · '.join(lines[1:]) if len(lines) > 1 else ''
+            if not title:
+                continue
+            location = ''
+            dept = ''
+            jtype = target.get('type', 'campus')
+            for token in re.split(r'[·•|\s]+', meta):
+                if not token:
+                    continue
+                if any(k in token for k in ('实习', '全职', '校招', '社招')):
+                    jtype = token
+                elif re.search(r'(北京|上海|深圳|广州|杭州|成都|南京|苏州|西安|武汉)', token):
+                    location = location or token
+                else:
+                    dept = dept or token
+            seen.add(jid)
+            jobs.append(JobInfo(
+                id='', company='滴滴', title=title,
+                location=location or '未知',
+                department=dept, job_type=jtype,
+                url=full_url, description=meta,
+            ))
+        except Exception as exc:
+            logger.debug(f'滴滴 DOM 解析跳过: {exc}')
+
+    logger.info(f'滴滴: 抓取 {len(jobs)} 条 (total_hint={total_hint})')
+    return jobs
 
 
 def crawl_pingan(page, target) -> List[JobInfo]:
-    """平安银行：仅保留银行相关校招岗位，过滤集团泛岗位与社招。"""
-    batch = crawl_with_pagination(
-        page, target, '平安银行', 'https://campus.pingan.com',
-        selectors=['[class*="job-item"]', '[class*="position-item"]', '[class*="card"]', 'a[href*="job"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """平安集团：zztj-recruit-talent-webserver REST。
 
-    social_keywords = ['社招', '社会招聘', '社会人才', '成熟人才', '高层次人才']
-    bank_keywords = ['银行', '平安银行']
-    cleaned: List[JobInfo] = []
+    Phase 7（2026-05-10）逆向 SPA chunk_freshStudent~chunk_internStudent~chunk_position：
+        Step 1 (拿 wecruitId):
+          POST /zztj-recruit-talent-webserver/rctt/candidate/officialWebsite/selectGroupOfficial
+          body = {websiteType:'3', published:'Y'}
+          返回 {data: '<wecruitId 32位 hex>'}
+        Step 2 (查岗位):
+          POST /zztj-recruit-talent-webserver/rctt/candidate/position/campus/positionSearch/queryPositionPage
+          body = {wecruitId, PageNum, pageSize, positionType:'1', wecruitPlatform:true,
+                  businessUnitId:'', keyWord:'', positionCategoryId:'',
+                  workCity:'', interviewCity:''}
+          返回 {data: {list, pageNo, pageSize, totalCount, totalPage}}
+    positionType=1 全职校招（实测 totalCount=738），positionType=2 实习（数十条）。
+    businessUnitName 含 平安银行/平安证券/平安寿险/平安产险/平安科技/平安基金/平安租赁/陆控/平安普惠。
+    """
+    jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    for job in batch:
-        title = norm_text(job.title)
-        desc = norm_text(job.description or '')
-        url = norm_text(job.url)
-        if not url:
-            continue
-        text = f"{title} {desc}"
-        if any(k in text for k in social_keywords):
-            continue
-        if 'social' in url.lower() or 'socialjob' in url.lower():
-            continue
-        if not any(k in text for k in bank_keywords):
-            continue
-        if job.id in seen:
-            continue
-        seen.add(job.id)
-        cleaned.append(job)
 
-    return cleaned
+    base = 'https://campus.pingan.com/zztj-recruit-talent-webserver/rctt'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://campus.pingan.com',
+        'Referer': 'https://campus.pingan.com/',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
+
+    # Step 1: wecruitId
+    try:
+        r = requests.post(
+            f'{base}/candidate/officialWebsite/selectGroupOfficial',
+            json={'websiteType': '3', 'published': 'Y'},
+            headers=headers, proxies=REQUEST_PROXIES, timeout=15, verify=False,
+        )
+        wj = r.json() or {}
+    except Exception as exc:
+        logger.warning(f'平安集团 selectGroupOfficial 失败: {exc}')
+        return jobs
+
+    if str(wj.get('responseCode') or '') != '10001':
+        logger.info(f'平安集团 selectGroupOfficial 非 10001: {wj}')
+        return jobs
+    wecruit_id = wj.get('data') or ''
+    if not wecruit_id:
+        logger.info('平安集团 selectGroupOfficial 未返回 wecruitId')
+        return jobs
+
+    PAGE_SIZE = 50
+    max_pages_cfg = int(target.get('max_pages') or 20) if isinstance(target, dict) else 20
+    list_url = f'{base}/candidate/position/campus/positionSearch/queryPositionPage'
+
+    def fetch_page(position_type: str, page_num: int) -> Optional[dict]:
+        body = {
+            'PageNum': page_num,
+            'pageSize': PAGE_SIZE,
+            'wecruitId': wecruit_id,
+            'positionType': position_type,
+            'wecruitPlatform': True,
+            'businessUnitId': '',
+            'keyWord': '',
+            'positionCategoryId': '',
+            'workCity': '',
+            'interviewCity': '',
+        }
+        try:
+            resp = requests.post(
+                list_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            data = resp.json() or {}
+        except Exception as exc:
+            logger.warning(f'平安集团 queryPositionPage type={position_type} p{page_num} 失败: {exc}')
+            return None
+        if str(data.get('responseCode') or '') != '10001':
+            logger.info(f'平安集团 queryPositionPage 非 10001: {data.get("responseCode")} {data.get("responseMsg")}')
+            return None
+        return data.get('data') or {}
+
+    for ptype, label in [('1', 'campus'), ('2', 'intern')]:
+        first = fetch_page(ptype, 1)
+        if not first:
+            continue
+        total = int(first.get('totalCount') or 0)
+        rows = list(first.get('list') or [])
+        if total > PAGE_SIZE and len(rows) < total:
+            pages = min(max_pages_cfg, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+            for pn in range(2, pages + 1):
+                time.sleep(0.3)
+                d = fetch_page(ptype, pn)
+                if not d:
+                    break
+                extra = list(d.get('list') or [])
+                if not extra:
+                    break
+                rows.extend(extra)
+
+        for item in rows:
+            pid = norm_text(item.get('idPosition') or item.get('positionCode') or '')
+            title = norm_text(item.get('positionName') or '')
+            if not pid or not title:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            biz = norm_text(item.get('businessUnitName') or '')
+            dept = norm_text(item.get('deptShowName') or item.get('deptName') or biz)
+            loc = norm_text(item.get('workCity') or item.get('interviewCity') or '') or '未知'
+            publish_date = norm_text(item.get('publishDate') or item.get('createdDate') or '')
+            duty = norm_text(item.get('duty') or '')
+            qualif = norm_text(item.get('qualification') or '')
+            url = f'https://campus.pingan.com/position/positionDetail?id={pid}&type={ptype}'
+            company_label = biz if biz else '平安集团'
+            jobs.append(JobInfo(
+                id='', company=company_label, title=title, location=loc,
+                department=dept, job_type=label, url=url,
+                publish_date=publish_date, deadline='',
+                description=duty, requirements=qualif,
+            ))
+
+    if jobs:
+        logger.info(f'平安集团 zztj API: {len(jobs)} 条（含银行/证券/寿险/产险/科技等子公司）')
+    else:
+        logger.info('平安集团当前无开放校招岗位')
+    return jobs
 
 
 def crawl_pdd(page, target) -> List[JobInfo]:
@@ -1131,12 +1366,111 @@ def crawl_pdd(page, target) -> List[JobInfo]:
 
 
 def crawl_cmb(page, target) -> List[JobInfo]:
-    jobs = crawl_with_pagination(
-        page, target, '招商银行', 'https://career.cmbchina.com',
-        selectors=['[class*="position"]', '[class*="job"]', 'table tbody tr', 'li[class*="item"]'],
-        timeout=30000, extra_sleep=2,
-        response_keywords=['position', 'job', 'api']
-    )
+    """招商银行（career.cmbchina.com）：直调 /api/campusRecruitmentWebsite REST。
+
+    SPA webpack chunk 188 中暴露:
+        POST /api/campusRecruitmentWebsite/job/getList
+        body = {orgIdList:[], keywords:"", locationIdList:[],
+                pageIndex:N, pageSize:50, recruitmentTypeId:GUID}
+    返回 {body:{total, data:[{publishGID, jobDisplay, branchCodeName,
+                              locationName, expiredOn}, ...]}}.
+
+    Phase 7（2026-05-10）探查：3 个 recruitmentTypeId 中 96574F8D=7（春招宁波）、
+    DF94FD6D=130（春招全行 + 招银理财）、48E013CF=0。pageSize 服务端无硬性 cap，
+    单页 50 拿全 130。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    RECRUITMENT_TYPE_IDS = [
+        '48E013CF-A9DE-4FA4-9CEE-4967B162CAEF',
+        '96574F8D-C7ED-4772-AE7C-BAC896D190C1',
+        'DF94FD6D-26D3-4A19-9E69-577C4BA1DE82',
+    ]
+    PAGE_SIZE = 50
+    api_url = 'https://career.cmbchina.com/api/campusRecruitmentWebsite/job/getList'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://career.cmbchina.com',
+        'Referer': 'https://career.cmbchina.com/',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'X-B3-BusinessId': 'LZ4101CMBRecruitmentPCFront',
+        'Accept': 'application/json',
+    }
+
+    def fetch_page(rtype: str, page_idx: int) -> Optional[dict]:
+        body = {
+            'orgIdList': [],
+            'keywords': '',
+            'locationIdList': [],
+            'pageIndex': page_idx,
+            'pageSize': PAGE_SIZE,
+            'recruitmentTypeId': rtype,
+        }
+        try:
+            resp = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            data = resp.json() or {}
+        except Exception as exc:
+            logger.warning(f'招商银行 getList rtype={rtype} p{page_idx} 失败: {exc}')
+            return None
+        if str(data.get('returnCode') or '') != 'SUC0000':
+            logger.info(f'招商银行 rtype={rtype} 返回非 SUC0000: {data.get("returnCode")} {data.get("errorMsg")}')
+            return None
+        return (data.get('body') or {})
+
+    max_pages_cfg = int(target.get('max_pages') or 5) if isinstance(target, dict) else 5
+
+    for rtype in RECRUITMENT_TYPE_IDS:
+        first = fetch_page(rtype, 1)
+        if first is None:
+            continue
+        total = int(first.get('total') or 0)
+        if total <= 0:
+            continue
+        rows = list(first.get('data') or [])
+        if total > PAGE_SIZE:
+            pages = min(max_pages_cfg, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+            for pn in range(2, pages + 1):
+                more = fetch_page(rtype, pn)
+                if not more:
+                    break
+                page_rows = list(more.get('data') or [])
+                if not page_rows:
+                    break
+                rows.extend(page_rows)
+
+        for item in rows:
+            pid = norm_text(item.get('publishGID') or '')
+            title = norm_text(item.get('jobDisplay') or '')
+            if not pid or not title:
+                continue
+            if pid in seen:
+                continue
+            seen.add(pid)
+            org = norm_text(item.get('branchCodeName') or '')
+            loc = norm_text(item.get('locationName') or '') or '未知'
+            deadline = norm_text(item.get('expiredOn') or '')
+            url = (
+                f'https://career.cmbchina.com/positionDetail/school?publishId={pid}'
+                f'&recruitmentTypeID={rtype}'
+            )
+            company_label = '招商银行'
+            if '理财' in (title + org):
+                company_label = '招银理财'
+            jobs.append(JobInfo(
+                id='', company=company_label, title=title, location=loc,
+                department=org, job_type='campus', url=url,
+                publish_date='', deadline=deadline,
+                description='', requirements='',
+            ))
+
+    if jobs:
+        logger.info(f'招商银行 API: {len(jobs)} 条（含招银理财）')
+    else:
+        logger.info('招商银行当前无开放校招岗位（3 个 recruitmentTypeId 总计 0）')
     return jobs
 
 
@@ -2223,70 +2557,132 @@ def crawl_hxb(page, target) -> List[JobInfo]:
 
 
 def crawl_czbank(page, target) -> List[JobInfo]:
-    """浙商银行：仅抓校园招聘（不混入社会招聘）。"""
+    """浙商银行：先抓校招（zpType=1），空则回退社招（zpType=2 / postType=SH）。
+
+    Phase 8 (2026-05-10) 探查更新：
+      - getPost.mvc API GBK 编码（既有 fn 走 .json()，requests 走系统默认 UTF-8 解码
+        在很多公告文本里会失败；改用 .content.decode('gbk') + json.loads）。
+      - postTotalRow 字段长期返回 None，仅 postTotalPage 可信。
+      - zpType=1（校招/管培/实习）当前空（季节空档）。zpType=2 = 社招（postType=SH）
+        18 pages × 6（默认 pageSize=6） → 服务端 pageSize=50 实测 OK。
+      - 既有 fn 写死 zpType=1 → 长期 fetched=0；改成 校招优先 + 社招回退（job_type=
+        social），公司列按 title 含 '理财' 二次贴标 浙银理财。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
-    current_page = 1
-    page_size = 6
-    total_pages = 1
-    max_pages = int(target.get('max_pages') or MAX_PAGES)
+
+    base_url = 'https://zp.czbank.com.cn/zpweb/planController/getPost.mvc'
     headers = {
         'User-Agent': UA,
         'Referer': 'https://zp.czbank.com.cn/zpweb/planController/gotoIndex.mvc?pageType=2',
         'Accept': 'application/json, text/plain, */*',
         'X-Requested-With': 'XMLHttpRequest',
     }
-    while current_page <= total_pages and current_page <= max_pages:
-        start = (current_page - 1) * page_size
-        end = current_page * page_size
-        resp = requests.get(
-            'https://zp.czbank.com.cn/zpweb/planController/getPost.mvc?pageType=2',
-            headers=headers, proxies=REQUEST_PROXIES, timeout=30,
-            params={'start': start, 'end': end, 'depid': '', 'educ': '', 'orgId': '', 'postName': '', 'workYear': '', 'location': '', 'zpType': '1'},
-        )
-        body = (resp.json() or {}).get('body') or []
-        payload = body[0] if body else {}
-        rows = payload.get('dataList') or []
-        total_pages = int(payload.get('postTotalPage') or 1)
+    PAGE_SIZE = 50  # 服务端实测无 cap
+    max_pages_cfg = int(target.get('max_pages') or 20) if isinstance(target, dict) else 20
+
+    def fetch(zp_type: str, pn: int):
+        start = (pn - 1) * PAGE_SIZE
+        end = pn * PAGE_SIZE
+        try:
+            resp = requests.get(
+                base_url, headers=headers, proxies=REQUEST_PROXIES, timeout=30,
+                params={
+                    'pageType': '2', 'zpType': zp_type,
+                    'start': start, 'end': end,
+                    'depid': '', 'educ': '', 'orgId': '', 'postName': '',
+                    'workYear': '', 'location': '',
+                },
+            )
+            text = resp.content.decode('gbk', errors='replace')
+            import json as _json
+            return _json.loads(text)
+        except Exception as exc:
+            logger.warning(f'浙商银行 zpType={zp_type} p{pn} 失败: {exc}')
+            return None
+
+    plans = [('1', 'campus'), ('2', 'social')]
+    for zp_type, label in plans:
+        first = fetch(zp_type, 1)
+        if not first:
+            continue
+        body = (first.get('body') or [{}])[0]
+        rows = list(body.get('dataList') or [])
+        total_pages = int(body.get('postTotalPage') or 1)
+        if not rows:
+            logger.info(f'浙商银行 zpType={zp_type}（{label}）当前 0 页')
+            continue
+        if total_pages > 1:
+            for pn in range(2, min(total_pages, max_pages_cfg) + 1):
+                time.sleep(0.3)
+                more = fetch(zp_type, pn)
+                if not more:
+                    break
+                bm = (more.get('body') or [{}])[0]
+                extra = list(bm.get('dataList') or [])
+                if not extra:
+                    break
+                rows.extend(extra)
+
         page_added = 0
         for item in rows:
             title = norm_text(item.get('name'))
             if not title:
                 continue
             pid = item.get('postId')
-            desc = '\n'.join(x for x in [norm_text(item.get('baseCond')), norm_text(item.get('postCond'))] if x)
-            req = ' / '.join(x for x in [norm_text(item.get('eduCond')), norm_text(item.get('majorCond')), norm_text(item.get('workYear'))] if x)
+            if pid in seen:
+                continue
+            seen.add(pid)
+            desc = '\n'.join(x for x in [
+                norm_text(item.get('baseCond')), norm_text(item.get('postCond'))
+            ] if x)
+            req = ' / '.join(x for x in [
+                norm_text(item.get('eduCond')), norm_text(item.get('majorCond')),
+                norm_text(item.get('workYear') or item.get('workYears')),
+            ] if x)
+            org = norm_text(
+                item.get('needDept') or item.get('needOrg') or item.get('mgrOrg') or ''
+            )
+            company = '浙银理财' if '理财' in (title + org) else '浙商银行'
             job = JobInfo(
-                id='', company='浙商银行', title=title,
+                id='', company=company, title=title,
                 location=norm_text(item.get('locationName') or item.get('location')) or '未知',
-                department=norm_text(item.get('needDept') or item.get('needOrg') or item.get('mgrOrg') or ''),
-                job_type='campus',
-                url=f'https://zp.czbank.com.cn/zpweb/zpPostController/jobDetailPage.mvc?postId={pid}' if pid else target['url'],
+                department=org,
+                job_type=label,
+                url=(
+                    f'https://zp.czbank.com.cn/zpweb/zpPostController/jobDetailPage.mvc?postId={pid}'
+                    if pid else target['url']
+                ),
                 publish_date=norm_text(item.get('createTime') or item.get('zpStartDate') or ''),
                 deadline=norm_text(item.get('zpEndDate') or item.get('applyEndDate') or ''),
-                description=desc,
-                requirements=req,
+                description=desc, requirements=req,
             )
-            if job.id not in seen:
-                seen.add(job.id)
-                jobs.append(job)
-                page_added += 1
-        logger.info(f'浙商银行（校招）API 第 {current_page} 页: {page_added} 条 / total_pages={total_pages}')
-        if not rows:
+            jobs.append(job)
+            page_added += 1
+        logger.info(
+            f'浙商银行 {label} (zpType={zp_type}): fetched {len(rows)} 条 / '
+            f'totalPages={total_pages} added={page_added}'
+        )
+        # 校招命中即可，不必再走社招；校招空才走社招回退
+        if jobs and zp_type == '1':
             break
-        current_page += 1
+
     if not jobs:
-        logger.info('浙商银行当前未获取到校招岗位（可能未开招）')
+        logger.info('浙商银行当前无开放岗位（校招/社招均空）')
     return jobs
 
 
 def crawl_zhiye_campus(page, target) -> List[JobInfo]:
-    """通用 zhiye 校招接口抓取（如 虎扑/光大）。"""
+    """通用 zhiye 校招接口抓取（如 虎扑/光大/中交集团/中铁十二局医院 等）。"""
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
     parsed = urlparse(target['url'])
     base = f"{parsed.scheme}://{parsed.netloc}"
-    max_pages = int(target.get('max_pages') or MAX_PAGES)
+    # MAX_PAGES=20 + PageSize=20 = 400 hard cap，对很多 zhiye host 来说太低：
+    # ccccltd.zhiye.com 真上游 2612, genertec.zhiye.com 1374 — Phase 3 audit
+    # 发现 5 家国央企 fetched=400 整都是这个 cap 触发的。改为默认 100 页
+    # （= 2000 items），覆盖 genertec 100%、ccccltd 76%。+3min cron 时间。
+    max_pages = int(target.get('max_pages') or 100)
 
     for current_page in range(max_pages):
         payload = {
@@ -2329,6 +2725,301 @@ def crawl_zhiye_campus(page, target) -> List[JobInfo]:
                 jobs.append(job)
                 page_added += 1
         logger.info(f"{target['name']} API 第 {current_page + 1} 页: {page_added} 条")
+        if not rows or page_added == 0:
+            break
+    return jobs
+
+
+def crawl_zhiye_table_campus(page, target) -> List[JobInfo]:
+    """zhiye.com 表格 / UL 列表变体（北森 BeiSen 老模板）通用爬虫。
+
+    适用于走 DOM 渲染（不返回 GetJobAdPageList JSON）的 zhiye 站点，例如
+    cssc.zhiye.com / cnnc.zhiye.com / hr.cnnc.com.cn (重定向到 cnnc.zhiye.com)。
+
+    支持两种 DOM 变体（同一 BeiSen 模板的不同皮肤）：
+      A. <table class="tabletitle"><tbody><tr>...</tr></tbody></table>
+         例：cnnc.zhiye.com — 4 列：职位名称 / 成员单位 / 招聘人数 / 发布时间
+      B. <div class="job-list"><ul><li>...</li></ul></div>
+         例：cssc.zhiye.com — 5 行（li.innerText 换行分隔）：
+            职位名称 / 成员单位 / 专业类别 / 工作地点 / 发布时间
+
+    锚点 a[jobadid] 永远存在，跨变体可作 anchor。我们走父链找到行容器（TR/LI），
+    再用 children innerText（TR 模板）或 li.innerText 按换行切分（UL 模板）抽列。
+
+    分页：底部 `<a class="next" href="...?PageIndex=N">下一页</a>`，直接 page.goto 翻页，
+    避免点击触发 SPA 路由问题。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    parsed = urlparse(target['url'])
+    base = f"{parsed.scheme}://{parsed.netloc}"
+    company = target['name']
+    max_pages = int(target.get('max_pages') or 20)
+    job_type = target.get('type', 'campus')
+
+    current_url = target['url']
+    for page_idx in range(1, max_pages + 1):
+        try:
+            page.goto(current_url, wait_until='domcontentloaded', timeout=45000)
+        except Exception as e:
+            logger.warning(f'{company} 第 {page_idx} 页 goto 失败: {e}')
+            break
+
+        # 等待数据渲染：要么 table tbody tr，要么 ul li 内 a[jobadid]
+        try:
+            page.wait_for_function(
+                "document.querySelectorAll('a[jobadid]').length > 0",
+                timeout=20000,
+            )
+        except Exception:
+            logger.warning(f'{company} 第 {page_idx} 页未检测到 a[jobadid]，停止翻页')
+            break
+        page.wait_for_timeout(800)
+
+        rows_data = page.evaluate("""() => {
+          const out = [];
+          const seenRowKey = new Set();
+          const anchors = Array.from(document.querySelectorAll('a[jobadid]'));
+          for (const a of anchors) {
+            const jid = a.getAttribute('jobadid') || '';
+            if (!jid) continue;
+            // 找行容器：先看是不是 a 自己就是标题（CNNC: a 在 td.joblsttitle 内）
+            // 否则向上找 LI（CSSC: a.apply 在 div.info > li 内）
+            let row = null;
+            let cur = a;
+            for (let i = 0; i < 8 && cur; i++) {
+              if (cur.tagName === 'TR' || cur.tagName === 'LI') { row = cur; break; }
+              cur = cur.parentElement;
+            }
+            if (!row) continue;
+            const key = row.tagName + ':' + jid;
+            if (seenRowKey.has(key)) continue;
+            seenRowKey.add(key);
+
+            let cols = [];
+            let detailHref = '';
+            let titleText = '';
+            // 优先取真正的标题锚点（href 指向详情，不是 javascript:void(0)）
+            const realTitleAnchor = row.querySelector('a[jobadid][href]:not([href^="javascript"])');
+            if (realTitleAnchor) {
+              titleText = (realTitleAnchor.innerText || '').replace(/\\s+/g, ' ').trim();
+              detailHref = realTitleAnchor.getAttribute('href') || '';
+            }
+
+            if (row.tagName === 'TR') {
+              cols = Array.from(row.children).map(c => (c.innerText || '').replace(/\\s+/g, ' ').trim());
+              if (!titleText && cols.length) titleText = cols[0];
+            } else {
+              // LI 变体：用 innerText 按换行切分（LI 内的 a.apply 是「立即申请」按钮，不是标题）
+              const raw = (row.innerText || '').split(/\\n+/).map(s => s.trim()).filter(Boolean);
+              cols = raw.filter(s => !/^立即申请$|^工作职责|^任职要求|^岗位要求|^点击查看/.test(s));
+              // li 第一行 = 标题（含 J 编号），后续 = 成员单位/专业类别/工作地点/发布时间
+              if (!titleText && cols.length) titleText = cols[0];
+            }
+            out.push({jobadid: jid, title: titleText, href: detailHref, cols});
+          }
+          return out;
+        }""")
+
+        page_added = 0
+        for r in rows_data:
+            jid = r.get('jobadid') or ''
+            cols = [norm_text(c) for c in (r.get('cols') or [])]
+            title = norm_text(r.get('title')) or (cols[0] if cols else '')
+            if not title or title == '立即申请':
+                # 标题取不到时跳过
+                continue
+            # 列映射（启发式）
+            #   5 列 = title / 成员单位 / 专业类别 / 工作地点 / 发布时间  (CSSC 系)
+            #   4 列 = title / 成员单位 / 人数 / 发布时间                  (CNNC 系)
+            department = ''
+            location = '未知'
+            publish_date = ''
+            if len(cols) >= 5:
+                department = cols[1]
+                location = cols[3] or '未知'
+                publish_date = cols[4]
+            elif len(cols) >= 4:
+                department = cols[1]
+                publish_date = cols[3]
+                # CNNC 列没有 location，从标题里抓括号（跳过 J 编号、届数、数字等无效内容）
+                for m in re.finditer(r'[（(]([^（()）]{1,15})[）)]', title):
+                    candidate = m.group(1).strip()
+                    if re.fullmatch(r'J\d+', candidate, re.IGNORECASE):
+                        continue
+                    if re.fullmatch(r'\d{4}届', candidate):
+                        continue
+                    if re.fullmatch(r'\d+', candidate):
+                        continue
+                    location = candidate
+                    break
+            elif len(cols) >= 2:
+                department = cols[1]
+
+            href = r.get('href') or ''
+            if href:
+                detail_url = urljoin(base + '/', href)
+            else:
+                detail_url = f'{base}/campusxq?jobId={jid}&class=2'
+
+            job = JobInfo(
+                id='', company=company, title=title, location=location or '未知',
+                department=department, job_type=job_type,
+                url=detail_url, publish_date=publish_date,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+                page_added += 1
+
+        logger.info(f'{company} 第 {page_idx} 页（DOM 表格/UL）: {page_added} 条')
+        if page_added == 0:
+            break
+
+        # 翻页：BeiSen 模板 `上一页`/`下一页` 都用 class="next"，必须按文本区分
+        # 末页时下一页变 <span> 或带 disabled，没有 href，循环自动结束
+        try:
+            next_href = page.evaluate("""() => {
+              const all = Array.from(document.querySelectorAll('a'));
+              const cands = all.filter(e => (e.innerText || '').trim() === '下一页'
+                                            && !(e.className || '').includes('disabled')
+                                            && (e.getAttribute('href') || '').includes('PageIndex='));
+              return cands.length ? cands[0].getAttribute('href') : null;
+            }""")
+        except Exception:
+            next_href = None
+        if not next_href:
+            break
+        current_url = urljoin(base + '/', next_href)
+
+    return jobs
+
+
+# CNNC 子公司 → mobile API c2 ID 映射
+# 用途：class B (hr.cnnc.com.cn) 和 class C (cnnc.zhiye.com)
+# 没有 c2 in URL，但所有 jobs 在 cnnc.m.zhiye.com 上有数据。按 company name 查表得 c2。
+# c2 ID 来源：cnnc.m.zhiye.com/JobAd/_GetSearchItems jobclasses['对外显示招聘单位']
+CNNC_COMPANY_C2_MAP: Dict[str, str] = {
+    # class B (hr.cnnc.com.cn) — 5+ subsidiaries
+    '中核运维': '1_454',
+    '中核运维技术': '1_454',
+    '中核大唐庄河核电': '1_559',
+    '中核浙能': '1_28',
+    '中核苏能': '1_12',
+    '中核龙安': '1_451',
+    '中核龙安有限公司': '1_451',
+    '三门核电': '1_9',
+    '中核二四': '1_103',
+    '中国核电': '',  # 集团本部 jc=2 全量（fallback）
+    # class C (cnnc.zhiye.com)
+    '中核海洋': '1_26',
+    '中核光电': '1_465',
+    '中核光电科技(上海)有限公司': '1_465',
+    '中核光电科技（上海）有限公司': '1_465',
+    '中辐院，中国辐射防护研究院': '1_169',
+    '中国辐射防护研究院': '1_169',
+    '中国原子能科学研究院': '1_122',
+    # class A 备用（URL 已有 c2 时不会用到此 map）
+    '中核二三': '1_106',
+    '中核二二': '1_104',
+    '中核华泰': '1_101',
+    '中核四0四有限公司': '1_121',
+    '中核四0四': '1_121',
+    '中核五公司': '1_102',
+    '中核铀业': '1_457',
+    '中核（上海）供应链管理有限公司': '',  # jc=2 全量
+    '中国中原': '1_162',
+    '中国聚变能源有限公司': '1_680',
+    '中国聚变': '1_680',
+}
+
+
+def crawl_cnnc_mobile_api(page, target) -> List[JobInfo]:
+    """中核（CNNC）子公司专用爬虫 — 直接调用 cnnc.m.zhiye.com 移动端 JSON API。
+
+    背景：CNNC 旗下三组域名走同一套北森后台（TenantId=605932），但前端模板差异
+      - cnnc.m.zhiye.com (移动端)：URL 上带 c2=1_xxx 子公司筛选
+      - hr.cnnc.com.cn (桌面)：WAF 412 challenge，curl/Chromium/requests 全部被挡
+      - cnnc.zhiye.com (桌面)：landing page 仅 CMS 内容，无 jobadid DOM
+    Playwright/Chromium 对所有三组域名都 ERR_EMPTY_RESPONSE（TLS 指纹被挡）。
+    但 requests + iPhone UA 可以稳定访问 cnnc.m.zhiye.com 的 JSON API：
+      GET /JobAd/_SearchJobAd?pi=N&ps=20&jc=2&c1=-1&c2=<id>&ky=&c=-1&in=1
+      → {DataResult:[{JobAdId, JobAdName, LocIdName, Department, ToPostDate, Duty, ...}],
+         RowCount: <total>, PageCount, ...}
+
+    所以本函数：
+      1. 从 URL 解析 c2 参数（class A 直接拿到）
+      2. 否则按 target['name'] 查 CNNC_COMPANY_C2_MAP（class B/C）
+      3. 直接 requests 拉 mobile API；忽略 Playwright `page` 参数
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    company = target['name']
+    job_type = target.get('type', 'campus')
+    target_url = target.get('url', '')
+
+    # 解析 c2：先从 URL query string 找
+    c2 = ''
+    try:
+        parsed = urlparse(target_url)
+        qs = parse_qs(parsed.query or '')
+        c2_vals = qs.get('c2') or []
+        if c2_vals:
+            c2 = c2_vals[0].strip()
+    except Exception:
+        pass
+    # URL 没有 c2 → 按公司名查表
+    if not c2 or c2 in ('-1', ''):
+        c2 = CNNC_COMPANY_C2_MAP.get(company, '')
+    if not c2:
+        # 最后兜底用 -1（jc=2 全量），把整个 CNNC 校招岗位都拉下来
+        # 通常只在公司名未在 map 中时触发；返回数据后由 fetched/match 阶段去重
+        c2 = '-1'
+
+    api_base = 'https://cnnc.m.zhiye.com/JobAd/_SearchJobAd'
+    iphone_ua = ('Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) '
+                 'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1')
+    headers = {
+        'User-Agent': iphone_ua,
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Referer': f'https://cnnc.m.zhiye.com/joblist.html?jc=2&c2={c2}',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    max_pages = int(target.get('max_pages') or 30)  # 30 * 20 = 600 上限够 99% 子公司
+
+    for pi in range(1, max_pages + 1):
+        api_url = f'{api_base}?pi={pi}&ps=20&jc=2&c1=-1&c2={c2}&ky=&c=-1&in=1'
+        try:
+            resp = requests.get(api_url, headers=headers, proxies=REQUEST_PROXIES, timeout=30)
+            data = resp.json() if resp.status_code == 200 else {}
+        except Exception as e:
+            logger.warning(f'{company} CNNC mobile API 第 {pi} 页失败: {e}')
+            break
+        rows = data.get('DataResult') or []
+        page_added = 0
+        for item in rows:
+            jid = str(item.get('JobAdId') or '').strip()
+            title = norm_text(item.get('JobAdName'))
+            if not title or not jid:
+                continue
+            location = norm_text(item.get('LocIdName')) or '未知'
+            department = norm_text(item.get('Department') or item.get('OrgName') or '')
+            publish = norm_text(item.get('ToPostDate') or '')
+            deadline = norm_text(item.get('ToEndDate') or '')
+            description = norm_text(item.get('Duty') or '')
+            detail_url = f'https://cnnc.m.zhiye.com/cmpdetail.html?jobid={jid}&jc={item.get("CategoryId") or 2}'
+            job = JobInfo(
+                id='', company=company, title=title, location=location,
+                department=department, job_type=job_type,
+                url=detail_url, description=description,
+                publish_date=publish, deadline=deadline,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+                page_added += 1
+        logger.info(f'{company} CNNC mobile API 第 {pi} 页 (c2={c2}): {page_added} 条 (RowCount={data.get("RowCount")})')
         if not rows or page_added == 0:
             break
     return jobs
@@ -2397,115 +3088,332 @@ def crawl_cebbank(page, target) -> List[JobInfo]:
 
 
 def crawl_icbc(page, target) -> List[JobInfo]:
-    """工商银行：通过浏览器访问并捕获 API 响应。"""
+    """工商银行：qryAnnounList REST。
+
+    Phase 7（2026-05-10）发现服务端 pageSize 实际无 hard cap：pageSize=50 单次
+    返回 total=41 returned=41。改用 stdlib requests + verify=False 直连，省去
+    Playwright in-page fetch 路径（旧实现因 OpenSSL renegotiation 走 page.evaluate）。
+    保留 4 个 projectType 遍历：R00301 校招 / R00302 社招 / R00303 实习 / R00304 乡村振兴。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
 
-    try:
-        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=2)
-        page.wait_for_timeout(3000)
-    except Exception as e:
-        logger.warning(f'工商银行页面打开失败: {e}')
-        return jobs
+    api_url = 'https://job.icbc.com.cn/icbc/trmo/announ/qryAnnounList'
+    PROJECT_TYPES = [
+        ('R00301', 'campus'),
+        ('R00302', 'social'),
+        ('R00303', 'intern'),
+        ('R00304', 'campus'),
+    ]
+    PAGE_SIZE = 50
+    MAX_PAGES = 20
 
-    def harvest_from_captured() -> int:
-        total_count = 0
-        for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api']):
-                continue
-            payload = rec.get('data') or {}
-            data = payload.get('data') or payload
-            rows = data.get('list') or data.get('items') or data.get('records') or data.get('dataList') or []
-            if isinstance(rows, dict):
-                rows = rows.get('list') or rows.get('items') or rows.get('records') or []
-            if not rows:
-                continue
-            total_count = max(total_count, int(data.get('total') or payload.get('total') or len(rows)))
-            for item in rows:
-                title = norm_text(item.get('positionName') or item.get('jobName') or item.get('title') or item.get('name') or '')
-                if not title:
-                    continue
-                pid = item.get('positionId') or item.get('id') or item.get('jobId') or ''
-                url = f"https://job.icbc.com.cn/campus/detail?id={pid}" if pid else target['url']
-                location = norm_text(item.get('workLocation') or item.get('city') or item.get('location') or '') or '未知'
-                org = norm_text(item.get('department') or item.get('deptName') or '')
-                publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
-                deadline = norm_text(item.get('deadline') or item.get('endTime') or '')
-                job = JobInfo(
-                    id='', company='工商银行', title=title, location=location,
-                    department=org, job_type='campus', url=url,
-                    publish_date=publish_date, deadline=deadline,
-                    description=norm_text(item.get('jobDescription') or item.get('description') or ''),
-                    requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
-                )
-                if job.id not in seen:
-                    seen.add(job.id)
-                    jobs.append(job)
-        return total_count
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://job.icbc.com.cn',
+        'Referer': 'https://job.icbc.com.cn/pc/index.html',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
 
-    total_count = harvest_from_captured()
+    def fetch_one(ptype: str, pn: int) -> Optional[dict]:
+        body = {'public': {'call_app': 'F-TRM'},
+                'private': {'page': pn, 'pageSize': PAGE_SIZE, 'projectType': ptype}}
+        try:
+            r = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            return r.json() or {}
+        except Exception as exc:
+            logger.warning(f'工商银行 qryAnnounList {ptype} p{pn} 失败: {exc}')
+            return None
+
+    api_rows: List[dict] = []
+    for ptype, _label in PROJECT_TYPES:
+        first = fetch_one(ptype, 1)
+        if not first or str(first.get('retCode') or '') != '0':
+            logger.info(f'工商银行 {ptype} 异常: {first!r}'[:200])
+            continue
+        data = first.get('data') or {}
+        total = int(data.get('total') or 0)
+        rows = list(data.get('dataList') or [])
+        for r in rows:
+            r['projectType'] = ptype
+        api_rows.extend(rows)
+        if len(rows) >= total or total <= PAGE_SIZE:
+            continue
+        pages = min(MAX_PAGES, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+        for pn in range(2, pages + 1):
+            time.sleep(0.4)
+            more = fetch_one(ptype, pn)
+            if not more:
+                break
+            d = more.get('data') or {}
+            extra = list(d.get('dataList') or [])
+            for rec in extra:
+                rec['projectType'] = ptype
+            api_rows.extend(extra)
+            if len(extra) < PAGE_SIZE:
+                break
+
+    for item in api_rows:
+        title = norm_text(item.get('title') or item.get('positionName') or '')
+        if not title:
+            continue
+        announ_id = norm_text(item.get('announId') or '')
+        pid = announ_id or item.get('positionId') or item.get('id') or ''
+        if announ_id:
+            url = f"https://job.icbc.com.cn/pc/index.html#/main/news/announ/detail?announId={announ_id}"
+        elif pid:
+            url = f"https://job.icbc.com.cn/campus/detail?id={pid}"
+        else:
+            url = target['url'] if isinstance(target, dict) else 'https://job.icbc.com.cn/'
+        location = norm_text(item.get('struName') or item.get('workLocation') or item.get('city') or '') or '未知'
+        org = norm_text(item.get('struName') or item.get('department') or '')
+        publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
+        deadline = norm_text(item.get('deadline') or item.get('endTime') or item.get('soldOutTime') or '')
+        ptype = item.get('projectType') or ''
+        job_type = 'social' if ptype == 'R00302' else ('intern' if ptype == 'R00303' else 'campus')
+        company_label = '工银理财' if '工银理财' in title else '工商银行'
+        job = JobInfo(
+            id='', company=company_label, title=title, location=location,
+            department=org, job_type=job_type, url=url,
+            publish_date=publish_date, deadline=deadline,
+            description=norm_text(item.get('jobDescription') or item.get('description') or item.get('content') or ''),
+            requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
+        )
+        if job.id not in seen:
+            seen.add(job.id)
+            jobs.append(job)
 
     if jobs:
-        logger.info(f'工商银行校招岗位: {len(jobs)} 条')
+        logger.info(f'工商银行招聘公告: {len(jobs)} 条（4 类 projectType 合计）')
     else:
-        logger.info('工商银行当前未获取到校招岗位（可能未开招或页面结构变化）')
-
+        logger.info('工商银行当前未获取到招聘公告')
     return jobs
 
 
 def crawl_psbc(page, target) -> List[JobInfo]:
-    """邮储银行：智联招聘专题页，通过浏览器捕获 API 响应。"""
+    """邮储银行：抓主域 https://www.psbc.com/cn/gyyc/rczp/{xyzp,shzp}/ 公告列表。
+
+    Phase 8 (2026-05-10) 重写：
+      - 既有 fn 走 psbc.zhaopin.com 通道，403 forbidden（zhaopin 反爬已升级）；
+        psbc 不开放任何 list API，只剩主域官网 announcement 模式。
+      - 主域校园招聘 9 条公告（多 stale，最新 2023-06）；社会招聘 10 条（latest
+        2025-11）。announcement-style 同 ICBC / 渤海，每条公告作 1 个 JobInfo。
+      - 链接形如 ./202511/t20251107_375690.html，相对 子页面 url 拼接。
+    """
     jobs: List[JobInfo] = []
     seen: Set[str] = set()
 
-    try:
-        goto_and_wait(page, target['url'], timeout=30000, extra_sleep=3)
-        page.wait_for_timeout(3000)
-    except Exception as e:
-        logger.warning(f'邮储银行页面打开失败: {e}')
-        return jobs
+    BASE = 'https://www.psbc.com'
+    PAGES = [
+        ('校园招聘', f'{BASE}/cn/gyyc/rczp/xyzp/', 'campus'),
+        ('社会招聘', f'{BASE}/cn/gyyc/rczp/shzp/', 'social'),
+    ]
+    headers = {
+        'User-Agent': UA,
+        'Referer': f'{BASE}/cn/index.html',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
 
-    def harvest_from_captured() -> int:
-        total_count = 0
-        for rec in getattr(page, '_captured_json', []):
-            if not any(k in rec.get('url', '') for k in ['job', 'position', 'campus', 'recruit', 'api']):
-                continue
-            payload = rec.get('data') or {}
-            data = payload.get('data') or payload
-            rows = data.get('list') or data.get('items') or data.get('records') or []
-            if isinstance(rows, dict):
-                rows = rows.get('list') or rows.get('items') or []
-            if not rows:
-                continue
-            total_count = max(total_count, int(data.get('total') or payload.get('total') or len(rows)))
-            for item in rows:
-                title = norm_text(item.get('jobName') or item.get('positionName') or item.get('title') or '')
-                if not title:
-                    continue
-                pid = item.get('jobId') or item.get('positionId') or item.get('id') or ''
-                url = f"https://psbc.zhaopin.com/job?id={pid}" if pid else target['url']
-                location = norm_text(item.get('cityName') or item.get('city') or item.get('workLocation') or '') or '未知'
-                org = norm_text(item.get('department') or item.get('deptName') or '')
-                publish_date = norm_text(item.get('publishTime') or item.get('createTime') or '')
-                job = JobInfo(
-                    id='', company='邮储银行', title=title, location=location,
-                    department=org, job_type='campus', url=url,
-                    publish_date=publish_date,
-                    description=norm_text(item.get('jobDescription') or item.get('description') or ''),
-                    requirements=norm_text(item.get('jobRequirement') or item.get('requirement') or ''),
-                )
-                if job.id not in seen:
-                    seen.add(job.id)
-                    jobs.append(job)
-        return total_count
+    item_re = re.compile(
+        r'<a[^>]+href="((?:\.{1,2}/)+[^"]+t\d+_\d+\.html)"[^>]*>([^<]+)</a>'
+    )
+    date_path_re = re.compile(r'/(20\d{2})(\d{2})/t(20\d{2})(\d{2})(\d{2})_')
 
-    total_count = harvest_from_captured()
+    for label, url, job_type in PAGES:
+        try:
+            r = requests.get(url, headers=headers, proxies=REQUEST_PROXIES, timeout=20, verify=False)
+            text = r.content.decode('utf-8', errors='replace')
+        except Exception as exc:
+            logger.warning(f'邮储银行 {label} 列表抓取失败: {exc}')
+            continue
+
+        page_added = 0
+        for m in item_re.finditer(text):
+            href = m.group(1).strip()
+            title = norm_text(m.group(2))
+            if not title or title in ('校园招聘', '社会招聘', '人才招聘'):
+                continue
+            full_url = urljoin(url, href)
+            if full_url in seen:
+                continue
+            seen.add(full_url)
+
+            pubd = ''
+            pm = date_path_re.search(full_url)
+            if pm:
+                pubd = f'{pm.group(3)}-{pm.group(4)}-{pm.group(5)}'
+
+            job = JobInfo(
+                id='', company='邮储银行', title=title,
+                location='全国' if '总行' in title else '未知',
+                department='', job_type=job_type, url=full_url,
+                publish_date=pubd, deadline='',
+                description='', requirements='',
+            )
+            jobs.append(job)
+            page_added += 1
+        logger.info(f'邮储银行 {label}: 收 {page_added} 条公告')
 
     if jobs:
-        logger.info(f'邮储银行校招岗位: {len(jobs)} 条')
+        logger.info(f'邮储银行招聘公告: {len(jobs)} 条（announcement-style 校招+社招）')
     else:
-        logger.info('邮储银行当前未获取到校招岗位（可能未开招或需要人工验证）')
+        logger.info('邮储银行当前未获取到招聘公告')
 
+    return jobs
+
+
+def crawl_cgb(page, target) -> List[JobInfo]:
+    """广发银行：经 chinalife.zhiye.com /custom/gfcampus（中国人寿 Beisen 多租户）。
+
+    Phase 8 (2026-05-10) 探查：
+      - 主站 www.cgbchina.com.cn /Channel/11581868（人才招聘）跳转
+        chinalife.zhiye.com/custom/gfcampus?hideMenu=1（即广发借中国人寿的 Beisen
+        租户发布岗位）。
+      - GetJobAdPageList API 不区分租户（所有 chinalife-Beisen tenants 共用），需
+        KeyWords="广发" + 客户端 Org 过滤（contains "广发"）。
+      - 实测 113 条 社招岗位，pageSize=50 时 3 页（pidx=0,1,2）即收完；pidx=3 起 0 条。
+      - 全为 社招（Category="社会招聘"），公司列 = 广发银行。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    api_url = 'https://chinalife.zhiye.com/api/Jobad/GetJobAdPageList'
+    headers = {
+        'User-Agent': UA,
+        'Origin': 'https://chinalife.zhiye.com',
+        'Referer': 'https://chinalife.zhiye.com/custom/gfcampus',
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Accept': 'application/json, text/plain, */*',
+    }
+    PAGE_SIZE = 50
+    max_pages_cfg = int(target.get('max_pages') or 10) if isinstance(target, dict) else 10
+
+    def fetch(pidx: int):
+        body = {
+            'PageIndex': pidx, 'PageSize': PAGE_SIZE,
+            'KeyWords': '广发', 'SpecialType': 0, 'PortalId': '',
+            'Category': [],
+            'DisplayFields': ['Category', 'Kind', 'LocId', 'Org', 'PostDate'],
+        }
+        try:
+            r = requests.post(
+                api_url, json=body, headers=headers,
+                proxies=REQUEST_PROXIES, timeout=20, verify=False,
+            )
+            return list((r.json() or {}).get('Data') or [])
+        except Exception as exc:
+            logger.warning(f'广发银行 GetJobAdPageList p{pidx} 失败: {exc}')
+            return []
+
+    for pidx in range(max_pages_cfg):
+        rows = fetch(pidx)
+        if not rows:
+            break
+        cgb_rows = [r for r in rows if '广发' in (r.get('Org') or '')]
+        if not cgb_rows and pidx > 1:
+            break
+        for item in cgb_rows:
+            title = norm_text(item.get('JobAdName'))
+            if not title:
+                continue
+            jid = norm_text(item.get('Id') or item.get('JobAdId'))
+            if jid in seen:
+                continue
+            seen.add(jid)
+            org = norm_text(item.get('Org') or '')
+            loc = norm_text(','.join(item.get('LocNames') or [])) or '未知'
+            cat = norm_text(item.get('Category') or '')
+            jt = 'campus' if any(k in cat + title for k in ['校园', '管培', '实习']) else 'social'
+            url = (
+                f'https://chinalife.zhiye.com/job/{jid}'
+                if jid else 'https://chinalife.zhiye.com/custom/gfcampus'
+            )
+            jobs.append(JobInfo(
+                id='', company='广发银行', title=title, location=loc,
+                department=org, job_type=jt, url=url,
+                publish_date=norm_text(item.get('PostDate') or ''),
+                deadline=norm_text(item.get('EndTime') or ''),
+                description=norm_text(item.get('Duty') or ''),
+                requirements=norm_text(item.get('Require') or ''),
+            ))
+        logger.info(
+            f'广发银行 chinalife 第 {pidx + 1} 页: 收 {len(cgb_rows)}/{len(rows)} 广发条'
+        )
+
+    if jobs:
+        logger.info(f'广发银行 chinalife API: {len(jobs)} 条（KeyWords=广发 + Org 过滤）')
+    else:
+        logger.info('广发银行当前未获取到开放岗位')
+    return jobs
+
+
+def crawl_cbhb(page, target) -> List[JobInfo]:
+    """渤海银行：抓主域 https://www.cbhb.com.cn/cbhbank/jrwm/zpxx/index.shtml 公告列表。
+
+    Phase 8 (2026-05-10) 探查：
+      - 主域 announcement-list 单页 10 条公告（latest 2026-04-02 武汉社招）；
+        index_2.shtml 等续页 404，全公告挤在单页。
+      - announcement-style 同 ICBC / 邮储 / 工商；每条公告作 1 个 JobInfo。
+      - 公司列 = 渤海银行；按 title 含 '渤银理财' 二次贴标。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+
+    BASE = 'https://www.cbhb.com.cn'
+    LIST_URL = f'{BASE}/cbhbank/jrwm/zpxx/index.shtml'
+    headers = {
+        'User-Agent': UA,
+        'Referer': f'{BASE}/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    }
+
+    try:
+        r = requests.get(
+            LIST_URL, headers=headers, proxies=REQUEST_PROXIES,
+            timeout=20, verify=False,
+        )
+        text = r.content.decode('utf-8', errors='replace')
+    except Exception as exc:
+        logger.warning(f'渤海银行 公告列表抓取失败: {exc}')
+        return jobs
+
+    item_re = re.compile(
+        r'<a[^>]+href="(/cbhbank/(\d{4})-(\d{2})/(\d{2})/article_\d+\.shtml)"[^>]*>([^<]+)</a>'
+    )
+    for m in item_re.finditer(text):
+        href, yy, mm, dd, title = m.groups()
+        title = norm_text(title)
+        if not title or title in ('招聘信息', '人才招聘'):
+            continue
+        full_url = BASE + href
+        if full_url in seen:
+            continue
+        seen.add(full_url)
+
+        if any(k in title for k in ['校园', '管培', '应届', '实习', '校招']):
+            jt = 'campus'
+        else:
+            jt = 'social'
+        company = '渤银理财' if '渤银理财' in title else '渤海银行'
+
+        jobs.append(JobInfo(
+            id='', company=company, title=title,
+            location='未知',
+            department='', job_type=jt, url=full_url,
+            publish_date=f'{yy}-{mm}-{dd}', deadline='',
+            description='', requirements='',
+        ))
+
+    if jobs:
+        logger.info(f'渤海银行 公告: {len(jobs)} 条（announcement-style 单页）')
+    else:
+        logger.info('渤海银行 当前未获取到公告')
     return jobs
 
 
@@ -2807,6 +3715,124 @@ def crawl_boc(page, target) -> List[JobInfo]:
     return jobs
 
 
+def crawl_ccb(page, target) -> List[JobInfo]:
+    """建设银行 (CCB)：通过 plan_index 建立 session，再 in-page fetch 翻
+    `/tran/WCCMainPlatV5?TXCODE=NHR104` 全量。
+
+    planType: XY=校园招聘, SX=实习生招聘, SH=社会招聘（本爬虫只取 XY+SX）。
+    上游 2026 春季招聘 XY 类目实测 TOTAL_REC=4491, TOTAL_PAGE=90 (PAGE_SIZE=50)。
+    服务端响应是文本前缀的 JSON：`\\n\\n{...}`，strip 后 json.loads。
+    """
+    jobs: List[JobInfo] = []
+    seen: Set[str] = set()
+    PLAN_TYPES = [('XY', 'campus'), ('SX', 'intern')]
+    PAGE_SIZE = 50
+    max_pages = int(target.get('max_pages') or MAX_PAGES)
+
+    try:
+        # 先访问 plan_index 建立 session/cookie
+        goto_and_wait(
+            page,
+            f"https://job3.ccb.com/cn/job/plan_index.html?planType=XY",
+            timeout=30000, extra_sleep=3,
+        )
+        page.wait_for_timeout(2000)
+    except Exception as e:
+        logger.warning(f'建设银行 plan_index 打开失败: {e}')
+        return jobs
+
+    def fetch_page(plan_type: str, page_num: int) -> dict:
+        url = (
+            "/tran/WCCMainPlatV5"
+            "?CCB_IBSVersion=V5&isAjaxRequest=true&SERVLET_NAME=WCCMainPlatV5"
+            f"&TXCODE=NHR104&keyWord=&planType={plan_type}"
+            f"&orgId=&planPostId=&planId="
+            f"&PAGE_JUMP={page_num}&REC_IN_PAGE={PAGE_SIZE}"
+            f"&_={int(time.time() * 1000)}"
+        )
+        try:
+            text = page.evaluate(
+                f"""async () => {{
+                  const r = await fetch({json.dumps(url)}, {{
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {{'X-Requested-With': 'XMLHttpRequest'}}
+                  }});
+                  return await r.text();
+                }}"""
+            )
+        except Exception as exc:
+            logger.warning(f'建设银行 NHR104 {plan_type} p{page_num} 失败: {exc}')
+            return {}
+        try:
+            return json.loads((text or '').strip()) or {}
+        except Exception as exc:
+            logger.warning(f'建设银行 NHR104 解析失败 ({plan_type} p{page_num}): {exc}; raw[:200]={text[:200]!r}')
+            return {}
+
+    for plan_type, label in PLAN_TYPES:
+        first = fetch_page(plan_type, 1)
+        if first.get('SUCCESS') != 'true':
+            logger.info(f'建设银行 {plan_type}: SUCCESS={first.get("SUCCESS")} busMsg={first.get("busMsg")}')
+            continue
+        total_rec = int(first.get('TOTAL_REC', 0) or 0)
+        total_page = int(first.get('TOTAL_PAGE', 0) or 0)
+        if total_rec == 0:
+            logger.info(f'建设银行 {plan_type}: 上游空档 total=0')
+            continue
+        logger.info(f'建设银行 {plan_type}: total_rec={total_rec} total_page={total_page}')
+
+        rows_iter = list(first.get('planPostList') or [])
+        # 限制：cron 一次最多 max_pages 页，避免单类拉太慢
+        cap = min(max_pages, total_page)
+        for pn in range(2, cap + 1):
+            page.wait_for_timeout(300)
+            r = fetch_page(plan_type, pn)
+            if r.get('SUCCESS') != 'true':
+                logger.info(f'建设银行 {plan_type} p{pn} 异常停: SUCCESS={r.get("SUCCESS")}')
+                break
+            more = list(r.get('planPostList') or [])
+            if not more:
+                break
+            rows_iter.extend(more)
+
+        for item in rows_iter:
+            title = norm_text(item.get('planPostName') or '')
+            if not title:
+                continue
+            plan_id = norm_text(item.get('planId') or '')
+            plan_post = norm_text(item.get('planPost') or '')
+            # CCB API 返回 (planPost × org × secondOrg) 笛卡尔积：4491 = 5 岗位类型 ×
+            # ~900 (分行 × 支行)。必须把 orgId + secondOrgId 全带进 URL，否则
+            # md5 dedup 把全部多分行同岗 collapse 成 5 条。验证：单页 50 行用
+            # (planPost, orgId, secondOrgId) tuple 是 50/50 unique。
+            org_id = norm_text(item.get('orgId') or '')
+            second_org_id = norm_text(item.get('secondOrgId') or '')
+            url = (
+                f"https://job3.ccb.com/cn/job/post_detail.html"
+                f"?planId={plan_id}&planPost={plan_post}&planType={plan_type}"
+                f"&orgId={org_id}&secondOrgId={second_org_id}"
+            ) if plan_id and plan_post else target['url']
+            location = norm_text(item.get('workPlace') or '') or '未知'
+            org = norm_text(item.get('secondOName') or item.get('orgName') or '')
+            publish_date = norm_text(item.get('postDate') or '')
+            deadline = norm_text(item.get('endDate') or '')
+            job = JobInfo(
+                id='', company='建设银行', title=title, location=location,
+                department=org, job_type=label, url=url,
+                publish_date=publish_date, deadline=deadline,
+            )
+            if job.id not in seen:
+                seen.add(job.id)
+                jobs.append(job)
+
+    if jobs:
+        logger.info(f'建设银行: {len(jobs)} 条 (含校招/实习)')
+    else:
+        logger.info('建设银行当前未获取到岗位（上游可能空档或页面结构变化）')
+    return jobs
+
+
 def crawl_srcb(page, target) -> List[JobInfo]:
     """上海农商银行：通过浏览器访问并捕获 API 响应。"""
     jobs: List[JobInfo] = []
@@ -2875,6 +3901,208 @@ def crawl_generic_bank_site(page, target) -> List[JobInfo]:
     )
 
 
+# 国家烟草专卖局 (www.tobacco.gov.cn / bj.tobacco.gov.cn) 系列 — Phase 5 故障
+# 集中点 #2 修复（2026-05-09）。
+# 8 家烟草子公司在 Playwright Chromium 走全部 ERR_EMPTY_RESPONSE/Timeout 90s，
+# 但 curl/requests 直连 0.13-0.18s 200 OK。Server fingerprint 检测 headless
+# Chromium 在 TCP 层就 drop。改用 requests + stdlib re 直接解 SSR HTML。
+_TOBACCO_ARTICLE_PATH_RE = re.compile(r"/gjyc/zpxx/\d{6}/[a-f0-9]+\.shtml")
+_TOBACCO_LIST_ANCHOR_RE = re.compile(
+    r'<a[^>]+href="(?P<href>[^"]*?/gjyc/zpxx/\d{6}/[a-f0-9]+\.shtml)"[^>]*?(?:title="(?P<title>[^"]*)")?[^>]*>(?P<body>.*?)</a>',
+    re.S,
+)
+_TOBACCO_TAG_STRIP_RE = re.compile(r"<[^>]+>")
+_TOBACCO_H1_RE = re.compile(r"<h1[^>]*>(.*?)</h1>", re.S)
+_TOBACCO_SOURCE_SPAN_RE = re.compile(r'<span class="source">(.*?)</span>', re.S)
+_TOBACCO_DATE_RE = re.compile(r"时间：\s*([\d\-]{8,10})")
+
+
+def _tobacco_strip_tags(html_fragment: str) -> str:
+    return _TOBACCO_TAG_STRIP_RE.sub("", html_fragment).strip()
+
+
+def crawl_tobacco_gov_cn(page, target) -> List[JobInfo]:
+    """国家烟草专卖局 SSR HTML 抓取（绕开 Chromium fingerprint 拦截）。"""
+    url = (target.get("url") or "").strip()
+    company = (target.get("name") or "").strip() or "国家烟草专卖局"
+    job_type = (target.get("type") or "campus").strip()
+    if not url:
+        return []
+    headers = {"User-Agent": UA, "Accept-Language": "zh-CN,zh;q=0.9"}
+    try:
+        resp = requests.get(url, headers=headers, timeout=12, proxies=REQUEST_PROXIES or None, allow_redirects=True)
+        resp.raise_for_status()
+        resp.encoding = resp.apparent_encoding or resp.encoding or "utf-8"
+        html = resp.text
+    except Exception:
+        # 真死站点（bj.tobacco.gov.cn 等）— re-raise 让 company_crawl_log 12s
+        # fail-fast 而不是 90s Playwright timeout
+        raise
+
+    base = "http://www.tobacco.gov.cn"
+    jobs: List[JobInfo] = []
+
+    if _TOBACCO_ARTICLE_PATH_RE.search(url):
+        # 单 article 页 — 1 JobInfo
+        h1 = _TOBACCO_H1_RE.search(html)
+        if not h1:
+            return []
+        title = _tobacco_strip_tags(h1.group(1))
+        if not title:
+            return []
+        src_match = _TOBACCO_SOURCE_SPAN_RE.search(html)
+        department = _tobacco_strip_tags(src_match.group(1)) if src_match else company
+        date_match = _TOBACCO_DATE_RE.search(html)
+        publish_date = date_match.group(1) if date_match else ''
+        return [JobInfo(
+            id='', company=company, title=title, location='未知', department=department,
+            job_type=job_type, url=url, publish_date=publish_date,
+        )]
+
+    # list 页 — 20 JobInfo
+    seen: Set[str] = set()
+    for m in _TOBACCO_LIST_ANCHOR_RE.finditer(html):
+        href = m.group("href")
+        title = (m.group("title") or "").strip() or _tobacco_strip_tags(m.group("body") or "")
+        if not href or not title:
+            continue
+        full_url = href if href.startswith("http") else (base + href)
+        if full_url in seen:
+            continue
+        seen.add(full_url)
+        jobs.append(JobInfo(
+            id='', company=company, title=title, location='未知', department=company,
+            job_type=job_type, url=full_url,
+        ))
+    logger.info(f'国烟[{company}]: {len(jobs)} 条')
+    return jobs
+
+
+# 51job 校招页 (campus.51job.com/<slug>) — Phase 5 故障集中点 #3 修复
+# (2026-05-09)。亿滋（campus.51job.com/2026mdlz）等校招页面是 SPA，岗位
+# 数据来自静态 JS 文件 js/data.js（var jobData=[...])，DOM selector 抓
+# 不到。直接 requests 拉 data.js 用 regex 解。
+_DATAJS_DEPT_BLOCK_RE = re.compile(
+    r"\{\s*(?:img\s*:[^,]*,)?\s*name\s*:\s*\"([^\"]+)\"(.*?)\}\s*,?\s*(?=\{|\];)",
+    re.DOTALL,
+)
+_DATAJS_LOCATION_RE = re.compile(r"location\s*:\s*\"([^\"]*)\"")
+_DATAJS_APPLY_ITEM_RE = re.compile(
+    r"\{\s*(?:title\s*:\s*['\"]([^'\"]*)['\"]\s*,?\s*)?"
+    r"(?:content\s*:\s*['\"](?:[^'\"\\]|\\.)*['\"]\s*,?\s*)?"
+    r"city\s*:\s*\"([^\"]*)\"\s*,\s*"
+    r"url\s*:\s*\"([^\"]*apply\.aspx[^\"]*)\"",
+    re.DOTALL,
+)
+_DATAJS_FALLBACK_APPLY_RE = re.compile(
+    r"\"(https?://[^\"]*apply\.aspx\?[^\"]*jobid=(\d+)[^\"]*)\"",
+    re.IGNORECASE,
+)
+
+
+def _51job_campus_root(url: str) -> str:
+    parsed = urlparse(url)
+    parts = [p for p in parsed.path.split("/") if p]
+    while parts and "." in parts[-1]:
+        parts.pop()
+    new_path = "/" + "/".join(parts) if parts else "/"
+    return f"{parsed.scheme}://{parsed.netloc}{new_path}"
+
+
+def _51job_extract_jobid(url: str) -> str:
+    try:
+        q = parse_qs(urlparse(url).query)
+        return (q.get("jobid") or q.get("jobId") or [""])[0]
+    except Exception:
+        return ""
+
+
+def crawl_51job_campus_data_js(page, target) -> List[JobInfo]:
+    """51job 校招专属页（campus.51job.com/<slug>）：抓 js/data.js + 解析。"""
+    company = target.get("name", "")
+    target_url = target.get("url", "")
+    job_type = target.get("type", "campus")
+    if not target_url:
+        return []
+    base = _51job_campus_root(target_url)
+    if not base.endswith("/"):
+        base += "/"
+    candidates = [base + "js/data.js", base + "data.js", base + "js/jobData.js"]
+
+    text = ""
+    for url in candidates:
+        try:
+            resp = requests.get(url, headers={"User-Agent": UA, "Referer": base}, timeout=20)
+            if resp.status_code == 200 and ("jobData" in resp.text or "applyLinks" in resp.text or "apply.aspx" in resp.text):
+                text = resp.text
+                logger.info(f"51job-campus[{company}]: data.js hit at {url} ({len(text)} bytes)")
+                break
+        except Exception as exc:
+            logger.debug(f"51job-campus[{company}]: probe {url} failed: {exc}")
+
+    if not text:
+        try:
+            resp = requests.get(base + "page.html", headers={"User-Agent": UA}, timeout=20)
+            if resp.status_code == 200 and "apply.aspx" in resp.text:
+                text = resp.text
+        except Exception:
+            pass
+
+    if not text:
+        logger.warning(f"51job-campus[{company}]: no data.js found under {base}")
+        return []
+
+    jobs: List[JobInfo] = []
+    seen_ids: Set[str] = set()
+
+    # 结构化 path：按 department 块走
+    for dept_match in _DATAJS_DEPT_BLOCK_RE.finditer(text):
+        dept_name = dept_match.group(1).strip()
+        body = dept_match.group(2)
+        loc_match = _DATAJS_LOCATION_RE.search(body)
+        dept_location = loc_match.group(1).strip() if loc_match else ""
+        for apply_match in _DATAJS_APPLY_ITEM_RE.finditer(body):
+            sub_title = (apply_match.group(1) or "").strip()
+            city = (apply_match.group(2) or "").strip()
+            url = (apply_match.group(3) or "").strip()
+            jobid = _51job_extract_jobid(url)
+            if not jobid or jobid in seen_ids:
+                continue
+            seen_ids.add(jobid)
+            title_parts = [dept_name]
+            if sub_title:
+                title_parts.append(sub_title)
+            if city:
+                title_parts.append(city)
+            jobs.append(JobInfo(
+                id=jobid, company=company, title=" - ".join(title_parts),
+                location=city or dept_location or "未知",
+                department=dept_name, job_type=job_type, url=url,
+            ))
+
+    # Fallback: 任何 apply.aspx 链接，用近邻 city/name 上下文兜底 title
+    for fb in _DATAJS_FALLBACK_APPLY_RE.finditer(text):
+        url = fb.group(1)
+        jobid = fb.group(2)
+        if jobid in seen_ids:
+            continue
+        seen_ids.add(jobid)
+        start = max(0, fb.start() - 240)
+        ctx = text[start:fb.start()]
+        city_match = re.findall(r"city\s*:\s*\"([^\"]+)\"", ctx)
+        name_match = re.findall(r"name\s*:\s*\"([^\"]+)\"", text[:fb.start()])
+        city = city_match[-1].strip() if city_match else ""
+        dept = name_match[-1].strip() if name_match else company
+        title = " - ".join(p for p in [dept, city] if p) or f"{company} 岗位 {jobid}"
+        jobs.append(JobInfo(
+            id=jobid, company=company, title=title,
+            location=city or "未知", department=dept, job_type=job_type, url=url,
+        ))
+
+    logger.info(f"51job-campus[{company}]: {len(jobs)} 条")
+    return jobs
+
+
 SITE_MAP = {
     'bytedance': crawl_bytedance,
     'meituan': crawl_meituan,
@@ -2911,6 +4139,15 @@ SITE_MAP = {
     'hupu.zhiye.com': crawl_zhiye_campus,
     'cebbank.zhiye.com': crawl_cebbank,
     'shrcb.zhiye.com': crawl_zhiye_campus,
+    # 北森老模板 zhiye 站点：DOM 表格 / UL 渲染（不返回 JSON API）
+    'cssc.zhiye.com': crawl_zhiye_table_campus,
+    # CNNC 三组域名共用同一后台（TenantId=605932），但 hr.cnnc.com.cn 走 WAF 412
+    # challenge，cnnc.zhiye.com 是 CMS landing page 没 jobadid DOM。统一改走
+    # cnnc.m.zhiye.com 的 mobile JSON API（curl/requests + iPhone UA 通），
+    # 按 c2 参数 / 公司名查表区分子公司。详见 crawl_cnnc_mobile_api。
+    'cnnc.m.zhiye.com': crawl_cnnc_mobile_api,
+    'cnnc.zhiye.com': crawl_cnnc_mobile_api,
+    'hr.cnnc.com.cn': crawl_cnnc_mobile_api,
     'job.bankcomm.com': crawl_generic_bank_site,
     'job.icbc.com.cn': crawl_icbc,
     'career.abchina.com': crawl_generic_bank_site,
@@ -2956,6 +4193,9 @@ SITE_MAP = {
     'hxb.hotjob.cn': crawl_hxb,
     'wecruit.hotjob.cn': crawl_hxb,
     'zp.czbank.com.cn': crawl_czbank,
+    # Phase 5 集中问题修复 (2026-05-09)：
+    'tobacco.gov.cn': crawl_tobacco_gov_cn,        # 国家烟草专卖局 SSR HTML（绕开 Chromium 拦截）
+    'campus.51job.com': crawl_51job_campus_data_js,  # 51job 校招页 data.js 解析（亿滋 + 类似 51job 模板）
 }
 
 
