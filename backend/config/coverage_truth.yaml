@@ -584,3 +584,55 @@ tracks:
       / 工行 announcement-list / 建行 WCCMainPlatV5)，无独立 ATS 必要。
       4 家 P0 重点：招银网络科技 / 工银科技 / 建信金科 / 平安金科。
       P1 可扩展到 7 家全梳 (+中银 / 交银 / 兴业数金)。
+
+  # ─────────────────────── 银行理财子 ────────────────────────────
+  # mode=derived_company：理财子公司绝大多数 piggyback 母行招聘 portal,
+  # company 字段写"XX银行",department 字段标"XX理财有限责任公司"。少数
+  # (浙银/中邮/交银/信银) Tata 抓到独立 entity。SAIF 投研出口大类:
+  # 多资产投资 / 宏观与固收策略研究 / 信评分析 / 投资经理 / 交易岗。
+  - id: bank_wealth
+    name: 银行理财子
+    canonical_tracks: [二级买方·基本面, 卖方研究·S&T]
+    mode: derived_company
+    # 用 title_keywords_include 同时检查 job_title 和 department,把母行
+    # portal 里 department='XX理财有限责任公司' 的岗位捞出来,同时也覆盖
+    # company='XX理财' 的独立 entity。
+    company_keywords_include:
+      - 银行      # 母行 piggyback 模式
+      - 理财      # 独立 entity 模式 (浙银理财 / 中邮理财 等)
+    company_keywords_exclude:
+      - 信息技术
+      - 信息服务
+    title_keywords_include:
+      - 兴银理财
+      - 招银理财
+      - 工银理财
+      - 建信理财
+      - 中银理财
+      - 农银理财
+      - 交银理财
+      - 邮储理财
+      - 中邮理财
+      - 中信理财
+      - 光大理财
+      - 信银理财
+      - 华夏理财
+      - 民生理财
+      - 平安理财
+      - 浦银理财
+      - 浙银理财
+      - 杭银理财
+      - 宁银理财
+      - 苏银理财
+      - 理财公司
+      - 理财有限
+    window_days: 180
+    note: |
+      派生赛道 (用户 2026-05-24 反馈: 理财子招聘绝大多数 piggyback 母行)。
+      title_keywords_include 同时检查 job_title 和 department,关键 SAIF
+      投研岗例: 兴业银行 portal 里 dept='兴银理财有限责任公司' 含 多资产
+      投资经理 / 宏观与固收策略研究 / 信评分析 / 投资经理(固定收益)。
+      已有 6 家独立 entity (浙银/中邮/交银/兴银/信银) + 母行 portal piggyback
+      (主要是兴业银行/招商银行)。
+      window_days=180: 理财子季节性强 (春招 3-5 月 / 秋招 8-9 月),30d 窗
+      跨不过季节空窗,180d 覆盖一整个招聘周期。
