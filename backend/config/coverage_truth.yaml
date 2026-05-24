@@ -121,10 +121,15 @@ tracks:
       - securities_zhiye_legacy
       - securities_moka_embedded
       - securities_hotjob
+      - securities_citics_dom    # 中信证券 careers.citics.com Playwright + 用户 cookie
     mode: enumerate
     t1_companies:
       - name: 中信证券
-        deferred_reason: Playwright SPA 反爬强；待重写 crawler
+        jobs_company_match: [中信证券]
+        # 2026-05-24: careers.citics.com 必须登录,Playwright + 用户 cookie 抓
+        # /summer/interns SPA DOM,实测 2026 总部暑期实习 10 岗 (投行/固收/资管/
+        # 股衍/机构/研究/两融/研发/风控合规/财务运营 业务助理),source=
+        # securities_citics_dom。cookie 有效期 7d,需周期性 refresh。
       - name: 中金公司
       - name: 华泰证券
       - name: 国泰君安
