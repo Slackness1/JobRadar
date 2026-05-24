@@ -194,34 +194,83 @@ tracks:
   # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
   - id: hedge_funds
     name: 头部私募 (Hedge Funds)
-    canonical_tracks: [量化, 二级买方·基本面]   # 幻方/九坤/衍复=量化;高毅/景林=基本面
+    canonical_tracks: [量化, 二级买方·基本面]   # 量化/主观/海外 elite
     source_match:
       - hedge_funds_hotjob
       - hedge_funds_zhiye
       - hedge_funds_moka_embedded
       - hedge_funds_zhiye_beisen_cms
       - hedge_funds_wintalent_sc
+      - hedge_funds_self_html
+      - hedge_funds_greenhouse
+      - hedge_funds_eightfold
+      - hedge_funds_citadel_wp
     mode: enumerate
     t1_companies:
-      # 公开 ATS 已 wired (Phase 9, 2026-05-11) — 实测分别 9/15/2/25 岗
+      # === 量化私募 top 12 ===
       - name: 幻方量化
+        jobs_company_match: [幻方量化, 幻方]
       - name: 九坤投资
-      - name: 高毅资产
-      - name: 衍复投资
-      # 公开但需要新 engine family
+        jobs_company_match: [九坤投资, 九坤]
       - name: 明汯投资
-        deferred_reason: Feishu/Bytedance ATS — 需要逆向 gfdatav1 endpoint，backlog
+        jobs_company_match: [明汯投资, 明汯]
+      - name: 衍复投资
+        jobs_company_match: [衍复投资, 衍复]
+      - name: 鸣石投资
+        jobs_company_match: [鸣石投资]
       - name: 灵均投资
-        deferred_reason: hr.lingjuninvest.com Moka-CNAME 待验证；可能 flip 到 easy
-      # 结构性 (relationship-driven / no public ATS)
-      - name: 景林资产
-        deferred_reason: 主观多头 — 复旦/清北校友办 + 海投 listings，无 ATS
-      - name: 淡水泉
-        deferred_reason: springs-capital.com 无 careers 页；公众号 + 校园宣讲
-      - name: 礼仁投资
-        deferred_reason: 高瓴 Hillhouse PE 子. Gllue ATS (hillhouse.gllue.com)，新 engine family
+        jobs_company_match: [灵均投资]
+      - name: 聚宽投资
+        jobs_company_match: [聚宽投资]
+      - name: 思勰投资
+        jobs_company_match: [思勰投资]
+      - name: 诚奇资产
+        jobs_company_match: [诚奇资产, 诚奇基金]
+      - name: 宽德投资
+        jobs_company_match: [宽德投资, WizardQuant]
+      - name: 因诺资产
+        jobs_company_match: [因诺资产]
       - name: 进化论资产
-        deferred_reason: 牛客网招聘 + 公众号，当前 0 岗 (out of season)
+        jobs_company_match: [进化论资产]
+
+      # === 主观多头私募 top 8 (大多 referral_heavy) ===
+      - name: 高毅资产
+        jobs_company_match: [高毅资产]
+      - name: 景林资产
+        jobs_company_match: [景林资产, 景林]
+        deferred_reason: 主观多头 — 校友办 + 海投 listings,无 ATS,referral_heavy
+      - name: 淡水泉投资
+        jobs_company_match: [淡水泉]
+        deferred_reason: 无 careers 页;走公众号 + 校园宣讲 + 校友内推
+      - name: 睿郡资产
+        jobs_company_match: [睿郡]
+        deferred_reason: ruijunasset/ruijun 各 ATS 未注册,backlog
+      - name: 千合资本
+        jobs_company_match: [千合资本, 千合, 王亚伟]
+        deferred_reason: 王亚伟主观私募,年招 <20 人,referral_heavy
+      - name: 礼仁投资
+        jobs_company_match: [礼仁投资]
+        deferred_reason: 高瓴 Hillhouse PE 子 (gllue.com ATS),backlog
+      - name: 重阳投资
+        jobs_company_match: [重阳投资]
+        deferred_reason: 主观多头,无公开 ATS
+      - name: 磐松量化
+        jobs_company_match: [磐松]
+        deferred_reason: pansongasset 在所有主流 ATS 未注册,referral_heavy
+
+      # === 海外 Elite Quants (Phase 11, 2026-05-23 已 wired) ===
+      - name: Point72
+        jobs_company_match: [Point72]
+      - name: Millennium
+        jobs_company_match: [Millennium, MLP]
+      - name: Citadel
+        jobs_company_match: [Citadel]
+      - name: Two Sigma
+        jobs_company_match: [Two Sigma, TwoSigma]
+        deferred_reason: 公开 RSS 0 Asia,backlog
+      - name: Bridgewater
+        jobs_company_match: [Bridgewater, 桥水]
+        deferred_reason: 中国 entry-level 极少,referral-driven
 
   # ─────────────────────────── 外资投行 (Bulge Bracket) ─────────
   - id: foreign_ibs
@@ -374,15 +423,20 @@ tracks:
   # 补充，写入时仍命中 keyword=信托，所以也会在派生表里出现。
   - id: trust
     name: 信托
-    canonical_tracks: []   # SAIF audience 一般不投信托业务,无明确 canonical 归属
+    canonical_tracks: [二级买方·基本面, 监管·体制内]
     mode: derived_company
     company_keywords_include:
       - 信托
-    company_keywords_exclude: []
+    company_keywords_exclude:
+      - 信托管理       # noise: 业务岗位标题
+    window_days: 180
     note: |
-      派生赛道。已知数据：交银国际信托 / 中国对外经济贸易信托 / 云南国际信托
-      / 中粮信托 / 平安信托 / 国投泰康信托 / 华润深国投信托 / 光大兴陇信托
-      / 中建投信托 / 中信信托 等 10+ 家。
+      派生赛道。信托子公司通常 piggyback 母集团 portal (中信/平安/华能/国投/
+      浦发/五矿/光大/建信/华润 等)。SAIF 流量较低,但作为完整买方覆盖一环。
+      已知数据样例: 中信信托 / 平安信托 / 建信信托 / 华润信托 (Wintalent
+      crc.wintalent.cn 独立 wired) / 中粮信托 / 国投泰康 / 中建投信托。
+      window=180d (跟 bank_wealth / insurance_am / securities_am 一致),
+      30d 太短跨不过信托季节性招聘空窗。
 
   # ─────────────────────────── 期货 ──────────────────────────────
   # mode=derived_company：期货子公司基本走母公司证券 portal (中信/国泰君安/
