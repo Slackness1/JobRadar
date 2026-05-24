@@ -35,14 +35,21 @@ def _query_active_by_company_keywords(
     exclude: list[str],
     days: int = 7,
     title_keywords_include: list[str] | None = None,
+    standalone_entity_keywords: list[str] | None = None,
 ) -> dict[str, int]:
     """For `derived_company` mode: pull from jobs table directly by company-name
     keyword, since these companies are surfaced through other crawlers (banks /
     insurers / etc) rather than having dedicated CompanyCrawlLog rows.
 
-    Optional `title_keywords_include`: further AND-filter by job_title LIKE.
-    Used for sub-direction tracks like "大行管培" where the parent crawler
-    already collected the bank rows, and we just need to surface a subset.
+    Optional `title_keywords_include`: further AND-filter by job_title or
+    department LIKE. Used for sub-direction tracks like "大行管培" where the
+    parent crawler already collected the bank rows, and we just need to
+    surface a subset.
+
+    Optional `standalone_entity_keywords`: bypass the title-keyword filter
+    when company itself contains one of these (e.g. "证券资产管理" — those
+    rows are already-named subsidiary entities, their job_title rarely
+    contains "资管" but they all qualify).
 
     Returns {company: count_in_window}.
     """
@@ -50,21 +57,22 @@ def _query_active_by_company_keywords(
         return {}
     since = datetime.utcnow() - timedelta(days=days)
     filters = [Job.company.like(f"%{kw}%") for kw in include]
-    # Use scraped_at if present, else created_at (some legacy rows lack created_at).
-    # COALESCE-style: row in window if scraped_at OR created_at falls in window.
     age_filter = or_(Job.scraped_at >= since, Job.created_at >= since)
     q = db.query(Job.company).filter(or_(*filters), age_filter)
     if exclude:
         for kw in exclude:
             q = q.filter(~Job.company.like(f"%{kw}%"))
     if title_keywords_include:
-        # Check BOTH job_title AND department — sub-direction signals often live in
-        # the department field (e.g., 中金 dept="投资银行" / 华泰 dept="投资管理业务"
-        # / 招商 dept="招商证券资产管理有限公司")。
-        title_filters = []
+        # title/dept filter — but allow standalone-entity bypass: if company name
+        # itself looks like a subsidiary entity (含 "证券资产管理"/"理财有限" 等),
+        # we skip the title check since title field won't carry "资管" keyword.
+        title_filters: list = []
         for kw in title_keywords_include:
             title_filters.append(Job.job_title.like(f"%{kw}%"))
             title_filters.append(Job.department.like(f"%{kw}%"))
+        if standalone_entity_keywords:
+            for kw in standalone_entity_keywords:
+                title_filters.append(Job.company.like(f"%{kw}%"))
         q = q.filter(or_(*title_filters))
     out: dict[str, int] = {}
     for (company,) in q.all():
@@ -171,6 +179,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
             include = track.get("company_keywords_include") or []
             exclude = track.get("company_keywords_exclude") or []
             title_include = track.get("title_keywords_include") or []
+            standalone_entity = track.get("standalone_entity_keywords") or []
             # Default 30d for derived tracks: parent crawlers re-pull weekly
             # at best, and futures/trust seasonal cycles mean 7d misses 90% of
             # data. 30d strikes the right balance.
@@ -178,6 +187,7 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
             active_map = _query_active_by_company_keywords(
                 db, include, exclude, days=window_days,
                 title_keywords_include=title_include or None,
+                standalone_entity_keywords=standalone_entity or None,
             )
             tracks_out.append({
                 "id": track["id"],

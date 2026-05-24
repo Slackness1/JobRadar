@@ -464,6 +464,7 @@ tracks:
     canonical_tracks: [二级买方·基本面, 二级买方·量化]
     mode: derived_company
     company_keywords_include:
+      # A 档头部 (母券商 piggyback)
       - 中金
       - 中信证券
       - 华泰证券
@@ -474,20 +475,55 @@ tracks:
       - 海通证券
       - 光大证券
       - 国信证券
+      # B 档 + 资管子在母 portal piggyback
+      - 申万宏源
+      - 东方证券
+      - 长江证券
+      - 兴业证券
+      - 平安证券
+      - 银河证券
+      - 财通证券
+      - 国金证券
+      - 长城证券
+      - 东北证券
+      - 国联证券
+      - 万联证券
+      # 独立 entity 直接命中 (Tata 抓到的 XX 证券资产管理 公司)
+      - 证券资产管理
+      - 证券资管
     company_keywords_exclude:
       - 中信银行       # 防止"中信"误命中银行
+      - 中信信托       # 同上
+      - 中信期货       # 同上
     title_keywords_include:
       - 资管
       - 资产管理
       - 投资管理      # 华泰 dept="投资管理业务" 用此
-      - 固定收益
+      - 固定收益投资
       - 权益投资
-    window_days: 30
+      - 大类资产配置
+      - 组合管理
+      # 母券商 portal 用的资管事业部命名 (平安证券 / 东北证券 等)
+      - 资管事业部
+      - 资产管理事业部
+      - 资产管理总部
+    standalone_entity_keywords:
+      # 当 company 字段含这些后缀时,跳过 title filter — 这些是独立法人
+      # entity (Tata 抓到的 XX 证券资产管理 公司),其 title 通常就是普通投研
+      # 岗 (量化研究员 / 固收交易岗 / 行业研究员 等),不会含"资管"字眼。
+      - 证券资产管理
+      - 证券资管
+      - 证券资本
+    window_days: 180
     note: |
       派生赛道。和 asset_mgmt 不同 — 后者按 company name 抓"理财/资管"独立公司;
       此 track 按母券商 + title/department 关键词抓 piggyback 子公司岗位。
       P0 新加华泰资管 (htam.zhiye.com) 也会通过 company="华泰资管" 命中 asset_mgmt
       和这里 — 不重复计数 (各 track 独立呈现)。
+      2026-05-24 扩展: 加 12 家 B 档券商 + 10 家独立 entity (财通/国金/东证融汇/
+      东方红/招商/国信/长城/兴证/万联/国联 证券资管),发现平安证券 portal
+      dept='证券总部资产管理事业部' 含 9 岗 (平安证券资管)。
+      window=180d 跟 insurance_am 一致,覆盖完整春秋招周期。
 
   # ───────────────────────── 大行管培 ────────────────────────────
   # mode=derived_company + title 关键词：4 大行管培岗位本身已被 bank_official
