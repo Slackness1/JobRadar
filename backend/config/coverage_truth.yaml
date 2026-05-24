@@ -443,9 +443,9 @@ tracks:
 
   # ─────────────────────────── 信托 ──────────────────────────────
   # mode=derived_company：信托子公司基本走母公司 portal (中信集团/平安集团/
-  # 华能集团/国投/浦发/五矿)，已经被其它 crawler 顺带抓到。subagent
-  # scout 后单独 wire 华润信托 (Wintalent crc.wintalent.cn) 作为 standalone
-  # 补充，写入时仍命中 keyword=信托，所以也会在派生表里出现。
+  # 华能集团/国投/浦发/五矿)，已经被其它 crawler 顺带抓到。
+  # 华润信托 (crc.wintalent.cn) 需要企业登录，无公开 API；通过 Tata 聚合数据
+  # 以"华润深国投信托有限公司"出现(已有 2 条)。
   - id: trust
     name: 信托
     canonical_tracks: [二级买方·基本面, 监管·体制内]
@@ -458,8 +458,8 @@ tracks:
     note: |
       派生赛道。信托子公司通常 piggyback 母集团 portal (中信/平安/华能/国投/
       浦发/五矿/光大/建信/华润 等)。SAIF 流量较低,但作为完整买方覆盖一环。
-      已知数据样例: 中信信托 / 平安信托 / 建信信托 / 华润信托 (Wintalent
-      crc.wintalent.cn 独立 wired) / 中粮信托 / 国投泰康 / 中建投信托。
+      已知数据样例: 中信信托 / 平安信托 / 建信信托 / 华润深国投信托 /
+      中粮信托 / 国投泰康 / 中建投信托。
       window=180d (跟 bank_wealth / insurance_am / securities_am 一致),
       30d 太短跨不过信托季节性招聘空窗。
 
