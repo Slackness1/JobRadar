@@ -445,7 +445,7 @@ def crawl_wintalent_sc_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 # ---- Tagging helpers for source sub-strings --------------------------------
 
-_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "zhiye_spa", "wintalent_sc"}
+_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "zhiye_spa", "wintalent_sc", "phfund_api"}
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "hotjob":            "funds_hotjob",
@@ -454,7 +454,79 @@ _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "zhiye_beisen_cms":  "funds_zhiye_beisen_cms",
     "zhiye_spa":         "funds_zhiye_spa",
     "wintalent_sc":      "funds_wintalent_sc",
+    "phfund_api":        "funds_phfund_api",
 }
+
+
+# ---- 鹏华基金 (job.phfund.com.cn) POST JSON API ---------------------------
+
+def crawl_phfund_api_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """鹏华基金 job portal: POST /general/demand/listDemandPage with JSON body.
+
+    Returns up to max_pages×page_size records (校招+社招+实习 combined).
+    API includes `professionCharacter` field to distinguish stages.
+    Detail URL: https://job.phfund.com.cn/#/postdetail?id=<id>
+    """
+    company = target.get("name", "鹏华基金")
+    base = "https://job.phfund.com.cn"
+    max_pages = int(target.get("max_pages") or 10)
+    page_size = 100
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+        "Referer": f"{base}/",
+        "Origin": base,
+        "Content-Type": "application/json",
+    }
+    records: List[Dict[str, Any]] = []
+    seen: set = set()
+    for page_no in range(1, max_pages + 1):
+        try:
+            resp = requests.post(
+                f"{base}/general/demand/listDemandPage",
+                json={"page": page_no, "size": page_size},
+                headers=headers,
+                timeout=20,
+                proxies=REQUEST_PROXIES or None,
+            )
+        except Exception:
+            break
+        if resp.status_code != 200:
+            break
+        data = (resp.json() or {}).get("data") or {}
+        items = data.get("list") or []
+        if not items:
+            break
+        total = int(data.get("total") or 0)
+        for item in items:
+            jid = str(item.get("id") or "").strip()
+            if not jid or jid in seen:
+                continue
+            seen.add(jid)
+            char = (item.get("professionCharacter") or "").strip()
+            stage = "internship" if char == "实习" else ("campus" if char == "校招" else "social")
+            records.append({
+                "job_id": _hash_id("funds_phfund_api", company, jid),
+                "source": "funds_phfund_api",
+                "company": company,
+                "company_type_industry": "公募基金",
+                "company_tags": "phfund",
+                "department": (item.get("entryDep") or "").strip(),
+                "job_title": (item.get("jobName") or "").strip(),
+                "location": (item.get("workAddress") or "未知").strip(),
+                "major_req": "",
+                "job_req": (item.get("jobRequirements") or "").strip(),
+                "job_duty": (item.get("responsibility") or "").strip(),
+                "application_status": "待申请",
+                "job_stage": stage,
+                "source_config_id": f"funds_phfund_api:{company}:{jid}",
+                "publish_date": _parse_dt((item.get("releaseDate") or "").strip()),
+                "deadline": _parse_dt((item.get("blockingTime") or "").strip()),
+                "detail_url": f"{base}/#/postdetail?id={jid}",
+                "scraped_at": datetime.utcnow(),
+            })
+        if len(records) >= total or page_no * page_size >= total:
+            break
+    return records
 
 
 def _override_source(records: List[Dict[str, Any]], family: str) -> None:
@@ -500,6 +572,8 @@ def crawl_configured_funds_targets(
             crawled = crawl_zhiye_spa_target(target)
         elif family == "wintalent_sc":
             crawled = crawl_wintalent_sc_target(target)
+        elif family == "phfund_api":
+            crawled = crawl_phfund_api_target(target)
         else:
             crawled = []
         _override_source(crawled, family)

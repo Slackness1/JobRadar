@@ -189,6 +189,7 @@ tracks:
       - funds_moka_embedded
       - funds_zhiye_beisen_cms
       - funds_wintalent_sc
+      - funds_phfund_api
     mode: enumerate
     t1_companies:
       - name: 易方达基金
@@ -207,7 +208,7 @@ tracks:
       - name: 富国基金
       - name: 兴证全球基金
       - name: 鹏华基金
-        deferred_reason: 整站 SPA 重定向到 Aplus 钱包 app
+      - name: 永赢基金
       - name: 汇添富基金
         deferred_reason: 域名不响应
       - name: 海富通基金

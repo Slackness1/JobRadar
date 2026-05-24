@@ -165,11 +165,11 @@ sites:
     note: 2026-05-10 Wintalent 自助站 sc.hotjob.cn/wt/AIFMC/ (slug=AIFMC)；校招+社招+实习+储备 ~23+ 条。原 xqfunds.com SPA 无 ATS hook。
 
   - name: 鹏华基金
-    entry_url: https://www.phfund.com.cn/about/recruit/recruit_index.shtml
-    ats_family: other
-    backlog_status: official_dynamic_ok
+    entry_url: https://job.phfund.com.cn/#/
+    ats_family: phfund_api
     category: 头部公募
-    note: "2026-05-23 重探：自家 Vue SPA (manifest/vendor/app.js)，HTML 2.5kB shell，招聘列表全 JS 渲染。phfund.zhiye.com / phfund.mokahr.com 均未注册。下一 sprint 上 Playwright handler 即可激活。"
+    max_pages: 5
+    note: "2026-05-24: 专属 job portal at job.phfund.com.cn。POST /general/demand/listDemandPage JSON API，校招+实习+社招全量，实测 62 条。"
 
   - name: 大成基金
     entry_url: https://www.dcfund.com.cn/
