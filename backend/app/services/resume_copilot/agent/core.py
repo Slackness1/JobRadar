@@ -45,10 +45,16 @@ _MALFORMED_RETRY = (
 
 
 def _call_llm(messages: list[dict], timeout_seconds: int = 30) -> str:
-    client = build_resume_llm_client()
+    # Phase 2 (2026-05-24): PlanMode ReAct agent — pro + reasoning=medium。
+    # 每步 LLM call 学生等 ~10-15s 可接受 (Plan 是分步 reveal),pro 的 thinking
+    # 帮助 agent 做更准的工具选择 + evidence 路由。
+    from app import config
+    client = build_resume_llm_client(model=config.RESUME_AGENT_MODEL)
     payload = {
         'model': client.model,
         'response_format': {'type': 'json_object'},
+        'reasoning_effort': 'medium',
+        'max_tokens': 10000,
         'messages': messages,
         'stream': False,
     }
@@ -105,7 +111,8 @@ class ReActAgent:
         direction_results: list | None = None,
     ) -> list[ResumeRecommendationItem]:
         candidates_by_id = {item.job_id: item for item in candidates}
-        client = build_resume_llm_client()
+        from app import config
+        client = build_resume_llm_client(model=config.RESUME_AGENT_MODEL)
         messages: list[dict] = [
             {'role': 'system', 'content': build_system_prompt(profile, preferences, candidates, self.budget, direction_results=direction_results)}
         ]

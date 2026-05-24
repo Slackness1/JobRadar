@@ -219,7 +219,8 @@ def _llm_extract(
 ) -> Optional[list[ParsedDraft]]:
     """Returns None if LLM failed (caller should fallback), [] / [...] if LLM ran."""
     try:
-        client = build_resume_llm_client()
+        from app import config
+        client = build_resume_llm_client(model=config.TEACHER_ENTRY_MODEL)
     except Exception:
         return None
     if not client.api_key:
@@ -236,10 +237,14 @@ def _llm_extract(
             f'如果都不像投递链接就保持 detail_url 为空]:\n{qr_block}\n\n{user_content}'
         )
 
+    # Phase 2 (2026-05-24): pro + reasoning_effort=high。老师端是 admin one-shot
+    # 解析,质量决定 ingest 进知识库的岗位准确度,值 pro。
     payload = {
         'model': client.model,
         'temperature': 0.1,
         'response_format': {'type': 'json_object'},
+        'reasoning_effort': 'high',
+        'max_tokens': 8000,
         'messages': [
             {'role': 'system', 'content': _LLM_SYSTEM_PROMPT},
             {'role': 'user', 'content': user_content},

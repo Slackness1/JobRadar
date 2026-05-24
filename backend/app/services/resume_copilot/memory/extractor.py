@@ -334,12 +334,17 @@ def _call_extractor_llm(
         messages.extend(extra_user_messages)
     try:
         client = _build_llm_client()
+        # Phase 2 (2026-05-24): pro + reasoning_effort=high。Memory extractor 跑
+        # 在 chat-end background task,不阻塞 UI;质量直接决定后续 cross-session
+        # 召回。max_tokens 升到 8k 留 thinking 头空。
+        from app import config as _config
         resp = client.chat.completions.create(
-            model=RESUME_COPILOT_LLM_MODEL,
+            model=_config.MEMORY_EXTRACTOR_MODEL,
             messages=messages,
             temperature=0.1,
-            max_tokens=4000,
+            max_tokens=8000,
             response_format={"type": "json_object"},
+            extra_body={"reasoning_effort": "high"},
         )
         try:
             usage = getattr(resp, 'usage', None)

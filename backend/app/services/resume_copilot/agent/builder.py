@@ -63,10 +63,14 @@ SYSTEM_PROMPT = """\
 
 
 def _default_caller(messages: list[dict[str, str]], timeout_seconds: int = 30) -> str:
-    client = build_resume_llm_client()
+    # Phase 2 (2026-05-24): builder agent (Plan finalize 写 draft) — pro + medium。
+    from app import config
+    client = build_resume_llm_client(model=config.RESUME_AGENT_MODEL)
     payload = {
         "model": client.model,
         "response_format": {"type": "json_object"},
+        "reasoning_effort": "medium",
+        "max_tokens": 10000,
         "messages": messages,
         "stream": False,
     }

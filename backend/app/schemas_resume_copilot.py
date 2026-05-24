@@ -199,6 +199,53 @@ class ResumeRecommendationResultOut(BaseModel):
     error_message: str = ''
 
 
+class ResumeRecommendationPlatformJobBrief(BaseModel):
+    """Per-platform 卡片 expand 后显示的岗位摘要。完整字段走原 items endpoint。"""
+    job_id: str
+    job_title: str
+    final_score: int
+    priority_letter: str = ''
+    tier_label: str = ''
+    is_internship: bool = False
+    location: str = ''
+    detail_url: str = ''
+
+
+class ResumeRecommendationPlatform(BaseModel):
+    """聚合后的"平台卡片" — Phase 3 (2026-05-24) 主响应单元。
+
+    rule:
+      - 同 company 下所有 jobs 聚合到一张 PlatformCard
+      - platform_score = jobs 里最高 final_score (排序用)
+      - priority_letter / tier_label = 取最佳 (A > B > C > D, 强匹配 > 可迁移 > 有差距)
+      - top_jobs 按 final_score 取 top 3 (实习+校招 混合), all_job_ids 保留全部
+      - n_xhs_insights 来自 XHS 知识库 company_target 命中数 — 0 也展示但不挂 chip
+    """
+    company: str
+    company_priority_label: str = ''
+    company_priority_tier: str = ''
+    platform_score: int = 0
+    n_jobs: int = 0
+    n_campus: int = 0
+    n_internship: int = 0
+    n_xhs_insights: int = 0
+    track_match_kind: str = ''
+    priority_letter: str = ''
+    tier_label: str = ''
+    matched_track_label: str = ''
+    top_jobs: list[ResumeRecommendationPlatformJobBrief] = []
+    all_job_ids: list[str] = []
+
+
+class ResumeRecommendationPlatformsOut(BaseModel):
+    session_id: int
+    status: str = ''
+    platforms: list[ResumeRecommendationPlatform] = []
+    n_total_jobs: int = 0
+    used_ai: bool = False
+    fallback_reason: str = ''
+
+
 class ResumeFeedbackDiagnosticItem(BaseModel):
     title: str
     description: str

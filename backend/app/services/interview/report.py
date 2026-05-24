@@ -189,7 +189,8 @@ def generate_interview_report(
         f"{'面试官' if m['role'] == 'assistant' else '候选人'}：{m['content']}"
         for m in messages
     )
-    client = build_resume_llm_client()
+    from app import config
+    client = build_resume_llm_client(model=config.INTERVIEW_REPORT_MODEL)
     system_prompt = (
         _build_report_system_prompt(track=track) if track else _REPORT_SYSTEM_PROMPT
     )
@@ -756,9 +757,13 @@ def _cap_for_mentor_fallback(report: dict, count: int) -> None:
 
 def _call_report_llm(client, system_prompt: str, user_content: str, *, n_attempts: int) -> str:
     """Up to n_attempts HTTP calls. Returns content string ('' on all-failure)."""
+    # Phase 2 (2026-05-24): pro + reasoning_effort=high。模拟面试终评是 SAIF
+    # 老师直接对比 AI 反馈质量的高 stake 节点,one-shot,学生面完愿意等 1-2 min。
     payload = {
         'model': client.model,
         'response_format': {'type': 'json_object'},
+        'reasoning_effort': 'high',
+        'max_tokens': 16000,
         'messages': [
             {'role': 'system', 'content': system_prompt},
             {'role': 'user', 'content': user_content},

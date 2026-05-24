@@ -80,7 +80,59 @@ RESUME_COPILOT_LLM_BASE_URL = os.environ.get(
 RESUME_COPILOT_LLM_API_KEY = os.environ.get("RESUME_COPILOT_LLM_API_KEY") or os.environ.get("DEEPSEEK_API_KEY", "")
 RESUME_COPILOT_LLM_MODEL = os.environ.get(
     "RESUME_COPILOT_LLM_MODEL",
-    "deepseek-chat" if os.environ.get("DEEPSEEK_API_KEY") else "glm-5.0",
+    "deepseek-v4-flash" if os.environ.get("DEEPSEEK_API_KEY") else "glm-5.0",
+)
+# Per-scenario model overrides — 2026-05-24 Phase 2:
+#   - Interview 终评报告 / Intel 卡片 / Recommend rerank / Parser / Direction /
+#     Knowledge pack / Memory extractor / Teacher entry / Plan agent: pro + reasoning high
+#   - Resume rewrite chat: 回 flash + reasoning low (latency 敏感,学生改一次等 60s
+#     体验崩,见 user feedback 2026-05-24)
+#   - Interview orchestrator (per-turn 三路并行 fan-out): flash + low (3s budget)
+RESUME_COPILOT_REWRITE_MODEL = os.environ.get(
+    "RESUME_COPILOT_REWRITE_MODEL",
+    RESUME_COPILOT_LLM_MODEL,  # flash (latency-critical, see 2026-05-24 plan)
+)
+INTERVIEW_REPORT_MODEL = os.environ.get(
+    "INTERVIEW_REPORT_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+INTEL_MODEL_NAME = os.environ.get(
+    "INTEL_MODEL_NAME",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+# Recommendation rerank: SAIF 学生看到的 top-10 由这个调用决定,升 pro + thinking high
+# (Phase 2 2026-05-24). 单次 ~$0.01 (10-20 items, output ~3-5k tokens after thinking),
+# 校招期每人 ~3 次重排 ~ $0.03 / 学生,完全可接受。
+RECOMMEND_RERANK_MODEL = os.environ.get(
+    "RECOMMEND_RERANK_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+# Phase 2 (2026-05-24) — 时间不敏感场景统一升 pro + reasoning_effort=high。
+# 这些都是 one-shot 调用(简历上传 / 方向分析 / 知识包 ingest / 学生记忆抽取 /
+# 老师端解析 / PlanMode agent),学生等几十秒到一分钟换 SAIF 老师看得见的质量。
+RESUME_PARSER_MODEL = os.environ.get(
+    "RESUME_PARSER_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+DIRECTION_ANALYSIS_MODEL = os.environ.get(
+    "DIRECTION_ANALYSIS_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+KNOWLEDGE_PACK_MODEL = os.environ.get(
+    "KNOWLEDGE_PACK_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+MEMORY_EXTRACTOR_MODEL = os.environ.get(
+    "MEMORY_EXTRACTOR_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+TEACHER_ENTRY_MODEL = os.environ.get(
+    "TEACHER_ENTRY_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
+RESUME_AGENT_MODEL = os.environ.get(
+    "RESUME_AGENT_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
 )
 RESUME_COPILOT_LLM_TIMEOUT_SECONDS = _get_int_env("RESUME_COPILOT_LLM_TIMEOUT_SECONDS", 30)
 RESUME_COPILOT_RERANK_TOP_N = _get_int_env("RESUME_COPILOT_RERANK_TOP_N", 20)
@@ -108,8 +160,8 @@ AVATAR_INSTANCE_ID = os.environ.get("AVATAR_INSTANCE_ID", "")
 # Crawler LLM (cheap-and-fast for enrichment, stronger for diagnosis)
 CRAWLER_LLM_BASE_URL = os.environ.get("CRAWLER_LLM_BASE_URL", RESUME_COPILOT_LLM_BASE_URL)
 CRAWLER_LLM_API_KEY = os.environ.get("CRAWLER_LLM_API_KEY", RESUME_COPILOT_LLM_API_KEY)
-CRAWLER_LLM_FLASH_MODEL = os.environ.get("CRAWLER_LLM_FLASH_MODEL", "deepseek-chat")
-CRAWLER_LLM_PRO_MODEL = os.environ.get("CRAWLER_LLM_PRO_MODEL", "deepseek-chat")
+CRAWLER_LLM_FLASH_MODEL = os.environ.get("CRAWLER_LLM_FLASH_MODEL", "deepseek-v4-flash")
+CRAWLER_LLM_PRO_MODEL = os.environ.get("CRAWLER_LLM_PRO_MODEL", "deepseek-v4-pro")
 CRAWLER_LLM_TIMEOUT_SECONDS = _get_int_env("CRAWLER_LLM_TIMEOUT_SECONDS", 30)
 
 # Feature flags — all OFF by default; flip via env

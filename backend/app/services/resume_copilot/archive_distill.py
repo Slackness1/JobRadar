@@ -93,7 +93,9 @@ def distill_for_archive(
 
     if llm_caller is None:
         try:
-            llm = build_resume_llm_client()
+            # Phase 2 (2026-05-24): archive distill 走 memory extractor 同款 pro。
+            # chat-end background, 不阻塞 UI;质量决定档案库精度。
+            llm = build_resume_llm_client(model=config.MEMORY_EXTRACTOR_MODEL)
         except Exception as exc:  # noqa: BLE001
             logger.warning('distill: LLM client init failed: %s', exc)
             return _fallback_distill(item_title, draft_text, evidence_texts)
@@ -111,7 +113,8 @@ def distill_for_archive(
                     {'role': 'user', 'content': user_prompt},
                 ],
                 response_format={'type': 'json_object'},
-                max_tokens=1500,
+                max_tokens=4000,
+                extra_body={'reasoning_effort': 'medium'},
             )
             content = resp.choices[0].message.content or '{}'
         except Exception as exc:  # noqa: BLE001 — LLM 失败 fall back

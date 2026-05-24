@@ -258,6 +258,45 @@ export const EMPTY_PROFILE: ResumeProfilePayload = {
   inferred_offices: [],
 };
 
+// ── Platform aggregation (Phase 3 BE + Phase 4 FE) ───────────────────────────
+
+export interface ResumeRecommendationPlatformJobBrief {
+  job_id: string;
+  job_title: string;
+  final_score: number;
+  priority_letter: string;
+  tier_label: string;
+  is_internship: boolean;
+  location: string;
+  detail_url: string;
+}
+
+export interface ResumeRecommendationPlatform {
+  company: string;
+  company_priority_label: string;
+  company_priority_tier: string;
+  platform_score: number;
+  n_jobs: number;
+  n_campus: number;
+  n_internship: number;
+  n_xhs_insights: number;
+  track_match_kind: string;
+  priority_letter: string;
+  tier_label: string;
+  matched_track_label: string;
+  top_jobs: ResumeRecommendationPlatformJobBrief[];
+  all_job_ids: string[];
+}
+
+export interface ResumeRecommendationPlatformsOut {
+  session_id: number;
+  status: string;
+  platforms: ResumeRecommendationPlatform[];
+  n_total_jobs: number;
+  used_ai: boolean;
+  fallback_reason: string;
+}
+
 export const EMPTY_PREFERENCES: ResumePreferencePayload = {
   preferred_tracks: [],
   preferred_locations: [],

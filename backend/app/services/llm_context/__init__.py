@@ -72,7 +72,14 @@ def bootstrap() -> None:
     except Exception as exc:
         log.warning(f"PodcastContextProvider register failed: {exc}")
 
-    # 5. Track knowledge (Phase D, 2026-05-16) — 8 canonical 的 employers /
+    # 5. XHS RAG (2026-05-19) — 小红书帖子+评论 一手分享, 互补于 podcast 的深度访谈。
+    try:
+        from app.services.xhs.provider import XhsContextProvider
+        register(XhsContextProvider())
+    except Exception as exc:
+        log.warning(f"XhsContextProvider register failed: {exc}")
+
+    # 6. Track knowledge (Phase D, 2026-05-16) — 8 canonical 的 employers /
     #    signals / STAR / follow-up 模板。tracks.yaml 在 taxonomy module 里。
     try:
         from app.services.taxonomy.provider import TrackKnowledgeProvider

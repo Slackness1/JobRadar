@@ -18,18 +18,21 @@
  *   - 其他 panes(FE-3/FE-4 负责)
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I } from '@/components/hifi/hifi-primitives';
 import type {
   ResumeCopilotSession,
   ResumeRecommendationItem,
+  ResumeRecommendationPlatform,
   ResumeRecommendationResult,
 } from '../types';
 import {
+  getResumeCopilotPlatforms,
   postRejectRecommendation,
   type RecommendRejectReason,
 } from '../api';
 import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
+import { PlatformCard } from './recommend/PlatformCard';
 import { RecommendCard } from './recommend/RecommendCard';
 import { useFlipAnimation } from './recommend/use-flip-animation';
 
@@ -81,6 +84,11 @@ export function LeftRecommendRail({
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const [toast, setToast] = useState<string>('');
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(false);
+  // Platform view state (Phase 4)
+  const [viewMode, setViewMode] = useState<'platform' | 'campus' | 'intern'>('platform');
+  const [platforms, setPlatforms] = useState<ResumeRecommendationPlatform[] | null>(null);
+  const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
+  const platformFetchingRef = useRef(false);
 
   // "Adjusting state when props change" idiom (React 19): track previous
   // recommendations via a setState rather than a ref (react-compiler bans ref
@@ -94,6 +102,8 @@ export function LeftRecommendRail({
     setHiddenJobIds(new Set());
     setExpandedJobId(null);
     setBannerDismissed(false);
+    setPlatforms(null);
+    setExpandedCompany(null);
   }
 
   const flip = useFlipAnimation<string>();
@@ -115,8 +125,21 @@ export function LeftRecommendRail({
     () => allItems.filter((it) => it.is_internship),
     [allItems],
   );
-  const [activeTab, setActiveTab] = useState<'campus' | 'intern'>('campus');
-  const items = activeTab === 'campus' ? campusItems : internItems;
+  const items = viewMode === 'campus' ? campusItems : internItems;
+
+  // Prefetch platform data as soon as session has recommendations.
+  // (uses session?.id directly — sessionId alias is declared further below)
+  const sid = session?.id;
+  useEffect(() => {
+    if (!sid || platforms !== null || platformFetchingRef.current) return;
+    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
+    if (!recReady) return;
+    platformFetchingRef.current = true;
+    getResumeCopilotPlatforms(sid)
+      .then((r) => setPlatforms(r.platforms ?? []))
+      .catch(() => setPlatforms([]))
+      .finally(() => { platformFetchingRef.current = false; });
+  }, [sid, platforms, recommendations]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -190,9 +213,10 @@ export function LeftRecommendRail({
   // ── Render ─────────────────────────────────────────────────────────────────
   const sessionReady = session?.has_recommendations === true;
   const isGeneratingRecommendations = session?.recommendation_status === 'running';
-  const totalCount = items.length;
-  const isUnderfilled = sessionReady && totalCount > 0 && totalCount < 5;
-  const isEmpty = sessionReady && totalCount === 0;
+  const jobsCount = viewMode === 'campus' ? campusItems.length : internItems.length;
+  const totalCount = viewMode === 'platform' ? (platforms?.length ?? 0) : jobsCount;
+  const isUnderfilled = sessionReady && viewMode !== 'platform' && jobsCount > 0 && jobsCount < 5;
+  const isEmpty = sessionReady && viewMode !== 'platform' && jobsCount === 0;
 
   return (
     <aside className="workspace-hifi__pane workspace-hifi__pane--left" aria-label="推荐岗位">
@@ -207,22 +231,31 @@ export function LeftRecommendRail({
       </header>
 
       {sessionReady && (
-        <div className="workspace-hifi__rec-tabs" role="tablist" aria-label="推荐类型">
+        <div className="workspace-hifi__rec-tabs" role="tablist" aria-label="推荐视图">
           <button
             type="button"
             role="tab"
-            aria-selected={activeTab === 'campus'}
-            className={`workspace-hifi__rec-tab${activeTab === 'campus' ? ' is-active' : ''}`}
-            onClick={() => setActiveTab('campus')}
+            aria-selected={viewMode === 'platform'}
+            className={`workspace-hifi__rec-tab${viewMode === 'platform' ? ' is-active' : ''}`}
+            onClick={() => setViewMode('platform')}
+          >
+            平台 <span className="workspace-hifi__rec-tab-count">{platforms?.length ?? 0}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'campus'}
+            className={`workspace-hifi__rec-tab${viewMode === 'campus' ? ' is-active' : ''}`}
+            onClick={() => setViewMode('campus')}
           >
             校招 <span className="workspace-hifi__rec-tab-count">{campusItems.length}</span>
           </button>
           <button
             type="button"
             role="tab"
-            aria-selected={activeTab === 'intern'}
-            className={`workspace-hifi__rec-tab${activeTab === 'intern' ? ' is-active' : ''}`}
-            onClick={() => setActiveTab('intern')}
+            aria-selected={viewMode === 'intern'}
+            className={`workspace-hifi__rec-tab${viewMode === 'intern' ? ' is-active' : ''}`}
+            onClick={() => setViewMode('intern')}
           >
             实习 <span className="workspace-hifi__rec-tab-count">{internItems.length}</span>
           </button>
@@ -277,7 +310,44 @@ export function LeftRecommendRail({
           </div>
         )}
 
-        {sessionReady && totalCount > 0 && (
+        {/* ── Platform view ─────────────────────────────────────────────── */}
+        {sessionReady && viewMode === 'platform' && (
+          <div className="workspace-hifi__rec-list" role="list">
+            {platforms === null && (
+              <div className="workspace-hifi__rec-empty">
+                <CoachThinkingIndicator
+                  active
+                  label="正在聚合平台…"
+                  orbSize={96}
+                  minVisibleMs={0}
+                />
+              </div>
+            )}
+            {platforms !== null && platforms.map((p, idx) => (
+              <div key={p.company} className="workspace-hifi__rec-list-item" role="listitem">
+                <PlatformCard
+                  platform={p}
+                  rank={idx + 1}
+                  isExpanded={expandedCompany === p.company}
+                  onToggle={() =>
+                    setExpandedCompany((prev) => (prev === p.company ? null : p.company))
+                  }
+                />
+              </div>
+            ))}
+            {platforms !== null && platforms.length === 0 && (
+              <div className="workspace-hifi__rec-empty">
+                <span className="workspace-hifi__rec-empty-title">暂无平台数据</span>
+                <span className="workspace-hifi__rec-empty-hint">
+                  切到校招 / 实习 tab 查看原始推荐列表。
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Jobs view (campus / intern) ───────────────────────────────── */}
+        {sessionReady && viewMode !== 'platform' && totalCount > 0 && (
           <div className="workspace-hifi__rec-list" role="list">
             {items.map((item, idx) => {
               const jobId = String(item.job_id);

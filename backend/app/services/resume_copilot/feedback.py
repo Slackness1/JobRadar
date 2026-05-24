@@ -29,7 +29,12 @@ class ResumeFeedbackProvider(Protocol):
 
 class OpenAICompatibleResumeFeedbackProvider:
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        # Phase 2 (2026-05-24): 升 pro + reasoning=high。简历诊断 + rewrite_examples
+        # 是学生看反馈页第一眼的内容,one-shot,质量优先。
+        from app import config
+        self.client = client or build_resume_llm_client(
+            model=config.RESUME_PARSER_MODEL,
+        )
 
     def generate_feedback(
         self,
@@ -40,6 +45,8 @@ class OpenAICompatibleResumeFeedbackProvider:
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
+            'reasoning_effort': 'high',
+            'max_tokens': 12000,
             'messages': [
                 {
                     'role': 'system',
@@ -83,7 +90,8 @@ class OpenAICompatibleResumeFeedbackProvider:
 
 
 def build_resume_feedback_provider() -> ResumeFeedbackProvider:
-    client = build_resume_llm_client()
+    from app import config
+    client = build_resume_llm_client(model=config.RESUME_PARSER_MODEL)
     if not client.api_key:
         raise ValueError('RESUME_COPILOT_LLM_API_KEY is not configured')
     return OpenAICompatibleResumeFeedbackProvider(client=client)

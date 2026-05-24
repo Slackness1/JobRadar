@@ -452,7 +452,7 @@ def test_generate_interview_report_b3_drops_neidrli_in_mentor_fallback(monkeypat
         }, ensure_ascii=False)
     monkeypatch.setattr(report_mod, '_call_report_llm', fake_call_llm)
     # mock 客户端构造 (避免 import OpenAI key)
-    monkeypatch.setattr(report_mod, 'build_resume_llm_client', lambda: object())
+    monkeypatch.setattr(report_mod, 'build_resume_llm_client', lambda **kw: object())
 
     messages = [
         {'role': 'assistant', 'content': '讲一个项目'},

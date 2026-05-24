@@ -47,6 +47,7 @@ from app.schemas_resume_copilot import (
     ResumeParsedProfileOut,
     ResumePreferencePayload,
     ResumeRecommendationItem,
+    ResumeRecommendationPlatformsOut,
     ResumeRecommendationResultOut,
     RewriteOption,
     RewriteV0V2In,
@@ -570,6 +571,50 @@ def get_resume_copilot_recommendations(
         fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
         error_message=str(getattr(recommendation_run, 'error_message', '') or ''),
         items=[ResumeRecommendationItem.model_validate(item) for item in json.loads(str(recommendations_json))],
+    )
+
+
+@router.get(
+    '/sessions/{session_id}/recommendations/platforms',
+    response_model=ResumeRecommendationPlatformsOut,
+)
+def get_resume_copilot_recommendation_platforms(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Phase 3 (2026-05-24) — 返回按公司聚合的"平台卡片"列表。
+
+    数据源同 items endpoint(共用 ResumeRecommendationRun.recommendations_json),
+    不重跑 LLM rerank。每个 platform 携带:
+      - platform_score (max final_score)
+      - n_jobs / n_campus / n_internship
+      - n_xhs_insights (XHS 同辈情报数, 来自 KB)
+      - top_jobs (top 3) + all_job_ids (全量, 给 FE expand 时反查 items)
+      - priority_letter / tier_label / track_match_kind (best of jobs)
+    """
+    from app.services.resume_copilot.platform_aggregator import aggregate_by_company
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    recommendation_run = db.query(ResumeRecommendationRun).filter(
+        ResumeRecommendationRun.session_id == session_id
+    ).first()
+    if not recommendation_run:
+        raise HTTPException(status_code=404, detail=f'Recommendations for session {session_id} not found')
+
+    recommendations_json: Any = getattr(recommendation_run, 'recommendations_json', '[]') or '[]'
+    items = [
+        ResumeRecommendationItem.model_validate(it)
+        for it in json.loads(str(recommendations_json))
+    ]
+    platforms = aggregate_by_company(items, db=db)
+    return ResumeRecommendationPlatformsOut(
+        session_id=session_id,
+        status=str(getattr(recommendation_run, 'status', '') or ''),
+        platforms=platforms,
+        n_total_jobs=len(items),
+        used_ai=bool(getattr(recommendation_run, 'used_ai', 0)),
+        fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
     )
 
 

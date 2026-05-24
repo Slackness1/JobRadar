@@ -30,7 +30,10 @@ class DirectionAnalysisProvider(Protocol):
 
 class OpenAICompatibleDirectionAnalysisProvider:
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        from app import config
+        self.client = client or build_resume_llm_client(
+            model=config.DIRECTION_ANALYSIS_MODEL,
+        )
 
     def analyze_directions(
         self,
@@ -38,9 +41,13 @@ class OpenAICompatibleDirectionAnalysisProvider:
         preferences: ResumePreferencePayload | None,
         directions: list[str],
     ) -> list[dict[str, Any]]:
+        # Phase 2 (2026-05-24): pro + reasoning_effort=high。方向分析是引导
+        # 学生看清自己赛道的关键 LLM,one-shot,质量 > 延迟。
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
+            'reasoning_effort': 'high',
+            'max_tokens': 8000,
             'messages': [
                 {'role': 'system', 'content': _SYSTEM_PROMPT},
                 {

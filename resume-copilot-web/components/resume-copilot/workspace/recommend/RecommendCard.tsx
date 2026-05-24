@@ -16,6 +16,7 @@ import { useState } from 'react';
 import type { ResumeRecommendationItem } from '../../types';
 import type { RecommendRejectReason } from '../../api';
 import { I } from '@/components/hifi/hifi-primitives';
+import { RecommendCardIntelSection } from './RecommendCardIntelSection';
 import { RecommendRejectForm } from './RecommendRejectForm';
 
 export interface RecommendCardProps {
@@ -238,6 +239,12 @@ export function RecommendCard({
               </ul>
             </div>
           )}
+
+          <RecommendCardIntelSection
+            company={item.company}
+            jobTitle={item.job_title}
+            isVisible={isExpanded}
+          />
 
           {!rejectOpen && (
             <div className="workspace-hifi__rec-card-actions">

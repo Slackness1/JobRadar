@@ -200,12 +200,18 @@ def _try_parse_chat_json(content: str) -> dict | None:
 
 class OpenAICompatibleChatLLMProvider:
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        from app import config
+        self.client = client or build_resume_llm_client(model=config.RESUME_COPILOT_REWRITE_MODEL)
 
     def _raw_call(self, messages_payload: list[dict]) -> str:
+        # Phase 2 (2026-05-24): flash + reasoning_effort=low。改写场景学生改一次
+        # 就等 60s 体感太差,牺牲一点深度换 ~5-8s 延迟。max_tokens 给 thinking
+        # 留点头空(~1k)就够。
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
+            'reasoning_effort': 'low',
+            'max_tokens': 6000,
             'messages': messages_payload,
         }
         req = urllib_request.Request(
@@ -1129,12 +1135,16 @@ class OpenAICompatibleV2RewriteLLMProvider:
     """
 
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        from app import config
+        self.client = client or build_resume_llm_client(model=config.RESUME_COPILOT_REWRITE_MODEL)
 
     def generate_v2(self, messages_payload: list[dict]) -> dict[str, Any]:
+        # Phase 2 (2026-05-24): 同 ChatLLMProvider — flash + low + max_tokens 留头空。
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
+            'reasoning_effort': 'low',
+            'max_tokens': 6000,
             'messages': messages_payload,
         }
         req = urllib_request.Request(

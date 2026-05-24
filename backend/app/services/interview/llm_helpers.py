@@ -62,10 +62,17 @@ class InterviewLLMClient:
             return ""
 
     def chat_json(self, system: str, user: str, **_kwargs) -> dict:
-        """Call LLM with JSON-mode forced. Returns {} on any failure."""
+        """Call LLM with JSON-mode forced. Returns {} on any failure.
+
+        Phase 2 (2026-05-24): flash + reasoning_effort=low — adaptive
+        follow-up / recall subagent / mentor-fallback 等都跑这条,per-turn
+        预算 ≤3s,不能等 thinking。
+        """
         raw = self._post({
             "model": self.model,
             "response_format": {"type": "json_object"},
+            "reasoning_effort": "low",
+            "max_tokens": 4000,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
@@ -81,6 +88,8 @@ class InterviewLLMClient:
         """Call LLM expecting a free-form text response. Returns '' on failure."""
         raw = self._post({
             "model": self.model,
+            "reasoning_effort": "low",
+            "max_tokens": 4000,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

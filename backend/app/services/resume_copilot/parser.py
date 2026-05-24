@@ -394,13 +394,20 @@ class ResumeParserProvider(Protocol):
 
 class OpenAICompatibleResumeParserProvider:
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        from app import config
+        self.client = client or build_resume_llm_client(
+            model=config.RESUME_PARSER_MODEL,
+        )
 
     def parse_resume_text(self, resume_text: str) -> Any:
+        # Phase 2 (2026-05-24): pro + reasoning_effort=high。简历上传是 SAIF 演示
+        # 第一个 LLM 入口,质量决定后面所有下游。学生愿意等 60-90s 换一份准的解析。
+        # max_tokens 升到 16000 留 thinking + 长简历 (50+ bullets) 头空。
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
-            'max_tokens': 8000,
+            'reasoning_effort': 'high',
+            'max_tokens': 16000,
             'stream': True,
             'stream_options': {'include_usage': True},
             'messages': [
@@ -1220,7 +1227,8 @@ def build_heuristic_resume_profile(resume_text: str) -> ResumeProfilePayload:
 
 
 def build_resume_parser_provider() -> ResumeParserProvider:
-    client = build_resume_llm_client()
+    from app import config
+    client = build_resume_llm_client(model=config.RESUME_PARSER_MODEL)
     if not client.api_key:
         raise ValueError('RESUME_COPILOT_LLM_API_KEY is not configured')
     return OpenAICompatibleResumeParserProvider(client=client)

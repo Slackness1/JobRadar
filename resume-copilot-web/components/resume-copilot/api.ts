@@ -11,6 +11,7 @@ import type {
   ResumePreferenceOut,
   ResumePreferencePayload,
   ResumeProfilePayload,
+  ResumeRecommendationPlatformsOut,
   ResumeRecommendationResult,
 } from './types';
 
@@ -313,6 +314,12 @@ export function postResumeCopilotGenerate(sessionId: number) {
 
 export function getResumeCopilotRecommendations(sessionId: number) {
   return requestJson<ResumeRecommendationResult>(`/api/resume-copilot/sessions/${sessionId}/recommendations`);
+}
+
+export function getResumeCopilotPlatforms(sessionId: number) {
+  return requestJson<ResumeRecommendationPlatformsOut>(
+    `/api/resume-copilot/sessions/${sessionId}/recommendations/platforms`,
+  );
 }
 
 export function getResumeCopilotFeedback(sessionId: number) {

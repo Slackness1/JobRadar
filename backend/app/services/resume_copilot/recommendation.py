@@ -143,7 +143,10 @@ class ResumeRecommendationProvider(Protocol):
 
 class OpenAICompatibleResumeRecommendationProvider:
     def __init__(self, client=None) -> None:
-        self.client = client or build_resume_llm_client()
+        from app import config
+        self.client = client or build_resume_llm_client(
+            model=config.RECOMMEND_RERANK_MODEL,
+        )
 
     def rerank_recommendations(
         self,
@@ -174,7 +177,14 @@ class OpenAICompatibleResumeRecommendationProvider:
             '- 只能引用 profile.internships / projects / education / skills / awards 里**已有**的字符串片段\n'
             '- 数字必须 verbatim 复用,不允许把"5 只"改写成"5+只" / "约 5 只"\n'
             '- 公司名必须 verbatim 复用,不允许把"易方达"改成"易方达基金"\n'
-            '- 严格禁止"覆盖 50 家公司"这种简历里没有的数字\n'
+            '- 严格禁止"覆盖 50 家公司"这种简历里没有的数字\n\n'
+            '**final_score 红线** (硬约束,违反视为不合格输出):\n'
+            '- 学生的目标赛道由 profile.inferred_tracks + preferences.preferred_tracks 决定\n'
+            '- 当 item.track_match_kind == "mismatch" 时,该岗位的赛道跟学生目标错位,'
+            'final_score **必须 ≤55** — 不论公司多强、岗位多新潮,都不要因品牌效应往上拉\n'
+            '- 当 item.tier_label == "有差距" 时,final_score 不应高于同批次"强匹配"岗位的中位数\n'
+            '- 跨大类错位 (如学生选 公募投研 → item 是 互联网算法 / 外企营销 / 国央企运营) '
+            '在 risks 第一条必须明示"赛道不符你选的方向"\n'
         )
         if per_job_context:
             system_msg += (
@@ -182,9 +192,15 @@ class OpenAICompatibleResumeRecommendationProvider:
                 '\n\n请在 strengths/risks/why_recommended 中**自然引用**上述洞察的关键判断，'
                 '但**禁止编造**洞察里没说的具体数字或公司细节。'
             )
+        # Phase 2 (2026-05-24): rerank 升 deepseek-v4-pro + reasoning_effort=high。
+        # V4 默认 thinking mode 会先吐 reasoning_content 再吐 json,token 会双花,
+        # 留 12k 头空避免空 content。max_tokens 上限走 model 默认 (~32k OK)。
         payload = {
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
+            'reasoning_effort': 'high',
+            'max_tokens': 12000,
+            'temperature': 0.0,
             'messages': [
                 {
                     'role': 'system',
@@ -917,6 +933,15 @@ def recommend_jobs_for_profile(
         # 加 risk note 告诉 user 为啥被降级。详见 docs/finance-tracks-2026-overview.md。
         low_quality_hit = is_low_quality_role(str(job.job_title or ''))
         track_match_kind, track_mismatch_penalty = _classify_track_match(job, preferences)
+        # Phase 1 (2026-05-24) — 跨大类 mismatch (公募投研 → 互联网算法 / 外企
+        # 营销 / 国央企非金融) 必须重罚。同大类内 mismatch (公募投研 → 公募固收)
+        # 仍走 -15 软惩罚,因为 transferable 信号还在。检测:job 的品牌 category
+        # 不在学生 target_category_keys 内。Brand 没匹配上时 (priority.score=0)
+        # 也按跨大类对待 — 没品牌信号说明既不是金融头部也不是学生目标。
+        if track_match_kind == 'mismatch' and target_category_keys:
+            pri_cat = priority.category_key
+            if not pri_cat or pri_cat not in target_category_keys:
+                track_mismatch_penalty = LOW_QUALITY_PENALTY  # = 50, 同低质量量级
         final_score_value = (
             enhanced_score
             - (LOW_QUALITY_PENALTY if low_quality_hit else 0)
@@ -994,8 +1019,8 @@ def recommend_jobs_for_profile(
     recommendations.sort(
         key=lambda item: (
             item.final_score,
+            item.base_match_score,
             item.objective_score,
-            item.base_job_score,
             item.preference_score,
             item.job_id,
         ),
@@ -1069,8 +1094,8 @@ def recommend_jobs_for_profile(
                     updated_recommendations.sort(
                         key=lambda item: (
                             item.final_score,
+                            item.base_match_score,
                             item.objective_score,
-                            item.base_job_score,
                             item.preference_score,
                             item.job_id,
                         ),

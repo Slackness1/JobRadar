@@ -19,6 +19,7 @@ from app.routers import (
     crawl,
     exclude,
     export,
+    intel_enrichment,
     interview,
     job_intel,
     jobs,
@@ -250,6 +251,7 @@ app.include_router(review_queue.router)
 app.include_router(system_health.router)
 app.include_router(podcast_rag.router)
 app.include_router(student_kb.router)
+app.include_router(intel_enrichment.router)
 
 from app.routers import auth as _auth_router  # noqa: E402
 app.include_router(_auth_router.router)

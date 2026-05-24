@@ -149,11 +149,15 @@ def stream_interview_turn(
     db: Optional[Session] = None,
     jd_content: Optional[str] = None,
 ) -> Iterator[str]:
+    # Phase 2 (2026-05-24): per-turn 流式生成 — flash + reasoning=low (latency
+    # 敏感, ≤3s budget)。V4 默认 thinking, reasoning=low 把 thinking 压到 ~40-100
+    # tokens 避免 first-byte 延迟。
     client = build_resume_llm_client()
     payload = {
         'model': client.model,
         'stream': True,
         'stream_options': {'include_usage': True},
+        'reasoning_effort': 'low',
         'messages': [
             {
                 'role': 'system',

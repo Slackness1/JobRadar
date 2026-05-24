@@ -26,12 +26,18 @@ def _llm_json(system_prompt: str, user_payload: str, *, max_tokens: int = 4000) 
     """Call the resume-copilot LLM with JSON-mode and return parsed JSON.
 
     Returns {} on any failure. Caller decides what to do with empty.
+
+    Phase 2 (2026-05-24): pro + reasoning_effort=high。知识包 ingest 是
+    admin 一次性 offline 跑 — verbatim quote / rubric / sensitive topic
+    必须高质量,值 pro 的 thinking。max_tokens 自动 *2 给 thinking 头空。
     """
-    client = build_resume_llm_client()
+    from app import config
+    client = build_resume_llm_client(model=config.KNOWLEDGE_PACK_MODEL)
     payload = {
         "model": client.model,
         "response_format": {"type": "json_object"},
-        "max_tokens": max_tokens,
+        "reasoning_effort": "high",
+        "max_tokens": max_tokens * 2,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_payload},
