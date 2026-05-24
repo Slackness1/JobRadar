@@ -131,33 +131,53 @@ tracks:
         # 股衍/机构/研究/两融/研发/风控合规/财务运营 业务助理),source=
         # securities_citics_dom。cookie 有效期 7d,需周期性 refresh。
       - name: 中金公司
+        jobs_company_match: [中金公司]
       - name: 华泰证券
-      - name: 国泰君安
-        deferred_reason: 自家 SPA 校招页 token 鉴权
-      - name: 海通证券
-        deferred_reason: 主域 SSL 异常 + 校招走 WeChat
+        # exclude '联合证券' 防止华泰联合 子公司被算到母 entry (单独 backlog 已配)
+        jobs_company_match: [华泰证券]
+      - name: 国泰海通
+        # 2026 合并后母券商。aliases 含历史名 国泰君安 / 海通证券
+        aliases: [国泰君安, 海通证券, 国泰海通]
+        # exclude '期货' 防止国泰君安期货子被算到母 (Tata 误标已 fix 但保险措施)
+        jobs_company_match: [国泰海通]
       - name: 招商证券
+        jobs_company_match: [招商证券]
       - name: 广发证券
+        jobs_company_match: [广发证券]
       - name: 中信建投
+        jobs_company_match: [中信建投]
       - name: 申万宏源
+        jobs_company_match: [申万宏源]
       - name: 东方证券
-        deferred_reason: 自家 SPA + token 鉴权
+        jobs_company_match: [东方证券股份有限公司, 东方证券]
+        # 注意: 东方证券资管 / 东方红资管 (上海东方证券资管) 应归 securities_am
       - name: 平安证券
         aliases: [平安集团, 平安证券]
-        # 同 平安保险 — 走 jobs_company_match 从 jobs 表回查
         jobs_company_match: [平安证券]
       - name: 银河证券
-        deferred_reason: 校招走 WeChat
+        jobs_company_match: [中国银河证券, 银河证券]
       - name: 兴业证券
+        jobs_company_match: [兴业证券]
       - name: 国信证券
+        jobs_company_match: [国信证券]
       - name: 长江证券
+        jobs_company_match: [长江证券]
       - name: 中泰证券
+        jobs_company_match: [中泰证券]
       - name: 东吴证券
+        jobs_company_match: [东吴证券]
       - name: 安信证券
+        # 安信改名 国投证券 — aliases 含两个
+        aliases: [安信证券, 国投证券]
+        jobs_company_match: [安信证券, 国投证券]
       - name: 国盛证券
+        jobs_company_match: [国盛证券]
       - name: 浙商证券
+        jobs_company_match: [浙商证券]
       - name: 国金证券
+        jobs_company_match: [国金证券]
       - name: 天风证券
+        jobs_company_match: [天风证券]
 
   # ─────────────────────────── 公募基金 ──────────────────────────
   - id: funds

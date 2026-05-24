@@ -139,9 +139,12 @@ def _resolve_status(
     keywords = company_def.get("jobs_company_match") or []
     if keywords and db is not None and since is not None:
         filters = [Job.company.like(f"%{kw}%") for kw in keywords]
+        # Same age filter as derived_company queries: scraped_at OR created_at
+        # (legacy Tata rows often have NULL created_at — see P1-D fix).
+        age_filter = or_(Job.scraped_at >= since, Job.created_at >= since)
         count = (
             db.query(func.count(Job.id))
-            .filter(or_(*filters), Job.created_at >= since)
+            .filter(or_(*filters), age_filter)
             .scalar()
             or 0
         )
@@ -232,8 +235,11 @@ def get_coverage(db: Session = Depends(get_db)) -> dict:
         active_count = 0
         deferred_count = 0
         missing_count = 0
-        # 7-day window for jobs_company_match fallback (matches active_map default)
-        since = datetime.utcnow() - timedelta(days=7)
+        # enumerate-mode jobs_company_match window. Default 60d (broader than
+        # 7d active_map for CompanyCrawlLog) — covers full春招/秋招 cycle
+        # and lets Tata-sourced T1 entities (大部分 t1 券商无独立 ATS) surface.
+        # Per-track override via 'jobs_match_window_days' yaml field.
+        since = datetime.utcnow() - timedelta(days=int(track.get("jobs_match_window_days") or 60))
 
         for c in track.get("t1_companies") or []:
             status, fetched, _alias = _resolve_status(c, active_map, db=db, since=since)
