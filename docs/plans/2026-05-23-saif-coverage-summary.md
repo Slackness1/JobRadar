@@ -43,7 +43,7 @@
 
 | 赛道 | 活跃公司 | 状态 |
 |---|---|---|
-| **海外对冲基金** ⭐ 部分通 | 2-3 家 | Point72 **44 Asia 岗**(Greenhouse,含 Academy 校招)/Millennium 1/Citadel(WP-AJAX 实现待修);Two Sigma+Bridgewater 仍 referral-heavy |
+| **海外对冲基金** ⭐ 全通 3/5 | **3 家** Asia 实测 | **Point72 44**(Greenhouse,Academy 校招+Quant Research+分析师) / **Citadel 7**(WP-AJAX,curl_cffi chrome120;7 条全 Asia 校招 SAIF 强需求: Quant Research Analyst BS/MS+Univ Grad+PhD Intern+PhD Grad 全梳 HK+SG) / Millennium 1。Two Sigma+Bridgewater 仍 referral-heavy |
 | **国央企** | 119 家（absolute mode） | SAIF 流量较低，但作为 fallback 信号保留 |
 | **期货** | 4 家（南华+平安+京都+兴证）| 派生模式，本轮 + Tata fix 后从 2 → 4 |
 
