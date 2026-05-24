@@ -40,7 +40,47 @@ sites:
     ats_family: zhiye
     category: 量化私募
     max_pages: 10
-    note: 2026-05-17 上海量化 (mingshiim.zhiye.com),通用 /api/Jobad endpoint 实测 7 records。其余 SAIF 量化清单 (明汯/灵均/千象/宁泉/聚宽/宽德/因诺/思勰/金锝/盘京/衡量/玖瀛) 均无公开 ATS,backlog。
+    note: 2026-05-17 上海量化 (mingshiim.zhiye.com),通用 /api/Jobad endpoint 实测 7 records。
+
+  # ---- Phase P1-quant5 (2026-05-24) SAIF 强需求 5 家量化 (Web spy + 飞书反查) ----
+  - name: 聚宽投资
+    entry_url: https://app.mokahr.com/campus_apply/joinquant/92347
+    ats_family: moka_embedded
+    category: 量化私募
+    moka_org_id: joinquant
+    moka_site_id: "92347"
+    note: "2026-05-24 SAIF spy: Mokahr campus tenant=joinquant/92347 实测 fetched=15 (量化策略实习生/AI算法实习生/AI算法研究员等)。北京聚宽,基本面+大数据量化。"
+
+  - name: 思勰投资
+    entry_url: https://app.mokahr.com/apply/sixiecapital/42909
+    ats_family: moka_embedded
+    category: 量化私募
+    moka_org_id: sixiecapital
+    moka_site_id: "42909"
+    note: "2026-05-24 SAIF spy: Mokahr tenant=sixiecapital/42909 实测 fetched=15 (琢玉计划数据开发实习生/市场品宣/基础系统开发等)。GS+D.E.Shaw 系上海量化,百亿规模。注: tenant 另有 board=100143 (12 岗) 跟 42909 重复度高,先用 42909。"
+
+  - name: 灵均投资
+    entry_url: https://hr.lingjuninvest.com/apply/lingjuninvest/46355
+    ats_family: moka_embedded
+    category: 量化私募
+    moka_org_id: lingjuninvest
+    moka_site_id: "46355"
+    moka_url_template: "https://hr.lingjuninvest.com/apply/{org_id}/{site_id}#/job/{job_key}"
+    note: "2026-05-24 SAIF spy: Mokahr white-label 子域 hr.lingjuninvest.com (lingjuninvest/46355) 实测 fetched=15 (含 Singapore Operations Manager / Python研发实习生(大模型) / 量化测试开发等)。北京/上海/新加坡。"
+
+  - name: 诚奇资产
+    entry_url: https://www.cqfunds.com/service-center/
+    ats_family: other
+    backlog_status: official_dynamic_ok
+    category: 量化私募
+    note: "2026-05-24 SAIF spy: cqfunds.com 自家 SPA + /regular/ 和 /trainee/ sub-route,客户端路由,无 ATS 嵌入。岗位含量化策略研究员/机器学习研究员/数据分析研究员/交易系统工程师/实习生。深圳百亿量化 (AUM ~400 亿),Wall Street 系。下一 sprint Playwright SPA handler。"
+
+  - name: 宽德投资
+    entry_url: https://www.wizardquant.com/career
+    ats_family: other
+    backlog_status: official_dynamic_ok
+    category: 量化私募
+    note: "2026-05-24 SAIF spy: wizardquant.com Next.js SPA (_next/static),无 mokahr/zhiye/hotjob ATS 嵌入。岗位 41+ (智能学习 13 + 策略研究 2 + 信息技术 7 + 职能 6 + 智能学习实验室扩张)。上海/北京/深圳/珠海/成都,管理规模 150+ 全职员工。下一 sprint Playwright SPA handler。"
 
   # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家量化 (确认无公开 ATS) ----
   - name: 明汯投资
