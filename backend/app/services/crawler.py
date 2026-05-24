@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import random
+import re
 import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -112,6 +113,76 @@ def _merge_stage(old_stage: str, new_stage: str) -> str:
     return "both"
 
 
+_LEGAL_SUFFIX_RE = re.compile(
+    r"^(.+?)(有限公司|有限责任公司|股份有限公司|股份公司|总部|辖属机构)$"
+)
+# Bare entity names (no 有限公司 suffix): "工银理财", "兴业期货", "建信信托" 等
+# 2-3 char bank-style abbreviation + entity-kind suffix.
+_BARE_ENTITY_RE = re.compile(
+    r"^([一-龥]{2,4})(理财|信托|资管|期货|证券)$"
+)
+_ENTITY_KIND_RE = re.compile(
+    r"(证券|理财|基金管理|金融租赁|信托|私募基金管理|期货|人寿|财产保险|资产管理|资管)$"
+)
+_DEPT_REJECT_RE = re.compile(
+    r"(.+?(?<!总)部$|^证券[A-Za-z一-鿿]{0,4}(?:事业部|委员会|中心)$|支行|"
+    r"营业机构|分公司$|分行$|本部$|信用卡中心$)"
+)
+
+
+def _canonical_for_compare(name: str) -> str:
+    if not name:
+        return ""
+    return re.sub(r'(股份|有限责任|有限|公司|集团|总部|辖属机构|\(.*?\)|（.*?）)', '', name).strip()
+
+
+def _extract_legal_entity(dept_raw: str, portal_company: str) -> Optional[str]:
+    """If Tata's `company_name` field (which we historically wrote to `department`)
+    is actually a separate legal entity (subsidiary), return the canonical name.
+
+    Heuristics:
+      - dept ends in 总部/辖属机构 → strip that suffix
+      - dept ends in 有限公司/有限责任公司/股份有限公司/股份公司 → keep as-is
+      - dept's prefix must contain an entity-kind keyword (证券/理财/基金管理/...)
+      - dept matching DEPT_REJECT patterns (XX部$ / 支行 etc.) → not an entity
+      - dept whose canonical form equals portal_company's canonical → not a sub-entity
+    Returns None if dept is just a department name."""
+    if not dept_raw:
+        return None
+    d = dept_raw.strip()
+    # Tata sometimes concatenates "上海证券-上海证券有限责任公司": dash-split, right side
+    # is the real entity but it may equal portal_company → skip.
+    if "-" in d:
+        parts = d.split("-")
+        if len(parts) == 2 and portal_company and \
+                _canonical_for_compare(portal_company) == _canonical_for_compare(parts[1].strip()):
+            return None
+    if _DEPT_REJECT_RE.match(d):
+        return None
+    while d.endswith("辖属机构"):
+        d = d[:-4]
+    m = _LEGAL_SUFFIX_RE.match(d)
+    if m:
+        prefix, suffix = m.group(1), m.group(2)
+        kind_m = _ENTITY_KIND_RE.search(prefix)
+        if not kind_m:
+            return None
+        # Require at least 2 chars of brand prefix before the entity-kind suffix
+        # ("资产管理总部" alone has 0 brand prefix → not a company, just a dept).
+        if kind_m.start() < 2:
+            return None
+        result = prefix if suffix == "总部" else prefix + suffix
+    else:
+        # Fallback: bare entity name (no 有限公司 suffix), e.g. "工银理财"
+        m2 = _BARE_ENTITY_RE.match(d)
+        if not m2:
+            return None
+        result = d
+    if portal_company and _canonical_for_compare(portal_company) == _canonical_for_compare(result):
+        return None
+    return result
+
+
 def map_record(record: Dict, job_stage: str, source_config_id: str) -> Dict:
     org_type = record.get("org_type") or []
     industry = record.get("industry") or []
@@ -126,13 +197,25 @@ def map_record(record: Dict, job_stage: str, source_config_id: str) -> Dict:
     publish_str = record.get("publish_date") or record.get("spider_time") or ""
     deadline_str = record.get("expire_date") or ""
 
+    # Tata API field semantics:
+    #   company_alias / main_company_name  = portal name (often the parent group)
+    #   company_name                       = actual entity for this row (may be a subsidiary)
+    # When company_name names a legally distinct subsidiary (XX 证券 / XX 理财有限 /
+    # XX 基金管理 / XX 期货 等), promote it as the canonical company so the row
+    # doesn't end up mis-classified under the parent. dept field still keeps the
+    # raw value for traceability. Otherwise keep historical behavior.
+    portal_company = record.get("company_alias") or record.get("main_company_name") or ""
+    raw_dept = record.get("company_name") or ""
+    subsidiary = _extract_legal_entity(raw_dept, portal_company)
+    company = subsidiary or portal_company
+
     return {
         "job_id": record.get("position_id") or record.get("_id") or "",
         "source": "tatawangshen",
-        "company": record.get("company_alias") or record.get("main_company_name") or "",
+        "company": company,
         "company_type_industry": company_type_industry,
         "company_tags": join_list(record.get("tags") or []),
-        "department": record.get("company_name") or "",
+        "department": raw_dept,
         "job_title": record.get("job_title") or "",
         "location": location,
         "major_req": major_req,
