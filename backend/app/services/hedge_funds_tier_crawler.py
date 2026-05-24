@@ -66,6 +66,7 @@ HEDGE_FUNDS_CONFIG_PATH = (
 _KNOWN = {
     "hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc",
     "greenhouse", "eightfold", "citadel_wp_ajax",
+    "self_html",
 }
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
@@ -77,6 +78,7 @@ _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "greenhouse":        "hedge_funds_greenhouse",
     "eightfold":         "hedge_funds_eightfold",
     "citadel_wp_ajax":   "hedge_funds_citadel_wp",
+    "self_html":         "hedge_funds_self_html",
 }
 
 
@@ -102,6 +104,81 @@ def _override_source(records: List[Dict[str, Any]], family: str) -> None:
         m = re.search(r":([^:]+)$", sc)
         if m:
             rec["job_id"] = _hash_id(new_source, rec["company"], m.group(1))
+
+
+# ─── self_html handler (P1-quant5b, 2026-05-24) ────────────────────────────
+#
+# 用于自家服务端渲染 HTML / Next.js SSR 招聘页 — 不需要 Playwright,普通
+# requests 就够拿到完整数据。yaml 字段:
+#   ats_family: self_html
+#   entry_url: <主 listing URL>
+#   extra_paths: [<相对 path 1>, ...]   # 可选,会拼到 base_url 后面 (e.g. "/trainee/")
+#   base_url: https://example.com        # 默认从 entry_url 派生
+#   row_pattern: '<regex with named groups (?P<title>...) and optional (?P<path>...)>'
+#   default_location: 上海               # 当 HTML 不含位置信息时的兜底
+#
+# Pattern 示例:
+#   诚奇 cqfunds.com: 'href="(?P<path>/regular/\d+\.html)" title="(?P<title>[^"]+)"'
+#   宽德 wizardquant Next.js: '"title":"(?P<title>[^"]+)"'
+def _fetch_self_html_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    from urllib.parse import urlparse
+    UA = (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+    )
+    company = target["name"]
+    entry_url = target["entry_url"]
+    parsed = urlparse(entry_url)
+    base_url = target.get("base_url") or f"{parsed.scheme}://{parsed.netloc}"
+    pattern = re.compile(target["row_pattern"], re.S)
+    default_location = target.get("default_location") or "未知"
+
+    urls_to_fetch = [entry_url]
+    for extra in target.get("extra_paths") or []:
+        url = extra if extra.startswith("http") else base_url.rstrip("/") + "/" + extra.lstrip("/")
+        urls_to_fetch.append(url)
+
+    records: List[Dict[str, Any]] = []
+    seen_titles: set = set()
+    for url in urls_to_fetch:
+        try:
+            r = requests.get(url, headers={"User-Agent": UA, "Referer": base_url}, timeout=30)
+            r.raise_for_status()
+        except Exception:
+            continue
+        for m in pattern.finditer(r.text):
+            d = m.groupdict()
+            title = _html.unescape((d.get("title") or "").strip())
+            if not title or title in seen_titles:
+                continue
+            seen_titles.add(title)
+            path = (d.get("path") or "").strip()
+            if path and not path.startswith("http"):
+                detail_url = base_url.rstrip("/") + "/" + path.lstrip("/")
+            else:
+                detail_url = path or url
+            key = path or title
+            records.append({
+                "job_id": _hash_id("hedge_funds_self_html", company, key),
+                "source": "hedge_funds_self_html",
+                "company": company,
+                "company_type_industry": "私募 (Hedge Fund)",
+                "company_tags": "self_html",
+                "department": company,
+                "job_title": title,
+                "location": default_location,
+                "major_req": "",
+                "job_req": "",
+                "job_duty": "",
+                "application_status": "待申请",
+                "job_stage": "campus" if any(k in title for k in ("实习", "校招", "管培", "Intern", "Graduate")) else "social",
+                "source_config_id": f"hedge_funds_self_html:{company}:{key}",
+                "publish_date": None,
+                "deadline": None,
+                "detail_url": detail_url,
+                "scraped_at": datetime.utcnow(),
+            })
+    return records
 
 
 # ─── 海外 elite quants handlers (Phase 11, 2026-05-23) ─────────────────────
@@ -350,6 +427,8 @@ def crawl_hedge_funds(
                     crawled = _fetch_eightfold_target(target)
                 elif family == "citadel_wp_ajax":
                     crawled = _fetch_citadel_wp_ajax(target)
+                elif family == "self_html":
+                    crawled = _fetch_self_html_target(target)
                 else:
                     crawled = []
             except Exception:

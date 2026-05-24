@@ -69,26 +69,30 @@ sites:
     note: "2026-05-24 SAIF spy: Mokahr white-label 子域 hr.lingjuninvest.com (lingjuninvest/46355) 实测 fetched=15 (含 Singapore Operations Manager / Python研发实习生(大模型) / 量化测试开发等)。北京/上海/新加坡。"
 
   - name: 诚奇资产
-    entry_url: https://www.cqfunds.com/service-center/
-    ats_family: other
-    backlog_status: official_dynamic_ok
+    entry_url: https://cqfunds.com/regular/
+    ats_family: self_html
     category: 量化私募
-    note: "2026-05-24 SAIF spy: cqfunds.com 自家 SPA + /regular/ 和 /trainee/ sub-route,客户端路由,无 ATS 嵌入。岗位含量化策略研究员/机器学习研究员/数据分析研究员/交易系统工程师/实习生。深圳百亿量化 (AUM ~400 亿),Wall Street 系。下一 sprint Playwright SPA handler。"
+    extra_paths: ["/trainee/"]
+    base_url: https://cqfunds.com
+    row_pattern: 'href="(?P<path>/(?:regular|trainee)/\d+\.html)" title="(?P<title>[^"]+)"'
+    default_location: 深圳市
+    note: "2026-05-24 用户人工核验: cqfunds.com 服务端渲染 HTML (不是 SPA),/regular/ 9 岗 + /trainee/ 2 岗 = 11 岗 (量化策略研究员/机器学习研究员/数据分析研究员/交易系统工程师/Quant Developer/金融产品经理/市场渠道经理/运维开发/量化研究实习/数据分析实习生)。深圳百亿量化 (AUM ~400 亿),Wall Street 系。"
 
   - name: 宽德投资
     entry_url: https://www.wizardquant.com/career
-    ats_family: other
-    backlog_status: official_dynamic_ok
+    ats_family: self_html
     category: 量化私募
-    note: "2026-05-24 SAIF spy: wizardquant.com Next.js SPA (_next/static),无 mokahr/zhiye/hotjob ATS 嵌入。岗位 41+ (智能学习 13 + 策略研究 2 + 信息技术 7 + 职能 6 + 智能学习实验室扩张)。上海/北京/深圳/珠海/成都,管理规模 150+ 全职员工。下一 sprint Playwright SPA handler。"
+    row_pattern: '"title":"(?P<title>[^"]+)"'
+    default_location: 上海市
+    note: "2026-05-24 用户人工核验: wizardquant.com Next.js SSR (HTML 84kB 含完整 JSON props),28+ 岗 (智能学习 13 / 策略研究 2 / 信息技术 7 / 职能 6),含 AI 研究员/AI 工程师/量化研究员/机器学习研究员/管培生计划等。上海/北京/深圳/珠海/成都,管理规模 150+ 全职员工。注: SAIF 强需求量化方向。"
 
   # ---- BACKLOG: 用户 2026-05-23 P0 清单中明确要求的 4 家量化 (确认无公开 ATS) ----
   - name: 明汯投资
-    entry_url: https://join.mhfunds.com/index
+    entry_url: https://www.mhfunds.com/index.php?m=content&c=index&a=lists&catid=66
     ats_family: other
-    backlog_status: official_dynamic_ok
+    backlog_status: referral_heavy
     category: 量化私募
-    note: "2026-05-23 P1-0 spy 找到自建 portal join.mhfunds.com (URL pattern /index/m/position/{id}/detail)。SPA,需 P1-B 通用 Playwright handler。HR 邮箱 HR@mhfunds.com。注: minghongtouzi.com 域名 parked。"
+    note: "2026-05-24 用户人工核验: 真渠道是 mhfunds.com phpcms 招聘页 catid=66 (87kB SSR HTML),含 4 个研究/开发方向 (深度学习系统工程师 MLE / 深度学习模型研究员 MLR / 量化开发工程师 QD / 量化研究员 QR) + 实习生招聘 page8/page9 + 3 个 detail show 页面 (a=show&id={1,2,3})。但单个'岗位'概念不存在—页面是按方向描述,实际投递走 campushr@mhfunds.com 邮箱 + join.mhfunds.com SPA portal。referral_heavy 更准确。"
 
   - name: 因诺资产
     entry_url: https://app.mokahr.com/campus_apply/innoam/142310
@@ -99,12 +103,12 @@ sites:
     note: "2026-05-23 P1-feishu spy 飞书表里发现春招 (2026-03-03) Moka 入口 innoam/142310。当前直连返回 Content-Length=2 (board 已下线), /apply/innoam 全 board 都 404。秋招开闸时 Moka 通常会重启同 tenant,届时自动收;若秋招用新 board ID 需要 P2 复探。"
 
   - name: 进化论资产
-    entry_url: https://app.mokahr.com/campus_apply/jhlfund/46284
+    entry_url: https://app.mokahr.com/social-recruitment/jhlfund/46283
     ats_family: moka_embedded
     category: 量化私募
     moka_org_id: jhlfund
-    moka_site_id: "46284"
-    note: "2026-05-23 P1-0 搜索引擎 spy 找到 Moka tenant=jhlfund (jhl=进化论拼音首字母,之前用错 slug evolutionasset)。campus board=46284 302 redirect 合法,fetched=0 (季节空)。注: jinhualun.com 域名已过期 (CNAME 到 overdue.aliyun.com),社招 board=46283。"
+    moka_site_id: "46283"
+    note: "2026-05-24 用户人工核验 social board=46283 实测 fetched=13 (研究助理/量化研究员/基金产品运营/数据开发工程师等;深圳南山+海南澄迈)。之前 campus board=46284 季节空,切到 social 池子(SAIF 学生多有工作经验也可投社招)。秋招开闸时 campus 池如有数据,可考虑加第二 entry。"
 
   - name: 磐松量化
     entry_url: https://www.pansongasset.com/
