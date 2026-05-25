@@ -59,7 +59,7 @@ docker compose up --build              # backend :8001, frontend :5173
 ## Architecture (1 段话每个领域 — 深入看 `docs/architecture.md`)
 
 - **`backend/app/main.py` lifespan**：建表 → `ensure_compatible_schema()`（legacy DDL patcher） → `alembic upgrade head` → seed YAML → `ensure_demo_session(db)` → APScheduler 启 daily-crawl 08:00 / tier-crawl 09:00 / digest 09:35（Asia/Shanghai） + hourly guest cleanup。
-- **Resume Copilot pipeline** (`backend/app/services/resume_copilot/`)：`workflow.py`（async parse + generate via `BackgroundTasks`），`parser.py`（LLM extract + heuristic fallback），`recommendation.py`（rule_score → 可选 snapshot boost → LLM rerank），`quick_enrichment.py`（top-N 并行 web search），`chat.py`（rewrite 严契约 — 见 `DECISIONS.md`），`demo_session.py`（`DEMO_SESSION_ID = 1`）。
+- **Resume Copilot pipeline** (`backend/app/services/resume_copilot/`)：`workflow.py`（async parse + generate via `BackgroundTasks`），`parser.py`（LLM extract + heuristic fallback），`recommendation.py`（rule_score → 可选 snapshot boost → LLM rerank），`chat.py`（rewrite 严契约 — 见 `DECISIONS.md`），`demo_session.py`（`DEMO_SESSION_ID = 1`）。
 - **Mock Interview** (`backend/app/services/interview/`)：`orchestrator.py`（per-turn 三路并行 fan-out），`adaptive.py`（skeleton 6 题 + LLM follow-up + recall），`voice/{tts,asr}.py`（DashScope cosyvoice-v2 + paraformer-realtime-v2）。4 个 ContextProvider 通过 `app/services/llm_context/` 接入。
 - **Knowledge pack** (`backend/app/services/knowledge_pack/`)：Tencent skill 9 张表，CLI ingest，verbatim quote 验过。
 - **Crawlers** — `app/services/{insurance,bank,securities,funds,pe_vc,hedge_funds,foreign_ibs,internet,state_owned,consumer_foreign}_*_crawler.py`。**所有 quirk + 诊断方法论 + handler primitive 在 `docs/crawlers-notes.md`**。
@@ -122,9 +122,9 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 **自 2026-05-17 起 dev / prod 拆到两台独立 VPS**(此前合用 myvps,开发改动经常带崩生产)。Claude session 开工前先 `hostname` 确认当前是哪台。
 
 ### Dev VPS (你大概率在这台)
-- `lavm-wlcndo6anm` (公网 `1.161.52.206`),4 CPU / 15Gi RAM / 99G disk(配置明显高于 prod)
+- `lavm-wlcndo6anm` (公网 `117.72.242.70`),4 CPU / 15Gi RAM / 99G disk(配置明显高于 prod)
 - **只跑开发**:写代码 / 跑 migration / smoke / LLM backfill / 实验性脚本 全在这里
-- 工作目录 `/home/ubuntu/opencode-worktrees/jobrador-edit/backend`,DB `backend/data/jobradar.db` 是 **dev DB**(prod backup 拷贝过来的)
+- 工作目录 `/home/chuanbo/projects/JobRadar/backend`(clone A 主仓; 其它 worktree 见 `WORKTREE_STATUS.md`),DB `backend/data/jobradar.db` 是 **dev DB**(prod backup 拷贝过来的)
 - **不**跑 systemd `jobradar.service`,不开公网端口给真实用户
 - 这台跑的 alembic upgrade / DB UPDATE 都**只影响 dev DB**,不会改 prod
 
@@ -142,6 +142,26 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 - 新 VPS DB 第一次部署后 `alembic stamp head` 一次再让 lifespan upgrade
 
 详见 `docs/deployment-and-data.md`。
+
+## Parallel Claude conversations (2026-05 起)
+
+5 个长跑 `-devvpstmux` claude 对话同时开发本仓 / 关联仓库。**新会话工作前先看根目录 `WORKTREE_STATUS.md`** 确认: 别的对话在改什么、占了哪个 worktree、你这条线该专注哪块。
+
+当前布局(2026-05-25 快照, **正在重组中** — Phase 2 起做):
+
+| 对话(customTitle) | cwd | 负责模块 |
+|---|---|---|
+| `网站设计-devvpstmux` | `/home/chuanbo/projects/JobRadar` (本仓 main) | 跨模块 orchestrator(集中写入避免并发冲突,**不是 frontend 专属**) |
+| `简历推荐-devvpstmux` | `/home/ubuntu/projects/JobRadar` (clone B, 待退役) | `backend/app/services/resume_copilot/` |
+| `模拟面试-devvpstmux` | clone B (与简历推荐同 cwd, 待拆) | `backend/app/services/interview/` |
+| `岗位爬取-devvpstmux` | `.../opencode-worktrees/jobrador-edit/.claude/worktrees/cool-gauss-591c17/` | 各 `*_crawler.py` + xhs(待迁入本仓 `.worktrees/crawler-xhs/`) |
+| `战法交易-devvpstmux` | `/home/ubuntu` | 单独仓库 `a-stock-strategy`, **不**碰本仓 |
+
+**写入约定**:
+- 别在 main 主干做需要别人配合的大段修改; 按业务线进各自 worktree
+- 改动用 `git stash` 或自己分支 commit; 不直接 push main
+- 跨模块协调走 `网站设计-devvpstmux` orchestrator(临时,长期目标是退化为 merge orchestrator)
+- 各 service 的局部规则见 `backend/app/services/<X>/CLAUDE.md`(Phase 1 引入的子目录 CLAUDE.md 分层)
 
 ## Environment setup
 
