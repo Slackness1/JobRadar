@@ -11,13 +11,13 @@ Companies wired:
   - Citi / Morgan Stanley (plain requests OK)
   - Goldman Sachs (自建 GraphQL `_fetch_goldman_graphql`)
   - UBS (Oracle Taleo SPA `_fetch_ubs_taleo_spa`)
-  - **Barclays** (Workday CXS, 但 plain requests 返 406;`tls_impersonate: chrome120`
-    切换到 curl_cffi 仿真 Chrome120 TLS fingerprint 后 200 OK — D-10 应用)
+  - Barclays (Workday CXS + curl_cffi chrome120; plain requests→406)
+  - **Deutsche Bank** (Workday wd3/DBWebsite + curl_cffi chrome120; ~92 Asia岗)
 
-Still skipped — Workday 422 with curl_cffi chrome120 仍然失败,说明是业务层
-reject 不是 TLS fingerprint;需要 per-tenant facets 或 session prep:
-  - JPM / HSBC / BofA / BNP / Standard Chartered / Nomura / Daiwa CM
-  - Deutsche Bank (use 自有 prod2.master.db.com ATS,obscure schema,backlog)
+VPS IP soft-blocked (portal 500 → JS redirect to maintenance-page):
+  - JPM / BofA / BNP / Standard Chartered / Nomura / Daiwa CM / MUFG / Mizuho
+  - 需要住宅代理 IP 才能访问，backlog
+  - HSBC: portal 200 但全是 Poland GSC 后台岗，Asia IBD 不走此 portal
 """
 from __future__ import annotations
 

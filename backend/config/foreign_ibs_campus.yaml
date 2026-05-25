@@ -70,8 +70,21 @@ sites:
     tls_impersonate: chrome120
     note: 2026-05-23 D-10 应用 — Workday 406 → curl_cffi chrome120 解锁。
 
-  # JPM / HSBC Workday — 2026-05-23 即便 curl_cffi chrome120 仍 422,业务层
-  # reject 不是 TLS fingerprint。需要 per-tenant facets 或 cookie session
-  # prep,non-trivial,backlog。
-  # Deutsche Bank — careers.db.com 用自建 prod2.master.db.com ATS,
-  # obscure schema,逆向工程成本高,backlog。
+  # Deutsche Bank — 2026-05-25 发现: db.wd3.myworkdayjobs.com/en-US/DBWebsite
+  # portal 200 OK,CXS 200(38 HK + 58 SG + 34 Tokyo = ~92 unique Asia岗)。
+  # curl_cffi chrome120 解锁,无需 portal pre-fetch,同 Barclays 模式。
+  - name: Deutsche Bank
+    handler: workday
+    endpoint: https://db.wd3.myworkdayjobs.com/wday/cxs/db/DBWebsite/jobs
+    portal_url: https://db.wd3.myworkdayjobs.com/en-US/DBWebsite
+    page_size: 20
+    max_pages_per_query: 8
+    search_queries: ["Hong Kong", "China", "Singapore", "Tokyo", "Investment Banking", "Research"]
+    tls_impersonate: chrome120
+    note: "2026-05-25: db.wd3/DBWebsite curl_cffi chrome120 解锁 — 92 unique Asia SAIF岗。前记'自建ATS'有误，实为标准Workday wd3。"
+
+  # JPM/BofA/BNP/Nomura/StanChart/Daiwa/MUFG/Mizuho/Jefferies — 2026-05-25 诊断:
+  # portal 返 500 + JS redirect → community.workday.com/maintenance-page。
+  # Workday WAF 对 VPS/数据中心 IP 做软封禁(假maintenance),CXS因此 422。
+  # 非 TLS fingerprint 问题 — curl_cffi/Playwright 均无效。
+  # 需要住宅代理 IP 才能解锁;目前 backlog。

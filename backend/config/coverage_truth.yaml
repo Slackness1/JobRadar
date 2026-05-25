@@ -311,23 +311,22 @@ tracks:
       - name: Goldman Sachs
       # Oracle Taleo TGnewUI SPA via Playwright 已 wired (2026-05-19)
       - name: UBS
-      # Workday CXS 422 — endpoint 存在但拒绝最小 payload，待 per-tenant facets 调试
+      # 以下 portal 对 VPS/数据中心 IP 返 500 + JS→maintenance-page 软封禁，
+      # CXS 因此 422。curl_cffi/Playwright 均无效。需要住宅代理才能解锁。
       - name: JP Morgan
-        deferred_reason: jpmc.wd5.myworkdayjobs.com Workday 422；无公开 job-search 入口
+        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
       - name: HSBC
-        deferred_reason: mycareer.hsbc.com 实测 50 条全在 Poland GSC，非 SAIF 相关；中国/HK IBD 未走此 portal
+        deferred_reason: mycareer.hsbc.com 全 Poland GSC后台岗，SAIF无关；真HK/SG岗位入口未知
       - name: Bank of America
-        deferred_reason: bankofamerica.wd1.myworkdayjobs.com Workday 422
+        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
       - name: BNP Paribas
-        deferred_reason: bnpparibas.wd3.myworkdayjobs.com Workday 422
+        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
       - name: Standard Chartered
-        deferred_reason: sc.wd3 / standardchartered.wd3 双域 Workday 422
+        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
       - name: Nomura
-        deferred_reason: nomura.wd3.myworkdayjobs.com Workday 422
+        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
       - name: Deutsche Bank
-        deferred_reason: db.wd3.myworkdayjobs.com 多个 site path 都返 404，可能已迁站
       - name: Barclays
-        deferred_reason: barclays.wd3.myworkdayjobs.com 404；search.jobs.barclays 302 自定义 portal
 
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc
