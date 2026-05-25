@@ -187,6 +187,9 @@ class ResumeRecommendationItem(BaseModel):
     track_match_kind: str = ''   # 'hit'|'null_hit'|'transferable'|'ambiguous'|'mismatch'|'no_pref' (debug)
     # 2026-05-20: 实习 / 校招 分流。frontend 据此 split into 两个 tab。
     is_internship: bool = False
+    # 2026-05-25 Phase 6-mvp: 行业子方向 chip (TMT/消费/医药/...) — 0-2 个,
+    # keyword-based 推断,纯展示用,不入排序。
+    industry_tags: list[str] = []
 
 
 class ResumeRecommendationResultOut(BaseModel):
@@ -209,6 +212,7 @@ class ResumeRecommendationPlatformJobBrief(BaseModel):
     is_internship: bool = False
     location: str = ''
     detail_url: str = ''
+    industry_tags: list[str] = []  # 2026-05-25 Phase 6-mvp
 
 
 class ResumeRecommendationPlatform(BaseModel):

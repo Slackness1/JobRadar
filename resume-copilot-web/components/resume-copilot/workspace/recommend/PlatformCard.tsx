@@ -112,6 +112,14 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle }: PlatformC
                 {job.is_internship ? '实' : '校'}
               </span>
               <span className="workspace-hifi__platform-job-title">{job.job_title}</span>
+              {(job.industry_tags ?? []).slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="workspace-hifi__industry-chip workspace-hifi__industry-chip--mini"
+                >
+                  {tag}
+                </span>
+              ))}
               <span className="workspace-hifi__platform-job-score">{job.final_score}</span>
               <span aria-hidden className="workspace-hifi__platform-job-arrow">
                 {I.arrowRight(10)}

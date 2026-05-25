@@ -156,6 +156,10 @@ export interface ResumeRecommendationItem {
   track_match_kind?: string; // debug
   /** 2026-05-20: 校招 / 实习 分流 — LeftRecommendRail 据此切 tab。 */
   is_internship?: boolean;
+  /** 2026-05-25 Phase 6-mvp: 行业子方向 chip (TMT / 消费 / 医药 / 固收 / FOF /
+   *  宏观策略 / 量化中频 / 制造 / 新能源 / IBD-股权 / IBD-并购 / 销售交易 / ...)。
+   *  Keyword-based 推断,0-2 个,纯展示,不入排序。 */
+  industry_tags?: string[];
 }
 
 export interface ResumeAgentTraceItem {
@@ -269,6 +273,7 @@ export interface ResumeRecommendationPlatformJobBrief {
   is_internship: boolean;
   location: string;
   detail_url: string;
+  industry_tags?: string[];
 }
 
 export interface ResumeRecommendationPlatform {

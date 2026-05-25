@@ -4058,3 +4058,28 @@
 .workspace-hifi__platform-intel-wrap {
   padding: 0 12px 12px;
 }
+
+/* ── Industry chip (Phase 6 mvp, 2026-05-25) ────────────────────────────── */
+/* Keyword-based industry sub-direction tag — purely display, no scoring impact.
+ * Shown on both RecommendCard summary row and PlatformCard mini job rows. */
+
+.workspace-hifi__industry-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--olive);
+  background: var(--warm-sand);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-pill);
+  letter-spacing: 0;
+  line-height: 1.4;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.workspace-hifi__industry-chip--mini {
+  padding: 0 5px;
+  font-size: 10px;
+}

@@ -18,6 +18,7 @@ from app.schemas_resume_copilot import (
     ResumeRecommendationItem,
 )
 from app.services.resume_copilot.llm import build_resume_llm_client
+from app.services.resume_copilot.industry_tagger import tag_industries
 from app.services.resume_copilot.redact import redact_profile_for_llm
 from app.services.taxonomy import (
     CANONICAL_FINANCE_TRACKS,
@@ -562,6 +563,14 @@ def _is_internship_job(job: Job) -> bool:
     return any(kw.lower() in title for kw in _INTERN_TITLE_KEYWORDS)
 
 
+def _industry_tag(job: Job) -> list[str]:
+    """Phase 6 mvp:keyword-based 行业方向 tag (0-2 个) — 给前端 chip 展示。"""
+    return tag_industries(
+        str(getattr(job, 'job_title', '') or ''),
+        str(getattr(job, 'job_description', '') or ''),
+    )
+
+
 def _topic_key(job: Job, role_family: str) -> str:
     company = re.sub(r'\s+', '', str(job.company or 'unknown'))
     role = re.sub(r'\s+', '', role_family or str(job.job_title or '岗位'))
@@ -1024,6 +1033,7 @@ def recommend_jobs_for_profile(
                 priority_letter=priority_letter_value,
                 track_match_kind=track_match_kind,
                 is_internship=_is_internship_job(job),
+                industry_tags=_industry_tag(job),
                 why_recommended=[
                     value
                     for value in [

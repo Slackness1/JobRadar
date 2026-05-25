@@ -107,6 +107,7 @@ def aggregate_by_company(
                 is_internship=j.is_internship,
                 location=j.location,
                 detail_url=j.detail_url,
+                industry_tags=list(getattr(j, 'industry_tags', []) or []),
             )
             for j in sorted_jobs[:top_jobs_per_platform]
         ]

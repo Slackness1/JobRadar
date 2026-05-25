@@ -202,6 +202,11 @@ export function RecommendCard({
               {tierLabel}
             </span>
           )}
+          {(item.industry_tags ?? []).slice(0, 2).map((tag) => (
+            <span key={tag} className="workspace-hifi__industry-chip">
+              {tag}
+            </span>
+          ))}
           <span className="workspace-hifi__rec-card-why-one">{primaryReason(item)}</span>
         </div>
       )}
