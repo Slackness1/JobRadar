@@ -11,6 +11,7 @@
 
 import type { ResumeRecommendationPlatform } from '../../types';
 import { I } from '@/components/hifi/hifi-primitives';
+import { RecommendCardIntelSection } from './RecommendCardIntelSection';
 
 function companyInitial(company: string): string {
   const trimmed = (company || '').trim();
@@ -95,7 +96,8 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle }: PlatformC
       </button>
 
       {isExpanded && (
-        <div className="workspace-hifi__platform-jobs">
+        <div className="workspace-hifi__platform-expanded">
+          <div className="workspace-hifi__platform-jobs">
           {platform.top_jobs.map((job) => (
             <a
               key={job.job_id}
@@ -121,6 +123,13 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle }: PlatformC
               + {platform.n_jobs - platform.top_jobs.length} 个岗位（切到校招/实习 tab 查看全部）
             </span>
           )}
+          </div>
+          <div className="workspace-hifi__platform-intel-wrap">
+            <RecommendCardIntelSection
+              company={platform.company}
+              isVisible={isExpanded}
+            />
+          </div>
         </div>
       )}
     </article>

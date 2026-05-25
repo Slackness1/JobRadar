@@ -119,8 +119,16 @@ export function RecommendCardIntelSection({
       </div>
     );
   }
-  if (failed || !card) return null;
-  if (card._status === 'empty' || (card.n_insights_used ?? 0) === 0) return null;
+
+  const emptyFallback = (
+    <div className="workspace-hifi__rec-intel workspace-hifi__rec-intel--empty">
+      <span aria-hidden>📭</span>
+      <span>同辈情报暂未覆盖该公司</span>
+    </div>
+  );
+
+  if (failed || !card) return emptyFallback;
+  if (card._status === 'empty' || (card.n_insights_used ?? 0) === 0) return emptyFallback;
 
   const comp = card.compensation || {};
   const req = card.requirements || {};
@@ -129,6 +137,18 @@ export function RecommendCardIntelSection({
   const hardReqs = (req.hard || []).slice(0, 4);
   const softReqs = (req.soft || []).slice(0, 3);
   const questions = (itv.key_questions || []).slice(0, 5);
+
+  // 即便后端报了 n_insights_used > 0,如果 LLM 没提炼出任何结构化字段
+  // (e.g. 招商基金 FOF 命中的 20 条都不直接相关),也降级到 fallback,
+  // 避免只渲染一个孤零零的 summary "未找到..." 这种鸡肋状态。
+  const hasUsefulData =
+    voices.length > 0 ||
+    questions.length > 0 ||
+    hardReqs.length > 0 ||
+    softReqs.length > 0 ||
+    (comp.package && comp.package !== '未明确') ||
+    Boolean(comp.details);
+  if (!hasUsefulData) return emptyFallback;
 
   return (
     <section
