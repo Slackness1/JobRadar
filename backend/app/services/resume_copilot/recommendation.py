@@ -684,6 +684,49 @@ def _compute_priority_letter(
     return 'C'
 
 
+# 2026-05-25 Phase 5a:back-office / 非研究岗 title 模式。
+# 即使公司是 T0 公募/券商,如果 title 是培训生(财富管理方向)/营销策划/IT资产管理体系/
+# 数据中心资产管理这种非研究岗,关键词层面命中 二级买方·基本面 后会被错误归类为
+# 强匹配 60+ 分(cz9z u_1 sid=15 现场坑)。这套 patterns 在 _classify_track_match
+# 最前面优先拦截,直接判 mismatch,让下游 cross-category penalty 把分降到 50 以下。
+_BACK_OFFICE_TITLE_PATTERNS: tuple[str, ...] = (
+    # 财富管理 / 零售方向(销售类培训,非投研路径)
+    '财富管理方向', '零售方向', '私行方向',
+    '财富顾问', '理财顾问', '零售客户经理',
+    # 营销 / 新媒体(非研究)
+    '营销策划', '产品营销', '营销支持', '新媒体运营', '新媒体方向',
+    '视频运营', '短视频运营', '视频方向', '运营方向',
+    '内容运营', '社媒运营',
+    # IT / ops 类「资产管理」(不是金融资管)
+    'it资产管理', '数据中心资产管理', '资产管理体系',
+    '设备资产管理', '固定资产管理',
+    # 客服 / 渠道 / 销售经理(非研究)
+    '客户服务', '渠道营销', '渠道经理', '机构销售助理',
+    '客户营销', '客户营销经理', '销售经理', '营销经理',
+    # 中后台 ops / IT / 合规 / 测试 — 即便在基金/券商内,这些也不是研究/投资岗
+    'etf运营', '数字金融运营', '运营岗', '运营专员',
+    '合规专员', '合规岗', '风控岗',
+    '需求测试', '测试专员', '测试岗', 'qa工程师',
+    # 算法/开发工程师 / 信息技术(在基金/券商内是 IT 中台,非量化研究)
+    'ai算法工程师', '助理ai算法', '软件开发岗', '软件工程师',
+    '开发岗', '前端工程师', '后端工程师',
+    '信息技术工程师', '助理信息技术', 'it岗',
+    # 互联网公司「行业研究」(短视频/电商/产品研究,非金融)
+    '短视频行业研究', '电商行业研究', '游戏行业研究',
+)
+
+
+def _is_back_office_title(title: str) -> bool:
+    """Title 命中 back-office / 非研究模式 → True,跳过 hit/null_hit 直接 mismatch。
+
+    场景:富国基金 营销策划岗 / 字节 数据中心资产管理实习生 这种关键词擦边球。
+    """
+    if not title:
+        return False
+    t = title.lower()
+    return any(p in t for p in _BACK_OFFICE_TITLE_PATTERNS)
+
+
 def _classify_track_match(
     job: Job,
     preferences: ResumePreferencePayload | None,
@@ -712,6 +755,11 @@ def _classify_track_match(
 
     if not expanded and not transferable:
         return ('no_pref', 0)  # 用户给的 track 我们没法 expand,不罚
+
+    # 2026-05-25 Phase 5a:back-office title 优先拦截 — 即便 canonical_track 命中
+    # 学生伞,这类岗位也不是研究/投资路径。直接判 mismatch 让分降下来。
+    if _is_back_office_title(str(job.job_title or '')):
+        return ('mismatch', 15)
 
     canon = getattr(job, 'canonical_track', None)
     if canon and canon in expanded:

@@ -131,6 +131,46 @@ class TestClassifyTrackMatch:
         job = Job(job_title='AI算法工程师', canonical_track='金融科技')
         assert _classify_track_match(job, prefs) == ('no_pref', 0)
 
+    # 2026-05-25 Phase 5a — back-office title 拦截
+    def test_back_office_财富管理培训生(self, touyan_prefs):
+        """广发证券 财富管理方向培训生:canonical NULL,title 不含 alias →
+        旧版应该 mismatch。新增 back-office 拦截后行为不变,验证 happy path 不破。"""
+        job = Job(job_title='2026届-"星·起点"培训生（财富管理方向）',
+                  canonical_track=None, source='securities_hotjob')
+        kind, _ = _classify_track_match(job, touyan_prefs)
+        assert kind == 'mismatch'
+
+    def test_back_office_营销策划岗(self, touyan_prefs):
+        """富国基金 营销策划岗:canonical=二级买方·基本面 (source 默认),
+        但 title 是 back-office 营销岗 → 必须 mismatch,不能 hit。"""
+        job = Job(job_title='营销策划岗（新媒体运营视频方向）-2027届暑期实习',
+                  canonical_track='二级买方·基本面', source='funds_moka_embedded')
+        kind, pen = _classify_track_match(job, touyan_prefs)
+        assert kind == 'mismatch'
+        assert pen == 15
+
+    def test_back_office_数据中心资产管理(self, touyan_prefs):
+        """字节 数据中心资产管理实习生:title 含「资产管理」alias 会触发 null_hit,
+        但「数据中心资产管理」是 IT/ops,必须 back-office 拦截到 mismatch。"""
+        job = Job(job_title='数据中心资产管理实习生-算力数据中心与供应链',
+                  canonical_track=None, source='internet_official')
+        kind, _ = _classify_track_match(job, touyan_prefs)
+        assert kind == 'mismatch'
+
+    def test_back_office_资产管理体系专家(self, touyan_prefs):
+        """美团 IT资产管理体系专家:同上,体系类 ops 不算金融资管。"""
+        job = Job(job_title='IT资产管理体系专家',
+                  canonical_track=None, source='internet_official')
+        kind, _ = _classify_track_match(job, touyan_prefs)
+        assert kind == 'mismatch'
+
+    def test_normal_research_岗位不受影响(self, touyan_prefs):
+        """正常「半导体研究员」要保持 hit,不能被 back-office 误伤。"""
+        job = Job(job_title='研究员（半导体）',
+                  canonical_track='二级买方·基本面', source='funds_zhiye')
+        kind, _ = _classify_track_match(job, touyan_prefs)
+        assert kind == 'hit'
+
     def test_all_skipped不分类(self):
         prefs = ResumePreferencePayload(
             preferred_tracks=['投研'], preferred_locations=['上海'],
