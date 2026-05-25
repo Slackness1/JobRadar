@@ -19,12 +19,16 @@ export interface RecommendNarrativeSectionProps {
   sessionId: number;
   jobId: string;
   isVisible: boolean;
+  /** "full" (default) → 长 narrative + action_tip + 标头(校招/实习 tab);
+   *  "short" → 单句 narrative_short 行内显示(平台 tab mini job 行)。 */
+  mode?: 'full' | 'short';
 }
 
 export function RecommendNarrativeSection({
   sessionId,
   jobId,
   isVisible,
+  mode = 'full',
 }: RecommendNarrativeSectionProps) {
   const requestKey = isVisible && sessionId && jobId
     ? `${sessionId}::${jobId}`
@@ -60,6 +64,28 @@ export function RecommendNarrativeSection({
   }, [activeKey, sessionId, jobId]);
 
   if (!isVisible) return null;
+
+  // ── Short mode (Phase 8) — 平台 tab mini job 行下方 ──────────────────────
+  if (mode === 'short') {
+    if (loading) {
+      return (
+        <span className="workspace-hifi__narrative-short workspace-hifi__narrative-short--loading">
+          <span className="workspace-hifi__narrative-spark" aria-hidden>✦</span>
+          <span>正在写定制理由…</span>
+        </span>
+      );
+    }
+    const short = data?.narrative_short || '';
+    if (failed || !short) return null;
+    return (
+      <span className="workspace-hifi__narrative-short">
+        <span className="workspace-hifi__narrative-spark" aria-hidden>✦</span>
+        <span>{short}</span>
+      </span>
+    );
+  }
+
+  // ── Full mode (default) — 校招/实习 tab ──────────────────────────────────
   if (loading) {
     return (
       <div className="workspace-hifi__narrative workspace-hifi__narrative--loading">

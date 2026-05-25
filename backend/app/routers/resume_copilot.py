@@ -679,6 +679,7 @@ def get_recommend_narrative(
     )
     return RecommendNarrativeOut(
         narrative=payload.get('narrative', ''),
+        narrative_short=payload.get('narrative_short', ''),
         action_tip=payload.get('action_tip', ''),
         evidence_refs=payload.get('evidence_refs', []),
         generated_at=payload.get('generated_at', ''),

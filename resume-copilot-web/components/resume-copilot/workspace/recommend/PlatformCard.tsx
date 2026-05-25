@@ -12,6 +12,7 @@
 import type { ResumeRecommendationPlatform } from '../../types';
 import { I } from '@/components/hifi/hifi-primitives';
 import { RecommendCardIntelSection } from './RecommendCardIntelSection';
+import { RecommendNarrativeSection } from './RecommendNarrativeSection';
 
 function companyInitial(company: string): string {
   const trimmed = (company || '').trim();
@@ -32,9 +33,11 @@ export interface PlatformCardProps {
   rank: number;
   isExpanded: boolean;
   onToggle: () => void;
+  /** Phase 8 — short narrative fetch 需要 sessionId。 */
+  sessionId?: number;
 }
 
-export function PlatformCard({ platform, rank, isExpanded, onToggle }: PlatformCardProps) {
+export function PlatformCard({ platform, rank, isExpanded, onToggle, sessionId }: PlatformCardProps) {
   const initial = companyInitial(platform.company);
   const tSuffix = tierSuffix(platform.tier_label);
   const priorityLetter = platform.priority_letter;
@@ -99,32 +102,41 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle }: PlatformC
         <div className="workspace-hifi__platform-expanded">
           <div className="workspace-hifi__platform-jobs">
           {platform.top_jobs.map((job) => (
-            <a
-              key={job.job_id}
-              className="workspace-hifi__platform-job-row"
-              href={job.detail_url || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span
-                className={`workspace-hifi__platform-job-type${job.is_internship ? ' is-intern' : ''}`}
+            <div key={job.job_id} className="workspace-hifi__platform-job-cell">
+              <a
+                className="workspace-hifi__platform-job-row"
+                href={job.detail_url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {job.is_internship ? '实' : '校'}
-              </span>
-              <span className="workspace-hifi__platform-job-title">{job.job_title}</span>
-              {(job.industry_tags ?? []).slice(0, 2).map((tag) => (
                 <span
-                  key={tag}
-                  className="workspace-hifi__industry-chip workspace-hifi__industry-chip--mini"
+                  className={`workspace-hifi__platform-job-type${job.is_internship ? ' is-intern' : ''}`}
                 >
-                  {tag}
+                  {job.is_internship ? '实' : '校'}
                 </span>
-              ))}
-              <span className="workspace-hifi__platform-job-score">{job.final_score}</span>
-              <span aria-hidden className="workspace-hifi__platform-job-arrow">
-                {I.arrowRight(10)}
-              </span>
-            </a>
+                <span className="workspace-hifi__platform-job-title">{job.job_title}</span>
+                {(job.industry_tags ?? []).slice(0, 2).map((tag) => (
+                  <span
+                    key={tag}
+                    className="workspace-hifi__industry-chip workspace-hifi__industry-chip--mini"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                <span className="workspace-hifi__platform-job-score">{job.final_score}</span>
+                <span aria-hidden className="workspace-hifi__platform-job-arrow">
+                  {I.arrowRight(10)}
+                </span>
+              </a>
+              {sessionId !== undefined && (
+                <RecommendNarrativeSection
+                  sessionId={sessionId}
+                  jobId={String(job.job_id)}
+                  isVisible={isExpanded}
+                  mode="short"
+                />
+              )}
+            </div>
           ))}
           {hasMoreJobs && (
             <span className="workspace-hifi__platform-jobs-more">

@@ -47,19 +47,24 @@ DS_KEY = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("RESUME_COPILOT_AP
 DS_MODEL = os.environ.get("NARRATIVE_MODEL_NAME") or "deepseek-v4-pro"
 
 
-SYSTEM_PROMPT = """你是金融求职 narrative coach。给定一名 SAIF 学生的简历 + 一个推荐岗位 + 这家公司的同辈情报,写一段 **2-3 句中文 narrative** 解释「为什么这家适合你」+ 一句 actionable 面试建议。
+SYSTEM_PROMPT = """你是金融求职 narrative coach。给定一名 SAIF 学生的简历 + 一个推荐岗位 + 这家公司的同辈情报,产出 **3 段**:
+
+1. `narrative` — 长版,2-3 句 80-160 字,锚定学生 specific 经历 + 公司 specific 团队特征,解释「为什么这家适合你」
+2. `narrative_short` — 短版,**单句 30-50 字**,从长版抽核心匹配点(给平台 tab mini job 行用),仍要锚具体经历,不能 generic 化
+3. `action_tip` — 一句话 30-60 字, actionable 面试建议
 
 **铁律**:
 1. **只引用 profile / job / insights 里出现过的事实**。学校、公司、数字、覆盖股票、奖项都必须有来源。**禁止编造**。如果 insight 里没具体细节就不要写细节。
 2. 必须锚定学生 **specific** 经历(实习/项目/课程的具体动作 + 成果),不能只说"你做过研究"这种 generic 话。
 3. 必须锚定公司 **specific** 团队特征(从 insights 抽,如"中欧消费组次高端 coverage 缺人"),不能只说"这家是 T0"。
-4. narrative 控制在 80-160 字。action_tip 一句话 30-60 字。
-5. 不写溢美词("太适合"/"完美匹配"),保持中性 + 信息密度。
-6. 如果学生经历跟岗位无明显锚点(e.g. 简历空白 / 跨大类),narrative 给"可迁移"判断,**不**强行编。
+4. 不写溢美词("太适合"/"完美匹配"),保持中性 + 信息密度。
+5. 如果学生经历跟岗位无明显锚点(e.g. 简历空白 / 跨大类),narrative 给"可迁移"判断,**不**强行编。短版同样降级,不能空。
+6. narrative_short 是给小卡片用的,必须**简短但仍含 specific 锚点**(e.g. "易方达消费深度报告框架可迁移到中金硬科技覆盖"),不要写"匹配度高"这种废话。
 
 **输出严格 JSON**:
 {
   "narrative": "...",
+  "narrative_short": "...",
   "action_tip": "...",
   "evidence_refs": ["xhs_xxx_NN", ...]   // 用了哪些 insight 当 evidence,可为空
 }
@@ -82,8 +87,9 @@ def _profile_hash(profile: dict) -> str:
 
 
 def _cache_key(user_key: str, job_id: str, profile: dict) -> str:
+    # v2: 2026-05-25 加 narrative_short 字段,bump version 让旧缓存重生成。
     h = _profile_hash(profile)
-    raw = f"{user_key}::{job_id}::{h}".strip().lower()
+    raw = f"{user_key}::{job_id}::{h}::v2".strip().lower()
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -287,6 +293,7 @@ def generate(
         return _empty_response(f"LLM 调用失败: {type(e).__name__}")
 
     narrative = (out.get("narrative") or "").strip()
+    narrative_short = (out.get("narrative_short") or "").strip()
     action_tip = (out.get("action_tip") or "").strip()
     evidence_refs = [str(x) for x in (out.get("evidence_refs") or []) if x]
 
@@ -295,6 +302,7 @@ def generate(
 
     payload = {
         "narrative": narrative,
+        "narrative_short": narrative_short,
         "action_tip": action_tip,
         "evidence_refs": evidence_refs,
         "generated_at": datetime.now(CST).isoformat(),
@@ -308,6 +316,7 @@ def generate(
 def _empty_response(reason: str) -> dict:
     return {
         "narrative": "",
+        "narrative_short": "",
         "action_tip": "",
         "evidence_refs": [],
         "generated_at": datetime.now(CST).isoformat(),

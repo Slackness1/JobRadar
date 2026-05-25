@@ -203,8 +203,13 @@ class ResumeRecommendationResultOut(BaseModel):
 
 
 class RecommendNarrativeOut(BaseModel):
-    """Phase 7 (2026-05-25) — 推荐卡个性化叙事。"""
+    """Phase 7 (2026-05-25) — 推荐卡个性化叙事。
+
+    Phase 8 (2026-05-25) — 加 narrative_short 字段,给平台 tab mini job 行用。
+    长短两版同一 LLM call 一并生成,共享缓存。
+    """
     narrative: str = ''
+    narrative_short: str = ''
     action_tip: str = ''
     evidence_refs: list[str] = []
     generated_at: str = ''

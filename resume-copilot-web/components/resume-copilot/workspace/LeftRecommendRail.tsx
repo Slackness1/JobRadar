@@ -332,6 +332,7 @@ export function LeftRecommendRail({
                   onToggle={() =>
                     setExpandedCompany((prev) => (prev === p.company ? null : p.company))
                   }
+                  sessionId={sid}
                 />
               </div>
             ))}

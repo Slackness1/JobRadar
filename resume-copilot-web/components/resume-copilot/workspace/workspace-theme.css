@@ -4151,6 +4151,34 @@
   line-height: 1.3;
 }
 
+/* Phase 8 — short narrative inline (平台 tab mini job 行下方) */
+.workspace-hifi__platform-job-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-hifi__narrative-short {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 0 12px 6px 60px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--olive);
+  font-style: italic;
+}
+
+.workspace-hifi__narrative-short--loading {
+  color: var(--stone);
+}
+
+.workspace-hifi__narrative-short .workspace-hifi__narrative-spark {
+  font-size: 11px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-style: normal;
+}
+
 /* ── Industry chip (Phase 6 mvp, 2026-05-25) ────────────────────────────── */
 /* Keyword-based industry sub-direction tag — purely display, no scoring impact.
  * Shown on both RecommendCard summary row and PlatformCard mini job rows. */

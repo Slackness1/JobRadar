@@ -323,8 +323,10 @@ export function getResumeCopilotPlatforms(sessionId: number) {
 }
 
 // Phase 7 — LLM 个性化推荐叙事 (2026-05-25)
+// Phase 8 — 加 narrative_short 给平台 tab mini job 行用 (同一 LLM call 一并生成)
 export interface RecommendNarrativeOut {
   narrative: string;
+  narrative_short: string;
   action_tip: string;
   evidence_refs: string[];
   generated_at: string;
