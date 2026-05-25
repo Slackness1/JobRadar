@@ -1,0 +1,104 @@
+{
+  "xsecToken": "AB6AOnlhuQIi96k5SHARYF-Wn5kvYN9pM0IULuYRuFU-w=",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "37",
+    "collected": false,
+    "collectedCount": "12",
+    "commentCount": "12",
+    "shareCount": "11",
+    "followed": false,
+    "relation": "none"
+  },
+  "tagList": [
+    {
+      "id": "6089019e000000000101ff41",
+      "name": "求职辅导",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "610a23120000000001007c41",
+      "name": "券商行研"
+    },
+    {
+      "id": "635797d40000000001001236",
+      "name": "职场smalltalk",
+      "type": "topic"
+    },
+    {
+      "name": "行业认可度",
+      "type": "topic",
+      "id": "6558ae4a000000001000528c"
+    },
+    {
+      "type": "topic",
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习"
+    },
+    {
+      "id": "5ce4198a000000000e029e1d",
+      "name": "留学生求职",
+      "type": "topic"
+    },
+    {
+      "id": "5bfe5df089d5f5000152b7d9",
+      "name": "投行",
+      "type": "topic"
+    },
+    {
+      "id": "5c383e7c000000000d022978",
+      "name": "秋招信息差",
+      "type": "topic"
+    },
+    {
+      "id": "5c02ed6de86d9c00014f26ad",
+      "name": "秋招有路子",
+      "type": "topic"
+    },
+    {
+      "id": "5f5f1f73000000000101f541",
+      "name": "投行实习",
+      "type": "topic"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "问成长性，那就是机构销售更高，Top20在现实中都是大机构，不是xhs话语体系中的小角色;\n至于工作体感，\n有可能做互联网金融的销售岗位，\n面对面与人打交道的场景少一些，\n让同学们不适应的“销售感”\n也许、似乎、maybe\n会体感少一点。\n.\n#求职辅导[话题]# #券商行研[话题]# #职场smalltalk[话题]# #行业认可度[话题]# #金融实习[话题]# #留学生求职[话题]# #投行[话题]# #秋招信息差[话题]# #秋招有路子[话题]# #投行实习[话题]#",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8",
+    "xsecToken": "AB_yQBtanTND7yGTlKSkIJoenLcvVAlFlDnstfGG3TJTU=",
+    "userId": "65758d2c000000001902e588",
+    "nickname": "鸡精经理Z先生"
+  },
+  "imageList": [
+    {
+      "width": 902,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191609/9d66fd4e4e5b69e69b0345b58ce28657/1040g2sg31nbb4425lmkg5pblhkm6dpc8eqa0b88!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191609/22286b14db84562c57c087dde7ded5ec/1040g2sg31nbb4425lmkg5pblhkm6dpc8eqa0b88!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191609/22286b14db84562c57c087dde7ded5ec/1040g2sg31nbb4425lmkg5pblhkm6dpc8eqa0b88!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 1702,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191609/9d66fd4e4e5b69e69b0345b58ce28657/1040g2sg31nbb4425lmkg5pblhkm6dpc8eqa0b88!nd_prv_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "atUserList": [],
+  "time": 1759839538000,
+  "lastUpdateTime": 1759839538000,
+  "noteId": "68e505320000000003021039",
+  "title": "图易方达华夏的名头，还是图成长，或离家近"
+}

@@ -1,0 +1,131 @@
+{
+  "xsecToken": "ABrSwAEJSeJkV6GUMG937xv7Gkf7q5R9igwV5rLgU5XZM=",
+  "user": {
+    "userId": "63ea18fa0000000026005cfd",
+    "nickname": "Kyrie",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v281nmh2i105ova33t9gn7tifraaqg",
+    "xsecToken": "ABHgUoRBqpTrPuaVABOOgclaU5b6OMn6l56YN95A0IC2k="
+  },
+  "interactInfo": {
+    "shareCount": "53",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "318",
+    "collected": false,
+    "collectedCount": "330",
+    "commentCount": "39"
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "height": 1856,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191531/7336b74c71469def219da7c8400ea30a/1040g2sg31v23829aige05ova33t9gn7t5qfh3do!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191531/5e61610842b9341d99015bc11fd3049f/1040g2sg31v23829aige05ova33t9gn7t5qfh3do!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "width": 1180,
+      "traceId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/7336b74c71469def219da7c8400ea30a/1040g2sg31v23829aige05ova33t9gn7t5qfh3do!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/5e61610842b9341d99015bc11fd3049f/1040g2sg31v23829aige05ova33t9gn7t5qfh3do!nd_dft_wlteh_webp_3"
+        }
+      ]
+    },
+    {
+      "fileId": "",
+      "livePhoto": false,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191531/c6722574838dd800172fb1bd9f075468/1040g2sg31v23829aigeg5ova33t9gn7tb6str8o!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "height": 1960,
+      "width": 1180,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/803c46efa3cfa135148dfa11abd41397/1040g2sg31v23829aigeg5ova33t9gn7tb6str8o!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/c6722574838dd800172fb1bd9f075468/1040g2sg31v23829aigeg5ova33t9gn7tb6str8o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191531/803c46efa3cfa135148dfa11abd41397/1040g2sg31v23829aigeg5ova33t9gn7tb6str8o!nd_prv_wlteh_webp_3"
+    },
+    {
+      "width": 1180,
+      "url": "",
+      "stream": {},
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/e1da2db591d0e412c60cc88c4c00ff4b/1040g2sg31v23829aigf05ova33t9gn7t9p2mbi8!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191531/640b188b7ebf0d3ce7fd33015cbfacf4/1040g2sg31v23829aigf05ova33t9gn7t9p2mbi8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191531/e1da2db591d0e412c60cc88c4c00ff4b/1040g2sg31v23829aigf05ova33t9gn7t9p2mbi8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191531/640b188b7ebf0d3ce7fd33015cbfacf4/1040g2sg31v23829aigf05ova33t9gn7t9p2mbi8!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "height": 1864,
+      "traceId": ""
+    }
+  ],
+  "tagList": [
+    {
+      "id": "610a23120000000001007c41",
+      "name": "券商行研",
+      "type": "topic"
+    },
+    {
+      "id": "6121084900000000010008b3",
+      "name": "行研实习",
+      "type": "topic"
+    },
+    {
+      "id": "5e5357ad0000000001009e09",
+      "name": "券商",
+      "type": "topic"
+    },
+    {
+      "id": "5bfcd0aaed250200015172bd",
+      "name": "金融行业",
+      "type": "topic"
+    },
+    {
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习",
+      "type": "topic"
+    },
+    {
+      "id": "5f5f1f73000000000101f541",
+      "name": "投行实习",
+      "type": "topic"
+    },
+    {
+      "id": "5c483aea000000000e02a3b8",
+      "name": "春招",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1776399040000,
+  "lastUpdateTime": 1776399041000,
+  "noteId": "69e1b2c0000000001a022c70",
+  "type": "normal",
+  "title": "券商行研组别分类｜选组决定后面实习方向",
+  "desc": "很多uu投行研实习，光看组别名字，消费、TMT、新能源一头雾水不知道如何选择，博主\n下面会整理行研的细分组别以及未来可能的晋升方向\n1、消费组（入行首选）\n覆盖：白酒、零食、家电、美妆、餐饮、服装、家居等\n日常就是研究大家熟悉的衣食住行。\n优势：贴近生活，逻辑好理解，数据易获取，上手快\n不足：赛道非热门，竞争偏卷，股价更受市场情绪影响，未来投递实习方向少\n2、TMT组（覆盖最广，成长感强）\n覆盖：海外互联网/中概股、国内互联网、半导体、软件、通信、电子硬件\n赛道更新速度快，天天盯行业动态、政策、渗透率，很锻炼逻辑思维\n适合对科技、互联网感兴趣，反应快、能高效输出观点的同学。\npe，vc，互联网，战投都喜欢有tmt背景的实习生\n3、医药组（专业壁垒高）\n覆盖：创新药、医疗器械、CXO、医疗服务\n专业门槛极高，需要懂研发、临床、病理知识\n更偏爱生物医药、化学、医学背景同学，纯金融零基础入门难度大，研报深度要求也更高\n4、周期组（重逻辑）\n覆盖：煤炭、钢铁、化工、有色、油运、大宗商品\n核心研究供需关系、库存周期、产品价格、宏观经济走势\n行业波动极大，对数据敏感度、理性分析能力要求高\n5、高端制造/新能源组\n覆盖：新能源、光伏、锂电、整车、汽车零部件、先进制造\n近几年热度居高不下，实习HC多、机会足\n产业逻辑硬核，既要啃产业知识，也要做大量数据测算\n实习强度偏高，但简历含金量拉满，能快速积累硬核经验\n6、金融地产组\n覆盖：银行、券商、保险、地产\n核心跟踪宏观政策、利率走势、行业监管动态\n对财务分析能力要求极高，报表复杂度高，整体风格偏稳重严谨\n7、公用事业/环保/农业组（低卷稳定）\n覆盖：电力、水务、环保、农林牧渔\n行业发展平稳，波动小、节奏慢\n8、宏观策略组\n专门跟上面行业组分开的，不算具体行业，是看大势、大类资产、宏观经济。\n覆盖：GDP、通胀、利率、汇率、政策、市场策略、资产配置\n日常看宏观数据、写策略观点、判断市场\n适合：对宏观经济感兴趣、喜欢看大势、文字功底好的人。\n二级买，资产配置，fof，量化喜欢有过策略组经验的实习生\n行研选组真的很关键，直接决定实习体验和成长速度，别盲目投递啦～#券商行研[话题]# #行研实习[话题]# #券商[话题]# #金融行业[话题]# #金融实习[话题]# #投行实习[话题]# #春招[话题]#",
+  "shareInfo": {
+    "unShare": false
+  }
+}

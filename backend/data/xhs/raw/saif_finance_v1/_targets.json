@@ -1,0 +1,11 @@
+{
+  "track": "公募投研 / 卖方研究 / 二级买方",
+  "discovery_date": "2026-05-23",
+  "targets": [
+    {"slug": "zui_shuai_du_bo_3months", "name": "最帅的人(读博版)🥕", "user_id": "6252fe9e000000001000aebe", "fans": "3.3k", "primary": "量化 + 读博"},
+    {"slug": "saibo_long_suo_3months", "name": "赛博带教隆索", "user_id": "640e9a64000000002a009809", "fans": "814", "primary": "卖方研究 mentor"},
+    {"slug": "datou_wenwen_3months", "name": "大头文文lucky", "user_id": "60ea68230000000001004f23", "fans": "774", "primary": "二级买方"},
+    {"slug": "hongtou_banbiantian_3months", "name": "红透半边天", "user_id": "5c722d70000000001102550a", "fans": "4.3k", "primary": "卖方研究 / 顶流号 (8519赞爆款)"},
+    {"slug": "zai_da_yi_zhen_3months", "name": "再打一针内啡肽", "user_id": "657ae7d70000000020033d5f", "fans": "1.2k", "primary": "行研反共识"}
+  ]
+}

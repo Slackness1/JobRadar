@@ -1,0 +1,233 @@
+{
+  "xsecToken": "AB2gO0tti5Okw1jIjhb15DBgelE8nayk3CoNFiq7CBww8=",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "49",
+    "collected": false,
+    "collectedCount": "8",
+    "commentCount": "13",
+    "shareCount": "13",
+    "followed": false
+  },
+  "tagList": [
+    {
+      "id": "61a61d270000000001005243",
+      "name": "中金IB",
+      "type": "topic"
+    },
+    {
+      "id": "61147a8f000000000101d2d7",
+      "name": "三中一华",
+      "type": "topic"
+    },
+    {
+      "name": "秋招",
+      "type": "topic",
+      "id": "5bf577715fb4e60001b66b97"
+    },
+    {
+      "id": "63f8b47c000000000100beb1",
+      "name": "留子日常",
+      "type": "topic"
+    },
+    {
+      "id": "5be1be5ab6fd09000160692c",
+      "name": "面试",
+      "type": "topic"
+    },
+    {
+      "id": "65194612000000000d01e946",
+      "name": "精神稳定发疯",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "645e47cf000000002801394c",
+      "name": "误闯天家"
+    },
+    {
+      "id": "638db76200000000010006c2",
+      "name": "精神状态很美丽",
+      "type": "topic"
+    },
+    {
+      "id": "633c1a79000000000101df9c",
+      "name": "秋招人的精神状态",
+      "type": "topic"
+    },
+    {
+      "id": "5be7d6ac50fe56000112753b",
+      "name": "找工作",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "lastUpdateTime": 1765188514000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "6936a3a1000000001e02ba8e",
+  "type": "video",
+  "desc": "中金IB误闯天家，求求🙏让我下一轮吧\n秋招最后的几个面试了\n然后面试内容不可言（抓到会被流程终止），\n大家⛽️好好准备（虽然也没啥能准备的[doge]\n\t\n#中金IB[话题]# #三中一华[话题]# #秋招[话题]# #留子日常[话题]# #面试[话题]# #精神稳定发疯[话题]# #误闯天家[话题]# #精神状态很美丽[话题]# #秋招人的精神状态[话题]##找工作[话题]#",
+  "video": {
+    "media": {
+      "videoId": 137701333802399580,
+      "video": {
+        "md5": "7315baa0fff16596903ad09e80b85414",
+        "hdrType": 1,
+        "drmType": 0,
+        "streamTypes": [
+          114,
+          259,
+          115
+        ],
+        "bizName": 110,
+        "bizId": "281816528104110734",
+        "duration": 60
+      },
+      "stream": {
+        "h264": [
+          {
+            "volume": 0,
+            "vmaf": -1,
+            "ssim": 0,
+            "streamDesc": "WM_X264_MP4_web",
+            "format": "mp4",
+            "size": 5689236,
+            "fps": 30,
+            "audioBitrate": 64148,
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/1/110/259/01e936a22e63b764010370039afd709ded_259.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/1/110/259/01e936a22e63b764010370039afd709ded_259.mp4"
+            ],
+            "weight": 62,
+            "videoBitrate": 688132,
+            "hdrType": 0,
+            "psnr": 0,
+            "streamType": 259,
+            "duration": 59967,
+            "avgBitrate": 758982,
+            "audioChannels": 2,
+            "qualityType": "HD",
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/1/110/259/01e936a22e63b764010370039afd709ded_259.mp4?sign=51329ccd2b8f18b9b6232201a33a618d&t=6a10bb1d",
+            "defaultStream": 0,
+            "height": 1280,
+            "videoDuration": 59966,
+            "audioDuration": 59953,
+            "width": 720,
+            "videoCodec": "h264",
+            "audioCodec": "aac",
+            "rotate": 0
+          }
+        ],
+        "h265": [
+          {
+            "format": "mp4",
+            "size": 6259440,
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/1/110/114/01e936a22e63b764010370019afd729e36_114.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/1/110/114/01e936a22e63b764010370019afd729e36_114.mp4"
+            ],
+            "audioCodec": "aac",
+            "audioDuration": 59953,
+            "weight": 62,
+            "fps": 30,
+            "videoDuration": 59966,
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/1/110/114/01e936a22e63b764010370019afd729e36_114.mp4?sign=711df6b2ef1d2e1ddac40d791087b094&t=6a10bb1d",
+            "streamDesc": "X265_MP4_WEB_114",
+            "height": 1280,
+            "duration": 59967,
+            "vmaf": -1,
+            "psnr": 42.91699981689453,
+            "qualityType": "HD",
+            "defaultStream": 0,
+            "avgBitrate": 835051,
+            "videoBitrate": 699992,
+            "audioChannels": 2,
+            "rotate": 0,
+            "volume": 0,
+            "videoCodec": "hevc",
+            "streamType": 114,
+            "width": 720,
+            "audioBitrate": 128297,
+            "ssim": 0,
+            "hdrType": 0
+          },
+          {
+            "rotate": 0,
+            "psnr": 42.88999938964844,
+            "volume": 0,
+            "audioBitrate": 128297,
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/1/110/115/01e936a22e63b764010370019afd79dee0_115.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/1/110/115/01e936a22e63b764010370019afd79dee0_115.mp4"
+            ],
+            "ssim": 0,
+            "fps": 30,
+            "videoCodec": "hevc",
+            "videoBitrate": 940872,
+            "audioDuration": 59953,
+            "weight": 70,
+            "duration": 59967,
+            "videoDuration": 59966,
+            "audioCodec": "aac",
+            "qualityType": "HD",
+            "streamType": 115,
+            "streamDesc": "X265_MP4_WEB_115",
+            "hdrType": 0,
+            "vmaf": -1,
+            "format": "mp4",
+            "size": 8065032,
+            "audioChannels": 2,
+            "avgBitrate": 1075929,
+            "height": 1920,
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/1/110/115/01e936a22e63b764010370019afd79dee0_115.mp4?sign=048bdf6904bf499e92c2e16911337656&t=6a10bb1d",
+            "defaultStream": 0,
+            "width": 1080
+          }
+        ],
+        "h266": [],
+        "av1": []
+      }
+    },
+    "image": {
+      "thumbnailFileid": "frame/110/0/01e936a22e63b7640010000000019afd718e2c_0.webp",
+      "firstFrameFileid": "110/0/01e936a22e63b7640010000000019afd6f365d_0.jpg"
+    },
+    "capa": {
+      "duration": 59
+    }
+  },
+  "time": 1765188513000,
+  "title": "秋招面试误闯天家",
+  "user": {
+    "nickname": "愚",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317u0u2vnjq005pnbqdc7e7ki1vrl0eo",
+    "xsecToken": "AB57R0_QDUSeL3_Ov8WP97VyCvmIBhZc2p7EDXXdIGvLo=",
+    "userId": "66ebd358000000001d031e92"
+  },
+  "imageList": [
+    {
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191622/d386509f659c1369b8416116b622a742/1040g00831pr18dip4k005pnbqdc7e7ki6amofj8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191622/769a4e933b4dc41dc45930bcf041e40a/1040g00831pr18dip4k005pnbqdc7e7ki6amofj8!nd_dft_wlteh_webp_3",
+      "fileId": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191622/d386509f659c1369b8416116b622a742/1040g00831pr18dip4k005pnbqdc7e7ki6amofj8!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191622/769a4e933b4dc41dc45930bcf041e40a/1040g00831pr18dip4k005pnbqdc7e7ki6amofj8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "height": 1440,
+      "width": 1080,
+      "url": ""
+    }
+  ]
+}

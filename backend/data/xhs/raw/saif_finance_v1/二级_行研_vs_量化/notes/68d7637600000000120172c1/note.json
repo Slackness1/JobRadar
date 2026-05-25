@@ -1,0 +1,90 @@
+{
+  "xsecToken": "AB-tjgMedQb6NTt8Xsj17TJ4DiteMab-sAOZCpyk69nak=",
+  "lastUpdateTime": 1758946166000,
+  "title": "量化私募QR，跳槽公募，offer能接吗",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pu6len23q005oiksvhje0h06n5k858",
+    "xsecToken": "ABON5-DeqbyPcrhTqNryMLHvBydNX9AM36QgllCgC32f8=",
+    "userId": "6254e7e3000000000d030220",
+    "nickname": "猎界Coco（猎头&职业规划）"
+  },
+  "interactInfo": {
+    "commentCount": "27",
+    "shareCount": "36",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "56",
+    "collected": false,
+    "collectedCount": "32"
+  },
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5f715f1000000000010002ba",
+      "name": "职业规划"
+    },
+    {
+      "id": "5f9b90c500000000010011c9",
+      "name": "职场",
+      "type": "topic"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1758946166000,
+  "noteId": "68d7637600000000120172c1",
+  "type": "normal",
+  "desc": "#职业规划[话题]# #职场[话题]# #金融[话题]#",
+  "imageList": [
+    {
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191528/6609413d9a1c3c1170ed4ca47726b250/1040g00831mu136pvku005oiksvhje0h0th2bvqg!nd_prv_wlteh_webp_3",
+      "fileId": "",
+      "height": 1841,
+      "width": 1112,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191528/6609413d9a1c3c1170ed4ca47726b250/1040g00831mu136pvku005oiksvhje0h0th2bvqg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191528/3179ec9c0db39f1c13287b6862ddeaac/1040g00831mu136pvku005oiksvhje0h0th2bvqg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191528/3179ec9c0db39f1c13287b6862ddeaac/1040g00831mu136pvku005oiksvhje0h0th2bvqg!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false
+    },
+    {
+      "height": 1812,
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191528/fd25ff251d1878484dce7fe3693b3b2f/1040g00831mu136pvku0g5oiksvhje0h0qvvhrgg!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1108,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191528/fd25ff251d1878484dce7fe3693b3b2f/1040g00831mu136pvku0g5oiksvhje0h0qvvhrgg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191528/23ff2c67be1962bdaf786862720e96d8/1040g00831mu136pvku0g5oiksvhje0h0qvvhrgg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191528/23ff2c67be1962bdaf786862720e96d8/1040g00831mu136pvku0g5oiksvhje0h0qvvhrgg!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  }
+}

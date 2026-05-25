@@ -1,0 +1,260 @@
+[
+  {
+    "id": "6860c96b000000002001378f",
+    "note_id": "67bb0ce20000000029025776",
+    "at_users": [],
+    "user_info": {
+      "user_id": "5b35fab011be1050efa18354",
+      "nickname": "饱元",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u4v1thjii004a6m56tb10qkfruhncg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB8tumZwCDFFhL0xrQSqKRUSMjan7UfsqmLILiRlwZao8="
+    },
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "id": "6861fa7a0000000013036078",
+        "note_id": "67bb0ce20000000029025776",
+        "at_users": [],
+        "create_time": 1751251578000,
+        "target_comment": {
+          "id": "6860c96b000000002001378f",
+          "user_info": {
+            "nickname": "饱元",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u4v1thjii004a6m56tb10qkfruhncg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB8tumZwCDFFhL0xrQSqKRUSMjan7UfsqmLILiRlwZao8=",
+            "user_id": "5b35fab011be1050efa18354"
+          }
+        },
+        "status": 0,
+        "content": "您好，簿记延迟就是延长了申购时间，工作内容是一样的。我所在的公司在簿记开始前基本都默认延迟到七点，并不是快结束了才延迟，投资者申购的时候往往会多次改价，可以说是双方博弈的过程，不一定就会压低利率吧。簿记全程很正规的，我自己参与下来不存在什么勾兑。这是我的理解不一定对哈哈，蹲蹲路过的大佬们赐教[皱眉R]",
+        "user_info": {
+          "user_id": "5e5be23200000000010042f5",
+          "nickname": "王德否",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM="
+        }
+      }
+    ],
+    "status": 0,
+    "content": "您好！博主能不能请教下簿记延迟都是在做什么呀？感觉延迟结束很普遍，为什么会出现这样的情况，有什么勾兑吗[笑哭R]这样更长时间不是有利于发行人压低利率",
+    "liked": false,
+    "like_count": "1",
+    "sub_comment_cursor": "6861fa7a0000000013036078",
+    "create_time": 1751173483000,
+    "ip_location": "上海",
+    "sub_comment_has_more": true
+  },
+  {
+    "content": "请问dcm秋招暑期留用机会多吗[哭惹R]",
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB-b_xuAZK6uCi4zkZcrKs4jYs-YaaUHIIH0-CwqoiYDw=",
+      "user_id": "5d31b3310000000011027f2e",
+      "nickname": "🌚👌👀",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318agv3lm46405n9hmcokcvpe4nl28e0?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1770372609000,
+    "ip_location": "北京",
+    "sub_comment_count": "2",
+    "show_tags": [],
+    "sub_comment_cursor": "6985be95000000000600f0f2",
+    "id": "6985be01000000000c016bb4",
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "note_id": "67bb0ce20000000029025776",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM=",
+          "user_id": "5e5be23200000000010042f5",
+          "nickname": "王德否",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "安徽",
+        "id": "6985be95000000000600f0f2",
+        "note_id": "67bb0ce20000000029025776",
+        "status": 0,
+        "target_comment": {
+          "id": "6985be01000000000c016bb4",
+          "user_info": {
+            "user_id": "5d31b3310000000011027f2e",
+            "nickname": "🌚👌👀",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318agv3lm46405n9hmcokcvpe4nl28e0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB-b_xuAZK6uCi4zkZcrKs4jYs-YaaUHIIH0-CwqoiYDw="
+          }
+        },
+        "content": "不太了解哎",
+        "like_count": "0",
+        "create_time": 1770372758000
+      }
+    ],
+    "sub_comment_has_more": true
+  },
+  {
+    "create_time": 1772372568000,
+    "sub_comment_cursor": "69a44922000000000601de25",
+    "note_id": "67bb0ce20000000029025776",
+    "user_info": {
+      "nickname": "勿忘我",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v0kt3vn2q6g5nj4sik08hege2cb35g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABZnCJ4QvZmPa-hI1hR-LBkK6wiLXrm0njXDI3hmAygGc=",
+      "user_id": "5e64e4a800000000010045d0"
+    },
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "sub_comment_has_more": true,
+    "content": "请问面试可能问到哪些问题呀[害羞R]",
+    "liked": false,
+    "like_count": "0",
+    "at_users": [],
+    "ip_location": "湖北",
+    "sub_comments": [
+      {
+        "like_count": "0",
+        "user_info": {
+          "user_id": "5e5be23200000000010042f5",
+          "nickname": "王德否",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "content": "深挖简历，为什么想来券商，对dcm的了解",
+        "note_id": "67bb0ce20000000029025776",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "create_time": 1772374306000,
+        "ip_location": "浙江",
+        "target_comment": {
+          "id": "69a442570000000009021daa",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v0kt3vn2q6g5nj4sik08hege2cb35g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABZnCJ4QvZmPa-hI1hR-LBkK6wiLXrm0njXDI3hmAygGc=",
+            "user_id": "5e64e4a800000000010045d0",
+            "nickname": "勿忘我"
+          }
+        },
+        "id": "69a44922000000000601de25"
+      }
+    ],
+    "id": "69a442570000000009021daa",
+    "status": 0
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "id": "6861fa7a0000000013036078",
+    "note_id": "67bb0ce20000000029025776",
+    "at_users": [],
+    "create_time": 1751251578000,
+    "target_comment": {
+      "id": "6860c96b000000002001378f",
+      "user_info": {
+        "nickname": "饱元",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u4v1thjii004a6m56tb10qkfruhncg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB8tumZwCDFFhL0xrQSqKRUSMjan7UfsqmLILiRlwZao8=",
+        "user_id": "5b35fab011be1050efa18354"
+      }
+    },
+    "status": 0,
+    "content": "您好，簿记延迟就是延长了申购时间，工作内容是一样的。我所在的公司在簿记开始前基本都默认延迟到七点，并不是快结束了才延迟，投资者申购的时候往往会多次改价，可以说是双方博弈的过程，不一定就会压低利率吧。簿记全程很正规的，我自己参与下来不存在什么勾兑。这是我的理解不一定对哈哈，蹲蹲路过的大佬们赐教[皱眉R]",
+    "user_info": {
+      "user_id": "5e5be23200000000010042f5",
+      "nickname": "王德否",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM="
+    }
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM=",
+      "user_id": "5e5be23200000000010042f5",
+      "nickname": "王德否",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "安徽",
+    "id": "6985be95000000000600f0f2",
+    "note_id": "67bb0ce20000000029025776",
+    "status": 0,
+    "target_comment": {
+      "id": "6985be01000000000c016bb4",
+      "user_info": {
+        "user_id": "5d31b3310000000011027f2e",
+        "nickname": "🌚👌👀",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318agv3lm46405n9hmcokcvpe4nl28e0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB-b_xuAZK6uCi4zkZcrKs4jYs-YaaUHIIH0-CwqoiYDw="
+      }
+    },
+    "content": "不太了解哎",
+    "like_count": "0",
+    "create_time": 1770372758000
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5e5be23200000000010042f5",
+      "nickname": "王德否",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64217216cafb537ac0477f23.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABZ3pLj5aIMWsfpsfaNhjDHdxhLin0TZbpo2pHTl-orvM="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "content": "深挖简历，为什么想来券商，对dcm的了解",
+    "note_id": "67bb0ce20000000029025776",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "create_time": 1772374306000,
+    "ip_location": "浙江",
+    "target_comment": {
+      "id": "69a442570000000009021daa",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v0kt3vn2q6g5nj4sik08hege2cb35g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABZnCJ4QvZmPa-hI1hR-LBkK6wiLXrm0njXDI3hmAygGc=",
+        "user_id": "5e64e4a800000000010045d0",
+        "nickname": "勿忘我"
+      }
+    },
+    "id": "69a44922000000000601de25"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "idx": 1,
+    "err": "content/quote too short",
+    "raw": {
+      "type": [
+        "company_anecdote"
+      ],
+      "role_target": [],
+      "company_target": [],
+      "sector_target": [
+        "PE"
+      ],
+      "content": "部分PE在实习招聘中会进行背调，会联系前实习生的主管确认经历。",
+      "source_quote": "实习还背调",
+      "speaker": "commenter",
+      "confidence": "med"
+    }
+  }
+]

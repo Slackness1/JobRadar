@@ -1,0 +1,64 @@
+{
+  "xsecToken": "ABwwT0Z4UzJa3J2UJNabZwtuPZnEmlMjBC_tqQDtLnmWk=",
+  "desc": "up主00年，拿到了头部量化策略的offer，150个左右，大模型方向80个，个人倾向后者。不知道哪个发展会好些，是勇闯金融圈，还是深耕大模型 #量化[话题]# #大模型[话题]#",
+  "time": 1758127421000,
+  "lastUpdateTime": 1758127421000,
+  "interactInfo": {
+    "likedCount": "40",
+    "collected": false,
+    "collectedCount": "37",
+    "commentCount": "51",
+    "shareCount": "30",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "imageList": [
+    {
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191426/cfc1837156d7494bada4b6c455ab0867/notes_pre_post/1040g3k831mhpak044uc05opb07qovj1cm9r0v28!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 1600,
+      "width": 1200,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191426/02561673d2d1732076ab347fa44df0f8/notes_pre_post/1040g3k831mhpak044uc05opb07qovj1cm9r0v28!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191426/cfc1837156d7494bada4b6c455ab0867/notes_pre_post/1040g3k831mhpak044uc05opb07qovj1cm9r0v28!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191426/02561673d2d1732076ab347fa44df0f8/notes_pre_post/1040g3k831mhpak044uc05opb07qovj1cm9r0v28!nd_prv_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化",
+      "type": "topic"
+    },
+    {
+      "id": "624d11eb000000000101e223",
+      "name": "大模型",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "noteId": "68cae53d000000001202f446",
+  "type": "normal",
+  "title": "量化策略研究员的offer值得接吗",
+  "user": {
+    "userId": "632b01f5000000002303cc2c",
+    "nickname": "停云",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/d784fc20c996f3d2f39d034c404f234e.jpg",
+    "xsecToken": "ABBtpWQzVQwOxrwcUkp52UWB6kt8jorITMA6qTPp1vzzY="
+  },
+  "shareInfo": {
+    "unShare": false
+  }
+}

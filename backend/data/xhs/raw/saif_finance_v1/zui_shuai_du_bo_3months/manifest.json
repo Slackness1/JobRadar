@@ -1,0 +1,13 @@
+{
+  "source": "tikhub_xiaohongshu_app_v2",
+  "author": "最帅的人",
+  "author_user_id": "6252fe9e000000001000aebe",
+  "author_red_id": "",
+  "capture_date": "2026-05-24",
+  "date_window_months": 3,
+  "notes_in_csv": 12,
+  "notes_fetched_this_run": 12,
+  "approx_tikhub_calls_this_run": 25,
+  "approx_cost_this_run_usd": 0.25,
+  "elapsed_sec": 40.8
+}

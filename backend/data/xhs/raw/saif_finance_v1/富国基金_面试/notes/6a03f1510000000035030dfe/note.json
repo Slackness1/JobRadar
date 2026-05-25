@@ -1,0 +1,100 @@
+{
+  "xsecToken": "ABFl__QCRk7pyqrf1eZnCQr1lw2BT5Uy0DVLKqcY0Aoxg=",
+  "atUserList": [],
+  "time": 1778643281000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "6a03f1510000000035030dfe",
+  "type": "normal",
+  "title": "gtht暑期回顾",
+  "desc": "去年收到固定收益客需的实习offer，但由于实习入职时间卡的比较死遂放弃\n时间线：6月底测评。2-3天后AI面试，7月中旬线上群面，7月20左右发放实习offer\n笔面试内容：笔试常规行测，AI面试有英文问题(但貌似不卡人，答的很烂也受到后续面试)；群面三人一组，主要是自我介绍和专业问题为主(怎么看当前债市，股票牛市对债市影响，国际形势对国内债市影响等)\n实习：200/day，7月底入职，实习到10月份，元旦高管面，留用后实习到入职(团队口径，欢迎补充)\n去年由于暑期开的比较晚，整体竞争不是很激烈，自营中客需bar相对低一些。并且由于基本只通过暑期招人，比某些暑期没留用的券商好不少。#实习[话题]# #秋招面试[话题]# #金融求职[话题]# #暑期实习[话题]# #gtht[话题]##券商暑期[话题]# #校招[话题]# #面经[话题]# #金融实习[话题]#",
+  "lastUpdateTime": 1778643353000,
+  "ipLocation": "北京",
+  "user": {
+    "xsecToken": "ABk9CCAJAaKPLLb6WZ-9AhhzgCNm0B8ZQGkKv-ZJmR_q0=",
+    "userId": "5fa39ef600000000010082f4",
+    "nickname": "Lucky",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31njrr7hsks6g5nt3jrr090nko8gff48"
+  },
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "153",
+    "collected": false,
+    "collectedCount": "112",
+    "commentCount": "35",
+    "shareCount": "42",
+    "followed": false
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191620/bc3cde3f561771cff5f3b3669a47ac4c/1040g2sg3203hd3f454305nt3jrr090nklkkqs30!nd_prv_wgth_webp_3"
+        },
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191620/276b48e4e226aa0fd76eaf19ebe80f55/1040g2sg3203hd3f454305nt3jrr090nklkkqs30!nd_dft_wgth_webp_3",
+          "imageScene": "WB_DFT"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191620/bc3cde3f561771cff5f3b3669a47ac4c/1040g2sg3203hd3f454305nt3jrr090nklkkqs30!nd_prv_wgth_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "height": 411,
+      "width": 852,
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191620/276b48e4e226aa0fd76eaf19ebe80f55/1040g2sg3203hd3f454305nt3jrr090nklkkqs30!nd_dft_wgth_webp_3"
+    }
+  ],
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习"
+    },
+    {
+      "id": "66c5be700000000024028f33",
+      "name": "秋招面试",
+      "type": "topic"
+    },
+    {
+      "id": "5d4e67ba000000000f018b78",
+      "name": "金融求职",
+      "type": "topic"
+    },
+    {
+      "id": "5cd13fa8000000000e005d21",
+      "name": "暑期实习",
+      "type": "topic"
+    },
+    {
+      "id": "63aa6284000000000101c0e0",
+      "name": "gtht",
+      "type": "topic"
+    },
+    {
+      "id": "625ce80c000000000100799d",
+      "name": "券商暑期",
+      "type": "topic"
+    },
+    {
+      "id": "5be764531cc2b50001167e33",
+      "name": "校招",
+      "type": "topic"
+    },
+    {
+      "name": "面经",
+      "type": "topic",
+      "id": "5c12185d5237920001d589d9"
+    },
+    {
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习",
+      "type": "topic"
+    }
+  ]
+}

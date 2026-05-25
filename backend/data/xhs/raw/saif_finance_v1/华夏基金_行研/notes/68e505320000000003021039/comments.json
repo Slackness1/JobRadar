@@ -1,0 +1,377 @@
+[
+  {
+    "status": 4,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "create_time": 1759839709000,
+    "ip_location": "北京",
+    "sub_comments": [],
+    "content": "“离家近”这个因子，是无法用普适价值衡量的，可以觉得超越一切，也可以觉得暂时妥协。但是，除了“离家近”就缺乏其他价值吸引点的选择，工作后心态变化的比例不低。",
+    "liked": false,
+    "like_count": "9",
+    "show_tags": [
+      "user_top"
+    ],
+    "id": "68e505dd0000000037027599",
+    "note_id": "68e505320000000003021039",
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    }
+  },
+  {
+    "status": 0,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB92K0vvWmMNpqzSkkWsRHSvFQEV0OWzdKMhkvRZ8C2jw=",
+      "user_id": "61fc70bc00000000100040c1",
+      "nickname": "PPinky",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lvltgfm5m005ofse2u40g61hpclto8?imageView2/2/w/120/format/jpg"
+    },
+    "ip_location": "浙江",
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "like_count": "0",
+    "sub_comment_count": "1",
+    "id": "68ea06c300000000330233c5",
+    "note_id": "68e505320000000003021039",
+    "content": "现在对公客户经理跳机销还有机会吗",
+    "liked": false,
+    "create_time": 1760167620000,
+    "sub_comments": [
+      {
+        "liked": false,
+        "user_info": {
+          "user_id": "65758d2c000000001902e588",
+          "nickname": "鸡精经理Z先生",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg="
+        },
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "68ea06c300000000330233c5",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "AB92K0vvWmMNpqzSkkWsRHSvFQEV0OWzdKMhkvRZ8C2jw=",
+            "user_id": "61fc70bc00000000100040c1",
+            "nickname": "PPinky",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lvltgfm5m005ofse2u40g61hpclto8?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1760497948000,
+        "id": "68ef111b0000000037011ce6",
+        "note_id": "68e505320000000003021039",
+        "status": 0,
+        "content": "不论“过去、现在、未来”，概率都很小",
+        "at_users": [],
+        "like_count": "1"
+      }
+    ],
+    "show_tags": [],
+    "sub_comment_cursor": "68ef111b0000000037011ce6"
+  },
+  {
+    "status": 0,
+    "sub_comment_count": "2",
+    "sub_comments": [
+      {
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "at_users": [],
+        "like_count": "2",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg=",
+          "user_id": "65758d2c000000001902e588",
+          "nickname": "鸡精经理Z先生"
+        },
+        "create_time": 1759840410000,
+        "id": "68e5089900000000330040e2",
+        "note_id": "68e505320000000003021039",
+        "status": 0,
+        "content": "个体选择体现的是千人千面的价值观差异，没有简单的线性结论。一线家庭孩纸有从大学就看重“离家近”的，也有看重成长性第一的。",
+        "target_comment": {
+          "id": "68e507cd000000003902937b",
+          "user_info": {
+            "user_id": "5c2dbb4f000000000700d939",
+            "nickname": "xoxo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/640b24af69c3d79b17b35337.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB7avSvJ7GwM4aKYcDozqDmxlLppEekuwWNyLy0JvRyds="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "id": "68e507cd000000003902937b",
+    "note_id": "68e505320000000003021039",
+    "liked": false,
+    "like_count": "1",
+    "ip_location": "西班牙",
+    "sub_comment_cursor": "68e5089900000000330040e2",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/640b24af69c3d79b17b35337.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB7avSvJ7GwM4aKYcDozqDmxlLppEekuwWNyLy0JvRyds=",
+      "user_id": "5c2dbb4f000000000700d939",
+      "nickname": "xoxo"
+    },
+    "show_tags": [],
+    "content": "如果家就在北上广深的话是不是该图离家近",
+    "at_users": [],
+    "create_time": 1759840205000
+  },
+  {
+    "status": 0,
+    "ip_location": "广东",
+    "show_tags": [],
+    "create_time": 1760159586000,
+    "sub_comment_has_more": false,
+    "content": "苏银理财销售不也是渠道吗？",
+    "liked": false,
+    "user_info": {
+      "user_id": "5702532a1c07df77d3c4e905",
+      "nickname": "小胡要上2.0",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5a5b74c814de4179a36ad977.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABcYXDjUT_F9yGPlqIVXLxzVYdaeG4WheFqQ6vPI_fZyE="
+    },
+    "note_id": "68e505320000000003021039",
+    "at_users": [],
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "like_count": "2",
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "68e9e9f400000000330240d8",
+        "status": 0,
+        "content": "我都没提这个",
+        "at_users": [],
+        "liked": false,
+        "note_id": "68e505320000000003021039",
+        "user_info": {
+          "user_id": "65758d2c000000001902e588",
+          "nickname": "鸡精经理Z先生",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg="
+        },
+        "create_time": 1760160244000,
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "68e9e7620000000033005873",
+          "user_info": {
+            "nickname": "小胡要上2.0",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5a5b74c814de4179a36ad977.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABcYXDjUT_F9yGPlqIVXLxzVYdaeG4WheFqQ6vPI_fZyE=",
+            "user_id": "5702532a1c07df77d3c4e905"
+          }
+        }
+      }
+    ],
+    "sub_comment_cursor": "68e9e9f400000000330240d8",
+    "id": "68e9e7620000000033005873",
+    "like_count": "1"
+  },
+  {
+    "status": 0,
+    "content": "互金一票",
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB546y-3zfbRq-hpn25rbkTAmYNYy2u4UVNnf12Q8DsnQ=",
+      "user_id": "5e9a7e760000000001007592",
+      "nickname": "雪雪末",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30osq2b7l3s6g5nkqfpr08tcil76jg10?imageView2/2/w/120/format/jpg"
+    },
+    "ip_location": "江苏",
+    "note_id": "68e505320000000003021039",
+    "id": "68e7394b000000003902c59a",
+    "like_count": "1",
+    "create_time": 1759983948000,
+    "sub_comment_has_more": false
+  },
+  {
+    "ip_location": "北京",
+    "sub_comment_has_more": false,
+    "id": "68e7ccb8000000003902339b",
+    "note_id": "68e505320000000003021039",
+    "status": 0,
+    "content": "top2",
+    "like_count": "2",
+    "at_users": [],
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "liked": false,
+    "user_info": {
+      "user_id": "5c7a0fff000000001700dc23",
+      "nickname": "Ro",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31llbdosel2005n3q1vvlpn13jstv8mg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB5HSvh4TcwHUZv0sOi4TTRG6x5iyLv5xxuuAGYtLeojw="
+    },
+    "create_time": 1760021689000,
+    "sub_comment_count": "0",
+    "sub_comments": []
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "5f9f514f0000000001007760",
+      "nickname": "不抽香烟",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31raa4mo100005nsva57g8tr0vencvbo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABeXEH4EHyhAcz-FMGH5JePhKroD0dWwTZpW1q--5UKPg="
+    },
+    "id": "68e835ba000000003803dcc6",
+    "sub_comment_cursor": "",
+    "create_time": 1760048571000,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "note_id": "68e505320000000003021039",
+    "status": 0,
+    "content": "先都拿到offer再挑吧，贷款毫无意义",
+    "show_tags": [],
+    "at_users": [],
+    "like_count": "0",
+    "ip_location": "美国",
+    "sub_comment_has_more": false
+  },
+  {
+    "sub_comment_cursor": "",
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "广东",
+    "sub_comment_count": "0",
+    "note_id": "68e505320000000003021039",
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1760425923000,
+    "id": "68edf7c2000000003802f03a",
+    "content": "易方达华夏，以后再回去也行",
+    "at_users": [],
+    "sub_comment_has_more": false,
+    "user_info": {
+      "user_id": "5f340eab000000000101e451",
+      "nickname": "11",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2qt1196mjm01g5npk1qlgbp2h9tn9sso?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABB4degMQ5h4KuIDvxAbskgupNyDe9A8-6mLSNymYkLhY="
+    },
+    "sub_comments": []
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "65758d2c000000001902e588",
+      "nickname": "鸡精经理Z先生",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg="
+    },
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "68ea06c300000000330233c5",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "AB92K0vvWmMNpqzSkkWsRHSvFQEV0OWzdKMhkvRZ8C2jw=",
+        "user_id": "61fc70bc00000000100040c1",
+        "nickname": "PPinky",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lvltgfm5m005ofse2u40g61hpclto8?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1760497948000,
+    "id": "68ef111b0000000037011ce6",
+    "note_id": "68e505320000000003021039",
+    "status": 0,
+    "content": "不论“过去、现在、未来”，概率都很小",
+    "at_users": [],
+    "like_count": "1"
+  },
+  {
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "at_users": [],
+    "like_count": "2",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg=",
+      "user_id": "65758d2c000000001902e588",
+      "nickname": "鸡精经理Z先生"
+    },
+    "create_time": 1759840410000,
+    "id": "68e5089900000000330040e2",
+    "note_id": "68e505320000000003021039",
+    "status": 0,
+    "content": "个体选择体现的是千人千面的价值观差异，没有简单的线性结论。一线家庭孩纸有从大学就看重“离家近”的，也有看重成长性第一的。",
+    "target_comment": {
+      "id": "68e507cd000000003902937b",
+      "user_info": {
+        "user_id": "5c2dbb4f000000000700d939",
+        "nickname": "xoxo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/640b24af69c3d79b17b35337.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB7avSvJ7GwM4aKYcDozqDmxlLppEekuwWNyLy0JvRyds="
+      }
+    }
+  },
+  {
+    "like_count": "2",
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "68e9e9f400000000330240d8",
+    "status": 0,
+    "content": "我都没提这个",
+    "at_users": [],
+    "liked": false,
+    "note_id": "68e505320000000003021039",
+    "user_info": {
+      "user_id": "65758d2c000000001902e588",
+      "nickname": "鸡精经理Z先生",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmnsat14cg5pblhkm6dpc83ki7ub8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhE76D1ewWrj5YFnQ_TJi2Kg="
+    },
+    "create_time": 1760160244000,
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "68e9e7620000000033005873",
+      "user_info": {
+        "nickname": "小胡要上2.0",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5a5b74c814de4179a36ad977.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABcYXDjUT_F9yGPlqIVXLxzVYdaeG4WheFqQ6vPI_fZyE=",
+        "user_id": "5702532a1c07df77d3c4e905"
+      }
+    }
+  }
+]

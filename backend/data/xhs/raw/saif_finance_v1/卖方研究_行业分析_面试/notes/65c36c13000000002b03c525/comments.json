@@ -1,0 +1,1782 @@
+[
+  {
+    "content": "行研系列已经基本更新完啦！详情请见本笔记末尾或者主页的合集“离谱de每周随笔”，希望能对你有帮助！加油！",
+    "liked": false,
+    "ip_location": "广东",
+    "note_id": "65c36c13000000002b03c525",
+    "create_time": 1720519546000,
+    "id": "668d0b780000000015010550",
+    "status": 4,
+    "like_count": "8",
+    "user_info": {
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comments": [],
+    "pictures": [
+      {
+        "info_list": [],
+        "height": 1920,
+        "width": 1264
+      }
+    ],
+    "at_users": [],
+    "show_tags": [
+      "is_author",
+      "user_top"
+    ],
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false
+  },
+  {
+    "status": 0,
+    "content": "哼哧哼哧写完，发现别人都写过了。观点还更深入。甚至看了看别人的观点，发现自己的观点是错了…",
+    "ip_location": "浙江",
+    "sub_comment_count": "3",
+    "sub_comment_cursor": "65f194bf0000000007003532",
+    "at_users": [],
+    "like_count": "36",
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "create_time": 1710162882000,
+    "sub_comments": [
+      {
+        "note_id": "65c36c13000000002b03c525",
+        "content": "别太真实了[哭惹R][哭惹R][哭惹R]",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "pictures": [],
+        "id": "65f194bf0000000007003532",
+        "like_count": "3",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1710331071000,
+        "ip_location": "英国",
+        "target_comment": {
+          "user_info": {
+            "xsec_token": "ABSN1Djxcukv_jb8gWCRUxsqquUhaVEP0HrClMC9pTKfU=",
+            "user_id": "56572383b8c8b41a215f4ea3",
+            "nickname": "皆云作者痴",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2lsctbjoja0004359blho6jl3n4job0o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          },
+          "id": "65ef03c20000000006027db6"
+        },
+        "status": 0
+      }
+    ],
+    "id": "65ef03c20000000006027db6",
+    "user_info": {
+      "xsec_token": "ABSN1Djxcukv_jb8gWCRUxsqquUhaVEP0HrClMC9pTKfU=",
+      "user_id": "56572383b8c8b41a215f4ea3",
+      "nickname": "皆云作者痴",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2lsctbjoja0004359blho6jl3n4job0o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "sub_comment_has_more": true
+  },
+  {
+    "user_info": {
+      "user_id": "5ee71af0000000000101f822",
+      "nickname": "肖得意",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/fac75c6f-6726-3cbf-8d25-d70b87257f62?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABWBVQflW6yoONqFSG-H8N0-e1yHgpI0KcjnvGyTaJSEs="
+    },
+    "at_users": [],
+    "sub_comment_count": "10",
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "13",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1707375198000,
+        "pictures": [],
+        "id": "65c47a5e0000000008030f24",
+        "note_id": "65c36c13000000002b03c525",
+        "at_users": [],
+        "user_info": {
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75"
+        },
+        "ip_location": "英国",
+        "target_comment": {
+          "id": "65c476150000000008015410",
+          "user_info": {
+            "user_id": "5ee71af0000000000101f822",
+            "nickname": "肖得意",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/fac75c6f-6726-3cbf-8d25-d70b87257f62?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABWBVQflW6yoONqFSG-H8N0-e1yHgpI0KcjnvGyTaJSEs="
+          }
+        },
+        "status": 0,
+        "content": "有道理！我后续会整理这些东西到公众号上的！目前发小红书主要是因为有原始观众群体hh，公众号的话就得发朋友圈了容易掉马甲[害羞R]谢谢uu！"
+      }
+    ],
+    "content": "我感觉博主的内容可能更适合开公众号呢，感觉这样划来划去看没那么方便（仅个人观点",
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "like_count": "30",
+    "show_tags": [],
+    "ip_location": "美国",
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "id": "65c476150000000008015410",
+    "create_time": 1707374101000,
+    "sub_comment_cursor": "65c47a5e0000000008030f24",
+    "status": 0
+  },
+  {
+    "id": "65ca2469000000001a01d185",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "pictures": [],
+        "note_id": "65c36c13000000002b03c525",
+        "liked": false,
+        "like_count": "19",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "65ca2469000000001a01d185",
+          "user_info": {
+            "user_id": "608bffb4000000000101ff9e",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lv4ieth5m6g5o4bvuq0bvsucov5rq8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABi8G53Xq0DWsK0weKCshLzkPYS4BaqD4tuWx8woGIcg8="
+          }
+        },
+        "id": "65ca8a3d000000001a0006c9",
+        "status": 0,
+        "content": "我第一次写的时候也是hhh 基本就是把网上已有的内容都“文献综述”整合一下，但其实写着写着，自己对公司有了更多一点了解之后，就能艰难地憋出一两个自己的小观点了。不过整体上二卖都差不多这个样子，上市公司就那么多，分析师写研究报告的频率又很高，多多少少都被研究过，分析不出什么新意也很正常（本来二卖的核心工作就不是在那吭哧吭哧写研报，所以也可以理解）",
+        "at_users": [],
+        "create_time": 1707772477000,
+        "ip_location": "英国"
+      }
+    ],
+    "note_id": "65c36c13000000002b03c525",
+    "content": "姐姐，第一次写深度报告的时候，跟着自己就是把网上的语言拼拼凑凑原创度很低，这样的感觉是不是有问题？[哭惹R]",
+    "at_users": [],
+    "pictures": [],
+    "sub_comment_cursor": "65ca8a3d000000001a0006c9",
+    "sub_comment_has_more": true,
+    "liked": false,
+    "like_count": "16",
+    "ip_location": "北京",
+    "sub_comment_count": "5",
+    "status": 0,
+    "user_info": {
+      "user_id": "608bffb4000000000101ff9e",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lv4ieth5m6g5o4bvuq0bvsucov5rq8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABi8G53Xq0DWsK0weKCshLzkPYS4BaqD4tuWx8woGIcg8="
+    },
+    "create_time": 1707746409000
+  },
+  {
+    "liked": false,
+    "ip_location": "山西",
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "content": "如果没有做过行研实习，想在找第一份行研实习之前先自己学着写一篇行研报告，这个可行吗[哭惹R]有没有推荐写的赛道呢[哭惹R]还有就是公司的话怎么选呢，怎么确认写哪一家公司呢[哭惹R]",
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1707656459000,
+    "id": "65c8c50b000000001a0282f1",
+    "user_info": {
+      "user_id": "61345152000000001f03a49e",
+      "nickname": "浓郁的芝士可露丽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pmp4ffi4u505o9ka597v94uadtdlfg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABv6eHlSrTsQiH6aQ1lmzf0VfhwXDdjEcdS8uzZAAMeHE="
+    },
+    "sub_comment_count": "6",
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "create_time": 1707658596000,
+        "target_comment": {
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pmp4ffi4u505o9ka597v94uadtdlfg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABv6eHlSrTsQiH6aQ1lmzf0VfhwXDdjEcdS8uzZAAMeHE=",
+            "user_id": "61345152000000001f03a49e",
+            "nickname": "浓郁的芝士可露丽"
+          },
+          "id": "65c8c50b000000001a0282f1"
+        },
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "like_count": "19",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "英国",
+        "pictures": [],
+        "id": "65c8cd64000000001a02a80a",
+        "content": "我觉得可以捏，我的第一篇行研报告是在学校社团里写得，具体写什么行业，如果是从兴趣出发的话就写自己感兴趣的话题就好（比如喜欢宏观可以写写美联储，喜欢新能源可以写写电动车），如果是从就业出发的话可以去拉一下收益率比较好的板块是啥然后写它们的报告，热门组招实习生的概率更大一些（风险提示：现在可能没什么板块收益率好 以及 二卖正式员工基本不怎么招人了）",
+        "at_users": []
+      }
+    ],
+    "status": 0,
+    "like_count": "11",
+    "sub_comment_cursor": "65c8cd64000000001a02a80a"
+  },
+  {
+    "note_id": "65c36c13000000002b03c525",
+    "create_time": 1720519060000,
+    "like_count": "0",
+    "id": "668d099300000000230192ab",
+    "status": 0,
+    "content": "up分享的很棒！想问下写报告的时候提建议部分总是提不出来，这方面怎么提高呀？还有你对公司分析的数据都是从财报上找的吗？",
+    "at_users": [],
+    "sub_comment_cursor": "668d0afe000000001b013c79",
+    "sub_comment_has_more": true,
+    "liked": false,
+    "user_info": {
+      "nickname": "嗨你好呀~",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ufn1724l8dg5nv363109fkqphgri8o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABvWM-bxfYpM8K5oG2pzFU5mgt5wE7-49PAnN22pYEgrA=",
+      "user_id": "5fe330c2000000000100be9a"
+    },
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "ip_location": "河南",
+    "sub_comments": [
+      {
+        "pictures": [],
+        "id": "668d0afe000000001b013c79",
+        "note_id": "65c36c13000000002b03c525",
+        "at_users": [],
+        "liked": false,
+        "like_count": "3",
+        "show_tags": [
+          "is_author"
+        ],
+        "status": 0,
+        "content": "哈喽哈喽！很正常我也提不出建议，刚开始看一个全新陌生领域的新手小白一般也不太可能提出什么有建设性的建议。所以其实更多是在做友商报告+公司公开信息的文献综述，以及可以问问老板对这个公司有什么看法，把老板的一些观点也收录进去。等这些工作都做完了，你对这个公司有了一定理解之后，说不定能提出几个自己的观点（但记得跟老板核对一下）。数据一般都来自年报（可能偶尔也会掺杂一些董秘提供的数据，但非公开的数据一般也不能写），所以主要就是分析分析年报的东西",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "create_time": 1720519423000,
+        "ip_location": "广东",
+        "target_comment": {
+          "id": "668d099300000000230192ab",
+          "user_info": {
+            "xsec_token": "ABvWM-bxfYpM8K5oG2pzFU5mgt5wE7-49PAnN22pYEgrA=",
+            "user_id": "5fe330c2000000000100be9a",
+            "nickname": "嗨你好呀~",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ufn1724l8dg5nv363109fkqphgri8o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        }
+      }
+    ],
+    "pictures": []
+  },
+  {
+    "content": "已关注[皱眉R]姐姐有没有公众号？",
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "sub_comment_count": "2",
+    "id": "66b088a2000000001c039609",
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r9f1aeu7o004b99v90v7ar6ebenr48?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABgxq5bmvgWQSSXPEB5p4dcdl46LQvavOwG8-TbeJSyuA=",
+      "user_id": "5bb401f3aa1ebf000175ab66",
+      "nickname": "momo"
+    },
+    "show_tags": [],
+    "sub_comment_cursor": "66b09c0b0000000015012443",
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "status": 0,
+    "at_users": [],
+    "create_time": 1722845346000,
+    "ip_location": "江苏",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "like_count": "0",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱"
+        },
+        "target_comment": {
+          "id": "66b088a2000000001c039609",
+          "user_info": {
+            "user_id": "5bb401f3aa1ebf000175ab66",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r9f1aeu7o004b99v90v7ar6ebenr48?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABgxq5bmvgWQSSXPEB5p4dcdl46LQvavOwG8-TbeJSyuA="
+          }
+        },
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "content": "说得好！我还没弄，等我这段时间实习弄完了我马上弄！给自己定个DDL九月一定弄！[吧唧R]",
+        "create_time": 1722850316000,
+        "ip_location": "广东",
+        "pictures": [],
+        "id": "66b09c0b0000000015012443",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ]
+      }
+    ]
+  },
+  {
+    "like_count": "0",
+    "sub_comment_cursor": "65c9dc8b000000001a02a70b",
+    "liked": false,
+    "create_time": 1707725862000,
+    "ip_location": "浙江",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qfslvic740g5olhjvu6tbad89om6o0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVa6psrQ0Of022siyw49Ij99N0kx9LDsrFaw_iR7kgkM=",
+      "user_id": "62b19ffc000000001b02ad4d",
+      "nickname": "小白菜"
+    },
+    "show_tags": [],
+    "sub_comment_count": "3",
+    "id": "65c9d426000000001a0254cc",
+    "content": "催更催更姐姐！[害羞R]",
+    "at_users": [],
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "sub_comments": [
+      {
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "content": "笑鼠 有生之年被催更了[害羞R]马上马上！这两天就会写了！！",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "英国",
+        "pictures": [],
+        "id": "65c9dc8b000000001a02a70b",
+        "at_users": [],
+        "like_count": "0",
+        "user_info": {
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "create_time": 1707728011000,
+        "target_comment": {
+          "id": "65c9d426000000001a0254cc",
+          "user_info": {
+            "user_id": "62b19ffc000000001b02ad4d",
+            "nickname": "小白菜",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qfslvic740g5olhjvu6tbad89om6o0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABVa6psrQ0Of022siyw49Ij99N0kx9LDsrFaw_iR7kgkM="
+          }
+        }
+      }
+    ]
+  },
+  {
+    "at_users": [],
+    "pictures": [],
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1734070564000,
+    "ip_location": "四川",
+    "sub_comment_cursor": "675c19ae000000001003e792",
+    "sub_comment_has_more": false,
+    "id": "675bd124000000001102c79d",
+    "content": "感谢分享，从文字上感觉是个可爱的人[哇R]",
+    "user_info": {
+      "user_id": "5d23a1c40000000011030a3c",
+      "nickname": "Metropolitan",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d23a20afac0ed0001a0d836.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABavj25brkBDvvXbLMGJLryQ0YpgNMwiM8jV_BxpUa6dA="
+    },
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "id": "675c19ae000000001003e792",
+        "note_id": "65c36c13000000002b03c525",
+        "content": "谢谢！你也很可爱！[玫瑰R]",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1734089135000,
+        "target_comment": {
+          "id": "675bd124000000001102c79d",
+          "user_info": {
+            "user_id": "5d23a1c40000000011030a3c",
+            "nickname": "Metropolitan",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d23a20afac0ed0001a0d836.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABavj25brkBDvvXbLMGJLryQ0YpgNMwiM8jV_BxpUa6dA="
+          }
+        },
+        "pictures": [],
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "ip_location": "广东"
+      }
+    ],
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "like_count": "0"
+  },
+  {
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "sub_comment_cursor": "677006e100000000100055c7",
+    "pictures": [],
+    "id": "676ff08f000000000e00fb98",
+    "content": "博主，财务表现的这些图用什么绘制比较好呢[皱眉R]",
+    "create_time": 1735389328000,
+    "user_info": {
+      "xsec_token": "ABVtgPafBTrYHRuu3f3BvFhWv0Tls2tuV7rHJVyPexxsA=",
+      "user_id": "65657915000000003c01d59d",
+      "nickname": "想做你的全世界",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32092oia75s005pb5f4av3lctv3r5op8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "山西",
+    "sub_comments": [
+      {
+        "target_comment": {
+          "id": "676ff08f000000000e00fb98",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABVtgPafBTrYHRuu3f3BvFhWv0Tls2tuV7rHJVyPexxsA=",
+            "user_id": "65657915000000003c01d59d",
+            "nickname": "想做你的全世界",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32092oia75s005pb5f4av3lctv3r5op8?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "id": "677006e100000000100055c7",
+        "note_id": "65c36c13000000002b03c525",
+        "content": "可以试试thinkcell，一个excel插件，下载方式在tb上有",
+        "at_users": [],
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "create_time": 1735395041000,
+        "ip_location": "广东",
+        "status": 0,
+        "liked": false,
+        "like_count": "2",
+        "show_tags": [
+          "is_author"
+        ],
+        "pictures": []
+      }
+    ],
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "sub_comment_has_more": true
+  },
+  {
+    "note_id": "65c36c13000000002b03c525",
+    "content": "别太真实了[哭惹R][哭惹R][哭惹R]",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "pictures": [],
+    "id": "65f194bf0000000007003532",
+    "like_count": "3",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1710331071000,
+    "ip_location": "英国",
+    "target_comment": {
+      "user_info": {
+        "xsec_token": "ABSN1Djxcukv_jb8gWCRUxsqquUhaVEP0HrClMC9pTKfU=",
+        "user_id": "56572383b8c8b41a215f4ea3",
+        "nickname": "皆云作者痴",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2lsctbjoja0004359blho6jl3n4job0o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      },
+      "id": "65ef03c20000000006027db6"
+    },
+    "status": 0
+  },
+  {
+    "liked": false,
+    "like_count": "13",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1707375198000,
+    "pictures": [],
+    "id": "65c47a5e0000000008030f24",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "user_info": {
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75"
+    },
+    "ip_location": "英国",
+    "target_comment": {
+      "id": "65c476150000000008015410",
+      "user_info": {
+        "user_id": "5ee71af0000000000101f822",
+        "nickname": "肖得意",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/fac75c6f-6726-3cbf-8d25-d70b87257f62?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABWBVQflW6yoONqFSG-H8N0-e1yHgpI0KcjnvGyTaJSEs="
+      }
+    },
+    "status": 0,
+    "content": "有道理！我后续会整理这些东西到公众号上的！目前发小红书主要是因为有原始观众群体hh，公众号的话就得发朋友圈了容易掉马甲[害羞R]谢谢uu！"
+  },
+  {
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "like_count": "19",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "65ca2469000000001a01d185",
+      "user_info": {
+        "user_id": "608bffb4000000000101ff9e",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lv4ieth5m6g5o4bvuq0bvsucov5rq8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABi8G53Xq0DWsK0weKCshLzkPYS4BaqD4tuWx8woGIcg8="
+      }
+    },
+    "id": "65ca8a3d000000001a0006c9",
+    "status": 0,
+    "content": "我第一次写的时候也是hhh 基本就是把网上已有的内容都“文献综述”整合一下，但其实写着写着，自己对公司有了更多一点了解之后，就能艰难地憋出一两个自己的小观点了。不过整体上二卖都差不多这个样子，上市公司就那么多，分析师写研究报告的频率又很高，多多少少都被研究过，分析不出什么新意也很正常（本来二卖的核心工作就不是在那吭哧吭哧写研报，所以也可以理解）",
+    "at_users": [],
+    "create_time": 1707772477000,
+    "ip_location": "英国"
+  },
+  {
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "create_time": 1707658596000,
+    "target_comment": {
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pmp4ffi4u505o9ka597v94uadtdlfg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABv6eHlSrTsQiH6aQ1lmzf0VfhwXDdjEcdS8uzZAAMeHE=",
+        "user_id": "61345152000000001f03a49e",
+        "nickname": "浓郁的芝士可露丽"
+      },
+      "id": "65c8c50b000000001a0282f1"
+    },
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "like_count": "19",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "英国",
+    "pictures": [],
+    "id": "65c8cd64000000001a02a80a",
+    "content": "我觉得可以捏，我的第一篇行研报告是在学校社团里写得，具体写什么行业，如果是从兴趣出发的话就写自己感兴趣的话题就好（比如喜欢宏观可以写写美联储，喜欢新能源可以写写电动车），如果是从就业出发的话可以去拉一下收益率比较好的板块是啥然后写它们的报告，热门组招实习生的概率更大一些（风险提示：现在可能没什么板块收益率好 以及 二卖正式员工基本不怎么招人了）",
+    "at_users": []
+  },
+  {
+    "pictures": [],
+    "id": "668d0afe000000001b013c79",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "liked": false,
+    "like_count": "3",
+    "show_tags": [
+      "is_author"
+    ],
+    "status": 0,
+    "content": "哈喽哈喽！很正常我也提不出建议，刚开始看一个全新陌生领域的新手小白一般也不太可能提出什么有建设性的建议。所以其实更多是在做友商报告+公司公开信息的文献综述，以及可以问问老板对这个公司有什么看法，把老板的一些观点也收录进去。等这些工作都做完了，你对这个公司有了一定理解之后，说不定能提出几个自己的观点（但记得跟老板核对一下）。数据一般都来自年报（可能偶尔也会掺杂一些董秘提供的数据，但非公开的数据一般也不能写），所以主要就是分析分析年报的东西",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "create_time": 1720519423000,
+    "ip_location": "广东",
+    "target_comment": {
+      "id": "668d099300000000230192ab",
+      "user_info": {
+        "xsec_token": "ABvWM-bxfYpM8K5oG2pzFU5mgt5wE7-49PAnN22pYEgrA=",
+        "user_id": "5fe330c2000000000100be9a",
+        "nickname": "嗨你好呀~",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ufn1724l8dg5nv363109fkqphgri8o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    }
+  },
+  {
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱"
+    },
+    "target_comment": {
+      "id": "66b088a2000000001c039609",
+      "user_info": {
+        "user_id": "5bb401f3aa1ebf000175ab66",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r9f1aeu7o004b99v90v7ar6ebenr48?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABgxq5bmvgWQSSXPEB5p4dcdl46LQvavOwG8-TbeJSyuA="
+      }
+    },
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "content": "说得好！我还没弄，等我这段时间实习弄完了我马上弄！给自己定个DDL九月一定弄！[吧唧R]",
+    "create_time": 1722850316000,
+    "ip_location": "广东",
+    "pictures": [],
+    "id": "66b09c0b0000000015012443",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ]
+  },
+  {
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "content": "笑鼠 有生之年被催更了[害羞R]马上马上！这两天就会写了！！",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "英国",
+    "pictures": [],
+    "id": "65c9dc8b000000001a02a70b",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1707728011000,
+    "target_comment": {
+      "id": "65c9d426000000001a0254cc",
+      "user_info": {
+        "user_id": "62b19ffc000000001b02ad4d",
+        "nickname": "小白菜",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qfslvic740g5olhjvu6tbad89om6o0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABVa6psrQ0Of022siyw49Ij99N0kx9LDsrFaw_iR7kgkM="
+      }
+    }
+  },
+  {
+    "id": "675c19ae000000001003e792",
+    "note_id": "65c36c13000000002b03c525",
+    "content": "谢谢！你也很可爱！[玫瑰R]",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1734089135000,
+    "target_comment": {
+      "id": "675bd124000000001102c79d",
+      "user_info": {
+        "user_id": "5d23a1c40000000011030a3c",
+        "nickname": "Metropolitan",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d23a20afac0ed0001a0d836.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABavj25brkBDvvXbLMGJLryQ0YpgNMwiM8jV_BxpUa6dA="
+      }
+    },
+    "pictures": [],
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "广东"
+  },
+  {
+    "target_comment": {
+      "id": "676ff08f000000000e00fb98",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABVtgPafBTrYHRuu3f3BvFhWv0Tls2tuV7rHJVyPexxsA=",
+        "user_id": "65657915000000003c01d59d",
+        "nickname": "想做你的全世界",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32092oia75s005pb5f4av3lctv3r5op8?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "id": "677006e100000000100055c7",
+    "note_id": "65c36c13000000002b03c525",
+    "content": "可以试试thinkcell，一个excel插件，下载方式在tb上有",
+    "at_users": [],
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "create_time": 1735395041000,
+    "ip_location": "广东",
+    "status": 0,
+    "liked": false,
+    "like_count": "2",
+    "show_tags": [
+      "is_author"
+    ],
+    "pictures": []
+  },
+  {
+    "status": 0,
+    "sub_comment_has_more": false,
+    "sub_comment_cursor": "662364a6000000001c0347c8",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5b549b58e8ac2b18e642af31",
+      "nickname": "能儿能啊",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qkf8m3hno004a7ddhdlhbphfv4aci8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABGecdGIDizRJ_tOVNy6_wOQ41My4JI0q0heRCeBk2_8k="
+    },
+    "sub_comments": [
+      {
+        "at_users": [],
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1713595559000,
+        "ip_location": "英国",
+        "target_comment": {
+          "id": "66227ef1000000001b03bcdf",
+          "user_info": {
+            "user_id": "5b549b58e8ac2b18e642af31",
+            "nickname": "能儿能啊",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qkf8m3hno004a7ddhdlhbphfv4aci8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABGecdGIDizRJ_tOVNy6_wOQ41My4JI0q0heRCeBk2_8k="
+          }
+        },
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg"
+        },
+        "id": "662364a6000000001c0347c8",
+        "content": "如果实在担心的话可以把敏感信息隐藏掉捏！比如在简历上写参与过深度报告撰写，等面试要问的时候再展开说（避免标的公司的保密信息就行）"
+      }
+    ],
+    "id": "66227ef1000000001b03bcdf",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_count": "1",
+    "content": "博主你好，我写的公司深度报告还没发表，请问可以在投下一段实习的时间附上嘛（担心保密协议什么的）",
+    "show_tags": [],
+    "create_time": 1713536754000,
+    "ip_location": "北京"
+  },
+  {
+    "id": "665bf566000000001b0050e3",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "show_tags": [],
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "ip_location": "广东",
+        "note_id": "65c36c13000000002b03c525",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1720519281000,
+        "liked": false,
+        "like_count": "1",
+        "target_comment": {
+          "id": "665bf566000000001b0050e3",
+          "user_info": {
+            "user_id": "625043c3000000001000a916",
+            "nickname": "一头驴",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/625043c3000000001000a916.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABJe9PNxDs_mWadtyo4NrL79c5RM7xO_akSac_8_4M-CQ="
+          }
+        },
+        "id": "668d0a71000000001303cd32",
+        "status": 0,
+        "content": "sry我漏掉了这条消息！其实把敏感信息遮挡掉就可以发啦，你可以大概判断一下哪些东西是比较敏感的信息（比如估值模型、敏感数据等）。如果这个报告已经外发了你就可以随便拿来当附件了。HR不会关心报告对原公司的作用的hhh因为绝大部分情况都是没作用，只是用来证明你有这个能力+招进来能马上上手做事而已[doge]",
+        "at_users": []
+      }
+    ],
+    "sub_comment_cursor": "668d0a71000000001303cd32",
+    "status": 0,
+    "content": "博主可以不可以问问我不确定自己的深度报告可不可以外发[皱眉R]那在下一次投简历附上自己作品的时候应该怎么办呢[皱眉R]就是hr会关心这个报告对我原公司的作用吗  还是有一份能证明自己能力的报告就行",
+    "liked": false,
+    "user_info": {
+      "user_id": "625043c3000000001000a916",
+      "nickname": "一头驴",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/625043c3000000001000a916.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABJe9PNxDs_mWadtyo4NrL79c5RM7xO_akSac_8_4M-CQ="
+    },
+    "ip_location": "北京",
+    "sub_comment_has_more": false,
+    "like_count": "0",
+    "create_time": 1717302630000
+  },
+  {
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "ip_location": "英国",
+        "id": "65dcf91b0000000004016cb8",
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "content": "说得好 加入我的选题列表[星R]",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1708980507000,
+        "target_comment": {
+          "id": "65dcdfd5000000000d00de69",
+          "user_info": {
+            "nickname": "sdhejfbdjf",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/67863ed2d0a6d335db2dd6b8.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABXzcHb4YPdivjJGZ_ShYl9aD7jduXQEL0pOWH0TBStu4=",
+            "user_id": "641044090000000014011cd3"
+          }
+        }
+      }
+    ],
+    "id": "65dcdfd5000000000d00de69",
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "status": 0,
+    "content": "能不能出一期具体怎么做财务分析啊[皱眉R]",
+    "create_time": 1708974037000,
+    "ip_location": "英国",
+    "sub_comment_has_more": false,
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_cursor": "65dcf91b0000000004016cb8",
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/67863ed2d0a6d335db2dd6b8.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABXzcHb4YPdivjJGZ_ShYl9aD7jduXQEL0pOWH0TBStu4=",
+      "user_id": "641044090000000014011cd3",
+      "nickname": "sdhejfbdjf"
+    }
+  },
+  {
+    "sub_comment_has_more": false,
+    "id": "663cab4d000000000401b6fd",
+    "content": "博主你好，请问你知道动态报告和深度报告有什么区别吗[笑哭R]带教让我写动态报告",
+    "liked": false,
+    "user_info": {
+      "nickname": "🐿",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/6401a4c734f5898f6dffde90.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABYcpL1Via2IPVge3_AaQH0NOF5JrW0VvGXHvW5iDgmSE=",
+      "user_id": "5d26e332000000001100b206"
+    },
+    "show_tags": [],
+    "ip_location": "北京",
+    "create_time": 1715252046000,
+    "sub_comments": [
+      {
+        "user_info": {
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "668d0a97000000001b012671",
+        "status": 0,
+        "liked": false,
+        "like_count": "0",
+        "ip_location": "广东",
+        "target_comment": {
+          "id": "663cab4d000000000401b6fd",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABYcpL1Via2IPVge3_AaQH0NOF5JrW0VvGXHvW5iDgmSE=",
+            "user_id": "5d26e332000000001100b206",
+            "nickname": "🐿",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/6401a4c734f5898f6dffde90.jpg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "note_id": "65c36c13000000002b03c525",
+        "content": "sry我漏消息了！我猜测动态报告可能是针对一些突发事件的分析？时间过去这么久了你应该也有答案了哈哈哈，我也想蹲蹲这个东西的结论[皱眉R]",
+        "at_users": [],
+        "create_time": 1720519319000
+      }
+    ],
+    "sub_comment_cursor": "668d0a97000000001b012671",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "like_count": "0",
+    "status": 0,
+    "sub_comment_count": "1"
+  },
+  {
+    "user_info": {
+      "user_id": "64089312000000001401237e",
+      "nickname": "玛卡巴卡🌈",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2ki9jnlmjc06g5p08ic9528ru3mqmu30?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABiiKFCYwItslM3fdKObJVAFi3JgVv-MzTsgNILxXzG_0="
+    },
+    "sub_comments": [
+      {
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "ip_location": "广东",
+        "target_comment": {
+          "id": "68a7cbad000000003002ccfd",
+          "user_info": {
+            "user_id": "64089312000000001401237e",
+            "nickname": "玛卡巴卡🌈",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2ki9jnlmjc06g5p08ic9528ru3mqmu30?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABiiKFCYwItslM3fdKObJVAFi3JgVv-MzTsgNILxXzG_0="
+          }
+        },
+        "id": "68a7cd35000000003000f686",
+        "content": "不客气！",
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1755827509000,
+        "note_id": "65c36c13000000002b03c525"
+      }
+    ],
+    "show_tags": [],
+    "ip_location": "上海",
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "content": "谁懂今天mt刚布置这个任务就在厕所刷到这篇的救赎感[石化R]",
+    "at_users": [],
+    "create_time": 1755827117000,
+    "sub_comment_has_more": false,
+    "id": "68a7cbad000000003002ccfd",
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "68a7cd35000000003000f686"
+  },
+  {
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "content": "请问文中提到的“图”能不能提供一下范例呢？另外请问资料应该去哪里找呀",
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1761126304000,
+    "id": "68f8a7a000000000320034e6",
+    "user_info": {
+      "user_id": "5c5bfcd00000000012020dac",
+      "nickname": "aoeghyniXXi🦋",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vucpqtj2q0g5n2rvj84k3dcij768jg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByTh5U9C9zHJkaw9XReRHo5-rc0a4aw0aamCJ2QiH9jw="
+    },
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "id": "68f8adf9000000003901fb04",
+        "note_id": "65c36c13000000002b03c525",
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "status": 0,
+        "content": "可以看置顶评论，怎么找数据相关的帖子已经发布过了～",
+        "at_users": [],
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1761127929000,
+        "ip_location": "广东",
+        "target_comment": {
+          "user_info": {
+            "user_id": "5c5bfcd00000000012020dac",
+            "nickname": "aoeghyniXXi🦋",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vucpqtj2q0g5n2rvj84k3dcij768jg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AByTh5U9C9zHJkaw9XReRHo5-rc0a4aw0aamCJ2QiH9jw="
+          },
+          "id": "68f8a7a000000000320034e6"
+        }
+      }
+    ],
+    "liked": false,
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "68f8adf9000000003901fb04",
+    "sub_comment_has_more": false
+  },
+  {
+    "id": "6910993d000000003900486a",
+    "status": 0,
+    "create_time": 1762695485000,
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "content": "请问带教让我们主动看（感兴趣的方向或者公司）找她深度报告的事，但是我没有特别感兴趣的，可不可以让带教推荐具体的呢",
+    "show_tags": [],
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "6911377c000000003902be24",
+    "ip_location": "四川",
+    "sub_comments": [
+      {
+        "target_comment": {
+          "id": "6910993d000000003900486a",
+          "user_info": {
+            "nickname": "MLLLLLL",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sce3p6fll2g5p69qqkjkr6qo2uf92g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB-npzhocJhLpVFYrpUp5rlShtIZRLoKeRyp62Va3DXAE=",
+            "user_id": "64c9d6a9000000000e026cda"
+          }
+        },
+        "note_id": "65c36c13000000002b03c525",
+        "content": "当然可以",
+        "at_users": [],
+        "ip_location": "广东",
+        "user_info": {
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1762735996000,
+        "id": "6911377c000000003902be24",
+        "status": 0,
+        "liked": false,
+        "like_count": "0"
+      }
+    ],
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "64c9d6a9000000000e026cda",
+      "nickname": "MLLLLLL",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sce3p6fll2g5p69qqkjkr6qo2uf92g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-npzhocJhLpVFYrpUp5rlShtIZRLoKeRyp62Va3DXAE="
+    }
+  },
+  {
+    "id": "676ab45e0000000010019bdb",
+    "liked": false,
+    "sub_comment_cursor": "676ab6ea000000001003ec74",
+    "status": 0,
+    "ip_location": "广东",
+    "sub_comment_has_more": false,
+    "like_count": "0",
+    "user_info": {
+      "nickname": "南瓜",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ospqdde3o605p3r49p75952bqekpa0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABGd1k7CI5feqdTHCcnfTue_hOwToX5uauiRud0-2Lcxw=",
+      "user_id": "647b2272000000001c02a4a2"
+    },
+    "sub_comment_count": "1",
+    "create_time": 1735046239000,
+    "sub_comments": [
+      {
+        "user_info": {
+          "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+          "user_id": "629066320000000021020d75",
+          "nickname": "这就hen离谱",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "target_comment": {
+          "id": "676ab45e0000000010019bdb",
+          "user_info": {
+            "xsec_token": "ABGd1k7CI5feqdTHCcnfTue_hOwToX5uauiRud0-2Lcxw=",
+            "user_id": "647b2272000000001c02a4a2",
+            "nickname": "南瓜",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ospqdde3o605p3r49p75952bqekpa0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "id": "676ab6ea000000001003ec74",
+        "note_id": "65c36c13000000002b03c525",
+        "content": "我写了俩月，正式的分析师可能两三周以内吧[吧唧R]",
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "status": 0,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1735046891000,
+        "ip_location": "广东"
+      }
+    ],
+    "note_id": "65c36c13000000002b03c525",
+    "content": "这样写一篇大概多久呢",
+    "at_users": [],
+    "show_tags": []
+  },
+  {
+    "status": 0,
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "content": "11111",
+    "liked": false,
+    "user_info": {
+      "user_id": "60fe0f2500000000010073e5",
+      "nickname": "小红薯60FEB94F",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/7121a416be8e543266fd62c1cc9d575e.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABOQIZYkKsAYOStLbLq0y1xtrK--RrFtbkv3zgqMmInx8="
+    },
+    "ip_location": "山东",
+    "id": "65c44d6b000000000803108b",
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "create_time": 1707363691000,
+    "like_count": "1"
+  },
+  {
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1722408671000,
+    "status": 0,
+    "content": "MR就是研报的意思吗",
+    "ip_location": "北京",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5c504f000000000012000b31",
+      "nickname": "半个鲜橙",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31dq1qvgpgs6g5n2g9s04g2phih30ne8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU7oL12eSKTtMPrenyz3wDWebCBlD_2BfoqMYQmTkQ5U="
+    },
+    "id": "66a9dedf000000000900379f",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": ""
+  },
+  {
+    "at_users": [],
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1713595559000,
+    "ip_location": "英国",
+    "target_comment": {
+      "id": "66227ef1000000001b03bcdf",
+      "user_info": {
+        "user_id": "5b549b58e8ac2b18e642af31",
+        "nickname": "能儿能啊",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qkf8m3hno004a7ddhdlhbphfv4aci8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABGecdGIDizRJ_tOVNy6_wOQ41My4JI0q0heRCeBk2_8k="
+      }
+    },
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "id": "662364a6000000001c0347c8",
+    "content": "如果实在担心的话可以把敏感信息隐藏掉捏！比如在简历上写参与过深度报告撰写，等面试要问的时候再展开说（避免标的公司的保密信息就行）"
+  },
+  {
+    "ip_location": "广东",
+    "note_id": "65c36c13000000002b03c525",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1720519281000,
+    "liked": false,
+    "like_count": "1",
+    "target_comment": {
+      "id": "665bf566000000001b0050e3",
+      "user_info": {
+        "user_id": "625043c3000000001000a916",
+        "nickname": "一头驴",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/625043c3000000001000a916.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABJe9PNxDs_mWadtyo4NrL79c5RM7xO_akSac_8_4M-CQ="
+      }
+    },
+    "id": "668d0a71000000001303cd32",
+    "status": 0,
+    "content": "sry我漏掉了这条消息！其实把敏感信息遮挡掉就可以发啦，你可以大概判断一下哪些东西是比较敏感的信息（比如估值模型、敏感数据等）。如果这个报告已经外发了你就可以随便拿来当附件了。HR不会关心报告对原公司的作用的hhh因为绝大部分情况都是没作用，只是用来证明你有这个能力+招进来能马上上手做事而已[doge]",
+    "at_users": []
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "英国",
+    "id": "65dcf91b0000000004016cb8",
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "content": "说得好 加入我的选题列表[星R]",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1708980507000,
+    "target_comment": {
+      "id": "65dcdfd5000000000d00de69",
+      "user_info": {
+        "nickname": "sdhejfbdjf",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/67863ed2d0a6d335db2dd6b8.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABXzcHb4YPdivjJGZ_ShYl9aD7jduXQEL0pOWH0TBStu4=",
+        "user_id": "641044090000000014011cd3"
+      }
+    }
+  },
+  {
+    "user_info": {
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "668d0a97000000001b012671",
+    "status": 0,
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "广东",
+    "target_comment": {
+      "id": "663cab4d000000000401b6fd",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABYcpL1Via2IPVge3_AaQH0NOF5JrW0VvGXHvW5iDgmSE=",
+        "user_id": "5d26e332000000001100b206",
+        "nickname": "🐿",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/6401a4c734f5898f6dffde90.jpg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "note_id": "65c36c13000000002b03c525",
+    "content": "sry我漏消息了！我猜测动态报告可能是针对一些突发事件的分析？时间过去这么久了你应该也有答案了哈哈哈，我也想蹲蹲这个东西的结论[皱眉R]",
+    "at_users": [],
+    "create_time": 1720519319000
+  },
+  {
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "ip_location": "广东",
+    "target_comment": {
+      "id": "68a7cbad000000003002ccfd",
+      "user_info": {
+        "user_id": "64089312000000001401237e",
+        "nickname": "玛卡巴卡🌈",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2ki9jnlmjc06g5p08ic9528ru3mqmu30?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABiiKFCYwItslM3fdKObJVAFi3JgVv-MzTsgNILxXzG_0="
+      }
+    },
+    "id": "68a7cd35000000003000f686",
+    "content": "不客气！",
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1755827509000,
+    "note_id": "65c36c13000000002b03c525"
+  },
+  {
+    "id": "68f8adf9000000003901fb04",
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "status": 0,
+    "content": "可以看置顶评论，怎么找数据相关的帖子已经发布过了～",
+    "at_users": [],
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1761127929000,
+    "ip_location": "广东",
+    "target_comment": {
+      "user_info": {
+        "user_id": "5c5bfcd00000000012020dac",
+        "nickname": "aoeghyniXXi🦋",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vucpqtj2q0g5n2rvj84k3dcij768jg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AByTh5U9C9zHJkaw9XReRHo5-rc0a4aw0aamCJ2QiH9jw="
+      },
+      "id": "68f8a7a000000000320034e6"
+    }
+  },
+  {
+    "target_comment": {
+      "id": "6910993d000000003900486a",
+      "user_info": {
+        "nickname": "MLLLLLL",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sce3p6fll2g5p69qqkjkr6qo2uf92g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB-npzhocJhLpVFYrpUp5rlShtIZRLoKeRyp62Va3DXAE=",
+        "user_id": "64c9d6a9000000000e026cda"
+      }
+    },
+    "note_id": "65c36c13000000002b03c525",
+    "content": "当然可以",
+    "at_users": [],
+    "ip_location": "广东",
+    "user_info": {
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1762735996000,
+    "id": "6911377c000000003902be24",
+    "status": 0,
+    "liked": false,
+    "like_count": "0"
+  },
+  {
+    "user_info": {
+      "xsec_token": "ABQ9I4obbB1cwLFhgTgSDRUmn7jXaLm2iBStIiEuFzMU8=",
+      "user_id": "629066320000000021020d75",
+      "nickname": "这就hen离谱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d2196313ab526ecfbff5a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "target_comment": {
+      "id": "676ab45e0000000010019bdb",
+      "user_info": {
+        "xsec_token": "ABGd1k7CI5feqdTHCcnfTue_hOwToX5uauiRud0-2Lcxw=",
+        "user_id": "647b2272000000001c02a4a2",
+        "nickname": "南瓜",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ospqdde3o605p3r49p75952bqekpa0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "id": "676ab6ea000000001003ec74",
+    "note_id": "65c36c13000000002b03c525",
+    "content": "我写了俩月，正式的分析师可能两三周以内吧[吧唧R]",
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "status": 0,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1735046891000,
+    "ip_location": "广东"
+  },
+  {
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "liked": false,
+    "create_time": 1761462554000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "ip_location": "广西",
+    "sub_comment_has_more": false,
+    "id": "68fdc919000000003800b14c",
+    "status": 0,
+    "content": "请问有没有快速生成财务分析报告的方法或工具呢？",
+    "like_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABRMyXLTAQtTQdmKk5DErMRSLV4D8iaW-lOHXRT20R2T4=",
+      "user_id": "5b17cc254eacab101902f21e",
+      "nickname": "今天星期四",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/c94b2589011be6d87bfbbbf21db9e2a0.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [],
+    "sub_comment_count": "0"
+  },
+  {
+    "create_time": 1749278766000,
+    "content": "我想问问，就是行研报告的那种排版形式，是怎么弄的",
+    "status": 0,
+    "liked": false,
+    "show_tags": [],
+    "pictures": [],
+    "id": "6843e02e000000000900d8c3",
+    "at_users": [],
+    "sub_comment_cursor": "",
+    "note_id": "65c36c13000000002b03c525",
+    "user_info": {
+      "xsec_token": "AB_phP6JU4Mx_ksohbZi2LeD-uIEV3a5Fxj6VDWs7TZO0=",
+      "user_id": "65114f6b0000000017022ba9",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vim182q1m5g5p8h9tllsat95ipt3cg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "广东",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "like_count": "0"
+  },
+  {
+    "id": "68753fd4000000000602f0b5",
+    "status": 0,
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "广东",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "sub_comment_cursor": "",
+    "content": "救我命啊[哭惹R]",
+    "pictures": [],
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "60503b0c000000000101ee09",
+      "nickname": "言y",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo319nr0lfj7i005o2g7c60brg90f7d83o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABdHA3Sw9rLadjAToSjUbU9efJc4P-7jTMN1o83PQcR8Y="
+    },
+    "create_time": 1752514516000
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABMM5ingDvYeuHj8ENw0qaTRcvFIPAHn7d_Z5lw8dRzcw=",
+      "user_id": "6873ce73000000001b020436",
+      "nickname": "研报PPT",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f8f2a34639eb26eb1cd.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "note_id": "65c36c13000000002b03c525",
+    "at_users": [],
+    "content": "[doge]",
+    "status": 0,
+    "ip_location": "重庆",
+    "sub_comment_cursor": "",
+    "id": "687a6b83000000000400d964",
+    "create_time": 1752853380000,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "pictures": [],
+    "liked": false
+  },
+  {
+    "id": "6787dd78000000002200ebf3",
+    "show_tags": [],
+    "status": 0,
+    "content": "可以请教一下营收预测的时候yoy是怎么定的嘛 我只知道把往年增长取平均这种最简单的方法[玫瑰R]",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "pictures": [],
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vir93jtii0g4b4fo5t8lbd614r5le0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABcJrz7dTistO_2areksNLeamPpdW2hiypRFEzhh6j8Sk=",
+      "user_id": "5ba77a8a51e84200016dada6"
+    },
+    "sub_comments": [],
+    "note_id": "65c36c13000000002b03c525",
+    "like_count": "0",
+    "create_time": 1736957305000,
+    "ip_location": "上海",
+    "sub_comment_count": "0"
+  },
+  {
+    "status": -2,
+    "content": "@momo",
+    "at_users": [
+      {
+        "xsec_token": "ABVY7SwuBiTd-1qBhr-C1OXqw-O1p7XIeTHeHLlEHfMXA=",
+        "user_id": "5b8928f3718ed300018e5379",
+        "nickname": "momo",
+        "ai_agent": false
+      }
+    ],
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "上海",
+    "id": "692529ad000000003900adde",
+    "user_info": {
+      "user_id": "5e75dd73000000000100496c",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rd5t2pfng6g5njlrlpg8ibc07fafe0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABmL9eIUhZG6EvAv9vgP59JtjMzuQYYKPze1Pgl6-X80k="
+    },
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "note_id": "65c36c13000000002b03c525",
+    "sub_comments": [
+      {
+        "show_tags": [],
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "692529ad000000003900adde",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rd5t2pfng6g5njlrlpg8ibc07fafe0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABmL9eIUhZG6EvAv9vgP59JtjMzuQYYKPze1Pgl6-X80k=",
+            "user_id": "5e75dd73000000000100496c",
+            "nickname": "momo"
+          }
+        },
+        "id": "692553680000000030024531",
+        "note_id": "65c36c13000000002b03c525",
+        "status": 0,
+        "at_users": [],
+        "like_count": "0",
+        "pictures": [],
+        "content": "好嘟 写了三分之一了",
+        "liked": false,
+        "user_info": {
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lmh4q6hl8004an07hkf6krpc242tug?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABVY7SwuBiTd-1qBhr-C1OXqw-O1p7XIeTHeHLlEHfMXA=",
+          "user_id": "5b8928f3718ed300018e5379"
+        },
+        "create_time": 1764053864000
+      }
+    ],
+    "sub_comment_cursor": "692553680000000030024531",
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "create_time": 1764043182000
+  },
+  {
+    "show_tags": [],
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "692529ad000000003900adde",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rd5t2pfng6g5njlrlpg8ibc07fafe0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABmL9eIUhZG6EvAv9vgP59JtjMzuQYYKPze1Pgl6-X80k=",
+        "user_id": "5e75dd73000000000100496c",
+        "nickname": "momo"
+      }
+    },
+    "id": "692553680000000030024531",
+    "note_id": "65c36c13000000002b03c525",
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "pictures": [],
+    "content": "好嘟 写了三分之一了",
+    "liked": false,
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lmh4q6hl8004an07hkf6krpc242tug?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVY7SwuBiTd-1qBhr-C1OXqw-O1p7XIeTHeHLlEHfMXA=",
+      "user_id": "5b8928f3718ed300018e5379"
+    },
+    "create_time": 1764053864000
+  }
+]

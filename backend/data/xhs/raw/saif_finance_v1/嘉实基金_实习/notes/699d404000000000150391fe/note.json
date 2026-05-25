@@ -1,0 +1,53 @@
+{
+  "xsecToken": "AB40T-BGqv338ud3EyKNmvs-ZXT6vszQJ-qSk-LdczZro=",
+  "interactInfo": {
+    "commentCount": "13",
+    "shareCount": "9",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "50",
+    "collected": false,
+    "collectedCount": "30"
+  },
+  "time": 1771913280000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "title": "吐槽一下",
+  "desc": "前二十的公募都还没有开放暑期实习，不过嘉实、博时、汇添富、景顺长城、兴证全球、永赢、中欧都有日常实习，大部分是营销相关的。\n\t\n好几家公司都用的是wecruit平台，发现这个平台的简历居然要求填身高体重……这也要背调吗\n\t\n好几家公司的主页做的是竖屏的，微信公众号同款长图显示在电脑上简直丑爆了，都雇那么多金融科技开发者了能不能顺手维护一下前端；还有某基金的简介页直接error的\n\t\n还有一个基金在登陆界面提供了用微博账户登录的方法，莫名觉得有种十年前的可爱感\n\t\n最后，个人觉得需要培训一下hr，至少别拿qq邮箱发内推了……",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/645b6abf2e368555521befcc.jpg",
+    "xsecToken": "ABWAcrbnfazXl6Yp2_XorM0WH46F-aDp_PIJ9Q8_tqj0I=",
+    "userId": "698d8ff70000000021005d63",
+    "nickname": "SadBeefRoll"
+  },
+  "imageList": [
+    {
+      "width": 1200,
+      "traceId": "",
+      "livePhoto": false,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191546/0fe9bd605e34fc5b3b3d9a1e78b91fd2/1040g00831sv7b91j5m6g5qcdhvro8nb3u98l4ho!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191546/63bd723f561caaf3e11e1fdb85af5a2b/1040g00831sv7b91j5m6g5qcdhvro8nb3u98l4ho!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 1600,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191546/0fe9bd605e34fc5b3b3d9a1e78b91fd2/1040g00831sv7b91j5m6g5qcdhvro8nb3u98l4ho!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191546/63bd723f561caaf3e11e1fdb85af5a2b/1040g00831sv7b91j5m6g5qcdhvro8nb3u98l4ho!nd_dft_wlteh_webp_3"
+        }
+      ]
+    }
+  ],
+  "tagList": [],
+  "atUserList": [],
+  "lastUpdateTime": 1771913280000,
+  "noteId": "699d404000000000150391fe",
+  "type": "normal"
+}

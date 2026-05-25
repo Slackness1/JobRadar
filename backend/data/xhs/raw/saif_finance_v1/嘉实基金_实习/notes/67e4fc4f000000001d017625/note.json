@@ -1,0 +1,53 @@
+{
+  "xsecToken": "ABIThWvhRTy0FAXJvltohA2pNQuBSY6ktODCzizFDOxus=",
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "67e4fc4f000000001d017625",
+  "type": "normal",
+  "title": "2026届嘉实基金暑期笔试",
+  "interactInfo": {
+    "shareCount": "25",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "40",
+    "collected": false,
+    "collectedCount": "32",
+    "commentCount": "34"
+  },
+  "imageList": [
+    {
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191553/b2edc0ad29f5b5d5ffd99760bdae6db9/1040g2sg31fha1dms74l05nfnmcag8j9g1192ji0!nd_prv_wgth_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191553/6d19d12454ad2a887ac2c06fb6d2fe5e/1040g2sg31fha1dms74l05nfnmcag8j9g1192ji0!nd_dft_wgth_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "height": 733,
+      "width": 936,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191553/b2edc0ad29f5b5d5ffd99760bdae6db9/1040g2sg31fha1dms74l05nfnmcag8j9g1192ji0!nd_prv_wgth_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191553/6d19d12454ad2a887ac2c06fb6d2fe5e/1040g2sg31fha1dms74l05nfnmcag8j9g1192ji0!nd_dft_wgth_webp_3"
+    }
+  ],
+  "time": 1743060047000,
+  "desc": "问一下是海笔吗，我bg太差感觉发的是海笔",
+  "user": {
+    "xsecToken": "AB8kzUT5fAGniOXeSHUqr0IOpzEbn96ReHa_seo5IlM7k=",
+    "userId": "5df7b3150000000001004d30",
+    "nickname": "在蓝天下",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2p8mles0jq06g5nfnmcag8j9gnh25fio"
+  },
+  "tagList": [],
+  "atUserList": [],
+  "lastUpdateTime": 1743060048000
+}

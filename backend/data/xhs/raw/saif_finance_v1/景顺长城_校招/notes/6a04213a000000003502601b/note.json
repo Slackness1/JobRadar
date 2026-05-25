@@ -1,0 +1,85 @@
+{
+  "xsecToken": "ABBHCixPtkW0whqkbWPXQ-G_5P4bq59h527B2RSawtitE=",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "42",
+    "collected": false,
+    "collectedCount": "9",
+    "commentCount": "49",
+    "shareCount": "11",
+    "followed": false
+  },
+  "time": 1778655546000,
+  "lastUpdateTime": 1779110212000,
+  "noteId": "6a04213a000000003502601b",
+  "type": "normal",
+  "title": "求大佬们帮帮",
+  "desc": "求大佬帮选实习offer\n\t\n本人情况（好朋友非本人）：\n9硕，河北人，同时拿到了🐧和jd的转正实习的offer，要求在尽快到岗。本人不大喜欢每天打电话，找客户的工作，很容易内耗\n\t\n1.京东采销 转正后大概20薪，拿满30w，是核心岗位，base北京，但是应该会比较卷，hc也很多\n\t\n2.腾讯云直客销售实习生 最近刚拿的offer，转正后据说第一年保底30w，第二年开始底薪➕提成，但是害怕转正失败。\n#互联网大厂实习[话题]# #求助[话题]# #选offer[话题]# #暑期实习[话题]# #校招[话题]#",
+  "user": {
+    "userId": "62af5a7700000000190284ca",
+    "nickname": "Ricardo. (HR版)",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ufjmjur5c6g5olfb9rmd16au1mgsvo",
+    "xsecToken": "ABdCT2GejJScZyYdnxY7LpXUpru_DtBfOuPbPyrQZO0hw="
+  },
+  "imageList": [
+    {
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191602/30c9edd24b50d1bdf11a7462d13e2e23/1040g0083203n3m0jhm6g5olfb9rmd16a4r36008!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191602/077580fd10d5faa95702e01e31a330af/1040g0083203n3m0jhm6g5olfb9rmd16a4r36008!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191602/30c9edd24b50d1bdf11a7462d13e2e23/1040g0083203n3m0jhm6g5olfb9rmd16a4r36008!nd_prv_wlteh_webp_3",
+      "fileId": "",
+      "height": 1600,
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191602/077580fd10d5faa95702e01e31a330af/1040g0083203n3m0jhm6g5olfb9rmd16a4r36008!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "width": 1200,
+      "url": ""
+    }
+  ],
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5e566c22000000000100b19e",
+      "name": "互联网大厂实习"
+    },
+    {
+      "type": "topic",
+      "id": "5399aa36b4c4d65e0d514942",
+      "name": "求助"
+    },
+    {
+      "id": "60b99dde000000000100b329",
+      "name": "选offer",
+      "type": "topic"
+    },
+    {
+      "id": "5cd13fa8000000000e005d21",
+      "name": "暑期实习",
+      "type": "topic"
+    },
+    {
+      "id": "5be764531cc2b50001167e33",
+      "name": "校招",
+      "type": "topic"
+    },
+    {
+      "id": "137927277592332302",
+      "name": "求大佬帮选 ",
+      "type": "interact_vote"
+    }
+  ],
+  "atUserList": [],
+  "ipLocation": "荷兰",
+  "shareInfo": {
+    "unShare": false
+  }
+}

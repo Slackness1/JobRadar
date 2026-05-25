@@ -1,0 +1,84 @@
+{
+  "xsecToken": "AB66rgjhWDGp7HTiUeZOJOigA1Ki_kcKgHlmzXcPxyWvY=",
+  "interactInfo": {
+    "commentCount": "11",
+    "shareCount": "3",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "84",
+    "collected": false,
+    "collectedCount": "62"
+  },
+  "atUserList": [],
+  "lastUpdateTime": 1763043255000,
+  "noteId": "6915e7b60000000005033a5d",
+  "type": "normal",
+  "title": "实习体验之国资PE vs 美元VC",
+  "desc": "之前在比较top的国资pe实习，对比现在美元vc的实习，差异还是很明显的\n1️⃣工作内容：在国资pe主要就是paperwork，写各种材料，上会报告，行业研究，会议纪要，比较流程化，有一套很规范的体系，且实习生是完全不需要sourcing的。美元vc主要就是跟着带教去见创始人交流，不需要做会议纪要，sourcing，主动去链接资源，做些桌面研究去挖掘些好公司，总体来讲对实习生自驱力要求更高\n2️⃣带教风格：在国资pe实习的时候，带教基本都是在公司的，出差有但不算很多，一些项目大领导直接分配下来，更多偏执行，拉项目压力稍微小一点。美元vc的带教平时在公司基本见不到人，大部分时间都在出差[笑哭R]感觉找项目的压力会更大一些。\n3️⃣实习待遇：两家的实习体验总体而言都非常好，能切切实实学到很多，如果从实习工资角度衡量，美元vc完胜[害羞R]\n4️⃣能力要求：PE会涉及到一部分财务分析，对于基本的三张报表，一些财务分析方法都是必须要会的，估值建模如DCF和相对估值法这些也会用到。VC很少看财务分析，更多是对技术路线，创始团队成员，商业模式能否跑通，产品能否落地的判断。\n#实习日记[话题]# #一级市场[话题]# #PE[话题]# #风险投资[话题]# #金融[话题]# #硬科技投资[话题]#",
+  "user": {
+    "userId": "5b290d324eacab7ca0eba2b4",
+    "nickname": "小lin在前进",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30vv5bs6qlq5g4a6d9k6j58lkc97vjl8",
+    "xsecToken": "ABILjNu3gTG9Jwd3vKDsxXGzTYAMvjdNJpuBHSn0S7caQ="
+  },
+  "shareInfo": {
+    "unShare": false
+  },
+  "imageList": [
+    {
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191517/32a1b00154e2ad0ffbcd3b2465388e18/notes_pre_post/1040g3k031or2a0nb1k604a6d9k6j58lkpote5e8!nd_prv_wlteh_webp_3",
+      "fileId": "",
+      "height": 2560,
+      "width": 1920,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191517/cac28195acead1da56595a55e9850014/notes_pre_post/1040g3k031or2a0nb1k604a6d9k6j58lkpote5e8!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191517/32a1b00154e2ad0ffbcd3b2465388e18/notes_pre_post/1040g3k031or2a0nb1k604a6d9k6j58lkpote5e8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191517/cac28195acead1da56595a55e9850014/notes_pre_post/1040g3k031or2a0nb1k604a6d9k6j58lkpote5e8!nd_dft_wlteh_webp_3"
+        }
+      ]
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5cfa9524000000000f036d68",
+      "name": "实习日记",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "6034e4ee000000000100a4c1",
+      "name": "一级市场"
+    },
+    {
+      "id": "5ee8d2c000000000010079db",
+      "name": "PE",
+      "type": "topic"
+    },
+    {
+      "id": "5d1dd68e000000000d029883",
+      "name": "风险投资",
+      "type": "topic"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "635b667b0000000001003c0f",
+      "name": "硬科技投资"
+    }
+  ],
+  "time": 1763043255000
+}

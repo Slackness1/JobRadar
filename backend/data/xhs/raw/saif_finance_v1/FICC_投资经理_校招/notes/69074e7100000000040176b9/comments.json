@@ -1,0 +1,1520 @@
+[
+  {
+    "create_time": 1762090288000,
+    "sub_comment_cursor": "6907e2b8000000003902e6ef",
+    "user_info": {
+      "user_id": "60d7d92c000000000101fe65",
+      "nickname": "怀瑾",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY="
+    },
+    "note_id": "69074e7100000000040176b9",
+    "status": 4,
+    "content": "感谢各位大佬回复，看了一下感觉还是老实回固收方面吧[捂脸R]期货好像也不是一个很适合的方向…感觉职业探索路径还是很长的哇。[扯脸H][萌萌哒R]",
+    "like_count": "15",
+    "show_tags": [
+      "is_author",
+      "user_top"
+    ],
+    "ip_location": "广东",
+    "sub_comment_count": "2",
+    "id": "69075d2f0000000038014972",
+    "sub_comment_has_more": true,
+    "liked": false,
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "nickname": "ahsjs",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABsrIjOeinu5J7zVOdSPqCKqkOouETU12-oXkgdQFOyfA=",
+          "user_id": "626f623c00000000210258c4"
+        },
+        "show_tags": [],
+        "id": "6907e2b8000000003902e6ef",
+        "note_id": "69074e7100000000040176b9",
+        "like_count": "10",
+        "create_time": 1762124473000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "69075d2f0000000038014972",
+          "user_info": {
+            "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+            "user_id": "60d7d92c000000000101fe65",
+            "nickname": "怀瑾",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "status": 0,
+        "content": "刚从广东路演回来，那边固收从业者自己炒期货的需求明显上升了[笑哭R]"
+      }
+    ],
+    "at_users": []
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "ip_location": "浙江",
+    "id": "69076b270000000033027042",
+    "status": 0,
+    "like_count": "72",
+    "sub_comment_has_more": true,
+    "sub_comment_cursor": "69076bba000000003702632d",
+    "note_id": "69074e7100000000040176b9",
+    "user_info": {
+      "nickname": "大只芥末猫猫丸",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lme3t0tlm0043of08trj8ge5nlgce8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQMw5U4cRlgswnkCOBSW_WzjDb0HHQ7u6iwP8Ur02MNE=",
+      "user_id": "56643bb967bc6523db5fa20e"
+    },
+    "show_tags": [],
+    "create_time": 1762093864000,
+    "content": "首先，期货公司不能做交易（如果要做研究交易的话其实目标是期子公司）；其次，期子公司在交易类的定位和贸易商差不多（贸易商比较有名的比如杭实、物产中大、厦门三巨头这类），具体定位看母公司战略，一般内部岗位来说交易、研究、业务会有三个定位方向，主流招业务、研究居多（建议会社交的高能量人再考虑）；第三，期货单方案的日内波动会很大，杠杆上得足，做交易的话需要比较强的心理抗压能力[暗中观察R]（我之前碰到的交易员，要么就是家底很厚，要么就是经验很足，总之都是比较能扛浮亏的类型）",
+    "sub_comment_count": "7",
+    "sub_comments": [
+      {
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "liked": false,
+        "like_count": "14",
+        "user_info": {
+          "user_id": "56643bb967bc6523db5fa20e",
+          "nickname": "大只芥末猫猫丸",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lme3t0tlm0043of08trj8ge5nlgce8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQMw5U4cRlgswnkCOBSW_WzjDb0HHQ7u6iwP8Ur02MNE="
+        },
+        "show_tags": [],
+        "target_comment": {
+          "id": "69076b270000000033027042",
+          "user_info": {
+            "nickname": "大只芥末猫猫丸",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lme3t0tlm0043of08trj8ge5nlgce8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABQMw5U4cRlgswnkCOBSW_WzjDb0HHQ7u6iwP8Ur02MNE=",
+            "user_id": "56643bb967bc6523db5fa20e"
+          }
+        },
+        "id": "69076bba000000003702632d",
+        "at_users": [],
+        "create_time": 1762094011000,
+        "ip_location": "浙江",
+        "content": "还有就是，哪怕做研究也要跟工厂物流搞好关系，不然没得底层数据（实际上我旁观的角度来看有的时候信息差比模型更重要一点，当然这个观点也可能基于我对期权这块相对没有那么了解）"
+      }
+    ]
+  },
+  {
+    "like_count": "23",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABbmvEPvYSfWcltyDd9Gh0ON9A4pDO6xxrdFBW-SN3j4w=",
+      "user_id": "61adb6fc000000001000d60b",
+      "nickname": "查理不会冲浪",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ueb2vl5le005oddmru41lgbtho2cdo?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [],
+    "at_users": [],
+    "status": 0,
+    "sub_comment_count": "5",
+    "sub_comment_cursor": "69075caf0000000038006b9d",
+    "id": "69075c25000000003802ba9b",
+    "ip_location": "重庆",
+    "sub_comment_has_more": true,
+    "create_time": 1762090022000,
+    "content": "上面有评论说了，全国150多家期货公司利润加起来打不过zx证券[偷笑R][偷笑R][偷笑R]期货公司净收入可以自己去中期协查，至于原因嘛，期货公司的业务范围比券商小得多，更别说期货公司不能对外打广告，所以期货公司经常搞交易比赛吸引客户[偷笑R][偷笑R][偷笑R]另外期货公司人员不能炒期货，请知悉[萌萌哒R][萌萌哒R][萌萌哒R]",
+    "liked": false,
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "1",
+        "user_info": {
+          "nickname": "怀瑾",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+          "user_id": "60d7d92c000000000101fe65"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "69075caf0000000038006b9d",
+        "content": "券商研究员不能炒期货的嘛？我同学跟我说可以哎[黄金薯R]",
+        "at_users": [],
+        "ip_location": "广东",
+        "target_comment": {
+          "user_info": {
+            "user_id": "61adb6fc000000001000d60b",
+            "nickname": "查理不会冲浪",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ueb2vl5le005oddmru41lgbtho2cdo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABbmvEPvYSfWcltyDd9Gh0ON9A4pDO6xxrdFBW-SN3j4w="
+          },
+          "id": "69075c25000000003802ba9b"
+        },
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "create_time": 1762090159000
+      }
+    ],
+    "note_id": "69074e7100000000040176b9"
+  },
+  {
+    "content": "期货从业人员不可以炒期货的呀",
+    "liked": false,
+    "like_count": "6",
+    "sub_comment_has_more": true,
+    "note_id": "69074e7100000000040176b9",
+    "user_info": {
+      "user_id": "5bbcadd0ca8dbd00016335b0",
+      "nickname": "ᅠᅠ",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ocubn4nii004bcpb2mt0ddgkoiegi8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2ePAQ6WPgIP405XfEivkajG-8rlA2Jd7AjHFHv0PIIw="
+    },
+    "show_tags": [],
+    "create_time": 1762090083000,
+    "ip_location": "浙江",
+    "at_users": [],
+    "sub_comments": [
+      {
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "69075c630000000038008f9d",
+          "user_info": {
+            "user_id": "5bbcadd0ca8dbd00016335b0",
+            "nickname": "ᅠᅠ",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ocubn4nii004bcpb2mt0ddgkoiegi8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB2ePAQ6WPgIP405XfEivkajG-8rlA2Jd7AjHFHv0PIIw="
+          }
+        },
+        "create_time": 1762090167000,
+        "ip_location": "广东",
+        "id": "69075cb70000000038026fc5",
+        "content": "券商研究员不能炒期货的嘛？我同学跟我说可以哎[黄金薯R]",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+          "user_id": "60d7d92c000000000101fe65",
+          "nickname": "怀瑾",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg"
+        }
+      }
+    ],
+    "status": 0,
+    "sub_comment_count": "7",
+    "sub_comment_cursor": "69075cb70000000038026fc5",
+    "id": "69075c630000000038008f9d"
+  },
+  {
+    "ip_location": "山东",
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "liked": false,
+    "id": "69076fdf000000003902e6fd",
+    "show_tags": [],
+    "content": "由于监管严格我国衍生品种类真的太少了，期货等衍生品从业的春天得等监管放松，当然你要是路子野去搞场外业务当我没说。城堡证券的做市交易与衍生品业务非常强，最近他们好像要进入内地。进城堡对绝大部分人来说肯定是有点难，但是可以把这次机会看一下监管对衍生品的态度。",
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "note_id": "69074e7100000000040176b9",
+        "user_info": {
+          "user_id": "5b78f1e74205320001bc27a2",
+          "nickname": "antibio",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o43im54kq004agd3loue9t2srhq2qg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABao1NblD7-ZoQmIFmtAV8kN_TwODdGSAagbfjn3562Is="
+        },
+        "show_tags": [],
+        "ip_location": "海南",
+        "id": "69084092000000003902cbe8",
+        "status": 0,
+        "content": "有道理！",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "create_time": 1762148499000,
+        "target_comment": {
+          "id": "69076fdf000000003902e6fd",
+          "user_info": {
+            "xsec_token": "ABjfJHUrMYS7QvOhcxGQoAaMdvCdWTyZ5t1xHbDJHKAto=",
+            "user_id": "5c07e2160000000007011af6",
+            "nickname": "相由心生",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ltaps48ks6g4buro6h1c6nmrhj7j6g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        }
+      }
+    ],
+    "create_time": 1762095072000,
+    "sub_comment_cursor": "69084092000000003902cbe8",
+    "at_users": [],
+    "like_count": "10",
+    "user_info": {
+      "xsec_token": "ABjfJHUrMYS7QvOhcxGQoAaMdvCdWTyZ5t1xHbDJHKAto=",
+      "user_id": "5c07e2160000000007011af6",
+      "nickname": "相由心生",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ltaps48ks6g4buro6h1c6nmrhj7j6g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    }
+  },
+  {
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABf0J-k4cowZJU3X3lqhbNzXyISj5yN11pGX7mpf8L65Y=",
+          "user_id": "5b68e2fcb473500001cc7e70",
+          "nickname": "敢上天",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/641ac90af2aadfb42d432b32.jpg?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1762141910000,
+        "ip_location": "福建",
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "content": "最富的是什么？[黄金薯R]",
+        "like_count": "1",
+        "show_tags": [],
+        "target_comment": {
+          "id": "69075bbd0000000038013c68",
+          "user_info": {
+            "user_id": "5ba703806b58b7126fe54e89",
+            "nickname": "Wish Keeper",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32098tnif6e0g4b4c9b1o0jk9bgile4g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABkW_katURrXw6aTpiOVLvpA2SW7mQ7cD3WeKm5rdj084="
+          }
+        },
+        "id": "690826d50000000033025ce3"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "show_tags": [],
+    "like_count": "27",
+    "id": "69075bbd0000000038013c68",
+    "content": "期货是金融行业里最穷的，炒期货的结局大多都是跳楼。",
+    "at_users": [],
+    "user_info": {
+      "user_id": "5ba703806b58b7126fe54e89",
+      "nickname": "Wish Keeper",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32098tnif6e0g4b4c9b1o0jk9bgile4g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABkW_katURrXw6aTpiOVLvpA2SW7mQ7cD3WeKm5rdj084="
+    },
+    "create_time": 1762089917000,
+    "ip_location": "广东",
+    "sub_comment_cursor": "690826d50000000033025ce3",
+    "note_id": "69074e7100000000040176b9",
+    "liked": false,
+    "status": 0
+  },
+  {
+    "content": "经纪业务不行，太卷。研究院还行，适合学校背景够不上券商的当跳板。交易的话，各凭本事，期货自带杠杆，初始阶段比股票更考验心理素质",
+    "sub_comment_cursor": "6907f27200000000370271b6",
+    "sub_comment_count": "1",
+    "id": "690759640000000038004be3",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "4",
+    "user_info": {
+      "xsec_token": "AB3VbihD1Hbfm2BaXIL76Bhm_tIQf4YAC_FiZHqnKSi7o=",
+      "user_id": "565d2f32cb35fb45a45e70ce",
+      "nickname": "🎾🎾只打双反",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vhklsj32i0043jf5hnj4s6e1o2v2n8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "上海",
+    "sub_comments": [
+      {
+        "id": "6907f27200000000370271b6",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "54e5a92bb4c4d621cb941a8f",
+          "nickname": "顺风顺水顺财",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ocfitqo5m00401eoskim6kf13shur8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABIfrSsudIsuNQiOadBxTokcYgUMkExKWHle_PDqXsB9c="
+        },
+        "create_time": 1762128498000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "690759640000000038004be3",
+          "user_info": {
+            "user_id": "565d2f32cb35fb45a45e70ce",
+            "nickname": "🎾🎾只打双反",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vhklsj32i0043jf5hnj4s6e1o2v2n8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB3VbihD1Hbfm2BaXIL76Bhm_tIQf4YAC_FiZHqnKSi7o="
+          }
+        },
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "content": "很中肯，但是期货研究所收入确实比证券研究所低太多了",
+        "like_count": "2",
+        "show_tags": []
+      }
+    ],
+    "show_tags": [],
+    "create_time": 1762089316000,
+    "sub_comment_has_more": false
+  },
+  {
+    "content": "FICC 相关就业率默认要跨过深圳河，哪怕做固收也一样。国内eq倒是不用考虑这个，代价是限薪和裁员后难就业[doge]",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "626a590d0000000021023a13",
+      "nickname": "Griffin Ardern",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qldi2ho0m4g5ojab46ocegjnvj62l8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABhgc8H0uv77nY0oN4GiMJuxZOWH-aFN_N5C1uVe5jshE="
+    },
+    "show_tags": [],
+    "id": "6907a90d000000003803f28a",
+    "note_id": "69074e7100000000040176b9",
+    "create_time": 1762109710000,
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "id": "6908c6160000000037027fc6",
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "content": "eq是啥",
+        "create_time": 1762182678000,
+        "ip_location": "广东",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "xsec_token": "AB2oCkaBsIJ2O3zwlskSSV4FPoHPhVZ3msYufgrf-RlH8=",
+          "user_id": "5b265310e8ac2b4c0f7863b3",
+          "nickname": "一修",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "show_tags": [],
+        "target_comment": {
+          "id": "6907a90d000000003803f28a",
+          "user_info": {
+            "user_id": "626a590d0000000021023a13",
+            "nickname": "Griffin Ardern",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qldi2ho0m4g5ojab46ocegjnvj62l8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABhgc8H0uv77nY0oN4GiMJuxZOWH-aFN_N5C1uVe5jshE="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "status": 0,
+    "like_count": "4",
+    "sub_comment_count": "4",
+    "sub_comment_cursor": "6908c6160000000037027fc6"
+  },
+  {
+    "id": "6907537500000000390201f4",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "like_count": "20",
+    "user_info": {
+      "user_id": "6083a568000000000101e0e7",
+      "nickname": "AQA芭蕾EQE亏内",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nr18bskku005o43klk0bo77u5euiko?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABm2UmkVun6znxI5cgbXAR-BFkRfbuKoZSRsxiuAAKBew="
+    },
+    "sub_comment_count": "2",
+    "sub_comments": [
+      {
+        "content": "服务实体重要 也不能忽略真金白银的各类投资者啊",
+        "at_users": [],
+        "liked": false,
+        "ip_location": "天津",
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "nickname": "yhso",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315ls09slgs605p32ngunuftpcham0g8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABsQ6jiLkoufxXA3weN183QN-HUJ9Un9FhlVFwTDqel10=",
+          "user_id": "6462bc3d000000001f033fb9"
+        },
+        "show_tags": [],
+        "create_time": 1762172656000,
+        "target_comment": {
+          "id": "6907537500000000390201f4",
+          "user_info": {
+            "nickname": "AQA芭蕾EQE亏内",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nr18bskku005o43klk0bo77u5euiko?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABm2UmkVun6znxI5cgbXAR-BFkRfbuKoZSRsxiuAAKBew=",
+            "user_id": "6083a568000000000101e0e7"
+          }
+        },
+        "id": "69089ef0000000003901f786"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "content": "这么说吧国内150家期货公司盈利加一起大部分券商头部一两家公司[笑哭R] 如果是自己做交易，那就靠自己实力。如果是想在国内期货行业做，我觉得没什么太大意思。因为对服务实体经济这个定位就决定它的盈利模式和上限就这样[笑哭R]",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1762087798000,
+    "ip_location": "北京",
+    "sub_comment_cursor": "69089ef0000000003901f786"
+  },
+  {
+    "create_time": 1762262585000,
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "show_tags": [],
+        "create_time": 1766137387000,
+        "liked": false,
+        "like_count": "1",
+        "user_info": {
+          "user_id": "56c7290e4775a725d22e19f8",
+          "nickname": "Cosine",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/56c7290e4775a725d22e19f8.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABBjMFvymUoD02JBTfkMBkV7LZHAdL3OZ3zyVfQQXIUdI="
+        },
+        "ip_location": "北京",
+        "id": "69451e2a0000000039009af4",
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "content": "日本这块怎么样？工作机会多吗",
+        "target_comment": {
+          "id": "6909fe390000000038010e12",
+          "user_info": {
+            "user_id": "5a7799b8e8ac2b4e0601b737",
+            "nickname": "王者基少拉",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n3j97tmlm004a19a4crhdpn5k6mq30?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABs2fNK6AunfxA8DXEhvjvseERuKobw6YE1QDnoq7cObM="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": false,
+    "id": "6909fe390000000038010e12",
+    "content": "我是衍生品交易员，我们desk都是物理或者数学系PhD，没有纯金融背景",
+    "ip_location": "日本",
+    "sub_comment_cursor": "69451e2a0000000039009af4",
+    "status": 0,
+    "at_users": [],
+    "user_info": {
+      "user_id": "5a7799b8e8ac2b4e0601b737",
+      "nickname": "王者基少拉",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n3j97tmlm004a19a4crhdpn5k6mq30?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABs2fNK6AunfxA8DXEhvjvseERuKobw6YE1QDnoq7cObM="
+    },
+    "show_tags": [],
+    "liked": false,
+    "like_count": "8",
+    "note_id": "69074e7100000000040176b9"
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "nickname": "ahsjs",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsrIjOeinu5J7zVOdSPqCKqkOouETU12-oXkgdQFOyfA=",
+      "user_id": "626f623c00000000210258c4"
+    },
+    "show_tags": [],
+    "id": "6907e2b8000000003902e6ef",
+    "note_id": "69074e7100000000040176b9",
+    "like_count": "10",
+    "create_time": 1762124473000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "69075d2f0000000038014972",
+      "user_info": {
+        "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+        "user_id": "60d7d92c000000000101fe65",
+        "nickname": "怀瑾",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "status": 0,
+    "content": "刚从广东路演回来，那边固收从业者自己炒期货的需求明显上升了[笑哭R]"
+  },
+  {
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "liked": false,
+    "like_count": "14",
+    "user_info": {
+      "user_id": "56643bb967bc6523db5fa20e",
+      "nickname": "大只芥末猫猫丸",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lme3t0tlm0043of08trj8ge5nlgce8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQMw5U4cRlgswnkCOBSW_WzjDb0HHQ7u6iwP8Ur02MNE="
+    },
+    "show_tags": [],
+    "target_comment": {
+      "id": "69076b270000000033027042",
+      "user_info": {
+        "nickname": "大只芥末猫猫丸",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lme3t0tlm0043of08trj8ge5nlgce8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABQMw5U4cRlgswnkCOBSW_WzjDb0HHQ7u6iwP8Ur02MNE=",
+        "user_id": "56643bb967bc6523db5fa20e"
+      }
+    },
+    "id": "69076bba000000003702632d",
+    "at_users": [],
+    "create_time": 1762094011000,
+    "ip_location": "浙江",
+    "content": "还有就是，哪怕做研究也要跟工厂物流搞好关系，不然没得底层数据（实际上我旁观的角度来看有的时候信息差比模型更重要一点，当然这个观点也可能基于我对期权这块相对没有那么了解）"
+  },
+  {
+    "liked": false,
+    "like_count": "1",
+    "user_info": {
+      "nickname": "怀瑾",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+      "user_id": "60d7d92c000000000101fe65"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "69075caf0000000038006b9d",
+    "content": "券商研究员不能炒期货的嘛？我同学跟我说可以哎[黄金薯R]",
+    "at_users": [],
+    "ip_location": "广东",
+    "target_comment": {
+      "user_info": {
+        "user_id": "61adb6fc000000001000d60b",
+        "nickname": "查理不会冲浪",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ueb2vl5le005oddmru41lgbtho2cdo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABbmvEPvYSfWcltyDd9Gh0ON9A4pDO6xxrdFBW-SN3j4w="
+      },
+      "id": "69075c25000000003802ba9b"
+    },
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "create_time": 1762090159000
+  },
+  {
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "69075c630000000038008f9d",
+      "user_info": {
+        "user_id": "5bbcadd0ca8dbd00016335b0",
+        "nickname": "ᅠᅠ",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30ocubn4nii004bcpb2mt0ddgkoiegi8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB2ePAQ6WPgIP405XfEivkajG-8rlA2Jd7AjHFHv0PIIw="
+      }
+    },
+    "create_time": 1762090167000,
+    "ip_location": "广东",
+    "id": "69075cb70000000038026fc5",
+    "content": "券商研究员不能炒期货的嘛？我同学跟我说可以哎[黄金薯R]",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABzH7l-uLRN5JqexttW4SaCmvE50BWt0k5Jy7jtKjZHFY=",
+      "user_id": "60d7d92c000000000101fe65",
+      "nickname": "怀瑾",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0?imageView2/2/w/120/format/jpg"
+    }
+  },
+  {
+    "note_id": "69074e7100000000040176b9",
+    "user_info": {
+      "user_id": "5b78f1e74205320001bc27a2",
+      "nickname": "antibio",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o43im54kq004agd3loue9t2srhq2qg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABao1NblD7-ZoQmIFmtAV8kN_TwODdGSAagbfjn3562Is="
+    },
+    "show_tags": [],
+    "ip_location": "海南",
+    "id": "69084092000000003902cbe8",
+    "status": 0,
+    "content": "有道理！",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "create_time": 1762148499000,
+    "target_comment": {
+      "id": "69076fdf000000003902e6fd",
+      "user_info": {
+        "xsec_token": "ABjfJHUrMYS7QvOhcxGQoAaMdvCdWTyZ5t1xHbDJHKAto=",
+        "user_id": "5c07e2160000000007011af6",
+        "nickname": "相由心生",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ltaps48ks6g4buro6h1c6nmrhj7j6g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    }
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABf0J-k4cowZJU3X3lqhbNzXyISj5yN11pGX7mpf8L65Y=",
+      "user_id": "5b68e2fcb473500001cc7e70",
+      "nickname": "敢上天",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/641ac90af2aadfb42d432b32.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1762141910000,
+    "ip_location": "福建",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "content": "最富的是什么？[黄金薯R]",
+    "like_count": "1",
+    "show_tags": [],
+    "target_comment": {
+      "id": "69075bbd0000000038013c68",
+      "user_info": {
+        "user_id": "5ba703806b58b7126fe54e89",
+        "nickname": "Wish Keeper",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32098tnif6e0g4b4c9b1o0jk9bgile4g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABkW_katURrXw6aTpiOVLvpA2SW7mQ7cD3WeKm5rdj084="
+      }
+    },
+    "id": "690826d50000000033025ce3"
+  },
+  {
+    "id": "6907f27200000000370271b6",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "54e5a92bb4c4d621cb941a8f",
+      "nickname": "顺风顺水顺财",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ocfitqo5m00401eoskim6kf13shur8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABIfrSsudIsuNQiOadBxTokcYgUMkExKWHle_PDqXsB9c="
+    },
+    "create_time": 1762128498000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "690759640000000038004be3",
+      "user_info": {
+        "user_id": "565d2f32cb35fb45a45e70ce",
+        "nickname": "🎾🎾只打双反",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vhklsj32i0043jf5hnj4s6e1o2v2n8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB3VbihD1Hbfm2BaXIL76Bhm_tIQf4YAC_FiZHqnKSi7o="
+      }
+    },
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "content": "很中肯，但是期货研究所收入确实比证券研究所低太多了",
+    "like_count": "2",
+    "show_tags": []
+  },
+  {
+    "id": "6908c6160000000037027fc6",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "content": "eq是啥",
+    "create_time": 1762182678000,
+    "ip_location": "广东",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "AB2oCkaBsIJ2O3zwlskSSV4FPoHPhVZ3msYufgrf-RlH8=",
+      "user_id": "5b265310e8ac2b4c0f7863b3",
+      "nickname": "一修",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "target_comment": {
+      "id": "6907a90d000000003803f28a",
+      "user_info": {
+        "user_id": "626a590d0000000021023a13",
+        "nickname": "Griffin Ardern",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qldi2ho0m4g5ojab46ocegjnvj62l8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABhgc8H0uv77nY0oN4GiMJuxZOWH-aFN_N5C1uVe5jshE="
+      }
+    }
+  },
+  {
+    "content": "服务实体重要 也不能忽略真金白银的各类投资者啊",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "天津",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "nickname": "yhso",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315ls09slgs605p32ngunuftpcham0g8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsQ6jiLkoufxXA3weN183QN-HUJ9Un9FhlVFwTDqel10=",
+      "user_id": "6462bc3d000000001f033fb9"
+    },
+    "show_tags": [],
+    "create_time": 1762172656000,
+    "target_comment": {
+      "id": "6907537500000000390201f4",
+      "user_info": {
+        "nickname": "AQA芭蕾EQE亏内",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nr18bskku005o43klk0bo77u5euiko?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABm2UmkVun6znxI5cgbXAR-BFkRfbuKoZSRsxiuAAKBew=",
+        "user_id": "6083a568000000000101e0e7"
+      }
+    },
+    "id": "69089ef0000000003901f786"
+  },
+  {
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1766137387000,
+    "liked": false,
+    "like_count": "1",
+    "user_info": {
+      "user_id": "56c7290e4775a725d22e19f8",
+      "nickname": "Cosine",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/56c7290e4775a725d22e19f8.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABBjMFvymUoD02JBTfkMBkV7LZHAdL3OZ3zyVfQQXIUdI="
+    },
+    "ip_location": "北京",
+    "id": "69451e2a0000000039009af4",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "content": "日本这块怎么样？工作机会多吗",
+    "target_comment": {
+      "id": "6909fe390000000038010e12",
+      "user_info": {
+        "user_id": "5a7799b8e8ac2b4e0601b737",
+        "nickname": "王者基少拉",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n3j97tmlm004a19a4crhdpn5k6mq30?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABs2fNK6AunfxA8DXEhvjvseERuKobw6YE1QDnoq7cObM="
+      }
+    }
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "ip_location": "加拿大",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "id": "6907a2680000000033005de1",
+        "note_id": "69074e7100000000040176b9",
+        "status": 0,
+        "ip_location": "加拿大",
+        "target_comment": {
+          "id": "6907a2600000000033021507",
+          "user_info": {
+            "user_id": "64a0092e000000002503535c",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jugf67134605p5014n9ekqsu4u094o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABs-3WLv8Qzmm2P1EytfRo9ufMjOCriZwdGgKRoA0TtNs="
+          }
+        },
+        "create_time": 1762108009000,
+        "content": "受益",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "64a0092e000000002503535c",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jugf67134605p5014n9ekqsu4u094o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABs-3WLv8Qzmm2P1EytfRo9ufMjOCriZwdGgKRoA0TtNs="
+        },
+        "show_tags": []
+      }
+    ],
+    "status": 0,
+    "like_count": "1",
+    "user_info": {
+      "user_id": "64a0092e000000002503535c",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jugf67134605p5014n9ekqsu4u094o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABs-3WLv8Qzmm2P1EytfRo9ufMjOCriZwdGgKRoA0TtNs="
+    },
+    "create_time": 1762108000000,
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "6907a2680000000033005de1",
+    "sub_comment_has_more": false,
+    "id": "6907a2600000000033021507",
+    "note_id": "69074e7100000000040176b9",
+    "content": "收益了 谢谢各路大佬前辈[集美R]"
+  },
+  {
+    "content": "很难做！别问我怎么知道的 不要长期做 学习一段时间蛮好的 毕竟是金融里面最难搞的东西了",
+    "show_tags": [],
+    "create_time": 1762312410000,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "note_id": "69074e7100000000040176b9",
+    "liked": false,
+    "like_count": "3",
+    "ip_location": "浙江",
+    "sub_comment_cursor": "",
+    "id": "690ac0da000000003300fec7",
+    "user_info": {
+      "user_id": "680e2558000000000a03e798",
+      "nickname": "糯拉的小世界",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u187qscmu5g5q0e4lc2npsohrugjto?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABM3o-uzFuR-W1j_Wn9O1TqII19_739QwevHc0ChZ6ffw="
+    },
+    "sub_comment_has_more": false,
+    "status": 0,
+    "at_users": []
+  },
+  {
+    "id": "6907532800000000390248bf",
+    "user_info": {
+      "user_id": "6184c150000000001000b677",
+      "nickname": "爱小猫100年",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30mr9nhoekg605oc4o5841djn89n4bt8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB6ODi9avt7DptY0FqkqHBoG6k1bkw6wF9AYnXhtOGInU="
+    },
+    "show_tags": [],
+    "sub_comments": [],
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "sub_comment_count": "0",
+    "content": "很吃能力，不是一个能躺的行业[笑哭R]",
+    "at_users": [],
+    "liked": false,
+    "create_time": 1762087721000,
+    "sub_comment_has_more": false,
+    "like_count": "2",
+    "ip_location": "重庆",
+    "sub_comment_cursor": ""
+  },
+  {
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "id": "69074f74000000003902e2ae",
+    "note_id": "69074e7100000000040176b9",
+    "user_info": {
+      "nickname": "Aonagi",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vsi293his005p47uvjkmrm1jigiob0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABrOdZOZfrgQNEqJWyzV22aMP4t5999a1rtHHrqcCwxeM=",
+      "user_id": "6487f7e70000000012036ec1"
+    },
+    "show_tags": [],
+    "sub_comments": [],
+    "create_time": 1762086773000,
+    "ip_location": "美国",
+    "sub_comment_count": "0",
+    "at_users": [],
+    "liked": false,
+    "like_count": "7",
+    "status": 0,
+    "content": "公司偏好理工生"
+  },
+  {
+    "status": 0,
+    "like_count": "2",
+    "user_info": {
+      "user_id": "5ecc80d50000000001007950",
+      "nickname": "破木吉他",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5ecc80d50000000001007950.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABlrT44v7uS50iC6tPNZZhRk6LT6z6NyGYtg-Ez-IRPjE="
+    },
+    "id": "69082bb1000000003302253d",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "liked": false,
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "content": "如果你是说正经的分析，开发，自营交易等岗位，首先你得是985然后有关系。然后咱们再聊别的。",
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1762143153000
+  },
+  {
+    "sub_comment_has_more": false,
+    "content": "几年前就在喊看好看好[捂脸R]但还没发展起来，不知道后面会不会有大动作",
+    "like_count": "3",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "id": "690771de00000000380307dc",
+    "user_info": {
+      "user_id": "67089e30000000001d033bd0",
+      "nickname": "紫米饭团dudu",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31g6bo4991q005po8joo7eeug1mvgosg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABXJJw2dX2uYCPAS8gu_HAC7ed27hqbTwPr8Nnt2vV2-4="
+    },
+    "show_tags": [],
+    "at_users": [],
+    "status": 0,
+    "liked": false,
+    "create_time": 1762095582000,
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "note_id": "69074e7100000000040176b9"
+  },
+  {
+    "user_info": {
+      "xsec_token": "ABIanO6cbwjaJpSOqaIdFnoZ71CgqY51t37shYQydmyrs=",
+      "user_id": "5cdf768300000000110209e3",
+      "nickname": "风起云涌",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31al8l7ks7e005n6veq1kc2f32rhs0e8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "status": 0,
+    "like_count": "5",
+    "note_id": "69074e7100000000040176b9",
+    "show_tags": [],
+    "liked": false,
+    "create_time": 1762094160000,
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "id": "69076c50000000003900728f",
+    "at_users": [],
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "content": "你说的这些都不是期货公司做的，一般都是买方基金尤其是私募会做商品期货的交易，有量化有主观。或者去卖方衍生品定价和做市。",
+    "ip_location": "上海"
+  },
+  {
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/6298043ef32faaac66a6937a.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABnbvL4qLrYbXyBgwdNliRbKZo7HBHmOKUCXOgkfPHAP4=",
+      "user_id": "610960c5000000000100312b",
+      "nickname": "奇怪的兰那罗"
+    },
+    "create_time": 1762098899000,
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "id": "69077ed3000000003901cc29",
+    "content": "国内不是",
+    "sub_comment_cursor": "",
+    "status": 0,
+    "ip_location": "上海",
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "note_id": "69074e7100000000040176b9",
+    "like_count": "0",
+    "liked": false
+  },
+  {
+    "id": "6925def10000000039009ec8",
+    "status": 0,
+    "at_users": [],
+    "ip_location": "中国香港",
+    "note_id": "69074e7100000000040176b9",
+    "content": "路过吃瓜",
+    "liked": false,
+    "create_time": 1764089585000,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "sub_comments": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "652d5614000000002a02a999",
+      "nickname": "香港金融猎头LWP",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mf66bb358005p9daoaalacp9qdchv8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABs6iyFqJATlHLrUpNW3SCi2YRNyAKB_Q58Mi3wGgUZoc="
+    },
+    "show_tags": []
+  },
+  {
+    "at_users": [],
+    "ip_location": "福建",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "show_tags": [],
+    "user_info": {
+      "user_id": "5d32d8ba0000000012024f75",
+      "nickname": "🍦",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d32d90b2d52830001f699de.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABkr5nhkXvFplsVkZatRmID4No6AnRjgyBZBFtN3AONEw="
+    },
+    "create_time": 1762100203000,
+    "liked": false,
+    "status": 0,
+    "content": "各位大佬，如果未来想做期货交易相关，可现在硕士毕业也进不了好的私募，编程能力也不行，那毕业有什么可以做的推荐吗",
+    "like_count": "0",
+    "sub_comment_cursor": "",
+    "id": "690783ea000000003702790e"
+  },
+  {
+    "id": "6907a2680000000033005de1",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "ip_location": "加拿大",
+    "target_comment": {
+      "id": "6907a2600000000033021507",
+      "user_info": {
+        "user_id": "64a0092e000000002503535c",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jugf67134605p5014n9ekqsu4u094o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABs-3WLv8Qzmm2P1EytfRo9ufMjOCriZwdGgKRoA0TtNs="
+      }
+    },
+    "create_time": 1762108009000,
+    "content": "受益",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "64a0092e000000002503535c",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jugf67134605p5014n9ekqsu4u094o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABs-3WLv8Qzmm2P1EytfRo9ufMjOCriZwdGgKRoA0TtNs="
+    },
+    "show_tags": []
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "xsec_token": "AB3ENtoN3ABQS6UhRHediSeEpDs4ctJXwtmnYoEQv0EYg=",
+      "user_id": "5ad21e2811be102217ba90a7",
+      "nickname": "Peppa",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5ad21f38b46c5d12d3fc73cd.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1762125309000,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "at_users": [],
+    "like_count": "0",
+    "sub_comments": [],
+    "id": "6907e5fd000000003902bbc6",
+    "status": 0,
+    "content": "岗位超级少",
+    "show_tags": [],
+    "ip_location": "广东"
+  },
+  {
+    "sub_comments": [],
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "at_users": [],
+    "create_time": 1766714267000,
+    "user_info": {
+      "user_id": "5bfe5ee244363b526a02e57c",
+      "nickname": "mad[hjmncsss]",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo310lh17vtmi604buk8tfe5pbs0c4pmno?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABG2LX3WezbZzR5Fk2fVxiP12C_Cw-ImpoG96B-w6PiPA="
+    },
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "id": "694deb9a000000000f01e404",
+    "content": "看完评论区踏踏实实继续做买方投研了[捂脸R]",
+    "like_count": "2",
+    "sub_comment_count": "0"
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "id": "69116aed000000003903146d",
+    "create_time": 1762749165000,
+    "at_users": [],
+    "sub_comment_count": "0",
+    "note_id": "69074e7100000000040176b9",
+    "status": 3,
+    "content": "不是",
+    "user_info": {
+      "nickname": "小明子",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d4ab7ecbf80d7f2025df43.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB94UUsv2S6hjYQjGn8XWd_bWkqkSagQ-AgoNSiNGRW1g=",
+      "user_id": "5c2eccc300000000050082ca"
+    },
+    "ip_location": "广东",
+    "sub_comments": [],
+    "sub_comment_cursor": ""
+  },
+  {
+    "like_count": "3",
+    "ip_location": "上海",
+    "sub_comments": [],
+    "content": "国内不行[笑哭R]",
+    "at_users": [],
+    "show_tags": [],
+    "id": "69075c93000000003902535f",
+    "user_info": {
+      "xsec_token": "AB9Q3UoGJp5pXgc1Modi6phybKuCsJzIyX6hMTRA47b38=",
+      "user_id": "60cdbfd1000000002002ed97",
+      "nickname": "涟尛雪",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/619b13b2029bab62923b6074.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "sub_comment_count": "0",
+    "liked": false,
+    "create_time": 1762090131000
+  },
+  {
+    "id": "690aa91a0000000037013429",
+    "sub_comment_has_more": false,
+    "user_info": {
+      "user_id": "62b73108000000001b029140",
+      "nickname": "阿呆阿槑",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n4ira8i6g0g5oln6446t4a0e3k77u8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABxUW5Ct_qcvOWjGF-VkAkgXDHttfGd2i0W0Dtjl-FPTY="
+    },
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "sub_comments": [],
+    "create_time": 1762306331000,
+    "ip_location": "安徽",
+    "liked": false,
+    "like_count": "3",
+    "content": "衍生品交易、自营业务这块很考验能力 需要金工 物理 数学背景",
+    "at_users": []
+  },
+  {
+    "note_id": "69074e7100000000040176b9",
+    "content": "从业穷死，做交易员的话你可以试试，用近十年来看自己是不是那个料，成才率千分之几[笑哭R]",
+    "at_users": [],
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "user_info": {
+      "user_id": "59de14056eea88265f358022",
+      "nickname": "乐山水昊然",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31hp0rfulj46g49st7ca0b012k7ces1g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABL3YA4fHRjp0NcidZwjJp3ZcimIwjbTM0MAyw_axyirg="
+    },
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "id": "6909e190000000003903041c",
+    "status": 0,
+    "like_count": "5",
+    "ip_location": "云南",
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1762255248000
+  },
+  {
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "content": "快跑吧",
+    "show_tags": [],
+    "like_count": "1",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/604daa48103fa51dbf71de96.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABvs_P0459eJpr7t3ojPU79bGLssORpsbq0Cav7e9x-bE=",
+      "user_id": "5af52f1b11be103c51529311",
+      "nickname": "Naive"
+    },
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "id": "690e1e9f000000003802dd5b",
+    "at_users": [],
+    "create_time": 1762533024000,
+    "ip_location": "浙江",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "liked": false
+  },
+  {
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "status": 0,
+    "create_time": 1762090471000,
+    "user_info": {
+      "user_id": "68a03c8d000000001901bd6f",
+      "nickname": "用户已注销",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b802c0f5b598e07f39dc7.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2EMO9XrJMJbOsyfUqHd5EGLJza18buE4vr6Yva9y96I="
+    },
+    "ip_location": "四川",
+    "id": "69075de7000000003901ef5e",
+    "note_id": "69074e7100000000040176b9",
+    "content": "家里条件好，可以学习研究，但不是个好职业",
+    "liked": false,
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "like_count": "3",
+    "show_tags": [],
+    "sub_comments": []
+  },
+  {
+    "content": "做模拟应该？[暗中观察R]",
+    "user_info": {
+      "xsec_token": "ABPPibrMR4cFFPPCRfFnJk4iDAhMqei8SwJ6_gzdBpoPg=",
+      "user_id": "63b7d75a0000000027034d6d",
+      "nickname": "期海美人鱼",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31meeop0amg505otnqtd9ujbdmo79vu0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "湖南",
+    "liked": false,
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "id": "690afb460000000039005f06",
+    "note_id": "69074e7100000000040176b9",
+    "at_users": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "status": 0,
+    "like_count": "0",
+    "create_time": 1762327366000,
+    "sub_comment_has_more": false
+  },
+  {
+    "liked": false,
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "show_tags": [],
+    "ip_location": "浙江",
+    "status": 0,
+    "content": "是的",
+    "note_id": "69074e7100000000040176b9",
+    "sub_comments": [],
+    "user_info": {
+      "nickname": "昵称",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30pkhhkmg6k005o7ppdl85o4v88t15q8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsX3BdDMYqtCAjTkEZ3wU3iayPG2hJ8R8Tgc7TgCwAFA=",
+      "user_id": "60f9cb6a000000002002e09f"
+    },
+    "create_time": 1762098066000,
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "id": "69077b92000000003803d2f1",
+    "like_count": "0"
+  },
+  {
+    "sub_comment_has_more": false,
+    "id": "690763a80000000039009340",
+    "liked": false,
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "content": "base低 看能力",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "630b8ffb0000000012003b7e",
+      "nickname": "YiYu",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31s7489bulm005oobhvtkgerullok4t0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-DYUHQ9N-eRR0ZoUNvQDlCgQ0pFlIORb1msZRLPAKy8="
+    },
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "create_time": 1762091945000,
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "at_users": []
+  },
+  {
+    "sub_comments": [],
+    "id": "6907749f0000000037011f9b",
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "at_users": [],
+    "create_time": 1762096287000,
+    "content": "先拿下期货投资分析吧[doge]",
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABFifrnUYKNY-GQ8IEXijzqqrzs4p2BHuq9r5SNMBXBcw=",
+      "user_id": "63079a1b000000001200e263",
+      "nickname": "乐观向上",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317p9bimd44005oo7j8dkhoj3ts4j02o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "ip_location": "山西",
+    "sub_comment_count": "0",
+    "liked": false,
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5c1d785d0000000005008399",
+      "nickname": "西方树叶一瓶",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m7l5he14s005n0tf1eh90spv6l4fv0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AButRVnc9v4y1Ow_Tnmm7hoOYXyYSQmijGa-JFqU4sOdE="
+    },
+    "ip_location": "广东",
+    "note_id": "69074e7100000000040176b9",
+    "liked": false,
+    "sub_comment_cursor": "",
+    "id": "6995bcc00000000005031047",
+    "show_tags": [],
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "content": "不会",
+    "at_users": [],
+    "create_time": 1771420865000,
+    "sub_comment_count": "0"
+  },
+  {
+    "at_users": [],
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "status": 0,
+    "liked": false,
+    "create_time": 1762086864000,
+    "ip_location": "上海",
+    "id": "69074fcf0000000039033e63",
+    "content": "专业要求很高，但是行业商业模式不对，挣不到钱",
+    "like_count": "5",
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsrIjOeinu5J7zVOdSPqCKqkOouETU12-oXkgdQFOyfA=",
+      "user_id": "626f623c00000000210258c4",
+      "nickname": "ahsjs"
+    }
+  },
+  {
+    "id": "690add460000000038031b51",
+    "sub_comment_count": "0",
+    "note_id": "69074e7100000000040176b9",
+    "content": "宝儿们快来交换信息[派对R]0【一键复制，小红书等你】 12月3日前有效，\"26/27届找实习（分享渠道版\"邀你一起聊 HU7525 :/#d🥮🥝🐔😚🥭😌🐂🍈🍗😘😊🐯",
+    "liked": false,
+    "ip_location": "上海",
+    "create_time": 1762319687000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "status": -2,
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [],
+    "user_info": {
+      "nickname": "小红薯69FA07A3",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABktsJMZjROFgKAQKejEp13obHIfj1eR9oxaCyR3Lwz3M=",
+      "user_id": "62483df70000000010008b26"
+    },
+    "sub_comment_has_more": false
+  },
+  {
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1762092742000,
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "69074e7100000000040176b9",
+    "content": "北物院专业对口，你这个不太合适",
+    "user_info": {
+      "xsec_token": "ABVWGee-29uU9VqTXuIRhloK9AJYBiackEY3ZQBLv7onk=",
+      "user_id": "63b28e310000000026005dcb",
+      "nickname": "張志壹（26年出差58天）",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m6lpqdt5i005otihoopgnebf925018?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "江苏",
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "id": "690766c600000000330057af",
+    "status": -2
+  },
+  {
+    "id": "691073e700000000380156e0",
+    "status": -2,
+    "at_users": [
+      {
+        "user_id": "5b6bbfd1f7e8b93d12208bfa",
+        "nickname": "momo",
+        "ai_agent": false,
+        "xsec_token": "ABDuuv5FNm1xdgq4lZPu6FCnrhAp905b0ctR3L4Xm4Poc="
+      }
+    ],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "note_id": "69074e7100000000040176b9",
+    "liked": false,
+    "create_time": 1762685928000,
+    "like_count": "0",
+    "ip_location": "上海",
+    "content": "@momo",
+    "user_info": {
+      "nickname": "A_wgytz",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/646dfb7af8db16d208ed0542.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABJJGYR_YgbmkzoKpHRC8_VdPgDRK0rc3jODVLyFfjUCo=",
+      "user_id": "5d0cce1a000000001200be16"
+    },
+    "show_tags": [],
+    "sub_comment_has_more": false
+  }
+]

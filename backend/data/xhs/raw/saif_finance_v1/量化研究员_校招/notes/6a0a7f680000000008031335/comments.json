@@ -1,0 +1,2039 @@
+[
+  {
+    "liked": false,
+    "sub_comment_count": "10",
+    "note_id": "6a0a7f680000000008031335",
+    "at_users": [],
+    "user_info": {
+      "user_id": "5d45037a0000000010025ca4",
+      "nickname": "momo不爱吃蛋黄",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64343115cf0f84f939f274b8.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABV9yW8BygS7gY2ay4FhhrP5ZfG5rQKs-2p1qmuqBeGaY="
+    },
+    "ip_location": "浙江",
+    "sub_comments": [
+      {
+        "status": 0,
+        "content": "谢谢分享[皱眉R]请问大平台完成原始积累是指大平台的薪资较高、还是指大平台对能力的培养较好呢",
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779075393000,
+        "target_comment": {
+          "id": "6a0a879d0000000028030123",
+          "user_info": {
+            "user_id": "5d45037a0000000010025ca4",
+            "nickname": "momo不爱吃蛋黄",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/64343115cf0f84f939f274b8.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABV9yW8BygS7gY2ay4FhhrP5ZfG5rQKs-2p1qmuqBeGaY="
+          }
+        },
+        "id": "6a0a894100000000290261e4",
+        "note_id": "6a0a7f680000000008031335",
+        "at_users": [],
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京"
+      }
+    ],
+    "content": "去年毕业的答一波：①平台是最重要的，去大平台完成原始积累帮助很大。②公募表面上光鲜亮丽，但是大部分和散户没啥区别，都是吃市场的β，能挖到α的少之又少。③真正有能力的都自己出来了，我入行不到一年，遇到的大佬（a9以上）认知都是真正牛逼的不会想呆在行业内的[笑哭R]",
+    "status": 0,
+    "id": "6a0a879d0000000028030123",
+    "show_tags": [],
+    "create_time": 1779074974000,
+    "sub_comment_cursor": "6a0a894100000000290261e4",
+    "sub_comment_has_more": true,
+    "like_count": "25"
+  },
+  {
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "id": "6a0a987f0000000029018754",
+        "content": "如果你说的是中后台，那一直bar就是两财一贸啊",
+        "at_users": [],
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB_0NREELk3Tt-iYZI4Pc6RtHiby4Va9F46JlMapskzoU=",
+          "user_id": "5c2716e600000000070027e7",
+          "nickname": "经济学爱好者momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315e80avo1e005n172rj1o9v7ebhgol8?imageView2/2/w/120/format/jpg"
+        },
+        "show_tags": [],
+        "ip_location": "广东",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "liked": false,
+        "like_count": "7",
+        "create_time": 1779079295000,
+        "target_comment": {
+          "user_info": {
+            "user_id": "63a273d50000000026006c3a",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs="
+          },
+          "id": "6a0a8c7d000000002a006121"
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "id": "6a0a8c7d000000002a006121",
+    "note_id": "6a0a7f680000000008031335",
+    "liked": false,
+    "like_count": "2",
+    "sub_comment_cursor": "6a0a987f0000000029018754",
+    "content": "top2+人大都在往总行卷 公募头部bar都降到两财一贸了",
+    "user_info": {
+      "user_id": "63a273d50000000026006c3a",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs="
+    },
+    "create_time": 1779076221000,
+    "sub_comment_count": "15",
+    "status": 0,
+    "at_users": [],
+    "ip_location": "北京"
+  },
+  {
+    "sub_comments": [
+      {
+        "ip_location": "广东",
+        "status": 0,
+        "content": "2.前景：被动流动性太差了目前，主要理财子险资啥的研究能力不强，还是喜欢买主观。监管限薪有影响，研究员一般碰不到这个限额。AI的替代是写报告方面，但是研究员最重要的价值还是去跟同业和产业勾兑。。。这方面AI还是取代不了的。。",
+        "at_users": [],
+        "liked": false,
+        "like_count": "7",
+        "target_comment": {
+          "id": "6a0aad26000000002203e50c",
+          "user_info": {
+            "user_id": "65740ee3000000002002dac4",
+            "nickname": "苏丽珂",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30sf2357tje605pbk1rho5mm4lrknmg0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABqVtdxmct6CRN2Xz0BQSBS5qV3z_1LGwnlFWz6ZSyxs0="
+          }
+        },
+        "id": "6a0aaded000000002100ce14",
+        "note_id": "6a0a7f680000000008031335",
+        "user_info": {
+          "user_id": "65740ee3000000002002dac4",
+          "nickname": "苏丽珂",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30sf2357tje605pbk1rho5mm4lrknmg0?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABqVtdxmct6CRN2Xz0BQSBS5qV3z_1LGwnlFWz6ZSyxs0="
+        },
+        "show_tags": [],
+        "create_time": 1779084782000
+      }
+    ],
+    "sub_comment_cursor": "6a0aaded000000002100ce14",
+    "show_tags": [],
+    "like_count": "2",
+    "ip_location": "广东",
+    "note_id": "6a0a7f680000000008031335",
+    "liked": false,
+    "user_info": {
+      "user_id": "65740ee3000000002002dac4",
+      "nickname": "苏丽珂",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30sf2357tje605pbk1rho5mm4lrknmg0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABqVtdxmct6CRN2Xz0BQSBS5qV3z_1LGwnlFWz6ZSyxs0="
+    },
+    "sub_comment_count": "10",
+    "content": "1.薪资问题：一般头部公募(top10)研究员base一般，但是年终还是比较可观的，拖延是存在的，5年80-100还是可以期待的。",
+    "status": 0,
+    "at_users": [],
+    "create_time": 1779084583000,
+    "sub_comment_has_more": true,
+    "id": "6a0aad26000000002203e50c"
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779086375000,
+        "target_comment": {
+          "id": "6a0ab20400000000290100ea",
+          "user_info": {
+            "user_id": "68454bbd000000001e00aa32",
+            "nickname": "小沐学长",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ifcbo6nge6g5q259eunhahibaq71eo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABwZleSsOGFsQ9dnxRMlCEA74pz4w-U6J3VfGKRGgZwRM="
+          }
+        },
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "content": "学长您好！[皱眉R]请问我的薪资顾虑您是怎么看的呢，base 1-2w在北上生活的压力",
+        "at_users": [],
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "id": "6a0ab427000000002300cba3"
+      }
+    ],
+    "sub_comment_cursor": "6a0ab427000000002300cba3",
+    "status": 0,
+    "content": "我感觉还挺好啊，我也是top4本硕，在公募做多资产/固收量化，前景可能还没有主观好，但是不会觉得亏[笑哭R]",
+    "at_users": [],
+    "create_time": 1779085829000,
+    "ip_location": "北京",
+    "sub_comment_count": "7",
+    "id": "6a0ab20400000000290100ea",
+    "note_id": "6a0a7f680000000008031335",
+    "user_info": {
+      "user_id": "68454bbd000000001e00aa32",
+      "nickname": "小沐学长",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ifcbo6nge6g5q259eunhahibaq71eo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABwZleSsOGFsQ9dnxRMlCEA74pz4w-U6J3VfGKRGgZwRM="
+    },
+    "sub_comment_has_more": true
+  },
+  {
+    "ip_location": "上海",
+    "note_id": "6a0a7f680000000008031335",
+    "liked": false,
+    "content": "1. 薪资：评论区说的很对，刚开始起薪比不过互联网，后续方差很大（包括但不限于是否跳槽到给的更多的机构/个人投资等）。2. 需要喜欢，至少不排斥研究、思考，并且可以从投资中获得成就感。3. 需要其他offer比较。4. 你说的AI替代，不只是二级，整个金融业，甚至知识密集型行业都存在，不构成所谓的问题。",
+    "user_info": {
+      "nickname": "笨蛋做研究",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31acfblup6o605ojgt0poclae8ncm42o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABeuSua5jQeKFI5BKT8MRzUzHXzA0Wyvd6ZqwskzTbcXs=",
+      "user_id": "6270e833000000002102554e"
+    },
+    "sub_comment_has_more": false,
+    "id": "6a0c00cc000000002203c5fe",
+    "sub_comments": [],
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1779171532000,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "status": 0,
+    "at_users": []
+  },
+  {
+    "content": "top4尽量努力进大公募",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_cursor": "6a0ad18d000000002702b7fb",
+    "status": 0,
+    "user_info": {
+      "user_id": "5e1eb01c0000000001000989",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n4eetlhl8005ngum0e082c94gab80o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABO9C2xeKVKzFf5iRqPg4UAnGXlrfLMuuslbjqGOVROYg="
+    },
+    "create_time": 1779090509000,
+    "sub_comments": [
+      {
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "id": "6a0ad18d000000002702b7fb",
+        "status": 0,
+        "at_users": [],
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779093901000,
+        "target_comment": {
+          "id": "6a0ac44c00000000280333fa",
+          "user_info": {
+            "user_id": "5e1eb01c0000000001000989",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n4eetlhl8005ngum0e082c94gab80o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABO9C2xeKVKzFf5iRqPg4UAnGXlrfLMuuslbjqGOVROYg="
+          }
+        },
+        "note_id": "6a0a7f680000000008031335",
+        "content": "嗯嗯，但现在大公募是不是应届月薪也是1-2w？[哭惹R]",
+        "like_count": "0"
+      }
+    ],
+    "like_count": "1",
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "7",
+    "id": "6a0ac44c00000000280333fa",
+    "note_id": "6a0a7f680000000008031335",
+    "sub_comment_has_more": true
+  },
+  {
+    "status": 0,
+    "content": "不是很推荐，这行P UA很严重",
+    "liked": false,
+    "user_info": {
+      "user_id": "649d4962000000000b015184",
+      "nickname": "丽园路",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31seujdve5mag5p4t95h2qkc4t7lcac8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABXVlmq1iOF76EngPNWjNvH3FfnvR6t0bV17dEBnEwaSY="
+    },
+    "create_time": 1779153797000,
+    "sub_comments": [],
+    "id": "6a0bbb850000000029012442",
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "like_count": "0",
+    "note_id": "6a0a7f680000000008031335"
+  },
+  {
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1779075543000,
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "create_time": 1779076799000,
+        "content": "建总可以给这么高嘛[石化R][赞R]是不是已经升到一定职级了呀",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "6a0a8ebe0000000029036507",
+        "target_comment": {
+          "id": "6a0a89d7000000002a025770",
+          "user_info": {
+            "user_id": "63a273d50000000026006c3a",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs="
+          }
+        },
+        "ip_location": "北京"
+      }
+    ],
+    "sub_comment_cursor": "6a0a8ebe0000000029036507",
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs=",
+      "user_id": "63a273d50000000026006c3a"
+    },
+    "sub_comment_has_more": true,
+    "content": "还是卷泛体制内吧 建总年入40-50 超级稳定有地位 两财一贸都能去",
+    "liked": false,
+    "ip_location": "北京",
+    "id": "6a0a89d7000000002a025770",
+    "note_id": "6a0a7f680000000008031335",
+    "like_count": "3"
+  },
+  {
+    "like_count": "2",
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "1",
+    "at_users": [],
+    "create_time": 1779082425000,
+    "sub_comment_cursor": "6a0aa961000000002901289e",
+    "id": "6a0aa4b9000000002a004274",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "content": "券商行研不适合“好学生”，本质上这是一个销售岗位，重点在交流勾兑然后想方设法“卖”，而不是你想象中的“研究”[doge]",
+    "liked": false,
+    "user_info": {
+      "user_id": "628d042d0000000021023a94",
+      "nickname": "达文西",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316om49taji5g5okd0gmocekkeg7c410?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABqe91ndUqrHARMImGs3weSNcDncE5Tsitrz3l4_OtXs8="
+    },
+    "sub_comments": [
+      {
+        "liked": false,
+        "show_tags": [],
+        "create_time": 1779083618000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "6a0aa4b9000000002a004274",
+          "user_info": {
+            "user_id": "628d042d0000000021023a94",
+            "nickname": "达文西",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316om49taji5g5okd0gmocekkeg7c410?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABqe91ndUqrHARMImGs3weSNcDncE5Tsitrz3l4_OtXs8="
+          }
+        },
+        "content": "他问的不是公募吗",
+        "note_id": "6a0a7f680000000008031335",
+        "status": -2,
+        "at_users": [],
+        "like_count": "2",
+        "user_info": {
+          "user_id": "5fea0ba300000000010018c0",
+          "nickname": "🍨",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3206s35nm680g5nva1ehg86609dkiv8g?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABGZScKu24yc69HYhE7VGKaIjHhAXum4rYxHYxOlbqG44="
+        },
+        "id": "6a0aa961000000002901289e"
+      }
+    ],
+    "sub_comment_has_more": false
+  },
+  {
+    "like_count": "14",
+    "sub_comments": [
+      {
+        "ip_location": "北京",
+        "id": "6a0a853f000000002a02fb22",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "at_users": [],
+        "like_count": "4",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779074368000,
+        "target_comment": {
+          "id": "6a0a81d7000000002902d6c5",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3i0OS4NkIgM93TMylIFijtQ=",
+            "user_id": "654477ac000000000d006dde",
+            "nickname": "Excel Monkey",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314c130qb6k005pa4eum38reu21m53g0?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "content": "但如果对比从事一个其他行业（例如互联网）、然后积累点小钱自己用AI和ETF投资，是不是对于普通家庭的同学来说更好呢🤔[皱眉R]",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ]
+      }
+    ],
+    "sub_comment_cursor": "6a0a853f000000002a02fb22",
+    "id": "6a0a81d7000000002902d6c5",
+    "content": "已经是金融业里面为数不多资源依赖度不高且有高上限的岗位了",
+    "liked": false,
+    "sub_comment_has_more": true,
+    "user_info": {
+      "nickname": "Excel Monkey",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314c130qb6k005pa4eum38reu21m53g0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3i0OS4NkIgM93TMylIFijtQ=",
+      "user_id": "654477ac000000000d006dde"
+    },
+    "show_tags": [],
+    "create_time": 1779073495000,
+    "at_users": [],
+    "sub_comment_count": "6",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "ip_location": "中国香港"
+  },
+  {
+    "status": 0,
+    "content": "谢谢分享[皱眉R]请问大平台完成原始积累是指大平台的薪资较高、还是指大平台对能力的培养较好呢",
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779075393000,
+    "target_comment": {
+      "id": "6a0a879d0000000028030123",
+      "user_info": {
+        "user_id": "5d45037a0000000010025ca4",
+        "nickname": "momo不爱吃蛋黄",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/64343115cf0f84f939f274b8.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABV9yW8BygS7gY2ay4FhhrP5ZfG5rQKs-2p1qmuqBeGaY="
+      }
+    },
+    "id": "6a0a894100000000290261e4",
+    "note_id": "6a0a7f680000000008031335",
+    "at_users": [],
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京"
+  },
+  {
+    "id": "6a0a987f0000000029018754",
+    "content": "如果你说的是中后台，那一直bar就是两财一贸啊",
+    "at_users": [],
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB_0NREELk3Tt-iYZI4Pc6RtHiby4Va9F46JlMapskzoU=",
+      "user_id": "5c2716e600000000070027e7",
+      "nickname": "经济学爱好者momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315e80avo1e005n172rj1o9v7ebhgol8?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [],
+    "ip_location": "广东",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "liked": false,
+    "like_count": "7",
+    "create_time": 1779079295000,
+    "target_comment": {
+      "user_info": {
+        "user_id": "63a273d50000000026006c3a",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs="
+      },
+      "id": "6a0a8c7d000000002a006121"
+    }
+  },
+  {
+    "ip_location": "广东",
+    "status": 0,
+    "content": "2.前景：被动流动性太差了目前，主要理财子险资啥的研究能力不强，还是喜欢买主观。监管限薪有影响，研究员一般碰不到这个限额。AI的替代是写报告方面，但是研究员最重要的价值还是去跟同业和产业勾兑。。。这方面AI还是取代不了的。。",
+    "at_users": [],
+    "liked": false,
+    "like_count": "7",
+    "target_comment": {
+      "id": "6a0aad26000000002203e50c",
+      "user_info": {
+        "user_id": "65740ee3000000002002dac4",
+        "nickname": "苏丽珂",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30sf2357tje605pbk1rho5mm4lrknmg0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABqVtdxmct6CRN2Xz0BQSBS5qV3z_1LGwnlFWz6ZSyxs0="
+      }
+    },
+    "id": "6a0aaded000000002100ce14",
+    "note_id": "6a0a7f680000000008031335",
+    "user_info": {
+      "user_id": "65740ee3000000002002dac4",
+      "nickname": "苏丽珂",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30sf2357tje605pbk1rho5mm4lrknmg0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABqVtdxmct6CRN2Xz0BQSBS5qV3z_1LGwnlFWz6ZSyxs0="
+    },
+    "show_tags": [],
+    "create_time": 1779084782000
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779086375000,
+    "target_comment": {
+      "id": "6a0ab20400000000290100ea",
+      "user_info": {
+        "user_id": "68454bbd000000001e00aa32",
+        "nickname": "小沐学长",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ifcbo6nge6g5q259eunhahibaq71eo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABwZleSsOGFsQ9dnxRMlCEA74pz4w-U6J3VfGKRGgZwRM="
+      }
+    },
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "content": "学长您好！[皱眉R]请问我的薪资顾虑您是怎么看的呢，base 1-2w在北上生活的压力",
+    "at_users": [],
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "id": "6a0ab427000000002300cba3"
+  },
+  {
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "id": "6a0ad18d000000002702b7fb",
+    "status": 0,
+    "at_users": [],
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779093901000,
+    "target_comment": {
+      "id": "6a0ac44c00000000280333fa",
+      "user_info": {
+        "user_id": "5e1eb01c0000000001000989",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n4eetlhl8005ngum0e082c94gab80o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABO9C2xeKVKzFf5iRqPg4UAnGXlrfLMuuslbjqGOVROYg="
+      }
+    },
+    "note_id": "6a0a7f680000000008031335",
+    "content": "嗯嗯，但现在大公募是不是应届月薪也是1-2w？[哭惹R]",
+    "like_count": "0"
+  },
+  {
+    "create_time": 1779076799000,
+    "content": "建总可以给这么高嘛[石化R][赞R]是不是已经升到一定职级了呀",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "6a0a8ebe0000000029036507",
+    "target_comment": {
+      "id": "6a0a89d7000000002a025770",
+      "user_info": {
+        "user_id": "63a273d50000000026006c3a",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/53ba1722242c3e9344db7b0fc2e1005f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABAUkhgix8MScs3PyFeI-KNnkaO8QJd2kVNHIJ0iy8-Zs="
+      }
+    },
+    "ip_location": "北京"
+  },
+  {
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1779083618000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "6a0aa4b9000000002a004274",
+      "user_info": {
+        "user_id": "628d042d0000000021023a94",
+        "nickname": "达文西",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316om49taji5g5okd0gmocekkeg7c410?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABqe91ndUqrHARMImGs3weSNcDncE5Tsitrz3l4_OtXs8="
+      }
+    },
+    "content": "他问的不是公募吗",
+    "note_id": "6a0a7f680000000008031335",
+    "status": -2,
+    "at_users": [],
+    "like_count": "2",
+    "user_info": {
+      "user_id": "5fea0ba300000000010018c0",
+      "nickname": "🍨",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3206s35nm680g5nva1ehg86609dkiv8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABGZScKu24yc69HYhE7VGKaIjHhAXum4rYxHYxOlbqG44="
+    },
+    "id": "6a0aa961000000002901289e"
+  },
+  {
+    "ip_location": "北京",
+    "id": "6a0a853f000000002a02fb22",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "like_count": "4",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779074368000,
+    "target_comment": {
+      "id": "6a0a81d7000000002902d6c5",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3i0OS4NkIgM93TMylIFijtQ=",
+        "user_id": "654477ac000000000d006dde",
+        "nickname": "Excel Monkey",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314c130qb6k005pa4eum38reu21m53g0?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "content": "但如果对比从事一个其他行业（例如互联网）、然后积累点小钱自己用AI和ETF投资，是不是对于普通家庭的同学来说更好呢🤔[皱眉R]",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ]
+  },
+  {
+    "ip_location": "广东",
+    "status": 0,
+    "content": "对于现在的二级买行业，热爱比薪酬更重要",
+    "liked": false,
+    "sub_comment_count": "5",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABGApI9R9GBum5scyPP8P_gwF4S26xWYfRCzzJgvM5MpI=",
+      "user_id": "60adffd4000000000100616f",
+      "nickname": "Forward",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d161340a3d8cf2a57e270d.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "sub_comment_cursor": "6a0a9fbc0000000029025fe5",
+    "sub_comment_has_more": true,
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "content": "[哭惹R]为什么呢？",
+        "at_users": [],
+        "create_time": 1779081148000,
+        "target_comment": {
+          "id": "6a0a9b7c000000002a005ada",
+          "user_info": {
+            "user_id": "60adffd4000000000100616f",
+            "nickname": "Forward",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d161340a3d8cf2a57e270d.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABGApI9R9GBum5scyPP8P_gwF4S26xWYfRCzzJgvM5MpI="
+          }
+        },
+        "id": "6a0a9fbc0000000029025fe5"
+      }
+    ],
+    "id": "6a0a9b7c000000002a005ada",
+    "note_id": "6a0a7f680000000008031335",
+    "create_time": 1779080061000
+  },
+  {
+    "note_id": "6a0a7f680000000008031335",
+    "create_time": 1779073935000,
+    "liked": false,
+    "ip_location": "广东",
+    "sub_comment_cursor": "6a0a854b000000002b027958",
+    "content": "我真羡慕你，我要是有你这个学历就好了，我铁定冲这个[暗中观察R]",
+    "like_count": "1",
+    "user_info": {
+      "xsec_token": "ABxi9HMpehzZny68utidwbNT94UOQ3ZMTQOhOszSjzAvk=",
+      "user_id": "60e57383000000000100446b",
+      "nickname": "火山岩雨",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sdkfc3a620g5o75ee1g8h3btvolbrg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_count": "4",
+    "sub_comment_has_more": true,
+    "id": "6a0a838f000000002a027f89",
+    "status": 0,
+    "at_users": [],
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "ip_location": "北京",
+        "id": "6a0a854b000000002b027958",
+        "status": 0,
+        "liked": false,
+        "user_info": {
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779074379000,
+        "note_id": "6a0a7f680000000008031335",
+        "content": "为什么呢？[皱眉R]",
+        "at_users": [],
+        "like_count": "0",
+        "target_comment": {
+          "id": "6a0a838f000000002a027f89",
+          "user_info": {
+            "user_id": "60e57383000000000100446b",
+            "nickname": "火山岩雨",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sdkfc3a620g5o75ee1g8h3btvolbrg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABxi9HMpehzZny68utidwbNT94UOQ3ZMTQOhOszSjzAvk="
+          }
+        }
+      }
+    ]
+  },
+  {
+    "status": 0,
+    "user_info": {
+      "xsec_token": "AB0z11tNDNxMYTUfLJ3h_1Im9Q0BC1OvbgZd9XTxZHUxE=",
+      "user_id": "55c83136e4b1cf39882a7833",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5b817c7b381e4100010775c3.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_has_more": true,
+    "note_id": "6a0a7f680000000008031335",
+    "at_users": [],
+    "ip_location": "上海",
+    "sub_comment_count": "6",
+    "id": "6a0a904800000000270295e8",
+    "content": "问题是有学历家庭无助力还有哪些更好的选择备选？如果物欲不高+重视闲暇精神生命质量，非常推荐 ai 产业高度绑定富裕地区的公务员。不婚无托举在一线靠自己买房有难度，但是通过婚姻扎根并不难（难在别处）",
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1779077193000,
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "user_info": {
+          "user_id": "55c83136e4b1cf39882a7833",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/5b817c7b381e4100010775c3.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB0z11tNDNxMYTUfLJ3h_1Im9Q0BC1OvbgZd9XTxZHUxE="
+        },
+        "create_time": 1779078421000,
+        "ip_location": "上海",
+        "content": "不不不，这是两个选项，富裕地区公务员的话不婚也能买房的拥有中产生活的，考虑 65 岁退休要工作 40 年，我认为未来 40 年内能见到一部分人先享受到 ai 红利分配制度，剩下的人靠这部分人的消费而过活，ai 产业地区公务员是我能想到的比较确定受益的群体。做二级或者大厂的话就是你现在考虑的路，挑战北上深高房价，冲击职业上限，如果不排斥婚育的话找本地人或者和你同样的人，房子不算什么难以逾越的鸿沟，但要考虑配偶人品能力、职业中后期挑战等其他问题",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "show_tags": [],
+        "target_comment": {
+          "id": "6a0a92bc000000002a02dcb9",
+          "user_info": {
+            "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+            "user_id": "606552e40000000001009cf7",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "id": "6a0a9514000000002701561c"
+      }
+    ],
+    "sub_comment_cursor": "6a0a9514000000002701561c"
+  },
+  {
+    "content": "我觉得二级本质上是个高风险高收益的事情——如果觉得自己只能做个中庸的研究员，那么这一两万两三万的基本工资是性价比很低的；但如果觉得自己充分热爱、有信心成为很优秀的一批（eg入行的研究员的前1/3），那么薪酬肯定就不是问题了",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1779075563000,
+    "ip_location": "北京",
+    "sub_comment_count": "3",
+    "sub_comment_has_more": true,
+    "id": "6a0a89ea000000002803e35d",
+    "status": 0,
+    "sub_comment_cursor": "6a0a8f3d000000002a0261e8",
+    "note_id": "6a0a7f680000000008031335",
+    "sub_comments": [
+      {
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "target_comment": {
+          "id": "6a0a89ea000000002803e35d",
+          "user_info": {
+            "user_id": "676902ec0000000018016895",
+            "nickname": "佳忆吟行经管保研",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pr91lmm5a005pr90bm62q4lljlfjfg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABr7MfBe4TpGETI6Km28iriHyT4wt3CIVUMTnQUo34Ra8="
+          }
+        },
+        "content": "谢谢分享！[皱眉R]我也在思考二级是否符合我的风险偏好画像。但是如何在入行前判断自己能否成为行业前列呢？您觉得有没有什么指标或观察角度呀",
+        "at_users": [],
+        "status": 0,
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779076926000,
+        "ip_location": "北京",
+        "id": "6a0a8f3d000000002a0261e8",
+        "note_id": "6a0a7f680000000008031335"
+      }
+    ],
+    "like_count": "4",
+    "user_info": {
+      "user_id": "676902ec0000000018016895",
+      "nickname": "佳忆吟行经管保研",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pr91lmm5a005pr90bm62q4lljlfjfg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABr7MfBe4TpGETI6Km28iriHyT4wt3CIVUMTnQUo34Ra8="
+    }
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5cff0e54000000001702b3bd",
+      "nickname": "小红薯5CFFA46F",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d624257478c5b0001aec6c9.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABICz6vy0PXwm87q-rap19ywsV308y_9tK4NFIiiR5EAs="
+    },
+    "status": 0,
+    "content": "AI目前的能力还不能替代研究员。而且AI在有些场景下还是不能替代人来做研究的，比如通过和上市公司交流获取一些信息，以及做盈利预测等。",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "北京",
+    "sub_comment_count": "4",
+    "sub_comment_cursor": "6a0a9148000000002901b805",
+    "note_id": "6a0a7f680000000008031335",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "ip_location": "北京",
+        "id": "6a0a9148000000002901b805",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "content": "嗯嗯确实！和人交流、预测判断的环节，AI还是难以替代的[皱眉R]但AI发展也日新月异，对研究员价值的挤压我觉得还是会持续的，不知道研究员是否能长期论证自己的价值",
+        "like_count": "0",
+        "target_comment": {
+          "id": "6a0a8a120000000029037e61",
+          "user_info": {
+            "user_id": "5cff0e54000000001702b3bd",
+            "nickname": "小红薯5CFFA46F",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d624257478c5b0001aec6c9.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABICz6vy0PXwm87q-rap19ywsV308y_9tK4NFIiiR5EAs="
+          }
+        },
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779077448000
+      }
+    ],
+    "id": "6a0a8a120000000029037e61",
+    "create_time": 1779075602000,
+    "sub_comment_has_more": true
+  },
+  {
+    "show_tags": [],
+    "liked": false,
+    "user_info": {
+      "xsec_token": "AB4YnFhgDy6jaCHEyN-V5agIQwmfOD2j6vmDWAZCFwbQQ=",
+      "user_id": "5d29aa83000000001001df19",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ra6707sga005n99la1k3nopik0sqbg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_has_more": true,
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "liked": false,
+        "user_info": {
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "6a0ad4e000000000270141a9",
+        "note_id": "6a0a7f680000000008031335",
+        "content": "嗯嗯确实！但如果只用ETF赚β的钱，是不是去一个别的行业还更好呢？能够积攒更多本金，也用不上多细致的公司分析？🤔",
+        "at_users": [],
+        "target_comment": {
+          "id": "6a0ab23c000000002900d7f9",
+          "user_info": {
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ra6707sga005n99la1k3nopik0sqbg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB4YnFhgDy6jaCHEyN-V5agIQwmfOD2j6vmDWAZCFwbQQ=",
+            "user_id": "5d29aa83000000001001df19"
+          }
+        },
+        "status": 0,
+        "like_count": "0",
+        "create_time": 1779094752000,
+        "ip_location": "北京"
+      }
+    ],
+    "create_time": 1779085884000,
+    "ip_location": "上海",
+    "sub_comment_cursor": "6a0ad4e000000000270141a9",
+    "id": "6a0ab23c000000002900d7f9",
+    "content": "有硬性工资帽，所以自己的钱年化尽量做到15%呗，还能咋滴[笑哭R]行情来了买点etf都赚很多了",
+    "at_users": [],
+    "like_count": "0"
+  },
+  {
+    "id": "6a0a8aa500000000270147bc",
+    "status": 0,
+    "liked": false,
+    "sub_comment_has_more": false,
+    "content": "现在这行保不了下限了，上限来自你自己炒股。追求稳定就别来，最好家里不差钱，因为时薪还挺低的。",
+    "user_info": {
+      "user_id": "5bacff81d12c1500012ca8ad",
+      "nickname": "悍匪",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5c661ae5c0ca82000193c94f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsh7FcGvRyFbpUhn4qtMH0_--AXhwcLFVyvGCJsfTmaw="
+    },
+    "create_time": 1779075750000,
+    "ip_location": "上海",
+    "sub_comments": [
+      {
+        "id": "6a0a8f69000000002901b74e",
+        "content": "[哭惹R][哭惹R]",
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1779076969000,
+        "target_comment": {
+          "id": "6a0a8aa500000000270147bc",
+          "user_info": {
+            "user_id": "5bacff81d12c1500012ca8ad",
+            "nickname": "悍匪",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5c661ae5c0ca82000193c94f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABsh7FcGvRyFbpUhn4qtMH0_--AXhwcLFVyvGCJsfTmaw="
+          }
+        }
+      }
+    ],
+    "sub_comment_cursor": "6a0a8f69000000002901b74e",
+    "note_id": "6a0a7f680000000008031335",
+    "at_users": [],
+    "like_count": "8",
+    "show_tags": [],
+    "sub_comment_count": "1"
+  },
+  {
+    "sub_comments": [
+      {
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779074613000,
+        "note_id": "6a0a7f680000000008031335",
+        "content": "谢谢您的回答！[皱眉R]",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "6a0a851a0000000028030634",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "AB_4KSJE9Mwb-0mLCS7s9Zxo3sIpNYQAVinFiPw9bSmV4=",
+            "user_id": "60a09118000000000100ace1",
+            "nickname": "SEER",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/60a09118000000000100ace1.jpg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "id": "6a0a86340000000029027ae6"
+      }
+    ],
+    "user_info": {
+      "user_id": "60a09118000000000100ace1",
+      "nickname": "SEER",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/60a09118000000000100ace1.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_4KSJE9Mwb-0mLCS7s9Zxo3sIpNYQAVinFiPw9bSmV4="
+    },
+    "create_time": 1779074330000,
+    "status": 0,
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "6a0a86340000000029027ae6",
+    "note_id": "6a0a7f680000000008031335",
+    "like_count": "4",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_has_more": false,
+    "id": "6a0a851a0000000028030634",
+    "content": "1: 工资的问题的话你说的差不多，死工资就这些，总包的话我们现在上下限也挺大的所以不好说。2:从业前景这块我也迷茫，所以不知道"
+  },
+  {
+    "id": "6a0a94ac000000002900f972",
+    "content": "俺也是应届生&之前实习多在投研赛道，个人感觉在投研里面个体差异化太大，如果你团队好真能教东西+自己能力强+有投研sense的话，积累几年往外不管是私募还是大买都是很有机会的。另外我也不知道还有什么明确能赚的更多的赛道？互联网的话挺看实习的，除非你去卷战投不然应届金融本硕+无实习基本没什么收入明显多于金融的offer吧（排除掉某几家血汗工厂），总行or泛体制的话我就不太清楚了",
+    "user_info": {
+      "user_id": "5eb8c50900000000010042ec",
+      "nickname": "Juno✨",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r023lahng005nlook4g8gncsjhfc7g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABxVPLpTzMW3DZ2iIXjhC2LV4FLAmd35NhieJJLJyej9E="
+    },
+    "show_tags": [],
+    "create_time": 1779078316000,
+    "sub_comment_cursor": "6a0a9cfd000000002a025ea7",
+    "sub_comment_has_more": false,
+    "ip_location": "广东",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "sub_comments": [
+      {
+        "status": 0,
+        "at_users": [],
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779080445000,
+        "ip_location": "北京",
+        "id": "6a0a9cfd000000002a025ea7",
+        "note_id": "6a0a7f680000000008031335",
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "6a0a94ac000000002900f972",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r023lahng005nlook4g8gncsjhfc7g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABxVPLpTzMW3DZ2iIXjhC2LV4FLAmd35NhieJJLJyej9E=",
+            "user_id": "5eb8c50900000000010042ec",
+            "nickname": "Juno✨"
+          }
+        },
+        "content": "谢谢uu分享！[皱眉R]确实个体化差异很大，行业方差很大，所以疑惑的一点也是比较难对自己有一个入行后定位/发展的预期。互联网方面，我之前看有几个学长学姐暑期/秋招临时转互联网或管培项目，最后还是能收获一些不错的offer",
+        "liked": false
+      }
+    ],
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_count": "1"
+  },
+  {
+    "like_count": "0",
+    "create_time": 1779074643000,
+    "sub_comment_cursor": "6a0a872f000000002b024133",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "主播已经有offer了吗",
+    "at_users": [],
+    "liked": false,
+    "id": "6a0a8653000000002a02e270",
+    "status": 0,
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "id": "6a0a872f000000002b024133",
+        "note_id": "6a0a7f680000000008031335",
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779074864000,
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "6a0a8653000000002a02e270",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABUr6QLJ92NXIdl0MPed3IPbR941ajF3Y53Ues6UsBmXE=",
+            "user_id": "61f0f38f000000001000b5b0",
+            "nickname": "Alex GUAN",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30u7vfqs8586g5ofgue7k1ddg6i650k0?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "status": 0,
+        "content": "主包还在职业规划和选择阶段[皱眉R]"
+      }
+    ],
+    "sub_comment_count": "1",
+    "sub_comment_has_more": false,
+    "user_info": {
+      "xsec_token": "ABUr6QLJ92NXIdl0MPed3IPbR941ajF3Y53Ues6UsBmXE=",
+      "user_id": "61f0f38f000000001000b5b0",
+      "nickname": "Alex GUAN",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30u7vfqs8586g5ofgue7k1ddg6i650k0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "ip_location": "广东"
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "content": "[哭惹R]为什么呢？",
+    "at_users": [],
+    "create_time": 1779081148000,
+    "target_comment": {
+      "id": "6a0a9b7c000000002a005ada",
+      "user_info": {
+        "user_id": "60adffd4000000000100616f",
+        "nickname": "Forward",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/62d161340a3d8cf2a57e270d.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABGApI9R9GBum5scyPP8P_gwF4S26xWYfRCzzJgvM5MpI="
+      }
+    },
+    "id": "6a0a9fbc0000000029025fe5"
+  },
+  {
+    "ip_location": "北京",
+    "id": "6a0a854b000000002b027958",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779074379000,
+    "note_id": "6a0a7f680000000008031335",
+    "content": "为什么呢？[皱眉R]",
+    "at_users": [],
+    "like_count": "0",
+    "target_comment": {
+      "id": "6a0a838f000000002a027f89",
+      "user_info": {
+        "user_id": "60e57383000000000100446b",
+        "nickname": "火山岩雨",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sdkfc3a620g5o75ee1g8h3btvolbrg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABxi9HMpehzZny68utidwbNT94UOQ3ZMTQOhOszSjzAvk="
+      }
+    }
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "user_info": {
+      "user_id": "55c83136e4b1cf39882a7833",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5b817c7b381e4100010775c3.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB0z11tNDNxMYTUfLJ3h_1Im9Q0BC1OvbgZd9XTxZHUxE="
+    },
+    "create_time": 1779078421000,
+    "ip_location": "上海",
+    "content": "不不不，这是两个选项，富裕地区公务员的话不婚也能买房的拥有中产生活的，考虑 65 岁退休要工作 40 年，我认为未来 40 年内能见到一部分人先享受到 ai 红利分配制度，剩下的人靠这部分人的消费而过活，ai 产业地区公务员是我能想到的比较确定受益的群体。做二级或者大厂的话就是你现在考虑的路，挑战北上深高房价，冲击职业上限，如果不排斥婚育的话找本地人或者和你同样的人，房子不算什么难以逾越的鸿沟，但要考虑配偶人品能力、职业中后期挑战等其他问题",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "show_tags": [],
+    "target_comment": {
+      "id": "6a0a92bc000000002a02dcb9",
+      "user_info": {
+        "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+        "user_id": "606552e40000000001009cf7",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "id": "6a0a9514000000002701561c"
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "target_comment": {
+      "id": "6a0a89ea000000002803e35d",
+      "user_info": {
+        "user_id": "676902ec0000000018016895",
+        "nickname": "佳忆吟行经管保研",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pr91lmm5a005pr90bm62q4lljlfjfg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABr7MfBe4TpGETI6Km28iriHyT4wt3CIVUMTnQUo34Ra8="
+      }
+    },
+    "content": "谢谢分享！[皱眉R]我也在思考二级是否符合我的风险偏好画像。但是如何在入行前判断自己能否成为行业前列呢？您觉得有没有什么指标或观察角度呀",
+    "at_users": [],
+    "status": 0,
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779076926000,
+    "ip_location": "北京",
+    "id": "6a0a8f3d000000002a0261e8",
+    "note_id": "6a0a7f680000000008031335"
+  },
+  {
+    "ip_location": "北京",
+    "id": "6a0a9148000000002901b805",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "content": "嗯嗯确实！和人交流、预测判断的环节，AI还是难以替代的[皱眉R]但AI发展也日新月异，对研究员价值的挤压我觉得还是会持续的，不知道研究员是否能长期论证自己的价值",
+    "like_count": "0",
+    "target_comment": {
+      "id": "6a0a8a120000000029037e61",
+      "user_info": {
+        "user_id": "5cff0e54000000001702b3bd",
+        "nickname": "小红薯5CFFA46F",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d624257478c5b0001aec6c9.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABICz6vy0PXwm87q-rap19ywsV308y_9tK4NFIiiR5EAs="
+      }
+    },
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779077448000
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "6a0ad4e000000000270141a9",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "嗯嗯确实！但如果只用ETF赚β的钱，是不是去一个别的行业还更好呢？能够积攒更多本金，也用不上多细致的公司分析？🤔",
+    "at_users": [],
+    "target_comment": {
+      "id": "6a0ab23c000000002900d7f9",
+      "user_info": {
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ra6707sga005n99la1k3nopik0sqbg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB4YnFhgDy6jaCHEyN-V5agIQwmfOD2j6vmDWAZCFwbQQ=",
+        "user_id": "5d29aa83000000001001df19"
+      }
+    },
+    "status": 0,
+    "like_count": "0",
+    "create_time": 1779094752000,
+    "ip_location": "北京"
+  },
+  {
+    "id": "6a0a8f69000000002901b74e",
+    "content": "[哭惹R][哭惹R]",
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1779076969000,
+    "target_comment": {
+      "id": "6a0a8aa500000000270147bc",
+      "user_info": {
+        "user_id": "5bacff81d12c1500012ca8ad",
+        "nickname": "悍匪",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5c661ae5c0ca82000193c94f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABsh7FcGvRyFbpUhn4qtMH0_--AXhwcLFVyvGCJsfTmaw="
+      }
+    }
+  },
+  {
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779074613000,
+    "note_id": "6a0a7f680000000008031335",
+    "content": "谢谢您的回答！[皱眉R]",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "6a0a851a0000000028030634",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "AB_4KSJE9Mwb-0mLCS7s9Zxo3sIpNYQAVinFiPw9bSmV4=",
+        "user_id": "60a09118000000000100ace1",
+        "nickname": "SEER",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/60a09118000000000100ace1.jpg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "id": "6a0a86340000000029027ae6"
+  },
+  {
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779080445000,
+    "ip_location": "北京",
+    "id": "6a0a9cfd000000002a025ea7",
+    "note_id": "6a0a7f680000000008031335",
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "6a0a94ac000000002900f972",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r023lahng005nlook4g8gncsjhfc7g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABxVPLpTzMW3DZ2iIXjhC2LV4FLAmd35NhieJJLJyej9E=",
+        "user_id": "5eb8c50900000000010042ec",
+        "nickname": "Juno✨"
+      }
+    },
+    "content": "谢谢uu分享！[皱眉R]确实个体化差异很大，行业方差很大，所以疑惑的一点也是比较难对自己有一个入行后定位/发展的预期。互联网方面，我之前看有几个学长学姐暑期/秋招临时转互联网或管培项目，最后还是能收获一些不错的offer",
+    "liked": false
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "id": "6a0a872f000000002b024133",
+    "note_id": "6a0a7f680000000008031335",
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779074864000,
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "6a0a8653000000002a02e270",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABUr6QLJ92NXIdl0MPed3IPbR941ajF3Y53Ues6UsBmXE=",
+        "user_id": "61f0f38f000000001000b5b0",
+        "nickname": "Alex GUAN",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30u7vfqs8586g5ofgue7k1ddg6i650k0?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "status": 0,
+    "content": "主包还在职业规划和选择阶段[皱眉R]"
+  },
+  {
+    "user_info": {
+      "user_id": "5eb4469f0000000001000872",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/6470b96138a28203df516194.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABnC-3pm1eop72dSxQb8U1pZgNONMxTppYBkYw-ISoktQ="
+    },
+    "sub_comment_cursor": "",
+    "content": "真的喜欢投研就干，不喜欢千万别去性价比不高",
+    "like_count": "2",
+    "show_tags": [],
+    "ip_location": "北京",
+    "id": "6a0a925b000000002900cb54",
+    "at_users": [],
+    "create_time": 1779077724000,
+    "note_id": "6a0a7f680000000008031335",
+    "liked": false,
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "sub_comment_count": "0"
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5a31d8b3e8ac2b3e4e8924d5",
+      "nickname": "LolO",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62b2cca1dcee0d53de59f6ed.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQWro3nLr-WAVQUBGlz70M_RNETTmn56xPVT9XV5Z7BE="
+    },
+    "sub_comment_has_more": false,
+    "sub_comments": [],
+    "id": "6a0aa13d000000002803014d",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "私募是否能够兑现，主要看业绩，甚至和研究关系不太大了，这个只能事后判断了",
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "status": 0,
+    "liked": false,
+    "create_time": 1779081533000,
+    "sub_comment_cursor": "",
+    "at_users": []
+  },
+  {
+    "user_info": {
+      "user_id": "61fb300d0000000010008d89",
+      "nickname": "小小红薯",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB3rjizxGiF5N8RLimTOsocdSHEs02exJt1Mus7SrOuKM="
+    },
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "content": "风险收益有点不匹配，能不能干出来好多时候看命/运气，特别卷，卷了还不一定有用。",
+    "show_tags": [],
+    "create_time": 1779081350000,
+    "note_id": "6a0a7f680000000008031335",
+    "at_users": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "id": "6a0aa086000000002b02486b",
+    "status": 0,
+    "liked": false,
+    "like_count": "0"
+  },
+  {
+    "liked": false,
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "ip_location": "美国",
+    "sub_comments": [],
+    "like_count": "0",
+    "create_time": 1779081401000,
+    "id": "6a0aa0b900000000280325f3",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "二级投研做的不差的没见过缺钱的[笑哭R]看你热爱不热爱，不热爱没天赋很难做好[笑哭R]",
+    "at_users": [],
+    "status": 0,
+    "user_info": {
+      "user_id": "5f3d227000000000010071d0",
+      "nickname": "FFFFHY",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5f3d227000000000010071d0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABz_u2bkeKGXBpHt0Rn1t9I-a3lrAlWH5QsrKoHOM06Uc="
+    },
+    "sub_comment_count": "0"
+  },
+  {
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "id": "6a0b368b000000002701de4d",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "你这么想赚钱，还是找个地方先学习，有积累了自己出来做吧。打工是赚不了什么钱的，公募券商往上穿透全是财政部国资委，说限薪就限薪。然后回到第一性原理，你的性格和能力适不适合做交易。家境普通希望尽快赚钱我理解，但你如果找工作只看钱，不顾自己是否热爱是否适合，做不长的，某个时点你会想离开，这种心态怎么可能做得好",
+    "like_count": "2",
+    "liked": false,
+    "ip_location": "上海",
+    "at_users": [],
+    "sub_comments": [
+      {
+        "ip_location": "北京",
+        "id": "6a0b3ce2000000002300f36e",
+        "content": "感谢批评和指教！[合十R]很有启发，我的思路确实局限了，我会好好思考您的话的",
+        "liked": false,
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "6a0b368b000000002701de4d",
+          "user_info": {
+            "user_id": "61fb7837000000001000f74b",
+            "nickname": "momo🐊",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31emc451n5m005ofrf0rk1tqbi8l7aro?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB3rjizxGiF5N8RLimTOsocfPhiBKm6z2Is7fu2DUQn2Q="
+          }
+        },
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "at_users": [],
+        "like_count": "0",
+        "create_time": 1779121379000
+      }
+    ],
+    "sub_comment_cursor": "6a0b3ce2000000002300f36e",
+    "status": -2,
+    "user_info": {
+      "user_id": "61fb7837000000001000f74b",
+      "nickname": "momo🐊",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31emc451n5m005ofrf0rk1tqbi8l7aro?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB3rjizxGiF5N8RLimTOsocfPhiBKm6z2Is7fu2DUQn2Q="
+    },
+    "create_time": 1779119756000,
+    "sub_comment_count": "1"
+  },
+  {
+    "content": "想靠自己在一线城市扎根就找钱多的工作啊eg二级里的外资卖方，以及听上去tier2咨询都比公募多，为什么非要去拿这一两万",
+    "ip_location": "英国",
+    "sub_comment_count": "1",
+    "note_id": "6a0a7f680000000008031335",
+    "status": -2,
+    "sub_comment_has_more": false,
+    "id": "6a0ababc000000002a025733",
+    "create_time": 1779088060000,
+    "show_tags": [],
+    "like_count": "1",
+    "user_info": {
+      "user_id": "5efd7b6e0000000001006328",
+      "nickname": "嵩山君",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30vibrn6f5o005nntfdn08op898q4hj8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABD3RwHNUcJwA8ZFl583pDWQHw8oBRGerH6I_1ktVn2LY="
+    },
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "create_time": 1779089647000,
+        "target_comment": {
+          "id": "6a0ababc000000002a025733",
+          "user_info": {
+            "user_id": "5efd7b6e0000000001006328",
+            "nickname": "嵩山君",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30vibrn6f5o005nntfdn08op898q4hj8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABD3RwHNUcJwA8ZFl583pDWQHw8oBRGerH6I_1ktVn2LY="
+          }
+        },
+        "note_id": "6a0a7f680000000008031335",
+        "content": "[哭惹R]确实，自己可能也有一定路径依赖，所以也想在网上请教一下大家有没有什么好路子推荐",
+        "at_users": [],
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "id": "6a0ac0ef000000002300ea11",
+        "status": 0,
+        "liked": false
+      }
+    ],
+    "sub_comment_cursor": "6a0ac0ef000000002300ea11",
+    "at_users": [],
+    "liked": false
+  },
+  {
+    "sub_comment_cursor": "6a0aa097000000002902e494",
+    "user_info": {
+      "user_id": "5c1bcdf30000000007005cce",
+      "nickname": "Happy",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31j8lrmpp2u0g5n0rpnphon6encvqefo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABbp75Y2lAARHw59eBiu7KjEjJWmlVo5LPB3UiB4bihKI="
+    },
+    "create_time": 1779079555000,
+    "ip_location": "上海",
+    "sub_comments": [
+      {
+        "status": 0,
+        "content": "学生之间讨论的视角和信息肯定还是非常局限的，希望网上能够集思广益[皱眉R]",
+        "at_users": [],
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779081367000,
+        "id": "6a0aa097000000002902e494",
+        "note_id": "6a0a7f680000000008031335",
+        "like_count": "2",
+        "user_info": {
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+          "user_id": "606552e40000000001009cf7"
+        },
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "6a0a9982000000002b0003df",
+          "user_info": {
+            "user_id": "5c1bcdf30000000007005cce",
+            "nickname": "Happy",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31j8lrmpp2u0g5n0rpnphon6encvqefo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABbp75Y2lAARHw59eBiu7KjEjJWmlVo5LPB3UiB4bihKI="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "content": "这事为啥不直接问同学",
+    "status": -2,
+    "liked": false,
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "id": "6a0a9982000000002b0003df",
+    "at_users": [],
+    "like_count": "0",
+    "note_id": "6a0a7f680000000008031335"
+  },
+  {
+    "like_count": "1",
+    "user_info": {
+      "nickname": "LolO",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62b2cca1dcee0d53de59f6ed.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQWro3nLr-WAVQUBGlz70M_RNETTmn56xPVT9XV5Z7BE=",
+      "user_id": "5a31d8b3e8ac2b3e4e8924d5"
+    },
+    "create_time": 1779078673000,
+    "show_tags": [],
+    "liked": false,
+    "sub_comment_cursor": "6a0aa004000000002a004b61",
+    "note_id": "6a0a7f680000000008031335",
+    "content": "毕业就做投研主要靠逻辑和勤奋，相当于好学生模式，但是ai瓦解了这部分优势，以前这条路可以熬一熬，但今后如果没有产业积累或者特别的经历怕很难出头",
+    "at_users": [],
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "note_id": "6a0a7f680000000008031335",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "606552e40000000001009cf7",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1779081221000,
+        "ip_location": "北京",
+        "id": "6a0aa004000000002a004b61",
+        "content": "[哭惹R][哭惹R]",
+        "target_comment": {
+          "user_info": {
+            "xsec_token": "ABQWro3nLr-WAVQUBGlz70M_RNETTmn56xPVT9XV5Z7BE=",
+            "user_id": "5a31d8b3e8ac2b3e4e8924d5",
+            "nickname": "LolO",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/62b2cca1dcee0d53de59f6ed.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          },
+          "id": "6a0a96100000000029010f3d"
+        }
+      }
+    ],
+    "sub_comment_has_more": false,
+    "id": "6a0a96100000000029010f3d",
+    "status": -2,
+    "ip_location": "上海"
+  },
+  {
+    "id": "6a0a8653000000002901bdd8",
+    "user_info": {
+      "user_id": "62d2d372000000000303d326",
+      "nickname": "Sahamur",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2qnvrqikji00g5omiqdp0vkp6i24p17g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABhTceAJ-dSMKiUMEIHcabr564zyDzESvh9V1DNcR_zMY="
+    },
+    "sub_comment_count": "0",
+    "create_time": 1779074644000,
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "status": 0,
+    "ip_location": "上海",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "6a0a7f680000000008031335",
+    "content": "蹲",
+    "like_count": "1"
+  },
+  {
+    "ip_location": "北京",
+    "id": "6a0b3ce2000000002300f36e",
+    "content": "感谢批评和指教！[合十R]很有启发，我的思路确实局限了，我会好好思考您的话的",
+    "liked": false,
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "6a0b368b000000002701de4d",
+      "user_info": {
+        "user_id": "61fb7837000000001000f74b",
+        "nickname": "momo🐊",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31emc451n5m005ofrf0rk1tqbi8l7aro?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB3rjizxGiF5N8RLimTOsocfPhiBKm6z2Is7fu2DUQn2Q="
+      }
+    },
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1779121379000
+  },
+  {
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "create_time": 1779089647000,
+    "target_comment": {
+      "id": "6a0ababc000000002a025733",
+      "user_info": {
+        "user_id": "5efd7b6e0000000001006328",
+        "nickname": "嵩山君",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30vibrn6f5o005nntfdn08op898q4hj8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABD3RwHNUcJwA8ZFl583pDWQHw8oBRGerH6I_1ktVn2LY="
+      }
+    },
+    "note_id": "6a0a7f680000000008031335",
+    "content": "[哭惹R]确实，自己可能也有一定路径依赖，所以也想在网上请教一下大家有没有什么好路子推荐",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "id": "6a0ac0ef000000002300ea11",
+    "status": 0,
+    "liked": false
+  },
+  {
+    "status": 0,
+    "content": "学生之间讨论的视角和信息肯定还是非常局限的，希望网上能够集思广益[皱眉R]",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779081367000,
+    "id": "6a0aa097000000002902e494",
+    "note_id": "6a0a7f680000000008031335",
+    "like_count": "2",
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g=",
+      "user_id": "606552e40000000001009cf7"
+    },
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "6a0a9982000000002b0003df",
+      "user_info": {
+        "user_id": "5c1bcdf30000000007005cce",
+        "nickname": "Happy",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31j8lrmpp2u0g5n0rpnphon6encvqefo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABbp75Y2lAARHw59eBiu7KjEjJWmlVo5LPB3UiB4bihKI="
+      }
+    }
+  },
+  {
+    "note_id": "6a0a7f680000000008031335",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "606552e40000000001009cf7",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ve46bbc4c6g5o35abi0977nktmupc8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB--zGsR4nDYSSOkgqaQ_tPTftJPfp8_GU57-qHhPDU3g="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1779081221000,
+    "ip_location": "北京",
+    "id": "6a0aa004000000002a004b61",
+    "content": "[哭惹R][哭惹R]",
+    "target_comment": {
+      "user_info": {
+        "xsec_token": "ABQWro3nLr-WAVQUBGlz70M_RNETTmn56xPVT9XV5Z7BE=",
+        "user_id": "5a31d8b3e8ac2b3e4e8924d5",
+        "nickname": "LolO",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/62b2cca1dcee0d53de59f6ed.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      },
+      "id": "6a0a96100000000029010f3d"
+    }
+  }
+]

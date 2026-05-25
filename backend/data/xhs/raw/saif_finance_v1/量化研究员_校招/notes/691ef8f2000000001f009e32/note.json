@@ -1,0 +1,53 @@
+{
+  "xsecToken": "ABHaSn1WhrnlvW_usKOBilMIYzmFDtiGkfE3ZbbpXoZcU=",
+  "imageList": [
+    {
+      "fileId": "",
+      "height": 1600,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191421/4a5ec9b510b9658d31548539d0592713/1040g2sg31p3t8orh3cs05or6icj7rg0am54tu6g!nd_prv_wlteh_webp_3"
+        },
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191421/7c1e910f16b5626687a495e05bcd9dd4/1040g2sg31p3t8orh3cs05or6icj7rg0am54tu6g!nd_dft_wlteh_webp_3",
+          "imageScene": "WB_DFT"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "width": 1200,
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191421/4a5ec9b510b9658d31548539d0592713/1040g2sg31p3t8orh3cs05or6icj7rg0am54tu6g!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191421/7c1e910f16b5626687a495e05bcd9dd4/1040g2sg31p3t8orh3cs05or6icj7rg0am54tu6g!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "tagList": [],
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "洛书 量化研究员 有点小压力 建议准备纸笔，考察概率，梦回大一概率论！（约面俩小时，两个团队依次面试）\n一.\n1.第一个团队面试官很i（没开摄像头）说不太了解我的研究方向，让我介绍一个项目中和量化最相关的技术点详细讲讲（面试官说侧重考察逻辑）\n2.开始做题：两道概率，一道蒙特卡洛模拟手撕（都答上了）需要自己共享ide\n3.面试官说还可以，问了下可以提前实习嘛，什么时候到岗，我拉着她沟通一会然后说那今天这样结束，后面有消息联系我，然后后面还有其他团队接触我让我等一等（没错是我拉着她询问）\n二.\n1. 第二位面试官来了她很e（有开摄像头），先问我上一个团队感觉如何、我交代上一位面试官很i，并且有点看不懂我的方向，她也说看不读我的研究方向，怎么办！\n2.考察对于量化的理解，举一个和项目中和量化最相关的技术讲讲（侧重表达能力考察）\n3.考了一道概率题\n4.考了一些基础概念和一道题概念（指数分布，协方差矩阵，标准差计算，皮尔逊相关系数计算），回忆一下，缓了缓答上了\n5.我介绍了一下秋招准备的彩页，她问了问我想要未来从事什么方向，介绍部门是做期权的，未来的工作内容和发展路径",
+  "user": {
+    "userId": "63669326000000001f01c00a",
+    "nickname": "kkkkikor",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/636693ef44fc07ab5ba2f782.jpg",
+    "xsecToken": "ABDrrOOfYqPMNoBf04h38D9IesaAq1K3gveuWtvnDf-tQ="
+  },
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "83",
+    "collected": false,
+    "collectedCount": "120",
+    "commentCount": "15",
+    "shareCount": "56",
+    "followed": false,
+    "relation": "none"
+  },
+  "lastUpdateTime": 1763637491000,
+  "noteId": "691ef8f2000000001f009e32",
+  "title": "",
+  "atUserList": [],
+  "time": 1763637490000
+}

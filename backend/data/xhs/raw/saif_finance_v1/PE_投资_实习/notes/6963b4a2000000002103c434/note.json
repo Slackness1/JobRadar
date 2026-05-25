@@ -1,0 +1,94 @@
+{
+  "xsecToken": "ABUBY2gxJ6CCc-neWFA3O0n0d8EyQUNtJWA35QAK7Zpj8=",
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "title": "",
+  "desc": "近期我司在招实习生，这几天帮领导收了上百份实习生简历并做了初步筛选，在逐个翻看简历的过程中还是有些收获，并且从筛选的结果来看也有一定的规律，可能有些简历上的坑自己之前也踩过。整体上最大的一个感受是理工背景的同学越来越少，更何况我们机构主要看的赛道还是以集成电路、AI基础设施等硬科技为主的方向。看来大家对金融真的祛魅了，在这几年对金融的整顿下，那些白领精英的传说在当前时代已不复存在。\n作为从实习就一直在一级买方的理工+金融背景投资人，我总结了自己的一套筛选原则以及优秀简历画像，可以给在找PEVC实习的同学提出一些建议（仅代表个人观点）：\n\t\n1.专业背景：理工本+经管硕>其他。目前收上来简历90%以上都是纯经管，同质化太严重，当然如果是理工本+理工硕（最好带计算机/电子/通信/物理等方向）肯定也会放进来，但目前还没收到理工本硕的简历。不是对经管专业同学有歧视，主要是我们这边看的赛道特别偏硬科技，团队风格也更偏技术和产业。\n\t\n2.年级：研二>研一>大四>其他。研二的实习经验相比研一更丰富，相比本科生心智更成熟，相比研三忙于校招和毕业，研二学生的时间是最多的。其次就是研一，但是在打电话时会重点关注下学期课程繁忙程度，能否保障线下实习。\n\t\n3.过往实习：先看行业赛道匹配程度，再看实习时间，最后看机构类型。不管你之前做的是一级二级买方卖方，如果之前有过半导体/AI以及其他硬科技相关项目/行业经验（符合我司关注赛道），都是加分项，并且会看你相应实习的时间。总之就是投入到对应行业赛道的时间长短，如果那段实习时间短+当时跟的赛道有好几个，就不太加分。机构方面，如果不是一级买，其实都差不多。\n我个人对于在校生的建议就是，可以在实习中多看不同行业赛道，提高广度，但是在一段实习中建议专注在一个大行业赛道之内，且实习时间不少于3个月，保障学习深度。\n\t\n其他：\n1.cover letter其实不太重要，反正对于我来说不太看cover letter，但如果是那种一眼AI写的反而会扣大分；\n\t\n2.描述内容更偏好有定量的数据，例如梳理文献XX篇、访谈企业XX家、产出报告XX页等，而非全篇都是定性描述，如“搜集、整理某某资料”，“从行业、市场、技术、产品等角度分析拆解”但不带任何数据。\n\t\n#实习[话题]# #简历模板[话题]# #pe[话题]# #vc[话题]# #一级市场[话题]# #金融实习[话题]# #行业研究[话题]# #pevc[话题]#",
+  "imageList": [
+    {
+      "fileId": "",
+      "livePhoto": false,
+      "stream": {},
+      "height": 1600,
+      "width": 1200,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191516/da6092dbbd1af7fd3488232381f7f27d/1040g00831r71rhcug0dg5omdge0ggb4lb6a6s4o!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191516/a92d8699ebeb2c872f1ec37e11d64d7e/1040g00831r71rhcug0dg5omdge0ggb4lb6a6s4o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191516/da6092dbbd1af7fd3488232381f7f27d/1040g00831r71rhcug0dg5omdge0ggb4lb6a6s4o!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191516/a92d8699ebeb2c872f1ec37e11d64d7e/1040g00831r71rhcug0dg5omdge0ggb4lb6a6s4o!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "name": "简历模板",
+      "type": "topic",
+      "id": "5c419262000000000f007a41"
+    },
+    {
+      "id": "5e8167340000000001009e4e",
+      "name": "pe",
+      "type": "topic"
+    },
+    {
+      "id": "5be174b2b6aad100010bd145",
+      "name": "vc",
+      "type": "topic"
+    },
+    {
+      "id": "6034e4ee000000000100a4c1",
+      "name": "一级市场",
+      "type": "topic"
+    },
+    {
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习",
+      "type": "topic"
+    },
+    {
+      "id": "5e1f01ee0000000001000319",
+      "name": "行业研究",
+      "type": "topic"
+    },
+    {
+      "id": "60b7f3b50000000001003650",
+      "name": "pevc",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1768141986000,
+  "noteId": "6963b4a2000000002103c434",
+  "user": {
+    "userId": "62cd83810000000002002c95",
+    "nickname": "三尺秋霜",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/62cd83810000000002002c95.jpg",
+    "xsecToken": "ABuYwfWFIIFVqupusFOUFnAYqgntI9Ftlr2bg-D26rOds="
+  },
+  "interactInfo": {
+    "commentCount": "73",
+    "shareCount": "66",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "509",
+    "collected": false,
+    "collectedCount": "426"
+  },
+  "lastUpdateTime": 1768142008000
+}

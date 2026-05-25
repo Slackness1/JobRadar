@@ -1,0 +1,100 @@
+{
+  "xsecToken": "AB89xVJoIbIAxkuLwSybY4ZpzSZBSpfszvpGZnbcjRclg=",
+  "imageList": [
+    {
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191424/214ba7b795b8902cfe899d4591b19f06/notes_pre_post/1040g3k831tkdvo3578005p4fmplk87afn6ufeeg!nd_prv_wgth_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191424/30a0aa78d7087d656857a0fa9d691c72/notes_pre_post/1040g3k831tkdvo3578005p4fmplk87afn6ufeeg!nd_dft_wgth_webp_3",
+      "width": 2560,
+      "height": 1920,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/214ba7b795b8902cfe899d4591b19f06/notes_pre_post/1040g3k831tkdvo3578005p4fmplk87afn6ufeeg!nd_prv_wgth_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/30a0aa78d7087d656857a0fa9d691c72/notes_pre_post/1040g3k831tkdvo3578005p4fmplk87afn6ufeeg!nd_dft_wgth_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "fileId": ""
+    },
+    {
+      "width": 4096,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/e1c02aa2ae779b2ebd5b1adb3952982f/note_pre_post_uhdr/1040g3r031tkdvnrtne6g5p4fmplk87afe4r6iso!nd_prv_wgth_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/cc198d0f49b323f0fdc9c7d32152785f/note_pre_post_uhdr/1040g3r031tkdvnrtne6g5p4fmplk87afe4r6iso!nd_dft_wgth_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191424/cc198d0f49b323f0fdc9c7d32152785f/note_pre_post_uhdr/1040g3r031tkdvnrtne6g5p4fmplk87afe4r6iso!nd_dft_wgth_webp_3",
+      "livePhoto": false,
+      "height": 3072,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191424/e1c02aa2ae779b2ebd5b1adb3952982f/note_pre_post_uhdr/1040g3r031tkdvnrtne6g5p4fmplk87afe4r6iso!nd_prv_wgth_webp_3",
+      "stream": {},
+      "fileId": ""
+    }
+  ],
+  "atUserList": [],
+  "time": 1773334817000,
+  "noteId": "69b2f12100000000060082d6",
+  "title": "逛量化招聘会后的一点感想",
+  "user": {
+    "userId": "648fb66b0000000011001d4f",
+    "nickname": "胡安",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k42loqvio6g5p4fmplk87afbc4gh70",
+    "xsecToken": "ABQ_8a059zTseTGc_Zh67FrnuQnDFcyrHjT5ZVy14bHGg="
+  },
+  "tagList": [
+    {
+      "id": "5be764531cc2b50001167e33",
+      "name": "校招",
+      "type": "topic"
+    },
+    {
+      "id": "5d719540000000000103b788",
+      "name": "量化交易",
+      "type": "topic"
+    },
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "id": "5be3a954a5142900019921eb",
+      "name": "招聘",
+      "type": "topic"
+    },
+    {
+      "id": "5c92e5ec000000000d01fe19",
+      "name": "胡思乱想",
+      "type": "topic"
+    }
+  ],
+  "lastUpdateTime": 1773334818000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "一场量化专场活动后的思考\n\t\n昨天参加了学校专门面向量化的专场活动，带着简历去学习，收获不少。\n遇到了几位很专业的HR老师，给我的简历和个人发展提出了中肯的建议。还有一位研究员老师耐心解答了我关于量化实践的疑惑。整场下来确实受益匪浅。\n但比起这些收获，更触动我的是活动带来的自我反思。\n\t\n关于实习的节奏\n\t\n和朋友聊天时发现，从去年春天开始，我的实习就没停过。一直在焦虑中推着自己往前走，用忙碌填满每一天，却没留出时间好好思考——这种忙碌到底是成长，还是另一种逃避？\n很多HR都说过我实习开始得早。当时觉得是优势，现在却开始怀疑：这么早开始，真的是好事吗？\n\t\n关于机会成本\n\t\n今天一直在想“机会成本”这个词。\n我在能力还不够完备的时候就匆忙开始了第一段实习，然后一段接一段。收获确实有，但如果把时间线拉长看：如果我晚一点开始实习，先把精力放在提升专业能力和学业上，会不会是更好的选择？前者看起来一直在前进，但每一步的积累可能都不够扎实；后者起步晚一些，但每一步走得更稳，最终可能站得更高。\n当然，我没办法验证没走过的路。只是遗憾，到了现在这个阶段才开始认真思考这个问题。\n\t\n接下来\n\t\n樱花很美，但离真实的世界很远。\n也许该静下心来好好念书，在学校把技能树点扎实。曾经有关系很好的人建议我不要把精力留给校内生活这么少，当时没听进去，现在想想是有道理的。\n\t\n我是反思怪\n#校招[话题]# #量化交易[话题]# #实习[话题]# #招聘[话题]# #胡思乱想[话题]#",
+  "interactInfo": {
+    "collectedCount": "18",
+    "commentCount": "27",
+    "shareCount": "3",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "33",
+    "collected": false
+  }
+}

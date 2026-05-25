@@ -1,0 +1,164 @@
+{
+  "keyword": "华泰证券 研究",
+  "note_count": 0,
+  "comment_count": 0,
+  "authors_top10": [],
+  "tags_top10": [],
+  "top_notes_by_signal": [],
+  "top_notes_by_keyword_hits": [],
+  "top_comments_by_likes": [],
+  "crawl_failures": [
+    {
+      "note_id": "6925bc1b000000001b022172",
+      "url": "https://www.xiaohongshu.com/explore/6925bc1b000000001b022172?xsec_token=AB0vP6YOZUXKviINU-WlGBxx5BJyLn-XamE-peHbn6qpU%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "67daa1d60000000006029fda",
+      "url": "https://www.xiaohongshu.com/explore/67daa1d60000000006029fda?xsec_token=ABqP2Ld_OIaKcXenFpmUkDiRPlIzmzwIRzxegbwDSAB6M%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69c10dc60000000023017baf",
+      "url": "https://www.xiaohongshu.com/explore/69c10dc60000000023017baf?xsec_token=ABoKAW74wSVdPNpmKlOEUJc7j1tH2kPUtkqIQSfdgwZHc%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "68012e44000000001202ea71",
+      "url": "https://www.xiaohongshu.com/explore/68012e44000000001202ea71?xsec_token=AB9X3tiAu5CxivIOW0ie1KOTHWL9HMp_6BwW_7QMMgu0g%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "68d25769000000001201c456",
+      "url": "https://www.xiaohongshu.com/explore/68d25769000000001201c456?xsec_token=ABgKB5jSb0zsCHmwHOQiYjHGINdbDZ5CJamRoDEEztmCg%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "683badd60000000023017d1d",
+      "url": "https://www.xiaohongshu.com/explore/683badd60000000023017d1d?xsec_token=AB2bbLsiQbDvdVBGtzld2K1OY82EZjfpho32mcKrrfYlg%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69ecd65900000000350327fe",
+      "url": "https://www.xiaohongshu.com/explore/69ecd65900000000350327fe?xsec_token=AB2IRjsN3ZRDZrKKrreOLQZRqspaERY4gIb_goGA_2gFA%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "674ebd7700000000020290fc",
+      "url": "https://www.xiaohongshu.com/explore/674ebd7700000000020290fc?xsec_token=ABsv4H300GpU8icFlBLrI73f1NIiGdkHwjbgdp3LUWFUY%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69d784d0000000002101002a",
+      "url": "https://www.xiaohongshu.com/explore/69d784d0000000002101002a?xsec_token=ABAgMw_YOOCqCX9ujbezsBBVH548ZzMEhPOfYzefT-Z44%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "667567eb000000001e010e6d",
+      "url": "https://www.xiaohongshu.com/explore/667567eb000000001e010e6d?xsec_token=AB5rIgdEGlystD5aUelG6pmiNu6r6BnpaS6-54qMxb8Q8%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69cce2d8000000001b0009d4",
+      "url": "https://www.xiaohongshu.com/explore/69cce2d8000000001b0009d4?xsec_token=ABVLGBpMWoC77kQP4K1vh2j63aP4tLcaTTNPgGaP7okRI%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "68a1cc83000000001d005a55",
+      "url": "https://www.xiaohongshu.com/explore/68a1cc83000000001d005a55?xsec_token=ABTmlihpPF33DYTuenHdERkSh2k-QAr-TAku3O68I0T98%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "67dd2672000000001c03fd81",
+      "url": "https://www.xiaohongshu.com/explore/67dd2672000000001c03fd81?xsec_token=ABwvd1GyWIE2jeaLRfEIihRblfakS93WoMKlxg5Wt8k6Q%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69f189a0000000003501d8b0",
+      "url": "https://www.xiaohongshu.com/explore/69f189a0000000003501d8b0?xsec_token=ABy-X39P4UHqtowBO4eIUamXavHxZgGwfItRpFLZUF1Bg%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "6604e5ef000000001203f183",
+      "url": "https://www.xiaohongshu.com/explore/6604e5ef000000001203f183?xsec_token=ABhxNnC4KWt9qKV4kdf-5tg2_CLgYW5bbgUvEeqPadieA%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "686398560000000012021b0d",
+      "url": "https://www.xiaohongshu.com/explore/686398560000000012021b0d?xsec_token=ABkCLLj5ucLNA-YvyOBhZ0MMoVPzRvvmEI3akwDxpbPV4%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69aeb3ab000000001b01dc57",
+      "url": "https://www.xiaohongshu.com/explore/69aeb3ab000000001b01dc57?xsec_token=ABbsoHtwA7LscOTMex_cZ2rvqUlU8sK99MUQZldBzHiEg%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "684577ef000000001101d0ea",
+      "url": "https://www.xiaohongshu.com/explore/684577ef000000001101d0ea?xsec_token=AB4ynJLH1KHeHYiJXwxTNlLQWeGK8RjNwtPvVlzVVI14M%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "690daef80000000007008705",
+      "url": "https://www.xiaohongshu.com/explore/690daef80000000007008705?xsec_token=ABZOcQwFBENZ9uBeJIZIO9UaL4LakFvIyxCFfsM1UGz4Q%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "6829ddea000000002101a145",
+      "url": "https://www.xiaohongshu.com/explore/6829ddea000000002101a145?xsec_token=ABdlMqY4YT4ca7XJ1dfMPi4tRJSf_z5gziitixAqXvuEM%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "686c9daa000000001c0346bf",
+      "url": "https://www.xiaohongshu.com/explore/686c9daa000000001c0346bf?xsec_token=AB5W3_mqSAnYq_IeTa-D1WZU-cyNs9Os_RNA26RKmnmA0%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "68bbfafe000000001b023cb6",
+      "url": "https://www.xiaohongshu.com/explore/68bbfafe000000001b023cb6?xsec_token=ABXMx63uXIhbZr6ImCd8IgAaTw8TIaNOYJMoJlOnt966U%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69cc0049000000001a037fa6",
+      "url": "https://www.xiaohongshu.com/explore/69cc0049000000001a037fa6?xsec_token=ABVLGBpMWoC77kQP4K1vh2jzXXTji7_7TJPA_fcUZDV0o%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "688e0754000000002302531e",
+      "url": "https://www.xiaohongshu.com/explore/688e0754000000002302531e?xsec_token=AB9e1u_xavnzh6gRYepQ8DN8jX379lLkCPHQwOkjIAQ1A%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "692c43e0000000001e02131d",
+      "url": "https://www.xiaohongshu.com/explore/692c43e0000000001e02131d?xsec_token=ABNaX_UE5nxUKeFrpuTjsWa6Ym6QptyNBk5jMoYQVsUeE%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "67d8b6ac000000000d015d7e",
+      "url": "https://www.xiaohongshu.com/explore/67d8b6ac000000000d015d7e?xsec_token=ABqIClvDVVrBRcSpaR-Ffv7HLlf8dMBwvTdMHi0esiiGk%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "6829ddab0000000021000a51",
+      "url": "https://www.xiaohongshu.com/explore/6829ddab0000000021000a51?xsec_token=ABdlMqY4YT4ca7XJ1dfMPi4lKqN73FwUk6WjAXUOqZEhc%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69a06a140000000026033b3d",
+      "url": "https://www.xiaohongshu.com/explore/69a06a140000000026033b3d?xsec_token=ABW9M3NuskafRha3sLnZKmp-xBL7MjdS0G7x_P-Bd_uSI%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "6a03f1510000000035030dfe",
+      "url": "https://www.xiaohongshu.com/explore/6a03f1510000000035030dfe?xsec_token=ABFl__QCRk7pyqrf1eZnCQr1lw2BT5Uy0DVLKqcY0Aoxg%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    },
+    {
+      "note_id": "69c666e6000000002302172b",
+      "url": "https://www.xiaohongshu.com/explore/69c666e6000000002302172b?xsec_token=ABvGWIFcv_RyN0alu1pvgBUC9esTEEWI1Y3ytq9fKdAEk%3D&xsec_source=pc_search",
+      "error": "未抓到帖子详情，请确认链接可访问、已登录，且页面实际打开的是帖子详情页。"
+    }
+  ],
+  "searched_results": 60,
+  "selected_results": 30
+}

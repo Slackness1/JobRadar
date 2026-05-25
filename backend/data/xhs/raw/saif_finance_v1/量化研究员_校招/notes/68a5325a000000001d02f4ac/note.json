@@ -1,0 +1,74 @@
+{
+  "xsecToken": "AB5m20FCFnD4hwE4_F4E2EGB_dYNAhnRpgW31_90Gyuq8=",
+  "imageList": [
+    {
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191432/9d58fe7330dea5801230a52c4f73cad0/1040g2sg31ld0f243l8704bcpepsji75ahoj1r20!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191432/e99e16160ad97a9f5217fcdfad7c95af/1040g2sg31ld0f243l8704bcpepsji75ahoj1r20!nd_dft_wlteh_webp_3",
+      "height": 1753,
+      "width": 1179,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191432/9d58fe7330dea5801230a52c4f73cad0/1040g2sg31ld0f243l8704bcpepsji75ahoj1r20!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191432/e99e16160ad97a9f5217fcdfad7c95af/1040g2sg31ld0f243l8704bcpepsji75ahoj1r20!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "traceId": ""
+    }
+  ],
+  "atUserList": [],
+  "time": 1755656794000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "68a5325a000000001d02f4ac",
+  "type": "normal",
+  "title": "国内只要清北🥺不愧是量化",
+  "user": {
+    "xsecToken": "ABzlBux4i5ywdaTGS_DbLqjYKGGQKeo0OPpikQMsXkSyI=",
+    "userId": "5bbcb939cb2cc70001541caa",
+    "nickname": "Gravity",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vtjhupm2i004bcpepsji75arkip07o"
+  },
+  "desc": "#人工智能就业[话题]# #金融[话题]# #数据科学[话题]# #机器学习[话题]#",
+  "interactInfo": {
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "359",
+    "collected": false,
+    "collectedCount": "167",
+    "commentCount": "91",
+    "shareCount": "76"
+  },
+  "tagList": [
+    {
+      "name": "人工智能就业",
+      "type": "topic",
+      "id": "63174ccb0000000001000f37"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "id": "5e2cba4d0000000001002f38",
+      "name": "数据科学",
+      "type": "topic"
+    },
+    {
+      "id": "5c6bb611000000000f0101ee",
+      "name": "机器学习",
+      "type": "topic"
+    }
+  ],
+  "lastUpdateTime": 1755656795000
+}

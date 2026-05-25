@@ -1,0 +1,79 @@
+{
+  "xsecToken": "ABhW5NhteNXUt7iLdyghnOlwUlUKUZRhpF8Cf_tF-d7lQ=",
+  "time": 1775315810000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "背景：TOP2本硕，项目是物理方向，之前一直埋头搞科研（大项目还在憋文章），最近才突击做了点基础项目想转量化QR，也投了许多中大厂的算法岗。自知起步晚，想先找第一段实习攒经验，结果现实给了我一记重锤。\n目前面了四家，全军覆没，简单复盘一下心路历程：\n某Agent小厂：笔试做得挺好，给了两天时间完成一个项目。结果HR面太紧张，只会机械答题，15分钟光速挂。（教训：面试技巧太欠缺）\n通讯大厂大模型岗：线下海投的，挂了。理由是不匹配。当时简历写的是VLA复现，现在做SFT，感觉项目太浅且相关性不够。\n50亿量化AI Infra：当时感觉JD特别不匹配，抱着试试看的心态投的，但是笔试过了给了面邀，主管面聊项目挺顺利，结果栽在一个基础计原问题上。主管的建议是补补计算机基础。\n百亿量化：过了HR，主管面挂。理由是投研思考少，项目缺乏深度。\n现在的困境：\n项目硬伤：为了面试突击的项目确实只有几天工期，深度不够。\n专业背景：机械背景，和算法/量化匹配度都不高。\n背景尴尬：科研偏物理方向，面试官普遍不感冒，但又必须放简历上证明数理基础+解释前几年在做什么。\n时间紧迫：之前导师不放日常实习，现在想冲却发现经验值为0。\n目前还有几家中大厂的笔面试，比如华为腾讯阿里蚂蚁，但是感觉也很难通过。\n想问问各位大佬，简历上的物理大项目该怎么包装才能体现数理优势？以及走算法和量化的建议。\n先骂醒自己：早干嘛去了！\n有没有大佬能给点简历、面试、补项目的建议，孩子真的很想拿下第一段实习！\n#求助offer选择[话题]# #实习报告[话题]# #找实习[话题]# #令人心动的实习日记[话题]# #改简历[话题]#",
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "601d285c0000000001005579",
+      "name": "求助offer选择"
+    },
+    {
+      "type": "topic",
+      "id": "5d1c1f69000000000d00bb1a",
+      "name": "实习报告"
+    },
+    {
+      "id": "5d8984ef000000000103dbba",
+      "name": "找实习",
+      "type": "topic"
+    },
+    {
+      "id": "5abb2bb68fcfae555082671f",
+      "name": "令人心动的实习日记",
+      "type": "topic"
+    },
+    {
+      "id": "5f1a3354000000000100174d",
+      "name": "改简历",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "imageList": [
+    {
+      "width": 1264,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191424/36257bb6b4b2ada2d3a4ab123a787a14/notes_pre_post/1040g3k831uhumeqqhm705o0u1etg9efv75vf3n8!nd_prv_wlteh_webp_3",
+      "fileId": "",
+      "height": 1786,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/36257bb6b4b2ada2d3a4ab123a787a14/notes_pre_post/1040g3k831uhumeqqhm705o0u1etg9efv75vf3n8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191424/939bf92d223b6d9e404314fcf7eec812/notes_pre_post/1040g3k831uhumeqqhm705o0u1etg9efv75vf3n8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191424/939bf92d223b6d9e404314fcf7eec812/notes_pre_post/1040g3k831uhumeqqhm705o0u1etg9efv75vf3n8!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false
+    }
+  ],
+  "lastUpdateTime": 1775315961000,
+  "noteId": "69d12b620000000021005817",
+  "title": "TOP2本硕疯狂碰壁，想投量化岗位，求锐评",
+  "user": {
+    "userId": "601e0bbb000000000100b9ff",
+    "nickname": "Jo米青",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/637f81040a206483701cf91b.jpg",
+    "xsecToken": "AB77SXHzQtH8bbyGjKUs9TQQiQX3a8Lu-x1uCK3iJf3x8="
+  },
+  "interactInfo": {
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "670",
+    "collected": false,
+    "collectedCount": "556",
+    "commentCount": "307",
+    "shareCount": "262"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "xsecToken": "ABx37_bJOc-MYLMyt5ziiNPP23-ZSW4gro-Zl5znko5To=",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "30",
+    "collected": false,
+    "collectedCount": "15",
+    "commentCount": "32",
+    "shareCount": "11",
+    "followed": false
+  },
+  "atUserList": [],
+  "time": 1752838381000,
+  "lastUpdateTime": 1752838381000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "width": 887,
+      "url": "",
+      "stream": {},
+      "livePhoto": false,
+      "height": 652,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191423/cbf531654bdff2e252664920877d83ba/notes_pre_post/1040g3k831k30ls0g2uc05pha6odhoue9jug7qhg!nd_prv_wgth_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191423/deefe6b193094d43b3484d44418797d9/notes_pre_post/1040g3k831k30ls0g2uc05pha6odhoue9jug7qhg!nd_dft_wgth_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191423/cbf531654bdff2e252664920877d83ba/notes_pre_post/1040g3k831k30ls0g2uc05pha6odhoue9jug7qhg!nd_prv_wgth_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191423/deefe6b193094d43b3484d44418797d9/notes_pre_post/1040g3k831k30ls0g2uc05pha6odhoue9jug7qhg!nd_dft_wgth_webp_3"
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5c2070eb000000000903ed90",
+      "name": "求职",
+      "type": "topic"
+    },
+    {
+      "name": "薪资",
+      "type": "topic",
+      "id": "5cc18f82000000000f00e84b"
+    },
+    {
+      "type": "topic",
+      "id": "5c383e71000000000e0056ea",
+      "name": "应届生"
+    },
+    {
+      "type": "topic",
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化"
+    },
+    {
+      "name": "券商行研",
+      "type": "topic",
+      "id": "610a23120000000001007c41"
+    },
+    {
+      "id": "610266e60000000001000d1c",
+      "name": "量化研究",
+      "type": "topic"
+    }
+  ],
+  "noteId": "687a30ed000000001202ed0c",
+  "type": "normal",
+  "title": "985本硕 量化研究员 1.5w base待遇算好么？",
+  "desc": "你好想匿名帮忙问一下我的薪资怎么样：\n985本硕应届\n杭州量化研究员，1.5wbase，保底13薪剩下看业绩，955\n\t\n#求职[话题]# #薪资[话题]# #应届生[话题]# #量化[话题]# #券商行研[话题]# #量化研究[话题]#",
+  "user": {
+    "xsecToken": "ABFnDzM7lMwQuf6CPf9o61Tr2kxVzHRQJ20Le1BFpzxTE=",
+    "userId": "662a361b00000000070079c9",
+    "nickname": "爆哥爆个料（应届生嘴替版）",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mfbfohgli6g5pha6odhoue9dtgotp8"
+  }
+}

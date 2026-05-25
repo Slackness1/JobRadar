@@ -1,0 +1,243 @@
+[
+  {
+    "content": "请问不是按照网站上显示面试流程的岗位，去面试的吗，我投了两个只有一个显示在面试流程～",
+    "like_count": "0",
+    "sub_comment_has_more": true,
+    "id": "671102f10000000027024b7b",
+    "note_id": "671073300000000024018764",
+    "show_tags": [],
+    "create_time": 1729168114000,
+    "ip_location": "新疆",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_count": "2",
+    "sub_comment_cursor": "67110386000000000e0350fb",
+    "status": 0,
+    "user_info": {
+      "user_id": "636d852d000000001f015790",
+      "nickname": "🐟食儿",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30n457qsf5k6g5ordgkmnqlsgcibehfg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABcLnBQH0SW7q45CO0rcGpeNE0Y7ubpU3Pd8tRQshp0mg="
+    },
+    "sub_comments": [
+      {
+        "ip_location": "北京",
+        "status": 0,
+        "liked": false,
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31doipvb30c004a1njtqvt049fol6350?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB88qKwNqge6SJLyJBcuMbmzH8NUaK2XWHPE0yPrWiKRI=",
+          "user_id": "5a90f5fe11be1021dce18089",
+          "nickname": "祝杳星ovo"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "like_count": "1",
+        "create_time": 1729168262000,
+        "target_comment": {
+          "id": "671102f10000000027024b7b",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABcLnBQH0SW7q45CO0rcGpeNE0Y7ubpU3Pd8tRQshp0mg=",
+            "user_id": "636d852d000000001f015790",
+            "nickname": "🐟食儿",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30n457qsf5k6g5ordgkmnqlsgcibehfg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "id": "67110386000000000e0350fb",
+        "note_id": "671073300000000024018764",
+        "content": "不是 现场hr会再确认一遍你的意向 并且介绍一下岗位 后续把你的简历递到确定的一个部门那边",
+        "at_users": []
+      }
+    ]
+  },
+  {
+    "id": "6711011b00000000240362a6",
+    "at_users": [],
+    "note_id": "671073300000000024018764",
+    "content": "你的自我介绍：我还需要自我介绍？[得意R]",
+    "like_count": "0",
+    "sub_comment_cursor": "671101ea000000001601c6d9",
+    "status": 0,
+    "liked": false,
+    "ip_location": "甘肃",
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "note_id": "671073300000000024018764",
+        "content": "那我这么多年实习白干了？",
+        "liked": false,
+        "like_count": "2",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "6711011b00000000240362a6",
+          "user_info": {
+            "user_id": "6356327f000000001901d385",
+            "nickname": "万顷波中得自由",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316d5mt08io6g5oqm69vmbks5cfp1e1o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABz2U9h84v9hsCjwbJfJLsZBCIY37dq6yhsK0QetLxBkc="
+          }
+        },
+        "id": "671101ea000000001601c6d9",
+        "status": 0,
+        "at_users": [],
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31doipvb30c004a1njtqvt049fol6350?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB88qKwNqge6SJLyJBcuMbmzH8NUaK2XWHPE0yPrWiKRI=",
+          "user_id": "5a90f5fe11be1021dce18089",
+          "nickname": "祝杳星ovo"
+        },
+        "create_time": 1729167850000
+      }
+    ],
+    "user_info": {
+      "user_id": "6356327f000000001901d385",
+      "nickname": "万顷波中得自由",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316d5mt08io6g5oqm69vmbks5cfp1e1o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABz2U9h84v9hsCjwbJfJLsZBCIY37dq6yhsK0QetLxBkc="
+    },
+    "show_tags": [],
+    "create_time": 1729167643000,
+    "sub_comment_has_more": false
+  },
+  {
+    "id": "67cd7d04000000001802a7a8",
+    "note_id": "671073300000000024018764",
+    "content": "请问面试的什么岗位呢[捂脸R]",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1741520133000,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABChuZMEjP420NuB-g-X9HJcfuNjTgVMrJ49gvr44e7FA=",
+      "user_id": "6512c77e000000002402f199",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mt3deimlm005p8iotv95scp28cc1r0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "上海"
+  },
+  {
+    "show_tags": [],
+    "create_time": 1730113786000,
+    "sub_comment_has_more": false,
+    "note_id": "671073300000000024018764",
+    "content": "博主，请问一下要穿正装吗？[哭惹R]",
+    "ip_location": "上海",
+    "id": "671f70fa000000001702f948",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABvBNvYkFYNQTU4YutOJAPSpJrNr6s7qSNWiopZDHRf0w=",
+      "user_id": "5d4287e90000000010007b5d",
+      "nickname": "Charles",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5d428830b616050001b3c568.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "sub_comment_count": "0",
+    "status": 0,
+    "sub_comments": [],
+    "sub_comment_cursor": ""
+  },
+  {
+    "user_info": {
+      "xsec_token": "AB_jN3QWgOCgc7-AqHwbh8xxX1fioSN8LkotqBHAdS9LM=",
+      "user_id": "6736ed53000000001c01baf4",
+      "nickname": "王绒三豆妈",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ll92cm558205ppmtl9n3enksol4jh8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_count": "0",
+    "content": "请问面试前有测评吗",
+    "at_users": [],
+    "create_time": 1746000870000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "note_id": "671073300000000024018764",
+    "ip_location": "江苏",
+    "status": 0,
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "id": "6811dbe5000000000400ee76"
+  },
+  {
+    "ip_location": "北京",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31doipvb30c004a1njtqvt049fol6350?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB88qKwNqge6SJLyJBcuMbmzH8NUaK2XWHPE0yPrWiKRI=",
+      "user_id": "5a90f5fe11be1021dce18089",
+      "nickname": "祝杳星ovo"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "like_count": "1",
+    "create_time": 1729168262000,
+    "target_comment": {
+      "id": "671102f10000000027024b7b",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABcLnBQH0SW7q45CO0rcGpeNE0Y7ubpU3Pd8tRQshp0mg=",
+        "user_id": "636d852d000000001f015790",
+        "nickname": "🐟食儿",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30n457qsf5k6g5ordgkmnqlsgcibehfg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "id": "67110386000000000e0350fb",
+    "note_id": "671073300000000024018764",
+    "content": "不是 现场hr会再确认一遍你的意向 并且介绍一下岗位 后续把你的简历递到确定的一个部门那边",
+    "at_users": []
+  },
+  {
+    "note_id": "671073300000000024018764",
+    "content": "那我这么多年实习白干了？",
+    "liked": false,
+    "like_count": "2",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "6711011b00000000240362a6",
+      "user_info": {
+        "user_id": "6356327f000000001901d385",
+        "nickname": "万顷波中得自由",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316d5mt08io6g5oqm69vmbks5cfp1e1o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABz2U9h84v9hsCjwbJfJLsZBCIY37dq6yhsK0QetLxBkc="
+      }
+    },
+    "id": "671101ea000000001601c6d9",
+    "status": 0,
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31doipvb30c004a1njtqvt049fol6350?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB88qKwNqge6SJLyJBcuMbmzH8NUaK2XWHPE0yPrWiKRI=",
+      "user_id": "5a90f5fe11be1021dce18089",
+      "nickname": "祝杳星ovo"
+    },
+    "create_time": 1729167850000
+  }
+]

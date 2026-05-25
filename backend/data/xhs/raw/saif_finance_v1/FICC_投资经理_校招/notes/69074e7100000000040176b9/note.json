@@ -1,0 +1,69 @@
+{
+  "xsecToken": "ABGGLZINMZI7j4pSBGy5W8nUHt7G1q2zrwActw7ei3g5A=",
+  "desc": "最近和同学们吃饭一起探讨未来职业路径，正好有同学在期货研究实习，打听了一下感觉是不是还蛮符合纯金融背景的人去做👀？（不知道这个说法对不对，如有错误还请大佬指出[笑哭R]）\n根据同学的说法是，期货里面需要用到很多金融方面等定价模型来去预测价格，感觉应该有些技术含量而且技术门槛应该比权益研究或者固收研究低？🤔srds好像正职们都不依靠固定工资，都去自己炒期货，感觉还是需要有胆量和魄力的人去做这份工作…🥲毕竟杠杆还是挺高的🥹🙏但是期货好像在国内不是一个特别大的市场，可能主要集中在海外，感觉发展前景会不会比较好呢？求大佬解答。🙏\n#期货[话题]# #金融[话题]# #求职[话题]#",
+  "atUserList": [],
+  "time": 1762086513000,
+  "lastUpdateTime": 1762086514000,
+  "noteId": "69074e7100000000040176b9",
+  "type": "normal",
+  "title": "",
+  "tagList": [
+    {
+      "id": "5becde3dc3c3cb0001c3befc",
+      "name": "期货",
+      "type": "topic"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "id": "5c2070eb000000000903ed90",
+      "name": "求职",
+      "type": "topic"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  },
+  "user": {
+    "xsecToken": "ABxRV6Hwf0Z1wq3Y6el_16lToxz_PIyZFmGKgsaTLW8tY=",
+    "userId": "60d7d92c000000000101fe65",
+    "nickname": "怀瑾",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31suf6655ls005o6nr4m0bvj54dgkui0"
+  },
+  "interactInfo": {
+    "commentCount": "71",
+    "shareCount": "34",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "280",
+    "collected": false,
+    "collectedCount": "259"
+  },
+  "imageList": [
+    {
+      "height": 1600,
+      "width": 1200,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191500/359cf404a1dc0579ed86fccdafad2898/1040g2sg31ocq0l8jmge05o6nr4m0bvj5987fqe0!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191500/5450af7c7f7a0f9a0822365d1fa91992/1040g2sg31ocq0l8jmge05o6nr4m0bvj5987fqe0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191500/359cf404a1dc0579ed86fccdafad2898/1040g2sg31ocq0l8jmge05o6nr4m0bvj5987fqe0!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191500/5450af7c7f7a0f9a0822365d1fa91992/1040g2sg31ocq0l8jmge05o6nr4m0bvj5987fqe0!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "url": "",
+      "traceId": "",
+      "livePhoto": false
+    }
+  ]
+}

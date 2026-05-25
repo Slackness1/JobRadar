@@ -1,0 +1,69 @@
+{
+  "xsecToken": "ABB579S7IMB7HybQY7pBCbl3oSADy9Yqq37UMm-xUgMjQ=",
+  "noteId": "69b7ed63000000001d018124",
+  "type": "normal",
+  "title": "如果要面试，觉得自己的核心价值在哪里呢",
+  "interactInfo": {
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "284",
+    "collected": false,
+    "collectedCount": "210",
+    "commentCount": "35",
+    "shareCount": "12"
+  },
+  "atUserList": [],
+  "lastUpdateTime": 1773661540000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "desc": "难道是帮老板监控吗…又开始为之前都实习痛苦了。0策略纯工具人\n#商业分析[话题]# #经营分析[话题]##互联网面试[话题]#",
+  "user": {
+    "nickname": "玛卡巴卡",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mmiec2u4u005q463rgjdg6eejt1tko",
+    "xsecToken": "ABhf1naIgGDwrLjNyUt5ZEGsy0_k7PmMzoB2iFl3a6u0Y=",
+    "userId": "68861ee1000000000d02c0ce"
+  },
+  "imageList": [
+    {
+      "height": 1600,
+      "stream": {},
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191417/c3d1dc5ec47db45b4f01d8440b580cd7/notes_pre_post/1040g3k831to2slqs6o8g5q463rgjdg6e0a0bo68!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191417/011194527da1243e8fe27f4a344416d0/notes_pre_post/1040g3k831to2slqs6o8g5q463rgjdg6e0a0bo68!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1200,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191417/c3d1dc5ec47db45b4f01d8440b580cd7/notes_pre_post/1040g3k831to2slqs6o8g5q463rgjdg6e0a0bo68!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191417/011194527da1243e8fe27f4a344416d0/notes_pre_post/1040g3k831to2slqs6o8g5q463rgjdg6e0a0bo68!nd_dft_wlteh_webp_3"
+        }
+      ]
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5cc0706e000000000d03a60c",
+      "name": "商业分析",
+      "type": "topic"
+    },
+    {
+      "id": "612a5aa80000000001005a65",
+      "name": "经营分析",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5e9d36800000000001007000",
+      "name": "互联网面试"
+    }
+  ],
+  "time": 1773661539000
+}

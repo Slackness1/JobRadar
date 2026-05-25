@@ -1,0 +1,99 @@
+{
+  "xsecToken": "ABdK2wJTR6l4zs3LGX6dOsN8LF24CPYxA2T4Slv3KdBXU=",
+  "title": "量化实习怎么样",
+  "desc": "看起来要求也不多，这个领域薪资一般多少? 工作累不累?#大学[话题]# #留学[话题]# #PhD[话题]# #金融实习[话题]# #远程实习[话题]# #行研实习[话题]# #线上实习[话题]# #投行实习[话题]# #券商行研[话题]#",
+  "interactInfo": {
+    "likedCount": "91",
+    "collected": false,
+    "collectedCount": "61",
+    "commentCount": "43",
+    "shareCount": "17",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "imageList": [
+    {
+      "height": 1507,
+      "url": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191422/f336b58f6f4786ea13e5d2093ca370d5/notes_pre_post/1040g3k031qclffjb7o5g5oqt82965ks9ltcfm9g!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191422/f8c15f049f436ebc505f00345ea49667/notes_pre_post/1040g3k031qclffjb7o5g5oqt82965ks9ltcfm9g!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191422/f8c15f049f436ebc505f00345ea49667/notes_pre_post/1040g3k031qclffjb7o5g5oqt82965ks9ltcfm9g!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1199,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191422/f336b58f6f4786ea13e5d2093ca370d5/notes_pre_post/1040g3k031qclffjb7o5g5oqt82965ks9ltcfm9g!nd_prv_wlteh_webp_3"
+    }
+  ],
+  "lastUpdateTime": 1766376876000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "6948c5ab000000001e02417b",
+  "type": "normal",
+  "user": {
+    "userId": "635d4092000000001802d389",
+    "nickname": "A&A",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30qeoleb0006g5oqt82965ks9ko0b1l8",
+    "xsecToken": "ABzgq1gJbI2Jf8XU2c5o0Hm0-EHWEBV6bUudoOu0QJnIk="
+  },
+  "tagList": [
+    {
+      "name": "大学",
+      "type": "topic",
+      "id": "5c468bf1000000000f0359ac"
+    },
+    {
+      "id": "5bea5e2186535d0001bf235d",
+      "name": "留学",
+      "type": "topic"
+    },
+    {
+      "id": "5dfb889600000000010090be",
+      "name": "PhD",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习"
+    },
+    {
+      "id": "5e7094f1000000000100a4ac",
+      "name": "远程实习",
+      "type": "topic"
+    },
+    {
+      "id": "6121084900000000010008b3",
+      "name": "行研实习",
+      "type": "topic"
+    },
+    {
+      "id": "5cbcb8f3000000000e01c0bc",
+      "name": "线上实习",
+      "type": "topic"
+    },
+    {
+      "id": "5f5f1f73000000000101f541",
+      "name": "投行实习",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "610a23120000000001007c41",
+      "name": "券商行研"
+    }
+  ],
+  "atUserList": [],
+  "time": 1766376875000
+}

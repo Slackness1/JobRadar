@@ -1,0 +1,116 @@
+{
+  "xsecToken": "ABAwtcZRka97Fv8AtHbNlsKUsjE1YWFGQeBR45b2jtZj8=",
+  "interactInfo": {
+    "likedCount": "82",
+    "collected": false,
+    "collectedCount": "69",
+    "commentCount": "19",
+    "shareCount": "46",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "tagList": [
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5d1036ec000000000e021e70",
+      "name": "公募基金"
+    },
+    {
+      "id": "621c54f60000000001006d5c",
+      "name": "权益研究",
+      "type": "topic"
+    },
+    {
+      "id": "5cd13fa8000000000e005d21",
+      "name": "暑期实习",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1774324329000,
+  "lastUpdateTime": 1774324329000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "虽然有人说华夏基金对BG卡得不严，但是头部公募基金权益研究留用成员画像\n1. 绝大部分top4本硕（硕士特指高管泛/top2）+大量二级垂直实习经验\n2. 少部分人大本+高管泛/top2硕同学\n3. 少少部分人大本硕同学\n4. 底线基本上是西财本top2硕或上财本硕+极强个人能力+正好是不看bg的机构（去年有零星2-3个这类bg留用），否则本科稍微弱势的同学不建议投递头部权益研究\n#金融[话题]# #公募基金[话题]# #权益研究[话题]# #暑期实习[话题]#",
+  "user": {
+    "userId": "65d21cfc000000000401f6ea",
+    "nickname": "二级求职",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tfqnf4n620g5pei3ju13tnang15dg8",
+    "xsecToken": "ABCpb_vizof7VY6cQ64y85C5BKQtATLxn8yBeXaBsxaKM="
+  },
+  "imageList": [
+    {
+      "width": 1440,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/f2ba71244a8b52e5335240806ee04858/spectrum/1040g0k031u35s2arh8005pei3ju13tnapfocic8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/fe1e3b3ac6a5daccb0f29bde1a9fece0/spectrum/1040g0k031u35s2arh8005pei3ju13tnapfocic8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191605/f2ba71244a8b52e5335240806ee04858/spectrum/1040g0k031u35s2arh8005pei3ju13tnapfocic8!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 2400,
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191605/fe1e3b3ac6a5daccb0f29bde1a9fece0/spectrum/1040g0k031u35s2arh8005pei3ju13tnapfocic8!nd_dft_wlteh_webp_3",
+      "livePhoto": false
+    },
+    {
+      "stream": {},
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191605/5e6f06effbe60a84ae6d35556435550d/spectrum/1040g0k031u35s2arh80g5pei3ju13tna9uvj10o!nd_dft_wlteh_webp_3",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/b598bc87f7a9a40eb75ed37544ae78b6/spectrum/1040g0k031u35s2arh80g5pei3ju13tna9uvj10o!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/5e6f06effbe60a84ae6d35556435550d/spectrum/1040g0k031u35s2arh80g5pei3ju13tna9uvj10o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191605/b598bc87f7a9a40eb75ed37544ae78b6/spectrum/1040g0k031u35s2arh80g5pei3ju13tna9uvj10o!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "height": 2400,
+      "width": 1440
+    },
+    {
+      "height": 2400,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/a4a2605ea91e56f6c981c666835a36b5/spectrum/1040g0k031u35s2arh8105pei3ju13tna05b0e68!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191605/fd8b03e5121822e6762e7676b68660e8/spectrum/1040g0k031u35s2arh8105pei3ju13tna05b0e68!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "livePhoto": false,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191605/a4a2605ea91e56f6c981c666835a36b5/spectrum/1040g0k031u35s2arh8105pei3ju13tna05b0e68!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191605/fd8b03e5121822e6762e7676b68660e8/spectrum/1040g0k031u35s2arh8105pei3ju13tna05b0e68!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "width": 1440,
+      "url": "",
+      "traceId": ""
+    }
+  ],
+  "noteId": "69c20a6900000000220241c5",
+  "title": "华夏基金——稳定规范招聘，但留用率较低"
+}

@@ -1,0 +1,398 @@
+[
+  {
+    "at_users": [],
+    "sub_comments": [
+      {
+        "id": "667442e80000000017013eed",
+        "status": 3,
+        "liked": false,
+        "user_info": {
+          "nickname": "努力向上的小y",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs=",
+          "user_id": "60901ec4000000000100ac71"
+        },
+        "ip_location": "北京",
+        "target_comment": {
+          "user_info": {
+            "xsec_token": "ABvibTwZvCkgNS46upbx5NiJyPH_5W4IWBpn3hDpwpt-Y=",
+            "user_id": "5f18387d00000000010045a1",
+            "nickname": "拆卡不肿",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5f1839141f3b4400017e9506.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          },
+          "id": "66743e9f0000000023006ee8"
+        },
+        "note_id": "66729f0b000000001d0194ea",
+        "content": "增量是指可以学习进步的地方吗？我觉得实习前期工作内容本身难度不大，可替代性强，主要是过程中自己要有输入转化为输出的意识，显性收获可能包括对投行工作整体运行流程有一个大致的了解，树立自己对行业认知的框架，隐形收获可能是能在这个过程中祛魅和增长见识，对自已未来职业规划有好处。后期应该会有其他更深入的工作吧，等我再做一段时间看看[皱眉R][皱眉R]",
+        "at_users": [],
+        "like_count": "7",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1718895337000
+      }
+    ],
+    "id": "66743e9f0000000023006ee8",
+    "like_count": "1",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5f1839141f3b4400017e9506.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABvibTwZvCkgNS46upbx5NiJyPH_5W4IWBpn3hDpwpt-Y=",
+      "user_id": "5f18387d00000000010045a1",
+      "nickname": "拆卡不肿"
+    },
+    "sub_comment_count": "5",
+    "sub_comment_cursor": "667442e80000000017013eed",
+    "sub_comment_has_more": true,
+    "note_id": "66729f0b000000001d0194ea",
+    "status": 0,
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "广东",
+    "content": "uu有觉得债承的实习工作有什么增量吗[哭惹R] 我刚实习上有点内耗",
+    "create_time": 1718894239000
+  },
+  {
+    "sub_comment_has_more": true,
+    "like_count": "0",
+    "ip_location": "山东",
+    "sub_comment_cursor": "6693476c0000000017010b7a",
+    "user_info": {
+      "user_id": "5f5b8ddd00000000010089f6",
+      "nickname": "Aki",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ignks9fns605nqrhneg92fmrmtmebo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABwFxBRKlBb4K82STLIVphT9gTcz99h-CXRxuK3YhC56U="
+    },
+    "create_time": 1720776820000,
+    "sub_comment_count": "3",
+    "id": "6690f8730000000015009ac3",
+    "status": 0,
+    "at_users": [],
+    "note_id": "66729f0b000000001d0194ea",
+    "liked": false,
+    "show_tags": [],
+    "content": "想问一下做说明性底稿是指的啥呀[哭惹R][哭惹R]我找的远程实习好像工作内容都跟这个有关 不知道是什么东西",
+    "sub_comments": [
+      {
+        "id": "6693476c0000000017010b7a",
+        "note_id": "66729f0b000000001d0194ea",
+        "status": 0,
+        "liked": false,
+        "user_info": {
+          "user_id": "60901ec4000000000100ac71",
+          "nickname": "努力向上的小y",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "content": "大致来说就是对发行人债券募集说明书的重要信息和其他事项进行补充说明的文件",
+        "at_users": [],
+        "like_count": "0",
+        "create_time": 1720928108000,
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "6690f8730000000015009ac3",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ignks9fns605nqrhneg92fmrmtmebo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABwFxBRKlBb4K82STLIVphT9gTcz99h-CXRxuK3YhC56U=",
+            "user_id": "5f5b8ddd00000000010089f6",
+            "nickname": "Aki"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "60cea2bd0000000001003534",
+      "nickname": "NL007",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/631e3cf8c8cb6705c670cd18.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABDEajs4cXAn1XjN1aBpSOl77EpH5m6krTdkKb6GxB5V4="
+    },
+    "create_time": 1720419615000,
+    "sub_comment_count": "1",
+    "id": "668b851e000000000503a566",
+    "at_users": [],
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "ip_location": "北京",
+    "note_id": "66729f0b000000001d0194ea",
+    "content": "一个月算正式的吗[皱眉R]我可能也要做但硕没实习证明",
+    "like_count": "0",
+    "sub_comments": [
+      {
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1720436791000,
+        "target_comment": {
+          "id": "668b851e000000000503a566",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/631e3cf8c8cb6705c670cd18.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABDEajs4cXAn1XjN1aBpSOl77EpH5m6krTdkKb6GxB5V4=",
+            "user_id": "60cea2bd0000000001003534",
+            "nickname": "NL007"
+          }
+        },
+        "note_id": "66729f0b000000001d0194ea",
+        "like_count": "0",
+        "user_info": {
+          "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs=",
+          "user_id": "60901ec4000000000100ac71",
+          "nickname": "努力向上的小y",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "at_users": [],
+        "liked": false,
+        "ip_location": "内蒙古",
+        "id": "668bc8370000000018029aa9",
+        "status": 0,
+        "content": "这个正式不正式好像是看实习生入职有没有正式流程诶[吧唧R][吧唧R]"
+      }
+    ],
+    "sub_comment_cursor": "668bc8370000000018029aa9"
+  },
+  {
+    "create_time": 1718789125000,
+    "sub_comment_cursor": "",
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "四川",
+    "sub_comments": [],
+    "note_id": "66729f0b000000001d0194ea",
+    "status": 0,
+    "like_count": "1",
+    "user_info": {
+      "user_id": "61f0b492000000001000807b",
+      "nickname": "小红薯61F0EDB4",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/d784fc20c996f3d2f39d034c404f234e.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABUr6QLJ92NXIdl0MPed3IPavgNRLtwsBDyodJYNhHQCg="
+    },
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "id": "6672a4050000000017003954",
+    "at_users": [],
+    "content": "[点赞R][点赞R][点赞R][点赞R]"
+  },
+  {
+    "sub_comment_count": "0",
+    "at_users": [],
+    "show_tags": [],
+    "user_info": {
+      "user_id": "645bd072000000001002b6a8",
+      "nickname": "随便",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314g1uvovm86g5p2rq1p45dl8iasqvn8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABdNC1OLenOrdmIVlMSAmWAySXst5wq_lR209mT-MO5B0="
+    },
+    "note_id": "66729f0b000000001d0194ea",
+    "liked": false,
+    "ip_location": "上海",
+    "content": "哪家债承啊",
+    "like_count": "0",
+    "create_time": 1730183325000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "id": "6720809d000000001b0078c2",
+    "status": 0
+  },
+  {
+    "id": "667434cb0000000015008162",
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5fc900190000000001006a52.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABgoAkKMq4Y-txdu2XcsNCmhcM1vz-dHN3_p-rCBzjIXY=",
+      "user_id": "5fc900190000000001006a52",
+      "nickname": "Aaron H"
+    },
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "create_time": 1718891723000,
+    "content": "感谢[哭惹R]",
+    "liked": false,
+    "like_count": "1",
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "note_id": "66729f0b000000001d0194ea",
+    "status": 0,
+    "ip_location": "上海",
+    "sub_comment_cursor": ""
+  },
+  {
+    "status": 0,
+    "content": "谢谢momo！",
+    "sub_comment_cursor": "",
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_has_more": false,
+    "create_time": 1718889636000,
+    "sub_comments": [],
+    "id": "66742ca400000000170106e2",
+    "note_id": "66729f0b000000001d0194ea",
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jfm59al2u005n7snup1hi2vph54mr8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABN8gckYOI4DIqpd5QgU6FOhlUNQXD-CPKHYfz6Q4GWTM=",
+      "user_id": "5cfcbfb2000000000600c85f"
+    },
+    "liked": false,
+    "like_count": "1",
+    "sub_comment_count": "0"
+  },
+  {
+    "note_id": "66729f0b000000001d0194ea",
+    "content": "请问uu 零经验去实习需要做哪些准备吗",
+    "like_count": "0",
+    "user_info": {
+      "nickname": "在山泉水",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62c066290000000019029fb8.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB4YLB4ON6qdqMk-HHmjtM5_A1kkzcKagxnw5EOArfxq4=",
+      "user_id": "62c066290000000019029fb8"
+    },
+    "ip_location": "四川",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "id": "699bf68d000000000601d3cc",
+    "show_tags": [],
+    "create_time": 1771828878000,
+    "sub_comments": [],
+    "sub_comment_has_more": false
+  },
+  {
+    "create_time": 1718810575000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "status": 0,
+    "at_users": [],
+    "like_count": "1",
+    "sub_comment_has_more": false,
+    "show_tags": [],
+    "ip_location": "北京",
+    "content": "同在债承，干的活差不多，h h h h h",
+    "liked": false,
+    "user_info": {
+      "user_id": "6092b544000000000100a2aa",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qhvi4mo00005o4iml2098la4lfqnmg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2Doh5FFFVbnxWsrZHgXg4M-atCWYuJdqLlL4kBow7ZA="
+    },
+    "sub_comment_count": "0",
+    "id": "6672f7ce0000000017011570",
+    "note_id": "66729f0b000000001d0194ea"
+  },
+  {
+    "id": "667442e80000000017013eed",
+    "status": 3,
+    "liked": false,
+    "user_info": {
+      "nickname": "努力向上的小y",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs=",
+      "user_id": "60901ec4000000000100ac71"
+    },
+    "ip_location": "北京",
+    "target_comment": {
+      "user_info": {
+        "xsec_token": "ABvibTwZvCkgNS46upbx5NiJyPH_5W4IWBpn3hDpwpt-Y=",
+        "user_id": "5f18387d00000000010045a1",
+        "nickname": "拆卡不肿",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5f1839141f3b4400017e9506.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      },
+      "id": "66743e9f0000000023006ee8"
+    },
+    "note_id": "66729f0b000000001d0194ea",
+    "content": "增量是指可以学习进步的地方吗？我觉得实习前期工作内容本身难度不大，可替代性强，主要是过程中自己要有输入转化为输出的意识，显性收获可能包括对投行工作整体运行流程有一个大致的了解，树立自己对行业认知的框架，隐形收获可能是能在这个过程中祛魅和增长见识，对自已未来职业规划有好处。后期应该会有其他更深入的工作吧，等我再做一段时间看看[皱眉R][皱眉R]",
+    "at_users": [],
+    "like_count": "7",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1718895337000
+  },
+  {
+    "id": "6693476c0000000017010b7a",
+    "note_id": "66729f0b000000001d0194ea",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "user_id": "60901ec4000000000100ac71",
+      "nickname": "努力向上的小y",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "content": "大致来说就是对发行人债券募集说明书的重要信息和其他事项进行补充说明的文件",
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1720928108000,
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "6690f8730000000015009ac3",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ignks9fns605nqrhneg92fmrmtmebo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABwFxBRKlBb4K82STLIVphT9gTcz99h-CXRxuK3YhC56U=",
+        "user_id": "5f5b8ddd00000000010089f6",
+        "nickname": "Aki"
+      }
+    }
+  },
+  {
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1720436791000,
+    "target_comment": {
+      "id": "668b851e000000000503a566",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/631e3cf8c8cb6705c670cd18.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABDEajs4cXAn1XjN1aBpSOl77EpH5m6krTdkKb6GxB5V4=",
+        "user_id": "60cea2bd0000000001003534",
+        "nickname": "NL007"
+      }
+    },
+    "note_id": "66729f0b000000001d0194ea",
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "AB9Z8VNHUwXj2Fq5zT2BN0glCYKkrgP-0Dryy73YTEjCs=",
+      "user_id": "60901ec4000000000100ac71",
+      "nickname": "努力向上的小y",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3183kak8sju005o4g3r209b3hl3jl388?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "at_users": [],
+    "liked": false,
+    "ip_location": "内蒙古",
+    "id": "668bc8370000000018029aa9",
+    "status": 0,
+    "content": "这个正式不正式好像是看实习生入职有没有正式流程诶[吧唧R][吧唧R]"
+  }
+]

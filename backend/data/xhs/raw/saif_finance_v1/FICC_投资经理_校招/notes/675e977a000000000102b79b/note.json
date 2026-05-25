@@ -1,0 +1,84 @@
+{
+  "xsecToken": "ABpaoSp0dFRohi3vKEsLl_eTLoi9YTi5Ct77EpWj5XSz0=",
+  "user": {
+    "userId": "635d3602000000001901d9f3",
+    "nickname": "momo",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31aev10j37a005oqt6o16bmfjibdmc80",
+    "xsecToken": "ABzgq1gJbI2Jf8XU2c5o0Hm9DwfU_U5RkYPn3o6sdAg0s="
+  },
+  "time": 1734252410000,
+  "lastUpdateTime": 1734252410000,
+  "noteId": "675e977a000000000102b79b",
+  "title": "券商ficc自营offer 要接吗",
+  "desc": "sz某不知名证券 ficc自营 不太了解团队情况\n工资开的应该是行业里非常低的水平了\n想问问大家这行未来发展怎么样\n感觉很看团队的情况\n问hr调薪情况 年终都是很模糊的回答\n之前没做过ficc\n之前做的实习偏量化私募研究开发\n今年卷不动量化了 自己比较菜\n\t\nbg：2本港硕\n追求wlb 有python开发 数据分析经验\n#ficc[话题]# #券商[话题]# #券商工作[话题]# #金融[话题]# #秋招[话题]# #固定收益[话题]#",
+  "tagList": [
+    {
+      "id": "61c9b2210000000001009ee1",
+      "name": "ficc",
+      "type": "topic"
+    },
+    {
+      "id": "5e5357ad0000000001009e09",
+      "name": "券商",
+      "type": "topic"
+    },
+    {
+      "id": "61475aa00000000001006b8f",
+      "name": "券商工作",
+      "type": "topic"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "id": "5bf577715fb4e60001b66b97",
+      "name": "秋招",
+      "type": "topic"
+    },
+    {
+      "id": "5fda42340000000001001393",
+      "name": "固定收益",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "62",
+    "collected": false,
+    "collectedCount": "46",
+    "commentCount": "82",
+    "shareCount": "15",
+    "followed": false
+  },
+  "imageList": [
+    {
+      "livePhoto": false,
+      "fileId": "",
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191449/6070fa911a180b44d2062b3cbbe4994d/1040g00831be27h5s7a705oqt6o16bmfjuhs9tug!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "height": 1600,
+      "width": 1200,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191449/6070fa911a180b44d2062b3cbbe4994d/1040g00831be27h5s7a705oqt6o16bmfjuhs9tug!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191449/949886fe0b052e00ed24b9ccabf8ddd1/1040g00831be27h5s7a705oqt6o16bmfjuhs9tug!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191449/949886fe0b052e00ed24b9ccabf8ddd1/1040g00831be27h5s7a705oqt6o16bmfjuhs9tug!nd_dft_wlteh_webp_3"
+    }
+  ]
+}

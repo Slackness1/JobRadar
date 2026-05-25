@@ -1,0 +1,23 @@
+{"note_id": "68ae74c2000000021d01a8cd", "kw": "datou_wenwen_18months", "reason": "low_signal", "signal": 30.5}
+{"note_id": "682edc61000000002300dc3c", "kw": "datou_wenwen_18months", "reason": "too_short", "len": 27}
+{"note_id": "69df6953000000001d01823a", "kw": "pony_chen_3months", "reason": "low_signal", "signal": 41.5}
+{"note_id": "69fc16440000000035027c1a", "kw": "saibo_long_suo_3months", "reason": "low_signal", "signal": 11.5}
+{"note_id": "69f49d79000000003501e479", "kw": "saibo_long_suo_3months", "reason": "low_signal", "signal": 7.5}
+{"note_id": "69760332000000001a031ea8", "kw": "zai_da_yi_zhen_18months", "reason": "low_signal", "signal": 35.0}
+{"note_id": "68aafdcd000000001c004333", "kw": "zai_da_yi_zhen_18months", "reason": "low_signal", "signal": 35.0}
+{"note_id": "687116a4000000001c0367aa", "kw": "zai_da_yi_zhen_18months", "reason": "low_signal", "signal": 44.0}
+{"note_id": "67db9015000000001d01ef98", "kw": "zai_da_yi_zhen_18months", "reason": "low_signal", "signal": 33.5}
+{"note_id": "67d0388f000000002a00f9a1", "kw": "zai_da_yi_zhen_18months", "reason": "low_signal", "signal": 43.5}
+{"note_id": "6a10257c0000000235025f39", "kw": "zui_shuai_du_bo_3months", "reason": "low_signal", "signal": 14.0}
+{"note_id": "6a101e74000000003501cee4", "kw": "zui_shuai_du_bo_3months", "reason": "low_signal", "signal": 44.5}
+{"note_id": "69ff59a600000002350245ca", "kw": "zui_shuai_du_bo_3months", "reason": "low_signal", "signal": 29.5}
+{"note_id": "69df71b6000000022301aebc", "kw": "zui_shuai_du_bo_3months", "reason": "too_short", "len": 25}
+{"note_id": "69df6e06000000021d015aaf", "kw": "zui_shuai_du_bo_3months", "reason": "too_short", "len": 23}
+{"note_id": "699fad11000000002303b02a", "kw": "zui_shuai_du_bo_3months", "reason": "low_signal", "signal": 47.5}
+{"note_id": "6673a1c8000000000e0301f8", "kw": "信用研究员_实习", "reason": "spam"}
+{"note_id": "6673a1c8000000000e0301f8", "kw": "华夏基金_行研", "reason": "spam"}
+{"note_id": "6673a1c8000000000e0301f8", "kw": "卖方研究_行业分析_面试", "reason": "spam"}
+{"note_id": "6737687d000000001b02d1cc", "kw": "卖方研究_行业分析_面试", "reason": "spam"}
+{"note_id": "662b71c8000000000401a68d", "kw": "嘉实基金_实习", "reason": "too_short", "len": 25}
+{"note_id": "6a0304130000000035038da0", "kw": "富国基金_面试", "reason": "too_short", "len": 21}
+{"note_id": "6a0a015e0000000008025535", "kw": "景顺长城_校招", "reason": "spam"}

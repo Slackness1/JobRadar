@@ -1,0 +1,1364 @@
+[
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "nickname": "Reuben",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31trntm7ami6g5o9qdlr7ujfk3c3vkp0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB5fxE4LtWJ9AFzPk7x9FOUtlLoVmu46wSyVwFJCrslao=",
+      "user_id": "613a6d76000000001f034df4"
+    },
+    "create_time": 1749075386000,
+    "status": 0,
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_cursor": "6840f1da000000000a03733c",
+    "id": "6840c5b9000000000d01507f",
+    "note_id": "683e80630000000021008499",
+    "content": "入行9年，有时候我在想当初做这个是不是对的，或者将来一定不让孩子做这行了。总结来讲，就是太累了，身体累，最关键的是心累。真的是一年到头就没有一个好好的休息时间，AH美股同时不交易的时间段基本上没有，白天AH，晚上美股。不交易的时候也要一直想、一直看。",
+    "like_count": "18",
+    "sub_comment_count": "14",
+    "sub_comments": [
+      {
+        "content": "握个爪吧[握手R] 我也有一段这个状态，整个时间和精力都被绑架了，忙忙碌碌但状态不佳。什么阶段干什么事，人到中年是需要平衡和自洽的",
+        "liked": false,
+        "target_comment": {
+          "id": "6840c5b9000000000d01507f",
+          "user_info": {
+            "user_id": "613a6d76000000001f034df4",
+            "nickname": "Reuben",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31trntm7ami6g5o9qdlr7ujfk3c3vkp0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB5fxE4LtWJ9AFzPk7x9FOUtlLoVmu46wSyVwFJCrslao="
+          }
+        },
+        "like_count": "4",
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1749086682000,
+        "id": "6840f1da000000000a03733c",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "at_users": [],
+        "ip_location": "上海"
+      }
+    ],
+    "sub_comment_has_more": true
+  },
+  {
+    "content": "很客观👍👍干金融特别是二级，首先要热爱，不热爱会很痛苦，其次要有点悟性，能入行的大家学历都差不多，悟性的高低对最后的结果影响挺大，最后需要一点运气，你在啥时间段入行，跟的谁，有无贵人相助，对你短期赚钱的速度产生直接影响。但总的老说，满足前两点，无非是赚钱的速度和幅度差异。如果都不满足，只作为一份工作，性价比确实可能不如很多国企",
+    "show_tags": [],
+    "create_time": 1749203892000,
+    "sub_comment_count": "4",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "user_info": {
+      "user_id": "5cc325820000000012036a9b",
+      "nickname": "random walk",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318np1uvlgs005n634m14mqkrngts778?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABxj9MUXVQFKDx7UfQQ_LbVUn1Y5ONnCV3sDJZxLxqAEA="
+    },
+    "sub_comment_has_more": true,
+    "like_count": "19",
+    "sub_comments": [
+      {
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "id": "6842e112000000000702bd6f",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "content": "的确如此，三项中能满足两项就已经很好了",
+        "at_users": [],
+        "like_count": "2",
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1749213458000,
+        "target_comment": {
+          "id": "6842bbb40000000009016d2f",
+          "user_info": {
+            "user_id": "5cc325820000000012036a9b",
+            "nickname": "random walk",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318np1uvlgs005n634m14mqkrngts778?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABxj9MUXVQFKDx7UfQQ_LbVUn1Y5ONnCV3sDJZxLxqAEA="
+          }
+        }
+      }
+    ],
+    "id": "6842bbb40000000009016d2f",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "上海",
+    "sub_comment_cursor": "6842e112000000000702bd6f"
+  },
+  {
+    "show_tags": [],
+    "ip_location": "上海",
+    "id": "683ec60300000000090147ae",
+    "status": 0,
+    "content": "感觉行研对脑力的消耗程度比做科研要高，信息太多太快了。做科研的时候常常可以慢慢来，且大多数学术成果也不需要多费脑子",
+    "at_users": [],
+    "create_time": 1748944388000,
+    "sub_comments": [
+      {
+        "target_comment": {
+          "id": "683ec60300000000090147ae",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3118i4p7gmc005ntalq208p79d657bto?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABfojG4gg0fAfv1FhNX7uim64G_GEW8cob2DwcK9H52co=",
+            "user_id": "5faaae8400000000010064e9",
+            "nickname": "RSHER"
+          }
+        },
+        "id": "683ec8000000000008026da9",
+        "status": 0,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1748944897000,
+        "like_count": "33",
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "ip_location": "上海",
+        "note_id": "683e80630000000021008499",
+        "content": "的确如此[握手R]想起一个博士研究员，报告篇篇精品，但三四个月才发一篇，后面离开了…",
+        "at_users": [],
+        "liked": false
+      }
+    ],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3118i4p7gmc005ntalq208p79d657bto?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABfojG4gg0fAfv1FhNX7uim64G_GEW8cob2DwcK9H52co=",
+      "user_id": "5faaae8400000000010064e9",
+      "nickname": "RSHER"
+    },
+    "sub_comment_cursor": "683ec8000000000008026da9",
+    "sub_comment_has_more": true,
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "like_count": "53",
+    "sub_comment_count": "6"
+  },
+  {
+    "status": 0,
+    "at_users": [],
+    "sub_comments": [
+      {
+        "note_id": "683e80630000000021008499",
+        "liked": false,
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "create_time": 1748957444000,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "683ecc97000000000a037781",
+          "user_info": {
+            "user_id": "5f5b19cf000000000100946b",
+            "nickname": "挪威的森林",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI="
+          }
+        },
+        "id": "683ef903000000000103e199",
+        "status": 0,
+        "content": "👍👍",
+        "at_users": []
+      }
+    ],
+    "sub_comment_count": "8",
+    "note_id": "683e80630000000021008499",
+    "content": "还好我都不允许我的报告是垃圾，我时间也很多，有充分的时间去写～[偷笑R]",
+    "like_count": "3",
+    "user_info": {
+      "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI=",
+      "user_id": "5f5b19cf000000000100946b",
+      "nickname": "挪威的森林",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "create_time": 1748946071000,
+    "liked": false,
+    "ip_location": "广东",
+    "sub_comment_cursor": "683ef903000000000103e199",
+    "sub_comment_has_more": true,
+    "id": "683ecc97000000000a037781"
+  },
+  {
+    "sub_comment_cursor": "683eb3d5000000000a03755e",
+    "id": "683e8d8e000000000103c3fd",
+    "content": "买方很吃天赋的",
+    "ip_location": "上海",
+    "like_count": "0",
+    "create_time": 1748929934000,
+    "status": 0,
+    "liked": false,
+    "sub_comment_has_more": true,
+    "show_tags": [],
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "id": "683eb3d5000000000a03755e",
+        "liked": false,
+        "create_time": 1748939734000,
+        "ip_location": "上海",
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "683e8d8e000000000103c3fd",
+          "user_info": {
+            "user_id": "5f8dbf050000000001007467",
+            "nickname": "鳕鱼",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/66dec94b02d97e414b84e8ee.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABZDCdD784uj49lWlw1xcvjgUcoYhptq98duEPu8sPm3Y="
+          }
+        },
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "content": "天赋这个东西在投资领域蛮悬乎的，多少昔日的明星jjjl被祛魅[萌萌哒R]",
+        "at_users": [],
+        "like_count": "9"
+      }
+    ],
+    "note_id": "683e80630000000021008499",
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/66dec94b02d97e414b84e8ee.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABZDCdD784uj49lWlw1xcvjgUcoYhptq98duEPu8sPm3Y=",
+      "user_id": "5f8dbf050000000001007467",
+      "nickname": "鳕鱼"
+    }
+  },
+  {
+    "user_info": {
+      "xsec_token": "ABRiVPPwubPjEy8gYJk-DGGIZVsUPkkKY8FGT6D7M5SYA=",
+      "user_id": "5f1d6ebf0000000001002302",
+      "nickname": "糙米薏仁粥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/65084f94e016340f266352e9.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "id": "683eb42c000000000b02c8c2",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "at_users": [],
+        "like_count": "1",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1748939821000,
+        "content": "这个观点很好[赞R]正反馈可以来自外部也可以来自内部",
+        "liked": false,
+        "user_info": {
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "683e81ee000000000b02d31f",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/65084f94e016340f266352e9.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABRiVPPwubPjEy8gYJk-DGGIZVsUPkkKY8FGT6D7M5SYA=",
+            "user_id": "5f1d6ebf0000000001002302",
+            "nickname": "糙米薏仁粥"
+          }
+        }
+      }
+    ],
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "like_count": "35",
+    "sub_comment_has_more": true,
+    "id": "683e81ee000000000b02d31f",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "content": "卖方确实不看天赋，努力就完事，但是不要忽略正反馈对人成长的影响，绝大多数人还是需要足够的激励来驱动自己走得长远[笑哭R]",
+    "create_time": 1748926958000,
+    "ip_location": "山西",
+    "sub_comment_cursor": "683eb42c000000000b02c8c2"
+  },
+  {
+    "sub_comments": [
+      {
+        "content": "跑，也要尽全力跑",
+        "like_count": "0",
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "id": "683eb5450000000003036388",
+        "note_id": "683e80630000000021008499",
+        "liked": false,
+        "create_time": 1748940102000,
+        "target_comment": {
+          "id": "683e8595000000000b014cb1",
+          "user_info": {
+            "user_id": "5cf65b03000000001700e7b9",
+            "nickname": "海克斯公主",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/6499c46a2e8ec422b01b435c.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABX4czKu09yKjkCXbcKxJWyl8XBuNvvwYNmPMwYClfgWs="
+          }
+        },
+        "status": 0,
+        "at_users": []
+      }
+    ],
+    "id": "683e8595000000000b014cb1",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/6499c46a2e8ec422b01b435c.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABX4czKu09yKjkCXbcKxJWyl8XBuNvvwYNmPMwYClfgWs=",
+      "user_id": "5cf65b03000000001700e7b9",
+      "nickname": "海克斯公主"
+    },
+    "sub_comment_count": "2",
+    "sub_comment_has_more": true,
+    "note_id": "683e80630000000021008499",
+    "at_users": [],
+    "like_count": "16",
+    "show_tags": [],
+    "create_time": 1748927894000,
+    "status": 0,
+    "content": "跑，连互联网销售都不如",
+    "liked": false,
+    "ip_location": "山东",
+    "sub_comment_cursor": "683eb5450000000003036388"
+  },
+  {
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31g8scr2420604a8nnvibs5kb3hegc9g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABS-YKICVJnvqm8MYXa6cygSShzUcgP4EzUdS5yLlzcvQ=",
+      "user_id": "5b63e4bef7e8b95bdabc168b",
+      "nickname": "momo"
+    },
+    "sub_comments": [
+      {
+        "ip_location": "上海",
+        "status": 0,
+        "content": "赞同[赞R][赞R]",
+        "at_users": [],
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1749086728000,
+        "id": "6840f208000000000702a818",
+        "note_id": "683e80630000000021008499",
+        "liked": false,
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "target_comment": {
+          "id": "683f9729000000001c03297c",
+          "user_info": {
+            "user_id": "5b63e4bef7e8b95bdabc168b",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31g8scr2420604a8nnvibs5kb3hegc9g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABS-YKICVJnvqm8MYXa6cygSShzUcgP4EzUdS5yLlzcvQ="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": false,
+    "id": "683f9729000000001c03297c",
+    "content": "这个行业确实大不如前了，成功的概率大幅下降了，而且不是单纯周期性的波动。大模型进化太强了，补上了不能利用文本的最后一环，主观投资者一方面行研出身知识框架不完备，另一方面交易层面受精力心性制度等劣势太大，大部分基金经理未来注定是落后产能。",
+    "at_users": [],
+    "liked": false,
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1748997929000,
+    "ip_location": "上海",
+    "sub_comment_cursor": "6840f208000000000702a818",
+    "note_id": "683e80630000000021008499",
+    "like_count": "14",
+    "sub_comment_count": "1"
+  },
+  {
+    "sub_comments": [
+      {
+        "note_id": "683e80630000000021008499",
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1748940272000,
+        "target_comment": {
+          "id": "683e8126000000000d015a63",
+          "user_info": {
+            "user_id": "64776c01000000001001c9f1",
+            "nickname": "天使的翅膀",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o3g7m98526g5p3ndg0k3ifheeasslg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABY_tYKQPRBsEugS8iU60S8PDANxgiLtBUuf59JTtkqm4="
+          }
+        },
+        "id": "683eb5ef000000000a03467d",
+        "content": "[飞吻R][飞吻R]",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "ip_location": "上海",
+        "status": 0
+      }
+    ],
+    "sub_comment_has_more": false,
+    "user_info": {
+      "user_id": "64776c01000000001001c9f1",
+      "nickname": "天使的翅膀",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o3g7m98526g5p3ndg0k3ifheeasslg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABY_tYKQPRBsEugS8iU60S8PDANxgiLtBUuf59JTtkqm4="
+    },
+    "show_tags": [],
+    "create_time": 1748926759000,
+    "ip_location": "北京",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "sub_comment_cursor": "683eb5ef000000000a03467d",
+    "like_count": "0",
+    "id": "683e8126000000000d015a63",
+    "note_id": "683e80630000000021008499",
+    "content": "卖方or买方？",
+    "sub_comment_count": "1"
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "ip_location": "北京",
+    "sub_comment_has_more": false,
+    "like_count": "0",
+    "sub_comments": [
+      {
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "id": "6842e13e000000000b01c149",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "content": "不是很了解交易呢",
+        "create_time": 1749213503000,
+        "target_comment": {
+          "id": "683ef84e000000001c014bde",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABkA24YyrAXlTgQRzclvGWlZNg-GbfluWhrVrKtHdsFMo=",
+            "user_id": "5fbd44e0000000000101f8b8",
+            "nickname": "咖啡",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        }
+      }
+    ],
+    "id": "683ef84e000000001c014bde",
+    "create_time": 1748957263000,
+    "sub_comment_cursor": "6842e13e000000000b01c149",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "那转交易呢？",
+    "user_info": {
+      "xsec_token": "ABkA24YyrAXlTgQRzclvGWlZNg-GbfluWhrVrKtHdsFMo=",
+      "user_id": "5fbd44e0000000000101f8b8",
+      "nickname": "咖啡",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "sub_comment_count": "1"
+  },
+  {
+    "content": "握个爪吧[握手R] 我也有一段这个状态，整个时间和精力都被绑架了，忙忙碌碌但状态不佳。什么阶段干什么事，人到中年是需要平衡和自洽的",
+    "liked": false,
+    "target_comment": {
+      "id": "6840c5b9000000000d01507f",
+      "user_info": {
+        "user_id": "613a6d76000000001f034df4",
+        "nickname": "Reuben",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31trntm7ami6g5o9qdlr7ujfk3c3vkp0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB5fxE4LtWJ9AFzPk7x9FOUtlLoVmu46wSyVwFJCrslao="
+      }
+    },
+    "like_count": "4",
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1749086682000,
+    "id": "6840f1da000000000a03733c",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "at_users": [],
+    "ip_location": "上海"
+  },
+  {
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "id": "6842e112000000000702bd6f",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "的确如此，三项中能满足两项就已经很好了",
+    "at_users": [],
+    "like_count": "2",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1749213458000,
+    "target_comment": {
+      "id": "6842bbb40000000009016d2f",
+      "user_info": {
+        "user_id": "5cc325820000000012036a9b",
+        "nickname": "random walk",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo318np1uvlgs005n634m14mqkrngts778?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABxj9MUXVQFKDx7UfQQ_LbVUn1Y5ONnCV3sDJZxLxqAEA="
+      }
+    }
+  },
+  {
+    "target_comment": {
+      "id": "683ec60300000000090147ae",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3118i4p7gmc005ntalq208p79d657bto?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABfojG4gg0fAfv1FhNX7uim64G_GEW8cob2DwcK9H52co=",
+        "user_id": "5faaae8400000000010064e9",
+        "nickname": "RSHER"
+      }
+    },
+    "id": "683ec8000000000008026da9",
+    "status": 0,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1748944897000,
+    "like_count": "33",
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "ip_location": "上海",
+    "note_id": "683e80630000000021008499",
+    "content": "的确如此[握手R]想起一个博士研究员，报告篇篇精品，但三四个月才发一篇，后面离开了…",
+    "at_users": [],
+    "liked": false
+  },
+  {
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "create_time": 1748957444000,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "683ecc97000000000a037781",
+      "user_info": {
+        "user_id": "5f5b19cf000000000100946b",
+        "nickname": "挪威的森林",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI="
+      }
+    },
+    "id": "683ef903000000000103e199",
+    "status": 0,
+    "content": "👍👍",
+    "at_users": []
+  },
+  {
+    "id": "683eb3d5000000000a03755e",
+    "liked": false,
+    "create_time": 1748939734000,
+    "ip_location": "上海",
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "683e8d8e000000000103c3fd",
+      "user_info": {
+        "user_id": "5f8dbf050000000001007467",
+        "nickname": "鳕鱼",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/66dec94b02d97e414b84e8ee.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABZDCdD784uj49lWlw1xcvjgUcoYhptq98duEPu8sPm3Y="
+      }
+    },
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "天赋这个东西在投资领域蛮悬乎的，多少昔日的明星jjjl被祛魅[萌萌哒R]",
+    "at_users": [],
+    "like_count": "9"
+  },
+  {
+    "id": "683eb42c000000000b02c8c2",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "at_users": [],
+    "like_count": "1",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1748939821000,
+    "content": "这个观点很好[赞R]正反馈可以来自外部也可以来自内部",
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "683e81ee000000000b02d31f",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/65084f94e016340f266352e9.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABRiVPPwubPjEy8gYJk-DGGIZVsUPkkKY8FGT6D7M5SYA=",
+        "user_id": "5f1d6ebf0000000001002302",
+        "nickname": "糙米薏仁粥"
+      }
+    }
+  },
+  {
+    "content": "跑，也要尽全力跑",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "id": "683eb5450000000003036388",
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "create_time": 1748940102000,
+    "target_comment": {
+      "id": "683e8595000000000b014cb1",
+      "user_info": {
+        "user_id": "5cf65b03000000001700e7b9",
+        "nickname": "海克斯公主",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/6499c46a2e8ec422b01b435c.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABX4czKu09yKjkCXbcKxJWyl8XBuNvvwYNmPMwYClfgWs="
+      }
+    },
+    "status": 0,
+    "at_users": []
+  },
+  {
+    "ip_location": "上海",
+    "status": 0,
+    "content": "赞同[赞R][赞R]",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1749086728000,
+    "id": "6840f208000000000702a818",
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "target_comment": {
+      "id": "683f9729000000001c03297c",
+      "user_info": {
+        "user_id": "5b63e4bef7e8b95bdabc168b",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31g8scr2420604a8nnvibs5kb3hegc9g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABS-YKICVJnvqm8MYXa6cygSShzUcgP4EzUdS5yLlzcvQ="
+      }
+    }
+  },
+  {
+    "note_id": "683e80630000000021008499",
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1748940272000,
+    "target_comment": {
+      "id": "683e8126000000000d015a63",
+      "user_info": {
+        "user_id": "64776c01000000001001c9f1",
+        "nickname": "天使的翅膀",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o3g7m98526g5p3ndg0k3ifheeasslg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABY_tYKQPRBsEugS8iU60S8PDANxgiLtBUuf59JTtkqm4="
+      }
+    },
+    "id": "683eb5ef000000000a03467d",
+    "content": "[飞吻R][飞吻R]",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "ip_location": "上海",
+    "status": 0
+  },
+  {
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "id": "6842e13e000000000b01c149",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "不是很了解交易呢",
+    "create_time": 1749213503000,
+    "target_comment": {
+      "id": "683ef84e000000001c014bde",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABkA24YyrAXlTgQRzclvGWlZNg-GbfluWhrVrKtHdsFMo=",
+        "user_id": "5fbd44e0000000000101f8b8",
+        "nickname": "咖啡",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    }
+  },
+  {
+    "like_count": "15",
+    "show_tags": [],
+    "sub_comment_cursor": "683eb364000000000802535a",
+    "sub_comment_has_more": false,
+    "id": "683e901e000000000b02e484",
+    "status": 0,
+    "content": "以提高能力做买方为目的还是值得的，主要看自己喜不喜欢投资（不只是喜欢钱），去产能的过程是痛苦的，熊彼特的竞争性毁灭早就说，下行期就是淘汰错配的资本，不合适的就应该早点离开，互联网目前看是比金融机会多些，是可以去，但是认为进了互联网就万事大吉的想法也是幼稚和危险的",
+    "at_users": [],
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "create_time": 1748930590000,
+    "sub_comments": [
+      {
+        "note_id": "683e80630000000021008499",
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "user_info": {
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "id": "683eb364000000000802535a",
+        "content": "[赞R][赞R]",
+        "create_time": 1748939620000,
+        "target_comment": {
+          "id": "683e901e000000000b02e484",
+          "user_info": {
+            "nickname": "悟道休言天命",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31i2rntu0ned05pbs2pjfeq9vgn3no68?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABJHaUDB68IX6E62yoUasf3J5iXNn0bqHl6k-oPSv7C88=",
+            "user_id": "657c1666000000003d03693f"
+          }
+        },
+        "status": 0
+      }
+    ],
+    "user_info": {
+      "nickname": "悟道休言天命",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31i2rntu0ned05pbs2pjfeq9vgn3no68?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABJHaUDB68IX6E62yoUasf3J5iXNn0bqHl6k-oPSv7C88=",
+      "user_id": "657c1666000000003d03693f"
+    },
+    "ip_location": "上海",
+    "sub_comment_count": "1"
+  },
+  {
+    "note_id": "683e80630000000021008499",
+    "sub_comment_cursor": "683eb593000000000103db3a",
+    "id": "683e8fb7000000000b01d626",
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1748930488000,
+    "sub_comments": [
+      {
+        "content": "跑，也要尽全力跑[握手R]",
+        "at_users": [],
+        "ip_location": "上海",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1748940179000,
+        "target_comment": {
+          "user_info": {
+            "user_id": "647fae78000000001001d50a",
+            "nickname": "Wenzheng",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n0h66gili005p3vlps43l8ad17k178?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABv_Xq4N2bJqs0bYgyNrfWgpQyBGFl-LBPJXPNCet9Z4c="
+          },
+          "id": "683e8fb7000000000b01d626"
+        },
+        "id": "683eb593000000000103db3a",
+        "liked": false
+      }
+    ],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "content": "跑",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n0h66gili005p3vlps43l8ad17k178?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABv_Xq4N2bJqs0bYgyNrfWgpQyBGFl-LBPJXPNCet9Z4c=",
+      "user_id": "647fae78000000001001d50a",
+      "nickname": "Wenzheng"
+    },
+    "ip_location": "北京",
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_count": "1"
+  },
+  {
+    "note_id": "683e80630000000021008499",
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABfWX2so_M4B2eoErolae4SPTrmNEt48DPEU92ov8MrDE=",
+      "user_id": "5b53056ce8ac2b5c6b4f47d8",
+      "nickname": "白川",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31phbo0sjjc604a7c872mohuoho36cs8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "at_users": [],
+    "ip_location": "河北",
+    "sub_comment_count": "1",
+    "sub_comment_has_more": false,
+    "id": "683f0ae3000000001c02bb61",
+    "status": 0,
+    "content": "我宁愿去销售，也不想去行研",
+    "liked": false,
+    "create_time": 1748962019000,
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "target_comment": {
+          "id": "683f0ae3000000001c02bb61",
+          "user_info": {
+            "user_id": "5b53056ce8ac2b5c6b4f47d8",
+            "nickname": "白川",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31phbo0sjjc604a7c872mohuoho36cs8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABfWX2so_M4B2eoErolae4SPTrmNEt48DPEU92ov8MrDE="
+          }
+        },
+        "id": "6842e12a0000000008027805",
+        "note_id": "683e80630000000021008499",
+        "content": "还是要选择自己擅长的[握手R]",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1749213483000,
+        "ip_location": "上海",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+          "user_id": "61e55fea0000000010004dcb"
+        }
+      }
+    ],
+    "sub_comment_cursor": "6842e12a0000000008027805"
+  },
+  {
+    "id": "68445868000000001c02fea3",
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "create_time": 1749309544000,
+    "sub_comments": [],
+    "at_users": [],
+    "sub_comment_has_more": false,
+    "sub_comment_count": "0",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "灌鸡汤没意思，行研性价比大幅降低又不是什么秘密",
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABaC_ADQq-CFQEMl-CYZX7ukuXJLizoVDPzs1hkqec7B0=",
+      "user_id": "5ff05f36000000000101d74b",
+      "nickname": "慕慕",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sadalqr5k105nvgbsr0blqbmufqeq8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "广东"
+  },
+  {
+    "show_tags": [],
+    "create_time": 1750147607000,
+    "sub_comment_has_more": false,
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5a5465694eacab771d7bcd55",
+      "nickname": "在陆家嘴搬砖",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ju1bpdi3q004a0o7dimjjal764ar88?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABwWJuuzBxGqRMOyL4y5jB_LCUbAeKqYMZ-4rZlUmIl94="
+    },
+    "sub_comment_cursor": "",
+    "id": "68512217000000000901533f",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "note_id": "683e80630000000021008499",
+    "content": "跑去哪里啊主包[哭惹R][哭惹R][哭惹R]",
+    "ip_location": "上海"
+  },
+  {
+    "id": "683ebe3c000000001c016cfa",
+    "note_id": "683e80630000000021008499",
+    "liked": false,
+    "user_info": {
+      "nickname": "在日金融民工",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5eaf3145c7d6c10001eeed50.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABfUAGmGO-z9bK6uWO-fD5OXgBUFsm_5Yb8c6uYCFTAuI=",
+      "user_id": "5ead3dd00000000001001a9f"
+    },
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "status": 0,
+    "content": "不要[新月R]",
+    "at_users": [],
+    "sub_comments": [],
+    "show_tags": [],
+    "ip_location": "上海",
+    "like_count": "0",
+    "create_time": 1748942397000,
+    "sub_comment_count": "0"
+  },
+  {
+    "create_time": 1748965639000,
+    "ip_location": "山西",
+    "sub_comment_count": "2",
+    "id": "683f1906000000000b02e322",
+    "at_users": [
+      {
+        "nickname": "momo",
+        "ai_agent": false,
+        "xsec_token": "ABVEUuIenZys3GcxDVCSLIegLsA7nz_pQbQuJ5mgq5JPc=",
+        "user_id": "610cae0d0000000001006ed5"
+      }
+    ],
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABNMkSgr0w4bNMPRRVn1PVQkPekbyhogfIeXjJ-11spe8=",
+      "user_id": "6628bf3b00000000030310e8",
+      "nickname": "用户已注销",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b6abf2e368555521befcc.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "at_users": [],
+        "like_count": "0",
+        "user_info": {
+          "user_id": "610cae0d0000000001006ed5",
+          "nickname": "momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316mrb5rcgs005o8clo6g8rmllon01pg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABVEUuIenZys3GcxDVCSLIegLsA7nz_pQbQuJ5mgq5JPc="
+        },
+        "show_tags": [],
+        "ip_location": "江苏",
+        "id": "68404a6d000000000900c54e",
+        "note_id": "683e80630000000021008499",
+        "status": 0,
+        "content": "但没有那么多有价值的工作[哭惹R]",
+        "liked": false,
+        "create_time": 1749043821000,
+        "target_comment": {
+          "id": "683f1906000000000b02e322",
+          "user_info": {
+            "user_id": "6628bf3b00000000030310e8",
+            "nickname": "用户已注销",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b6abf2e368555521befcc.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABNMkSgr0w4bNMPRRVn1PVQkPekbyhogfIeXjJ-11spe8="
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "@momo",
+    "liked": false,
+    "sub_comment_cursor": "68404a6d000000000900c54e"
+  },
+  {
+    "show_tags": [],
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "content": "别说研报了，就是学术论文，每年发那么多 又有几篇有价值呢，都是修行啊，自我修行[害羞R]",
+        "liked": false,
+        "like_count": "8",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "683ec070000000000b02d033",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABld0bCdTeFOlr8BoW66oekrcI-Kolsy_4Jpw7DcKNFLM=",
+            "user_id": "5754c729bd0da564a99929e7",
+            "nickname": "觉行",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31cmqhhcfh00048ec8o3iiaf715g52mg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "id": "683ec371000000000103fc84",
+        "status": 0,
+        "user_info": {
+          "user_id": "61e55fea0000000010004dcb",
+          "nickname": "壳剥剥",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+        },
+        "create_time": 1748943729000,
+        "note_id": "683e80630000000021008499",
+        "at_users": []
+      }
+    ],
+    "liked": false,
+    "content": "你觉得你的报告有价值吗[偷笑R]",
+    "at_users": [],
+    "ip_location": "上海",
+    "sub_comment_has_more": true,
+    "note_id": "683e80630000000021008499",
+    "user_info": {
+      "nickname": "觉行",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31cmqhhcfh00048ec8o3iiaf715g52mg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABld0bCdTeFOlr8BoW66oekrcI-Kolsy_4Jpw7DcKNFLM=",
+      "user_id": "5754c729bd0da564a99929e7"
+    },
+    "create_time": 1748942961000,
+    "sub_comment_cursor": "683ec371000000000103fc84",
+    "like_count": "2",
+    "status": -2,
+    "id": "683ec070000000000b02d033"
+  },
+  {
+    "note_id": "683e80630000000021008499",
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "user_info": {
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "id": "683eb364000000000802535a",
+    "content": "[赞R][赞R]",
+    "create_time": 1748939620000,
+    "target_comment": {
+      "id": "683e901e000000000b02e484",
+      "user_info": {
+        "nickname": "悟道休言天命",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31i2rntu0ned05pbs2pjfeq9vgn3no68?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABJHaUDB68IX6E62yoUasf3J5iXNn0bqHl6k-oPSv7C88=",
+        "user_id": "657c1666000000003d03693f"
+      }
+    },
+    "status": 0
+  },
+  {
+    "content": "跑，也要尽全力跑[握手R]",
+    "at_users": [],
+    "ip_location": "上海",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1748940179000,
+    "target_comment": {
+      "user_info": {
+        "user_id": "647fae78000000001001d50a",
+        "nickname": "Wenzheng",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31n0h66gili005p3vlps43l8ad17k178?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABv_Xq4N2bJqs0bYgyNrfWgpQyBGFl-LBPJXPNCet9Z4c="
+      },
+      "id": "683e8fb7000000000b01d626"
+    },
+    "id": "683eb593000000000103db3a",
+    "liked": false
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "target_comment": {
+      "id": "683f0ae3000000001c02bb61",
+      "user_info": {
+        "user_id": "5b53056ce8ac2b5c6b4f47d8",
+        "nickname": "白川",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31phbo0sjjc604a7c872mohuoho36cs8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABfWX2so_M4B2eoErolae4SPTrmNEt48DPEU92ov8MrDE="
+      }
+    },
+    "id": "6842e12a0000000008027805",
+    "note_id": "683e80630000000021008499",
+    "content": "还是要选择自己擅长的[握手R]",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1749213483000,
+    "ip_location": "上海",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc=",
+      "user_id": "61e55fea0000000010004dcb"
+    }
+  },
+  {
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "610cae0d0000000001006ed5",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316mrb5rcgs005o8clo6g8rmllon01pg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVEUuIenZys3GcxDVCSLIegLsA7nz_pQbQuJ5mgq5JPc="
+    },
+    "show_tags": [],
+    "ip_location": "江苏",
+    "id": "68404a6d000000000900c54e",
+    "note_id": "683e80630000000021008499",
+    "status": 0,
+    "content": "但没有那么多有价值的工作[哭惹R]",
+    "liked": false,
+    "create_time": 1749043821000,
+    "target_comment": {
+      "id": "683f1906000000000b02e322",
+      "user_info": {
+        "user_id": "6628bf3b00000000030310e8",
+        "nickname": "用户已注销",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b6abf2e368555521befcc.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABNMkSgr0w4bNMPRRVn1PVQkPekbyhogfIeXjJ-11spe8="
+      }
+    }
+  },
+  {
+    "content": "别说研报了，就是学术论文，每年发那么多 又有几篇有价值呢，都是修行啊，自我修行[害羞R]",
+    "liked": false,
+    "like_count": "8",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "683ec070000000000b02d033",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABld0bCdTeFOlr8BoW66oekrcI-Kolsy_4Jpw7DcKNFLM=",
+        "user_id": "5754c729bd0da564a99929e7",
+        "nickname": "觉行",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31cmqhhcfh00048ec8o3iiaf715g52mg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "id": "683ec371000000000103fc84",
+    "status": 0,
+    "user_info": {
+      "user_id": "61e55fea0000000010004dcb",
+      "nickname": "壳剥剥",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo311mqth00ni6g5of5bvl40jebl4def6o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU2BSdg2KBJXYpUrv0nxme-bLegQzXaaWEHUjOkUeMNc="
+    },
+    "create_time": 1748943729000,
+    "note_id": "683e80630000000021008499",
+    "at_users": []
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "xsecToken": "AB0vP6YOZUXKviINU-WlGBx7i_g3OzHl4eTa3Dw4bjXh0=",
+  "noteId": "692543ef0000000019025ce1",
+  "desc": "没有收到测评\n也没办法去群面\n直接m面了\n面经攒人品[赞R]\n#四大[话题]# #咨询[话题]# #consulting[话题]#\n12/8更新:\nm面两天后收到hr电话约par面，par面和网上说的差不多，更像聊天，比较随意，也没什么专业问题。简单介绍一下自己和实习经历后也没有再追问，更看重与这个岗位是否fit。",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "198",
+    "collected": false,
+    "collectedCount": "176",
+    "commentCount": "20",
+    "shareCount": "26",
+    "followed": false,
+    "relation": "none"
+  },
+  "time": 1764049903000,
+  "lastUpdateTime": 1765260263000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "title": "EY咨询m+par面 面经",
+  "user": {
+    "userId": "61570e97000000000201cd10",
+    "nickname": "好想喝胡辣汤",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30rqcdgsfii005oan1qbgjj8gevdq830",
+    "xsecToken": "ABABzL2JfsG8I_1CvJChANO_6hGqtr1M3mV_vxRejTTQk="
+  },
+  "imageList": [
+    {
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191418/cfc94b67970b575bc2abb53b55d38a94/notes_pre_post/1040g3k031pa2o4vdio005oan1qbgjj8g41urie0!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191418/667098eae4231182e10d966fc33c558a/notes_pre_post/1040g3k031pa2o4vdio005oan1qbgjj8g41urie0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191418/cfc94b67970b575bc2abb53b55d38a94/notes_pre_post/1040g3k031pa2o4vdio005oan1qbgjj8g41urie0!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191418/667098eae4231182e10d966fc33c558a/notes_pre_post/1040g3k031pa2o4vdio005oan1qbgjj8g41urie0!nd_dft_wlteh_webp_3",
+      "fileId": "",
+      "height": 1674,
+      "width": 1165,
+      "url": "",
+      "traceId": ""
+    },
+    {
+      "fileId": "",
+      "width": 1170,
+      "url": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191418/e881d3c9198f2ade54b22641072606d0/1040g00831ps3tldjla005oan1qbgjj8g5q582og!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191418/c3ee2757f50211e916f7d6747a4e545f/1040g00831ps3tldjla005oan1qbgjj8g5q582og!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191418/e881d3c9198f2ade54b22641072606d0/1040g00831ps3tldjla005oan1qbgjj8g5q582og!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191418/c3ee2757f50211e916f7d6747a4e545f/1040g00831ps3tldjla005oan1qbgjj8g5q582og!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "height": 1539,
+      "traceId": ""
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5cf7affb000000000d00a3ce",
+      "name": "四大",
+      "type": "topic"
+    },
+    {
+      "name": "咨询",
+      "type": "topic",
+      "id": "54451905d6e4a97210ac9419"
+    },
+    {
+      "id": "5fb2dfb8000000000100811f",
+      "name": "consulting",
+      "type": "topic"
+    }
+  ],
+  "atUserList": []
+}

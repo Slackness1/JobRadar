@@ -1,0 +1,876 @@
+[
+  {
+    "id": "69fa924a000000002b027e63",
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "show_tags": [],
+    "content": "建议2，1很快会被ai代替，个体户裁人很快，xq风评也一般",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "note_id": "69f2dd6a00000000350319b2",
+        "content": "但是2业绩归因会不会更早被ai代替呢，1毕竟是做前台，涉及一些基金和权益研究还有资产配置，会不会发展比2好一些",
+        "liked": false,
+        "user_info": {
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "69fa9bac000000002800b983",
+        "at_users": [],
+        "like_count": "0",
+        "create_time": 1778031533000,
+        "ip_location": "辽宁",
+        "target_comment": {
+          "id": "69fa924a000000002b027e63",
+          "user_info": {
+            "xsec_token": "AB3igjsp3KvUngT9DPJ2JDvAPSBEHhWGLVxgd6-3qZzpY=",
+            "user_id": "6024c9a4000000000101ef6c",
+            "nickname": "冰镇可乐",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/62c583f861b5d8d0ba8f7833.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "status": 0
+      }
+    ],
+    "user_info": {
+      "nickname": "冰镇可乐",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62c583f861b5d8d0ba8f7833.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB3igjsp3KvUngT9DPJ2JDvAPSBEHhWGLVxgd6-3qZzpY=",
+      "user_id": "6024c9a4000000000101ef6c"
+    },
+    "create_time": 1778029131000,
+    "sub_comment_count": "4",
+    "sub_comment_cursor": "69fa9bac000000002800b983",
+    "sub_comment_has_more": true,
+    "like_count": "1"
+  },
+  {
+    "at_users": [],
+    "show_tags": [],
+    "ip_location": "江苏",
+    "sub_comment_cursor": "69f992d5000000002701c017",
+    "sub_comment_has_more": true,
+    "status": 0,
+    "content": "稳字当头吧，我前司比你这个规模还大点，你看看我在干啥。前同事还去了一个500e的私募，天天跟我嗷嗷喊，流动性非常大，不是自己辞职。一边老员工不续签，一边开低价，找便宜好用的新员工。\n公募跳私募还是很容易的，刚毕业就去私募有点亏[失望R][失望R][失望R]",
+    "liked": false,
+    "like_count": "2",
+    "sub_comments": [
+      {
+        "create_time": 1777963733000,
+        "id": "69f992d5000000002701c017",
+        "note_id": "69f2dd6a00000000350319b2",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "辽宁",
+        "target_comment": {
+          "id": "69f96d6b0000000028031b01",
+          "user_info": {
+            "user_id": "69743d03000000001d01e3e9",
+            "nickname": "我是找阿姨的-全国可派",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t42rj2pm86g5qbk7k1nbov91ru3l3o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABX-TYy6TOro-qW6rBnSTjZyHTwOag8fZtoxbVMZlrbM0="
+          }
+        },
+        "content": "啊为什么会这样呀[石化R]",
+        "user_info": {
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ=",
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        }
+      }
+    ],
+    "id": "69f96d6b0000000028031b01",
+    "create_time": 1777954155000,
+    "note_id": "69f2dd6a00000000350319b2",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t42rj2pm86g5qbk7k1nbov91ru3l3o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABX-TYy6TOro-qW6rBnSTjZyHTwOag8fZtoxbVMZlrbM0=",
+      "user_id": "69743d03000000001d01e3e9",
+      "nickname": "我是找阿姨的-全国可派"
+    },
+    "sub_comment_count": "8"
+  },
+  {
+    "create_time": 1777524538000,
+    "like_count": "8",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABZEWuT1k7SGNTYEy6UuQpP7HI-i2HYXL1V-Bn4ACwY2E=",
+      "user_id": "5ff9154900000000010025e2",
+      "nickname": "MomoQuant",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31plae9pn52e05nvp2l4g89f2mg2lujg?imageView2/2/w/120/format/jpg"
+    },
+    "sub_comment_count": "5",
+    "sub_comments": [
+      {
+        "like_count": "4",
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "69f2df3900000000280363df",
+          "user_info": {
+            "user_id": "5ff9154900000000010025e2",
+            "nickname": "MomoQuant",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31plae9pn52e05nvp2l4g89f2mg2lujg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABZEWuT1k7SGNTYEy6UuQpP7HI-i2HYXL1V-Bn4ACwY2E="
+          }
+        },
+        "id": "69f2e034000000002702fd03",
+        "note_id": "69f2dd6a00000000350319b2",
+        "status": 0,
+        "content": "wow 大佬很一针见血呀哈哈 但是我还是在这纠结 都说公募平台更好 但是可能从💰的角度不如直接去私募前台投研？",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+        },
+        "create_time": 1777524789000,
+        "ip_location": "山东"
+      }
+    ],
+    "content": "站在2024年，你是选白酒里千亿的茅台，还是ai里的几十亿的中际旭创[偷笑R]",
+    "note_id": "69f2dd6a00000000350319b2",
+    "liked": false,
+    "sub_comment_cursor": "69f2e034000000002702fd03",
+    "id": "69f2df3900000000280363df",
+    "at_users": [],
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_has_more": true,
+    "status": 0
+  },
+  {
+    "id": "69f30bd700000000270152a7",
+    "note_id": "69f2dd6a00000000350319b2",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5fb1f9fc0000000001008b40",
+      "nickname": "菲律宾疯女",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31q7ha5k8n0005nthv7u092q08neo3go?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2oVR-oUPqBMqK3pMOdoCeiIQ9FI7JyWi1kQ_YDkvl5E="
+    },
+    "sub_comment_has_more": true,
+    "status": 0,
+    "create_time": 1777535960000,
+    "sub_comments": [
+      {
+        "target_comment": {
+          "user_info": {
+            "user_id": "5fb1f9fc0000000001008b40",
+            "nickname": "菲律宾疯女",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31q7ha5k8n0005nthv7u092q08neo3go?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB2oVR-oUPqBMqK3pMOdoCeiIQ9FI7JyWi1kQ_YDkvl5E="
+          },
+          "id": "69f30bd700000000270152a7"
+        },
+        "id": "69f30ef30000000029026d11",
+        "status": 0,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABw1kcm0oj_EaD5zpVE9uA0YhjPVFDAkTEvfbig76HKF4=",
+          "user_id": "560dec6133f60c3266458807",
+          "nickname": "Deborah",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316qbh2ep446g419qijm63207fbnb36g?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1777536755000,
+        "ip_location": "北京",
+        "show_tags": [],
+        "note_id": "69f2dd6a00000000350319b2",
+        "content": "我也感觉[笑哭R]",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0"
+      }
+    ],
+    "sub_comment_cursor": "69f30ef30000000029026d11",
+    "content": "1是xq？",
+    "show_tags": [],
+    "liked": false,
+    "ip_location": "上海",
+    "sub_comment_count": "5"
+  },
+  {
+    "user_info": {
+      "xsec_token": "ABnkwPbmY3zFGUCC2BkAHnTaXMDkLLtn5QLfK6kAveZlI=",
+      "user_id": "61064143000000000100155c",
+      "nickname": "控制箱",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ptr71dqladg5o86851g85asr7st9ko?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "content": "要稳定就中后台，要干业务就前台。没有更好的说法，看你更需要什么。去中后台可能5年都是一个样，也可能被贵人发掘提拔平步青云，去私募可能5年倒闭，也可能开始管账户那到天价奖金直接财富自由。",
+    "at_users": [],
+    "liked": false,
+    "like_count": "16",
+    "create_time": 1777530448000,
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "sub_comment_has_more": false,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "id": "69f2f650000000002b0281ed",
+    "show_tags": []
+  },
+  {
+    "id": "69f402b8000000002a02f3fa",
+    "status": 0,
+    "like_count": "3",
+    "sub_comment_count": "1",
+    "content": "这bg拿的offer都很好哇",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1777599161000,
+    "note_id": "69f2dd6a00000000350319b2",
+    "sub_comment_cursor": "69f41d1e000000002702e8d1",
+    "user_info": {
+      "xsec_token": "ABbpN8gvHXXI27Ra7e7L_lWIaQXVH6Bxx2mBVo6724ysE=",
+      "user_id": "5e76fccd0000000001003e41",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e76fd1ccf2ca30001e2ad9d.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "广东",
+    "sub_comments": [
+      {
+        "note_id": "69f2dd6a00000000350319b2",
+        "status": 0,
+        "at_users": [],
+        "user_info": {
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1777605919000,
+        "ip_location": "山东",
+        "id": "69f41d1e000000002702e8d1",
+        "target_comment": {
+          "id": "69f402b8000000002a02f3fa",
+          "user_info": {
+            "user_id": "5e76fccd0000000001003e41",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e76fd1ccf2ca30001e2ad9d.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABbpN8gvHXXI27Ra7e7L_lWIaQXVH6Bxx2mBVo6724ysE="
+          }
+        },
+        "liked": false,
+        "like_count": "0",
+        "content": "可能实习比较多比较杂吧[笑哭R]"
+      }
+    ],
+    "sub_comment_has_more": false
+  },
+  {
+    "create_time": 1778303946000,
+    "sub_comments": [],
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31dc0opa9gu6g5pcqllm8iccm1ba2loo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABOMrDiPS_rFqI3v2_DR98K9M_tCfYGHm-Eb8xNVQ2aJ0=",
+      "user_id": "659aad6c0000000022013196"
+    },
+    "sub_comment_cursor": "",
+    "content": "末尾公募去啥啊",
+    "show_tags": [],
+    "status": 0,
+    "like_count": "0",
+    "ip_location": "山东",
+    "id": "69fec3ca000000002a0338ed",
+    "note_id": "69f2dd6a00000000350319b2",
+    "sub_comment_has_more": false,
+    "liked": false,
+    "sub_comment_count": "0"
+  },
+  {
+    "id": "69f31ea2000000002901bf1a",
+    "note_id": "69f2dd6a00000000350319b2",
+    "content": "肯定百亿私募",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "上海",
+    "user_info": {
+      "user_id": "5caee7c5000000001700d786",
+      "nickname": "Jason",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31utj4ivaig005n5esv2lpls684n847o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABnAiZiGsOSjW2OBR6WPLuYfWtYsJWzmcvGhl1jiVQFkY="
+    },
+    "create_time": 1777540770000,
+    "status": 0,
+    "like_count": "1",
+    "sub_comment_has_more": false
+  },
+  {
+    "content": "N 大概 1.5 吗？，那第一个很高了呀",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1777721296000,
+    "status": 0,
+    "note_id": "69f2dd6a00000000350319b2",
+    "user_info": {
+      "nickname": "哈哈",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vja2vch3q605pb5gf4v3imdavo6g1g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVtgPafBTrYHRuu3f3BvFhYHexSk7fGt0W4LCgAM5c9g=",
+      "user_id": "656583c9000000003c01cacd"
+    },
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "id": "69f5dfcf000000002900fddd",
+    "liked": false,
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false
+  },
+  {
+    "id": "69f4bc94000000002800b4bd",
+    "note_id": "69f2dd6a00000000350319b2",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "60d27b0c0000000001005f3a",
+      "nickname": "叶桦宸",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31j6jiga12a005o6ifc608npqhg62bo8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABxZMgAnJA2El0lq7WAmLlQuC8SzwR_f3BG56wnlutAp4="
+    },
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "sub_comment_has_more": false,
+    "content": "1是tt？",
+    "create_time": 1777646741000,
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "ip_location": "广东"
+  },
+  {
+    "note_id": "69f2dd6a00000000350319b2",
+    "content": "但是2业绩归因会不会更早被ai代替呢，1毕竟是做前台，涉及一些基金和权益研究还有资产配置，会不会发展比2好一些",
+    "liked": false,
+    "user_info": {
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "69fa9bac000000002800b983",
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1778031533000,
+    "ip_location": "辽宁",
+    "target_comment": {
+      "id": "69fa924a000000002b027e63",
+      "user_info": {
+        "xsec_token": "AB3igjsp3KvUngT9DPJ2JDvAPSBEHhWGLVxgd6-3qZzpY=",
+        "user_id": "6024c9a4000000000101ef6c",
+        "nickname": "冰镇可乐",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/62c583f861b5d8d0ba8f7833.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "status": 0
+  },
+  {
+    "create_time": 1777963733000,
+    "id": "69f992d5000000002701c017",
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "辽宁",
+    "target_comment": {
+      "id": "69f96d6b0000000028031b01",
+      "user_info": {
+        "user_id": "69743d03000000001d01e3e9",
+        "nickname": "我是找阿姨的-全国可派",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t42rj2pm86g5qbk7k1nbov91ru3l3o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABX-TYy6TOro-qW6rBnSTjZyHTwOag8fZtoxbVMZlrbM0="
+      }
+    },
+    "content": "啊为什么会这样呀[石化R]",
+    "user_info": {
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ=",
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    }
+  },
+  {
+    "like_count": "4",
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "69f2df3900000000280363df",
+      "user_info": {
+        "user_id": "5ff9154900000000010025e2",
+        "nickname": "MomoQuant",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31plae9pn52e05nvp2l4g89f2mg2lujg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABZEWuT1k7SGNTYEy6UuQpP7HI-i2HYXL1V-Bn4ACwY2E="
+      }
+    },
+    "id": "69f2e034000000002702fd03",
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "content": "wow 大佬很一针见血呀哈哈 但是我还是在这纠结 都说公募平台更好 但是可能从💰的角度不如直接去私募前台投研？",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+    },
+    "create_time": 1777524789000,
+    "ip_location": "山东"
+  },
+  {
+    "target_comment": {
+      "user_info": {
+        "user_id": "5fb1f9fc0000000001008b40",
+        "nickname": "菲律宾疯女",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31q7ha5k8n0005nthv7u092q08neo3go?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB2oVR-oUPqBMqK3pMOdoCeiIQ9FI7JyWi1kQ_YDkvl5E="
+      },
+      "id": "69f30bd700000000270152a7"
+    },
+    "id": "69f30ef30000000029026d11",
+    "status": 0,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABw1kcm0oj_EaD5zpVE9uA0YhjPVFDAkTEvfbig76HKF4=",
+      "user_id": "560dec6133f60c3266458807",
+      "nickname": "Deborah",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo316qbh2ep446g419qijm63207fbnb36g?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1777536755000,
+    "ip_location": "北京",
+    "show_tags": [],
+    "note_id": "69f2dd6a00000000350319b2",
+    "content": "我也感觉[笑哭R]",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0"
+  },
+  {
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "at_users": [],
+    "user_info": {
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1777605919000,
+    "ip_location": "山东",
+    "id": "69f41d1e000000002702e8d1",
+    "target_comment": {
+      "id": "69f402b8000000002a02f3fa",
+      "user_info": {
+        "user_id": "5e76fccd0000000001003e41",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e76fd1ccf2ca30001e2ad9d.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABbpN8gvHXXI27Ra7e7L_lWIaQXVH6Bxx2mBVo6724ysE="
+      }
+    },
+    "liked": false,
+    "like_count": "0",
+    "content": "可能实习比较多比较杂吧[笑哭R]"
+  },
+  {
+    "sub_comment_cursor": "",
+    "id": "69f38b8a000000002702cc3d",
+    "status": 0,
+    "liked": false,
+    "sub_comments": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo32058tk7h486g5pnch767c7b9heohoso?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABvdo51KBL_2OjdnYs8kNuYul7dRVZqDgFGl-rTTVeaQA=",
+      "user_id": "66ec89cc000000001d021d69",
+      "nickname": "小红薯6A0578B7"
+    },
+    "create_time": 1777568651000,
+    "note_id": "69f2dd6a00000000350319b2",
+    "content": "前台压力很大的",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false
+  },
+  {
+    "id": "69f5df7a000000002803d920",
+    "status": 0,
+    "like_count": "0",
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "69f2dd6a00000000350319b2",
+    "show_tags": [],
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABVtgPafBTrYHRuu3f3BvFhYHexSk7fGt0W4LCgAM5c9g=",
+      "user_id": "656583c9000000003c01cacd",
+      "nickname": "哈哈",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vja2vch3q605pb5gf4v3imdavo6g1g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1777721211000,
+    "sub_comment_cursor": "",
+    "content": "在陈老师直播间看到你了，昨天连的麦[偷笑R]"
+  },
+  {
+    "status": 0,
+    "like_count": "0",
+    "liked": false,
+    "create_time": 1777850571000,
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABi7hue3il5hnvXI0_RLY67uXRY8WWAiKFfjRoU5XwMuk=",
+      "user_id": "65d46b89000000000401e7e9",
+      "nickname": "孙叔黍",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vmiha332q005pekde4h3pv9hmumq3g?imageView2/2/w/120/format/jpg"
+    },
+    "ip_location": "山东",
+    "id": "69f7d8ca000000002a02fb86",
+    "note_id": "69f2dd6a00000000350319b2",
+    "content": "这俩都一般"
+  },
+  {
+    "status": 0,
+    "content": "投研共享么",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "note_id": "69f2dd6a00000000350319b2",
+    "create_time": 1778043974000,
+    "id": "69facc45000000002b003163",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "ip_location": "广东",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5c1ca5ba000000000602e7e0",
+      "nickname": "精神食粮",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/62797cb490aeed565b45ebe3.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABqTmDx9krFP3G2zkGq8g28j5DmF_NxmEcY-minyfLWCU="
+    },
+    "show_tags": []
+  },
+  {
+    "note_id": "69f2dd6a00000000350319b2",
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1777845874000,
+    "id": "69f7c671000000002a026356",
+    "user_info": {
+      "user_id": "5af71b7511be10204c15d6f0",
+      "nickname": "今天多云",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/649e0a4b76f46b0778cdd1cf.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB178GYgtgQNO-kFMlJ7PuM371H5JTucCQMxAV_sYBAng="
+    },
+    "ip_location": "德国",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "content": "哪个上限高去哪个",
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "show_tags": [],
+    "liked": false,
+    "status": 0
+  },
+  {
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "ip_location": "中国香港",
+    "like_count": "0",
+    "note_id": "69f2dd6a00000000350319b2",
+    "status": 0,
+    "content": "肯定不去这个业绩归因",
+    "liked": false,
+    "id": "69f31a36000000000d021c00",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31scequ9656005np925r08dpr659h69o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABIQ8AkioyKxCWQoPyVU6lXLCeOhATClynhKONt8gpbHg=",
+      "user_id": "5f291176000000000100373b",
+      "nickname": "邪惡雞翅包飯"
+    },
+    "create_time": 1777539638000,
+    "sub_comment_has_more": false
+  },
+  {
+    "content": "干金融能去前台就去前台啊",
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "note_id": "69f2dd6a00000000350319b2",
+    "create_time": 1777549175000,
+    "ip_location": "广东",
+    "sub_comments": [],
+    "liked": false,
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "594cb25f82ec39696e1bcf86",
+      "nickname": "南曦🌻🌻",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31t76vrr85k0049kmt5p5vjs60pi4vs8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsW4q3fggaO90Cu3wRZP8usopVGLxtiDOzh3G5q3ruTw="
+    },
+    "sub_comment_count": "0",
+    "id": "69f33f77000000002b001a2a",
+    "sub_comment_cursor": "",
+    "at_users": []
+  },
+  {
+    "id": "69f2e084000000002701774b",
+    "sub_comment_cursor": "69f2e193000000002702a3e0",
+    "content": "业绩归因有啥发展啊。。。",
+    "at_users": [],
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "9",
+    "note_id": "69f2dd6a00000000350319b2",
+    "liked": false,
+    "like_count": "5",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABL0YwszhCZOzfeDv2T91nhGp8s6AUXzGyKbyUIWYCQKw=",
+      "user_id": "65f2cc38000000000b033ff3",
+      "nickname": "水蒸气",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uu2njh5jm605pfipgs2ufvjrs32ef0?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1777524869000,
+    "sub_comments": [
+      {
+        "status": 0,
+        "liked": false,
+        "like_count": "2",
+        "user_info": {
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1777525140000,
+        "id": "69f2e193000000002702a3e0",
+        "content": "HR和部门总给我画饼说能内部转前台的FOF研究[笑哭R]",
+        "at_users": [],
+        "ip_location": "山东",
+        "target_comment": {
+          "id": "69f2e084000000002701774b",
+          "user_info": {
+            "nickname": "水蒸气",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uu2njh5jm605pfipgs2ufvjrs32ef0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABL0YwszhCZOzfeDv2T91nhGp8s6AUXzGyKbyUIWYCQKw=",
+            "user_id": "65f2cc38000000000b033ff3"
+          }
+        },
+        "note_id": "69f2dd6a00000000350319b2"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "status": -2
+  },
+  {
+    "ip_location": "浙江",
+    "like_count": "0",
+    "show_tags": [],
+    "at_users": [],
+    "status": -2,
+    "content": "fof哪有百亿的[笑哭R]",
+    "sub_comments": [
+      {
+        "ip_location": "山东",
+        "target_comment": {
+          "id": "69f346e60000000029024de4",
+          "user_info": {
+            "user_id": "570f9b8caed7583c3fbcf0b8",
+            "nickname": "kelly在路上",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/64163d5d9a23f5b9f656e4e3.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABl4fx0SiM7Y6Gin5Rh3_h78foquebxjYX4WyFHM2T0Wg="
+          }
+        },
+        "note_id": "69f2dd6a00000000350319b2",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1777559319000,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ=",
+          "user_id": "64146e290000000011020c33",
+          "nickname": "emo的momo",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "id": "69f3671700000000270143f1",
+        "status": 0,
+        "content": "不止fof一个产品 还有其他股 债 CTA 但是我的主要工作是做fof"
+      }
+    ],
+    "sub_comment_has_more": false,
+    "note_id": "69f2dd6a00000000350319b2",
+    "liked": false,
+    "create_time": 1777551079000,
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "69f3671700000000270143f1",
+    "id": "69f346e60000000029024de4",
+    "user_info": {
+      "user_id": "570f9b8caed7583c3fbcf0b8",
+      "nickname": "kelly在路上",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64163d5d9a23f5b9f656e4e3.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABl4fx0SiM7Y6Gin5Rh3_h78foquebxjYX4WyFHM2T0Wg="
+    }
+  },
+  {
+    "status": 0,
+    "liked": false,
+    "like_count": "2",
+    "user_info": {
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1777525140000,
+    "id": "69f2e193000000002702a3e0",
+    "content": "HR和部门总给我画饼说能内部转前台的FOF研究[笑哭R]",
+    "at_users": [],
+    "ip_location": "山东",
+    "target_comment": {
+      "id": "69f2e084000000002701774b",
+      "user_info": {
+        "nickname": "水蒸气",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uu2njh5jm605pfipgs2ufvjrs32ef0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABL0YwszhCZOzfeDv2T91nhGp8s6AUXzGyKbyUIWYCQKw=",
+        "user_id": "65f2cc38000000000b033ff3"
+      }
+    },
+    "note_id": "69f2dd6a00000000350319b2"
+  },
+  {
+    "ip_location": "山东",
+    "target_comment": {
+      "id": "69f346e60000000029024de4",
+      "user_info": {
+        "user_id": "570f9b8caed7583c3fbcf0b8",
+        "nickname": "kelly在路上",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/64163d5d9a23f5b9f656e4e3.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABl4fx0SiM7Y6Gin5Rh3_h78foquebxjYX4WyFHM2T0Wg="
+      }
+    },
+    "note_id": "69f2dd6a00000000350319b2",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1777559319000,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABiyyq9keqIlefowK3TlXcIZz1rKNjQzYkasebZ91cIIQ=",
+      "user_id": "64146e290000000011020c33",
+      "nickname": "emo的momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "id": "69f3671700000000270143f1",
+    "status": 0,
+    "content": "不止fof一个产品 还有其他股 债 CTA 但是我的主要工作是做fof"
+  }
+]

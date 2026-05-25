@@ -1,0 +1,74 @@
+{
+  "xsecToken": "AB-tjgMedQb6NTt8Xsj17TJ-WbUBhhtLFRhufWIHOs46w=",
+  "type": "normal",
+  "title": "清北复交也只是门槛",
+  "imageList": [
+    {
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191518/089470fd61bac2df21ccdacdebb17082/1040g2sg31mu9vgbhkse05obvgo7nvs6abu4hslg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191518/304986a7be6f8af975fc4dfa9188b22a/1040g2sg31mu9vgbhkse05obvgo7nvs6abu4hslg!nd_dft_wlteh_webp_3",
+          "imageScene": "WB_DFT"
+        }
+      ],
+      "fileId": "",
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191518/089470fd61bac2df21ccdacdebb17082/1040g2sg31mu9vgbhkse05obvgo7nvs6abu4hslg!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191518/304986a7be6f8af975fc4dfa9188b22a/1040g2sg31mu9vgbhkse05obvgo7nvs6abu4hslg!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "height": 1600,
+      "width": 1200
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "id": "601cda9f0000000001008813",
+      "name": "PEVC",
+      "type": "topic"
+    },
+    {
+      "id": "5be1be5ab6fd09000160692c",
+      "name": "面试",
+      "type": "topic"
+    }
+  ],
+  "lastUpdateTime": 1758966128000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "68d7b170000000001203fd24",
+  "desc": "今天朋友跟我吐槽，说招了两个月没招到满意的实习生，名校简历一大堆，实习也都是头部机构，一笔试面试就露馅，行业分析框架粗浅，财务基础不solid，根本没法用，另一边是每次发jd都能收到几百封简历，名校生挤破头皮想进，供需严重错配\n\t\nPE向来是不培养人，只筛选人，实习生比较typical的bg是top985本硕或者同级别留子，实习知名ib、咨询、行研、pevc至少2段。一轮笔试加2-3轮面试，有些同学简历很好看，实际工作能力却不行，需要改变实习是为了刷简历的错误思维，以终为始，注重能力的培养\n\t\n比如做了一个行业研究，回答的却毫无逻辑。其实大道至简，买方研究的思维其实就是研究菜市场买菜一样，你需要明白这个行业是做什么的，核心是怎么赚钱，成本是什么，客户是什么，怎么卖给他们，竞争对手是谁，未来会卖的越来越好还是越来越差，在理清这个点的基础上，再去测算市场规模、增速、技术趋势、竞争格局、壁垒、ksf、盈利能力、估值等，也许你实习只做了基础的活或者一部分，现在ai也很好用，自己完善一下\n\t\n至于tech，以前我面试最喜欢面试官问tech，因为行业的东西是问不完的，会有很多奇奇怪怪的问题，财务和估值也就仅限于三张表的延伸，自己搭一遍dcf，需要理解每个科目为什么是这样变的，还是结合实际去理解，比如应收账款是怎么发生的，谁欠谁，多好还是少好，每个科目都这样问自己一遍，把本质理解清楚\n\t\n以上两点是基础，不过实习生也够了，这个行业还需要很强的自驱力和学习能力，比如跟踪市场最新的动态，大事都能点评上几句，并且需要对探索改变世界的新事物的热情\n#金融[话题]# #实习[话题]# #PEVC[话题]# #面试[话题]#",
+  "user": {
+    "userId": "617f860f000000001f03f0ca",
+    "nickname": "商科小状元",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fddrdaa5u005obvgo7nvs6ahoeuca8",
+    "xsecToken": "ABux-i-He1MUUS3ZdfSDhOYm2Tjv_V1CBgBCk-jFzYlbs="
+  },
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "656",
+    "collected": false,
+    "collectedCount": "572",
+    "commentCount": "82",
+    "shareCount": "119",
+    "followed": false,
+    "relation": "none"
+  },
+  "atUserList": [],
+  "time": 1758966128000
+}

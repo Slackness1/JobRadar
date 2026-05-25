@@ -1,0 +1,22 @@
+[
+  {
+    "idx": 2,
+    "err": "content/quote too short",
+    "raw": {
+      "type": [
+        "company_anecdote"
+      ],
+      "role_target": [],
+      "company_target": [
+        "富国基金"
+      ],
+      "sector_target": [
+        "公募基金"
+      ],
+      "content": "有评论质疑富国基金业绩表现差，与帖子正面评价形成对比。",
+      "source_quote": "问题是做的也很差啊",
+      "speaker": "commenter",
+      "confidence": "low"
+    }
+  }
+]

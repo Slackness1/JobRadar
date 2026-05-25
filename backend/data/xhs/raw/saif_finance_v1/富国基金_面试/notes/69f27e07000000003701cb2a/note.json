@@ -1,0 +1,60 @@
+{
+  "xsecToken": "ABwSoJnA7AGlf-SbQGtnkOyDlFp9Qke4ZBj4KZUyqBYRA=",
+  "ipLocation": "陕西",
+  "title": "",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "2966",
+    "collected": false,
+    "collectedCount": "67",
+    "commentCount": "326",
+    "shareCount": "36",
+    "followed": false,
+    "relation": "none"
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "width": 1200,
+      "url": "",
+      "stream": {},
+      "livePhoto": false,
+      "height": 1600,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191623/635606038aa477b54a29d499cb236ce4/1040g00831vifvcukia605o6um97g9c9fqaassa8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191623/22dc7049e516df8e2f35768ffb7c2925/1040g00831vifvcukia605o6um97g9c9fqaassa8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191623/635606038aa477b54a29d499cb236ce4/1040g00831vifvcukia605o6um97g9c9fqaassa8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191623/22dc7049e516df8e2f35768ffb7c2925/1040g00831vifvcukia605o6um97g9c9fqaassa8!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "atUserList": [],
+  "lastUpdateTime": 1777499656000,
+  "time": 1777499655000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "69f27e07000000003701cb2a",
+  "type": "normal",
+  "desc": "认真地准备面试 一面通过了说很快通知 因为当天下午就要开始二面 确实 一面通知的很快 二面结束的时候其实有想到自己不会通过 因为其他面试者确实履历很优秀 临走前面试官说会通知大家结果 但事实上根本没有任何通知 我能接受不通过 因为自己也很清晰地意识到为什么不通过 但就是觉得这种行为很不尊重人 然后会矫情地在心里想大家都是平等的 我有权利得到这份通知（虽然实际上确实是别人在挑自己） #面试[话题]#",
+  "user": {
+    "userId": "60deb24f000000000100b12f",
+    "nickname": "momo",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg",
+    "xsecToken": "ABGoNq5LLThBpQaYuZ4yqyyd5nS2zqtMayeMGNnhosDkA="
+  },
+  "tagList": [
+    {
+      "id": "5be1be5ab6fd09000160692c",
+      "name": "面试",
+      "type": "topic"
+    }
+  ]
+}

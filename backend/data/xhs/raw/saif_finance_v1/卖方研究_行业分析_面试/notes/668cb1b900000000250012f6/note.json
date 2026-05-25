@@ -1,0 +1,64 @@
+{
+  "xsecToken": "ABmnvSLcmt7dBlQUAUD_16K_FHKOkQg6fjY9zGVW4tMsA=",
+  "user": {
+    "nickname": "ᅠᅠᅠ泥潭",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3114bd8jlme005oolhhq5aikqc3v2uto",
+    "xsecToken": "ABXvwTT2oaNthy57SpOR3k1GnmZ31rMMtLH_mpkX9Be3A=",
+    "userId": "63158c740000000015014a9a"
+  },
+  "interactInfo": {
+    "likedCount": "301",
+    "collected": false,
+    "collectedCount": "426",
+    "commentCount": "15",
+    "shareCount": "34",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "tagList": [
+    {
+      "id": "611b4fa2000000000101d6f8",
+      "name": "pe实习",
+      "type": "topic"
+    },
+    {
+      "id": "61050749000000000100b560",
+      "name": "金融面试",
+      "type": "topic"
+    }
+  ],
+  "desc": "问得和上一家差不多，毕竟都是刚结束了某家pe实习后再面的，回答的项目也是一个，面试官们都超专业。#pe实习[话题]# #金融面试[话题]#",
+  "type": "normal",
+  "title": "再更一个PE面试帖",
+  "imageList": [
+    {
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/4a07c0d537073c7a4589344db14adccd/1040g2sg31512u0t5gm005oolhhq5aikq4s4lkv8!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "url": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/4a07c0d537073c7a4589344db14adccd/1040g2sg31512u0t5gm005oolhhq5aikq4s4lkv8!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/0d40f31ca2f4318ca6cf12b730897693/1040g2sg31512u0t5gm005oolhhq5aikq4s4lkv8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "width": 1179,
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/0d40f31ca2f4318ca6cf12b730897693/1040g2sg31512u0t5gm005oolhhq5aikq4s4lkv8!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "height": 2379
+    }
+  ],
+  "atUserList": [],
+  "time": 1720496569000,
+  "lastUpdateTime": 1750730017000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "668cb1b900000000250012f6"
+}

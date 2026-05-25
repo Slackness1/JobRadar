@@ -1,0 +1,227 @@
+{
+  "xsecToken": "ABahD69DhnfHsK9qjQYA2hYim4rFOM7_nMo7SzRvWNUVc=",
+  "title": "投研基本功 | 数据都从哪里来？",
+  "desc": "📕二级行研和战略咨询最重要的基本功之一就是收集整理数据。\n\t\n📕反常识的一点是：在AI时代，这种找数的能力尤为重要。因为我们常遇到的是：AI抓不到官方渠道的数据，有时还会给你不存在的、不相关的“错数”。这不仅浪费你的时间，还影响你的职场信任度。\n\t\n📕今天小绵羊又拿出了看家本领，帮朋友们整理了各行业的常用数据和来源，及一整套找数的方法论，供大家参考讨论。\n\t\n📕先说方法论：找数需要形成一个数据地图网格。横轴是数据来源，纵轴是数据类型。根据需求可以直接在我评论区的数据地图上精准定位。希望对大家有用。\n\t\n📕这次的行业包括：互联网、科技、工业、消费、金融、汽车。\n\t\n📕小绵羊是互联网和科技出身，对这两个行业更熟悉，所以数据页更全面。其他行业如有缺失数据的情况，欢迎大家补充讨论。\n\t\n#投研[话题]# #美股[话题]# #投资[话题]# #券商行研[话题]# #金融求职[话题]# #财务分析[话题]# #行业研究[话题]# #数据库[话题]# #职场[话题]#",
+  "user": {
+    "userId": "5ea18992000000000100758e",
+    "nickname": "犀利小绵羊",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pdtnhltig005nl1h6908tce671gem8",
+    "xsecToken": "ABpnjEa-mHqRR4iKKyMgrJoDecbUdUDoJeLAAKSTQkvY0="
+  },
+  "video": {
+    "capa": {
+      "duration": 261
+    },
+    "media": {
+      "videoId": 137730688221855710,
+      "video": {
+        "bizName": 110,
+        "bizId": "281845878636449299",
+        "duration": 261,
+        "md5": "8c69a491ef0cedd4c2531e0097d2c66f",
+        "hdrType": 0,
+        "drmType": 0,
+        "streamTypes": [
+          114,
+          259,
+          115
+        ]
+      },
+      "stream": {
+        "h264": [
+          {
+            "fps": 30,
+            "hdrType": 0,
+            "ssim": 0,
+            "audioCodec": "aac",
+            "audioBitrate": 64034,
+            "audioDuration": 260990,
+            "qualityType": "HD",
+            "width": 720,
+            "duration": 261000,
+            "size": 29931627,
+            "avgBitrate": 917444,
+            "videoBitrate": 846869,
+            "streamType": 259,
+            "audioChannels": 2,
+            "vmaf": -1,
+            "defaultStream": 0,
+            "volume": 0,
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/320/110/259/01e95154ca223fe2010370039b65ce5415_259.mp4?sign=274d45cbec087dd7529bdc93765a2469&t=6a10aeb2",
+            "videoCodec": "h264",
+            "rotate": 0,
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/320/110/259/01e95154ca223fe2010370039b65ce5415_259.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/320/110/259/01e95154ca223fe2010370039b65ce5415_259.mp4"
+            ],
+            "psnr": 0,
+            "streamDesc": "WM_X264_MP4_web",
+            "format": "mp4",
+            "height": 1280,
+            "videoDuration": 261000,
+            "weight": 62
+          }
+        ],
+        "h265": [
+          {
+            "streamType": 114,
+            "streamDesc": "X265_MP4_WEB_114",
+            "size": 40321683,
+            "fps": 30,
+            "videoCodec": "hevc",
+            "videoBitrate": 1101228,
+            "videoDuration": 261000,
+            "defaultStream": 0,
+            "volume": 0,
+            "audioCodec": "aac",
+            "psnr": 43.01900100708008,
+            "format": "mp4",
+            "width": 720,
+            "duration": 261000,
+            "audioChannels": 2,
+            "hdrType": 0,
+            "weight": 62,
+            "qualityType": "HD",
+            "vmaf": -1,
+            "audioBitrate": 128069,
+            "rotate": 0,
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/320/110/114/01e95154ca223fe2400370019b65be8fbf_114.mp4?sign=407e46e2c1fd243aff993844d9ccea95&t=6a10aeb2",
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/320/110/114/01e95154ca223fe2400370019b65be8fbf_114.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/320/110/114/01e95154ca223fe2400370019b65be8fbf_114.mp4"
+            ],
+            "height": 1280,
+            "audioDuration": 260990,
+            "avgBitrate": 1235913,
+            "ssim": 0
+          },
+          {
+            "format": "mp4",
+            "width": 1080,
+            "size": 38365397,
+            "avgBitrate": 1175950,
+            "height": 1920,
+            "audioDuration": 260990,
+            "vmaf": -1,
+            "psnr": 41.79800033569336,
+            "streamType": 115,
+            "defaultStream": 0,
+            "weight": 70,
+            "duration": 261000,
+            "videoCodec": "hevc",
+            "fps": 30,
+            "audioChannels": 2,
+            "qualityType": "HD",
+            "volume": 0,
+            "audioCodec": "aac",
+            "hdrType": 0,
+            "masterUrl": "http://sns-video-v3.xhscdn.com/stream/320/110/115/01e95154ca223fe2400370019b65cfe8bf_115.mp4?sign=eaa3ed2a492b8731bd2a636725ea99fe&t=6a10aeb2",
+            "streamDesc": "X265_MP4_WEB_115",
+            "videoBitrate": 1041266,
+            "rotate": 0,
+            "backupUrls": [
+              "http://sns-bak-v1.xhscdn.com/stream/320/110/115/01e95154ca223fe2400370019b65cfe8bf_115.mp4",
+              "http://sns-bak-v6.xhscdn.com/stream/320/110/115/01e95154ca223fe2400370019b65cfe8bf_115.mp4"
+            ],
+            "ssim": 0,
+            "videoDuration": 261000,
+            "audioBitrate": 128069
+          }
+        ],
+        "h266": [],
+        "av1": []
+      }
+    },
+    "image": {
+      "thumbnailFileid": "frame/110/0/01e95154ca223fe20010000000019b65b97598_0.webp"
+    }
+  },
+  "time": 1766937941000,
+  "lastUpdateTime": 1766938169000,
+  "noteId": "695155550000000022008e13",
+  "type": "video",
+  "interactInfo": {
+    "collected": false,
+    "collectedCount": "2179",
+    "commentCount": "33",
+    "shareCount": "205",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "1591"
+  },
+  "imageList": [
+    {
+      "height": 1656,
+      "width": 1242,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191529/9d0b8c9d78b871e55b92f8786929602a/1040g2sg31ql3q5aog00g5nl1h6908tceg1teb9o!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191529/89b33b44009f5d64a23c55445524b738/1040g2sg31ql3q5aog00g5nl1h6908tceg1teb9o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191529/9d0b8c9d78b871e55b92f8786929602a/1040g2sg31ql3q5aog00g5nl1h6908tceg1teb9o!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "url": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191529/89b33b44009f5d64a23c55445524b738/1040g2sg31ql3q5aog00g5nl1h6908tceg1teb9o!nd_dft_wlteh_webp_3",
+      "stream": {}
+    }
+  ],
+  "tagList": [
+    {
+      "id": "6128d4f0000000000101eca9",
+      "name": "投研",
+      "type": "topic"
+    },
+    {
+      "id": "5c6dc47d000000000f004e84",
+      "name": "美股",
+      "type": "topic"
+    },
+    {
+      "name": "投资",
+      "type": "topic",
+      "id": "5be3d93765a68000012604f3"
+    },
+    {
+      "id": "610a23120000000001007c41",
+      "name": "券商行研",
+      "type": "topic"
+    },
+    {
+      "name": "金融求职",
+      "type": "topic",
+      "id": "5d4e67ba000000000f018b78"
+    },
+    {
+      "id": "5edf2f450000000001005a82",
+      "name": "财务分析",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5e1f01ee0000000001000319",
+      "name": "行业研究"
+    },
+    {
+      "name": "数据库",
+      "type": "topic",
+      "id": "5d6c802f0000000002003a78"
+    },
+    {
+      "id": "5f9b90c500000000010011c9",
+      "name": "职场",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "shareInfo": {
+    "unShare": false
+  }
+}

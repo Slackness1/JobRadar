@@ -1,0 +1,12 @@
+{
+  "source": "tikhub_xiaohongshu_app_v2",
+  "author": "Pony说求职",
+  "author_user_id": "620f9d93000000002102508e",
+  "author_red_id": "ponychen1992",
+  "capture_date": "2026-05-23",
+  "date_range": "2026-02-20 ~ 2026-05-21",
+  "notes_count": 49,
+  "comments_count": 203,
+  "fetch_cost_usd": 1.2,
+  "description": "Pony 求职博主最近 3 个月笔记 + 互动 top 18 的评论 ingest 入 backend xhs pipeline"
+}

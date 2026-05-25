@@ -1,0 +1,116 @@
+{
+  "xsecToken": "ABW9M3NuskafRha3sLnZKmp-exlCA1gQHyUuQKkt5AVQo=",
+  "imageList": [
+    {
+      "fileId": "",
+      "width": 1200,
+      "livePhoto": false,
+      "height": 1600,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/b667f9c4efe76331bb4e4bfde7124c6f/1040g2sg31t2t44j762kg5pq0j6m7dn3n18hilkg!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/5c7f1d3852bd4f65fe7dd1393be64565/1040g2sg31t2t44j762kg5pq0j6m7dn3n18hilkg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191550/b667f9c4efe76331bb4e4bfde7124c6f/1040g2sg31t2t44j762kg5pq0j6m7dn3n18hilkg!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191550/5c7f1d3852bd4f65fe7dd1393be64565/1040g2sg31t2t44j762kg5pq0j6m7dn3n18hilkg!nd_dft_wlteh_webp_3",
+      "stream": {}
+    },
+    {
+      "fileId": "",
+      "height": 1484,
+      "traceId": "",
+      "stream": {},
+      "livePhoto": false,
+      "width": 1079,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/646bc04e0b340f13cbc853bf76618fbe/1040g2sg31t2t44j762j05pq0j6m7dn3nstsitkg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/2a11c0104c971f8e2b44c31e9c8ba497/1040g2sg31t2t44j762j05pq0j6m7dn3nstsitkg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191550/646bc04e0b340f13cbc853bf76618fbe/1040g2sg31t2t44j762j05pq0j6m7dn3nstsitkg!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191550/2a11c0104c971f8e2b44c31e9c8ba497/1040g2sg31t2t44j762j05pq0j6m7dn3nstsitkg!nd_dft_wlteh_webp_3"
+    },
+    {
+      "width": 1078,
+      "url": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191550/08a9a7d4282e7330992650278c797ecb/1040g2sg31t2t44j762k05pq0j6m7dn3nq7scueo!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191550/71c45dc82acd845d521225a802dfc42a/1040g2sg31t2t44j762k05pq0j6m7dn3nq7scueo!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 1585,
+      "traceId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/71c45dc82acd845d521225a802dfc42a/1040g2sg31t2t44j762k05pq0j6m7dn3nq7scueo!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191550/08a9a7d4282e7330992650278c797ecb/1040g2sg31t2t44j762k05pq0j6m7dn3nq7scueo!nd_dft_wlteh_webp_3"
+        }
+      ]
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5be8fc7879d44e0001def06e",
+      "name": "基金",
+      "type": "topic"
+    },
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "id": "660a6f280000000002025988",
+      "name": "头部公募实习",
+      "type": "topic"
+    },
+    {
+      "id": "5eae6aa40000000001003aa8",
+      "name": "反思日记",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "noteId": "69a0fd5b000000001b01629e",
+  "type": "normal",
+  "title": "头部公募渠道销售实习总结",
+  "desc": "实习总结ing，仅供大家参考并欢迎讨论#基金[话题]##实习[话题]##头部公募实习[话题]# #反思日记[话题]#",
+  "user": {
+    "userId": "674099ac000000001d02dc77",
+    "nickname": "小鱼在gap",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lk7q6m35m605pq0j6m7dn3nrtj9teg",
+    "xsecToken": "ABp4l8GU00Zrlc_lU_-_9hjLKiE-HWpKsJKDdBUE3w4g8="
+  },
+  "time": 1772158299000,
+  "lastUpdateTime": 1772158299000,
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "79",
+    "collected": false,
+    "collectedCount": "64",
+    "commentCount": "14",
+    "shareCount": "25",
+    "followed": false,
+    "relation": "none"
+  },
+  "shareInfo": {
+    "unShare": false
+  }
+}

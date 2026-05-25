@@ -1,0 +1,79 @@
+{
+  "xsecToken": "ABzCTWscShiHDgL0-3Bj4PlzDJhlBjPxSDFFKgU-Kr71I=",
+  "noteId": "689c7ec0000000001b03341d",
+  "type": "normal",
+  "title": "红圈实习生必备技能（五）之自学PEVC协议",
+  "interactInfo": {
+    "collected": false,
+    "collectedCount": "1027",
+    "commentCount": "15",
+    "shareCount": "107",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "687"
+  },
+  "time": 1755086528000,
+  "lastUpdateTime": 1755086529000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "desc": "欢迎来到酸菜老师的PEVC自学指南，首先免责声明一下：已经不在红圈！已经不是实习生！但为了这个系列我就要写这个标题。\n昨天有师弟问PEVC应该怎么入门，正好借这个机会总结分享一下自己的经验（本经验适合想要学习PEVC的实习生或者刚刚入职的新人律师，自己的经验难免幼稚，有补充意见欢迎评论）。\n第一步：定一本经典的基础的入门书，我自己推荐《风险投资交易（原书第4版）》，这本书是翻译自Venture Deals: Be Smarter Than Your Lawyer，其中中文版本的第四章到第九章比较重要，介绍了常用的各项特殊权利（经济条款&amp;管理条款），新手也比较容易掌握；可以在读中文版本的同时对照着英文版本（第四版）一起看，也方便熟悉英文术语。（Tips：中文版本的书应该只能买纸质版，英文版本可以自己找找电子版）\n第二步：看完上面的书之后，对PEVC的特殊权利条款等会有一个初步的了解，但是并不知道条款具体长什么样子，并且上面两本书对SPA的涉猎不够，基本是在讲SHA的内容。这个时候推荐去看《风险投资合同起草审查指南》这本书，里面有逐条详解的SPA与SHA，可以对中文的交易的协议文本有一个简单的了解。（Tips：虽然这本书里的条款在表述上还是有一些简单了，但对初学者够了，这本书微信读书可以看。）\n第三步：当走完上述两步之后，我自己理解有两节选修课可以上，一节是登录NVCA的官网，下载NVCA的Model Documents，这是美国风险投资协会的模板，可以看看TS，SPA，IRA等比较重要的协议，看不懂的就借助一下人工智能。有第二步的经验，会发现第三步的协议也基本能看懂个七七八八。另外一节选修课是下载最近一年的汉坤的PEVC年度报告，根据里面的统计，大概对市场惯例有一个了解（比如优先认购相对比例和绝对比例哪种更多？讲回购利率年单利定为8%的交易有多少？）\n第四步：纸上得来终得浅，还是得找一个Deal Flow比较好的团队，学一学比较实操的技能，比如怎么写尽调报告，怎么写披露函，怎么拼签字页，怎么改交叉引用balabala。\n以上就是我个人经历下来比较有用的自学办法，希望对大家有帮助！之后可能会分享如何自学法律尽调！#红圈律师[话题]# #律所实习生[话题]# #PEVC[话题]# #牛马律师[话题]# #上海实习[话题]#",
+  "user": {
+    "xsecToken": "ABqCbqd9GsbIkaKeYfkzd1sHiVGJLimeGIszCclfgUldw=",
+    "userId": "60f03e3a0000000001009029",
+    "nickname": "酸菜牛肉面-少面多菜",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31o1e8q8hl8005o7g7ot09419pftksng"
+  },
+  "imageList": [
+    {
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191521/81a89d798e7e183e7508718db60a48f3/spectrum/1040g0k031l4gjfmkia005o7g7ot09419ssj3lko!nd_prv_wgth_webp_3",
+      "stream": {},
+      "height": 4284,
+      "width": 5712,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191521/81a89d798e7e183e7508718db60a48f3/spectrum/1040g0k031l4gjfmkia005o7g7ot09419ssj3lko!nd_prv_wgth_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191521/bea129c9151f74a24a8534a941fc0855/spectrum/1040g0k031l4gjfmkia005o7g7ot09419ssj3lko!nd_dft_wgth_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191521/bea129c9151f74a24a8534a941fc0855/spectrum/1040g0k031l4gjfmkia005o7g7ot09419ssj3lko!nd_dft_wgth_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "url": ""
+    }
+  ],
+  "tagList": [
+    {
+      "id": "63ac038a000000000101e46f",
+      "name": "红圈律师",
+      "type": "topic"
+    },
+    {
+      "id": "622315640000000001004375",
+      "name": "律所实习生",
+      "type": "topic"
+    },
+    {
+      "id": "601cda9f0000000001008813",
+      "name": "PEVC",
+      "type": "topic"
+    },
+    {
+      "id": "6643757f000000001b03fbc9",
+      "name": "牛马律师",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5c4b27fc000000000f009884",
+      "name": "上海实习"
+    }
+  ],
+  "atUserList": []
+}

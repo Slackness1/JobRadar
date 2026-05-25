@@ -1,0 +1,237 @@
+[
+  {
+    "status": 4,
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comments": [],
+    "id": "68cbf3df000000003001fe7a",
+    "content": "大陆资本市场标准的固定收益信用研究，可以分为信用评级研究、信用策略研究两个上下游阶段。",
+    "at_users": [],
+    "show_tags": [
+      "user_top"
+    ],
+    "liked": false,
+    "like_count": "4",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    },
+    "create_time": 1758196704000,
+    "sub_comment_has_more": false
+  },
+  {
+    "status": 0,
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "like_count": "14",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/61ff73c512e79baf48a18541.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB8hQwPVm9Af4A_Mzb8UIlTkE7PWZ1lUYDWqA079Wab6A=",
+          "user_id": "61ff7393000000001000c593",
+          "nickname": "Chocolate"
+        },
+        "target_comment": {
+          "id": "68cbf32e000000003002223f",
+          "user_info": {
+            "user_id": "65753502000000003d0355ba",
+            "nickname": "鸡精经理Z先生咨询|培训",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+          }
+        },
+        "content": "是说明这个信评的准入门槛比较低嘛",
+        "note_id": "68cbf1e2000000001301b0dc",
+        "status": 0,
+        "show_tags": [],
+        "create_time": 1758201617000,
+        "ip_location": "江苏",
+        "id": "68cc0711000000000b0266c5"
+      }
+    ],
+    "id": "68cbf32e000000003002223f",
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    },
+    "create_time": 1758196527000,
+    "sub_comment_has_more": true,
+    "content": "一直做股票行业研究实习，刚转了份信用评级暑期就拿了offer，这说明什么。。",
+    "like_count": "0",
+    "ip_location": "北京",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "at_users": [],
+    "liked": false,
+    "sub_comment_count": "3",
+    "sub_comment_cursor": "68cc0711000000000b0266c5"
+  },
+  {
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "show_tags": [],
+        "create_time": 1765584603000,
+        "ip_location": "日本",
+        "id": "693caeda000000003102e3c2",
+        "note_id": "68cbf1e2000000001301b0dc",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "57e5aed734609434a3cf5fd0",
+          "nickname": "树下有对",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rnckqpm220048n9l3ndenugcb6c100?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABZ6AK8Dfv6YWnf3_tTaNW7SAaTVXkmzI3_cO2ESytgn4="
+        },
+        "target_comment": {
+          "user_info": {
+            "nickname": "鸡精经理Z先生咨询|培训",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8=",
+            "user_id": "65753502000000003d0355ba"
+          },
+          "id": "68cc15810000000030029849"
+        },
+        "content": "想请问Z先生，所以公募信评还是有入行价值的吗[皱眉R]",
+        "at_users": [],
+        "liked": false
+      }
+    ],
+    "sub_comment_cursor": "693caeda000000003102e3c2",
+    "like_count": "3",
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    },
+    "liked": false,
+    "at_users": [],
+    "show_tags": [],
+    "note_id": "68cbf1e2000000001301b0dc",
+    "content": "公募基金，不区分信用评级和信用策略，信用研究员同时承担了上下游职责。但口语习惯上，很多人还是习惯称呼为“信评研究员”。",
+    "create_time": 1758205313000,
+    "sub_comment_count": "1",
+    "sub_comment_has_more": false,
+    "id": "68cc15810000000030029849",
+    "status": 0
+  },
+  {
+    "sub_comment_has_more": false,
+    "status": 0,
+    "like_count": "6",
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "id": "68cc15400000000030023af5",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1758205249000,
+    "sub_comment_cursor": "",
+    "content": "保险公司的资产管理公司，通常会将信用评级研究员单独设立成一个部门，将信用策略研究员放在固定收益部。",
+    "at_users": [],
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    },
+    "sub_comments": []
+  },
+  {
+    "content": "上游的信用评级：回答的是“这个信用债能不能买、能买多少”的准入、限额问题。",
+    "like_count": "6",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "status": 0,
+    "liked": false,
+    "create_time": 1758197001000,
+    "sub_comment_has_more": false,
+    "user_info": {
+      "user_id": "65753502000000003d0355ba",
+      "nickname": "鸡精经理Z先生咨询|培训",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+    },
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "id": "68cbf5090000000030021b5a",
+    "at_users": [],
+    "show_tags": [],
+    "sub_comment_cursor": ""
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "like_count": "14",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/61ff73c512e79baf48a18541.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB8hQwPVm9Af4A_Mzb8UIlTkE7PWZ1lUYDWqA079Wab6A=",
+      "user_id": "61ff7393000000001000c593",
+      "nickname": "Chocolate"
+    },
+    "target_comment": {
+      "id": "68cbf32e000000003002223f",
+      "user_info": {
+        "user_id": "65753502000000003d0355ba",
+        "nickname": "鸡精经理Z先生咨询|培训",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8="
+      }
+    },
+    "content": "是说明这个信评的准入门槛比较低嘛",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1758201617000,
+    "ip_location": "江苏",
+    "id": "68cc0711000000000b0266c5"
+  },
+  {
+    "show_tags": [],
+    "create_time": 1765584603000,
+    "ip_location": "日本",
+    "id": "693caeda000000003102e3c2",
+    "note_id": "68cbf1e2000000001301b0dc",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "57e5aed734609434a3cf5fd0",
+      "nickname": "树下有对",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rnckqpm220048n9l3ndenugcb6c100?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABZ6AK8Dfv6YWnf3_tTaNW7SAaTVXkmzI3_cO2ESytgn4="
+    },
+    "target_comment": {
+      "user_info": {
+        "nickname": "鸡精经理Z先生咨询|培训",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315i9jjqqgu5g5pbl6k1feldqe28se8g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AByI9xu3FQuej0qRjLoouYhCm56pAfyr6qK2tBe7s5WG8=",
+        "user_id": "65753502000000003d0355ba"
+      },
+      "id": "68cc15810000000030029849"
+    },
+    "content": "想请问Z先生，所以公募信评还是有入行价值的吗[皱眉R]",
+    "at_users": [],
+    "liked": false
+  }
+]

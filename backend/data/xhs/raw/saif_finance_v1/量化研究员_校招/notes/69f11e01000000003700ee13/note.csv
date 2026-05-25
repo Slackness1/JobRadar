@@ -1,0 +1,14 @@
+﻿note_id,title,desc,type,user_id,nickname,liked_count,collected_count,comment_count,share_count,time,time_iso,last_update_time,last_update_time_iso
+69f11e01000000003700ee13,Man Group居然在上海招intern了（附笔试挂经,"没想到 man group 也进军内地市场了，今天早上刚收到笔试，趁着复习期末考的间隙抽空写完，但大概率是挂了[哭惹R][哭惹R][哭惹R]
+	
+题目是 Bond Pricer，输入包括 maturity、face value、coupon schedule 和 discount curve，要求计算 bond 的 present value。
+	
+核心公式很简单：Bond PV = coupons 折现值 + face value 折现值。但关键细节在 discount factor 的选择：不是插值，也不是找最近点，而是对每一笔 cash flow，找到 discount curve 里 <= cash flow time 的最大时间点。
+	
+所以我的主思路是：先解析输入，再检查数据是否合法；对每个 coupon 和 face value，用 binary search 找对应 discount factor，最后加总并输出结果。
+	
+我改了半天最后结果还只有13/19，挂了几个 hidden tests。现在回头看，大概率是dirty input 没处理干净。可能的坑包括：discount curve 时间不严格递增、discount factor 随时间反而变大、输入里有空值或多余逗号、coupon time 和 amount 长度不一致，或者 invalid message 分类顺序不对。
+	
+这题给我的教训是：QR 笔试不是公式写对就结束了。题干里一句 “data is messy”，往往意味着 hidden tests 会重点卡 validation。这题不算难，但很典型：它不是在考你会不会背 bond pricing，而是在考你能不能把一个简单金融规则写成稳定、严谨、能处理脏数据的代码。
+	
+#量化笔试[话题]# #CodingAssessment[话题]# #mangroup[话题]#  #BondPricing[话题]# #Python刷题[话题]# #金融求职[话题]# #留学生求职[话题]# #量化求职[话题]# #AI文案[话题]#",normal,61fb85c0000000001000bd41,北卡留子（险资资管实习版）,133,99,24,50,1777409537000,2026-04-29T04:52:17,1777409773000,2026-04-29T04:56:13

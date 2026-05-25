@@ -1,0 +1,100 @@
+{
+  "xsecToken": "ABy-X39P4UHqtowBO4eIUamfAF27I59gf_Dg6Q6jRavPM=",
+  "interactInfo": {
+    "collectedCount": "99",
+    "commentCount": "24",
+    "shareCount": "50",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "133",
+    "collected": false
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "height": 2391,
+      "width": 1170,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191426/f80b2c1f0f4ff161304912a707d087c4/notes_pre_post/1040g3k031vh4ssuu3q005ofrgn041fa16ac1po0!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191426/58a6743916474c7c15273975a5732922/notes_pre_post/1040g3k031vh4ssuu3q005ofrgn041fa16ac1po0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191426/58a6743916474c7c15273975a5732922/notes_pre_post/1040g3k031vh4ssuu3q005ofrgn041fa16ac1po0!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191426/f80b2c1f0f4ff161304912a707d087c4/notes_pre_post/1040g3k031vh4ssuu3q005ofrgn041fa16ac1po0!nd_prv_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "tagList": [
+    {
+      "id": "6337f4430000000001009183",
+      "name": "量化笔试",
+      "type": "topic"
+    },
+    {
+      "id": "67dd1d67000000000401dd74",
+      "name": "CodingAssessment",
+      "type": "topic"
+    },
+    {
+      "id": "68f1017d0000000024000801",
+      "name": "mangroup",
+      "type": "topic"
+    },
+    {
+      "id": "69f11c210000000004029de9",
+      "name": "BondPricing",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "626f51fc0000000001006fa2",
+      "name": "Python刷题"
+    },
+    {
+      "type": "topic",
+      "id": "5d4e67ba000000000f018b78",
+      "name": "金融求职"
+    },
+    {
+      "name": "留学生求职",
+      "type": "topic",
+      "id": "5ce4198a000000000e029e1d"
+    },
+    {
+      "id": "620c9b520000000001000691",
+      "name": "量化求职",
+      "type": "topic"
+    },
+    {
+      "id": "62a32122000000000101f2f0",
+      "name": "AI文案",
+      "type": "topic"
+    }
+  ],
+  "noteId": "69f11e01000000003700ee13",
+  "type": "normal",
+  "title": "Man Group居然在上海招intern了（附笔试挂经",
+  "desc": "没想到 man group 也进军内地市场了，今天早上刚收到笔试，趁着复习期末考的间隙抽空写完，但大概率是挂了[哭惹R][哭惹R][哭惹R]\n\t\n题目是 Bond Pricer，输入包括 maturity、face value、coupon schedule 和 discount curve，要求计算 bond 的 present value。\n\t\n核心公式很简单：Bond PV = coupons 折现值 + face value 折现值。但关键细节在 discount factor 的选择：不是插值，也不是找最近点，而是对每一笔 cash flow，找到 discount curve 里 <= cash flow time 的最大时间点。\n\t\n所以我的主思路是：先解析输入，再检查数据是否合法；对每个 coupon 和 face value，用 binary search 找对应 discount factor，最后加总并输出结果。\n\t\n我改了半天最后结果还只有13/19，挂了几个 hidden tests。现在回头看，大概率是dirty input 没处理干净。可能的坑包括：discount curve 时间不严格递增、discount factor 随时间反而变大、输入里有空值或多余逗号、coupon time 和 amount 长度不一致，或者 invalid message 分类顺序不对。\n\t\n这题给我的教训是：QR 笔试不是公式写对就结束了。题干里一句 “data is messy”，往往意味着 hidden tests 会重点卡 validation。这题不算难，但很典型：它不是在考你会不会背 bond pricing，而是在考你能不能把一个简单金融规则写成稳定、严谨、能处理脏数据的代码。\n\t\n#量化笔试[话题]# #CodingAssessment[话题]# #mangroup[话题]#  #BondPricing[话题]# #Python刷题[话题]# #金融求职[话题]# #留学生求职[话题]# #量化求职[话题]# #AI文案[话题]#",
+  "user": {
+    "userId": "61fb85c0000000001000bd41",
+    "nickname": "北卡留子（险资资管实习版）",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo313a9hj2ig0505ofrgn041fa193veaa0",
+    "xsecToken": "ABA8cPpaIYFkh-srya0XwK_Rl2fNltNrmlE8r-01Omgq8="
+  },
+  "atUserList": [],
+  "time": 1777409537000,
+  "ipLocation": "美国",
+  "lastUpdateTime": 1777409773000,
+  "shareInfo": {
+    "unShare": false
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "xsecToken": "AB7ns10qHh5fhUCACysu2oQdLfvfplEbcdg-ceih7CcpA=",
+  "interactInfo": {
+    "likedCount": "434",
+    "collected": false,
+    "collectedCount": "548",
+    "commentCount": "27",
+    "shareCount": "94",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "tagList": [
+    {
+      "id": "5c12185d5237920001d589d9",
+      "name": "面经",
+      "type": "topic"
+    },
+    {
+      "name": "PE",
+      "type": "topic",
+      "id": "5ee8d2c000000000010079db"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  },
+  "atUserList": [],
+  "time": 1724724228000,
+  "noteId": "66cd3404000000001d016cb0",
+  "type": "normal",
+  "title": "某PE面经",
+  "desc": "超长流程…听说过长但没想到这么夸张[笑哭R]#面经[话题]# #PE[话题]#",
+  "user": {
+    "userId": "5e4d3ff600000000010002ca",
+    "nickname": "Skye",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314qv4dpc0o005nid7vr080mag6i6kro",
+    "xsecToken": "ABBQK_mZjppjzFNAP3NhkPhW_ae9Vg4Gz7KjgJWSgMrcM="
+  },
+  "imageList": [
+    {
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/07c0d73fe34236ba0fdc34c38e3005e0/1040g00831702r0j8gs005nid7vr080mao8jl1b8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/194b811796f14f5bfda5e6a6de6eebba/1040g00831702r0j8gs005nid7vr080mao8jl1b8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/194b811796f14f5bfda5e6a6de6eebba/1040g00831702r0j8gs005nid7vr080mao8jl1b8!nd_dft_wlteh_webp_3",
+      "fileId": "",
+      "width": 1170,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/07c0d73fe34236ba0fdc34c38e3005e0/1040g00831702r0j8gs005nid7vr080mao8jl1b8!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "height": 1927,
+      "url": ""
+    },
+    {
+      "fileId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/1b370007d287eb0b2f4011eefd77d823/1040g00831702r0j8gs0g5nid7vr080maaad6330!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/f131abf2b03ca397049c86bbe11f191d/1040g00831702r0j8gs0g5nid7vr080maaad6330!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/1b370007d287eb0b2f4011eefd77d823/1040g00831702r0j8gs0g5nid7vr080maaad6330!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/f131abf2b03ca397049c86bbe11f191d/1040g00831702r0j8gs0g5nid7vr080maaad6330!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "height": 1843,
+      "width": 1170,
+      "url": "",
+      "traceId": ""
+    },
+    {
+      "fileId": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/d94f189467d6ddebfd1a96d0a3d36528/1040g00831702r0j8gs105nid7vr080mat9o4ipg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/842c2f9118950259be7300446ba10608/1040g00831702r0j8gs105nid7vr080mat9o4ipg!nd_dft_wlteh_webp_3",
+          "imageScene": "WB_DFT"
+        }
+      ],
+      "stream": {},
+      "height": 1376,
+      "width": 1170,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/d94f189467d6ddebfd1a96d0a3d36528/1040g00831702r0j8gs105nid7vr080mat9o4ipg!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/842c2f9118950259be7300446ba10608/1040g00831702r0j8gs105nid7vr080mat9o4ipg!nd_dft_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "lastUpdateTime": 1724724229000
+}

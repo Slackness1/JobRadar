@@ -1,0 +1,54 @@
+{
+  "xsecToken": "ABH1KNhDHNdeHl67sKNZUWtM2STnI3oNT7hqNlWpkY7qw=",
+  "title": "Tower Research Grads Quant Trading面后感",
+  "atUserList": [],
+  "ipLocation": "上海",
+  "type": "normal",
+  "desc": "面的HK的岗，主要做global equity hft。\n\t\n总体上还是比较常规，cv+做题。面试不太纠结细节，和国内私募问策略的风格不太一样，更像是在判断整体的思考风格。之后是做题，这个组的题是真有点难，没有标准答案，是个很practical的poker game，规则是他自己设定的，让我给出一个strategy，之后围绕我的答案讨论。一开始还好，属于可以边想边说的程度，越到后来感觉越不对，完全没有clean的解法，要自己做很多假设。在问到更难问题的时候突然问我要不要换一道题做做，他觉得考的差不多了。Absolutely no！当时想的一定要给他整出最优解，就硬着头皮继续了，最后还是没搞出来。反问他要咋做听下来也没有什么标准答案，就是想看下再这个过程中是怎么思考的。不过面试官很有意思，人非常nice，因为长大的文化背景有一点相似，所以还聊了很多面试之外的话题。\n\t\n面试体验不错，下次换道常规点的题吧还是。。。希望别有下次了😊",
+  "user": {
+    "userId": "629dada6000000001b02ac0b",
+    "nickname": "金儿",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31q86ghb6ga005oktlmj6tb0bof3biig",
+    "xsecToken": "ABV15uo0D5-K5TDieghYJYsZ1fxFzpTJM_wuUgaQPLVcg="
+  },
+  "interactInfo": {
+    "likedCount": "77",
+    "collected": false,
+    "collectedCount": "60",
+    "commentCount": "11",
+    "shareCount": "13",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "imageList": [
+    {
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191432/e5e63616a928e5f9ff8248282f4bc931/1040g2sg31vbeqns7ii7g5pspjf3inud6gfcev80!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191432/7db3fa56ed93f6d34eec5eb47ea79424/1040g2sg31vbeqns7ii7g5pspjf3inud6gfcev80!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191432/e5e63616a928e5f9ff8248282f4bc931/1040g2sg31vbeqns7ii7g5pspjf3inud6gfcev80!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191432/7db3fa56ed93f6d34eec5eb47ea79424/1040g2sg31vbeqns7ii7g5pspjf3inud6gfcev80!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "height": 1320,
+      "width": 1320,
+      "traceId": ""
+    }
+  ],
+  "tagList": [],
+  "time": 1777035459000,
+  "lastUpdateTime": 1777035459000,
+  "noteId": "69eb68c300000000370379b9",
+  "shareInfo": {
+    "unShare": false
+  }
+}

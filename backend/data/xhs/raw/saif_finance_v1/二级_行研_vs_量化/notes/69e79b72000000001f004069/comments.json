@@ -1,0 +1,647 @@
+[
+  {
+    "note_id": "69e79b72000000001f004069",
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "5dbe086d000000000100026f",
+          "nickname": "luckypoker",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/5dbe086d000000000100026f.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABeYE6ckrsUmiXl7CkuIAjDEtXe3V_CWucYMTCr3C8Vrc="
+        },
+        "create_time": 1776833461000,
+        "ip_location": "北京",
+        "status": 0,
+        "liked": false,
+        "content": "当你拿到好公司的实习机会的时候 相当于你给市场发了一个你能力很强的强烈信号 你会发现从此之后你的求职路径会越走越宽",
+        "at_users": [],
+        "like_count": "14",
+        "show_tags": [],
+        "target_comment": {
+          "id": "69e80fe7000000001401e803",
+          "user_info": {
+            "nickname": "luckypoker",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5dbe086d000000000100026f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABeYE6ckrsUmiXl7CkuIAjDEtXe3V_CWucYMTCr3C8Vrc=",
+            "user_id": "5dbe086d000000000100026f"
+          }
+        },
+        "pictures": [],
+        "id": "69e853b5000000001401dc03",
+        "note_id": "69e79b72000000001f004069"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "id": "69e80fe7000000001401e803",
+    "status": 0,
+    "content": "其实公司title比实习做什么更重要",
+    "at_users": [],
+    "sub_comment_count": "3",
+    "sub_comment_cursor": "69e853b5000000001401dc03",
+    "liked": false,
+    "like_count": "16",
+    "user_info": {
+      "user_id": "5dbe086d000000000100026f",
+      "nickname": "luckypoker",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5dbe086d000000000100026f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABeYE6ckrsUmiXl7CkuIAjDEtXe3V_CWucYMTCr3C8Vrc="
+    },
+    "create_time": 1776816103000
+  },
+  {
+    "sub_comments": [
+      {
+        "pictures": [],
+        "id": "69e8356a000000001401b015",
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "note_id": "69e79b72000000001f004069",
+        "status": 0,
+        "content": "感谢解答!![马上转运][马上转运]",
+        "user_info": {
+          "user_id": "68b281a6000000001a027b6f",
+          "nickname": "开心超人",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m1u17a1lm005q5ig6j6kurf1jpg6eg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-V3PzNIC-HSffwtZ2mSp_BNJJXZTGlCficr_sEcfPUU="
+        },
+        "create_time": 1776825707000,
+        "target_comment": {
+          "id": "69e82253000000001401a803",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317l148hk3u6g5opep1qmo3b4mm75f50?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABVxtL4v6IwdSCsjbdjLkmoT6OIY6buSMWa4p0z4MN57A=",
+            "user_id": "632ec875000000001b000d64",
+            "nickname": "旧梦"
+          }
+        }
+      }
+    ],
+    "sub_comment_cursor": "69e8356a000000001401b015",
+    "status": 0,
+    "like_count": "13",
+    "user_info": {
+      "user_id": "632ec875000000001b000d64",
+      "nickname": "旧梦",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317l148hk3u6g5opep1qmo3b4mm75f50?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVxtL4v6IwdSCsjbdjLkmoT6OIY6buSMWa4p0z4MN57A="
+    },
+    "ip_location": "上海",
+    "sub_comment_has_more": true,
+    "id": "69e82253000000001401a803",
+    "content": "1，当然是有优势的，你在top4实习过很多公司都愿意要你。 2，qr实习生很少会接触dirty work因为dirty work反而门槛比较高。没人教是常态有人教是意外，本来就是要靠自己钻研的。 3，大体上做的方向可能相似但是做的更系统化更细致。 4，水平问题，有没有扎实的研究成果(来自实习或者paper)，有没有出彩的天赋(奥赛牌子)",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "create_time": 1776820819000,
+    "pictures": [],
+    "note_id": "69e79b72000000001f004069",
+    "sub_comment_count": "2"
+  },
+  {
+    "sub_comments": [
+      {
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m1u17a1lm005q5ig6j6kurf1jpg6eg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-V3PzNIC-HSffwtZ2mSp_BNJJXZTGlCficr_sEcfPUU=",
+          "user_id": "68b281a6000000001a027b6f",
+          "nickname": "开心超人"
+        },
+        "create_time": 1776825752000,
+        "id": "69e835980000000014018c00",
+        "at_users": [],
+        "like_count": "0",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "69e7a096000000001401e818",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABKJOXGPnLSbhTe_Y8-1rJq2tyfOn9fTWd80fP4VU6SE4=",
+            "user_id": "62b990b8000000001902bb63",
+            "nickname": "AAA二手大学书本回收 李总",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ijd3c8sge005olpi2s6der3thr98uo?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "pictures": [],
+        "note_id": "69e79b72000000001f004069",
+        "status": 0,
+        "content": "嗷嗷好！感谢分享[马上转运][马上转运] 我再犹豫犹豫[吧唧R]"
+      }
+    ],
+    "show_tags": [],
+    "sub_comment_count": "2",
+    "content": "我带教说 跟对团队/人 比公司更重要。我原本也只打算实习3个月，但是因为和带教接触下来，人真的非常好能学到很多东西，所以一直续到9个月了。\n而且和同学交流下来，没人教是常态，有人教才是意外[笑哭R]珍惜愿意分享的人[棒R]",
+    "at_users": [],
+    "like_count": "5",
+    "sub_comment_cursor": "69e835980000000014018c00",
+    "sub_comment_has_more": true,
+    "id": "69e7a096000000001401e818",
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "ip_location": "四川",
+    "pictures": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "62b990b8000000001902bb63",
+      "nickname": "AAA二手大学书本回收 李总",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ijd3c8sge005olpi2s6der3thr98uo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABKJOXGPnLSbhTe_Y8-1rJq2tyfOn9fTWd80fP4VU6SE4="
+    },
+    "create_time": 1776787607000
+  },
+  {
+    "sub_comment_count": "2",
+    "sub_comment_cursor": "69ebb658000000002803a40f",
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "status": 0,
+    "show_tags": [],
+    "create_time": 1776817361000,
+    "note_id": "69e79b72000000001f004069",
+    "content": "同问大厂都在干什么[看R][看R]",
+    "like_count": "0",
+    "user_info": {
+      "xsec_token": "ABEA_8_z9BrQRvvGQFmvyTjxJa33C98hQvrZ9zTWtUKUQ=",
+      "user_id": "68328a20000000000e011df6",
+      "nickname": "balabalabala",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r97u60dnu605q1ih8g3i7fmpg1fid0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "ip_location": "美国",
+        "id": "69ebb658000000002803a40f",
+        "status": 0,
+        "liked": false,
+        "like_count": "2",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/612510f34a37f64322309275.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABke7Z-j-p87O5nmUnJxrS9TC_SYDM2Uus5EK4gNlzVbA=",
+          "user_id": "5ea93fa20000000001005cfa",
+          "nickname": "猛灌一口冰美式"
+        },
+        "show_tags": [],
+        "create_time": 1777055321000,
+        "target_comment": {
+          "id": "69e814d00000000014018810",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABEA_8_z9BrQRvvGQFmvyTjxJa33C98hQvrZ9zTWtUKUQ=",
+            "user_id": "68328a20000000000e011df6",
+            "nickname": "balabalabala",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r97u60dnu605q1ih8g3i7fmpg1fid0?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "note_id": "69e79b72000000001f004069",
+        "content": "挖因子 不达标开除",
+        "at_users": [],
+        "pictures": []
+      }
+    ],
+    "id": "69e814d00000000014018810",
+    "at_users": [],
+    "liked": false
+  },
+  {
+    "content": "有人教偷着乐吧[派对R]",
+    "user_info": {
+      "user_id": "64a62ee3000000002a0351e4",
+      "nickname": "我不是宽客",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b80521e6a57c3bdb8f301.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABf0qB0wLYL1CBqPCyclpayeLew4VPIUzotGJ4CgiRRSA="
+    },
+    "create_time": 1776787853000,
+    "pictures": [],
+    "id": "69e7a18d0000000014019401",
+    "at_users": [],
+    "sub_comment_has_more": false,
+    "liked": false,
+    "like_count": "19",
+    "sub_comments": [
+      {
+        "like_count": "0",
+        "user_info": {
+          "user_id": "62ac594b000000001b0273eb",
+          "nickname": "lucky",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lldqmol5e005olcb55mssvbnm4tee0?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABlgvW5twnFfyymam6jFwnIeYObQ4D_XGbtUdx5lECNT4="
+        },
+        "show_tags": [],
+        "create_time": 1776794398000,
+        "target_comment": {
+          "id": "69e7a18d0000000014019401",
+          "user_info": {
+            "xsec_token": "ABf0qB0wLYL1CBqPCyclpayeLew4VPIUzotGJ4CgiRRSA=",
+            "user_id": "64a62ee3000000002a0351e4",
+            "nickname": "我不是宽客",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b80521e6a57c3bdb8f301.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "note_id": "69e79b72000000001f004069",
+        "content": "[doge]",
+        "at_users": [],
+        "pictures": [],
+        "ip_location": "上海",
+        "id": "69e7bb1e000000001401a401",
+        "status": -2,
+        "liked": false
+      }
+    ],
+    "sub_comment_cursor": "69e7bb1e000000001401a401",
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "1"
+  },
+  {
+    "note_id": "69e79b72000000001f004069",
+    "liked": false,
+    "create_time": 1776820527000,
+    "ip_location": "上海",
+    "sub_comments": [],
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "content": "除非你很确定你的mentor在的水平在业内属于绝对的领先地位，不然还是要跳出舒适圈看看更高处别人在做什么的。",
+    "at_users": [],
+    "like_count": "6",
+    "user_info": {
+      "user_id": "632ec875000000001b000d64",
+      "nickname": "旧梦",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317l148hk3u6g5opep1qmo3b4mm75f50?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVxtL4v6IwdSCsjbdjLkmoT6OIY6buSMWa4p0z4MN57A="
+    },
+    "show_tags": [],
+    "id": "69e8212e0000000014019013",
+    "status": 0,
+    "sub_comment_cursor": "",
+    "pictures": []
+  },
+  {
+    "note_id": "69e79b72000000001f004069",
+    "at_users": [],
+    "liked": false,
+    "create_time": 1776787354000,
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "status": 0,
+    "content": "有人教非常难得了",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABJlKu1gJNwQE84LQtWXWK9nOENLcZrJ13p58w64oF_LQ=",
+      "user_id": "635dd3d9000000001901f380",
+      "nickname": "冷不丁我梆梆就是两拳",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31e5pigk2h2005oqtqfcmbss0tn8u0kg?imageView2/2/w/120/format/jpg"
+    },
+    "sub_comment_has_more": false,
+    "pictures": [],
+    "show_tags": [],
+    "id": "69e79f99000000001401bc15",
+    "like_count": "4"
+  },
+  {
+    "id": "69e814c0000000001401a412",
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "content": "我也有同样的问题，你可以问问他能不能给你offer，然后我感觉可能每一家风格都不一样，虽然当前在的地方非常好，但总是很好奇其他家在做什么[笑哭R][笑哭R]",
+    "liked": false,
+    "pictures": [],
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "at_users": [],
+    "ip_location": "北京",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "like_count": "1",
+    "user_info": {
+      "xsec_token": "ABEA_8_z9BrQRvvGQFmvyTjxJa33C98hQvrZ9zTWtUKUQ=",
+      "user_id": "68328a20000000000e011df6",
+      "nickname": "balabalabala",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r97u60dnu605q1ih8g3i7fmpg1fid0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1776817345000
+  },
+  {
+    "content": "有人带着做一个完整的子策略，哪怕只有几百万资金跑，也比去所谓大厂实习挖1000个所谓因子好多了",
+    "at_users": [],
+    "user_info": {
+      "user_id": "62c7cdfb000000000303f8b2",
+      "nickname": "波动的浪",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31utiqfh83q005om7pntgvu5iupp2rh8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABsCBC5yQ-ducPrJkfNHGvLgDyGhBEegIEmfZSKbkNsAY="
+    },
+    "sub_comments": [],
+    "id": "69e864c1000000001401e00d",
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "pictures": [],
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "liked": false,
+    "like_count": "3",
+    "create_time": 1776837825000,
+    "sub_comment_cursor": ""
+  },
+  {
+    "content": "没人教是常态 有人教是意外 好好抓住机会",
+    "at_users": [],
+    "sub_comment_has_more": false,
+    "note_id": "69e79b72000000001f004069",
+    "show_tags": [],
+    "create_time": 1776822851000,
+    "ip_location": "新疆",
+    "sub_comment_count": "0",
+    "pictures": [],
+    "status": 0,
+    "sub_comments": [],
+    "id": "69e82a43000000001401c007",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5e33dd300000000001000293",
+      "nickname": "Kesa",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31elgnpplku005nhjrko080kjktilvh8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABx_CavBVMDgM0a2C7-LBYzzdQfcqAedXj5LrrL2hZFtI="
+    },
+    "sub_comment_cursor": "",
+    "liked": false
+  },
+  {
+    "user_info": {
+      "user_id": "5dbe086d000000000100026f",
+      "nickname": "luckypoker",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5dbe086d000000000100026f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABeYE6ckrsUmiXl7CkuIAjDEtXe3V_CWucYMTCr3C8Vrc="
+    },
+    "create_time": 1776833461000,
+    "ip_location": "北京",
+    "status": 0,
+    "liked": false,
+    "content": "当你拿到好公司的实习机会的时候 相当于你给市场发了一个你能力很强的强烈信号 你会发现从此之后你的求职路径会越走越宽",
+    "at_users": [],
+    "like_count": "14",
+    "show_tags": [],
+    "target_comment": {
+      "id": "69e80fe7000000001401e803",
+      "user_info": {
+        "nickname": "luckypoker",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5dbe086d000000000100026f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABeYE6ckrsUmiXl7CkuIAjDEtXe3V_CWucYMTCr3C8Vrc=",
+        "user_id": "5dbe086d000000000100026f"
+      }
+    },
+    "pictures": [],
+    "id": "69e853b5000000001401dc03",
+    "note_id": "69e79b72000000001f004069"
+  },
+  {
+    "pictures": [],
+    "id": "69e8356a000000001401b015",
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "content": "感谢解答!![马上转运][马上转运]",
+    "user_info": {
+      "user_id": "68b281a6000000001a027b6f",
+      "nickname": "开心超人",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m1u17a1lm005q5ig6j6kurf1jpg6eg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-V3PzNIC-HSffwtZ2mSp_BNJJXZTGlCficr_sEcfPUU="
+    },
+    "create_time": 1776825707000,
+    "target_comment": {
+      "id": "69e82253000000001401a803",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317l148hk3u6g5opep1qmo3b4mm75f50?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABVxtL4v6IwdSCsjbdjLkmoT6OIY6buSMWa4p0z4MN57A=",
+        "user_id": "632ec875000000001b000d64",
+        "nickname": "旧梦"
+      }
+    }
+  },
+  {
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31m1u17a1lm005q5ig6j6kurf1jpg6eg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-V3PzNIC-HSffwtZ2mSp_BNJJXZTGlCficr_sEcfPUU=",
+      "user_id": "68b281a6000000001a027b6f",
+      "nickname": "开心超人"
+    },
+    "create_time": 1776825752000,
+    "id": "69e835980000000014018c00",
+    "at_users": [],
+    "like_count": "0",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "69e7a096000000001401e818",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABKJOXGPnLSbhTe_Y8-1rJq2tyfOn9fTWd80fP4VU6SE4=",
+        "user_id": "62b990b8000000001902bb63",
+        "nickname": "AAA二手大学书本回收 李总",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ijd3c8sge005olpi2s6der3thr98uo?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "pictures": [],
+    "note_id": "69e79b72000000001f004069",
+    "status": 0,
+    "content": "嗷嗷好！感谢分享[马上转运][马上转运] 我再犹豫犹豫[吧唧R]"
+  },
+  {
+    "ip_location": "美国",
+    "id": "69ebb658000000002803a40f",
+    "status": 0,
+    "liked": false,
+    "like_count": "2",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/612510f34a37f64322309275.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABke7Z-j-p87O5nmUnJxrS9TC_SYDM2Uus5EK4gNlzVbA=",
+      "user_id": "5ea93fa20000000001005cfa",
+      "nickname": "猛灌一口冰美式"
+    },
+    "show_tags": [],
+    "create_time": 1777055321000,
+    "target_comment": {
+      "id": "69e814d00000000014018810",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABEA_8_z9BrQRvvGQFmvyTjxJa33C98hQvrZ9zTWtUKUQ=",
+        "user_id": "68328a20000000000e011df6",
+        "nickname": "balabalabala",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31r97u60dnu605q1ih8g3i7fmpg1fid0?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "note_id": "69e79b72000000001f004069",
+    "content": "挖因子 不达标开除",
+    "at_users": [],
+    "pictures": []
+  },
+  {
+    "like_count": "0",
+    "user_info": {
+      "user_id": "62ac594b000000001b0273eb",
+      "nickname": "lucky",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lldqmol5e005olcb55mssvbnm4tee0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABlgvW5twnFfyymam6jFwnIeYObQ4D_XGbtUdx5lECNT4="
+    },
+    "show_tags": [],
+    "create_time": 1776794398000,
+    "target_comment": {
+      "id": "69e7a18d0000000014019401",
+      "user_info": {
+        "xsec_token": "ABf0qB0wLYL1CBqPCyclpayeLew4VPIUzotGJ4CgiRRSA=",
+        "user_id": "64a62ee3000000002a0351e4",
+        "nickname": "我不是宽客",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b80521e6a57c3bdb8f301.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "note_id": "69e79b72000000001f004069",
+    "content": "[doge]",
+    "at_users": [],
+    "pictures": [],
+    "ip_location": "上海",
+    "id": "69e7bb1e000000001401a401",
+    "status": -2,
+    "liked": false
+  },
+  {
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "id": "69f8c71c000000002902cc85",
+    "note_id": "69e79b72000000001f004069",
+    "content": "一般要什么样的学历背景呀",
+    "create_time": 1777911581000,
+    "sub_comments": [],
+    "user_info": {
+      "nickname": "acorn",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mq1l2pblm605o8625508idbrej9f88?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABnkwPbmY3zFGUCC2BkAHnTcJndovajAMyfdIZOin7Hc0=",
+      "user_id": "6106114a00000000010049ab"
+    },
+    "show_tags": [],
+    "ip_location": "江苏",
+    "sub_comment_count": "0",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0"
+  },
+  {
+    "content": "不管去不去，骑驴找马都是重要的，拿着清华签约，去北大招生组签更好的，这个道理懂得都懂[偷笑R]",
+    "sub_comment_cursor": "",
+    "id": "69e829a8000000001401a813",
+    "show_tags": [],
+    "ip_location": "美国",
+    "sub_comment_has_more": false,
+    "note_id": "69e79b72000000001f004069",
+    "at_users": [],
+    "like_count": "0",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1000g2jo2mcvigasju0005ouihlmpt8tv83samo0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABCBDiOIecrINbVhT9lX-EBRbvhnz6VGONBqnwg4Q4NpU=",
+      "user_id": "63d28d6d000000002702a3bf",
+      "nickname": "苍溪粑"
+    },
+    "create_time": 1776822697000,
+    "sub_comment_count": "0",
+    "sub_comments": []
+  },
+  {
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "65a907d10000000008017702",
+      "nickname": "米酒",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo315kna6n91c6g5pd90v8i2to23rsci3o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB7uZEzvzwwAsMTSttTCnhiMPfFOA2PSliYyN4bi_NamI="
+    },
+    "ip_location": "江苏",
+    "sub_comment_has_more": false,
+    "id": "69e9cbcc000000001401dc0b",
+    "note_id": "69e79b72000000001f004069",
+    "create_time": 1776929740000,
+    "sub_comment_count": "0",
+    "content": "我认为title不重要，我更关心做了什么，怎么做的",
+    "liked": false,
+    "show_tags": [],
+    "sub_comments": [],
+    "sub_comment_cursor": ""
+  },
+  {
+    "liked": false,
+    "show_tags": [],
+    "content": "可以问问bg吗[哭惹R][哭惹R]",
+    "status": 0,
+    "sub_comment_count": "0",
+    "sub_comment_has_more": false,
+    "note_id": "69e79b72000000001f004069",
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31f8b0km16e5g5n562el5pdmobu2u3fo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABK3ukBgihPWMm5wDdAOcwVcgkfL0oLB0rvl-2Ibt8IIY=",
+      "user_id": "5ca613aa000000001700b6d8",
+      "nickname": "它欸"
+    },
+    "create_time": 1776869433000,
+    "id": "69e8e039000000001401d418",
+    "ip_location": "四川",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": []
+  }
+]

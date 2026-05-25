@@ -1,0 +1,95 @@
+{
+  "xsecToken": "ABwSoJnA7AGlf-SbQGtnkOyHH97a3GQweaHC9AKOr_6lw=",
+  "noteId": "69f2dd6a00000000350319b2",
+  "type": "normal",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "72",
+    "collected": false,
+    "collectedCount": "47",
+    "commentCount": "52",
+    "shareCount": "17",
+    "followed": false,
+    "relation": "none"
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191617/23bbbe3521d702c4c06395532178d5c2/notes_pre_post/1040g3k831virhff0jm705p0kdokkc31jms7et5o!nd_prv_wgth_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "height": 420,
+      "width": 990,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191617/23bbbe3521d702c4c06395532178d5c2/notes_pre_post/1040g3k831virhff0jm705p0kdokkc31jms7et5o!nd_prv_wgth_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191617/f631bec8914749d9a06e50992a8abb72/notes_pre_post/1040g3k831virhff0jm705p0kdokkc31jms7et5o!nd_dft_wgth_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191617/f631bec8914749d9a06e50992a8abb72/notes_pre_post/1040g3k831virhff0jm705p0kdokkc31jms7et5o!nd_dft_wgth_webp_3"
+    }
+  ],
+  "tagList": [
+    {
+      "id": "601d285c0000000001005579",
+      "name": "求助offer选择",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5c5024dc000000000f03d348",
+      "name": "offer"
+    },
+    {
+      "id": "5c483aea000000000e02a3b8",
+      "name": "春招",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5d4e67ba000000000f018b78",
+      "name": "金融求职"
+    },
+    {
+      "id": "61ffb0ee0000000001003dbb",
+      "name": "金融春招",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "61df5db30000000001003683",
+      "name": "工作选择"
+    },
+    {
+      "id": "62ab2e30000000000100bad3",
+      "name": "职业选择迷茫",
+      "type": "topic"
+    },
+    {
+      "id": "137908294927407113",
+      "name": "职业发展更好的选择是:",
+      "type": "interact_vote"
+    }
+  ],
+  "time": 1777524074000,
+  "lastUpdateTime": 1777524074000,
+  "ipLocation": "山东",
+  "shareInfo": {
+    "unShare": false
+  },
+  "title": "金融春招私募前台vs公募中后台offer帮选",
+  "desc": "博主目前已经接了一家互联网厂资产管理部(对外是一支私募基金)的基金研究岗offer，最近又收到了一家公募的业绩归因分析岗实习转正offer，求大家帮忙讨论与选择，看重未来5到10年后的薪资与发展，想看看大家对私募前台vs公募中后台岗选择的看法\n#求助offer选择[话题]# #offer[话题]# #春招[话题]# #金融求职[话题]# #金融春招[话题]# #工作选择[话题]# #职业选择迷茫[话题]#",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/be4e54a984a21be925a215a08fb36c8b.jpg",
+    "xsecToken": "ABKxZ5jR1myl8ob48UhiaJZj5TkFFrfD5cUhcYKbEoFh4=",
+    "userId": "64146e290000000011020c33",
+    "nickname": "emo的momo"
+  },
+  "atUserList": []
+}

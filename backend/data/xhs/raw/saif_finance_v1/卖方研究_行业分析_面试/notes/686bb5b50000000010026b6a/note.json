@@ -1,0 +1,100 @@
+{
+  "xsecToken": "ABO8g2B7e9CGnoo1MpS-gAYpFReELsVPFKnrLBdR7oiRg=",
+  "type": "normal",
+  "desc": "🌟关于面试流程：我经历2轮面试，分别是分析师面以及质控面试，有的会经历三轮面试，组内面一轮+组外+质控，官网+邮箱投递后，看到处理中应该在2-3天内会发一面，一面后2-3天应通知二面，若超过一周以上无二面音讯大概率挂，可以咨询hr，质控面（终面）通过后1周准时继续推进（确认是否入职，学信网在读证明等）\n\t\n🌟如何判断是否抵达质控面：质控面试应该是由前线退下来转了中后台的分析师以及hr组成，如果开场要求英文自我介绍并且面试简单简短（10-15min以内）应该可以判断为质控面试 （一般不刷人）\n\t\n🌟关于面试问题：常见的财务比率、各种周转率、杜邦、自由现金流的计算一定要准备，固定资产折旧、科目变动对三表的影响最好也准备一下，❗️❗️❗️过往实习写过深度报告的标的再过一遍，准备一份3分钟左右的推票版本，不要过于详细复杂没重点的全部都讲，公司所属行业、行业规模、公司大致情况简单点明，然后输出推荐的3点左右的核心逻辑+估值即可，给一定的追问空间（竞对情况，较对手的核心壁垒等等）\n\t\n🌟希望能帮到你[派对R][doge]加油！👏\n🌟有问必答\n#找实习[话题]# #券商行研[话题]# #面经[话题]#  #大学生找实习[话题]#\n#愿你的每份付出都有收获[话题]#",
+  "user": {
+    "userId": "61208a18000000000101c1b2",
+    "nickname": "余笑",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/61208a18000000000101c1b2.jpg",
+    "xsecToken": "AB1DMPDjvr7gQXZEOmOEdAWSVcDRO4IRA4K5W_Nqn3zDQ="
+  },
+  "interactInfo": {
+    "commentCount": "41",
+    "shareCount": "51",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "224",
+    "collected": false,
+    "collectedCount": "352"
+  },
+  "imageList": [
+    {
+      "height": 1600,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/eab6b304dfef72ffad3c4f49f7d776c0/1040g2sg31jkrk88rjq705o90h8c0bgdin352sio!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/91263749a75c23f7ca69188fc184b7bd/1040g2sg31jkrk88rjq705o90h8c0bgdin352sio!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/eab6b304dfef72ffad3c4f49f7d776c0/1040g2sg31jkrk88rjq705o90h8c0bgdin352sio!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/91263749a75c23f7ca69188fc184b7bd/1040g2sg31jkrk88rjq705o90h8c0bgdin352sio!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "width": 1200,
+      "url": "",
+      "traceId": "",
+      "livePhoto": false
+    },
+    {
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191416/82f4be7d90b479cc71a602656e9dc657/1040g2sg31jkrk88rjq7g5o90h8c0bgdikudg6ko!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "width": 1068,
+      "height": 1920,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/f571fcd65c34b9f178871d8bb5fd095e/1040g2sg31jkrk88rjq7g5o90h8c0bgdikudg6ko!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191416/82f4be7d90b479cc71a602656e9dc657/1040g2sg31jkrk88rjq7g5o90h8c0bgdikudg6ko!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191416/f571fcd65c34b9f178871d8bb5fd095e/1040g2sg31jkrk88rjq7g5o90h8c0bgdikudg6ko!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": ""
+    }
+  ],
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5d8984ef000000000103dbba",
+      "name": "找实习"
+    },
+    {
+      "name": "券商行研",
+      "type": "topic",
+      "id": "610a23120000000001007c41"
+    },
+    {
+      "id": "5c12185d5237920001d589d9",
+      "name": "面经",
+      "type": "topic"
+    },
+    {
+      "id": "6173fee600000000010000c3",
+      "name": "大学生找实习",
+      "type": "topic"
+    },
+    {
+      "id": "686bb578000000001800b297",
+      "name": "愿你的每份付出都有收获",
+      "type": "topic"
+    }
+  ],
+  "noteId": "686bb5b50000000010026b6a",
+  "title": "中金行研｜日常实习面试经验帖",
+  "atUserList": [],
+  "time": 1751889333000,
+  "lastUpdateTime": 1751889334000,
+  "shareInfo": {
+    "unShare": false
+  }
+}

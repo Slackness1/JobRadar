@@ -1,0 +1,105 @@
+{
+  "xsecToken": "ABFWfMpjwIs3B18oiGNF4wvL4dNrWZoka6_y9COdxfx9M=",
+  "atUserList": [],
+  "lastUpdateTime": 1778661957000,
+  "type": "normal",
+  "title": "上海PE线下实习",
+  "tagList": [
+    {
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习",
+      "type": "topic"
+    },
+    {
+      "id": "6034e4ee000000000100a4c1",
+      "name": "一级市场",
+      "type": "topic"
+    },
+    {
+      "id": "5e5f62450000000001006bc1",
+      "name": "实习生内推",
+      "type": "topic"
+    },
+    {
+      "id": "5ee8d2c000000000010079db",
+      "name": "PE",
+      "type": "topic"
+    },
+    {
+      "id": "5d3ecc98000000001700b2cd",
+      "name": "VC",
+      "type": "topic"
+    },
+    {
+      "name": "上海科技大学",
+      "type": "topic",
+      "id": "5f533f6e000000000101d100"
+    },
+    {
+      "id": "5a93e9f77642f14cea564a55",
+      "name": "复旦大学",
+      "type": "topic"
+    },
+    {
+      "id": "5c012cf923cdb5000157e5ac",
+      "name": "上海交通大学",
+      "type": "topic"
+    },
+    {
+      "id": "5be64e7d17dadd0001c51612",
+      "name": "上海财经大学",
+      "type": "topic"
+    },
+    {
+      "id": "5bf4c859c3f6740001e19e4a",
+      "name": "同济大学",
+      "type": "topic"
+    }
+  ],
+  "interactInfo": {
+    "likedCount": "103",
+    "collected": false,
+    "collectedCount": "98",
+    "commentCount": "11",
+    "shareCount": "33",
+    "followed": false,
+    "relation": "none",
+    "liked": false
+  },
+  "imageList": [
+    {
+      "stream": {},
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191515/848ce9b30e0b78aed51b0ec552217b1b/notes_pre_post/1040g3k031vtiu4be2a005prt3qji39r0bnarp10!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191515/e034120b27f013a51080ce0bc913463b/notes_pre_post/1040g3k031vtiu4be2a005prt3qji39r0bnarp10!nd_dft_wlteh_webp_3",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191515/848ce9b30e0b78aed51b0ec552217b1b/notes_pre_post/1040g3k031vtiu4be2a005prt3qji39r0bnarp10!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191515/e034120b27f013a51080ce0bc913463b/notes_pre_post/1040g3k031vtiu4be2a005prt3qji39r0bnarp10!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "livePhoto": false,
+      "fileId": "",
+      "height": 2247,
+      "width": 1218
+    }
+  ],
+  "time": 1778244383000,
+  "ipLocation": "上海",
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "69fddb1e000000001f002a5f",
+  "desc": "欢迎大三以上非毕业年级的同学，我们六月份会组好早期基金补全投资矩阵，届时会涵盖zf出资的早期混池&中后期母基金（长三角，川渝，两广），以及面向社会资本的明星项目专项（已有cgwx，jyxc，wwxq，cjcc等等）。\n实习的工资待遇高低不是我能决定的，我能确保的是公司的信息交流面向实习生全透明，并且由优秀的同事负责带教。\n到岗时间为六月初到七月底，预计招2-3名同学。\n#金融实习[话题]# #一级市场[话题]# #实习生内推[话题]# #PE[话题]# #VC[话题]# #上海科技大学[话题]# #复旦大学[话题]# #上海交通大学[话题]# #上海财经大学[话题]# #同济大学[话题]#",
+  "user": {
+    "xsecToken": "ABuzy0_tdyJzD80Efthu7tgds4rPoydFB3OVyik8kzzGU=",
+    "userId": "677d1ea7000000000801a760",
+    "nickname": "材料人一枚",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sjrjkpalk005prt3qji39r0k0r9rt8"
+  }
+}

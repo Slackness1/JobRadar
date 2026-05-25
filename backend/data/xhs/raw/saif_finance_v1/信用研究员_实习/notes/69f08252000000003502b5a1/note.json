@@ -1,0 +1,80 @@
+{
+  "xsecToken": "ABOnMrFjDUp_eZoMqfD_V0qPkyaUXuC1vHFNMURUGdxzw=",
+  "interactInfo": {
+    "shareCount": "29",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "53",
+    "collected": false,
+    "collectedCount": "49",
+    "commentCount": "41"
+  },
+  "atUserList": [],
+  "ipLocation": "陕西",
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "69f08252000000003502b5a1",
+  "title": "固收研究信用方向的前景",
+  "user": {
+    "userId": "5f1852770000000001008e42",
+    "nickname": "peace&love",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo319tgheqt6q6g5nooa9rg93i2kghcbig",
+    "xsecToken": "ABH6TtbG2pcnKTjhVjk5dXHwdp5GkGRCv2ruQz9UGmCq4="
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191436/438dae55bdcd82c5bc3dffde5933503f/1040g2sg31vghvqhchmk05nooa9rg93i2jvgkos0!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191436/de9d696d8e09eb803d27989ca0c18d90/1040g2sg31vghvqhchmk05nooa9rg93i2jvgkos0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "height": 1600,
+      "width": 1200,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191436/438dae55bdcd82c5bc3dffde5933503f/1040g2sg31vghvqhchmk05nooa9rg93i2jvgkos0!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191436/de9d696d8e09eb803d27989ca0c18d90/1040g2sg31vghvqhchmk05nooa9rg93i2jvgkos0!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "tagList": [
+    {
+      "id": "6121084900000000010008b3",
+      "name": "行研实习",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5e5357ad0000000001009e09",
+      "name": "券商"
+    },
+    {
+      "id": "5d4e67ba000000000f018b78",
+      "name": "金融求职",
+      "type": "topic"
+    },
+    {
+      "id": "60464625000000000101f715",
+      "name": "固收",
+      "type": "topic"
+    },
+    {
+      "id": "5bf39d2ee192160001f16614",
+      "name": "信用",
+      "type": "topic"
+    }
+  ],
+  "time": 1777369682000,
+  "lastUpdateTime": 1777369683000,
+  "type": "normal",
+  "desc": "向xhs大佬们请教[皱眉R][皱眉R][皱眉R]\n卖方/买方都可以～\n2027年6月后，城投新政或为重要变量？\n但个人感觉，城投刚兑很难被打破[笑哭R]\n#行研实习[话题]# #券商[话题]# #金融求职[话题]# #固收[话题]##信用[话题]#"
+}

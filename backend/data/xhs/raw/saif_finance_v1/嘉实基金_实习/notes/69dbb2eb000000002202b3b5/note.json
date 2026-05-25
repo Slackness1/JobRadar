@@ -1,0 +1,75 @@
+{
+  "xsecToken": "AB_jy00AJEiFCpHmKiVgA3JQW4hvPKCj53wpUOTbn-0qg=",
+  "imageList": [
+    {
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191554/e5bf4c8dc31ae29f53ef00e092e1bf57/1040g00831us77fdmjq0g5nsu5sggbulv6sl3pe8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191554/c1287d56010839c41297af17a6eae4c7/1040g00831us77fdmjq0g5nsu5sggbulv6sl3pe8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "height": 1740,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191554/c1287d56010839c41297af17a6eae4c7/1040g00831us77fdmjq0g5nsu5sggbulv6sl3pe8!nd_dft_wlteh_webp_3",
+      "width": 1236,
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191554/e5bf4c8dc31ae29f53ef00e092e1bf57/1040g00831us77fdmjq0g5nsu5sggbulv6sl3pe8!nd_prv_wlteh_webp_3"
+    }
+  ],
+  "atUserList": [],
+  "time": 1776005867000,
+  "lastUpdateTime": 1778135272000,
+  "ipLocation": "广东",
+  "noteId": "69dbb2eb000000002202b3b5",
+  "title": "9硕 找实习记录（已offer）",
+  "desc": "#找实习[话题]##采购[话题]##供应链[话题]# #运营[话题]#\n9硕双非本物流专业28届，0有效实习经历，目前主投供应链、运营、数分岗，简历求痛批，求建议我应该往哪个行业什么岗位努力好，还是哪里要我就去哪，求大佬指点太迷茫了[哭惹R][哭惹R]\n\t\n实习僧投递100+ 官网及继任投递20+ boss打招呼800+递简历80+ 面试及电话沟通30+\n不完全记录：\n广电运通：产品岗 电话沟通 拒\n碧澄能源：约面 拒\n联蔚数科：业务不准请假 面完拒\n英为拓：约面 拒\n华鹏飞：物流岗 面挂\n兴趣岛：质量运营 offer 拒\n美的：供应链岗 面试前10分钟告诉我岗位已锁定其他人了\n法雷奥：采购岗 电话沟通完无回复\n拉普拉斯：供应链 电话沟通完无回复\n汇量科技：广告运营 不满足到岗时间要求 拒\n游戏策划 约面 拒\n唯品会：采购 因为无电商经验被拒\n设施管理  面挂\n货拉拉：公共事务岗 面挂\n小红书：采购岗 简历挂\n滴滴：各种运营岗 简历挂\n字节：斗胆投了很多岗 简历都过不了\n京东：采销  一直懒得做测评\ntcl：项目管理 offer 拒\n卡夫亨氏：约面 拒\n探迹科技：运营 offer准备拒掉\n蔚来：销售运营 offer（已入职）\n\t\n持续更新后续实习状况~",
+  "user": {
+    "userId": "5f9e2f21000000000101fabf",
+    "nickname": "梦呓的梦",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lue2ci1l82g5nsu5sggbulvd0rnuvo",
+    "xsecToken": "AB-QPx4emE0DkM7D-XOwdfG1fYXzN0fl0t45tl7htfP6g="
+  },
+  "interactInfo": {
+    "collected": false,
+    "collectedCount": "38",
+    "commentCount": "44",
+    "shareCount": "4",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "74"
+  },
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5d8984ef000000000103dbba",
+      "name": "找实习"
+    },
+    {
+      "id": "5c6b988f000000000d019a01",
+      "name": "采购",
+      "type": "topic"
+    },
+    {
+      "id": "5c4024bd000000000f003924",
+      "name": "供应链",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5beefaa6b342a90001718139",
+      "name": "运营"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal"
+}

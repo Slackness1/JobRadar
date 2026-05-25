@@ -1,0 +1,84 @@
+{
+  "xsecToken": "ABVMxVWVVQ7I_bCgTSwUR2CswcSi_PURtYJ5-WN7MVoCk=",
+  "noteId": "6945266c000000000d037d91",
+  "title": "萌新求问",
+  "user": {
+    "nickname": "whenweallfallasleep",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31olphk3l6g0g5omomisgvmdhh2t37co",
+    "xsecToken": "ABfpqZJRhTfETNjotoP4cl8Ay-P8WWhwN6n5i7nKTibRo=",
+    "userId": "62d8b4b9000000000303d9b1"
+  },
+  "atUserList": [],
+  "time": 1766139500000,
+  "lastUpdateTime": 1766902600000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "除了一个无工资一个有工资之外。小私募除了挖因子还会让你干什么呀，估计只能投到十亿的。\n我问研究所的带教入职会做什么，回答是比较自由看你兴趣\n#求助offer选择[话题]# #提问[话题]# #量化[话题]# #量化研究[话题]# #券商研究所[话题]# #金融实习[话题]#",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "65",
+    "collected": false,
+    "collectedCount": "80",
+    "commentCount": "50",
+    "shareCount": "18",
+    "followed": false,
+    "relation": "none"
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "height": 1600,
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191534/2f17caa9c305fedb6979e0b1f80da985/notes_pre_post/1040g3k031q9735k1no005omomisgvmdh1nmh65g!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "width": 1200,
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191534/2f17caa9c305fedb6979e0b1f80da985/notes_pre_post/1040g3k031q9735k1no005omomisgvmdh1nmh65g!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191534/f9823b5311f032165f0ed9bd1f529a38/notes_pre_post/1040g3k031q9735k1no005omomisgvmdh1nmh65g!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191534/f9823b5311f032165f0ed9bd1f529a38/notes_pre_post/1040g3k031q9735k1no005omomisgvmdh1nmh65g!nd_dft_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "tagList": [
+    {
+      "id": "601d285c0000000001005579",
+      "name": "求助offer选择",
+      "type": "topic"
+    },
+    {
+      "name": "提问",
+      "type": "topic",
+      "id": "53570106b4c4d64b836cbaea"
+    },
+    {
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化",
+      "type": "topic"
+    },
+    {
+      "name": "量化研究",
+      "type": "topic",
+      "id": "610266e60000000001000d1c"
+    },
+    {
+      "id": "6111d97800000000010049bf",
+      "name": "券商研究所",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习"
+    }
+  ]
+}

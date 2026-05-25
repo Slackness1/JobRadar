@@ -1,0 +1,75 @@
+{
+  "xsecToken": "ABzatLj1XSO8LycLNKLxk-KererOLUSM32DQbCUWdslEI=",
+  "type": "normal",
+  "title": "三段实习经历暑期allin量化大失败",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "157",
+    "collected": false,
+    "collectedCount": "93",
+    "commentCount": "120",
+    "shareCount": "33",
+    "followed": false
+  },
+  "tagList": [
+    {
+      "id": "5cd13fa8000000000e005d21",
+      "name": "暑期实习",
+      "type": "topic"
+    },
+    {
+      "id": "5d719540000000000103b788",
+      "name": "量化交易",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化"
+    },
+    {
+      "id": "5fd62942000000000100036d",
+      "name": "互联网大厂",
+      "type": "topic"
+    }
+  ],
+  "time": 1777322653000,
+  "noteId": "69efca9d0000000035024b6b",
+  "user": {
+    "xsecToken": "AB7TSO3kS1qETnBhyPW-WfGl2OnRgcbkifrE-aBfvA_qg=",
+    "userId": "5d3cf990000000001103c177",
+    "nickname": "從未有過",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vfs465ek86g5n9sv684fgbnrnm1ib8"
+  },
+  "imageList": [
+    {
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191434/b07e08cd71f8b336b1fed46b68a1b2d1/note_pre_post_uhdr/1040g3r831vfrcv9n4ccg5n9sv684fgbnrvfabdg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191434/92f7840e930227b9b0700cd14e84bb85/note_pre_post_uhdr/1040g3r831vfrcv9n4ccg5n9sv684fgbnrvfabdg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "width": 3072,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191434/b07e08cd71f8b336b1fed46b68a1b2d1/note_pre_post_uhdr/1040g3r831vfrcv9n4ccg5n9sv684fgbnrvfabdg!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191434/92f7840e930227b9b0700cd14e84bb85/note_pre_post_uhdr/1040g3r831vfrcv9n4ccg5n9sv684fgbnrvfabdg!nd_dft_wlteh_webp_3",
+      "height": 4096
+    }
+  ],
+  "atUserList": [],
+  "lastUpdateTime": 1777322829000,
+  "ipLocation": "中国香港",
+  "shareInfo": {
+    "unShare": false
+  },
+  "desc": "先说背景吧\n财经2本 工科985硕，都是计算机类专业，三段以上量化实习(其实不止，简历上写了三段)，不写太细了怕被定位，其中包含头部量化私募和头部券商的量化，暑期以来能投的量化私募基本都投了，公募和券商也投了不少，到现在基本没收到任何测评/笔试/面试，收到的也只有简历不合适的拒信，真的有点被拒到怀疑人生了[完啦R]\n因为主要精力放在量化，互联网基本没怎么投，少量的投了一些数科/风控之类的，也是基本没什么回音，可能是因为简历没那么匹配。身边同学同门找开发或者agent的基本都有offer了，我还在每天库库投简历连个面试都没……\n有没有大佬帮忙分析下呢，是今年行情不好还是什么问题[哭惹R]再这么下去真要收拾收拾好好转互联网了。\n#暑期实习[话题]# #量化交易[话题]# #量化[话题]# #互联网大厂[话题]#"
+}

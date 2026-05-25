@@ -1,0 +1,24 @@
+[
+  {
+    "idx": 3,
+    "err": "content/quote too short",
+    "raw": {
+      "type": [
+        "interview_qa"
+      ],
+      "role_target": [
+        "投行承做"
+      ],
+      "company_target": [
+        "中金公司"
+      ],
+      "sector_target": [
+        "投行"
+      ],
+      "content": "中金IB面试可能需要英语自我介绍。",
+      "source_quote": "都要英语自我介绍吗",
+      "speaker": "commenter",
+      "confidence": "low"
+    }
+  }
+]

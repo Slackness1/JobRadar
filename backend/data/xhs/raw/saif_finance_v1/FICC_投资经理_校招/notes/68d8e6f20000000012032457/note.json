@@ -1,0 +1,209 @@
+{
+  "xsecToken": "ABZsPr_IpVJj8bMKnaVyGzvsXP8bgtPlW4wku1MsJ7nFo=",
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "68d8e6f20000000012032457",
+  "type": "normal",
+  "title": "CICC面试其实挺水的，hr听到这些直接过",
+  "tagList": [
+    {
+      "name": "中金",
+      "type": "topic",
+      "id": "60583d34000000000100027f"
+    },
+    {
+      "id": "600ede130000000001004f51",
+      "name": "估值建模",
+      "type": "topic"
+    },
+    {
+      "id": "5d4e67ba000000000f018b78",
+      "name": "金融求职",
+      "type": "topic"
+    },
+    {
+      "name": "留学生求职",
+      "type": "topic",
+      "id": "5ce4198a000000000e029e1d"
+    },
+    {
+      "id": "5f2a5f68000000000100a9ff",
+      "name": "海归求职",
+      "type": "topic"
+    },
+    {
+      "id": "5df335a6000000000100b5e7",
+      "name": "面试题",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5c12185d5237920001d589d9",
+      "name": "面经"
+    },
+    {
+      "id": "5e3bb748000000000100a986",
+      "name": "估值",
+      "type": "topic"
+    },
+    {
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化",
+      "type": "topic"
+    },
+    {
+      "id": "6111e7e4000000000101c7f2",
+      "name": "金融建模",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "lastUpdateTime": 1759045363000,
+  "desc": "#中金[话题]# #估值建模[话题]# #金融求职[话题]# #留学生求职[话题]# #海归求职[话题]# #面试题[话题]# #面经[话题]# #估值[话题]# #量化[话题]#  #金融建模[话题]#",
+  "user": {
+    "xsecToken": "ABP86FWyW2q1yoJwhGw2sAD505NcrkDFxceCuAasHxCyY=",
+    "userId": "6618a306000000000b031b1f",
+    "nickname": "CC里",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31lvbial3l26g5pgokc32u6ovevjep6o"
+  },
+  "interactInfo": {
+    "collectedCount": "549",
+    "commentCount": "76",
+    "shareCount": "55",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "426",
+    "collected": false
+  },
+  "imageList": [
+    {
+      "height": 1656,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/c806377ceedc6e9928c32bf684cbc578/notes_pre_post/1040g3k831mvgc7fgl0dg5pgokc32u6ovnah7i4g!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/538eb2ccd178798f067441951be90923/notes_pre_post/1040g3k831mvgc7fgl0dg5pgokc32u6ovnah7i4g!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/538eb2ccd178798f067441951be90923/notes_pre_post/1040g3k831mvgc7fgl0dg5pgokc32u6ovnah7i4g!nd_dft_wlteh_webp_3",
+      "fileId": "",
+      "width": 1242,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/c806377ceedc6e9928c32bf684cbc578/notes_pre_post/1040g3k831mvgc7fgl0dg5pgokc32u6ovnah7i4g!nd_prv_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false
+    },
+    {
+      "height": 1656,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/3fe70416ab58d0a1b44dd93f1c91edfd/notes_pre_post/1040g3k031mvgc7jb4q6g5pgokc32u6ovklg4vh8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/b1123780fea95233b51d2434c25871c5/notes_pre_post/1040g3k031mvgc7jb4q6g5pgokc32u6ovklg4vh8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "livePhoto": false,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/b1123780fea95233b51d2434c25871c5/notes_pre_post/1040g3k031mvgc7jb4q6g5pgokc32u6ovklg4vh8!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "width": 1242,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/3fe70416ab58d0a1b44dd93f1c91edfd/notes_pre_post/1040g3k031mvgc7jb4q6g5pgokc32u6ovklg4vh8!nd_prv_wlteh_webp_3"
+    },
+    {
+      "height": 1656,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/e5de06199a89ae22850819e6524cec32/notes_pre_post/1040g3k031mvgc821ku5g5pgokc32u6ovf1us4f8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/af339e8b959225a6bcd9933c52ecba92/notes_pre_post/1040g3k031mvgc821ku5g5pgokc32u6ovf1us4f8!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1242,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/e5de06199a89ae22850819e6524cec32/notes_pre_post/1040g3k031mvgc821ku5g5pgokc32u6ovf1us4f8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/af339e8b959225a6bcd9933c52ecba92/notes_pre_post/1040g3k031mvgc821ku5g5pgokc32u6ovf1us4f8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {}
+    },
+    {
+      "height": 1656,
+      "width": 1242,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/0adaa588e186ec029ab8321de5b4c24e/notes_pre_post/1040g3k831mvgc7nf52d05pgokc32u6ovop429l8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/ceead1856fa800d4185941519aedff5b/notes_pre_post/1040g3k831mvgc7nf52d05pgokc32u6ovop429l8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/0adaa588e186ec029ab8321de5b4c24e/notes_pre_post/1040g3k831mvgc7nf52d05pgokc32u6ovop429l8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/ceead1856fa800d4185941519aedff5b/notes_pre_post/1040g3k831mvgc7nf52d05pgokc32u6ovop429l8!nd_dft_wlteh_webp_3",
+      "fileId": "",
+      "livePhoto": false,
+      "stream": {}
+    },
+    {
+      "height": 1656,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/05da0cab6628294480dda3a6dec86be9/notes_pre_post/1040g3k031mvgc821ku6g5pgokc32u6ovqe6btko!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/b25ca83ce7677dc77b9ca1e15cc72719/notes_pre_post/1040g3k031mvgc821ku6g5pgokc32u6ovqe6btko!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/b25ca83ce7677dc77b9ca1e15cc72719/notes_pre_post/1040g3k031mvgc821ku6g5pgokc32u6ovqe6btko!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1242,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/05da0cab6628294480dda3a6dec86be9/notes_pre_post/1040g3k031mvgc821ku6g5pgokc32u6ovqe6btko!nd_prv_wlteh_webp_3",
+      "stream": {}
+    },
+    {
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191451/1a1a0c4b78fce82e28681d3cb3236369/notes_pre_post/1040g3k831mvgc7nf52dg5pgokc32u6ovhqk4ss0!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "stream": {},
+      "fileId": "",
+      "height": 1656,
+      "width": 1242,
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/1a1a0c4b78fce82e28681d3cb3236369/notes_pre_post/1040g3k831mvgc7nf52dg5pgokc32u6ovhqk4ss0!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191451/33ed6951e4bd042fc857ae35cd0b711c/notes_pre_post/1040g3k831mvgc7nf52dg5pgokc32u6ovhqk4ss0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191451/33ed6951e4bd042fc857ae35cd0b711c/notes_pre_post/1040g3k831mvgc7nf52dg5pgokc32u6ovhqk4ss0!nd_dft_wlteh_webp_3"
+    }
+  ],
+  "time": 1759045362000
+}

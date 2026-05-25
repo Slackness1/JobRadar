@@ -1,0 +1,79 @@
+{
+  "xsecToken": "ABVLGBpMWoC77kQP4K1vh2jxNlcJjYfVsSz9uql1IT8QE=",
+  "type": "normal",
+  "title": "如题",
+  "desc": "请教各位前辈和同学，小白初入行，见解浅薄，和平交流\n\t\n1. 做了一个多月行研（二级卖），大概就是一周6天每天工作8-12小时+有时也要顾及正常研究生上课，mentor很好很照顾，没有给太dirty的活，基本是写报告+数据分析这样，感觉内容确实比较丰富。\n但是短短一个月已经有些撑不住这种连续高强度的生活，感觉自己并非真热爱，只是暂时感兴趣吧，目前没有想再去深耕的想法，不知道大家怎么看\n\t\n2. 感觉mentor他们的工作真的很忙碌，真的比我上述的工作时间还多很多，就是完全没有个人时间的生活，这么卷的情况下，大家看到这么累还想去做吗？还是只有部分二级卖是这样的🧐，买方会好很多？\n\t\n3. 薪资是不是头部腰部差别很大？未来发展前景很好吗？\n#一起来探讨[话题]# #大家畅所欲言[话题]# #茫然不知所措[话题]# #有想法随时发[话题]# #发自内心的疑问[话题]#",
+  "user": {
+    "nickname": "momo",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31or0rit01o005o72hksg9enps36nr9g",
+    "xsecToken": "AB9wUseDvfcipQjvrxDtZTB3iMuavCs06LcttelNKlEAk=",
+    "userId": "60e28d39000000000100baf9"
+  },
+  "lastUpdateTime": 1775042129000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "69ccfe51000000002202bcb0",
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "63",
+    "collected": false,
+    "collectedCount": "20",
+    "commentCount": "33",
+    "shareCount": "4",
+    "followed": false,
+    "relation": "none"
+  },
+  "imageList": [
+    {
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191530/d820a152203d488935967f65782fd3ac/notes_pre_post/1040g3k831uds0p562g705o72hksg9enpcd3hte0!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191530/2bcf454d1e0990f7fa63a6ee6229556a/notes_pre_post/1040g3k831uds0p562g705o72hksg9enpcd3hte0!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191530/d820a152203d488935967f65782fd3ac/notes_pre_post/1040g3k831uds0p562g705o72hksg9enpcd3hte0!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191530/2bcf454d1e0990f7fa63a6ee6229556a/notes_pre_post/1040g3k831uds0p562g705o72hksg9enpcd3hte0!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "height": 1600,
+      "url": "",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1200
+    }
+  ],
+  "tagList": [
+    {
+      "name": "一起来探讨",
+      "type": "topic",
+      "id": "6185bc7b0000000001005832"
+    },
+    {
+      "id": "622bd5050000000001008412",
+      "name": "大家畅所欲言",
+      "type": "topic"
+    },
+    {
+      "id": "6141ff950000000001005720",
+      "name": "茫然不知所措",
+      "type": "topic"
+    },
+    {
+      "id": "64a766f80000000025013be8",
+      "name": "有想法随时发",
+      "type": "topic"
+    },
+    {
+      "id": "5f8a85580000000001005e2d",
+      "name": "发自内心的疑问",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1775042129000
+}

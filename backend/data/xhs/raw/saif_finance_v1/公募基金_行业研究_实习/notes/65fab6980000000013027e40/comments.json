@@ -1,0 +1,388 @@
+[
+  {
+    "note_id": "65fab6980000000013027e40",
+    "status": 0,
+    "like_count": "1",
+    "ip_location": "江苏",
+    "sub_comment_has_more": true,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "5c7b57d30000000012027b75",
+      "nickname": "扇贝",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64b943bfbcd38f75b000612a.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABe_cp0FErMjA0fhnnvrZLYrtBwNhUxEHG9n76an5bzfE="
+    },
+    "sub_comments": [
+      {
+        "create_time": 1731236210000,
+        "user_info": {
+          "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo=",
+          "user_id": "5f6325c000000000010069eb",
+          "nickname": "锅锅是灰不是黑",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "status": 0,
+        "content": "宏观工作内容是对经济数据点评以及一些会议啊政策这类的分析，主要发表对未来经济基本面的看法啊，以及对一些政策的预计。策略感觉稍微中观一点，会通过找寻经济数据的规律（一般需要经过数据整理）然后找到一些可以以古鉴今的结论去预测，需要做行业配置的，给出赛道推荐，不具体到个股推荐而已。以上是我自己浅显的一些感受哈，可能不太准确，主要从我实习接触到的工作内容来看",
+        "at_users": [],
+        "liked": false,
+        "like_count": "9",
+        "ip_location": "四川",
+        "id": "67309171000000001b027cfb",
+        "note_id": "65fab6980000000013027e40",
+        "target_comment": {
+          "id": "67303e8a000000001b023b70",
+          "user_info": {
+            "user_id": "5c7b57d30000000012027b75",
+            "nickname": "扇贝",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/64b943bfbcd38f75b000612a.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABe_cp0FErMjA0fhnnvrZLYrtBwNhUxEHG9n76an5bzfE="
+          }
+        }
+      }
+    ],
+    "content": "策略研究和宏观研究有什么不同吗[皱眉R]",
+    "sub_comment_count": "4",
+    "id": "67303e8a000000001b023b70",
+    "show_tags": [],
+    "create_time": 1731214986000,
+    "sub_comment_cursor": "67309171000000001b027cfb"
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "5946655082ec397286d7711c",
+      "nickname": "陈肥肥要变大壮",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nb82j5ql86g49ke74il0s8s86elboo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABdF3NKoUtJJ2Qrk3FRK7FH-evT8bQe1ARz2cX4VaISSM="
+    },
+    "sub_comments": [
+      {
+        "note_id": "65fab6980000000013027e40",
+        "like_count": "3",
+        "create_time": 1731236460000,
+        "target_comment": {
+          "id": "66a76ef5000000001c013753",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nb82j5ql86g49ke74il0s8s86elboo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABdF3NKoUtJJ2Qrk3FRK7FH-evT8bQe1ARz2cX4VaISSM=",
+            "user_id": "5946655082ec397286d7711c",
+            "nickname": "陈肥肥要变大壮"
+          }
+        },
+        "liked": false,
+        "user_info": {
+          "user_id": "5f6325c000000000010069eb",
+          "nickname": "锅锅是灰不是黑",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "四川",
+        "id": "6730926b000000001b02297a",
+        "status": 0,
+        "content": "我觉得其实不是特别适用，因为银行应该只有金市才会涉及这方面，或者市场化机构对应岗位，但如果你想去银行或者央国企，就没啥直接帮助。但是间接一些些的影响呢 比如你可能做完宏观实习会更关注经济数据，经济会议，做银行笔试时更方便推测[捂脸R]以及面试问到你一些金融类的时事可能更有底气，但我自我感受是没那么大用处，还不如找个和择业方向更直接的实习",
+        "at_users": []
+      }
+    ],
+    "sub_comment_has_more": true,
+    "id": "66a76ef5000000001c013753",
+    "note_id": "65fab6980000000013027e40",
+    "status": 0,
+    "content": "求问，楼主现在觉得宏观实习对于后续找工作的帮助大吗？",
+    "show_tags": [],
+    "create_time": 1722248949000,
+    "sub_comment_cursor": "6730926b000000001b02297a",
+    "at_users": [],
+    "like_count": "1",
+    "ip_location": "北京",
+    "sub_comment_count": "3"
+  },
+  {
+    "at_users": [],
+    "user_info": {
+      "user_id": "5e61fd840000000001000c0c",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30oscccdqjq005nj1vm20830ceomdbt8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABD55pNcGlTg5G62cux7LxzDo4yR5RLyLkF_Ye9Bq_Zy4="
+    },
+    "sub_comments": [
+      {
+        "content": "会的，不过得看组",
+        "user_info": {
+          "xsec_token": "ABlhTOovjvI5ti07ZsXzV3byp-zj7XBURk_Lse762_bHY=",
+          "user_id": "6342974b000000001901d6f7",
+          "nickname": "N. aaa",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k5hdji232005oq2it5mblnn3au1vs0?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "id": "692655a100000000160215ac",
+        "note_id": "65fab6980000000013027e40",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "show_tags": [],
+        "create_time": 1764119970000,
+        "ip_location": "新加坡",
+        "target_comment": {
+          "id": "680daf93000000000400dfbb",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30oscccdqjq005nj1vm20830ceomdbt8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABD55pNcGlTg5G62cux7LxzDo4yR5RLyLkF_Ye9Bq_Zy4=",
+            "user_id": "5e61fd840000000001000c0c",
+            "nickname": "momo"
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "like_count": "0",
+    "id": "680daf93000000000400dfbb",
+    "create_time": 1745727380000,
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "692655a100000000160215ac",
+    "note_id": "65fab6980000000013027e40",
+    "content": "想问问朋友策略研究会涉及到债市大宗外汇等方面的配置吗",
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "中国香港"
+  },
+  {
+    "sub_comments": [
+      {
+        "id": "65fac592000000000d00094f",
+        "note_id": "65fab6980000000013027e40",
+        "content": "时间不太长耶，就三个月多一点点",
+        "at_users": [],
+        "create_time": 1710933394000,
+        "target_comment": {
+          "id": "65fabdae000000000b023f62",
+          "user_info": {
+            "user_id": "6019337e00000000010055cb",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ua71sjoig605o0p6dv08leb2sul1so?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB7HR79eUrLT0e19f8I6bmJdEW-03a_0h6p1uVWFp1LI4="
+          }
+        },
+        "status": 0,
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "5f6325c000000000010069eb",
+          "nickname": "锅锅是灰不是黑",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "北京"
+      }
+    ],
+    "sub_comment_has_more": false,
+    "id": "65fabdae000000000b023f62",
+    "user_info": {
+      "xsec_token": "AB7HR79eUrLT0e19f8I6bmJdEW-03a_0h6p1uVWFp1LI4=",
+      "user_id": "6019337e00000000010055cb",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ua71sjoig605o0p6dv08leb2sul1so?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_count": "1",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "like_count": "0",
+    "create_time": 1710931374000,
+    "ip_location": "北京",
+    "sub_comment_cursor": "65fac592000000000d00094f",
+    "note_id": "65fab6980000000013027e40",
+    "status": 0,
+    "content": "想问下卖方策略大概做了多久呀"
+  },
+  {
+    "id": "676d05cd000000000f0395c2",
+    "user_info": {
+      "user_id": "60a63725000000000101f3d0",
+      "nickname": "小红薯60A64AE2",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/60a63725000000000101f3d0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2oYZquzKiy7Py5sq8WaF30-jkS109-Q_FWjKG48oFhw="
+    },
+    "show_tags": [],
+    "like_count": "0",
+    "create_time": 1735198158000,
+    "sub_comments": [],
+    "note_id": "65fab6980000000013027e40",
+    "status": 0,
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "content": "想问一下策略 总量是做什么的呀[偷笑R]",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "广东",
+    "sub_comment_count": "0"
+  },
+  {
+    "sub_comments": [],
+    "liked": false,
+    "status": 0,
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1747016182000,
+    "ip_location": "山东",
+    "note_id": "65fab6980000000013027e40",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31resdsolgm0g5o3b3gug921dt2vasg0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB4a5QxnHWaI4z5GEdZ-4VaeEF3sxC-OL3ppHsUzo5kA4=",
+      "user_id": "606b1c3d000000000100882d",
+      "nickname": "The other me"
+    },
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "content": "uu感觉策略组对就业帮助大吗",
+    "show_tags": [],
+    "id": "682159f60000000009015c19"
+  },
+  {
+    "create_time": 1731236210000,
+    "user_info": {
+      "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo=",
+      "user_id": "5f6325c000000000010069eb",
+      "nickname": "锅锅是灰不是黑",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "status": 0,
+    "content": "宏观工作内容是对经济数据点评以及一些会议啊政策这类的分析，主要发表对未来经济基本面的看法啊，以及对一些政策的预计。策略感觉稍微中观一点，会通过找寻经济数据的规律（一般需要经过数据整理）然后找到一些可以以古鉴今的结论去预测，需要做行业配置的，给出赛道推荐，不具体到个股推荐而已。以上是我自己浅显的一些感受哈，可能不太准确，主要从我实习接触到的工作内容来看",
+    "at_users": [],
+    "liked": false,
+    "like_count": "9",
+    "ip_location": "四川",
+    "id": "67309171000000001b027cfb",
+    "note_id": "65fab6980000000013027e40",
+    "target_comment": {
+      "id": "67303e8a000000001b023b70",
+      "user_info": {
+        "user_id": "5c7b57d30000000012027b75",
+        "nickname": "扇贝",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/64b943bfbcd38f75b000612a.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABe_cp0FErMjA0fhnnvrZLYrtBwNhUxEHG9n76an5bzfE="
+      }
+    }
+  },
+  {
+    "note_id": "65fab6980000000013027e40",
+    "like_count": "3",
+    "create_time": 1731236460000,
+    "target_comment": {
+      "id": "66a76ef5000000001c013753",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31nb82j5ql86g49ke74il0s8s86elboo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABdF3NKoUtJJ2Qrk3FRK7FH-evT8bQe1ARz2cX4VaISSM=",
+        "user_id": "5946655082ec397286d7711c",
+        "nickname": "陈肥肥要变大壮"
+      }
+    },
+    "liked": false,
+    "user_info": {
+      "user_id": "5f6325c000000000010069eb",
+      "nickname": "锅锅是灰不是黑",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "四川",
+    "id": "6730926b000000001b02297a",
+    "status": 0,
+    "content": "我觉得其实不是特别适用，因为银行应该只有金市才会涉及这方面，或者市场化机构对应岗位，但如果你想去银行或者央国企，就没啥直接帮助。但是间接一些些的影响呢 比如你可能做完宏观实习会更关注经济数据，经济会议，做银行笔试时更方便推测[捂脸R]以及面试问到你一些金融类的时事可能更有底气，但我自我感受是没那么大用处，还不如找个和择业方向更直接的实习",
+    "at_users": []
+  },
+  {
+    "content": "会的，不过得看组",
+    "user_info": {
+      "xsec_token": "ABlhTOovjvI5ti07ZsXzV3byp-zj7XBURk_Lse762_bHY=",
+      "user_id": "6342974b000000001901d6f7",
+      "nickname": "N. aaa",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31k5hdji232005oq2it5mblnn3au1vs0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "id": "692655a100000000160215ac",
+    "note_id": "65fab6980000000013027e40",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "show_tags": [],
+    "create_time": 1764119970000,
+    "ip_location": "新加坡",
+    "target_comment": {
+      "id": "680daf93000000000400dfbb",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30oscccdqjq005nj1vm20830ceomdbt8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABD55pNcGlTg5G62cux7LxzDo4yR5RLyLkF_Ye9Bq_Zy4=",
+        "user_id": "5e61fd840000000001000c0c",
+        "nickname": "momo"
+      }
+    }
+  },
+  {
+    "id": "65fac592000000000d00094f",
+    "note_id": "65fab6980000000013027e40",
+    "content": "时间不太长耶，就三个月多一点点",
+    "at_users": [],
+    "create_time": 1710933394000,
+    "target_comment": {
+      "id": "65fabdae000000000b023f62",
+      "user_info": {
+        "user_id": "6019337e00000000010055cb",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ua71sjoig605o0p6dv08leb2sul1so?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB7HR79eUrLT0e19f8I6bmJdEW-03a_0h6p1uVWFp1LI4="
+      }
+    },
+    "status": 0,
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "5f6325c000000000010069eb",
+      "nickname": "锅锅是灰不是黑",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo314pmpt04h46g5nr34n008qfbgkuoc48?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB5pC19TgjDMWZajC5emNFEZIW1_oiIS07ifpnocjMryo="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "北京"
+  }
+]

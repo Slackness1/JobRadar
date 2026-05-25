@@ -1,0 +1,69 @@
+{
+  "xsecToken": "AB6B5Pyw6RTFVmVZA8nLRjExXZqGYvBHp_DkU1anZY32M=",
+  "desc": "就是学历背景弱一些，真正找工作的时候这个方向卷不进去。#金融[话题]# #职业规划[话题]# #职场[话题]#",
+  "interactInfo": {
+    "commentCount": "10",
+    "shareCount": "4",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "37",
+    "collected": false,
+    "collectedCount": "4"
+  },
+  "tagList": [
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "name": "职业规划",
+      "type": "topic",
+      "id": "5f715f1000000000010002ba"
+    },
+    {
+      "type": "topic",
+      "id": "5f9b90c500000000010011c9",
+      "name": "职场"
+    }
+  ],
+  "time": 1766305588000,
+  "lastUpdateTime": 1766305588000,
+  "title": "这背景能找到资管研究员的实习，也蛮厉害的。",
+  "type": "normal",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pu6len23q005oiksvhje0h06n5k858",
+    "xsecToken": "ABON5-DeqbyPcrhTqNryMLHvBydNX9AM36QgllCgC32f8=",
+    "userId": "6254e7e3000000000d030220",
+    "nickname": "猎界Coco（猎头&职业规划）"
+  },
+  "imageList": [
+    {
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191437/7675813b350191b0b8b9d871711302ba/notes_pre_post/1040g3k831qblr4iln08g5oiksvhje0h0n8lce50!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191437/f48ce7db317634723135c0636abb332b/notes_pre_post/1040g3k831qblr4iln08g5oiksvhje0h0n8lce50!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191437/7675813b350191b0b8b9d871711302ba/notes_pre_post/1040g3k831qblr4iln08g5oiksvhje0h0n8lce50!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1134,
+      "url": "",
+      "traceId": "",
+      "height": 1434,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191437/f48ce7db317634723135c0636abb332b/notes_pre_post/1040g3k831qblr4iln08g5oiksvhje0h0n8lce50!nd_dft_wlteh_webp_3",
+      "stream": {}
+    }
+  ],
+  "atUserList": [],
+  "shareInfo": {
+    "unShare": false
+  },
+  "noteId": "6947af34000000001e0082d5"
+}

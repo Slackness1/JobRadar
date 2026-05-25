@@ -1,0 +1,64 @@
+{
+  "xsecToken": "AB27DzOmEZGGXSjHHY53bjGHvGjUPufOSr87rVsnEg43Q=",
+  "type": "normal",
+  "atUserList": [],
+  "time": 1711436467000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "imageList": [
+    {
+      "stream": {},
+      "fileId": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191608/f5c9501ff923e5eac75b260043c47e87/1040g2sg310q2nrcrmc705os6n8m7bems3u4ub3g!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191608/6804a83424e9551ae19e8d999c383ea9/1040g2sg310q2nrcrmc705os6n8m7bems3u4ub3g!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191608/f5c9501ff923e5eac75b260043c47e87/1040g2sg310q2nrcrmc705os6n8m7bems3u4ub3g!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191608/6804a83424e9551ae19e8d999c383ea9/1040g2sg310q2nrcrmc705os6n8m7bems3u4ub3g!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "height": 1920,
+      "width": 1080,
+      "url": "",
+      "traceId": ""
+    }
+  ],
+  "tagList": [
+    {
+      "id": "5f951e7c000000000101ce26",
+      "name": "华夏基金",
+      "type": "topic"
+    },
+    {
+      "name": "实习",
+      "type": "topic",
+      "id": "5c08e5789346b10001dcd676"
+    }
+  ],
+  "lastUpdateTime": 1711436467000,
+  "noteId": "660272b30000000012033258",
+  "title": "华夏基金渠销",
+  "desc": "来一个面经 可以给我自己增加点运气值吧\n1.自我介绍\n2.简历深挖\n3.近期债市看法以及股市指数\n4.5-10年资管公司的发展方向看法\n5.2023年债市回顾\n6.小基金公司出现的意义（？不懂）\n7.渠道销售的了解程度\n8.二面路演产品\n还不知道有没有后续先…先被吐槽没穿西装来面试\n#华夏基金[话题]# #实习[话题]#",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/63df7c31627a7faf54867d82.jpg",
+    "xsecToken": "ABgJvaf7x8clC39TEki5Zrbf-uS14Hu63AFDcjCXvLoTU=",
+    "userId": "6386ba2c000000001d01badc",
+    "nickname": "AI"
+  },
+  "interactInfo": {
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "165",
+    "collected": false,
+    "collectedCount": "185",
+    "commentCount": "26",
+    "shareCount": "41"
+  }
+}

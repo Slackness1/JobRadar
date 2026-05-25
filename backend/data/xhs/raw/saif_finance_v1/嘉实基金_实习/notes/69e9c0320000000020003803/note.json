@@ -1,0 +1,75 @@
+{
+  "xsecToken": "ABZTIKxZSkEqAGbZaomoE9OJzWU_Q1-Lu2mDabRIotZ78=",
+  "noteId": "69e9c0320000000020003803",
+  "title": "求问swhy留用率如何🥺",
+  "user": {
+    "userId": "66b0d5f3000000001d032520",
+    "nickname": "Linyalli",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mg6l06d580g5plgqnpne990gjbfg50",
+    "xsecToken": "AB52rU-4YGktDMITH51k3luio3nPOLUr5QkVJHldLFkVA="
+  },
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "32",
+    "collected": false,
+    "collectedCount": "10",
+    "commentCount": "48",
+    "shareCount": "26",
+    "followed": false,
+    "relation": "none"
+  },
+  "lastUpdateTime": 1777359004000,
+  "shareInfo": {
+    "unShare": false
+  },
+  "type": "normal",
+  "desc": "这家刚进终面\n岗位是上海计财总部的\n看到通知要现场实习两周\n会不会被差额掉呢\n0 offer选手没招了[抓狂R][抓狂R][泪崩R][泪崩R][捂脸R][哭惹R][哭惹R]\n二更：面完了感觉面的稀烂 一面没咋筛人 面试的人也很多 实习差额1:3\n#offer[话题]# #春招[话题]# #金融[话题]# #券商[话题]#",
+  "imageList": [
+    {
+      "url": "",
+      "traceId": "",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191551/48076f6c1ebd69468322840ac3744adc/notes_pre_post/1040g3k831v9ura1rjq705plgqnpne990qsl18bg!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "height": 1600,
+      "width": 1200,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191551/45c41fae2b73e5e445205f9d9abbcdbf/notes_pre_post/1040g3k831v9ura1rjq705plgqnpne990qsl18bg!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191551/48076f6c1ebd69468322840ac3744adc/notes_pre_post/1040g3k831v9ura1rjq705plgqnpne990qsl18bg!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191551/45c41fae2b73e5e445205f9d9abbcdbf/notes_pre_post/1040g3k831v9ura1rjq705plgqnpne990qsl18bg!nd_prv_wlteh_webp_3",
+      "livePhoto": false
+    }
+  ],
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5c5024dc000000000f03d348",
+      "name": "offer"
+    },
+    {
+      "id": "5c483aea000000000e02a3b8",
+      "name": "春招",
+      "type": "topic"
+    },
+    {
+      "id": "5be432abe772cd000136f832",
+      "name": "金融",
+      "type": "topic"
+    },
+    {
+      "id": "5e5357ad0000000001009e09",
+      "name": "券商",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1776926770000,
+  "ipLocation": "广东"
+}

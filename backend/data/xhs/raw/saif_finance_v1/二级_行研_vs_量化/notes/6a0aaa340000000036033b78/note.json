@@ -1,0 +1,105 @@
+{
+  "xsecToken": "ABskQvqCa8UtTr6QCoki6U1LtMYJGbmHiB5LGWZA71BME=",
+  "time": 1779083828000,
+  "interactInfo": {
+    "shareCount": "9",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "60",
+    "collected": false,
+    "collectedCount": "36",
+    "commentCount": "47"
+  },
+  "imageList": [
+    {
+      "width": 1200,
+      "height": 1600,
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191532/a4ecb5c0c1afb09e6eb0f54ecf54a276/1040g008320a3c9etlm005ombgp2gg85b898dkm8!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191532/2c25bdb65e0c4a63aa9c70fc53e6c432/1040g008320a3c9etlm005ombgp2gg85b898dkm8!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191532/a4ecb5c0c1afb09e6eb0f54ecf54a276/1040g008320a3c9etlm005ombgp2gg85b898dkm8!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191532/2c25bdb65e0c4a63aa9c70fc53e6c432/1040g008320a3c9etlm005ombgp2gg85b898dkm8!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "livePhoto": false
+    }
+  ],
+  "title": "求助：继续卷量化 or 转行",
+  "desc": "本人某中外合办本大三，最近陆陆续续投递暑期实习，和一些学长学姐交流后，对于未来的方向有点迷茫。\n\t\n首先就是国内量化的氛围好像并没有传闻中那么好。本人做过2段买方qr，体感现在留用的可能性越来越小。且本人自知自己实力有限，难和很多竞赛佬竞争top百亿或者外资买方。而大部分普通quant听说薪资和互联网差不多甚至更少，唯一好的点在于可能比互联网wlb好一些。\n\t\n如果申请mfe的话大概率会去到一个tier 1.5的项目（比如nyu mfe），现在留美也很艰难，不确定性也很高。想求助一下各位老师如果未来打算回国是否还有必要继续卷量化或者趁早赶紧转行😮‍💨 如果卷量化的话是推荐私募，公募 or 券商自营，感谢大家🥺\n#量化[话题]# #quant求职[话题]# #互联网[话题]# #百亿私募[话题]# #公募基金[话题]# #券商自营量化[话题]#  #工作方向抉择[话题]# #金融工程[话题]# #mfe[话题]#",
+  "user": {
+    "userId": "62cb864500000000020020ab",
+    "nickname": "菜猫.",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31vp73neria105ombgp2gg85but2si40",
+    "xsecToken": "ABeopL_57IsykJ2hJae1ub0u5M4C3H6LjJ5WkwrJu4mt0="
+  },
+  "tagList": [
+    {
+      "id": "5f53ab7a0000000001005e43",
+      "name": "量化",
+      "type": "topic"
+    },
+    {
+      "id": "62083883000000000100b3e9",
+      "name": "quant求职",
+      "type": "topic"
+    },
+    {
+      "id": "5c1fa16d000000000a01c6e2",
+      "name": "互联网",
+      "type": "topic"
+    },
+    {
+      "name": "百亿私募",
+      "type": "topic",
+      "id": "616561c20000000001004ea0"
+    },
+    {
+      "id": "5d1036ec000000000e021e70",
+      "name": "公募基金",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "6978c0a5000000002500f5a6",
+      "name": "券商自营量化"
+    },
+    {
+      "id": "6423ef0e00000000090192df",
+      "name": "工作方向抉择",
+      "type": "topic"
+    },
+    {
+      "id": "5c569de8000000000f028a53",
+      "name": "金融工程",
+      "type": "topic"
+    },
+    {
+      "id": "6046a3440000000001002f93",
+      "name": "mfe",
+      "type": "topic"
+    },
+    {
+      "name": "求助",
+      "type": "interact_vote",
+      "id": "137934469447962640"
+    }
+  ],
+  "atUserList": [],
+  "lastUpdateTime": 1779084129000,
+  "noteId": "6a0aaa340000000036033b78",
+  "type": "normal",
+  "ipLocation": "广东",
+  "shareInfo": {
+    "unShare": false
+  }
+}

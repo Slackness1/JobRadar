@@ -1,0 +1,104 @@
+{
+  "xsecToken": "ABsv4H300GpU8icFlBLrI73UWoz2qD53GQ9GCZHkLuGUk=",
+  "type": "normal",
+  "user": {
+    "userId": "5f3654f6000000000101dea7",
+    "nickname": "澈",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/6305bf9152e48411ee5dcb7c.jpg",
+    "xsecToken": "ABFUL750AijVMBEhsX5GBHv9-EaMzhvSoi_88BvVsZksE="
+  },
+  "tagList": [
+    {
+      "id": "5bf577715fb4e60001b66b97",
+      "name": "秋招",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "64b963a1000000003801d4e9",
+      "name": "25届秋招"
+    },
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "id": "5c887328000000000d0126e8",
+      "name": "金融实习",
+      "type": "topic"
+    },
+    {
+      "id": "5c2070eb000000000903ed90",
+      "name": "求职",
+      "type": "topic"
+    },
+    {
+      "name": "金融求职",
+      "type": "topic",
+      "id": "5d4e67ba000000000f018b78"
+    },
+    {
+      "id": "5dfb17530000000001005dc3",
+      "name": "人大",
+      "type": "topic"
+    },
+    {
+      "id": "6220bb80000000000101e68d",
+      "name": "人大财金",
+      "type": "topic"
+    },
+    {
+      "name": "应届生求职",
+      "type": "topic",
+      "id": "637b17240000000001002909"
+    },
+    {
+      "id": "60b7f3b50000000001003650",
+      "name": "pevc",
+      "type": "topic"
+    }
+  ],
+  "atUserList": [],
+  "time": 1733217000000,
+  "lastUpdateTime": 1733217001000,
+  "noteId": "674ecae80000000007035a3d",
+  "title": "天壹资本的笔面试算PE/VC里最难的之一吗？",
+  "desc": "笔面经都放在图片里啦，2个以往项目的汇报讨论、耗时15+h的大作业ppt、再把大作业向partner的pre答辩，应该是自己找实习以来碰到的最challenging的一次笔面试了[哭惹R]\n为什么为天壹付出了这么多，主要还是因为给的确实比市场平均高了不少(听mt说强度还比xixx好不少)[doge]，离学校近，和mt沟通起来很舒服随和，加上之前有去头部pe入职回来宣讲的师兄专门提到了这家，也有一些说这家机构背景很深的信息（bushi？\ndream一个蹲到这次一起过了的另一个实习搭子[黄金薯R]，然后有没有在这儿实习过的uu分享一下体验如何[微笑R]\n\t\n#秋招[话题]# #25届秋招[话题]# #实习[话题]# #金融实习[话题]# #求职[话题]# #金融求职[话题]# #人大[话题]# #人大财金[话题]# #应届生求职[话题]# #pevc[话题]#",
+  "interactInfo": {
+    "shareCount": "29",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "52",
+    "collected": false,
+    "collectedCount": "66",
+    "commentCount": "17"
+  },
+  "imageList": [
+    {
+      "height": 1660,
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191524/7d5377c3d692e6ac91c9519d1bde0bc6/1040g00831aukge7rmu005npmajr0bnl7cgncm2o!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191524/45b72dde5c02eb094fdc781999ff8166/1040g00831aukge7rmu005npmajr0bnl7cgncm2o!nd_dft_wlteh_webp_3",
+      "livePhoto": false,
+      "fileId": "",
+      "width": 1242,
+      "url": "",
+      "infoList": [
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191524/7d5377c3d692e6ac91c9519d1bde0bc6/1040g00831aukge7rmu005npmajr0bnl7cgncm2o!nd_prv_wlteh_webp_3",
+          "imageScene": "WB_PRV"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191524/45b72dde5c02eb094fdc781999ff8166/1040g00831aukge7rmu005npmajr0bnl7cgncm2o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "stream": {}
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  }
+}

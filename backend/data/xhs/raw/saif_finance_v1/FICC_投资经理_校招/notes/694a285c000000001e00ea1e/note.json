@@ -1,0 +1,64 @@
+{
+  "xsecToken": "ABghjblgDXt909c2pHHKZsQvwW7ddNysK45B-heNVx5dU=",
+  "tagList": [
+    {
+      "id": "61df5db30000000001003683",
+      "name": "工作选择",
+      "type": "topic"
+    },
+    {
+      "id": "137722797677765732",
+      "name": "Offer选择",
+      "type": "interact_vote"
+    }
+  ],
+  "title": "香港🇭🇰offer选择",
+  "type": "normal",
+  "desc": "1. offer1 — 港资小券商\n（1）Base salary:20k, hr说一年后25k（不知道是不是画饼）\n（2）Annual Leave：10\n（3）Bonus：看年终review。\n\t\n2. Offer2 — 中资大券商\n（1）Base salary：19k，涨薪不确定；\n（2）Annual leave：8；\n（3）Bonus：不确定。\n\t\n所以是选大平台低薪还是小公司略高薪资，fresh graduate，都是中后台岗位，工作内容时间一样#工作选择[话题]#\n新编：有offer3了，银行的risk analyst，已经决定去offer3这家了😁",
+  "user": {
+    "userId": "58b282115e87e732ab57fc24",
+    "nickname": "小红薯B11DE66F",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/645b6985573b2ad2b5243b1d.jpg",
+    "xsecToken": "ABAz1Tv0odY6US_-JZW4pbnf8IXnIU6m9u9--gcXoZnrk="
+  },
+  "interactInfo": {
+    "liked": false,
+    "likedCount": "145",
+    "collected": false,
+    "collectedCount": "53",
+    "commentCount": "90",
+    "shareCount": "94",
+    "followed": false,
+    "relation": "none"
+  },
+  "imageList": [
+    {
+      "url": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191458/c672a9a061d6e42d1856e016b7e8892c/notes_pre_post/1040g3k031qe37bqm0a2g5n3of454gbfjdl9sd40!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191458/aeaa23f1dba266cb599769e69f082009/notes_pre_post/1040g3k031qe37bqm0a2g5n3of454gbfjdl9sd40!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191458/c672a9a061d6e42d1856e016b7e8892c/notes_pre_post/1040g3k031qe37bqm0a2g5n3of454gbfjdl9sd40!nd_prv_wlteh_webp_3",
+      "livePhoto": false,
+      "height": 1600,
+      "width": 1200,
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191458/aeaa23f1dba266cb599769e69f082009/notes_pre_post/1040g3k031qe37bqm0a2g5n3of454gbfjdl9sd40!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": ""
+    }
+  ],
+  "atUserList": [],
+  "time": 1766467676000,
+  "noteId": "694a285c000000001e00ea1e",
+  "shareInfo": {
+    "unShare": false
+  },
+  "lastUpdateTime": 1767971154000
+}

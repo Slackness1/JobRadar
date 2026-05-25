@@ -1,0 +1,627 @@
+[
+  {
+    "status": 0,
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/64319377a8699be329529096.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABNndBjTHNYY5hU1BFHX3Fp_i_dYKydYKIuEYOncoxZI0=",
+      "user_id": "61e97079000000001000b08f",
+      "nickname": "酩酊天使"
+    },
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "ip_location": "陕西",
+        "target_comment": {
+          "id": "681cc40b000000000400d205",
+          "user_info": {
+            "user_id": "61e97079000000001000b08f",
+            "nickname": "酩酊天使",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/64319377a8699be329529096.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABNndBjTHNYY5hU1BFHX3Fp_i_dYKydYKIuEYOncoxZI0="
+          }
+        },
+        "status": 0,
+        "at_users": [],
+        "user_info": {
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "create_time": 1746717226000,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "681cca29000000000b01d7f5",
+        "note_id": "65fd78a1000000001203c160",
+        "content": "顶级私募是会的，大概考一些搭模型、财务计算方面的知识～",
+        "liked": false
+      }
+    ],
+    "sub_comment_cursor": "681cca29000000000b01d7f5",
+    "note_id": "65fd78a1000000001203c160",
+    "create_time": 1746715660000,
+    "sub_comment_count": "6",
+    "sub_comment_has_more": true,
+    "id": "681cc40b000000000400d205",
+    "at_users": [],
+    "ip_location": "上海",
+    "content": "现在才刷到这篇 可以问问这种私募实习一般要笔试嘛 如果要的话笔试会很难嘛"
+  },
+  {
+    "sub_comment_cursor": "65fd8873000000000b021de7",
+    "status": 0,
+    "like_count": "0",
+    "ip_location": "上海",
+    "id": "65fd8708000000000b022cca",
+    "content": "PE做Bp是要卖老股吗",
+    "at_users": [],
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "note_id": "65fd78a1000000001203c160",
+        "content": "是对接来的新项目，要换成公司自己的模版以及内容～",
+        "like_count": "0",
+        "create_time": 1711114355000,
+        "ip_location": "福建",
+        "target_comment": {
+          "id": "65fd8708000000000b022cca",
+          "user_info": {
+            "user_id": "5e506e0f000000000100a0df",
+            "nickname": "Oli",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31isbpj3d0m005nigdo7g986vgjpkv78?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABaLus7GrI1NGcss-Neoqrfs-n2hAFEnlcRPPDtak27Vc="
+          }
+        },
+        "id": "65fd8873000000000b021de7",
+        "status": 0
+      }
+    ],
+    "sub_comment_has_more": true,
+    "note_id": "65fd78a1000000001203c160",
+    "liked": false,
+    "user_info": {
+      "user_id": "5e506e0f000000000100a0df",
+      "nickname": "Oli",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31isbpj3d0m005nigdo7g986vgjpkv78?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABaLus7GrI1NGcss-Neoqrfs-n2hAFEnlcRPPDtak27Vc="
+    },
+    "show_tags": [],
+    "create_time": 1711113992000
+  },
+  {
+    "id": "65fe2728000000000b021245",
+    "status": 0,
+    "content": "隔行如隔山，工程人要想看懂金融人的专业术语还得专心学习[偷笑R]",
+    "at_users": [],
+    "note_id": "65fd78a1000000001203c160",
+    "like_count": "1",
+    "ip_location": "内蒙古",
+    "sub_comment_has_more": false,
+    "liked": false,
+    "sub_comments": [
+      {
+        "at_users": [],
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1711156065000,
+        "ip_location": "福建",
+        "target_comment": {
+          "id": "65fe2728000000000b021245",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e3fd01f000000000100707f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB5WVFQeXqCYliDS4nOz5exhGxV_aX7lxOtYBQlnsLoK4=",
+            "user_id": "5e3fd01f000000000100707f",
+            "nickname": "倔强的 70后大姐"
+          }
+        },
+        "note_id": "65fd78a1000000001203c160",
+        "status": 0,
+        "liked": false,
+        "user_info": {
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+        },
+        "id": "65fe2b61000000000b023254",
+        "content": "[笑哭R][笑哭R][笑哭R]"
+      }
+    ],
+    "sub_comment_cursor": "65fe2b61000000000b023254",
+    "user_info": {
+      "nickname": "倔强的 70后大姐",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e3fd01f000000000100707f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB5WVFQeXqCYliDS4nOz5exhGxV_aX7lxOtYBQlnsLoK4=",
+      "user_id": "5e3fd01f000000000100707f"
+    },
+    "show_tags": [],
+    "create_time": 1711154984000,
+    "sub_comment_count": "1"
+  },
+  {
+    "id": "65fe49cc000000000b0212d4",
+    "note_id": "65fd78a1000000001203c160",
+    "at_users": [],
+    "sub_comments": [
+      {
+        "note_id": "65fd78a1000000001203c160",
+        "content": "哈哈[害羞R]",
+        "at_users": [],
+        "like_count": "0",
+        "user_info": {
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+        },
+        "target_comment": {
+          "id": "65fe49cc000000000b0212d4",
+          "user_info": {
+            "xsec_token": "AB7fip0CYPVsOhQ4-o9AH0naxS3iPGqUJIDJLI38bnUbQ=",
+            "user_id": "65b39304000000000d01d3cc",
+            "nickname": "聚鑫一品小红薯65B4525D",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f4a9262aeee795c99e7.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "id": "65fe49e6000000000b022712",
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1711163878000,
+        "ip_location": "福建",
+        "status": 0
+      }
+    ],
+    "sub_comment_has_more": false,
+    "status": 0,
+    "liked": false,
+    "create_time": 1711163853000,
+    "sub_comment_count": "1",
+    "ip_location": "内蒙古",
+    "sub_comment_cursor": "65fe49e6000000000b022712",
+    "content": "牛🐮",
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f4a9262aeee795c99e7.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB7fip0CYPVsOhQ4-o9AH0naxS3iPGqUJIDJLI38bnUbQ=",
+      "user_id": "65b39304000000000d01d3cc",
+      "nickname": "聚鑫一品小红薯65B4525D"
+    },
+    "show_tags": []
+  },
+  {
+    "content": "你面试的时候他问了很专业的问题嘛",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABhh8xWvDqcsvBUTfp0eaXQe3KQwnN6e7kS5h1AZmItL8=",
+      "user_id": "5b97c3bdfcfe8500018dc3de",
+      "nickname": "cookie",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3169lpbluha004auaof1rrguu5p7uo50?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1712767844000,
+    "status": 0,
+    "like_count": "0",
+    "ip_location": "福建",
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "create_time": 1712792149000,
+        "target_comment": {
+          "id": "6616c3640000000015003098",
+          "user_info": {
+            "nickname": "cookie",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3169lpbluha004auaof1rrguu5p7uo50?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABhh8xWvDqcsvBUTfp0eaXQe3KQwnN6e7kS5h1AZmItL8=",
+            "user_id": "5b97c3bdfcfe8500018dc3de"
+          }
+        },
+        "id": "6617225500000000090256b3",
+        "liked": false,
+        "like_count": "2",
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "note_id": "65fd78a1000000001203c160",
+        "status": 0,
+        "content": "问了企业融资的几个阶段以及股权融资的退出路径～",
+        "at_users": [],
+        "ip_location": "福建"
+      }
+    ],
+    "id": "6616c3640000000015003098",
+    "show_tags": [],
+    "note_id": "65fd78a1000000001203c160",
+    "sub_comment_has_more": false,
+    "sub_comment_cursor": "6617225500000000090256b3"
+  },
+  {
+    "status": 0,
+    "content": "博主最后一张图是用什么软件做的项目bp呢",
+    "at_users": [],
+    "create_time": 1711112705000,
+    "sub_comment_count": "1",
+    "sub_comment_has_more": false,
+    "note_id": "65fd78a1000000001203c160",
+    "ip_location": "贵州",
+    "id": "65fd8201000000000b023404",
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_cursor": "65fd83d900000000160075d4",
+    "user_info": {
+      "xsec_token": "ABXnYhqtnTnbG0KdfTfkp-hIdjYUxzKon_4dJDW7z-qlY=",
+      "user_id": "6256fad0000000000d033f8a",
+      "nickname": "等你下课",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/646ce7719bede08712d6ac4d.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+        },
+        "create_time": 1711113177000,
+        "id": "65fd83d900000000160075d4",
+        "note_id": "65fd78a1000000001203c160",
+        "status": 0,
+        "content": "是wps的ppt啦，只不过我把主题颜色调整成黑色啦[害羞R]",
+        "at_users": [],
+        "liked": false,
+        "ip_location": "福建",
+        "target_comment": {
+          "id": "65fd8201000000000b023404",
+          "user_info": {
+            "user_id": "6256fad0000000000d033f8a",
+            "nickname": "等你下课",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/646ce7719bede08712d6ac4d.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABXnYhqtnTnbG0KdfTfkp-hIdjYUxzKon_4dJDW7z-qlY="
+          }
+        },
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ]
+      }
+    ]
+  },
+  {
+    "ip_location": "上海",
+    "note_id": "65fd78a1000000001203c160",
+    "content": "想问问博主如果接到了从没有研究过的领域要写研究报告 具体怎么去查数据呀",
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1726557022000,
+    "id": "66e92b5d000000000200470b",
+    "at_users": [],
+    "status": 0,
+    "user_info": {
+      "user_id": "5ef5b4ff000000000101ded2",
+      "nickname": "king of momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3156qe3euhc005nnlmjvgbnmiae7ibbg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABVHz_RdEMlSuVTI0kc1d7Iq1DfVryji16Ny0IacxxAsI="
+    },
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "66f109140000000012026525",
+    "sub_comment_has_more": false,
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "2",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "广东",
+        "id": "66f109140000000012026525",
+        "note_id": "65fd78a1000000001203c160",
+        "status": 0,
+        "at_users": [],
+        "target_comment": {
+          "id": "66e92b5d000000000200470b",
+          "user_info": {
+            "user_id": "5ef5b4ff000000000101ded2",
+            "nickname": "king of momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3156qe3euhc005nnlmjvgbnmiae7ibbg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABVHz_RdEMlSuVTI0kc1d7Iq1DfVryji16Ny0IacxxAsI="
+          }
+        },
+        "content": "抱歉，刚看到你的评论~各个行业的数据来源不一样，现在我做行研大部分是从专门的数据库里面调，或者从一些官网平台、公众号里面找。如果实在不行的话也可以看其他公司的研报，看看他们的数据都是哪里来的，然后进行溯源~",
+        "user_info": {
+          "user_id": "657ae7d70000000020033d5f",
+          "nickname": "再打一针内啡肽",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+        },
+        "create_time": 1727072533000
+      }
+    ]
+  },
+  {
+    "id": "6610112700000000190303c5",
+    "like_count": "0",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "content": "博主好棒[蹲后续H]",
+    "at_users": [],
+    "status": 0,
+    "user_info": {
+      "xsec_token": "ABTsoFi7Y0KKky0mkifMo74DhiVv3KGa9ZUjUyy-eAAN4=",
+      "user_id": "5f114f6e00000000010078df",
+      "nickname": "无滤镜骨头",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5f114fbd99e55000010f21e1.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "create_time": 1712329000000,
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "65fd78a1000000001203c160",
+    "liked": false,
+    "ip_location": "浙江"
+  },
+  {
+    "ip_location": "陕西",
+    "target_comment": {
+      "id": "681cc40b000000000400d205",
+      "user_info": {
+        "user_id": "61e97079000000001000b08f",
+        "nickname": "酩酊天使",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/64319377a8699be329529096.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABNndBjTHNYY5hU1BFHX3Fp_i_dYKydYKIuEYOncoxZI0="
+      }
+    },
+    "status": 0,
+    "at_users": [],
+    "user_info": {
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1746717226000,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "681cca29000000000b01d7f5",
+    "note_id": "65fd78a1000000001203c160",
+    "content": "顶级私募是会的，大概考一些搭模型、财务计算方面的知识～",
+    "liked": false
+  },
+  {
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "note_id": "65fd78a1000000001203c160",
+    "content": "是对接来的新项目，要换成公司自己的模版以及内容～",
+    "like_count": "0",
+    "create_time": 1711114355000,
+    "ip_location": "福建",
+    "target_comment": {
+      "id": "65fd8708000000000b022cca",
+      "user_info": {
+        "user_id": "5e506e0f000000000100a0df",
+        "nickname": "Oli",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31isbpj3d0m005nigdo7g986vgjpkv78?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABaLus7GrI1NGcss-Neoqrfs-n2hAFEnlcRPPDtak27Vc="
+      }
+    },
+    "id": "65fd8873000000000b021de7",
+    "status": 0
+  },
+  {
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1711156065000,
+    "ip_location": "福建",
+    "target_comment": {
+      "id": "65fe2728000000000b021245",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e3fd01f000000000100707f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB5WVFQeXqCYliDS4nOz5exhGxV_aX7lxOtYBQlnsLoK4=",
+        "user_id": "5e3fd01f000000000100707f",
+        "nickname": "倔强的 70后大姐"
+      }
+    },
+    "note_id": "65fd78a1000000001203c160",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+    },
+    "id": "65fe2b61000000000b023254",
+    "content": "[笑哭R][笑哭R][笑哭R]"
+  },
+  {
+    "note_id": "65fd78a1000000001203c160",
+    "content": "哈哈[害羞R]",
+    "at_users": [],
+    "like_count": "0",
+    "user_info": {
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+    },
+    "target_comment": {
+      "id": "65fe49cc000000000b0212d4",
+      "user_info": {
+        "xsec_token": "AB7fip0CYPVsOhQ4-o9AH0naxS3iPGqUJIDJLI38bnUbQ=",
+        "user_id": "65b39304000000000d01d3cc",
+        "nickname": "聚鑫一品小红薯65B4525D",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f4a9262aeee795c99e7.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "id": "65fe49e6000000000b022712",
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1711163878000,
+    "ip_location": "福建",
+    "status": 0
+  },
+  {
+    "create_time": 1712792149000,
+    "target_comment": {
+      "id": "6616c3640000000015003098",
+      "user_info": {
+        "nickname": "cookie",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3169lpbluha004auaof1rrguu5p7uo50?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABhh8xWvDqcsvBUTfp0eaXQe3KQwnN6e7kS5h1AZmItL8=",
+        "user_id": "5b97c3bdfcfe8500018dc3de"
+      }
+    },
+    "id": "6617225500000000090256b3",
+    "liked": false,
+    "like_count": "2",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0=",
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "note_id": "65fd78a1000000001203c160",
+    "status": 0,
+    "content": "问了企业融资的几个阶段以及股权融资的退出路径～",
+    "at_users": [],
+    "ip_location": "福建"
+  },
+  {
+    "user_info": {
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+    },
+    "create_time": 1711113177000,
+    "id": "65fd83d900000000160075d4",
+    "note_id": "65fd78a1000000001203c160",
+    "status": 0,
+    "content": "是wps的ppt啦，只不过我把主题颜色调整成黑色啦[害羞R]",
+    "at_users": [],
+    "liked": false,
+    "ip_location": "福建",
+    "target_comment": {
+      "id": "65fd8201000000000b023404",
+      "user_info": {
+        "user_id": "6256fad0000000000d033f8a",
+        "nickname": "等你下课",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/646ce7719bede08712d6ac4d.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABXnYhqtnTnbG0KdfTfkp-hIdjYUxzKon_4dJDW7z-qlY="
+      }
+    },
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ]
+  },
+  {
+    "liked": false,
+    "like_count": "2",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "广东",
+    "id": "66f109140000000012026525",
+    "note_id": "65fd78a1000000001203c160",
+    "status": 0,
+    "at_users": [],
+    "target_comment": {
+      "id": "66e92b5d000000000200470b",
+      "user_info": {
+        "user_id": "5ef5b4ff000000000101ded2",
+        "nickname": "king of momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3156qe3euhc005nnlmjvgbnmiae7ibbg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABVHz_RdEMlSuVTI0kc1d7Iq1DfVryji16Ny0IacxxAsI="
+      }
+    },
+    "content": "抱歉，刚看到你的评论~各个行业的数据来源不一样，现在我做行研大部分是从专门的数据库里面调，或者从一些官网平台、公众号里面找。如果实在不行的话也可以看其他公司的研报，看看他们的数据都是哪里来的，然后进行溯源~",
+    "user_info": {
+      "user_id": "657ae7d70000000020033d5f",
+      "nickname": "再打一针内啡肽",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ruviecris005pbqsvbo6fav5behls8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_zT48e-kZBhUCTOHmqDphRttty5xoCm_LhePaCU1HP0="
+    },
+    "create_time": 1727072533000
+  }
+]

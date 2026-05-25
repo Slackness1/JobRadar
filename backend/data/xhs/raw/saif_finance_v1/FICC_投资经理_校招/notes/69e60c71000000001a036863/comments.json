@@ -1,0 +1,839 @@
+[
+  {
+    "ip_location": "北京",
+    "sub_comment_count": "30",
+    "sub_comments": [
+      {
+        "id": "69e71206000000001401b819",
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "like_count": "2",
+        "show_tags": [],
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "69e7027d000000001401cc25",
+          "user_info": {
+            "nickname": "kzk",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABDVEFSmr1PaJcKIHigJIkc4XM_lr9AR2GiJj1Y_AJ4B8=",
+            "user_id": "60cbbd590000000001000fdb"
+          }
+        },
+        "content": "球债券自营失业细说",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "6311e9a1000000001200feb1",
+          "nickname": "muy bien",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo319392dgl4o5g5ooht6gkhvlhorlphmg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABATAKsA9MURGZLo-NJ16VxiJ8DNKqrdWsK7BtjKbgpOE="
+        },
+        "create_time": 1776751111000
+      }
+    ],
+    "sub_comment_cursor": "69e71206000000001401b819",
+    "status": 0,
+    "user_info": {
+      "nickname": "kzk",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABDVEFSmr1PaJcKIHigJIkc4XM_lr9AR2GiJj1Y_AJ4B8=",
+      "user_id": "60cbbd590000000001000fdb"
+    },
+    "create_time": 1776747134000,
+    "content": "券商自营有什么好去的 股票自营没有学习资源，债券自营马上要失业，没钱也没前途",
+    "at_users": [],
+    "show_tags": [],
+    "liked": false,
+    "like_count": "14",
+    "sub_comment_has_more": true,
+    "id": "69e7027d000000001401cc25",
+    "note_id": "69e60c71000000001a036863"
+  },
+  {
+    "ip_location": "上海",
+    "sub_comment_count": "3",
+    "sub_comment_cursor": "6a0815d5000000002a033c47",
+    "content": "债券现在都会带转债做增强，工作性价比比较高但是没有系统化培养体系",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [],
+    "id": "6a0814b2000000002701d2a8",
+    "note_id": "69e60c71000000001a036863",
+    "liked": false,
+    "create_time": 1778914482000,
+    "sub_comments": [
+      {
+        "id": "6a0815d5000000002a033c47",
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1778914773000,
+        "target_comment": {
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31va5bi5v1m005n6mbp3lm0frljc8cr0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABbQsuAa5qq4N4lGvYB44qA_ox4kiN78QhBrVnStXsSr8=",
+            "user_id": "5cd65e4700000000160301fb",
+            "nickname": "LLLLF"
+          },
+          "id": "6a0814b2000000002701d2a8"
+        },
+        "content": "请问没有系统化培养体系是指自营总体情况吗 还是转债",
+        "like_count": "0",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+          "user_id": "61ebd14e00000000020245a7",
+          "nickname": "太平洋消防局"
+        },
+        "ip_location": "上海"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "status": 0,
+    "user_info": {
+      "xsec_token": "ABbQsuAa5qq4N4lGvYB44qA_ox4kiN78QhBrVnStXsSr8=",
+      "user_id": "5cd65e4700000000160301fb",
+      "nickname": "LLLLF",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31va5bi5v1m005n6mbp3lm0frljc8cr0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    }
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "62614c9c0000000021025d5f",
+      "nickname": "卢卡没有斯",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/411309441983cdc4ce073ff8da73b5b6.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABPIy9fOY5toNPARt0MpUrWHQdS9mwmcIenvd5twF1ves="
+    },
+    "show_tags": [],
+    "sub_comment_count": "3",
+    "at_users": [],
+    "create_time": 1777541115000,
+    "sub_comment_cursor": "69f320950000000029036d75",
+    "sub_comment_has_more": true,
+    "id": "69f31ffa000000002b02b721",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "ip_location": "上海",
+    "content": "从业人员告诉你，如果要去券商。不用怀疑。自营就是最好的部门哈。即使是固收自营，也值得一去，固收自营不止可以做多，也可以做空，所以收益率下行也可以赚钱。即使自营不如过去几年，依旧是券商业绩的贡献主力。",
+    "like_count": "4",
+    "sub_comments": [
+      {
+        "id": "69f320950000000029036d75",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABPIy9fOY5toNPARt0MpUrWHQdS9mwmcIenvd5twF1ves=",
+          "user_id": "62614c9c0000000021025d5f",
+          "nickname": "卢卡没有斯",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/411309441983cdc4ce073ff8da73b5b6.jpg?imageView2/2/w/120/format/jpg"
+        },
+        "target_comment": {
+          "user_info": {
+            "user_id": "62614c9c0000000021025d5f",
+            "nickname": "卢卡没有斯",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/411309441983cdc4ce073ff8da73b5b6.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABPIy9fOY5toNPARt0MpUrWHQdS9mwmcIenvd5twF1ves="
+          },
+          "id": "69f31ffa000000002b02b721"
+        },
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "content": "收入参考的一个窍门：翻一下公司年报，可以拆分到具体的业务。看下自营收入贡献，只要贡献占大头，就说明你的到手收入不会低。",
+        "like_count": "0",
+        "show_tags": [],
+        "create_time": 1777541269000,
+        "ip_location": "上海"
+      }
+    ]
+  },
+  {
+    "content": "校招hc非常少，除非bg非常非常好，不建议作为求职的主线，base低，年终波动很大，需要真金白银赚钱的部门，且必要时候需要给资管兜底，学历的话，知道的今年一家脚底板券商自营招的是9本藤硕",
+    "ip_location": "广东",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "sub_comment_count": "9",
+    "sub_comments": [
+      {
+        "create_time": 1777386589000,
+        "status": 0,
+        "content": "谢谢西瓜头老师~请问base和薪资结构一般咋样 腰部似乎按照24薪实际能发多少（波动大概啥程度）",
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "user_info": {
+          "user_id": "61ebd14e00000000020245a7",
+          "nickname": "太平洋消防局",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q="
+        },
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "69ef55fd000000002800bae4",
+          "user_info": {
+            "user_id": "66cc9a2b000000001d02131a",
+            "nickname": "西瓜头momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tqp1ruc7u005pmcj8lnc4oqclaq89g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABwx7KhaGWTIQm9XEEn91uwbQLZj4tnsB5sm2kMadRFbo="
+          }
+        },
+        "id": "69f0c45c000000002b02b5dc",
+        "note_id": "69e60c71000000001a036863",
+        "at_users": [],
+        "liked": false
+      }
+    ],
+    "sub_comment_cursor": "69f0c45c000000002b02b5dc",
+    "id": "69ef55fd000000002800bae4",
+    "at_users": [],
+    "liked": false,
+    "like_count": "3",
+    "show_tags": [],
+    "user_info": {
+      "xsec_token": "ABwx7KhaGWTIQm9XEEn91uwbQLZj4tnsB5sm2kMadRFbo=",
+      "user_id": "66cc9a2b000000001d02131a",
+      "nickname": "西瓜头momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tqp1ruc7u005pmcj8lnc4oqclaq89g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "create_time": 1777292798000,
+    "sub_comment_has_more": true
+  },
+  {
+    "at_users": [],
+    "show_tags": [],
+    "create_time": 1776746440000,
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "show_tags": [],
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "content": "还有更好的嘛[捂脸R]",
+        "liked": false,
+        "like_count": "0",
+        "target_comment": {
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABDVEFSmr1PaJcKIHigJIkc4XM_lr9AR2GiJj1Y_AJ4B8=",
+            "user_id": "60cbbd590000000001000fdb",
+            "nickname": "kzk"
+          },
+          "id": "69e70248000000001401b818"
+        },
+        "id": "69e70306000000001401e014",
+        "at_users": [],
+        "user_info": {
+          "user_id": "601a239f00000000010031ac",
+          "nickname": "欢乐马",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u60jh1h2g6g5o0q4efg8cdck8b0be8?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABuaY3x1Z3Dyz23zRdmGea3d1gxGf--b8s2SxAJCdTt7s="
+        },
+        "create_time": 1776747270000,
+        "ip_location": "北京"
+      }
+    ],
+    "id": "69e6ffc8000000001401e00d",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "liked": false,
+    "like_count": "1",
+    "sub_comment_has_more": true,
+    "content": "自营固收，闭眼入吧[扯脸H]",
+    "user_info": {
+      "user_id": "601a239f00000000010031ac",
+      "nickname": "欢乐马",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u60jh1h2g6g5o0q4efg8cdck8b0be8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABuaY3x1Z3Dyz23zRdmGea3d1gxGf--b8s2SxAJCdTt7s="
+    },
+    "ip_location": "北京",
+    "sub_comment_cursor": "69e70306000000001401e014"
+  },
+  {
+    "status": 0,
+    "user_info": {
+      "nickname": "与人为善",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31a9plhhung005o4rvf3g8bhmrehtsk8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB2KiotVQNXbcmONOpmHHrXsfgiFniFiBtuWnWSMpPnog=",
+      "user_id": "609bfbc70000000001002e36"
+    },
+    "sub_comment_has_more": true,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "sub_comment_count": "2",
+    "id": "69e996490000000014018814",
+    "create_time": 1776916041000,
+    "ip_location": "上海",
+    "sub_comments": [
+      {
+        "id": "69ea23110000000014019822",
+        "content": "请问可以细说具体压力场景吗",
+        "at_users": [],
+        "liked": false,
+        "target_comment": {
+          "id": "69e996490000000014018814",
+          "user_info": {
+            "xsec_token": "AB2KiotVQNXbcmONOpmHHrXsfgiFniFiBtuWnWSMpPnog=",
+            "user_id": "609bfbc70000000001002e36",
+            "nickname": "与人为善",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31a9plhhung005o4rvf3g8bhmrehtsk8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "create_time": 1776952082000,
+        "ip_location": "上海",
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "nickname": "太平洋消防局",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+          "user_id": "61ebd14e00000000020245a7"
+        },
+        "show_tags": [
+          "is_author"
+        ]
+      }
+    ],
+    "note_id": "69e60c71000000001a036863",
+    "content": "不抗压别做自营",
+    "show_tags": [],
+    "sub_comment_cursor": "69ea23110000000014019822"
+  },
+  {
+    "liked": false,
+    "like_count": "3",
+    "ip_location": "北京",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "id": "69fa0579000000002a026e6e",
+    "note_id": "69e60c71000000001a036863",
+    "at_users": [],
+    "user_info": {
+      "nickname": "不知道叫什么",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31i7rvsorne6g5n173nq1off4qlfqcl0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB_0NREELk3Tt-iYZI4Pc6RvHDqdmMp4jtYjT6JeU5F0I=",
+      "user_id": "5c271df40000000007003de4"
+    },
+    "sub_comment_cursor": "",
+    "status": 0,
+    "create_time": 1777993081000,
+    "sub_comment_count": "0",
+    "content": "实话实说，券商自营的bar基本上取决于当年hc，比如去年某top1自营扩招之后bar就不算高。而且自营在固收方向越来越难做的情况下我觉得未来也会越来越偏向于中性策略，包括做市等等。并且我觉得自营的策略有时候给我的频率太高了？其实研究的占比不大，交易的感觉比较重要。",
+    "show_tags": []
+  },
+  {
+    "create_time": 1777951285000,
+    "ip_location": "上海",
+    "note_id": "69e60c71000000001a036863",
+    "liked": false,
+    "sub_comment_count": "1",
+    "status": 0,
+    "content": "自营原来是好坑 但未来几年很难做 固收论坛没人谈固收  [哭惹R] 去卷大类资产吧",
+    "like_count": "1",
+    "user_info": {
+      "xsec_token": "ABndUzcBRe92IJPGGCXHwbpU8dGQ2ZOcjNRuCsVx2dQa0=",
+      "user_id": "63021e2e000000001200cabd",
+      "nickname": "spy",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/63021e2e000000001200cabd.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "sub_comment_has_more": false,
+    "id": "69f962340000000029010e3c",
+    "at_users": [],
+    "sub_comment_cursor": "69f9652b00000000290244b0",
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+          "user_id": "61ebd14e00000000020245a7",
+          "nickname": "太平洋消防局",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg"
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "id": "69f9652b00000000290244b0",
+        "content": "自营里面的大类资产，能搞吗",
+        "at_users": [],
+        "like_count": "0",
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "69f962340000000029010e3c",
+          "user_info": {
+            "user_id": "63021e2e000000001200cabd",
+            "nickname": "spy",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/63021e2e000000001200cabd.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABndUzcBRe92IJPGGCXHwbpU8dGQ2ZOcjNRuCsVx2dQa0="
+          }
+        },
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "liked": false,
+        "create_time": 1777952044000
+      }
+    ]
+  },
+  {
+    "sub_comment_count": "0",
+    "content": "自营招实习一般比较少，校招如果是你tag里几个院校同等水平本硕+强实习，说不定可以拼一下",
+    "liked": false,
+    "user_info": {
+      "user_id": "5bfe5ee244363b526a02e57c",
+      "nickname": "mad[hjmncsss]",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo310lh17vtmi604buk8tfe5pbs0c4pmno?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABG2LX3WezbZzR5Fk2fVxiP12C_Cw-ImpoG96B-w6PiPA="
+    },
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "at_users": [],
+    "like_count": "0",
+    "show_tags": [],
+    "id": "69e849130000000014019415",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "create_time": 1776830740000,
+    "ip_location": "北京",
+    "sub_comment_has_more": false
+  },
+  {
+    "note_id": "69e60c71000000001a036863",
+    "ip_location": "北京",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "user_info": {
+      "user_id": "5afcc7b111be102dc5534866",
+      "nickname": "崮收Trading👔",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31itjaqb30o004a5d2a3r2i36uu6fjh8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB9HkztUnFpCcS-jR7JPv4ZWblgZRhD_ZuGFMiiXbra4Y="
+    },
+    "create_time": 1776697098000,
+    "id": "69e63f0a000000001401b820",
+    "status": 0,
+    "content": "自营的投资 交易感兴趣可以交流",
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "sub_comment_count": "0"
+  },
+  {
+    "id": "69e71206000000001401b819",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "like_count": "2",
+    "show_tags": [],
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "69e7027d000000001401cc25",
+      "user_info": {
+        "nickname": "kzk",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABDVEFSmr1PaJcKIHigJIkc4XM_lr9AR2GiJj1Y_AJ4B8=",
+        "user_id": "60cbbd590000000001000fdb"
+      }
+    },
+    "content": "球债券自营失业细说",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "6311e9a1000000001200feb1",
+      "nickname": "muy bien",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo319392dgl4o5g5ooht6gkhvlhorlphmg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABATAKsA9MURGZLo-NJ16VxiJ8DNKqrdWsK7BtjKbgpOE="
+    },
+    "create_time": 1776751111000
+  },
+  {
+    "id": "6a0815d5000000002a033c47",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1778914773000,
+    "target_comment": {
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31va5bi5v1m005n6mbp3lm0frljc8cr0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABbQsuAa5qq4N4lGvYB44qA_ox4kiN78QhBrVnStXsSr8=",
+        "user_id": "5cd65e4700000000160301fb",
+        "nickname": "LLLLF"
+      },
+      "id": "6a0814b2000000002701d2a8"
+    },
+    "content": "请问没有系统化培养体系是指自营总体情况吗 还是转债",
+    "like_count": "0",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+      "user_id": "61ebd14e00000000020245a7",
+      "nickname": "太平洋消防局"
+    },
+    "ip_location": "上海"
+  },
+  {
+    "id": "69f320950000000029036d75",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABPIy9fOY5toNPARt0MpUrWHQdS9mwmcIenvd5twF1ves=",
+      "user_id": "62614c9c0000000021025d5f",
+      "nickname": "卢卡没有斯",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/411309441983cdc4ce073ff8da73b5b6.jpg?imageView2/2/w/120/format/jpg"
+    },
+    "target_comment": {
+      "user_info": {
+        "user_id": "62614c9c0000000021025d5f",
+        "nickname": "卢卡没有斯",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/411309441983cdc4ce073ff8da73b5b6.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABPIy9fOY5toNPARt0MpUrWHQdS9mwmcIenvd5twF1ves="
+      },
+      "id": "69f31ffa000000002b02b721"
+    },
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "content": "收入参考的一个窍门：翻一下公司年报，可以拆分到具体的业务。看下自营收入贡献，只要贡献占大头，就说明你的到手收入不会低。",
+    "like_count": "0",
+    "show_tags": [],
+    "create_time": 1777541269000,
+    "ip_location": "上海"
+  },
+  {
+    "create_time": 1777386589000,
+    "status": 0,
+    "content": "谢谢西瓜头老师~请问base和薪资结构一般咋样 腰部似乎按照24薪实际能发多少（波动大概啥程度）",
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "user_info": {
+      "user_id": "61ebd14e00000000020245a7",
+      "nickname": "太平洋消防局",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q="
+    },
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "69ef55fd000000002800bae4",
+      "user_info": {
+        "user_id": "66cc9a2b000000001d02131a",
+        "nickname": "西瓜头momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tqp1ruc7u005pmcj8lnc4oqclaq89g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABwx7KhaGWTIQm9XEEn91uwbQLZj4tnsB5sm2kMadRFbo="
+      }
+    },
+    "id": "69f0c45c000000002b02b5dc",
+    "note_id": "69e60c71000000001a036863",
+    "at_users": [],
+    "liked": false
+  },
+  {
+    "show_tags": [],
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "content": "还有更好的嘛[捂脸R]",
+    "liked": false,
+    "like_count": "0",
+    "target_comment": {
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/166ad12ae9a7f6fbb4bbbf88d417895f.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABDVEFSmr1PaJcKIHigJIkc4XM_lr9AR2GiJj1Y_AJ4B8=",
+        "user_id": "60cbbd590000000001000fdb",
+        "nickname": "kzk"
+      },
+      "id": "69e70248000000001401b818"
+    },
+    "id": "69e70306000000001401e014",
+    "at_users": [],
+    "user_info": {
+      "user_id": "601a239f00000000010031ac",
+      "nickname": "欢乐马",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31u60jh1h2g6g5o0q4efg8cdck8b0be8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABuaY3x1Z3Dyz23zRdmGea3d1gxGf--b8s2SxAJCdTt7s="
+    },
+    "create_time": 1776747270000,
+    "ip_location": "北京"
+  },
+  {
+    "id": "69ea23110000000014019822",
+    "content": "请问可以细说具体压力场景吗",
+    "at_users": [],
+    "liked": false,
+    "target_comment": {
+      "id": "69e996490000000014018814",
+      "user_info": {
+        "xsec_token": "AB2KiotVQNXbcmONOpmHHrXsfgiFniFiBtuWnWSMpPnog=",
+        "user_id": "609bfbc70000000001002e36",
+        "nickname": "与人为善",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31a9plhhung005o4rvf3g8bhmrehtsk8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "create_time": 1776952082000,
+    "ip_location": "上海",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "nickname": "太平洋消防局",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+      "user_id": "61ebd14e00000000020245a7"
+    },
+    "show_tags": [
+      "is_author"
+    ]
+  },
+  {
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q=",
+      "user_id": "61ebd14e00000000020245a7",
+      "nickname": "太平洋消防局",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg"
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "id": "69f9652b00000000290244b0",
+    "content": "自营里面的大类资产，能搞吗",
+    "at_users": [],
+    "like_count": "0",
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "69f962340000000029010e3c",
+      "user_info": {
+        "user_id": "63021e2e000000001200cabd",
+        "nickname": "spy",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/63021e2e000000001200cabd.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABndUzcBRe92IJPGGCXHwbpU8dGQ2ZOcjNRuCsVx2dQa0="
+      }
+    },
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "liked": false,
+    "create_time": 1777952044000
+  },
+  {
+    "note_id": "69e60c71000000001a036863",
+    "ip_location": "四川",
+    "sub_comments": [],
+    "id": "69e72f4b000000001401a826",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "create_time": 1776758604000,
+    "sub_comment_has_more": false,
+    "status": 0,
+    "content": "有没有缺指标的经理呀",
+    "user_info": {
+      "user_id": "691404400000000037005718",
+      "nickname": "A燕子",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qfpm9fcga005q8k0h0doloop4l9jco?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABU37M00uuiDbAoiVphYmEf1CdPEK2h2yQ71TavyQalmY="
+    },
+    "sub_comment_count": "0",
+    "sub_comment_cursor": "",
+    "show_tags": []
+  },
+  {
+    "show_tags": [],
+    "id": "69e61e2a000000001401cc20",
+    "status": 0,
+    "ip_location": "北京",
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "5e881363000000000100a5f9",
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/5e881363000000000100a5f9.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABkgZRcFWL5xi8Jmpk5mI2Orq4TWqagMLL2-OxMJ4mLjw="
+    },
+    "create_time": 1776688682000,
+    "note_id": "69e60c71000000001a036863",
+    "content": "挺好的",
+    "like_count": "1",
+    "sub_comment_count": "0",
+    "sub_comment_cursor": ""
+  },
+  {
+    "ip_location": "上海",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "create_time": 1776823528000,
+    "sub_comment_count": "0",
+    "id": "69e82ce8000000001401d803",
+    "like_count": "0",
+    "sub_comment_has_more": false,
+    "liked": false,
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ra6707sga005n99la1k3nopik0sqbg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB4YnFhgDy6jaCHEyN-V5agIQwmfOD2j6vmDWAZCFwbQQ=",
+      "user_id": "5d29aa83000000001001df19"
+    },
+    "show_tags": [],
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "content": "主要看激励好不好吧，现在应该都是大锅饭，不会高很多……"
+  },
+  {
+    "content": "头部以下券商非常看能力，非常残酷，需要真金白银赚钱，其实更适合社招去，不过也很适合投资能力非常强的应届生",
+    "at_users": [],
+    "create_time": 1776768535000,
+    "id": "69e75617000000001401c808",
+    "liked": false,
+    "show_tags": [],
+    "sub_comments": [
+      {
+        "id": "69e83dba000000001401ac23",
+        "note_id": "69e60c71000000001a036863",
+        "status": 0,
+        "at_users": [],
+        "content": "[哭惹R]不确定自己的投资能力 压力大的时候风险偏好没有那么高",
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "61ebd14e00000000020245a7",
+          "nickname": "太平洋消防局",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1776827835000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "69e75617000000001401c808",
+          "user_info": {
+            "nickname": "般雨",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31oj32mt34q0g44vot00ngupl3pi155g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABLF2F7en9GPqMndjh0C7FNdB5D7SvrLzDeIw3xvzbUkQ=",
+            "user_id": "568941786a6a696799ae7b35"
+          }
+        }
+      }
+    ],
+    "sub_comment_cursor": "69e83dba000000001401ac23",
+    "like_count": "3",
+    "sub_comment_has_more": false,
+    "note_id": "69e60c71000000001a036863",
+    "status": -2,
+    "user_info": {
+      "user_id": "568941786a6a696799ae7b35",
+      "nickname": "般雨",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31oj32mt34q0g44vot00ngupl3pi155g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABLF2F7en9GPqMndjh0C7FNdB5D7SvrLzDeIw3xvzbUkQ="
+    },
+    "ip_location": "上海",
+    "sub_comment_count": "1"
+  },
+  {
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABjvMhcxArYeKm25uJXTIC7bbWIJAsVMh7Vh3cZQXIAKs=",
+      "user_id": "5d1e20c5000000001203ce86",
+      "nickname": "花卷在这呢",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3145117mahkcg5n8u432knjk6251m2c0?imageView2/2/w/120/format/jpg"
+    },
+    "sub_comment_count": "0",
+    "id": "69e71fdd000000001401e828",
+    "status": -2,
+    "sub_comment_cursor": "",
+    "ip_location": "上海",
+    "at_users": [],
+    "create_time": 1776754654000,
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comments": [],
+    "sub_comment_has_more": false,
+    "note_id": "69e60c71000000001a036863",
+    "content": "啥都不说[笑哭R]，问啥呢"
+  },
+  {
+    "id": "69e83dba000000001401ac23",
+    "note_id": "69e60c71000000001a036863",
+    "status": 0,
+    "at_users": [],
+    "content": "[哭惹R]不确定自己的投资能力 压力大的时候风险偏好没有那么高",
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "61ebd14e00000000020245a7",
+      "nickname": "太平洋消防局",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31l5c25fpio6g5ofbq570khd7akoq9kg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQLcUhFPWMi0KvnCrxQSy10jkurRtfBJZ4z8GvlMjR5Q="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1776827835000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "69e75617000000001401c808",
+      "user_info": {
+        "nickname": "般雨",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31oj32mt34q0g44vot00ngupl3pi155g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABLF2F7en9GPqMndjh0C7FNdB5D7SvrLzDeIw3xvzbUkQ=",
+        "user_id": "568941786a6a696799ae7b35"
+      }
+    }
+  }
+]

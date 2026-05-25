@@ -1,0 +1,95 @@
+{
+  "xsecToken": "ABEh4aMtTivKeWjEg3FDvJO1VhppRPqkn0zqQAMlLR2pI=",
+  "type": "normal",
+  "user": {
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/6436c219dd18c6c67afdf3ee.jpg",
+    "xsecToken": "ABcPQ8NiH2jVaUj5Ni4UrfEIYzq8BXnARa_fddGrWENag=",
+    "userId": "6176cb29000000001f039b58",
+    "nickname": "人类摆烂精华"
+  },
+  "imageList": [
+    {
+      "fileId": "",
+      "url": "",
+      "traceId": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191501/09ad7100bdff3e4f11f3176fe00765dc/1040g00831lprp5vh5m0g5obmpcknv6qotvu0c00!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191501/d5d3711f31e16201795cbde5890d6aec/1040g00831lprp5vh5m0g5obmpcknv6qotvu0c00!nd_dft_wlteh_webp_3",
+      "height": 1144,
+      "width": 938,
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/09ad7100bdff3e4f11f3176fe00765dc/1040g00831lprp5vh5m0g5obmpcknv6qotvu0c00!nd_prv_wlteh_webp_3"
+        },
+        {
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/d5d3711f31e16201795cbde5890d6aec/1040g00831lprp5vh5m0g5obmpcknv6qotvu0c00!nd_dft_wlteh_webp_3",
+          "imageScene": "WB_DFT"
+        }
+      ],
+      "stream": {},
+      "livePhoto": false
+    },
+    {
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/52c5f579acb747c51a6525148a911a44/1040g00831lprp5vh5m105obmpcknv6qoj1akk2o!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/63f28465d1b6bda36a69584bccfbbbe5/1040g00831lprp5vh5m105obmpcknv6qoj1akk2o!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191501/63f28465d1b6bda36a69584bccfbbbe5/1040g00831lprp5vh5m105obmpcknv6qoj1akk2o!nd_dft_wlteh_webp_3",
+      "height": 1062,
+      "width": 914,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191501/52c5f579acb747c51a6525148a911a44/1040g00831lprp5vh5m105obmpcknv6qoj1akk2o!nd_prv_wlteh_webp_3"
+    },
+    {
+      "height": 1022,
+      "url": "",
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191501/86d47eae371bb510549a5158f5cc42b3/1040g00831lprp5vh5m005obmpcknv6qoe63vdro!nd_prv_wlteh_webp_3",
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191501/2cadaba5c4d7c78f99f14f876020ca29/1040g00831lprp5vh5m005obmpcknv6qoe63vdro!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "livePhoto": false,
+      "fileId": "",
+      "width": 922,
+      "traceId": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/86d47eae371bb510549a5158f5cc42b3/1040g00831lprp5vh5m005obmpcknv6qoe63vdro!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191501/2cadaba5c4d7c78f99f14f876020ca29/1040g00831lprp5vh5m005obmpcknv6qoe63vdro!nd_dft_wlteh_webp_3"
+        }
+      ]
+    }
+  ],
+  "tagList": [],
+  "atUserList": [],
+  "time": 1756519091000,
+  "lastUpdateTime": 1756520671000,
+  "noteId": "68b25ab3000000001c033097",
+  "title": "金融求职过来人：招商银行总行深度分析",
+  "desc": "近期招总发布秋招公告，主包去年也是有幸拿到offer，作为最头部的股份行，招总在薪资、成长性方面非常能打，推荐头部商科同学关注，还是直接上干货",
+  "interactInfo": {
+    "shareCount": "57",
+    "followed": false,
+    "relation": "none",
+    "liked": false,
+    "likedCount": "183",
+    "collected": false,
+    "collectedCount": "205",
+    "commentCount": "13"
+  },
+  "shareInfo": {
+    "unShare": false
+  }
+}

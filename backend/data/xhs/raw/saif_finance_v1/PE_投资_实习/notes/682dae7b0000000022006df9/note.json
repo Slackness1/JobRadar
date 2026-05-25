@@ -1,0 +1,99 @@
+{
+  "xsecToken": "ABRv9wal0TWACbPOInXoqgspvJ7zCXix-Pzf_Eo1mnDNk=",
+  "noteId": "682dae7b0000000022006df9",
+  "title": "实习｜PE实习每月复盘（三）",
+  "desc": "在某PE实习已满三个月，半导体组，最近一个月主要在跟进已经立项的项目，然后写投资建议书，复盘一下最近一个月的实习\n1️⃣三方尽调\n之前的项目已经过立项会了[哇R][哇R]这个月主要在推进项目，人生第一次体验三方尽调。原本以为是去公司，公司提供很多纸质材料然后大家在那里对着财务表什么一点一点审核，其实是在办公室内一个一个单独询问公司核心人员关于财务、业务、法务的问题。连续开了8场会头皮发麻[捂脸R][捂脸R]\n2️⃣投资建议书\n过完投决开始写投资建议书！因为之前已经画过立项报告了，投资建议书PPT版本工作量其实没那么大，主要是加上法律风险，财务风险还有访谈的一些额外业务内容，但还要写一版投资建议书word版本，相比于PPT版本要把内容详细的都写进去（PPT很多都是精简概括的），包括逻辑数据都要写清楚\n3️⃣碎碎念\n真的好喜欢我司环境[喝奶茶R][喝奶茶R]，总是收到正职奶茶🥤，中午大家一起吃饭的时候聊天也好开心，真的就是从日常生活到职场随便聊，想到未来某一天要离职就舍不得[哭惹R][哭惹R]\n4️⃣后续展望\n这个项目赶紧过投决会！！！\n#实习日记[话题]# #PEVC[话题]# #PE[话题]#   #一级金融市场[话题]#   #金融实习[话题]#   #实习日记[话题]#   #金融[话题]#   #实习[话题]#   #实习生[话题]#   #VC[话题]#",
+  "user": {
+    "userId": "60c93429000000000100588b",
+    "nickname": "Ustinian",
+    "avatar": "https://sns-avatar-qc.xhscdn.com/avatar/62ddfd0ec3413da25fad1860.jpg",
+    "xsecToken": "ABDegjmsl4JLtv4R8DSD8sXViM2eCBn9OT9Rc_5wCDEIk="
+  },
+  "atUserList": [],
+  "time": 1747824251000,
+  "lastUpdateTime": 1747824251000,
+  "type": "normal",
+  "interactInfo": {
+    "relation": "none",
+    "liked": false,
+    "likedCount": "67",
+    "collected": false,
+    "collectedCount": "32",
+    "commentCount": "9",
+    "shareCount": "7",
+    "followed": false
+  },
+  "imageList": [
+    {
+      "urlDefault": "http://sns-webpic-qc.xhscdn.com/202605191523/59ee88cb618c759fe3d9ce45c313182f/notes_pre_post/1040g3k031ho9i1hr3o3g5o696gkg8m4b7j8fkqo!nd_dft_wlteh_webp_3",
+      "stream": {},
+      "fileId": "",
+      "width": 1440,
+      "url": "",
+      "infoList": [
+        {
+          "imageScene": "WB_PRV",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191523/42aac18dcc7509fea3324786923a979d/notes_pre_post/1040g3k031ho9i1hr3o3g5o696gkg8m4b7j8fkqo!nd_prv_wlteh_webp_3"
+        },
+        {
+          "imageScene": "WB_DFT",
+          "url": "http://sns-webpic-qc.xhscdn.com/202605191523/59ee88cb618c759fe3d9ce45c313182f/notes_pre_post/1040g3k031ho9i1hr3o3g5o696gkg8m4b7j8fkqo!nd_dft_wlteh_webp_3"
+        }
+      ],
+      "urlPre": "http://sns-webpic-qc.xhscdn.com/202605191523/42aac18dcc7509fea3324786923a979d/notes_pre_post/1040g3k031ho9i1hr3o3g5o696gkg8m4b7j8fkqo!nd_prv_wlteh_webp_3",
+      "height": 1515,
+      "traceId": "",
+      "livePhoto": false
+    }
+  ],
+  "tagList": [
+    {
+      "type": "topic",
+      "id": "5cfa9524000000000f036d68",
+      "name": "实习日记"
+    },
+    {
+      "id": "601cda9f0000000001008813",
+      "name": "PEVC",
+      "type": "topic"
+    },
+    {
+      "type": "topic",
+      "id": "5ee8d2c000000000010079db",
+      "name": "PE"
+    },
+    {
+      "id": "663d9cc4000000001b03f172",
+      "name": "一级金融市场",
+      "type": "topic"
+    },
+    {
+      "name": "金融实习",
+      "type": "topic",
+      "id": "5c887328000000000d0126e8"
+    },
+    {
+      "name": "金融",
+      "type": "topic",
+      "id": "5be432abe772cd000136f832"
+    },
+    {
+      "id": "5c08e5789346b10001dcd676",
+      "name": "实习",
+      "type": "topic"
+    },
+    {
+      "id": "5be5464d66043500019f4a51",
+      "name": "实习生",
+      "type": "topic"
+    },
+    {
+      "name": "VC",
+      "type": "topic",
+      "id": "5d3ecc98000000001700b2cd"
+    }
+  ],
+  "shareInfo": {
+    "unShare": false
+  }
+}

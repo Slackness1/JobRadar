@@ -1,0 +1,1612 @@
+[
+  {
+    "like_count": "1",
+    "ip_location": "上海",
+    "sub_comment_cursor": "68622f510000000013035c89",
+    "id": "68622f0e000000000602ef22",
+    "show_tags": [
+      "is_author",
+      "user_top"
+    ],
+    "sub_comment_count": "2",
+    "content": "《刚入行时，我希望别人能告诉我的真心话》在连载中",
+    "status": 4,
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "sub_comments": [
+      {
+        "target_comment": {
+          "id": "68622f0e000000000602ef22",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+            "user_id": "57538c206a6a696ff434ee73",
+            "nickname": "leo的书架又满了"
+          }
+        },
+        "pictures": [
+          {
+            "width": 1178,
+            "info_list": [],
+            "height": 1710
+          }
+        ],
+        "status": 0,
+        "liked": false,
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "create_time": 1751265107000,
+        "id": "68622f510000000013035c89",
+        "note_id": "6860a139000000001100393a",
+        "content": "",
+        "at_users": [],
+        "like_count": "1"
+      }
+    ],
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "create_time": 1751265039000
+  },
+  {
+    "sub_comment_count": "7",
+    "liked": false,
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI=",
+      "user_id": "5f5b19cf000000000100946b",
+      "nickname": "挪威的森林"
+    },
+    "show_tags": [],
+    "sub_comment_has_more": true,
+    "ip_location": "广东",
+    "sub_comment_cursor": "6860cf4e000000001e01baa6",
+    "id": "6860cd1b000000001102fc56",
+    "note_id": "6860a139000000001100393a",
+    "at_users": [],
+    "like_count": "3",
+    "create_time": 1751174428000,
+    "status": 0,
+    "content": "我不太建议去做tmt，虽然很热，但是一直很累，天天追热点，而且tmt也就这几年才火起来，很多被这个市场淘汰或者是做不动的人都是做tmt的，年龄大了身体就跟不上了",
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1751174991000,
+        "ip_location": "上海",
+        "id": "6860cf4e000000001e01baa6",
+        "status": 0,
+        "content": "tmt确实是光鲜热闹，但是研究难度不低，很多难题。其实不做难题是很重要的原则",
+        "at_users": [],
+        "target_comment": {
+          "id": "6860cd1b000000001102fc56",
+          "user_info": {
+            "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI=",
+            "user_id": "5f5b19cf000000000100946b",
+            "nickname": "挪威的森林",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "note_id": "6860a139000000001100393a",
+        "liked": false,
+        "like_count": "5",
+        "pictures": []
+      }
+    ],
+    "pictures": []
+  },
+  {
+    "like_count": "0",
+    "content": "第一份实习看家电，福气[偷笑R]",
+    "at_users": [],
+    "show_tags": [],
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "user_id": "6472041b000000001001d5ec",
+      "nickname": "乙木女（上岸啦版）",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mdttj2cmg005p3i0gdk3lfcaqjlqro?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABzJ_gFKEk9WphNfM3jtUOlNRlLRteS1zXecQTov9_yFM="
+    },
+    "ip_location": "广东",
+    "sub_comment_count": "3",
+    "sub_comments": [
+      {
+        "pictures": [],
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "content": "熟悉了制造+消费+地产链+出海，又有新品类的增长点[点赞R]",
+        "at_users": [],
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1751172843000,
+        "ip_location": "上海",
+        "id": "6860c6ea0000000011018e88",
+        "liked": false,
+        "like_count": "6",
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "6860c680000000002000f97b",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mdttj2cmg005p3i0gdk3lfcaqjlqro?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABzJ_gFKEk9WphNfM3jtUOlNRlLRteS1zXecQTov9_yFM=",
+            "user_id": "6472041b000000001001d5ec",
+            "nickname": "乙木女（上岸啦版）"
+          }
+        }
+      }
+    ],
+    "sub_comment_has_more": true,
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "create_time": 1751172737000,
+    "sub_comment_cursor": "6860c6ea0000000011018e88",
+    "id": "6860c680000000002000f97b"
+  },
+  {
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fp04tgk02005o1mve00965pe77o5m0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABkFUdh4wF-1gZVvojU6bX1KIhUqtlNAKU4atJYXctI_c=",
+      "user_id": "6036fb8000000000010098b9",
+      "nickname": "Rae爱吃芋泥蛋黄酥"
+    },
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "create_time": 1751163792000,
+    "sub_comment_cursor": "6860a3c90000000011018b88",
+    "sub_comment_has_more": false,
+    "content": "创新药 当然会",
+    "like_count": "2",
+    "sub_comments": [
+      {
+        "liked": false,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "create_time": 1751163849000,
+        "id": "6860a3c90000000011018b88",
+        "status": 0,
+        "content": "真爱",
+        "at_users": [],
+        "pictures": [],
+        "note_id": "6860a139000000001100393a",
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "6860a38f0000000020023eb5",
+          "user_info": {
+            "nickname": "Rae爱吃芋泥蛋黄酥",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fp04tgk02005o1mve00965pe77o5m0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABkFUdh4wF-1gZVvojU6bX1KIhUqtlNAKU4atJYXctI_c=",
+            "user_id": "6036fb8000000000010098b9"
+          }
+        }
+      }
+    ],
+    "id": "6860a38f0000000020023eb5",
+    "status": 0,
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_count": "1"
+  },
+  {
+    "liked": false,
+    "like_count": "13",
+    "user_info": {
+      "user_id": "5c8fae6d000000001202c0c7",
+      "nickname": "多伦多雪真大",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30pjb59pamk005n4flpmklg675ffr1eo?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-g9vYdC9Qj8Aj0C3KGTOTTn8dHvJKNYcdqoKwTYX7HE="
+    },
+    "sub_comment_count": "1",
+    "id": "6860a487000000000602cc51",
+    "show_tags": [],
+    "note_id": "6860a139000000001100393a",
+    "content": "其实这个问题和假设意义不大，很多人进入这个行业都是无法自由选择覆盖的板块",
+    "ip_location": "新加坡",
+    "pictures": [],
+    "status": 0,
+    "create_time": 1751164040000,
+    "sub_comments": [
+      {
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1751164287000,
+        "ip_location": "上海",
+        "id": "6860a57e000000001101bf37",
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "content": "是的，我就是第一份实习定了后来的行业[笑哭R]",
+        "liked": false,
+        "at_users": [],
+        "like_count": "2",
+        "user_info": {
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "target_comment": {
+          "id": "6860a487000000000602cc51",
+          "user_info": {
+            "user_id": "5c8fae6d000000001202c0c7",
+            "nickname": "多伦多雪真大",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30pjb59pamk005n4flpmklg675ffr1eo?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB-g9vYdC9Qj8Aj0C3KGTOTTn8dHvJKNYcdqoKwTYX7HE="
+          }
+        },
+        "pictures": []
+      }
+    ],
+    "sub_comment_cursor": "6860a57e000000001101bf37",
+    "sub_comment_has_more": false,
+    "at_users": []
+  },
+  {
+    "liked": false,
+    "user_info": {
+      "user_id": "603bab020000000001006ce7",
+      "nickname": "小小蛇",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/61fdce2596a5213f35c9edd6.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB6NA3D6Cxwf17qMsmoYL62sUNoLgzK6PmBpXdPl3OFdc="
+    },
+    "sub_comment_has_more": true,
+    "status": 0,
+    "sub_comments": [
+      {
+        "ip_location": "上海",
+        "pictures": [],
+        "id": "68633033000000000602e60d",
+        "status": 0,
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "like_count": "1",
+        "create_time": 1751330867000,
+        "target_comment": {
+          "id": "68632cbb000000002000f212",
+          "user_info": {
+            "user_id": "603bab020000000001006ce7",
+            "nickname": "小小蛇",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/61fdce2596a5213f35c9edd6.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "AB6NA3D6Cxwf17qMsmoYL62sUNoLgzK6PmBpXdPl3OFdc="
+          }
+        },
+        "note_id": "6860a139000000001100393a",
+        "content": "好行业",
+        "at_users": [],
+        "liked": false
+      }
+    ],
+    "id": "68632cbb000000002000f212",
+    "content": "请问食品饮料这个行业怎么样呀",
+    "at_users": [],
+    "note_id": "6860a139000000001100393a",
+    "show_tags": [],
+    "create_time": 1751329980000,
+    "ip_location": "北京",
+    "sub_comment_count": "2",
+    "sub_comment_cursor": "68633033000000000602e60d",
+    "pictures": [],
+    "like_count": "0"
+  },
+  {
+    "note_id": "6860a139000000001100393a",
+    "sub_comment_has_more": true,
+    "status": 0,
+    "content": "reits行研怎么样呢，感觉现在太小众了网上收集到的信息很有限",
+    "like_count": "0",
+    "sub_comment_count": "2",
+    "id": "6970f41c000000000c00a7f9",
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rbu648ono004af44qh7d5cj448jq2g?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABGXbfgtQbD4xVCbY3zrC9LBFz4rKa1Dnn3l_2pa1naFU=",
+      "user_id": "5b7562762cc31d0001e19593"
+    },
+    "create_time": 1769010205000,
+    "sub_comments": [
+      {
+        "content": "这个我也不太熟悉",
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了"
+        },
+        "create_time": 1769010235000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "6970f41c000000000c00a7f9",
+          "user_info": {
+            "user_id": "5b7562762cc31d0001e19593",
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rbu648ono004af44qh7d5cj448jq2g?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABGXbfgtQbD4xVCbY3zrC9LBFz4rKa1Dnn3l_2pa1naFU="
+          }
+        },
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "show_tags": [
+          "is_author"
+        ],
+        "pictures": [],
+        "id": "6970f43b00000000060316a0"
+      }
+    ],
+    "pictures": [],
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "上海",
+    "sub_comment_cursor": "6970f43b00000000060316a0"
+  },
+  {
+    "content": "请问什么样的人适合做行研？现在在很多人都在转出的情况下转进二级投研还不会后悔的？",
+    "at_users": [],
+    "sub_comment_cursor": "6860a279000000001101b9cd",
+    "pictures": [],
+    "id": "6860a202000000001102f984",
+    "show_tags": [],
+    "create_time": 1751163394000,
+    "ip_location": "美国",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/653590afbab570011116ea97.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABrOdZOZfrgQNEqJWyzV22aDtHqcEW0VXq5vwJz7p9gKg=",
+      "user_id": "6487bc4b0000000011002096",
+      "nickname": "修行中的杰西卡"
+    },
+    "sub_comment_has_more": false,
+    "note_id": "6860a139000000001100393a",
+    "sub_comment_count": "1",
+    "sub_comments": [
+      {
+        "status": 0,
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1751163514000,
+        "ip_location": "上海",
+        "target_comment": {
+          "id": "6860a202000000001102f984",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/653590afbab570011116ea97.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABrOdZOZfrgQNEqJWyzV22aDtHqcEW0VXq5vwJz7p9gKg=",
+            "user_id": "6487bc4b0000000011002096",
+            "nickname": "修行中的杰西卡"
+          }
+        },
+        "id": "6860a279000000001101b9cd",
+        "note_id": "6860a139000000001100393a",
+        "content": "我之前写过，你翻一翻，这个帖子左下角的《投研职场》分类里",
+        "at_users": [],
+        "liked": false,
+        "like_count": "1",
+        "pictures": []
+      }
+    ],
+    "like_count": "0"
+  },
+  {
+    "at_users": [],
+    "user_info": {
+      "user_id": "60c6ec71000000000101ea8a",
+      "nickname": "ezmoney",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pe22nu5i6005o66thogbqka724eds8?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABNnymLy8m5osBP2ZQpLS_q7hncJpKpswT2kXe3IjyZH8="
+    },
+    "sub_comments": [
+      {
+        "id": "69d1db73000000000d03c753",
+        "at_users": [],
+        "user_info": {
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qlsndrs000049jnnhdsmdvfhq9qrlg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB06GL65aizndOkDIJu29TZZxfgAHDCb6XcAQQs8xjtP0=",
+          "user_id": "593c9bcb50c4b452c80c37ef",
+          "nickname": "stellabellaellas"
+        },
+        "create_time": 1775360884000,
+        "ip_location": "美国",
+        "target_comment": {
+          "id": "696fb37f00000000060301b6",
+          "user_info": {
+            "xsec_token": "ABNnymLy8m5osBP2ZQpLS_q7hncJpKpswT2kXe3IjyZH8=",
+            "user_id": "60c6ec71000000000101ea8a",
+            "nickname": "ezmoney",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pe22nu5i6005o66thogbqka724eds8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false
+          }
+        },
+        "pictures": [],
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "content": "同问",
+        "liked": false,
+        "like_count": "0",
+        "show_tags": []
+      }
+    ],
+    "pictures": [],
+    "content": "公用事业（偏电力）怎么样呀？",
+    "liked": false,
+    "show_tags": [],
+    "ip_location": "上海",
+    "id": "696fb37f00000000060301b6",
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "69d1db73000000000d03c753",
+    "sub_comment_has_more": false,
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "like_count": "0",
+    "create_time": 1768928127000
+  },
+  {
+    "at_users": [],
+    "id": "6860bae80000000020020535",
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3nXj4mIzm7qCKjiTtiz_sPI=",
+      "user_id": "6544fce7000000000d005db1",
+      "nickname": "马克希尔",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [],
+    "sub_comment_has_more": false,
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "create_time": 1751169768000,
+    "ip_location": "浙江",
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "6860c13b000000002000f2cc",
+    "content": "很简单，国家往哪里投钱，就去哪些行业。半导体，人工智能，创新药，无人驾驶这些未来领域。",
+    "like_count": "3",
+    "sub_comments": [
+      {
+        "note_id": "6860a139000000001100393a",
+        "user_info": {
+          "user_id": "6544fce7000000000d005db1",
+          "nickname": "马克希尔",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3nXj4mIzm7qCKjiTtiz_sPI="
+        },
+        "pictures": [],
+        "show_tags": [],
+        "create_time": 1751171387000,
+        "id": "6860c13b000000002000f2cc",
+        "status": 0,
+        "content": "不包括医疗服务，没看到投钱的趋势，反而是医保没钱了扣扣扣。但是不排除以后民营高端有所发展，这个要看政策。",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "ip_location": "浙江",
+        "target_comment": {
+          "id": "6860bae80000000020020535",
+          "user_info": {
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3nXj4mIzm7qCKjiTtiz_sPI=",
+            "user_id": "6544fce7000000000d005db1",
+            "nickname": "马克希尔"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "target_comment": {
+      "id": "68622f0e000000000602ef22",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+        "user_id": "57538c206a6a696ff434ee73",
+        "nickname": "leo的书架又满了"
+      }
+    },
+    "pictures": [
+      {
+        "width": 1178,
+        "info_list": [],
+        "height": 1710
+      }
+    ],
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "create_time": 1751265107000,
+    "id": "68622f510000000013035c89",
+    "note_id": "6860a139000000001100393a",
+    "content": "",
+    "at_users": [],
+    "like_count": "1"
+  },
+  {
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1751174991000,
+    "ip_location": "上海",
+    "id": "6860cf4e000000001e01baa6",
+    "status": 0,
+    "content": "tmt确实是光鲜热闹，但是研究难度不低，很多难题。其实不做难题是很重要的原则",
+    "at_users": [],
+    "target_comment": {
+      "id": "6860cd1b000000001102fc56",
+      "user_info": {
+        "xsec_token": "ABwFxBRKlBb4K82STLIVphT05bOhCcqaW59GyCVkg9afI=",
+        "user_id": "5f5b19cf000000000100946b",
+        "nickname": "挪威的森林",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3196b3at04u605nqr377g953bu8cg4so?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "note_id": "6860a139000000001100393a",
+    "liked": false,
+    "like_count": "5",
+    "pictures": []
+  },
+  {
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "content": "熟悉了制造+消费+地产链+出海，又有新品类的增长点[点赞R]",
+    "at_users": [],
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1751172843000,
+    "ip_location": "上海",
+    "id": "6860c6ea0000000011018e88",
+    "liked": false,
+    "like_count": "6",
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "6860c680000000002000f97b",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mdttj2cmg005p3i0gdk3lfcaqjlqro?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABzJ_gFKEk9WphNfM3jtUOlNRlLRteS1zXecQTov9_yFM=",
+        "user_id": "6472041b000000001001d5ec",
+        "nickname": "乙木女（上岸啦版）"
+      }
+    }
+  },
+  {
+    "liked": false,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "create_time": 1751163849000,
+    "id": "6860a3c90000000011018b88",
+    "status": 0,
+    "content": "真爱",
+    "at_users": [],
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "6860a38f0000000020023eb5",
+      "user_info": {
+        "nickname": "Rae爱吃芋泥蛋黄酥",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fp04tgk02005o1mve00965pe77o5m0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABkFUdh4wF-1gZVvojU6bX1KIhUqtlNAKU4atJYXctI_c=",
+        "user_id": "6036fb8000000000010098b9"
+      }
+    }
+  },
+  {
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1751164287000,
+    "ip_location": "上海",
+    "id": "6860a57e000000001101bf37",
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "content": "是的，我就是第一份实习定了后来的行业[笑哭R]",
+    "liked": false,
+    "at_users": [],
+    "like_count": "2",
+    "user_info": {
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "target_comment": {
+      "id": "6860a487000000000602cc51",
+      "user_info": {
+        "user_id": "5c8fae6d000000001202c0c7",
+        "nickname": "多伦多雪真大",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30pjb59pamk005n4flpmklg675ffr1eo?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB-g9vYdC9Qj8Aj0C3KGTOTTn8dHvJKNYcdqoKwTYX7HE="
+      }
+    },
+    "pictures": []
+  },
+  {
+    "ip_location": "上海",
+    "pictures": [],
+    "id": "68633033000000000602e60d",
+    "status": 0,
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "like_count": "1",
+    "create_time": 1751330867000,
+    "target_comment": {
+      "id": "68632cbb000000002000f212",
+      "user_info": {
+        "user_id": "603bab020000000001006ce7",
+        "nickname": "小小蛇",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/61fdce2596a5213f35c9edd6.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "AB6NA3D6Cxwf17qMsmoYL62sUNoLgzK6PmBpXdPl3OFdc="
+      }
+    },
+    "note_id": "6860a139000000001100393a",
+    "content": "好行业",
+    "at_users": [],
+    "liked": false
+  },
+  {
+    "content": "这个我也不太熟悉",
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了"
+    },
+    "create_time": 1769010235000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "6970f41c000000000c00a7f9",
+      "user_info": {
+        "user_id": "5b7562762cc31d0001e19593",
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rbu648ono004af44qh7d5cj448jq2g?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABGXbfgtQbD4xVCbY3zrC9LBFz4rKa1Dnn3l_2pa1naFU="
+      }
+    },
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "show_tags": [
+      "is_author"
+    ],
+    "pictures": [],
+    "id": "6970f43b00000000060316a0"
+  },
+  {
+    "status": 0,
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1751163514000,
+    "ip_location": "上海",
+    "target_comment": {
+      "id": "6860a202000000001102f984",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/653590afbab570011116ea97.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABrOdZOZfrgQNEqJWyzV22aDtHqcEW0VXq5vwJz7p9gKg=",
+        "user_id": "6487bc4b0000000011002096",
+        "nickname": "修行中的杰西卡"
+      }
+    },
+    "id": "6860a279000000001101b9cd",
+    "note_id": "6860a139000000001100393a",
+    "content": "我之前写过，你翻一翻，这个帖子左下角的《投研职场》分类里",
+    "at_users": [],
+    "liked": false,
+    "like_count": "1",
+    "pictures": []
+  },
+  {
+    "id": "69d1db73000000000d03c753",
+    "at_users": [],
+    "user_info": {
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31qlsndrs000049jnnhdsmdvfhq9qrlg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB06GL65aizndOkDIJu29TZZxfgAHDCb6XcAQQs8xjtP0=",
+      "user_id": "593c9bcb50c4b452c80c37ef",
+      "nickname": "stellabellaellas"
+    },
+    "create_time": 1775360884000,
+    "ip_location": "美国",
+    "target_comment": {
+      "id": "696fb37f00000000060301b6",
+      "user_info": {
+        "xsec_token": "ABNnymLy8m5osBP2ZQpLS_q7hncJpKpswT2kXe3IjyZH8=",
+        "user_id": "60c6ec71000000000101ea8a",
+        "nickname": "ezmoney",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31pe22nu5i6005o66thogbqka724eds8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false
+      }
+    },
+    "pictures": [],
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "content": "同问",
+    "liked": false,
+    "like_count": "0",
+    "show_tags": []
+  },
+  {
+    "note_id": "6860a139000000001100393a",
+    "user_info": {
+      "user_id": "6544fce7000000000d005db1",
+      "nickname": "马克希尔",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3nXj4mIzm7qCKjiTtiz_sPI="
+    },
+    "pictures": [],
+    "show_tags": [],
+    "create_time": 1751171387000,
+    "id": "6860c13b000000002000f2cc",
+    "status": 0,
+    "content": "不包括医疗服务，没看到投钱的趋势，反而是医保没钱了扣扣扣。但是不排除以后民营高端有所发展，这个要看政策。",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "ip_location": "浙江",
+    "target_comment": {
+      "id": "6860bae80000000020020535",
+      "user_info": {
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/645b7f6e338379fac1893093.jpg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABQ4HbhM_i6ltY36PjJmrl3nXj4mIzm7qCKjiTtiz_sPI=",
+        "user_id": "6544fce7000000000d005db1",
+        "nickname": "马克希尔"
+      }
+    }
+  },
+  {
+    "sub_comments": [
+      {
+        "id": "68660dd9000000000f03e195",
+        "content": "行业不好。有其他机会可以换一下",
+        "at_users": [],
+        "liked": false,
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "68660c8a000000000c0149d3",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABYFvk6BAT4AfDM892A3CAnfc7qkrfC70CASSOSoUIWSY=",
+            "user_id": "62c60de7000000001b002da2",
+            "nickname": "退！退！退！",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uhvufnuig6g5om61njmobd2e4lh4hg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "like_count": "0",
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "create_time": 1751518681000,
+        "ip_location": "上海"
+      }
+    ],
+    "show_tags": [],
+    "id": "68660c8a000000000c0149d3",
+    "at_users": [],
+    "liked": false,
+    "status": 0,
+    "content": "纺织服装怎么样。实习快结束了，但还没有很好的产出，在考虑要不要继续这个组别",
+    "sub_comment_has_more": false,
+    "create_time": 1751518347000,
+    "ip_location": "四川",
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "68660dd9000000000f03e195",
+    "note_id": "6860a139000000001100393a",
+    "like_count": "0",
+    "user_info": {
+      "nickname": "退！退！退！",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uhvufnuig6g5om61njmobd2e4lh4hg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABYFvk6BAT4AfDM892A3CAnfc7qkrfC70CASSOSoUIWSY=",
+      "user_id": "62c60de7000000001b002da2"
+    }
+  },
+  {
+    "sub_comment_has_more": true,
+    "content": "自媒体时代了，卖方行业分析师的业态环境和话语权一直在恶化，用生命周期理论看，这行业就是成熟期走向衰退期。",
+    "at_users": [],
+    "create_time": 1751165795000,
+    "status": 0,
+    "liked": false,
+    "user_info": {
+      "user_id": "5c2ec311000000000601bd45",
+      "nickname": "麦田里的守望者",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/c94b2589011be6d87bfbbbf21db9e2a0.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB94UUsv2S6hjYQjGn8XWd_f3sZ_UCYrKgS983A2dWq2Y="
+    },
+    "show_tags": [],
+    "sub_comment_count": "3",
+    "ip_location": "北京",
+    "sub_comments": [
+      {
+        "content": "应该不是这个意思，就是现在信息越来越透明化了，确实影响会蛮大的吧",
+        "at_users": [],
+        "liked": false,
+        "user_info": {
+          "user_id": "603bab020000000001006ce7",
+          "nickname": "小小蛇",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/61fdce2596a5213f35c9edd6.jpg?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB6NA3D6Cxwf17qMsmoYL62sUNoLgzK6PmBpXdPl3OFdc="
+        },
+        "create_time": 1751329938000,
+        "ip_location": "北京",
+        "target_comment": {
+          "id": "68615c3e000000002002c79b",
+          "user_info": {
+            "ai_agent": false,
+            "xsec_token": "ABqDbz5g1174WxZvdLEE8aob_Aipuzwel3MoCfgMTvnk8=",
+            "user_id": "5c445f5b00000000070247ac",
+            "nickname": "想不出好听的名字",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/ae351b5abc78ae2e8d79998354db8440.jpg?imageView2/2/w/120/format/jpg"
+          }
+        },
+        "id": "68632c92000000002001245c",
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "like_count": "0",
+        "show_tags": []
+      }
+    ],
+    "sub_comment_cursor": "68632c92000000002001245c",
+    "id": "6860ab6200000000110185d1",
+    "note_id": "6860a139000000001100393a",
+    "like_count": "3"
+  },
+  {
+    "sub_comment_count": "1",
+    "sub_comment_cursor": "6860a2aa000000001100f097",
+    "sub_comment_has_more": false,
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "create_time": 1751163306000,
+    "ip_location": "广东",
+    "content": "写的好，火钳刘明",
+    "like_count": "0",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABqKxkdws0ePyfae9s_biPSWC0UCkex8cs03PHgzqThHc=",
+      "user_id": "67be7d480000000006010c03",
+      "nickname": "加盟研究院",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fdgk5qv6i6g5ptufl41i303jb3smm8?imageView2/2/w/120/format/jpg"
+    },
+    "sub_comments": [
+      {
+        "user_info": {
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg"
+        },
+        "create_time": 1751163562000,
+        "ip_location": "上海",
+        "content": "[抱拳R][抱拳R]",
+        "at_users": [],
+        "liked": false,
+        "like_count": "0",
+        "target_comment": {
+          "id": "6860a1aa00000000200305fe",
+          "user_info": {
+            "user_id": "67be7d480000000006010c03",
+            "nickname": "加盟研究院",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fdgk5qv6i6g5ptufl41i303jb3smm8?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABqKxkdws0ePyfae9s_biPSWC0UCkex8cs03PHgzqThHc="
+          }
+        },
+        "id": "6860a2aa000000001100f097",
+        "note_id": "6860a139000000001100393a",
+        "status": 0,
+        "show_tags": [
+          "is_author"
+        ]
+      }
+    ],
+    "at_users": [],
+    "liked": false,
+    "show_tags": [],
+    "id": "6860a1aa00000000200305fe"
+  },
+  {
+    "sub_comment_cursor": "68633df8000000000600605e",
+    "id": "68633c34000000002002f44d",
+    "liked": false,
+    "ip_location": "浙江",
+    "at_users": [],
+    "sub_comment_has_more": false,
+    "note_id": "6860a139000000001100393a",
+    "user_info": {
+      "user_id": "5659aaf77c5bb866432285df",
+      "nickname": "Baezise",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31e84oj610s0043ec1mlff1evs3m003o?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABQJc6j-YRyb1SAtUV3cgKLtkB_ihU1995Y6Vo6OaJE9M="
+    },
+    "sub_comment_count": "1",
+    "show_tags": [],
+    "create_time": 1751333940000,
+    "sub_comments": [
+      {
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "ip_location": "上海",
+        "note_id": "6860a139000000001100393a",
+        "liked": false,
+        "like_count": "0",
+        "at_users": [],
+        "show_tags": [
+          "is_author"
+        ],
+        "create_time": 1751334392000,
+        "target_comment": {
+          "id": "68633c34000000002002f44d",
+          "user_info": {
+            "user_id": "5659aaf77c5bb866432285df",
+            "nickname": "Baezise",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31e84oj610s0043ec1mlff1evs3m003o?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABQJc6j-YRyb1SAtUV3cgKLtkB_ihU1995Y6Vo6OaJE9M="
+          }
+        },
+        "id": "68633df8000000000600605e",
+        "status": 0,
+        "content": "扎心了"
+      }
+    ],
+    "status": 0,
+    "content": "覆盖什么行业，难道是我可以选的吗",
+    "like_count": "4"
+  },
+  {
+    "note_id": "6860a139000000001100393a",
+    "content": "医药呢",
+    "show_tags": [],
+    "create_time": 1751730698000,
+    "sub_comments": [
+      {
+        "status": 0,
+        "user_info": {
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false
+        },
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "id": "68694a09000000002002244c",
+          "user_info": {
+            "user_id": "5cca36140000000012024260",
+            "nickname": "粥九二",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30njatnl37a5g5n6a6oa4kgj0jptbuu0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABnkncN9lz6qCgZLILPuz-R-c729xqc_8PCfT_DRUbSZ8="
+          }
+        },
+        "liked": false,
+        "like_count": "0",
+        "create_time": 1751758752000,
+        "ip_location": "上海",
+        "id": "6869b7a0000000000602def8",
+        "note_id": "6860a139000000001100393a",
+        "content": "可以的",
+        "at_users": []
+      }
+    ],
+    "sub_comment_has_more": true,
+    "id": "68694a09000000002002244c",
+    "liked": false,
+    "ip_location": "安徽",
+    "sub_comment_count": "2",
+    "sub_comment_cursor": "6869b7a0000000000602def8",
+    "at_users": [],
+    "user_info": {
+      "xsec_token": "ABnkncN9lz6qCgZLILPuz-R-c729xqc_8PCfT_DRUbSZ8=",
+      "user_id": "5cca36140000000012024260",
+      "nickname": "粥九二",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30njatnl37a5g5n6a6oa4kgj0jptbuu0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "status": 0,
+    "like_count": "0"
+  },
+  {
+    "user_info": {
+      "nickname": "想不出好听的名字",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/ae351b5abc78ae2e8d79998354db8440.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABqDbz5g1174WxZvdLEE8aob_Aipuzwel3MoCfgMTvnk8=",
+      "user_id": "5c445f5b00000000070247ac"
+    },
+    "show_tags": [],
+    "ip_location": "北京",
+    "sub_comment_has_more": false,
+    "note_id": "6860a139000000001100393a",
+    "create_time": 1751168370000,
+    "sub_comment_cursor": "",
+    "id": "6860b572000000002000c706",
+    "status": 0,
+    "content": "直接看基金重仓比例选行业[笑哭R]电子，医药，食饮，新能源，汽车，家电，机械，计算机这些",
+    "at_users": [],
+    "liked": false,
+    "like_count": "2",
+    "sub_comment_count": "0",
+    "sub_comments": []
+  },
+  {
+    "sub_comment_has_more": false,
+    "at_users": [],
+    "liked": false,
+    "create_time": 1751183183000,
+    "id": "6860ef4f0000000020031b6a",
+    "status": 3,
+    "show_tags": [],
+    "sub_comment_count": "0",
+    "sub_comments": [],
+    "sub_comment_cursor": "",
+    "content": "有过一次房地产组实习，建议再次吗",
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "ABJ_eccJsKzJp6kJ8X6txltEDcOlNTsDQ_C5OAdahyuqM=",
+      "user_id": "5cb2a02d000000001202ae1b",
+      "nickname": "陈看四季",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31f4bri7dme5g5n5ik0mklbgrh2p03ko?imageView2/2/w/120/format/jpg"
+    },
+    "ip_location": "浙江",
+    "note_id": "6860a139000000001100393a",
+    "like_count": "0"
+  },
+  {
+    "at_users": [],
+    "create_time": 1751387942000,
+    "sub_comments": [
+      {
+        "status": 0,
+        "content": "挺有壁垒的",
+        "liked": false,
+        "like_count": "0",
+        "create_time": 1751425233000,
+        "ip_location": "上海",
+        "id": "6864a0d0000000000602dba0",
+        "note_id": "6860a139000000001100393a",
+        "show_tags": [
+          "is_author"
+        ],
+        "target_comment": {
+          "user_info": {
+            "nickname": "nEw",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31dplbu1r0e005pt3clp2nppjsfclkv0?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABoDMOs2KI0wmXHEe8PuCt06B_TceT1DWrMOM5bHRe8sI=",
+            "user_id": "67a36572000000000a03e733"
+          },
+          "id": "68640f26000000001101b0b7"
+        },
+        "at_users": [],
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        }
+      }
+    ],
+    "sub_comment_cursor": "6864a0d0000000000602dba0",
+    "sub_comment_has_more": false,
+    "id": "68640f26000000001101b0b7",
+    "note_id": "6860a139000000001100393a",
+    "ip_location": "北京",
+    "content": "创新药，入行前最想看的行业",
+    "like_count": "0",
+    "user_info": {
+      "user_id": "67a36572000000000a03e733",
+      "nickname": "nEw",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31dplbu1r0e005pt3clp2nppjsfclkv0?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABoDMOs2KI0wmXHEe8PuCt06B_TceT1DWrMOM5bHRe8sI="
+    },
+    "sub_comment_count": "1",
+    "status": 0,
+    "liked": false,
+    "show_tags": []
+  },
+  {
+    "at_users": [],
+    "user_info": {
+      "user_id": "639d7158000000002702a527",
+      "nickname": "茄茄qq",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jd34jaqio705oste5c9t997habtbog?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABNX0sDe-zY8HSi7W98zC1AntImQODgHNyFxTIeuOJwoE="
+    },
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "sub_comment_has_more": false,
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "content": "固收还是会的",
+    "liked": false,
+    "like_count": "0",
+    "sub_comments": [],
+    "id": "686685ca000000000c016e4d",
+    "create_time": 1751549386000
+  },
+  {
+    "sub_comment_cursor": "",
+    "like_count": "0",
+    "ip_location": "上海",
+    "sub_comment_count": "0",
+    "at_users": [],
+    "create_time": 1752759409000,
+    "liked": false,
+    "user_info": {
+      "user_id": "61fb7837000000001000f74b",
+      "nickname": "momo🐊",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31emc451n5m005ofrf0rk1tqbi8l7aro?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB3rjizxGiF5N8RLimTOsocfPhiBKm6z2Is7fu2DUQn2Q="
+    },
+    "show_tags": [],
+    "sub_comments": [],
+    "id": "6878fc710000000013035f80",
+    "note_id": "6860a139000000001100393a",
+    "sub_comment_has_more": false,
+    "status": 0,
+    "content": "我只能说不要非某行业不看，顺其自然吧。我19年入行，看光伏，当时就是个普通制造业，后来经历了20-22年的牛市，也经历了23-25年的狗都不理。当时业内有一批实业的人，冲着钱转行来二级的，现在也不知道在哪儿了"
+  },
+  {
+    "id": "68660dd9000000000f03e195",
+    "content": "行业不好。有其他机会可以换一下",
+    "at_users": [],
+    "liked": false,
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "68660c8a000000000c0149d3",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABYFvk6BAT4AfDM892A3CAnfc7qkrfC70CASSOSoUIWSY=",
+        "user_id": "62c60de7000000001b002da2",
+        "nickname": "退！退！退！",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31uhvufnuig6g5om61njmobd2e4lh4hg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "like_count": "0",
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "create_time": 1751518681000,
+    "ip_location": "上海"
+  },
+  {
+    "content": "应该不是这个意思，就是现在信息越来越透明化了，确实影响会蛮大的吧",
+    "at_users": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "603bab020000000001006ce7",
+      "nickname": "小小蛇",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/61fdce2596a5213f35c9edd6.jpg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB6NA3D6Cxwf17qMsmoYL62sUNoLgzK6PmBpXdPl3OFdc="
+    },
+    "create_time": 1751329938000,
+    "ip_location": "北京",
+    "target_comment": {
+      "id": "68615c3e000000002002c79b",
+      "user_info": {
+        "ai_agent": false,
+        "xsec_token": "ABqDbz5g1174WxZvdLEE8aob_Aipuzwel3MoCfgMTvnk8=",
+        "user_id": "5c445f5b00000000070247ac",
+        "nickname": "想不出好听的名字",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/ae351b5abc78ae2e8d79998354db8440.jpg?imageView2/2/w/120/format/jpg"
+      }
+    },
+    "id": "68632c92000000002001245c",
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "like_count": "0",
+    "show_tags": []
+  },
+  {
+    "user_info": {
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg"
+    },
+    "create_time": 1751163562000,
+    "ip_location": "上海",
+    "content": "[抱拳R][抱拳R]",
+    "at_users": [],
+    "liked": false,
+    "like_count": "0",
+    "target_comment": {
+      "id": "6860a1aa00000000200305fe",
+      "user_info": {
+        "user_id": "67be7d480000000006010c03",
+        "nickname": "加盟研究院",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31fdgk5qv6i6g5ptufl41i303jb3smm8?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABqKxkdws0ePyfae9s_biPSWC0UCkex8cs03PHgzqThHc="
+      }
+    },
+    "id": "6860a2aa000000001100f097",
+    "note_id": "6860a139000000001100393a",
+    "status": 0,
+    "show_tags": [
+      "is_author"
+    ]
+  },
+  {
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "ip_location": "上海",
+    "note_id": "6860a139000000001100393a",
+    "liked": false,
+    "like_count": "0",
+    "at_users": [],
+    "show_tags": [
+      "is_author"
+    ],
+    "create_time": 1751334392000,
+    "target_comment": {
+      "id": "68633c34000000002002f44d",
+      "user_info": {
+        "user_id": "5659aaf77c5bb866432285df",
+        "nickname": "Baezise",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31e84oj610s0043ec1mlff1evs3m003o?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABQJc6j-YRyb1SAtUV3cgKLtkB_ihU1995Y6Vo6OaJE9M="
+      }
+    },
+    "id": "68633df8000000000600605e",
+    "status": 0,
+    "content": "扎心了"
+  },
+  {
+    "status": 0,
+    "user_info": {
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU=",
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false
+    },
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "id": "68694a09000000002002244c",
+      "user_info": {
+        "user_id": "5cca36140000000012024260",
+        "nickname": "粥九二",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo30njatnl37a5g5n6a6oa4kgj0jptbuu0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABnkncN9lz6qCgZLILPuz-R-c729xqc_8PCfT_DRUbSZ8="
+      }
+    },
+    "liked": false,
+    "like_count": "0",
+    "create_time": 1751758752000,
+    "ip_location": "上海",
+    "id": "6869b7a0000000000602def8",
+    "note_id": "6860a139000000001100393a",
+    "content": "可以的",
+    "at_users": []
+  },
+  {
+    "status": 0,
+    "content": "挺有壁垒的",
+    "liked": false,
+    "like_count": "0",
+    "create_time": 1751425233000,
+    "ip_location": "上海",
+    "id": "6864a0d0000000000602dba0",
+    "note_id": "6860a139000000001100393a",
+    "show_tags": [
+      "is_author"
+    ],
+    "target_comment": {
+      "user_info": {
+        "nickname": "nEw",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31dplbu1r0e005pt3clp2nppjsfclkv0?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABoDMOs2KI0wmXHEe8PuCt06B_TceT1DWrMOM5bHRe8sI=",
+        "user_id": "67a36572000000000a03e733"
+      },
+      "id": "68640f26000000001101b0b7"
+    },
+    "at_users": [],
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    }
+  },
+  {
+    "create_time": 1763003904000,
+    "sub_comment_has_more": false,
+    "content": "\"学完UI设计课，没进大厂就退费！这种承诺让普通人也敢拼！\"",
+    "ip_location": "北京",
+    "sub_comment_count": "0",
+    "id": "69154e00000000003100060f",
+    "note_id": "6860a139000000001100393a",
+    "sub_comments": [],
+    "liked": false,
+    "user_info": {
+      "user_id": "656c42120000000019011b99",
+      "nickname": "净学新媒体短视频运营就业培训中心",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3200uionm486g5pbc8896a6spdci7mcg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABovi7pb8RepWEiiLkCzKYIu01O_l908dxxlSdjkFt-Fo="
+    },
+    "like_count": "0",
+    "show_tags": [],
+    "sub_comment_cursor": "",
+    "status": -2,
+    "at_users": []
+  },
+  {
+    "content": "机械",
+    "like_count": "0",
+    "sub_comment_count": "1",
+    "sub_comment_has_more": false,
+    "id": "686364eb0000000004018ac2",
+    "note_id": "6860a139000000001100393a",
+    "at_users": [],
+    "user_info": {
+      "nickname": "momo",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mkcjavv5m605nbvfh808ji3s39mdeg?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "ABEegzBg3EmQdxmbHO_PGzp6mDR5bVSAKrnq8i9k0NGF8=",
+      "user_id": "5d7f7c500000000001004e43"
+    },
+    "show_tags": [],
+    "create_time": 1751344364000,
+    "ip_location": "黑龙江",
+    "liked": false,
+    "sub_comment_cursor": "686371a80000000006006ee1",
+    "status": -2,
+    "sub_comments": [
+      {
+        "show_tags": [
+          "is_author"
+        ],
+        "ip_location": "上海",
+        "id": "686371a80000000006006ee1",
+        "status": 0,
+        "content": "机器人[doge]",
+        "liked": false,
+        "user_info": {
+          "user_id": "57538c206a6a696ff434ee73",
+          "nickname": "leo的书架又满了",
+          "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+          "ai_agent": false,
+          "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+        },
+        "note_id": "6860a139000000001100393a",
+        "at_users": [],
+        "like_count": "0",
+        "create_time": 1751347624000,
+        "target_comment": {
+          "id": "686364eb0000000004018ac2",
+          "user_info": {
+            "nickname": "momo",
+            "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mkcjavv5m605nbvfh808ji3s39mdeg?imageView2/2/w/120/format/jpg",
+            "ai_agent": false,
+            "xsec_token": "ABEegzBg3EmQdxmbHO_PGzp6mDR5bVSAKrnq8i9k0NGF8=",
+            "user_id": "5d7f7c500000000001004e43"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "show_tags": [
+      "is_author"
+    ],
+    "ip_location": "上海",
+    "id": "686371a80000000006006ee1",
+    "status": 0,
+    "content": "机器人[doge]",
+    "liked": false,
+    "user_info": {
+      "user_id": "57538c206a6a696ff434ee73",
+      "nickname": "leo的书架又满了",
+      "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rod1vj9i20048dtkd621rjj3fe8t60?imageView2/2/w/120/format/jpg",
+      "ai_agent": false,
+      "xsec_token": "AB-u-nZQ5BGxzTdvLvrmz7VatyQwYzxywybNOJE1I7qwU="
+    },
+    "note_id": "6860a139000000001100393a",
+    "at_users": [],
+    "like_count": "0",
+    "create_time": 1751347624000,
+    "target_comment": {
+      "id": "686364eb0000000004018ac2",
+      "user_info": {
+        "nickname": "momo",
+        "image": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31mkcjavv5m605nbvfh808ji3s39mdeg?imageView2/2/w/120/format/jpg",
+        "ai_agent": false,
+        "xsec_token": "ABEegzBg3EmQdxmbHO_PGzp6mDR5bVSAKrnq8i9k0NGF8=",
+        "user_id": "5d7f7c500000000001004e43"
+      }
+    }
+  }
+]
