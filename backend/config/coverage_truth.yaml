@@ -314,17 +314,17 @@ tracks:
       # 以下 portal 对 VPS/数据中心 IP 返 500 + JS→maintenance-page 软封禁，
       # CXS 因此 422。curl_cffi/Playwright 均无效。需要住宅代理才能解锁。
       - name: JP Morgan
-        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
+        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: HSBC
         deferred_reason: mycareer.hsbc.com 全 Poland GSC后台岗，SAIF无关；真HK/SG岗位入口未知
       - name: Bank of America
-        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
+        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: BNP Paribas
-        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
+        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: Standard Chartered
-        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
+        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: Nomura
-        deferred_reason: Workday WAF VPS IP软封禁(portal 500→maintenance)；需住宅代理
+        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: Deutsche Bank
       - name: Barclays
 
@@ -338,6 +338,7 @@ tracks:
       # 公开有 API 的（已 active 或将 active）
       - name: 源码资本
       - name: 鼎晖投资
+        deferred_reason: 2026-05-26 用户决定暂时不爬;backlog
       - name: 黑石集团
       - name: KKR
       # 公开但工程不可行的
