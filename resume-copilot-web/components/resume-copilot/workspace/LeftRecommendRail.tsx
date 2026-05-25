@@ -365,6 +365,7 @@ export function LeftRecommendRail({
                     onToggle={() => handleToggle(jobId)}
                     onReject={(reason, note) => handleReject(jobId, reason, note)}
                     onCustomiseForJob={onCustomiseForJob}
+                    sessionId={sid}
                   />
                 </div>
               );

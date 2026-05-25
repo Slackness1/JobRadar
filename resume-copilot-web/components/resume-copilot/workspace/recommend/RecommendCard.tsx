@@ -17,6 +17,7 @@ import type { ResumeRecommendationItem } from '../../types';
 import type { RecommendRejectReason } from '../../api';
 import { I } from '@/components/hifi/hifi-primitives';
 import { RecommendCardIntelSection } from './RecommendCardIntelSection';
+import { RecommendNarrativeSection } from './RecommendNarrativeSection';
 import { RecommendRejectForm } from './RecommendRejectForm';
 
 export interface RecommendCardProps {
@@ -29,6 +30,8 @@ export interface RecommendCardProps {
   /** Plan ② Job plan-mode (2026-05-21): "🎯 针对这家定制" entry. Parent
    *  switches MiddleChatPane into plan-mode tagged with this job_id. */
   onCustomiseForJob?: (item: ResumeRecommendationItem) => void;
+  /** Phase 7 — narrative section fetch 需要 sessionId。 */
+  sessionId?: number;
 }
 
 /** First letter of company for the logo placeholder — there's no logo CDN in
@@ -105,6 +108,7 @@ export function RecommendCard({
   onToggle,
   onReject,
   onCustomiseForJob,
+  sessionId,
 }: RecommendCardProps) {
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -213,6 +217,14 @@ export function RecommendCard({
 
       {isExpanded && (
         <div className="workspace-hifi__rec-card-body">
+          {sessionId !== undefined && (
+            <RecommendNarrativeSection
+              sessionId={sessionId}
+              jobId={String(item.job_id)}
+              isVisible={isExpanded}
+            />
+          )}
+
           <div className="workspace-hifi__rec-card-body-section">
             <div className="workspace-hifi__rec-card-body-title">为什么推</div>
             {whyBullets.length > 0 ? (

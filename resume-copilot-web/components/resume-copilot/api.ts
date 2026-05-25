@@ -322,6 +322,22 @@ export function getResumeCopilotPlatforms(sessionId: number) {
   );
 }
 
+// Phase 7 — LLM 个性化推荐叙事 (2026-05-25)
+export interface RecommendNarrativeOut {
+  narrative: string;
+  action_tip: string;
+  evidence_refs: string[];
+  generated_at: string;
+  from_cache: boolean;
+  status: string;
+}
+
+export function getResumeCopilotNarrative(sessionId: number, jobId: string) {
+  return requestJson<RecommendNarrativeOut>(
+    `/api/resume-copilot/sessions/${sessionId}/recommendations/${encodeURIComponent(jobId)}/narrative`,
+  );
+}
+
 export function getResumeCopilotFeedback(sessionId: number) {
   return requestJson<ResumeFeedbackResult>(`/api/resume-copilot/sessions/${sessionId}/feedback`);
 }

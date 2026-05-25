@@ -4059,6 +4059,98 @@
   padding: 0 12px 12px;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Phase 7 (2026-05-25) — LLM 个性化推荐叙事 narrative 区
+ * 挂在 RecommendCard expanded body 最顶部,terracotta-wash 强调 "为你定制"
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.workspace-hifi__narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  border-left: 3px solid var(--terracotta);
+  background: linear-gradient(
+    to right,
+    var(--terracotta-wash, #fdf5ef),
+    transparent 60%
+  );
+  border-radius: 0 8px 8px 0;
+}
+
+.workspace-hifi__narrative--loading {
+  flex-direction: row;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--olive);
+  background: transparent;
+  border-left-style: dashed;
+}
+
+.workspace-hifi__narrative-spark {
+  color: var(--terracotta-strong, #a14e30);
+  font-size: 14px;
+  animation: workspace-hifi-narrative-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes workspace-hifi-narrative-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+
+.workspace-hifi__narrative-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--terracotta-strong);
+  font-weight: 600;
+}
+
+.workspace-hifi__narrative-title {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.workspace-hifi__narrative-evidence-count {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--stone);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.workspace-hifi__narrative-body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+  white-space: pre-line;
+}
+
+.workspace-hifi__narrative-tip {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--olive);
+  padding: 6px 9px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.workspace-hifi__narrative-tip-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
 /* ── Industry chip (Phase 6 mvp, 2026-05-25) ────────────────────────────── */
 /* Keyword-based industry sub-direction tag — purely display, no scoring impact.
  * Shown on both RecommendCard summary row and PlatformCard mini job rows. */

@@ -202,6 +202,16 @@ class ResumeRecommendationResultOut(BaseModel):
     error_message: str = ''
 
 
+class RecommendNarrativeOut(BaseModel):
+    """Phase 7 (2026-05-25) — 推荐卡个性化叙事。"""
+    narrative: str = ''
+    action_tip: str = ''
+    evidence_refs: list[str] = []
+    generated_at: str = ''
+    from_cache: bool = False
+    status: str = ''
+
+
 class ResumeRecommendationPlatformJobBrief(BaseModel):
     """Per-platform 卡片 expand 后显示的岗位摘要。完整字段走原 items endpoint。"""
     job_id: str

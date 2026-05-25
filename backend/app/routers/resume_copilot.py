@@ -48,6 +48,7 @@ from app.schemas_resume_copilot import (
     ResumePreferencePayload,
     ResumeRecommendationItem,
     ResumeRecommendationPlatformsOut,
+    RecommendNarrativeOut,
     ResumeRecommendationResultOut,
     RewriteOption,
     RewriteV0V2In,
@@ -615,6 +616,74 @@ def get_resume_copilot_recommendation_platforms(
         n_total_jobs=len(items),
         used_ai=bool(getattr(recommendation_run, 'used_ai', 0)),
         fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
+    )
+
+
+@router.get(
+    '/sessions/{session_id}/recommendations/{job_id}/narrative',
+    response_model=RecommendNarrativeOut,
+)
+def get_recommend_narrative(
+    session_id: int,
+    job_id: str,
+    x_resume_user_key: str = Header(default=''),
+    refresh: int = 0,
+    db: Session = Depends(get_db),
+):
+    """Phase 7 (2026-05-25) — 推荐卡 LLM 个性化叙事。
+
+    Inputs: session 的 confirmed_profile + recommendation_run 里对应 job_id 的
+    ResumeRecommendationItem + 公司在 XHS 库里 top 5 high-conf insights。
+    Output: narrative + action_tip + evidence_refs。
+    Cache: 7 天,key=(user_key, job_id, profile_hash),简历改动自动失效。
+    """
+    from app.services.resume_copilot import narrative as narrative_svc
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    # Load confirmed profile (narrative 必须基于 confirmed,不是 parsed)
+    cp = db.query(ResumeConfirmedProfile).filter(
+        ResumeConfirmedProfile.session_id == session_id,
+    ).first()
+    if not cp:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Confirmed profile for session {session_id} not found',
+        )
+    profile_dict = json.loads(str(getattr(cp, 'profile_json', '{}') or '{}'))
+
+    # Load recommendation item by job_id
+    rec_run = db.query(ResumeRecommendationRun).filter(
+        ResumeRecommendationRun.session_id == session_id,
+    ).first()
+    if not rec_run:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Recommendations for session {session_id} not found',
+        )
+    items_raw: Any = getattr(rec_run, 'recommendations_json', '[]') or '[]'
+    items = json.loads(str(items_raw))
+    job_item = next((it for it in items if str(it.get('job_id')) == str(job_id)), None)
+    if not job_item:
+        raise HTTPException(
+            status_code=404,
+            detail=f'Job {job_id} not found in session {session_id} recommendations',
+        )
+
+    payload = narrative_svc.generate(
+        db,
+        user_key=str(getattr(session, 'user_key', '') or x_resume_user_key or ''),
+        job_item=job_item,
+        profile=profile_dict,
+        use_cache=(refresh == 0),
+    )
+    return RecommendNarrativeOut(
+        narrative=payload.get('narrative', ''),
+        action_tip=payload.get('action_tip', ''),
+        evidence_refs=payload.get('evidence_refs', []),
+        generated_at=payload.get('generated_at', ''),
+        from_cache=bool(payload.get('_from_cache', False)),
+        status=payload.get('_status', ''),
     )
 
 
