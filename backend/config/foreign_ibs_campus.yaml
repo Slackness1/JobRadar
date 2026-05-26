@@ -83,8 +83,22 @@ sites:
     tls_impersonate: chrome120
     note: "2026-05-25: db.wd3/DBWebsite curl_cffi chrome120 解锁 — 92 unique Asia SAIF岗。前记'自建ATS'有误，实为标准Workday wd3。"
 
-  # JPM/BofA/BNP/Nomura/StanChart/Daiwa/MUFG/Mizuho/Jefferies — 2026-05-25 诊断:
-  # portal 返 500 + JS redirect → community.workday.com/maintenance-page。
-  # Workday WAF 对 VPS/数据中心 IP 做软封禁(假maintenance),CXS因此 422。
-  # 非 TLS fingerprint 问题 — curl_cffi/Playwright 均无效。
-  # 需要住宅代理 IP 才能解锁;目前 backlog。
+  # JP Morgan — 2026-05-26 重新诊断: 原以为是 Workday(jpmc.wd5)被 IP 软封,
+  # 实际 JPM 早已迁移到 Oracle Cloud Candidate Experience。jpmc.fa.oraclecloud.com
+  # /hcmRestApi/recruitingCEJobRequisitions VPS plain requests 1.1s 200 OK,
+  # 无 IP 限制。Asia 总量: HK 113 / SG 76 / China 66 / Tokyo+Mumbai 等估 300+ 总。
+  - name: JP Morgan
+    handler: oracle_ce
+    portal_url: https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/jobs
+    site_number: CX_1001
+    page_size: 25
+    max_pages_per_query: 8
+    search_queries: ["China", "Hong Kong", "Singapore", "Tokyo", "Mumbai", "Investment Banking", "Research"]
+    note: "2026-05-26: Oracle Cloud CE REST 解锁(原 Workday endpoint 是错的); siteNumber=CX_1001"
+
+  # BofA/BNP/Nomura/StanChart/Daiwa/MUFG/Mizuho/Jefferies — 2026-05-26 修正诊断:
+  # 之前以为是 ASN 软封,实测 Decodo premium residential 仍返 422 (CXS) /
+  # render-timeout (portal headless)。即使 cookie-flow 同 session 也过不去。
+  # 真实原因: Workday 租户级应用层反爬 — 估计开了 WorkdayDetect 行为指纹检测
+  # (canvas/WebGL/mouse-move) 或要求 portal-issued session cookies + CSRF token。
+  # 解法只剩 Multilogin 类真指纹浏览器 + 行为脚本 (1 周工程 + ¥600/月起),ROI 偏低。

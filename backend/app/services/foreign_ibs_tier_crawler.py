@@ -12,12 +12,18 @@ Companies wired:
   - Goldman Sachs (自建 GraphQL `_fetch_goldman_graphql`)
   - UBS (Oracle Taleo SPA `_fetch_ubs_taleo_spa`)
   - Barclays (Workday CXS + curl_cffi chrome120; plain requests→406)
-  - **Deutsche Bank** (Workday wd3/DBWebsite + curl_cffi chrome120; ~92 Asia岗)
+  - Deutsche Bank (Workday wd3/DBWebsite + curl_cffi chrome120; ~92 Asia岗)
+  - **JP Morgan** (Oracle Cloud CE REST `_fetch_oracle_ce`; 2026-05-26 解锁,
+    原 jpmc.wd5 Workday endpoint 是错的,实际走 jpmc.fa.oraclecloud.com)
 
-VPS IP soft-blocked (portal 500 → JS redirect to maintenance-page):
-  - JPM / BofA / BNP / Standard Chartered / Nomura / Daiwa CM / MUFG / Mizuho
-  - 需要住宅代理 IP 才能访问，backlog
-  - HSBC: portal 200 但全是 Poland GSC 后台岗，Asia IBD 不走此 portal
+Application-layer anti-bot (Workday tenant-level WorkdayDetect+CSRF+session),
+**not** ASN/IP block — Decodo residential 实测 422,需 Multilogin 类真指纹浏览器
++ 行为脚本才能解,ROI 偏低,继续 backlog:
+  - BofA / BNP / Standard Chartered / Nomura / Daiwa CM / MUFG / Mizuho / Jefferies
+
+True backlog (无明确公开 ATS 入口):
+  - HSBC: mycareer.hsbc.com 实测确认是 HSBC Poland 专属 GSC portal,Asia
+    portal 公开 entry 不明,backlog
 """
 from __future__ import annotations
 
@@ -398,6 +404,117 @@ def _fetch_ubs_taleo_spa(
     return out
 
 
+def _fetch_oracle_ce(
+    company: str,
+    portal_url: str,
+    site_number: str,
+    queries: List[str],
+    page_size: int = 25,
+    max_pages_per_query: int = 8,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
+) -> List[Dict[str, Any]]:
+    """Oracle Cloud Candidate Experience REST — `recruitingCEJobRequisitions`.
+
+    2026-05-26 实测 JPM (jpmc.fa.oraclecloud.com siteNumber=CX_1001):VPS plain
+    requests 1.1s 返 200,无 IP 限制,server-side keyword filter 正常工作。
+    pagination 通过 offset 步进,每页固定 25 条(API 上限)。
+    """
+    import re as _re
+    from urllib.parse import quote
+    base = portal_url.rstrip("/")
+    if "fa.oraclecloud.com" not in base:
+        # entry_url 是 SPA 入口,推导出 hcmRestApi 根
+        m = _re.match(r"^(https?://[^/]+)", portal_url)
+        if not m:
+            return []
+        base = m.group(1)
+    api_root = base.split("/hcmUI")[0] if "/hcmUI" in base else base
+    api_url = f"{api_root}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for q in queries:
+        for page in range(max_pages_per_query):
+            offset = page * page_size
+            url = (
+                f"{api_url}?finder=findReqs;siteNumber={site_number}"
+                f",keyword={quote(q)}&limit={page_size}&offset={offset}"
+                f"&expand=requisitionList&onlyData=true"
+            )
+            try:
+                r = requests.get(url, timeout=25, headers={
+                    **_ua_headers(),
+                    "Accept": "application/json",
+                })
+            except Exception:
+                break
+            if r.status_code != 200:
+                break
+            try:
+                jd = r.json()
+            except Exception:
+                break
+            meta = (jd.get("items") or [{}])[0]
+            req_list = meta.get("requisitionList") or []
+            if not req_list:
+                break
+            total = meta.get("TotalJobsCount") or 0
+            for it in req_list:
+                rid = str(it.get("Id") or it.get("ReqId") or "").strip()
+                if not rid or rid in seen:
+                    continue
+                seen.add(rid)
+                title = (it.get("Title") or "").strip()
+                if not title:
+                    continue
+                location = (it.get("PrimaryLocation") or "").strip() or "未知"
+                # Asia 过滤,与其它 handler 一致
+                if not _is_asia(location):
+                    continue
+                department = (it.get("Department") or it.get("JobFamily") or "").strip()
+                duty_raw = it.get("ExternalDescriptionStr") or it.get("ShortDescription") or ""
+                duty_clean = _re.sub(r"<[^>]+>", " ", str(duty_raw))
+                duty_clean = _re.sub(r"&nbsp;", " ", duty_clean)
+                duty_clean = _re.sub(r"\s+", " ", duty_clean).strip()[:4000]
+                qualifications_raw = it.get("ExternalQualificationsStr") or ""
+                req_clean = _re.sub(r"<[^>]+>", " ", str(qualifications_raw))
+                req_clean = _re.sub(r"\s+", " ", req_clean).strip()[:2000]
+                posted = it.get("ExternalPostedStart") or it.get("PostedDate")
+                detail = (
+                    f"{base.split('/hcmUI')[0]}/hcmUI/CandidateExperience/en/sites/{site_number}/job/{rid}"
+                    if rid else ""
+                )
+                out.append({
+                    "job_id": _hash_id(source, company, rid),
+                    "source": source,
+                    "company": company,
+                    "company_type_industry": industry,
+                    "company_tags": tags,
+                    "department": department,
+                    "job_title": title,
+                    "location": location,
+                    "major_req": "",
+                    "job_req": req_clean,
+                    "job_duty": duty_clean,
+                    "application_status": "待申请",
+                    "job_stage": "campus" if "intern" in title.lower() or "campus" in title.lower() else "social",
+                    "source_config_id": f"{source}:oracle_ce:{company}:{rid}",
+                    "publish_date": _parse_dt(posted),
+                    "deadline": None,
+                    "detail_url": detail,
+                    "scraped_at": datetime.utcnow(),
+                })
+            # stop early when exhausted
+            if offset + len(req_list) >= total:
+                break
+            if len(req_list) < page_size:
+                break
+    return out
+
+
 def _fetch_hsbc_search_html(
     company: str,
     portal_url: str,
@@ -490,7 +607,7 @@ def crawl_foreign_ibs(
 
     for entry in raw:
         handler = entry.get("handler", "workday")
-        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html"):
+        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html", "oracle_ce"):
             continue  # only supported handlers
 
         company = entry["name"]
@@ -533,6 +650,15 @@ def crawl_foreign_ibs(
                     company=company,
                     portal_url=entry.get("portal_url", ""),
                     page_size=int(entry.get("page_size", 50)),
+                )
+            elif handler == "oracle_ce":
+                records = _fetch_oracle_ce(
+                    company=company,
+                    portal_url=entry.get("portal_url", ""),
+                    site_number=entry.get("site_number", "CX_1001"),
+                    queries=queries,
+                    page_size=int(entry.get("page_size", 25)),
+                    max_pages_per_query=max_pages,
                 )
 
             company_new = 0

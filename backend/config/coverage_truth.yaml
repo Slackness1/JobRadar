@@ -311,20 +311,23 @@ tracks:
       - name: Goldman Sachs
       # Oracle Taleo TGnewUI SPA via Playwright 已 wired (2026-05-19)
       - name: UBS
-      # 以下 portal 对 VPS/数据中心 IP 返 500 + JS→maintenance-page 软封禁，
-      # CXS 因此 422。curl_cffi/Playwright 均无效。需要住宅代理才能解锁。
+      # Oracle Cloud CE REST 已 wired (2026-05-26) — 原 Workday endpoint 是错的
+      # 实测 105 unique Asia SAIF 岗 (HK 29 / SG 26 / Mumbai 22 / Tokyo 13 / Shanghai 4)
       - name: JP Morgan
-        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
       - name: HSBC
-        deferred_reason: mycareer.hsbc.com 全 Poland GSC后台岗，SAIF无关；真HK/SG岗位入口未知
+        deferred_reason: 2026-05-26 经 Decodo 重测确认 mycareer.hsbc.com 是 HSBC Poland GSC 专属 portal (244KB 内容,0 Asia/HK/SG 提及,20 Poland 提及);Asia portal 公开 entry 不明,backlog
+      # 2026-05-26 修正诊断: 不是 ASN 封锁,是 Workday 租户级应用层反爬
+      # (WorkdayDetect 行为指纹 / CSRF / portal session cookies)。
+      # Decodo premium residential 实测 422 / cookie-flow 也过不去。
+      # 解法只剩 Multilogin 类真指纹浏览器 + 行为脚本 (~1 周工程 + ¥600/月),ROI 偏低。
       - name: Bank of America
-        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
+        deferred_reason: Workday 租户级应用反爬(WorkdayDetect 行为指纹 + CSRF/session);Decodo residential 实测 422,cookie-flow 也 fail;需 Multilogin 指纹浏览器,ROI 偏低 backlog
       - name: BNP Paribas
-        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
+        deferred_reason: Workday 租户级应用反爬(同 BofA);Decodo residential 实测 422,backlog
       - name: Standard Chartered
-        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
+        deferred_reason: Workday 租户级应用反爬(同 BofA);Decodo residential 实测 422,backlog
       - name: Nomura
-        deferred_reason: Workday WAF 按 ASN 软封禁(portal 500)；mihomo 美/新/日 IDC 节点实测仍 500，需真·住宅代理
+        deferred_reason: Workday 租户级应用反爬(同 BofA);Decodo residential 实测 422,backlog
       - name: Deutsche Bank
       - name: Barclays
 
