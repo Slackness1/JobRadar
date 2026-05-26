@@ -86,6 +86,20 @@ ACTIVE_PE_VC: list[PeVcTarget] = [
         },
         portal_url="https://www.kkr.com/careers/career-opportunities",
     ),
+    # 2026-05-26: 新加坡主权基金 GIC — 自建 careers.gic.com.sg server-side
+    # HTML,直接 VPS curl_cffi 通,108 unique 真 SAIF 岗 (External Managers /
+    # Portfolio Construction / Global Markets / ESG Real Estate 等)。
+    # SAIF MBA + MF 投资板块高频投递目标。
+    PeVcTarget(
+        company="GIC",
+        handler="gic_html",
+        config={
+            "base": "https://careers.gic.com.sg",
+            "page_size": 25,
+            "max_pages": 8,
+        },
+        portal_url="https://careers.gic.com.sg/search/",
+    ),
 ]
 
 
@@ -391,11 +405,91 @@ def _fetch_greenhouse(target: PeVcTarget) -> list[dict[str, Any]]:
     return out
 
 
+def _fetch_gic_html(target: PeVcTarget) -> list[dict[str, Any]]:
+    """GIC careers.gic.com.sg — server-side rendered HTML, paginate via startrow.
+
+    2026-05-26 实测: 5 页 (startrow=0/25/50/75/100) 覆盖 108 unique jobs。
+    plain requests OK,no curl_cffi 必要。
+    """
+    import hashlib, re as _re
+    base = target.config["base"]
+    page_size = int(target.config.get("page_size", 25))
+    max_pages = int(target.config.get("max_pages", 8))
+
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for p in range(max_pages):
+        url = f"{base}/search/?q=&locationsearch=&startrow={p*page_size}"
+        try:
+            r = requests.get(url, headers={
+                **_ua_headers(),
+                "Accept": "text/html,application/xhtml+xml",
+            }, timeout=20)
+        except Exception:
+            break
+        if r.status_code != 200:
+            break
+        html = r.text
+        # Each job appears as: <a href="/job/<location-title>/<id>/">Title</a>
+        # Header link + main link both per row → dedupe by id.
+        matches = _re.findall(
+            r'<a[^>]+href="(/job/([^"/]+)/(\d+)/[^"]*)"[^>]*>\s*([^<]+?)\s*</a>',
+            html,
+        )
+        if not matches:
+            break
+        new_in_page = 0
+        for href, loc_title_slug, jid, title in matches:
+            if jid in seen:
+                continue
+            seen.add(jid)
+            new_in_page += 1
+            # Decode location from slug: "Singapore-VP%2C-Foo" → "Singapore"
+            from urllib.parse import unquote
+            slug_decoded = unquote(loc_title_slug)
+            # Location is the leading city before the first comma-or-dash-then-title
+            # GIC slug pattern: "<City>-<Title-with-commas>"
+            # City is the segment before the first "-" if it's a known city marker,
+            # but easier: title text doesn't contain city, so city = slug.split('-')[0]
+            city_guess = slug_decoded.split("-")[0].strip()
+            # Asia filter — GIC has NY/SF jobs too
+            if not _is_asia(city_guess):
+                continue
+            title_clean = _strip_html(title)
+            if not title_clean:
+                continue
+            job_id = hashlib.md5(f"pe_vc_official|GIC|{jid}".encode()).hexdigest()[:24]
+            out.append({
+                "job_id": job_id,
+                "source": "pe_vc_official",
+                "company": "GIC",
+                "company_type_industry": "主权基金",
+                "company_tags": "sovereign_wealth,singapore,gic",
+                "department": "",
+                "job_title": title_clean,
+                "location": city_guess,
+                "major_req": "",
+                "job_req": "",
+                "job_duty": "",
+                "application_status": "待申请",
+                "job_stage": "campus" if "intern" in title_clean.lower() or "graduate" in title_clean.lower() else "social",
+                "source_config_id": f"pe_vc_official:gic:{jid}",
+                "publish_date": None,
+                "deadline": None,
+                "detail_url": f"{base}{href}",
+                "scraped_at": datetime.utcnow(),
+            })
+        if new_in_page == 0:
+            break
+    return out
+
+
 _HANDLERS = {
     "wp": _fetch_wp,
     "cdh": _fetch_cdh,
     "workday": _fetch_workday,
     "greenhouse": _fetch_greenhouse,
+    "gic_html": _fetch_gic_html,
 }
 
 

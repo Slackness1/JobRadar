@@ -69,6 +69,101 @@ ACTIVE_INSURERS: list[InsuranceTarget] = [
 ]
 
 
+def _crawl_aia_workday(db: Session, parent_log_id: Optional[int] = None) -> int:
+    """AIA 友邦保险 via Workday CXS (aia.wd3/External).
+
+    2026-05-26 验证: VPS plain curl_cffi chrome120 直通,无需 HK-IP (此前
+    误判)。Asia 总量: HK 162 / SG 84 / China 198。含 2026 AIA HK & Macau
+    Summer Internship Program 等校招岗。
+    """
+    import hashlib
+    from datetime import datetime
+    try:
+        from curl_cffi import requests as cr
+    except ImportError:
+        return 0
+    from app.services.pe_vc_tier_crawler import _is_asia, _parse_dt
+
+    CXS = "https://aia.wd3.myworkdayjobs.com/wday/cxs/aia/External/jobs"
+    PORTAL = "https://aia.wd3.myworkdayjobs.com/en-US/External"
+    QUERIES = ["Hong Kong", "Singapore", "China", "Tokyo", "Malaysia", "Indonesia"]
+
+    out: list[dict] = []
+    seen: set[str] = set()
+    for q in QUERIES:
+        for page in range(8):
+            body = {"appliedFacets":{},"limit":20,"offset":page*20,"searchText":q}
+            try:
+                r = cr.post(CXS, json=body, impersonate="chrome120",
+                            headers={"Content-Type":"application/json","Accept":"application/json"},
+                            timeout=25)
+            except Exception:
+                break
+            if r.status_code != 200:
+                break
+            try:
+                jd = r.json()
+            except Exception:
+                break
+            postings = jd.get("jobPostings") or []
+            if not postings:
+                break
+            total = jd.get("total") or 0
+            for jp in postings:
+                ext_path = jp.get("externalPath") or ""
+                if not ext_path or ext_path in seen:
+                    continue
+                seen.add(ext_path)
+                title = (jp.get("title") or "").strip()
+                if not title:
+                    continue
+                location = jp.get("locationsText") or "未知"
+                if not _is_asia(location):
+                    continue
+                rid_key = ext_path.rsplit("/",1)[-1]
+                job_id = hashlib.md5(f"insurance_official|AIA|{rid_key}".encode()).hexdigest()[:24]
+                out.append({
+                    "job_id": job_id,
+                    "source": "insurance_official",
+                    "company": "AIA",
+                    "company_type_industry": "保险",
+                    "company_tags": "insurance,foreign,aia",
+                    "department": "",
+                    "job_title": title,
+                    "location": location,
+                    "major_req": "",
+                    "job_req": "",
+                    "job_duty": (jp.get("bulletFields") or [None] + [""])[0] or "",
+                    "application_status": "待申请",
+                    "job_stage": "campus" if "intern" in title.lower() or "campus" in title.lower() or "graduate" in title.lower() else "social",
+                    "source_config_id": f"insurance_official:aia:{rid_key}",
+                    "publish_date": _parse_dt(jp.get("postedOn")),
+                    "deadline": None,
+                    "detail_url": f"{PORTAL}{ext_path}",
+                    "scraped_at": datetime.utcnow(),
+                })
+            if (page+1)*20 >= total:
+                break
+
+    new_count = 0
+    with company_crawl_log(db, source='insurance_official',
+                           company='AIA', parent_log_id=parent_log_id) as log:
+        existing_ids = {j.job_id for j in db.query(Job.job_id).all() if j.job_id}
+        for mapped in out:
+            if mapped["job_id"] in existing_ids:
+                existing = db.query(Job).filter(Job.job_id == mapped["job_id"]).first()
+                if existing:
+                    merge_job_fields(existing, mapped)
+                continue
+            job = Job(**mapped)
+            db.add(job)
+            new_count += 1
+        db.commit()
+        log.fetched_count = len(out)
+        log.new_count = new_count
+    return new_count
+
+
 def crawl_insurers(db: Session, parent_log_id: Optional[int] = None) -> int:
     """Run all active insurance crawlers. Returns total new_count.
     Each insurer wrapped with company_crawl_log so /sites monitor sees rows."""
@@ -167,5 +262,11 @@ def crawl_insurers(db: Session, parent_log_id: Optional[int] = None) -> int:
                     pass  # row already marked failed by company_crawl_log
         finally:
             browser.close()
+
+    # AIA 友邦 — Workday CXS via curl_cffi (no Playwright needed)
+    try:
+        total_new += _crawl_aia_workday(db, parent_log_id=parent_log_id)
+    except Exception as exc:
+        print(f"[INSURANCE][AIA] crawl failed: {exc}")
 
     return total_new

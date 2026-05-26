@@ -110,7 +110,12 @@ tracks:
       - name: 泰康保险
         deferred_reason: 无独立 ATS（WeChat 小程序为主）
       - name: 友邦保险
-        deferred_reason: AIA 历史用 Workday，需要 HK-IP
+        aliases: [友邦保险, AIA]
+        jobs_company_match: [AIA]
+        # 2026-05-26 修正诊断: 之前 "需 HK-IP" 是错的判断。实测 VPS plain
+        # curl_cffi chrome120 直通 aia.wd3.myworkdayjobs.com/External CXS;
+        # Asia 总量 HK 162 / SG 84 / China 198,含 2026 AIA HK+Macau Summer
+        # Internship Program。首爬 +116 入库 (HK/SG/Shanghai/Macau)。
 
   # ─────────────────────────── 券商 ───────────────────────────────
   - id: securities
@@ -344,6 +349,16 @@ tracks:
         deferred_reason: 2026-05-26 用户决定暂时不爬;backlog
       - name: 黑石集团
       - name: KKR
+      # 2026-05-26 新增主权基金 — careers.gic.com.sg server-side HTML 直爬,
+      # 91 SG 真 SAIF 岗 (External Managers/Quant Strategist/Investment Risk
+      # Global Macro/Portfolio Construction)。MBA + MF 高频投递目标。
+      - name: GIC
+        aliases: [GIC, GIC Private Limited, 新加坡政府投资公司]
+        jobs_company_match: [GIC]
+      - name: Temasek
+        aliases: [Temasek, 淡马锡, Temasek Holdings]
+        jobs_company_match: [Temasek]
+        deferred_reason: 2026-05-26 探查 SmartRecruiters/Temasek slug 返 totalFound=0 (公开 portal 当前空);Temasek 内部走 referral + 实习生项目,需找到真渠道。backlog
       # 公开但工程不可行的
       - name: 高瓴投资
         deferred_reason: WordPress /zhaopin/ 页空
