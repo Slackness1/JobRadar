@@ -61,6 +61,7 @@ def _daily_tier_crawl_job():
     sequentially with error isolation per tier. Populates company_crawl_logs
     automatically. Re-scores once at the end if any new jobs were added.
     """
+    import traceback as _tb
     from datetime import datetime
     from app.models import CrawlLog, Job
 
@@ -94,6 +95,7 @@ def _daily_tier_crawl_job():
             total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
         except Exception as exc:
             errors.append(f"internet: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][internet] {exc}")
 
         try:
@@ -106,6 +108,7 @@ def _daily_tier_crawl_job():
             total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
         except Exception as exc:
             errors.append(f"state_owned: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][state_owned] {exc}")
 
         try:
@@ -117,6 +120,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"securities: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][securities] {exc}")
 
         try:
@@ -130,6 +134,7 @@ def _daily_tier_crawl_job():
             total_new += sum(getattr(r, "new_count", 0) or 0 for r in results)
         except Exception as exc:
             errors.append(f"consumer_foreign: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][consumer_foreign] {exc}")
 
         try:
@@ -138,6 +143,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"banks: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][banks] {exc}")
 
         # Phase 6 — 金融扩展
@@ -147,6 +153,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"insurance: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][insurance] {exc}")
 
         try:
@@ -156,6 +163,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"funds: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][funds] {exc}")
 
         # Phase 7 wave-3 — PE/VC (源码资本/鼎晖/黑石/KKR)
@@ -165,6 +173,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"pe_vc: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][pe_vc] {exc}")
 
         # Phase 9 — 头部私募 (幻方/九坤/高毅/衍复)
@@ -174,6 +183,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"hedge_funds: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][hedge_funds] {exc}")
 
         # Phase 10 — 外资投行 (Citi / Morgan Stanley)
@@ -183,6 +193,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"foreign_ibs: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][foreign_ibs] {exc}")
 
         # Phase 13 — 消费外企 Workday 补充（阿斯利康等）
@@ -192,6 +203,7 @@ def _daily_tier_crawl_job():
             total_new += int(new_count or 0)
         except Exception as exc:
             errors.append(f"consumer_foreign_workday: {exc}")
+            _tb.print_exc()
             print(f"[TIER CRAWL ERROR][consumer_foreign_workday] {exc}")
 
         # Finalize parent
@@ -205,6 +217,7 @@ def _daily_tier_crawl_job():
         if total_new > 0:
             score_all_jobs(db)
     except Exception as exc:
+        _tb.print_exc()
         print(f"[TIER CRAWL ERROR][outer] {exc}")
     finally:
         db.close()
