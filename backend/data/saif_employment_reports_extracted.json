@@ -1,0 +1,397 @@
+{
+  "2023": [],
+  "2024": [
+    {
+      "company": "汇丰晋信基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "兴证全球基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "永赢基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "鹏华基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "银河基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "华夏基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "南方基金管理股份有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "易方达基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 2,
+      "industry": "公募基金"
+    },
+    {
+      "company": "广发基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "国泰基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "工银瑞信基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "申万宏源证券有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "申银万国证券研究所",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "中国银河证券股份有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "中信建投证券股份有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "国泰君安证券股份有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "平安资产管理有限责任公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "保险资管"
+    },
+    {
+      "company": "宁泉资产管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "威灵顿管理公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "安信证券资产管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "券商资管"
+    },
+    {
+      "company": "申万宏源证券资产管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "券商资管"
+    },
+    {
+      "company": "佳期投资有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "杭州龙旗科技有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "乾矿（上海）投资管理有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "爱凡哲投资管理有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "因诺资产管理有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "迅科投资有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "观砚投资管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "君和资本",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "鸿商资本股权投资有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "云锋基金",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "三正健康投资",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "国经资本",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "云南国际信托有限公司",
+      "role_type": "固收研究",
+      "count": 1,
+      "industry": "私募"
+    }
+  ],
+  "2025": [
+    {
+      "company": "华夏基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "易方达基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "富国基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "嘉实基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "工银瑞信基金管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "国寿投资保险资产管理有限公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "保险资管"
+    },
+    {
+      "company": "中国投资有限责任公司",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "高瓴资本",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "弘毅投资",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "德弘资本",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "晨壹基金",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "桥点投资",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "优势资本",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "Point 72",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "淡马锡上海",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "凯雷投资集团",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "华平投资",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "乾象投资",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "九坤投资",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "锐天投资",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "世纪前沿",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "铸锋资产",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "乾矿（上海）商务咨询有限公司",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "深圳知行通达私募基金",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "乾坤期货(高华证券子公司）",
+      "role_type": "量化研究员",
+      "count": 1,
+      "industry": "量化私募"
+    },
+    {
+      "company": "中国国际金融股份有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "中信证券股份有限公司",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "中信里昂",
+      "role_type": "卖方分析师",
+      "count": 1,
+      "industry": "券商研究所"
+    },
+    {
+      "company": "UBS Asset Management",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "公募基金"
+    },
+    {
+      "company": "Morgan Stanley",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    },
+    {
+      "company": "Bank of America",
+      "role_type": "行业研究员",
+      "count": 1,
+      "industry": "私募"
+    }
+  ]
+}
