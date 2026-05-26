@@ -66,6 +66,11 @@ def main() -> int:
     parser.add_argument("--max-seeds", type=int, default=5, help="先跑几个 seed query")
     parser.add_argument("--max-per-seed", type=int, default=10, help="每个 query 最多 fetch 几帖")
     parser.add_argument("--state-file", default=None, help="budget state 文件路径")
+    parser.add_argument("--seeds-csv", default=None, help="覆盖默认 seed (逗号分隔), 用于 patch run")
+    parser.add_argument("--append", action="store_true", help="追加到现有 jsonl 而非覆盖")
+    parser.add_argument("--output-suffix", default="", help="output jsonl 文件名后缀 (e.g. _patch)")
+    parser.add_argument("--source", choices=["decodo", "tikhub"], default="decodo",
+                        help="拿正文的通路 - decodo (\$0.0015/帖) 或 tikhub (\$0.010/帖, Decodo 限流时备用)")
     args = parser.parse_args()
 
     tikhub = os.environ.get("TIKHUB_API_KEY")
@@ -76,19 +81,22 @@ def main() -> int:
         return 2
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    state_file = Path(args.state_file) if args.state_file else (OUTPUT_DIR / f"_budget_{args.strategy}.json")
+    state_file = Path(args.state_file) if args.state_file else (OUTPUT_DIR / f"_budget_{args.strategy}{args.output_suffix}.json")
     if state_file.exists():
         state_file.unlink()
-    output_jsonl = OUTPUT_DIR / f"{args.strategy}.jsonl"
-    if output_jsonl.exists():
+    output_jsonl = OUTPUT_DIR / f"{args.strategy}{args.output_suffix}.jsonl"
+    if output_jsonl.exists() and not args.append:
         output_jsonl.unlink()
-    report_md = OUTPUT_DIR / f"{args.strategy}_report.md"
+    report_md = OUTPUT_DIR / f"{args.strategy}{args.output_suffix}_report.md"
 
     tracker = BudgetTracker(state_file=state_file, limit_usd=args.max_budget)
     client = CrawlerClient(tikhub_key=tikhub, decode_key=decode, budget_tracker=tracker)
     extractor = DualSchemaExtractor(api_key=deepseek, budget_tracker=tracker)
     config = config_for_strategy(args.strategy)
-    seeds = seed_keywords_for_strategy(args.strategy)[: args.max_seeds]
+    if args.seeds_csv:
+        seeds = [s.strip() for s in args.seeds_csv.split(",") if s.strip()]
+    else:
+        seeds = seed_keywords_for_strategy(args.strategy)[: args.max_seeds]
     state = SaturationState(
         posts_crawled=0,
         unique_sub_cats_with_mentions={},
@@ -129,17 +137,20 @@ def main() -> int:
                 processed_ids.add(note_id)
 
                 url = build_xhs_discovery_url(note_id, xsec)
-                # fetch
+                # fetch — 走 decodo 或 tikhub
                 try:
-                    content = client.decode_fetch_url(url)
+                    if args.source == "tikhub":
+                        content = client.tikhub_get_note_content(note_id)
+                    else:
+                        content = client.decode_fetch_url(url)
                 except BudgetExceededError as e:
-                    print(f"    ✗ 预算耗尽 (decode): {e}")
+                    print(f"    ✗ 预算耗尽 (fetch): {e}")
                     raise
                 except RuntimeError as e:
-                    print(f"    ⚠ decode fail: {e}")
+                    print(f"    ⚠ fetch fail: {e}")
                     continue
                 except Exception as e:
-                    print(f"    ⚠ decode 异常 (跳过): {type(e).__name__}: {str(e)[:120]}")
+                    print(f"    ⚠ fetch 异常 (跳过): {type(e).__name__}: {str(e)[:120]}")
                     continue
 
                 # extract

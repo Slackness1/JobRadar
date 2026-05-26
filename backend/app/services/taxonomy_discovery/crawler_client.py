@@ -209,6 +209,83 @@ class CrawlerClient:
                 notes.append(note)
         return notes
 
+    def tikhub_get_note_content(self, note_id: str, retries: int = 2) -> str:
+        """TikHub 直接拿单帖正文 + 评论 (备选 Decodo 通路, Decodo 429 时用)。
+
+        用 `/xiaohongshu/app/get_note_info` (in scope 的 endpoint)。
+        响应路径: data.data[0].note_list[0].{title, desc, ...}
+        返回拼接后的 title + desc + topics + 评论文本, 跟 decode_fetch_url 返的 markdown 等价 (供 LLM 消费)。
+
+        成本 $0.010/帖 (TikHub) vs Decodo $0.0015/帖, 但 quota 独立, 不受 Decodo 限流。
+        """
+        if not self.budget_tracker.can_afford(TIKHUB_COST):
+            from .budget_tracker import BudgetExceededError
+            raise BudgetExceededError(f"无余额跑 tikhub_get_note_content (剩 ${self.budget_tracker.remaining():.4f})")
+
+        last_err = None
+        for attempt in range(retries + 1):
+            self._throttle()
+            try:
+                r = requests.get(
+                    f"{TIKHUB_BASE}/xiaohongshu/app/get_note_info",
+                    params={"note_id": note_id},
+                    headers={"Authorization": f"Bearer {self.tikhub_key}"},
+                    timeout=45,
+                )
+                r.raise_for_status()
+                break
+            except requests.HTTPError as e:
+                last_err = e
+                if attempt < retries and r.status_code in (400, 429, 500, 502, 503, 504):
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+            except requests.RequestException:
+                if attempt < retries:
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+
+        self.budget_tracker.charge(TIKHUB_COST, "tikhub_note_info")
+        body = r.json()
+        # data.data 是 list (size 1), 每个含 note_list[]
+        outer = (body.get("data") or {}).get("data") or []
+        if not outer or not isinstance(outer, list):
+            return ""
+        note_wrap = outer[0]
+        note_list = (note_wrap or {}).get("note_list") or []
+        if not note_list:
+            return ""
+        note = note_list[0]
+        parts = []
+        if note.get("title"):
+            parts.append(f"# {note['title']}")
+        if note.get("desc"):
+            parts.append(note["desc"])
+        topics = note.get("hash_tag") or note.get("topics") or []
+        if topics:
+            topic_strs = []
+            for t in topics:
+                if isinstance(t, dict):
+                    topic_strs.append(t.get("name", "") or t.get("title", ""))
+                elif isinstance(t, str):
+                    topic_strs.append(t)
+            tag_line = " ".join(f"#{ts}" for ts in topic_strs if ts)
+            if tag_line:
+                parts.append(tag_line)
+        # 评论 — note_wrap.comment_list 或 note.comments
+        comments = (note_wrap or {}).get("comment_list") or note.get("comments") or []
+        if comments:
+            cmt_lines = []
+            for c in comments[:30]:
+                if isinstance(c, dict):
+                    txt = c.get("content") or c.get("text") or ""
+                    if txt:
+                        cmt_lines.append(f"> {txt}")
+            if cmt_lines:
+                parts.append("---评论---\n" + "\n".join(cmt_lines))
+        return "\n\n".join(parts)
+
     def decode_fetch_url(self, url: str, retries: int = 2) -> str:
         """Decodo 抓单 URL, 返回 markdown/html 文本。
 
