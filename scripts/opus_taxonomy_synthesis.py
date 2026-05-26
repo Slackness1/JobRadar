@@ -42,11 +42,17 @@ EXTRA_JSONL = [
 
 
 def load_bucket(strategy: str, extra_paths: list[str] | None = None) -> list[dict]:
-    """加载一个 bucket 的 jsonl + 可能的 patch 文件, 过滤 relevance < 0.3 的噪声。"""
+    """加载一个 bucket 的 jsonl + 可能的 patch 文件, 过滤噪声 (失败抽取 + 完全无关帖)。
+
+    AI bucket 用更宽阈值 — DeepSeek 的 relevance scoring 是 投研-tuned, 把'AI 帖'打到 0.2;
+    但 0.2 帖通常仍含 real sub_cat + company metadata (extractor 抽得到), 不该全扔。
+    """
     paths = [PILOT_DIR / f"{strategy}.jsonl"]
     for extra in (extra_paths or []):
         if extra.startswith(strategy):  # 仅加同 strategy 的 patch
             paths.append(PILOT_DIR / f"{extra}.jsonl")
+    # AI bucket 阈值降低
+    rel_threshold = 0.15 if "AI" in strategy else 0.3
     records = []
     for path in paths:
         if not path.exists():
@@ -57,7 +63,16 @@ def load_bucket(strategy: str, extra_paths: list[str] | None = None) -> list[dic
                     rec = json.loads(line)
                 except json.JSONDecodeError:
                     continue
-                if rec.get("relevance_score", 0) >= 0.3 and rec.get("extraction_confidence", 0) > 0:
+                if rec.get("extraction_confidence", 0) <= 0:
+                    continue  # 抽取失败
+                # 跨阈值 OR 有 taxonomy / kb 内容 (DeepSeek 觉得低相关但仍抽到了东西)
+                rel_ok = rec.get("relevance_score", 0) >= rel_threshold
+                has_content = (
+                    len((rec.get("taxonomy") or {}).get("discovered_sub_categories") or []) > 0
+                    or len((rec.get("taxonomy") or {}).get("company_role_pairs") or []) > 0
+                    or len((rec.get("kb") or {}).get("insights") or []) > 0
+                )
+                if rel_ok or has_content:
                     records.append(rec)
     return records
 
