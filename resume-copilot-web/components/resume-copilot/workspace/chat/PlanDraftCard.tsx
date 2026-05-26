@@ -35,6 +35,18 @@ const KIND_LABELS: Record<string, string> = {
   award: '奖项',
 };
 
+const RISK_LABELS: Record<string, string> = {
+  overclaim: '有数字或结论还缺原始证据',
+  leadership_unverified: '主导度还需要确认',
+  tech_unverified: '工具 / 技术细节还需要确认',
+  missing_metric: '结果指标还不够具体',
+  vague_verb: '动作表述还偏泛',
+  vague_quantification: '量化表述还偏模糊',
+  evidence_scope_unverified: '调研 / 访谈规模还需要出处',
+  implausible_scale: '项目规模 / 金额和实习角色需要再对齐',
+  student_introduced_number: '有聊天中新补充的数字,入档前请确认准确',
+};
+
 export function PlanDraftCard({
   draftItem,
   isArchiving = false,
@@ -45,6 +57,7 @@ export function PlanDraftCard({
     draftItem.draft?.text?.trim() ||
     `(暂无 AI 拼好的草稿 — 当前 item 状态 ${draftItem.status},可继续多聊几轮以补齐 anchor)`;
   const kindLabel = KIND_LABELS[String(draftItem.kind)] || String(draftItem.kind);
+  const riskFlags = draftItem.draft?.risk_flags ?? [];
 
   return (
     <div
@@ -58,6 +71,21 @@ export function PlanDraftCard({
       </header>
       <h4 className="workspace-hifi__plan-draft-title">{draftItem.title}</h4>
       <p className="workspace-hifi__plan-draft-text">{draftText}</p>
+
+      {riskFlags.length > 0 && (
+        <div className="workspace-hifi__plan-draft-risks" role="alert">
+          <div className="workspace-hifi__plan-draft-risks-title">
+            入档前请确认这些点
+          </div>
+          <ul>
+            {riskFlags.map((flag, i) => (
+              <li key={`${flag.kind}-${i}`}>
+                {RISK_LABELS[flag.kind] ?? '这条草稿仍有待确认的信息'}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {(draftItem.evidence ?? []).length > 0 && (
         <details className="workspace-hifi__plan-draft-evidence">

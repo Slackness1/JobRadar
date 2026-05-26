@@ -110,17 +110,21 @@ TRACK_KEYWORDS = [
     'Power Market', 'Energy Trading', 'Commodity', 'Commodities', 'Energy',
     # —— EN finance — 短 acronym (word-boundary 必须) ——
     'IBD', 'PE', 'VC', 'S&T', 'Quant', 'Consulting', 'Solar', 'PV',
-    # —— CN finance signals (Round 3 2026-05-22: 补 CN heuristic 路径) ——
-    # 之前只靠 '金融' 撞,选择性 0;现在按 10 canonical 各自配高精度短词:
-    '投行', '投资银行', 'IBD',                                  # 一级市场
-    '公募', '私募', '资管', '行研', '基金研究',                  # 二级买方·基本面
-    '卖方', '研究所', '券商研究',                                # 卖方研究·S&T
-    '量化', '对冲基金', '高频',                                  # 量化
+    # —— CN finance signals (2026-05-23 重新分组到新 13 canonical) ——
+    # canonicalize_track() 用 longest-match-wins, 这里只是给 _token_in_text 拿
+    # raw keyword 在简历文本里 substring 命中, 命中后再 canonicalize 归正确赛道。
+    '投行', '投资银行', 'IBD',                                  # 投行·并购·资本市场
+    'PE/VC',                                                    # 一级股权·PE/VC
+    '公募', '资管', '行研', '基金研究',                          # 公募/资管·投研
+    '私募', '对冲基金',                                          # 私募·基本面
+    '卖方', '研究所', '券商研究',                                # 卖方研究
+    'FICC', '销售交易', '衍生品',                                # S&T·FICC·衍生品
+    '量化', '高频',                                              # 量化
     '总行', '管培', '股份行', '城商', '综合金融',                # 银行·总行核心
     '监管', '证监', '央行', '体制内',                            # 监管·体制内
     '金融科技', '互金',                                          # 金融科技
-    '麦肯锡', '贝恩', 'BCG', '咨询',                             # 管理咨询·MBB (麦肯锡/BCG 走 alias)
-    '战略',                                                     # 战略咨询
+    '麦肯锡', '贝恩', 'BCG', '咨询',                             # 咨询·MBB+Tier2
+    '战略', '战投',                                              # 企业战略·管培·实业金融
     '大宗', '能源', '石油', '电力', '电价',                      # 大宗·能源
     '互联网',
     'Internet',  # FE generic 兜底

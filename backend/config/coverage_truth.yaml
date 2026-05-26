@@ -90,7 +90,7 @@ tracks:
   # ─────────────────────────── 保险 ───────────────────────────────
   - id: insurance
     name: 保险
-    canonical_tracks: [二级买方·基本面]   # 保险资管 = 二级买方;前台精算/承保 SAIF 不投
+    canonical_tracks: [公募/资管·投研]   # 保险资管 = long-only 资管;前台精算/承保 SAIF 不投
     source_match: [insurance_official]
     mode: enumerate
     t1_companies:
@@ -115,7 +115,7 @@ tracks:
   # ─────────────────────────── 券商 ───────────────────────────────
   - id: securities
     name: 券商 T1
-    canonical_tracks: [卖方研究·S&T, 一级市场]   # 研究所+S&T 走卖方;IBD 走一级
+    canonical_tracks: [卖方研究, S&T·FICC·衍生品, 投行·并购·资本市场]   # 研究所/S&T/IBD 现已拆三档
     source_match:
       - securities_zhiye
       - securities_zhiye_legacy
@@ -182,7 +182,7 @@ tracks:
   # ─────────────────────────── 公募基金 ──────────────────────────
   - id: funds
     name: 公募基金 (top-15 by AUM)
-    canonical_tracks: [二级买方·基本面]   # 部分基金有量化部门,但岗位极少;主线归基本面
+    canonical_tracks: [公募/资管·投研]   # 公募基金为主;部分量化部门岗位极少,主线归公募投研
     source_match:
       - funds_hotjob
       - funds_zhiye
@@ -219,7 +219,7 @@ tracks:
   # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
   - id: hedge_funds
     name: 头部私募 (Hedge Funds)
-    canonical_tracks: [量化, 二级买方·基本面]   # 量化/主观/海外 elite
+    canonical_tracks: [量化, 私募·基本面]   # 幻方/九坤/衍复=量化;高毅/景林=私募基本面
     source_match:
       - hedge_funds_hotjob
       - hedge_funds_zhiye
@@ -300,7 +300,7 @@ tracks:
   # ─────────────────────────── 外资投行 (Bulge Bracket) ─────────
   - id: foreign_ibs
     name: 外资投行 (Bulge Bracket China)
-    canonical_tracks: [一级市场, 卖方研究·S&T]   # IBD=一级;Research/S&T=卖方
+    canonical_tracks: [投行·并购·资本市场, S&T·FICC·衍生品, 卖方研究]   # IBD/S&T/Research 拆三档
     source_match: [foreign_ibs_official]
     mode: enumerate
     t1_companies:
@@ -331,7 +331,7 @@ tracks:
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc
     name: PE / VC (top 头部)
-    canonical_tracks: [一级市场]
+    canonical_tracks: [一级股权·PE/VC]
     source_match: [pe_vc_official]
     mode: enumerate
     t1_companies:
@@ -371,7 +371,7 @@ tracks:
   # ─────────────────────────── 消费外企 ──────────────────────────
   - id: consumer_foreign
     name: 消费外企 (top)
-    canonical_tracks: []   # 非金融,MT 校招目标,不属 8 canonical 任一项
+    canonical_tracks: []   # 非金融,MT 校招目标,不属 13 canonical 任一项
     source_match: [consumer_foreign_official]
     mode: enumerate
     t1_companies:
@@ -424,7 +424,7 @@ tracks:
   # 资管子公司 / 财富管理子公司），无独立 ATS 必要。
   - id: asset_mgmt
     name: 资管 / 理财
-    canonical_tracks: [二级买方·基本面]   # 银行理财子/资管子,典型二级买方
+    canonical_tracks: [公募/资管·投研]   # 银行理财子/资管子,典型 long-only 资管
     mode: derived_company
     company_keywords_include:
       - 理财
@@ -468,7 +468,7 @@ tracks:
   # 平安/五矿等)，期货机构本身规模小，无独立 ATS 必要。已有 80+ 岗位。
   - id: futures
     name: 期货
-    canonical_tracks: [卖方研究·S&T]   # 期货研究所主要,资管/经纪 SAIF 不投
+    canonical_tracks: [卖方研究]   # 期货研究所主要,资管/经纪 SAIF 不投
     mode: derived_company
     window_days: 90   # 期货岗位季节性强，母公司 portal 30d 内往往空档 → 改 90d
     company_keywords_include:

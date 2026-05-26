@@ -343,7 +343,7 @@ export function MiddleChatPane({
       let distilled: Awaited<ReturnType<typeof postPlanDistill>> | null = null;
       try {
         distilled = await postPlanDistill(sessionId, draftItem.id);
-      } catch (_err) {
+      } catch {
         // 静默 fallback — 入档优先, 精炼是 nice-to-have
         distilled = null;
       }
@@ -360,6 +360,7 @@ export function MiddleChatPane({
             .filter(Boolean)
             .join('\n')
             .slice(0, 2000);
+      const hasRiskFlags = (draftItem.draft?.risk_flags ?? []).length > 0;
       await postSessionMemory(sessionId, {
         category: 'experience',
         summary,
@@ -373,7 +374,7 @@ export function MiddleChatPane({
           quantified: distilled?.quantified ?? {},
         },
         raw_excerpt: rawExcerpt,
-        confidence: 0.9,
+        confidence: hasRiskFlags ? 0.6 : 0.9,
       });
       onMemoryArchived?.();
       // Reset coach UI
