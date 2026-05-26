@@ -53,6 +53,16 @@ export interface RightResumePaneProps {
   onPlanModeRequest?: (fieldPath: string, originalBullet: string) => void;
   /** 学生点 "导出 PDF" 触发 — 由 WorkspaceShell 提供 */
   onExport?: () => void;
+  /** P1 (2026-05-26): 学生触发 v0v2 改写时, 上传 bullet context 给 WorkspaceShell,
+   *  让中栏切到 RewritePane (decision ①a). 不影响本栏 inline diff. */
+  onMiddleRewriteRequested?: (
+    bulletId: string,
+    originalText: string,
+    sectionTitle?: string,
+  ) => void;
+  /** P1: v0v2 API 返 result 时回传 (含 warnings + rationale), 让 RewritePane
+   *  能渲染完整守卫面板 + 候选 + en_text. */
+  onMiddleRewriteResult?: (result: import('../api').RewriteV0V2Out | null) => void;
 }
 
 export function RightResumePane({
@@ -65,6 +75,8 @@ export function RightResumePane({
   targetJob,
   onPlanModeRequest,
   onExport,
+  onMiddleRewriteRequested,
+  onMiddleRewriteResult,
 }: RightResumePaneProps) {
   // referenced — header surfaces session readiness; xResumeUserKey reserved for
   // future direct header injection (api.ts pulls from localStorage today).
@@ -169,6 +181,9 @@ export function RightResumePane({
       });
       // 2. Broadcast to chat-side thinking bubble (E-3).
       rewriteCtx.beginThinking({ originalBullet: bulletText, fieldPath });
+      // 2b. P1: 上传 bullet context 给 WorkspaceShell 让中栏切 RewritePane.
+      onMiddleRewriteRequested?.(fieldPath, bulletText, section || undefined);
+      onMiddleRewriteResult?.(null);
 
       try {
         const result: RewriteV0V2Out = await postRewriteV0V2(session.id, {
@@ -189,6 +204,8 @@ export function RightResumePane({
           v0: result.v0?.text ?? bulletText,
           v2: result.v2?.needs_plan_mode ? undefined : result.v2?.text,
         });
+        // P1: 同步把完整 result (含 warnings + rationale + en_text) 推给中栏.
+        onMiddleRewriteResult?.(result);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         setActiveRewrite({
@@ -201,7 +218,15 @@ export function RightResumePane({
         rewriteCtx.markError(msg || '改写失败,请稍后重试。');
       }
     },
-    [session?.id, isDemo, rewriteCtx, showToast, targetJob],
+    [
+      session?.id,
+      isDemo,
+      rewriteCtx,
+      showToast,
+      targetJob,
+      onMiddleRewriteRequested,
+      onMiddleRewriteResult,
+    ],
   );
 
   const handleDismissRewrite = useCallback(() => {

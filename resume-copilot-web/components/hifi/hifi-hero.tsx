@@ -85,10 +85,12 @@ export function HFHero() {
   const onLoginSuccess = () => {
     setModalOpen(false);
     setLoggedIn(true);
-    if (pendingDestination) {
-      router.push(pendingDestination);
-      setPendingDestination(null);
-    }
+    // 决策 (b) 2026-05-26:登录后默认到 /resume-copilot/sessions 选简历页,
+    // 让用户能续上之前修改一半的简历,而不是停在 hero 或被迫重传。
+    // CTA 显式设了 pendingDestination 时尊重原值(例如点"上传简历"仍走 /upload)。
+    const destination = pendingDestination ?? '/resume-copilot/sessions';
+    setPendingDestination(null);
+    router.push(destination);
   };
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Checkbox, Form, Input, Typography, message } from 'antd';
 
 import { markAsGuest } from './api';
@@ -108,16 +108,33 @@ interface LoginFormValues {
   autoLogin: boolean;
 }
 
+// P0a (2026-05-26): 登录后默认落在「我的简历会话」 — sessions 页是 multi-resume
+// 中心,用户可在那里挑哪个会话进工作台。保留 deep-link 兜底:URL 带
+// ?sessionId=N (或老 ?session_id=N) 时直跳工作台,不绕路。
+const DEFAULT_LOGIN_DESTINATION = '/resume-copilot/sessions';
+
 export function EntryLoginPage() {
-  return <EntryLoginPageWithDestination destination="/upload" />;
+  return <EntryLoginPageWithDestination defaultDestination={DEFAULT_LOGIN_DESTINATION} />;
 }
 
-function EntryLoginPageWithDestination({ destination }: { destination: string }) {
+function EntryLoginPageWithDestination({ defaultDestination }: { defaultDestination: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [submitting, setSubmitting] = useState(false);
   const [tickerPaused, setTickerPaused] = useState(false);
   const companyCoverage = useAnimatedMetric(COMPANY_COVERAGE_TARGET);
   const liveUpdates = useAnimatedMetric(LIVE_UPDATE_TARGET, true);
+
+  // Deep-link bypass: 如果 URL 携带具体 sessionId,登录后直接跳进工作台,
+  // 避免绕一圈到 sessions 列表再点回去。同时兼容老的 ?session_id 写法。
+  const destination = useMemo(() => {
+    const raw = searchParams.get('sessionId') ?? searchParams.get('session_id');
+    const sid = Number(raw);
+    if (Number.isFinite(sid) && sid > 0) {
+      return `/resume-copilot?sessionId=${sid}`;
+    }
+    return defaultDestination;
+  }, [searchParams, defaultDestination]);
 
   const handleFinish = async (values: LoginFormValues) => {
     const isGuest =

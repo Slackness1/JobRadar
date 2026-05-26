@@ -214,6 +214,78 @@ export const I = {
       <path d="M4 20h4L20 8l-4-4L4 16v4zM14 6l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
     </svg>
   ),
+  // ── P0a additions for Sessions page (2026-05-26) ─────────────────────────
+  target: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+    </svg>
+  ),
+  history: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M3 4v4h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 8v5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
+  shield: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  briefcase: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
+  barChart: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
+  trending: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M3 17l6-6 4 4 8-9M14 6h7v7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  users: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="9" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M2 21a7 7 0 0114 0M16 5a3 3 0 010 6M21 21a6 6 0 00-4-5.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
+  user: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 21a8 8 0 0116 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  ),
+  // ── P0b additions for IntelDrawer (2026-05-26) ───────────────────────────
+  quote: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M7 7H4v6h3l-1 4M17 7h-3v6h3l-1 4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  ),
+  clipboard: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <rect x="6" y="4" width="12" height="17" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="9" y="2" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 11h6M9 15h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  yen: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M6 4l6 8 6-8M6 12h12M6 16h12M12 12v8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  download: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M12 4v12M7 11l5 5 5-5M4 20h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 } as const;
 
 // ── useCountUp ───────────────────────────────────────────────────────────────

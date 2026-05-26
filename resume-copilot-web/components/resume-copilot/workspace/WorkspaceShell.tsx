@@ -19,6 +19,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type {
   CopilotMessage,
@@ -34,8 +35,11 @@ import { MiddleChatPane } from './MiddleChatPane';
 import { RightResumePane } from './RightResumePane';
 import { RewriteProvider } from './RewriteContext';
 import { ArchivePanel } from './archive/ArchivePanel';
-import { WorkspaceConfirmGuide } from './WorkspaceConfirmGuide';
 import { ResizeHandle } from './ResizeHandle';
+import { IntelDrawer } from './intel/IntelDrawer';
+import type { CoachContext } from './coach/CoachPane';
+import type { RewriteBulletContext } from './rewrite/RewritePane';
+import type { RewriteV0V2Out } from '../api';
 
 import './workspace-theme.css';
 
@@ -113,10 +117,28 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     currentFitScore = null,
     xResumeUserKey,
     onStartPlanMode,
-    onSessionConfirmed,
+    // P2 (2026-05-26): retained for backward-compat with public-resume-copilot
+    // but no longer triggered from this shell — confirm step moved to the
+    // standalone `/resume-copilot/confirm` page, and a fresh workspace mount
+    // post-confirm re-fetches the session naturally.
+    onSessionConfirmed: _onSessionConfirmed,
   } = props;
+  void _onSessionConfirmed;
 
+  const router = useRouter();
   const needsConfirm = !!session && session.has_confirmed_profile === false;
+
+  // P2 (2026-05-26): If the loaded session hasn't been confirmed yet,
+  // redirect to the dedicated `/resume-copilot/confirm?session_id=N` page
+  // instead of rendering the legacy in-workspace overlay. Effect-only (not
+  // render-time) so SSR / first-paint stays stable. Once the student confirms
+  // there, they return to the workspace with `has_confirmed_profile=true`
+  // and this effect is a no-op (preventing redirect loops).
+  useEffect(() => {
+    if (needsConfirm && session) {
+      router.push(`/resume-copilot/confirm?session_id=${session.id}`);
+    }
+  }, [needsConfirm, session, router]);
 
   // ── Resizable columns (FE-1 polish, 2026-05-20) ─────────────────────────
   // Persist user-chosen widths so they stick across reloads. Defaults match
@@ -212,6 +234,83 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     setActiveJobContext(null);
   }, []);
 
+  // ── P0b IntelDrawer state (右栏 swap) ─────────────────────────────────────
+  // 当 intelOpenCompany != null 时,右栏渲染 <IntelDrawer/> 而不是 <RightResumePane/>。
+  // 决策 ②a:严格替换,不并列。priority / xhsCount 由 PlatformCard / RecommendCard
+  // 在 open 时透传,用于 logo tone + header sub-line.
+  const [intelOpenCompany, setIntelOpenCompany] = useState<string | null>(null);
+  const [intelOpenContext, setIntelOpenContext] = useState<{
+    priority?: string | null;
+    xhsCount?: number | null;
+  }>({});
+
+  const handleOpenIntel = useCallback(
+    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null }) => {
+      setIntelOpenCompany(company);
+      setIntelOpenContext(ctx ?? {});
+    },
+    [],
+  );
+
+  const handleCloseIntel = useCallback(() => {
+    setIntelOpenCompany(null);
+    setIntelOpenContext({});
+  }, []);
+
+  // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
+  // IntelDrawer 的 "用这些做 Coach 定制" → setCoachContext (中栏切 CoachPane),
+  // 同时关掉 IntelDrawer (中栏 takeover 期间右栏回到 RightResumePane).
+  const [coachContext, setCoachContext] = useState<CoachContext | null>(null);
+
+  const handleIntelMock = useCallback(() => {
+    if (!intelOpenCompany) return;
+    setCoachContext({
+      company: intelOpenCompany,
+      ch: intelOpenCompany,
+      pri: intelOpenContext.priority ?? 'A',
+      xhsCount:
+        typeof intelOpenContext.xhsCount === 'number'
+          ? intelOpenContext.xhsCount
+          : undefined,
+    });
+    // 关掉 IntelDrawer 让中栏 takeover 显眼些 (右栏回到 RightResumePane).
+    setIntelOpenCompany(null);
+    setIntelOpenContext({});
+    // 同时把 plan-mode focus picker 打开, 学生选一段经历进 STAR.
+    setPlanFocusRequest({ focusKind: 'experience' });
+  }, [intelOpenCompany, intelOpenContext]);
+
+  const handleCloseCoach = useCallback(() => {
+    setCoachContext(null);
+  }, []);
+
+  // ── P1 Rewrite middle-pane takeover state (2026-05-26) ────────────────
+  // RightResumePane 触发 v0v2 改写时, 通过 onMiddleRewriteRequested 上传 bullet
+  // 上下文给这里; 中栏切到 RewritePane 显示守卫面板 + 2 候选.
+  const [rewriteBulletContext, setRewriteBulletContext] =
+    useState<RewriteBulletContext | null>(null);
+  const [rewriteResult, setRewriteResult] = useState<RewriteV0V2Out | null>(null);
+
+  const handleMiddleRewriteRequested = useCallback(
+    (bulletId: string, originalText: string, sectionTitle?: string) => {
+      setRewriteBulletContext({ bulletId, originalText, sectionTitle });
+      setRewriteResult(null);
+    },
+    [],
+  );
+
+  const handleMiddleRewriteResult = useCallback(
+    (result: RewriteV0V2Out | null) => {
+      setRewriteResult(result);
+    },
+    [],
+  );
+
+  const handleCloseRewrite = useCallback(() => {
+    setRewriteBulletContext(null);
+    setRewriteResult(null);
+  }, []);
+
   const archiveSlot = (
     <ArchivePanel
       key={`${session?.id ?? 'none'}-${archiveRefreshTick}`}
@@ -225,16 +324,18 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     <div className="hf">
       <RewriteProvider>
         <div className="workspace-hifi" data-testid="workspace-shell">
-          {needsConfirm && session ? (
-            <WorkspaceConfirmGuide
-              sessionId={session.id}
-              onConfirmed={() => onSessionConfirmed?.()}
-            />
-          ) : null}
+          {/* P2 (2026-05-26): legacy WorkspaceConfirmGuide overlay removed.
+              When `needsConfirm` is true, the useEffect above redirects to
+              `/resume-copilot/confirm?session_id=N` (standalone page). */}
           <TopTrackBar
             trackName={currentTrackName}
             fitScore={currentFitScore}
             onChangeTrack={onChangeTrack}
+            session={session}
+            recommendations={recommendations}
+            onExport={onExport}
+            isExporting={isExporting}
+            canExport={canExport}
           />
           <div
             className="workspace-hifi__grid"
@@ -247,6 +348,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               onRequestRewrite={onRequestRewrite}
               onRecommendationsChanged={onRecommendationsChanged}
               onCustomiseForJob={handleCustomiseForJob}
+              onOpenIntel={handleOpenIntel}
             />
             <ResizeHandle
               width={leftWidth}
@@ -271,6 +373,15 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               archiveSlot={archiveSlot}
               activeJobContext={activeJobContext}
               onClearJobContext={handleClearJobContext}
+              coachContext={coachContext}
+              onCloseCoach={handleCloseCoach}
+              rewriteBulletContext={rewriteBulletContext}
+              onCloseRewrite={handleCloseRewrite}
+              rewriteResult={rewriteResult}
+              studentName={
+                profile?.basic_info?.name ?? profile?.basic_info?.full_name ?? ''
+              }
+              companyCount={recommendations?.items?.length ?? null}
             />
             <ResizeHandle
               width={rightWidth}
@@ -280,15 +391,27 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               maxWidth={640}
               ariaLabel="拖动调整右栏(简历)宽度"
             />
-            <RightResumePane
-              session={session}
-              profile={profile}
-              isExporting={isExporting}
-              canExport={canExport}
-              isDemo={isDemo}
-              xResumeUserKey={xResumeUserKey}
-              onExport={onExport}
-            />
+            {intelOpenCompany ? (
+              <IntelDrawer
+                companyName={intelOpenCompany}
+                priority={intelOpenContext.priority}
+                xhsCount={intelOpenContext.xhsCount}
+                onClose={handleCloseIntel}
+                onMock={handleIntelMock}
+              />
+            ) : (
+              <RightResumePane
+                session={session}
+                profile={profile}
+                isExporting={isExporting}
+                canExport={canExport}
+                isDemo={isDemo}
+                xResumeUserKey={xResumeUserKey}
+                onExport={onExport}
+                onMiddleRewriteRequested={handleMiddleRewriteRequested}
+                onMiddleRewriteResult={handleMiddleRewriteResult}
+              />
+            )}
           </div>
         </div>
       </RewriteProvider>

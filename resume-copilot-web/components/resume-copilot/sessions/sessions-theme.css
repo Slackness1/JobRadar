@@ -1,0 +1,597 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * sessions-theme.css — Resume Copilot Sessions page scope
+ *
+ * Scope: `.hf .rc-sessions` (P0a 2026-05-26)
+ *
+ * Layout-specific styles for `/resume-copilot/sessions` ("我的简历会话") —
+ * the screen the user lands on after login. Lists their resume sessions in a
+ * 3-column card grid + upload card at the end.
+ *
+ * Token inheritance: all colors / shadows / radii / fonts come from
+ * `components/hifi/hifi-tokens.css` which is `.hf`-scoped. This file's
+ * selectors are nested under `.rc-sessions` so they never leak to `/`,
+ * `/upload`, `/interview/*`, or the `/resume-copilot` workspace.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.rc-sessions {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+
+.rc-sessions__topbar {
+  height: 52px;
+  padding: 0 28px;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border-warm);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.rc-sessions__crumb-sep {
+  color: var(--ring-warm);
+}
+
+.rc-sessions__crumb {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.rc-sessions__crumb-current {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rc-sessions__topbar-spacer {
+  flex: 1;
+}
+
+.rc-sessions__user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--warm-sand);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--charcoal);
+  flex-shrink: 0;
+}
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+
+.rc-sessions__page {
+  padding: 36px 48px 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.rc-sessions__hero-overline {
+  margin-bottom: 8px;
+}
+
+.rc-sessions__hero-title {
+  font-size: 38px;
+  margin: 0 0 10px;
+}
+
+.rc-sessions__hero-blurb {
+  max-width: 640px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+
+.rc-sessions__toolbar {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--ivory);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  flex-wrap: wrap;
+}
+
+.rc-sessions__filter-tabs {
+  display: flex;
+  background: var(--warm-sand);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.rc-sessions__filter-tab {
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--olive);
+  font-size: 12.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.rc-sessions__filter-tab[data-active='true'] {
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.rc-sessions__filter-tab-count {
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: var(--ring-warm);
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.rc-sessions__filter-tab[data-active='true'] .rc-sessions__filter-tab-count {
+  background: var(--terracotta);
+}
+
+.rc-sessions__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 13px;
+  color: var(--stone);
+  background: #fff;
+}
+
+.rc-sessions__toolbar-spacer {
+  flex: 1;
+}
+
+.rc-sessions__sort-label {
+  font-size: 12px;
+  color: var(--olive);
+}
+
+.rc-sessions__sort-select {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+
+.rc-sessions__grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  animation: rc-fade-in 150ms ease-out;
+}
+
+.rc-sessions__empty {
+  margin-top: 24px;
+  padding: 48px 24px;
+  background: var(--ivory);
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  text-align: center;
+  color: var(--ink-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.rc-sessions__empty-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.rc-sessions__empty-blurb {
+  font-size: 13px;
+  color: var(--stone);
+  max-width: 360px;
+  line-height: 1.55;
+}
+
+/* ── Session card ────────────────────────────────────────────────────────── */
+
+.rc-sessions__card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 0 0 1px var(--border-warm), 0 4px 14px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  transition: box-shadow 0.15s, transform 0.08s;
+}
+
+.rc-sessions__card[data-current='true'] {
+  box-shadow: 0 0 0 2px var(--terracotta), 0 8px 24px rgba(201, 100, 66, 0.1);
+}
+
+.rc-sessions__card[data-archived='true'] {
+  opacity: 0.7;
+}
+
+.rc-sessions__card:hover {
+  box-shadow: 0 0 0 1px var(--ring-warm), 0 8px 22px rgba(15, 23, 42, 0.07);
+}
+
+.rc-sessions__card[data-current='true']:hover {
+  box-shadow: 0 0 0 2px var(--terracotta), 0 12px 30px rgba(201, 100, 66, 0.14);
+}
+
+.rc-sessions__current-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(201, 100, 66, 0.25);
+}
+
+.rc-sessions__archived-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--warm-sand);
+  color: var(--stone);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.rc-sessions__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rc-sessions__card-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.rc-sessions__card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.rc-sessions__card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-warm);
+  border-bottom: 1px solid var(--border-warm);
+}
+
+.rc-sessions__card-stat {
+  text-align: center;
+}
+
+.rc-sessions__card-stat-value {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.rc-sessions__card-stat-label {
+  font-size: 10px;
+  color: var(--stone);
+  margin-top: 3px;
+  letter-spacing: 0.06em;
+}
+
+.rc-sessions__card-toppicks {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.rc-sessions__card-toppicks-empty {
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.rc-sessions__card-toppick {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.rc-sessions__card-time {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.rc-sessions__card-time-updated {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rc-sessions__card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.rc-sessions__card-action-primary {
+  flex: 1;
+}
+
+.rc-sessions__card-action-more {
+  padding: 0 10px !important;
+  min-width: 32px;
+}
+
+/* ── Track chip (re-used in cards + topbar) ──────────────────────────────── */
+
+.rc-sessions__track-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  background: var(--ivory);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.rc-sessions__track-chip[data-size='sm'] {
+  padding: 3px 9px;
+  font-size: 11px;
+}
+
+.rc-sessions__track-chip-icon {
+  color: var(--charcoal);
+  display: inline-flex;
+}
+
+/* ── Resume thumb ────────────────────────────────────────────────────────── */
+
+.rc-sessions__thumb {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  padding: 14px 14px 10px;
+  height: 168px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rc-sessions__thumb-header {
+  text-align: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-warm);
+}
+
+.rc-sessions__thumb-name {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.rc-sessions__thumb-tag {
+  font-size: 8.5px;
+  color: var(--olive);
+  margin-top: 1px;
+}
+
+.rc-sessions__thumb-section {
+  margin-bottom: 6px;
+}
+
+.rc-sessions__thumb-section-label {
+  font-size: 7px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.rc-sessions__thumb-bullet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rc-sessions__thumb-bullet {
+  display: flex;
+  gap: 3px;
+}
+
+.rc-sessions__thumb-bullet-dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.rc-sessions__thumb-bullet-line {
+  flex: 1;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--border-warm);
+}
+
+.rc-sessions__thumb-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+}
+
+/* ── Upload card ─────────────────────────────────────────────────────────── */
+
+.rc-sessions__upload-card {
+  background: transparent;
+  cursor: pointer;
+  border-radius: 16px;
+  border: 2px dashed var(--ring-warm);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgba(201, 100, 66, 0.04) 8px,
+    rgba(201, 100, 66, 0.04) 16px
+  );
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--ink-soft);
+  min-height: 460px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.08s;
+  font-family: inherit;
+}
+
+.rc-sessions__upload-card:hover {
+  border-color: var(--terracotta);
+  background-color: var(--terracotta-wash);
+  color: var(--terracotta);
+}
+
+.rc-sessions__upload-card:active {
+  transform: translateY(0.5px);
+}
+
+.rc-sessions__upload-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ivory);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--terracotta);
+}
+
+.rc-sessions__upload-title {
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.rc-sessions__upload-blurb {
+  font-size: 12px;
+  color: var(--stone);
+  line-height: 1.55;
+  max-width: 220px;
+  text-align: center;
+}
+
+.rc-sessions__upload-tags {
+  display: flex;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--olive);
+}
+
+.rc-sessions__upload-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+/* ── Footer tip ──────────────────────────────────────────────────────────── */
+
+.rc-sessions__footer-tip {
+  margin-top: 28px;
+  padding: 14px;
+  background: var(--library-rail);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--olive);
+}
+
+.rc-sessions__footer-tip-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .rc-sessions__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .rc-sessions__page {
+    padding: 28px 20px 36px;
+  }
+  .rc-sessions__hero-title {
+    font-size: 30px;
+  }
+  .rc-sessions__grid {
+    grid-template-columns: 1fr;
+  }
+  .rc-sessions__toolbar {
+    padding: 12px;
+  }
+}

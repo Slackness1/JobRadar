@@ -11,7 +11,6 @@
 
 import type { ResumeRecommendationPlatform } from '../../types';
 import { I } from '@/components/hifi/hifi-primitives';
-import { RecommendCardIntelSection } from './RecommendCardIntelSection';
 import { RecommendNarrativeSection } from './RecommendNarrativeSection';
 
 function companyInitial(company: string): string {
@@ -35,13 +34,35 @@ export interface PlatformCardProps {
   onToggle: () => void;
   /** Phase 8 — short narrative fetch 需要 sessionId。 */
   sessionId?: number;
+  /** P0b — 小红书 badge 点击 + 卡内 CTA 转到 IntelDrawer (替换 inline 情报段). */
+  onOpenIntel?: (
+    company: string,
+    ctx?: { priority?: string | null; xhsCount?: number | null },
+  ) => void;
 }
 
-export function PlatformCard({ platform, rank, isExpanded, onToggle, sessionId }: PlatformCardProps) {
+export function PlatformCard({
+  platform,
+  rank,
+  isExpanded,
+  onToggle,
+  sessionId,
+  onOpenIntel,
+}: PlatformCardProps) {
   const initial = companyInitial(platform.company);
   const tSuffix = tierSuffix(platform.tier_label);
   const priorityLetter = platform.priority_letter;
   const hasMoreJobs = platform.n_jobs > platform.top_jobs.length;
+  const xhsCount = platform.n_xhs_insights || 0;
+
+  const openIntel = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onOpenIntel?.(platform.company, {
+      priority: priorityLetter || null,
+      xhsCount,
+    });
+  };
 
   return (
     <article
@@ -80,13 +101,27 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle, sessionId }
             )}
             <span className="workspace-hifi__platform-card-score">{platform.platform_score}</span>
             <span className="workspace-hifi__platform-card-n-jobs">{platform.n_jobs} 个岗</span>
-            {platform.n_xhs_insights > 0 && (
-              <span
-                className="workspace-hifi__platform-card-xhs"
-                title={`小红书有 ${platform.n_xhs_insights} 条同辈情报`}
-              >
-                小红书×{platform.n_xhs_insights}
-              </span>
+            {xhsCount > 0 && (
+              onOpenIntel ? (
+                <button
+                  type="button"
+                  className="workspace-hifi__platform-card-xhs-btn"
+                  onClick={openIntel}
+                  title={`小红书 ${xhsCount} 条同辈情报 — 点开右栏抽屉`}
+                  aria-label={`查看 ${platform.company} 的 ${xhsCount} 条同辈情报`}
+                >
+                  <span className="workspace-hifi__platform-card-xhs">
+                    小红书×{xhsCount}
+                  </span>
+                </button>
+              ) : (
+                <span
+                  className="workspace-hifi__platform-card-xhs"
+                  title={`小红书有 ${xhsCount} 条同辈情报`}
+                >
+                  小红书×{xhsCount}
+                </span>
+              )
             )}
           </div>
         </div>
@@ -100,6 +135,37 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle, sessionId }
 
       {isExpanded && (
         <div className="workspace-hifi__platform-expanded">
+          {/* P0b — "为你定制" 高亮叙事盒 (替换原 inline 情报段) */}
+          {xhsCount > 0 && (
+            <div className="workspace-hifi__platform-card-customised">
+              <div className="workspace-hifi__platform-card-customised-head">
+                <span className="workspace-hifi__platform-card-customised-icon" aria-hidden>
+                  ✦
+                </span>
+                <span className="workspace-hifi__platform-card-customised-title">
+                  为你定制
+                </span>
+                <span className="workspace-hifi__platform-card-customised-meta">
+                  {xhsCount} 条情报支撑
+                </span>
+              </div>
+              <div className="workspace-hifi__platform-card-customised-body">
+                {sessionId !== undefined && platform.top_jobs[0] ? (
+                  <RecommendNarrativeSection
+                    sessionId={sessionId}
+                    jobId={String(platform.top_jobs[0].job_id)}
+                    isVisible={isExpanded}
+                    mode="short"
+                  />
+                ) : (
+                  <span>
+                    {platform.n_jobs} 个岗位 · 小红书有 {xhsCount} 条同辈洞察 — 点右上情报抽屉看完整原话。
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="workspace-hifi__platform-jobs">
           {platform.top_jobs.map((job) => (
             <div key={job.job_id} className="workspace-hifi__platform-job-cell">
@@ -144,12 +210,19 @@ export function PlatformCard({ platform, rank, isExpanded, onToggle, sessionId }
             </span>
           )}
           </div>
-          <div className="workspace-hifi__platform-intel-wrap">
-            <RecommendCardIntelSection
-              company={platform.company}
-              isVisible={isExpanded}
-            />
-          </div>
+          {xhsCount > 0 && onOpenIntel && (
+            <button
+              type="button"
+              className="workspace-hifi__intel-cta-row"
+              onClick={openIntel}
+            >
+              <span aria-hidden style={{ display: 'inline-flex' }}>{I.book(14)}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                同辈情报 · {xhsCount} 条洞察 (原话 / 待遇 / 真题)
+              </span>
+              <span aria-hidden style={{ display: 'inline-flex' }}>{I.arrowRight(12)}</span>
+            </button>
+          )}
         </div>
       )}
     </article>

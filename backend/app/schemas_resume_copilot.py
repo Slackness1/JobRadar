@@ -131,6 +131,10 @@ class ResumeCopilotSessionListItem(BaseModel):
     name: str = ''
     status: str
     has_recommendations: bool
+    # P0a (resume-copilot-redesign-2026-05-26): soft-archive flag — Sessions
+    # page splits 使用中 / 归档 / 全部 tabs from this. Defaults False for
+    # backwards compatibility with any client that ignored the field.
+    is_archived: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

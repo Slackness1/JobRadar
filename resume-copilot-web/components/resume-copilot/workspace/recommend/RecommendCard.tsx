@@ -16,7 +16,6 @@ import { useState } from 'react';
 import type { ResumeRecommendationItem } from '../../types';
 import type { RecommendRejectReason } from '../../api';
 import { I } from '@/components/hifi/hifi-primitives';
-import { RecommendCardIntelSection } from './RecommendCardIntelSection';
 import { RecommendNarrativeSection } from './RecommendNarrativeSection';
 import { RecommendRejectForm } from './RecommendRejectForm';
 
@@ -32,6 +31,11 @@ export interface RecommendCardProps {
   onCustomiseForJob?: (item: ResumeRecommendationItem) => void;
   /** Phase 7 — narrative section fetch 需要 sessionId。 */
   sessionId?: number;
+  /** P0b — 学生点 "同辈情报" 跳到右栏 IntelDrawer (替换 inline RecommendCardIntelSection). */
+  onOpenIntel?: (
+    company: string,
+    ctx?: { priority?: string | null; xhsCount?: number | null },
+  ) => void;
 }
 
 /** First letter of company for the logo placeholder — there's no logo CDN in
@@ -109,6 +113,7 @@ export function RecommendCard({
   onReject,
   onCustomiseForJob,
   sessionId,
+  onOpenIntel,
 }: RecommendCardProps) {
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -257,11 +262,25 @@ export function RecommendCard({
             </div>
           )}
 
-          <RecommendCardIntelSection
-            company={item.company}
-            jobTitle={item.job_title}
-            isVisible={isExpanded}
-          />
+          {onOpenIntel && (
+            <button
+              type="button"
+              className="workspace-hifi__intel-cta-row"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenIntel(item.company, {
+                  priority: tone || null,
+                  xhsCount: null,
+                });
+              }}
+            >
+              <span aria-hidden style={{ display: 'inline-flex' }}>{I.book(14)}</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>
+                查看 {item.company} · 同辈情报抽屉
+              </span>
+              <span aria-hidden style={{ display: 'inline-flex' }}>{I.arrowRight(12)}</span>
+            </button>
+          )}
 
           {!rejectOpen && (
             <div className="workspace-hifi__rec-card-actions">

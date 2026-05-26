@@ -161,6 +161,7 @@ def list_resume_copilot_sessions(
             name=str(getattr(r, 'name', '') or ''),
             status=str(getattr(r, 'status', '') or ''),
             has_recommendations=r.recommendation_run is not None,
+            is_archived=bool(getattr(r, 'is_archived', False) or False),
             created_at=getattr(r, 'created_at', None),
             updated_at=getattr(r, 'updated_at', None),
         )
