@@ -180,7 +180,8 @@ def test_run_plan_turn_auto_writes_after_ready_to_write(db_with_session):
     # draft text shows up + finalize prompt is present.
     assert '写了一版' in msgs[-1].content
     assert '使用 Excel 完成模型核查并输出估值表' in msgs[-1].content
-    assert ('定下来' in msgs[-1].content) or ('就这样' in msgs[-1].content)
+    assert '入档' in msgs[-1].content
+    assert '再聊几轮' in msgs[-1].content
 
 
 def test_run_plan_turn_applies_action_and_bumps_version(db_with_session):

@@ -1,15 +1,15 @@
-"""项目级金融赛道 taxonomy — 8 个 canonical track 跟 docs/finance-tracks-2026-overview.md
+"""项目级金融赛道 taxonomy — 13 个 canonical track 跟 docs/finance-tracks-2026-overview.md
 对齐, 给整个项目 (recommendation / parser / preferences / interview / eval) 共用。
 
 设计原则:
-  - **8 个 canonical** 不轻易增 (再多打散下游 eval coverage)
+  - **13 个 canonical** (2026-05-23 从 10 拆/合到 13, 详见 canonical.py docstring)
   - **alias** 自由扩 (反映用户实际用语)
   - **低质量红线** 跟 canonical 正交,适用于任何赛道
   - 后续 phase D-0 会把 knowledge field (典型雇主/STAR/follow-up 模板) 装进来
   - 后续可能搬到 tracks.yaml,但目前 Python 常量也够用
 
 public API:
-  - CANONICAL_FINANCE_TRACKS — tuple[str, ...] of 8
+  - CANONICAL_FINANCE_TRACKS — tuple[str, ...] of 13
   - canonicalize_track(label) -> str — 别名映射,映射不到返原值
   - expand_track_to_canonicals(label) -> list[str] — 用户 raw 偏好 → 一组 canonical
   - transferable_for(label) -> list[str] — 用户 raw 偏好 → 可迁移 canonical (跳板)

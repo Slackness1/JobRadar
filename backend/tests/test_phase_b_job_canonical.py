@@ -28,8 +28,8 @@ def test_source_map_expected_entries() -> None:
         'internet_official': '金融科技',
         'bank_official': '银行·总行核心',
         'bank-legacy-csv': '银行·总行核心',
-        'insurance_official': '二级买方·基本面',
-        'pe_vc_official': '一级市场',
+        'insurance_official': '公募/资管·投研',
+        'pe_vc_official': '一级股权·PE/VC',
         'state_owned_official': '监管·体制内',
     }
     for src, canon in expected.items():
@@ -59,8 +59,8 @@ def test_source_map_skips_ambiguous() -> None:
     [
         # title 主导(歧义 source 也能命中)
         ('hedge_funds_hotjob', '幻方量化 量化研究员', '量化'),
-        ('foreign_ibs_official', 'IBD Analyst · 中金', '一级市场'),
-        ('securities_zhiye', '券商研究所 · 食品饮料 卖方研究', '卖方研究·S&T'),
+        ('foreign_ibs_official', 'IBD Analyst · 中金', '投行·并购·资本市场'),
+        ('securities_zhiye', '券商研究所 · 食品饮料 卖方研究', '卖方研究'),
         # 1:1 source 命中(title 无信号)
         ('bank_official', '总行管培生', '银行·总行核心'),
         ('internet_official', '蚂蚁集团 数据分析师', '金融科技'),

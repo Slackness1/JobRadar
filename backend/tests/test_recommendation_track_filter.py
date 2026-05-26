@@ -33,20 +33,25 @@ from app.services.taxonomy import (
 # ---------- taxonomy helper 层 ----------
 
 class TestExpandUmbrella:
-    def test_投研_展开为4个(self):
+    def test_投研_展开为6个(self):
+        # 2026-05-23 13 canon: 投研 伞 = 公募/资管/私募/卖方研究/量化/投行/PE-VC
         canons = set(expand_track_to_canonicals('投研'))
-        assert canons == {'二级买方·基本面', '卖方研究·S&T', '一级市场', '量化'}
+        assert canons == {
+            '公募/资管·投研', '私募·基本面', '卖方研究', '量化',
+            '投行·并购·资本市场', '一级股权·PE/VC',
+        }
 
-    def test_买方_展开为2个(self):
+    def test_买方_展开为3个(self):
+        # 2026-05-23: 买方 = 公募/资管 + 私募 + 量化
         canons = set(expand_track_to_canonicals('买方'))
-        assert canons == {'二级买方·基本面', '量化'}
+        assert canons == {'公募/资管·投研', '私募·基本面', '量化'}
 
     def test_量化是single_canonical(self):
         assert expand_track_to_canonicals('量化') == ['量化']
 
     def test_alias_映射到canonical(self):
-        # "公募" 不是伞,但是 alias → 二级买方·基本面
-        assert expand_track_to_canonicals('公募') == ['二级买方·基本面']
+        # "公募" 不是伞,但是 alias → 公募/资管·投研
+        assert expand_track_to_canonicals('公募') == ['公募/资管·投研']
 
     def test_未知值返空(self):
         assert expand_track_to_canonicals('客户经理') == []
@@ -55,22 +60,24 @@ class TestExpandUmbrella:
 
 class TestTransferable:
     def test_投研_可迁移_2个(self):
+        # 2026-05-23: 管理咨询·MBB → 咨询·MBB+Tier2 rename
         canons = set(transferable_for('投研'))
-        assert canons == {'管理咨询·MBB', '银行·总行核心'}
+        assert canons == {'咨询·MBB+Tier2', '银行·总行核心'}
 
     def test_未知伞返空(self):
         assert transferable_for('客户经理') == []
 
 
 class TestRecallKeywords:
-    def test_二级买方_含研究员_stem(self):
-        kws = recall_keywords_for_canonical('二级买方·基本面')
+    def test_公募资管_含研究员_stem(self):
+        # 2026-05-23: 老 二级买方·基本面 拆为 公募/资管·投研 + 私募·基本面
+        kws = recall_keywords_for_canonical('公募/资管·投研')
         assert '研究员' in kws
         assert '基金经理' in kws
 
     def test_filter掉过短keyword(self):
-        # PE/VC 是 2 字符,应被过滤掉避 substring 误命中
-        kws = recall_keywords_for_canonical('一级市场')
+        # 2026-05-23: 老 一级市场 拆为 投行·并购·资本市场
+        kws = recall_keywords_for_canonical('投行·并购·资本市场')
         assert all(len(k) >= 3 for k in kws)
 
 
@@ -96,11 +103,13 @@ def touyan_prefs():
 
 class TestClassifyTrackMatch:
     def test_hit_伞内canonical(self, touyan_prefs):
-        job = Job(job_title='证券投资研究员', canonical_track='二级买方·基本面', source='funds_official')
+        # 2026-05-23: 老 二级买方·基本面 → 公募/资管·投研
+        job = Job(job_title='证券投资研究员', canonical_track='公募/资管·投研', source='funds_official')
         assert _classify_track_match(job, touyan_prefs) == ('hit', 0)
 
     def test_transferable_可迁移canonical(self, touyan_prefs):
-        job = Job(job_title='Senior Consultant', canonical_track='管理咨询·MBB', source='consulting_official')
+        # 2026-05-23: 老 管理咨询·MBB → 咨询·MBB+Tier2
+        job = Job(job_title='Senior Consultant', canonical_track='咨询·MBB+Tier2', source='consulting_official')
         assert _classify_track_match(job, touyan_prefs) == ('transferable', 0)
 
     def test_ambiguous_1N_source_NULL(self, touyan_prefs):
@@ -224,24 +233,26 @@ class TestBuildTrackCondition:
 
 class TestFilterCandidateJobs:
     def test_typed_column_hit(self, db_session, touyan_prefs):
+        # 2026-05-23: 老 二级买方·基本面 → 公募/资管·投研
         db_session.add_all([
-            _make_job(canonical_track='二级买方·基本面', job_title='行业研究员'),
+            _make_job(canonical_track='公募/资管·投研', job_title='行业研究员'),
             _make_job(canonical_track='金融科技', job_title='AI 算法工程师'),  # 应被排除
-            _make_job(canonical_track='二级买方·基本面', job_title='量化研究员'),
+            _make_job(canonical_track='公募/资管·投研', job_title='量化研究员'),
         ])
         db_session.commit()
         rows = _filter_candidate_jobs(db_session, touyan_prefs)
         canons = [r.canonical_track for r in rows]
-        assert '二级买方·基本面' in canons
+        assert '公募/资管·投研' in canons
         assert '金融科技' not in canons
 
     def test_transferable_included(self, db_session, touyan_prefs):
+        # 2026-05-23: 老 金融咨询 / 管理咨询·MBB → 咨询·MBB+Tier2
         db_session.add_all([
-            _make_job(canonical_track='金融咨询', job_title='MBB Consultant'),
+            _make_job(canonical_track='咨询·MBB+Tier2', job_title='MBB Consultant'),
         ])
         db_session.commit()
         rows = _filter_candidate_jobs(db_session, touyan_prefs)
-        assert any(r.canonical_track == '金融咨询' for r in rows)
+        assert any(r.canonical_track == '咨询·MBB+Tier2' for r in rows)
 
     def test_null_with_alias_title(self, db_session, touyan_prefs):
         # NULL canonical 但 title 含 stem keyword '研究员' → 走 NULL fallback

@@ -1,6 +1,6 @@
 """Phase D (2026-05-16): 钉死 TrackKnowledgeProvider + tracks.yaml schema 契约。
 
-1) tracks.yaml 结构契约:8 entries / canonical 全在 CANONICAL_FINANCE_TRACKS /
+1) tracks.yaml 结构契约:13 entries / canonical 全在 CANONICAL_FINANCE_TRACKS /
    每条 entry 必须有 employers/roles/high_quality_signals/low_quality_signals/
    star_examples/followup_templates 字段。
 2) Provider applies_to 判断准:purpose 不对 / 无 canonical 信号 → False;
@@ -36,7 +36,7 @@ _TRACKS_YAML = (
 # ── yaml 结构契约 ──────────────────────────────────────────────────────
 
 
-def test_tracks_yaml_has_all_8_canonical() -> None:
+def test_tracks_yaml_has_all_13_canonical() -> None:
     data = yaml.safe_load(_TRACKS_YAML.read_text(encoding="utf-8"))
     canon_in_yaml = {t["canonical"] for t in data["tracks"]}
     assert canon_in_yaml == set(CANONICAL_FINANCE_TRACKS), (
@@ -99,13 +99,13 @@ def test_applies_to_returns_true_on_preferences() -> None:
 
 def test_applies_to_returns_true_on_inferred_tracks() -> None:
     p = TrackKnowledgeProvider()
-    req = _mk_req(profile={"inferred_tracks": ["公募基金"]})  # 公募基金 → 二级买方·基本面
+    req = _mk_req(profile={"inferred_tracks": ["公募基金"]})  # 公募基金 → 公募/资管·投研
     assert p.applies_to(req) is True
 
 
 def test_applies_to_returns_true_on_target_job_text() -> None:
     p = TrackKnowledgeProvider()
-    req = _mk_req(target_job="中信证券 IBD Analyst 投行部")  # IBD → 一级市场
+    req = _mk_req(target_job="中信证券 IBD Analyst 投行部")  # IBD → 投行·并购·资本市场
     assert p.applies_to(req) is True
 
 
@@ -128,7 +128,7 @@ def test_preferences_beats_profile() -> None:
     )
     block = p.fetch(req)
     assert "canonical=量化" in block
-    assert "二级买方" not in block
+    assert "公募/资管" not in block
 
 
 def test_profile_beats_target_job() -> None:
@@ -146,12 +146,13 @@ def test_profile_beats_target_job() -> None:
 
 def test_fetch_output_format() -> None:
     p = TrackKnowledgeProvider()
-    req = _mk_req(preferences={"preferred_tracks": ["二级买方·基本面"]})
+    # 2026-05-23: 老 二级买方·基本面 → 公募/资管·投研 (canonicalize 自动归位)
+    req = _mk_req(preferences={"preferred_tracks": ["公募/资管·投研"]})
     block = p.fetch(req)
 
     assert block, "fetch 不应返空"
     assert "track_knowledge" in block, "block header 应含 provider name"
-    assert "canonical=二级买方·基本面" in block
+    assert "canonical=公募/资管·投研" in block
     assert "典型雇主" in block
     assert "高质量信号词" in block
     assert "STAR 模板" in block or "STAR" in block

@@ -1,7 +1,7 @@
-"""Phase E (2026-05-16): 钉死 eval fixtures + judge prompt 引用 8 canonical。
+"""Phase E (2026-05-16): 钉死 eval fixtures + judge prompt 引用 13 canonical。
 
-1) 5 个 JD fixture 都有 canonical_track 字段,且值在 8 canonical 里。
-2) judge.py 的 track_relevance system prompt 提及 8 canonical 列表(防回退到
+1) 5 个 JD fixture 都有 canonical_track 字段,且值在 13 canonical 里。
+2) judge.py 的 track_relevance system prompt 提及 13 canonical 列表(防回退到
    只看 free-text expected_track)。
 3) judge_track_relevance 函数 payload 含 jd_canonical_track 字段(传给 judge
    LLM 作为 enum reference)。
@@ -40,12 +40,12 @@ def test_jd_has_canonical_track(jd: dict) -> None:
 @pytest.mark.parametrize("jd", _ALL_JDS, ids=lambda jd: jd["__filename"])
 def test_jd_canonical_track_in_taxonomy(jd: dict) -> None:
     assert jd["canonical_track"] in CANONICAL_FINANCE_TRACKS, (
-        f"{jd['__filename']} canonical_track={jd['canonical_track']!r} 不在 8 canonical 里"
+        f"{jd['__filename']} canonical_track={jd['canonical_track']!r} 不在 13 canonical 里"
     )
 
 
-def test_judge_prompt_lists_8_canonical() -> None:
-    """system prompt 必须 enumerate 8 canonical,否则 judge 容易回退到 free-text 匹配。"""
+def test_judge_prompt_lists_13_canonical() -> None:
+    """system prompt 必须 enumerate 13 canonical,否则 judge 容易回退到 free-text 匹配。"""
     from tests.eval.judge import _TRACK_RELEVANCE_SYSTEM
     for canon in CANONICAL_FINANCE_TRACKS:
         assert canon in _TRACK_RELEVANCE_SYSTEM, (
@@ -61,5 +61,5 @@ def test_judge_payload_includes_canonical_track() -> None:
     src = inspect.getsource(judge_track_relevance)
     assert "jd_canonical_track" in src, (
         "judge_track_relevance 没在 payload 里塞 jd_canonical_track,"
-        "judge LLM 看不到 8 canonical 信号"
+        "judge LLM 看不到 13 canonical 信号"
     )

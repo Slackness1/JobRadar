@@ -274,6 +274,10 @@ class Job(Base):
     # 写入。None = 1:N 歧义 source 且 job_title 无信号,留给下游 LLM rerank。
     # 与 track_predicted (LLM 自由文本) 平级,canonical_track 是 enum-constrained。
     canonical_track = Column(Text, nullable=True, index=True)
+    # v2 (2026-05-24): 10 → 13 canon 重构时备份的老 canonical_track 值, 给
+    # backfill 脚本拆 ambiguous 池 (二级买方/卖方·S&T/一级市场/战略咨询) 当 hint。
+    # 只在 alembic f1a8e3c7b2d5_canonical_track_v2_rename 设值, 之后只读不动。
+    canonical_track_pre_v2 = Column(Text, nullable=True)
     # L3 (2026-05-22): detail_url HEAD 探活结果。NULL=未探过, alive/dead/uncertain。
     # cron 每天 10:00 跑 link_prober 更新; 推荐 SQL 排除 link_status='dead'。
     link_status = Column(Text, nullable=True, index=True)

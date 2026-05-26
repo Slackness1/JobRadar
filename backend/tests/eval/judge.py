@@ -37,21 +37,24 @@ _TRACK_RELEVANCE_SYSTEM = """\
 **关键原则**: SUT 自己会给 `tier_label` ('强匹配'/'可迁移'/'有差距') 和 `final_score` (0-100)。
 判分**必须**综合看 SUT 推的 track + tier/score 是否自洽,而不是只看 track 命中哪个 anchor。
 
-**10 个 canonical finance tracks** (2026-05-21 拆出 战略咨询 + 大宗·能源; 跟 JobRadar
-app.services.taxonomy 对齐 — JD 现在带 `jd_canonical_track` 字段,等于这 10 个之一):
-  1. 二级买方·基本面    (公募 / 阳光私募 / 银行理财子 / 保险资管)
-  2. 量化                (头部私募 quant / 大基金量化部 / 外资 HF)
-  3. 一级市场            (PE / VC / IBD)
-  4. 卖方研究·S&T       (券商研究所 + Sales & Trading)
-  5. 银行·总行核心       (国有 / 股份行 总行管培 + 核心部门;非柜员/客户经理)
-  6. 监管·体制内        (央行/证监会/国资委/主权基金)
-  7. 金融科技           (蚂蚁/微众/京东数科/跨境支付)
-  8. 管理咨询·MBB       (MBB / 四大 Deals & FAS / 财务咨询; 2026-05-21 renamed from 金融咨询)
-  9. 战略咨询           (公司战略 / 通用咨询; 2026-05-21 拆出)
- 10. 大宗·能源          (大宗商品 / 能源 / LDC / Cargill / 中石油; 2026-05-21 新增)
+**13 个 canonical finance tracks** (2026-05-23 重构: 拆 二级买方/卖方·S&T/一级市场,
+咨询合并再拆。跟 JobRadar app.services.taxonomy 对齐 — JD 带 `jd_canonical_track`):
+  1. 公募/资管·投研          (公募 / 保险资管 / 券商资管 / 银行理财子)
+  2. 私募·基本面             (阳光私募 / 长短仓 / 对冲基金基本面)
+  3. 量化                    (头部私募 quant / 大基金量化部 / 外资 HF)
+  4. 卖方研究                (券商研究所 sell-side equity research)
+  5. S&T·FICC·衍生品         (Sales & Trading / FICC / Global Markets / 衍生品)
+  6. 投行·并购·资本市场      (IBD / M&A / ECM / DCM)
+  7. 一级股权·PE/VC          (PE / VC / Buyout / Growth / 产业基金 / CVC)
+  8. 银行·总行核心            (国大/股份/政策行/外管/交易所/金融基础设施)
+  9. 监管·体制内             (央行/证监会/银保监/国资委/中央汇金/社保)
+ 10. 金融科技                (蚂蚁/微众/京东数科/跨境支付)
+ 11. 咨询·MBB+Tier2          (MBB / 罗兰贝格 / Oliver Wyman / 科尔尼 / 四大 FAS)
+ 12. 企业战略·管培·实业金融  (互联网战略部 / 实业管培 / 集团投融资部 / 战投)
+ 13. 大宗·能源              (LDC / Cargill / 托克 / 中石油国际 / 远景动力)
 
-SUT 推的 matched_track_label 若不在这 10 个里,通常说明 SUT 还在用 free-text(eg "公募基金/研究"
-而不是 canonical "二级买方·基本面")。把这种当作"接近但未完全对齐"处理,不算 0 分。
+SUT 推的 matched_track_label 若不在这 13 个里,通常说明 SUT 还在用 free-text(eg "公募基金/研究"
+而不是 canonical "公募/资管·投研")。把这种当作"接近但未完全对齐"处理,不算 0 分。
 
 评分:
   3 = 推到 expected_strong_match_tracks 且 tier='强匹配' (识别精准,SUT 自信且对)

@@ -256,12 +256,12 @@ def _format_assistant_reply(action: AgentAction) -> str:
         return str(payload.get('question_text', '能再讲讲这条经历的细节吗？'))
     if action.action == 'write':
         draft = str(payload.get('draft_text', ''))
-        # R2 polish (2026-05-21): 把"再回一句就入档"说得更明显, 避免学生
-        # 第一次说"定下来"以为已经 commit,  实际还在 awaiting_review 等。
+        # H2 (2026-05-22): reviewing 阶段前端输入框会锁住, 真实入档动作是
+        # PlanDraftCard 的"入档"按钮。这里不能再承诺"回一句就入档"。
         return (
             f'我按现在的 evidence 写了一版给你看 →\n\n{draft}\n\n'
-            f'看这版可以的话再回一句"就这样 / 定下来",  我就入档;\n'
-            f'想改就直接告诉我改哪里。'
+            f'看这版可以的话, 点下方"入档"保存到我的档案; '
+            f'想改就点"再聊几轮", 直接告诉我改哪里。'
         )
     if action.action == 'ready_to_write':
         return '好，evidence 够了，我准备写这一条。'
@@ -572,10 +572,10 @@ def run_plan_turn(
                     f'{synthesized_draft}\n\n'
                     + (
                         '⚠ 这版我之前提到的几个点没全补够, 已经挂在 draft 的 risk note 上 — '
-                        '不影响你入档, 但你看完想改任何地方直接说。\n'
-                        '满意就再回一句 "就这样", 我把它收进我的档案。'
+                        '不影响你先看草稿, 但入档前建议确认。\n'
+                        '满意就点下方"入档"保存; 想改就点"再聊几轮"。'
                         if soft_risks else
-                        '看完没问题就再回一句 "就这样", 我把它收进我的档案; 想改直接说。'
+                        '看完没问题就点下方"入档"保存; 想改就点"再聊几轮"。'
                     )
                 ),
             ))

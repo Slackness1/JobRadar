@@ -1,6 +1,6 @@
 id: jds/01_mutual_fund_research
 expected_track: "公募基金/研究"
-canonical_track: "二级买方·基本面"   # Phase E (2026-05-16): 对齐 8 canonical taxonomy
+canonical_track: "公募/资管·投研"   # 2026-05-24: 对齐 13 canonical (老 二级买方·基本面 拆开)
 job:
   company: "广发基金"
   job_title: "行业研究员（消费方向）· 2026 校招"

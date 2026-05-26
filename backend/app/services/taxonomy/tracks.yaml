@@ -1,34 +1,37 @@
-# 8 canonical finance tracks — knowledge base
+# 13 canonical finance tracks — knowledge base
 #
-# Phase D-0 (2026-05-16): 给 Phase D 的 TrackKnowledgeProvider 5th ContextProvider
-# 供数。每个 track 写满:
-#   - typical_employers   典型雇主 (5-10 个)
-#   - typical_roles       典型岗位 (3-8 个)
+# 2026-05-23 重写 (10 → 13): 拆 二级买方·基本面 / 卖方研究·S&T / 一级市场 各成 2,
+# 拆 战略咨询 + 管理咨询·MBB 重组为 咨询·MBB+Tier2 + 企业战略·管培·实业金融。
+#
+# 每个 track 写满:
+#   - typical_employers   典型雇主 (≥5)
+#   - typical_roles       典型岗位 (≥3)
 #   - high_quality_signals 高质量信号词 (招聘文案 / 个人经历里出现就 boost)
 #   - low_quality_signals 低质量信号词 (出现就 dock — 跟 quality.py 红线互补)
 #   - star_examples       1-2 个 STAR 模板示例 (给 chat.py rewrite 当 reference)
 #   - followup_templates  典型 follow-up 提问 (给 interview 当弹药)
 #
 # 维护:
-#   - 改了之后必须跑 `pytest tests/test_phase_d_track_knowledge.py` —— 钉死 yaml 结构 + canonical 引用合法
+#   - 改了之后必须跑 `pytest tests/test_phase_d_track_knowledge.py`
 #   - canonical name **必须** 跟 app/services/taxonomy/canonical.py 的 CANONICAL_FINANCE_TRACKS 一致
-#   - 数据来源 reference:docs/finance-tracks-2026-overview.md + 2026-05-16 XHS crawl (8 帖 / 46 评论)
 
 tracks:
 
-  - canonical: 二级买方·基本面
-    description: 公募 / 阳光私募 / 银行理财子 / 保险资管的基本面研究 + 投资岗。看公司基本面、行业趋势,做选股配置。
+  - canonical: 公募/资管·投研
+    description: 公募基金 / 保险资管 / 券商资管 / 银行理财子的 long-only 基本面研究 + 投资岗。看公司基本面、行业趋势,做选股配置。SAIF placement 最大头。
     typical_employers:
       - 易方达基金
       - 华夏基金
+      - 南方基金
       - 嘉实基金
       - 广发基金
-      - 高毅资产
-      - 景林资产
+      - 富国基金
+      - 兴证全球
+      - 招商基金
+      - 工银瑞信
       - 招银理财
       - 平安资管
-      - 太平洋资管
-      - 工银瑞信
+      - 国寿资管
     typical_roles:
       - 行业研究员
       - 基本面研究员
@@ -55,15 +58,64 @@ tracks:
         task: 拉过去三季度的渠道库存 + 终端动销 + 龙头竞品价格策略,判断是否加仓
         action: 跑了 6 家 KA 商超 + 调研 12 家经销商,建了量价模型对比同业,周报里给"减仓"建议
         result: 报告被组里采纳,该 ticker 在后续 2 个月跌 11%,免了组里至少 0.3% drawdown
-      - context: 私募研究员实习,负责 TMT 板块跟踪
+      - context: 保险资管股票组实习,负责 TMT 板块跟踪
         task: 给某 AI 算力公司出 entry 信号
         action: 比对 H100 / 国产替代 ASIC 出货量 / 招标价 / 客户回款节奏 4 个维度做 DCF,触发条件清单写明
-        result: signal 触发 entry,该笔头寸 3 个月收益 18%
+        result: signal 触发 entry,该笔头寸 3 个月收益 18%,纳入组里 paper portfolio
     followup_templates:
       - 你写"自下而上选股",具体怎么定义"基本面发生变化"才会动手买入卖出?
       - 你做 DCF 时,WACC 怎么取?永续增长率 g 多少合理?给我一个你自己研究过的具体案例。
       - 调研一家上市公司时,你最关注的财务指标排前 3 是什么?为什么这 3 个?
       - 你买入持仓后多久会复盘?复盘的 trigger 是什么?
+
+  - canonical: 私募·基本面
+    description: 阳光私募 / 对冲基金的基本面研究 + 长短仓投研。比公募更看重独立判断、深度研究和投资 sense,门槛更高。
+    typical_employers:
+      - 高毅资产
+      - 景林资产
+      - 重阳投资
+      - 淡水泉投资
+      - 宁泉资产
+      - 观砚投资
+      - 佳期投资
+      - 启林投资
+      - 进化论资产
+      - 知行通达
+      - 拾贝投资
+      - 翼虎投资
+    typical_roles:
+      - 私募研究员
+      - 行业研究员 (私募)
+      - 长短仓研究员
+      - 投资经理助理
+      - 基本面研究员
+    high_quality_signals:
+      - 草根调研
+      - 行业深度报告
+      - 投资备忘录
+      - long-short 配对
+      - 估值建模 DCF / SOTP
+      - 跟踪上市公司 IR / 经销商访谈
+      - alpha 来源拆解
+      - 仓位管理
+    low_quality_signals:
+      - 私募销售
+      - FOF 销售
+      - 渠道推广
+    star_examples:
+      - context: 高毅资产消费组实习,负责一家区域龙头啤酒公司深度跟踪
+        task: 判断旺季前是否值得加仓,给 PM 出做多 / 减仓 / 观望建议
+        action: 走访 4 个核心市场经销商 + 拉 12 个月渠道库存数据 + 比对竞品价格带,做了价量分解模型
+        result: PM 采纳"旺季前加仓"建议,3 个月该 ticker 跑赢板块 8%,实习留任 offer
+      - context: 重阳投资 TMT 组实习,跟踪国产替代板块
+        task: 评估某 AI 芯片公司是否值得 long;同时识别短线 short pair
+        action: 比较公司客户结构 / 出货量 / 国产化率三条曲线,构建 long 该标的 + short 同业 ETF 的配对组合
+        result: 配对组合 6 周内 +5.2% (对冲掉板块系统性回调),被组内当 case study
+    followup_templates:
+      - 私募和公募研究最大的差异在你看来是什么?为什么你选私募?
+      - 你做的草根调研里,哪一次让你彻底改了 view?具体改了什么?
+      - 长短仓配对的 short 端怎么挑?对冲精度怎么衡量?
+      - 私募的回撤容忍度比公募低很多,你怎么平衡 conviction 和风控?
 
   - canonical: 量化
     description: 头部私募 / 大型基金量化部 / 海外对冲基金的量化研究 / 策略开发 / 高频交易岗。看因子、看回测、看 IR。
@@ -112,56 +164,8 @@ tracks:
       - 强化学习在 alpha 上落地最大的坑你觉得是什么?
       - Sharpe 高但 max drawdown 大,你愿意上实盘么?为什么?
 
-  - canonical: 一级市场
-    description: 投行 IBD / PE / VC / 战略投资。看交易、看 deal、看公司价值挖掘。卖方研究里的并购组也算这块。
-    typical_employers:
-      - 中金公司
-      - 中信证券 IBD
-      - 华泰证券 IBD
-      - 高瓴投资
-      - 红杉中国
-      - 鼎晖投资
-      - 黑石集团
-      - KKR
-      - Citi IBD
-      - Morgan Stanley IBD
-      - Goldman Sachs
-    typical_roles:
-      - IBD Analyst
-      - PE/VC Analyst
-      - 投资经理 / 投资经理助理
-      - M&A Analyst
-      - 战略投资分析师
-      - Pre-IPO 分析师
-    high_quality_signals:
-      - Pitch book 撰写
-      - 财务建模 LBO / DCF / Comps
-      - 行业 deal 复盘
-      - 尽职调查 DD
-      - 估值方法论 (相对估值 / 绝对估值)
-      - 并购重组案例
-      - 募投管退 全流程
-    low_quality_signals:
-      - 投行销售
-      - 资本运作顾问
-      - 渠道融资
-    star_examples:
-      - context: 中金 IBD 暑期实习,跟一个消费品 IPO 项目
-        task: 一周内完成同业可比公司分析(comps)+ DCF + 估值区间报告
-        action: 拉了 8 家可比上市公司财务数据 + 行业增长假设建 DCF + 用 EV/Sales 校准估值,作出 30-35x PE 区间建议
-        result: 估值区间被主席最终定价采纳,IPO 当日开盘 +18%
-      - context: 高瓴 PE 实习,看 SaaS 标的
-        task: 评估一家 to-B 数据库公司 Series C
-        action: 跑 NDR / LTV/CAC / Rule of 40 三个 SaaS 核心指标,做敏感性分析 + 同业 multiple 对照
-        result: 建议 cap valuation @ 8x ARR,实际 deal 按 7.5x ARR 完成,IRR 预期 22%
-    followup_templates:
-      - 你做的 DCF / Comps 哪个更有说服力?为什么客户/投委会更信哪一个?
-      - 估值区间最敏感的 2 个 input 是什么?变 1 个百分点估值变多少?
-      - LBO 模型里你最关注的 covenant 是哪一条?为什么?
-      - 你看过的 deal 里,最后没投/没成的原因是什么?
-
-  - canonical: 卖方研究·S&T
-    description: 券商研究所 (sell-side research) + Sales & Trading (S&T)。出研究报告、做客户路演、做做市交易。
+  - canonical: 卖方研究
+    description: 券商研究所 sell-side equity research。出深度报告、做客户路演、跟踪行业基本面、参与新财富 / 水晶球评选。
     typical_employers:
       - 中信证券研究所
       - 中金公司研究所
@@ -170,23 +174,24 @@ tracks:
       - 海通证券研究所
       - 国信证券研究所
       - 中信建投研究所
-      - Citi S&T
-      - HSBC S&T
+      - 申万宏源研究所
+      - 国泰君安研究所
       - 摩根士丹利研究部
+      - JP Morgan 研究部
     typical_roles:
       - 行业研究员 (sell-side)
       - 宏观策略研究员
       - 固收研究员
-      - Sales (机构销售)
-      - Trader (债券 / 衍生品)
-      - 路演分析师
+      - 金融工程研究员
+      - 首席助理
+      - 研究助理
     high_quality_signals:
       - 卖方深度报告
       - 路演 + 机构对接
-      - 行业 ranking ( 新财富 / 水晶球 )
+      - 行业 ranking (新财富 / 水晶球)
       - Bloomberg 终端使用
       - 利率曲线 / 信用利差
-      - 衍生品定价 (Black-Scholes)
+      - 公司模型 + 行业 chart deck
       - 客户覆盖 / 派点
     low_quality_signals:
       - 期货经纪
@@ -207,18 +212,174 @@ tracks:
       - 卖方派点机制下,你怎么平衡报告质量和 client coverage 数量?
       - 行业 ranking 评选里,大客户的 voting 占多少?写报告时会不会因此 bias?
 
+  - canonical: S&T·FICC·衍生品
+    description: Sales & Trading / FICC / 全球市场部 / 衍生品销售与结构化。外资行 GBM / 中资头部券商 FICC 业务条线。
+    typical_employers:
+      - Goldman Sachs GBM
+      - Morgan Stanley FICC
+      - JP Morgan Markets
+      - Citi GBM
+      - HSBC Markets
+      - UBS S&T
+      - 中金 FICC
+      - 中信证券衍生品
+      - 中信建投 FICC
+      - 国泰君安销售交易
+    typical_roles:
+      - Sales (机构销售)
+      - Trader (债券 / 衍生品 / 外汇)
+      - Structurer
+      - FICC Analyst
+      - 衍生品销售
+      - 跨境业务
+    high_quality_signals:
+      - 利率曲线 / 信用利差
+      - 衍生品定价 (Black-Scholes)
+      - 期权 vol surface
+      - 客户覆盖 / 询价 / RFQ
+      - 套保结构设计
+      - 做市报价 / market making
+      - 头寸管理 PnL attribution
+      - Bloomberg / Reuters 终端
+    low_quality_signals:
+      - 期货零售经纪
+      - 大宗电商运营
+      - 个人金融顾问
+    star_examples:
+      - context: 中金 FICC 利率组暑期实习
+        task: 跟踪 10Y 国债收益率,给 trader 提供 daily desk note
+        action: 结合 CPI / 央行 OMO 操作 + 同业 dealer 报价,建立日度方向打分模型 (rule-based 4 因子)
+        result: 模型一周 hit 4 次,trader 用来 size 当日交易,组里采纳作为日常 input
+      - context: HSBC Markets 外汇衍生品实习,负责亚太客户
+        task: 帮一家出口客户设计 USD/CNH 远期 + 期权组合,锁定 Q4 应收账款
+        action: 跑了客户半年现金流模型 + 历史波动率,设计领口期权方案 (collar)
+        result: 方案被客户采纳,锁定汇率风险敞口约 6 亿美元,desk 拿到 ~ 80 bps 利润
+    followup_templates:
+      - 你最熟悉哪个 product 的定价? Black-Scholes 的哪个 input 你最不信?
+      - desk PnL 和客户 flow 之间的 conflict 你怎么 handle?
+      - 做 market making 时,如果库存累积了一个方向 view 跟你想做的反向,你怎么办?
+      - 利率上行周期里,你会怎么调整 desk 的久期暴露?
+
+  - canonical: 投行·并购·资本市场
+    description: IBD (Investment Banking Division) / M&A / ECM / DCM 资本市场业务。内资头部券商投行 + 外资 bulge bracket。
+    typical_employers:
+      - 中金公司 IBD
+      - 中信证券 IBD
+      - 华泰证券 IBD
+      - 中信建投 IBD
+      - 国泰君安 IBD
+      - 海通证券 IBD
+      - Goldman Sachs IBD
+      - Morgan Stanley IBD
+      - JP Morgan IBD
+      - Citi IBD
+      - UBS IBD
+    typical_roles:
+      - IBD Analyst
+      - M&A Analyst
+      - ECM Analyst
+      - DCM Analyst
+      - 资本市场部
+      - Pre-IPO 财务顾问
+    high_quality_signals:
+      - Pitch book 撰写
+      - 财务建模 LBO / DCF / Comps
+      - 行业 deal 复盘
+      - 尽职调查 DD
+      - 估值方法论 (相对估值 / 绝对估值)
+      - 并购重组案例
+      - IPO 全流程 (申报 / 反馈 / 路演 / 定价)
+      - 同业并购研究
+    low_quality_signals:
+      - 投行销售
+      - 资本运作顾问
+      - 渠道融资
+    star_examples:
+      - context: 中金 IBD 暑期实习,跟一个消费品 IPO 项目
+        task: 一周内完成同业可比公司分析 (comps) + DCF + 估值区间报告
+        action: 拉了 8 家可比上市公司财务数据 + 行业增长假设建 DCF + 用 EV/Sales 校准估值,作出 30-35x PE 区间建议
+        result: 估值区间被主席最终定价采纳,IPO 当日开盘 +18%
+      - context: 摩根士丹利 M&A 实习,看一笔跨境并购
+        task: 评估一家国内消费品对欧洲品牌的收购报价
+        action: 跑了 LBO 模型 + 协同效应建模 + 反垄断时间表,做了 3 档报价敏感性分析
+        result: 报价区间被 MD 采纳,deal 以中位价格 +5% 成交,IRR 预期 18%
+    followup_templates:
+      - 你做的 DCF / Comps 哪个更有说服力?为什么客户/投委会更信哪一个?
+      - 估值区间最敏感的 2 个 input 是什么?变 1 个百分点估值变多少?
+      - LBO 模型里你最关注的 covenant 是哪一条?为什么?
+      - 你跟过的 deal 里,最后没成的原因是什么?
+
+  - canonical: 一级股权·PE/VC
+    description: PE / VC / Buyout / Growth / 产业资本 / CVC。看 deal、看尽调、看商业判断、看退出路径。
+    typical_employers:
+      - 高瓴投资
+      - 红杉中国
+      - 鼎晖投资
+      - 弘毅投资
+      - 华平投资
+      - 凯雷投资
+      - KKR
+      - TPG
+      - 黑石
+      - 淡马锡
+      - 君联资本
+      - IDG 资本
+      - 经纬创投
+      - 启明创投
+    typical_roles:
+      - PE Analyst
+      - VC Analyst
+      - 投资经理 / 投资经理助理
+      - 战略投资分析师
+      - 产业基金投资
+      - Pre-IPO 投资分析师
+    high_quality_signals:
+      - 尽职调查 DD
+      - 估值方法论 (相对估值 / 绝对估值)
+      - 商业模式拆解
+      - 行业空间 market sizing
+      - 募投管退 全流程
+      - 投后管理
+      - SaaS / 消费 / 医药 / 半导体 等垂直行业积累
+      - LP / GP 关系
+    low_quality_signals:
+      - PE 募资销售
+      - LP 渠道运营
+      - 财务投资顾问 (零售端)
+    star_examples:
+      - context: 高瓴 PE 实习,看 SaaS 标的
+        task: 评估一家 to-B 数据库公司 Series C 是否值得 lead 投
+        action: 跑 NDR / LTV/CAC / Rule of 40 三个 SaaS 核心指标,做敏感性分析 + 同业 multiple 对照
+        result: 建议 cap valuation @ 8x ARR,实际 deal 按 7.5x ARR 完成,IRR 预期 22%
+      - context: 红杉中国 VC 实习,看一家半导体设备早期项目
+        task: 在 Series A 阶段评估技术路线 + 团队 + 市场空间,判断是否进入下轮跟投池
+        action: 比对国际同业技术路线 / 客户量产时间表 / 创始团队大厂背景,做风险打分
+        result: 该项目被纳入跟投池,半年后 Series B 进入,公司账面 +1.8x
+    followup_templates:
+      - 你看过的项目里,最后被 IC 否决的核心理由是什么?
+      - 商业模式拆解时,你最关注的 unit economics 指标是哪一个?
+      - SaaS / 消费 / 医药 / 硬科技 — 你最擅长哪一个垂直?为什么?
+      - 投后管理里,GP 能真正 add value 的最大方向是什么?
+
   - canonical: 银行·总行核心
-    description: 国有六大 + 股份行的总行管培生 / 总行核心部门 (市场 / 投行 / 国际业务 / 金融市场)。注意:不是普通柜员 / 客户经理。
+    description: 国有大行 + 股份行 总行核心部门 (市场 / 投行 / 国际业务 / 金融市场 / 资管子) + 政策行 (国开 / 进出口 / 农发) + 外管 / 交易所 / 金融基础设施 (上清 / 中证登)。**不**是普通柜员 / 客户经理。
     typical_employers:
       - 工商银行总行
       - 中国银行总行
       - 建设银行总行
+      - 农业银行总行
       - 招商银行总行
       - 平安银行总行
       - 中信银行总行
       - 邮储银行总行
       - 浦发银行总行
       - 兴业银行总行
+      - 国家开发银行
+      - 中国进出口银行
+      - 上海证券交易所
+      - 深圳证券交易所
+      - 中国外汇交易中心
+      - 上海清算所
     typical_roles:
       - 总行管培生
       - 金融市场部
@@ -227,7 +388,10 @@ tracks:
       - 公司金融部
       - 资产管理部
       - 风险管理部
-      - 总行科技岗 (信息科技部)
+      - 同业业务部
+      - 政策行 业务岗
+      - 交易所 业务岗
+      - 外管中央外汇业务中心
     high_quality_signals:
       - 总行核心部门
       - 跨境结算
@@ -236,6 +400,8 @@ tracks:
       - 资产负债管理 ALM
       - 风险计量 / RWA / 巴塞尔协议
       - FICC
+      - 外汇业务
+      - 政策性业务
     low_quality_signals:
       - 柜员
       - 远程客户经理
@@ -248,34 +414,37 @@ tracks:
         task: 跟踪客户外汇敞口,设计远期 + 期权组合
         action: 用客户半年现金流模型 + 行权区间历史波动率,设计领口期权组合方案
         result: 方案被三家客户采纳,锁定汇率风险敞口约 8 亿
-      - context: 工行投资银行部债承小组实习
-        task: 协助跟一单中票发行
-        action: 做主体评级模型 + 同业可比定价 + 投资者路演 deck
-        result: 中票发行成功,认购倍数 2.3x,Coupon 比同业低 5bps
+      - context: 国家开发银行海外项目融资部实习
+        task: 跟一笔东南亚基建主权贷款
+        action: 做国别风险评估 + 项目现金流预测 + 同业银团结构设计,出立项报告
+        result: 项目获批立项,授信额度 5 亿美元,作为银团 lead arranger
     followup_templates:
       - 总行核心部门和分行业务条线最大的差异是什么?为什么你选总行?
       - FICC 业务里你最熟悉哪一个 product?讲一次具体定价或 hedging 经历。
-      - 银行的资产负债表压力测试怎么设计 scenario?
+      - 政策性银行和商业银行的项目评估口径有什么差异?
       - 巴塞尔协议下,如果资本充足率压线,你建议银行做什么?
 
   - canonical: 监管·体制内
-    description: 央行 / 证监会 / 银保监会 / 国资委系统 / 国央企集团。考公 / 系统内编制岗。
+    description: 央行 / 证监会 / 银保监 / 国资委系统 / 国央企集团 / 主权基金。考公 / 系统内编制岗。注 — 政策行 / 外管 / 交易所 / 金融基础设施已划归 银行·总行核心 (2026-05-23)。
     typical_employers:
       - 中国人民银行
       - 证监会
-      - 银保监会
-      - 国家外管局
-      - 中投公司
-      - 中金资本 (体制内子公司)
-      - 国资委央企总部
-      - 中国诚通
+      - 国家金融监督管理总局
       - 中央汇金
+      - 中投公司
+      - 全国社保基金理事会
+      - 国务院国资委
+      - 中国诚通
+      - 中国国新
+      - 国资委直属央企总部
     typical_roles:
       - 央行金融研究岗
       - 证监会监管岗
+      - 监管局市场处
       - 国央企财务 / 投资发展部
       - 主权基金研究员
       - 政府引导基金投资经理
+      - 国资委 业务岗
     high_quality_signals:
       - 政策研究
       - 监管科技 RegTech
@@ -283,6 +452,8 @@ tracks:
       - 跨境资本流动 BoP
       - 中央储备资产管理
       - 国资委监管框架
+      - 货币政策传导
+      - 资本市场改革政策
     low_quality_signals:
       - 系统外销售
       - 渠道营销
@@ -299,6 +470,7 @@ tracks:
       - 你选体制内的核心理由是什么?是不是看重稳定性?如果是稳定性,你怎么看 35 岁瓶颈?
       - 监管视角和市场视角对同一个产品的看法常常不同,讲一次你能讲的例子。
       - 政策研究和商业研究最大的区别是什么?你更适合哪一种?
+      - 央行 / 证监会 / 国资委 对一个金融创新政策的态度往往不一致,你怎么理解这种差异?
 
   - canonical: 金融科技
     description: 互联网公司金融子板块 + 持牌金融科技 + 第三方支付。蚂蚁 / 微众 / 京东数科是典型。也含跨境支付 / 区块链应用。
@@ -348,13 +520,15 @@ tracks:
       - 你怎么看央行数字货币 e-CNY 对支付市场的影响?
       - 跨境支付里最难的合规问题是什么?
 
-  - canonical: 管理咨询·MBB
-    description: MBB + Tier-2 战略咨询 / 四大 Deals & Strategy / FAS 财务咨询。金融行业相关的咨询项目。
+  - canonical: 咨询·MBB+Tier2
+    description: MBB + Tier-2 战略咨询 (罗兰贝格 / Oliver Wyman / 科尔尼 / LEK) + 四大 Deals / FAS / Strategy。覆盖战略咨询 / 财务咨询 / 估值 / 尽调全口径。
     typical_employers:
       - 麦肯锡
       - 波士顿咨询 BCG
       - 贝恩 Bain
-      - 罗兰贝格
+      - 罗兰贝格 Roland Berger
+      - 科尔尼 Kearney
+      - Oliver Wyman
       - LEK
       - 普华永道思略特
       - 德勤 Monitor
@@ -368,6 +542,7 @@ tracks:
       - 财务咨询顾问
       - 交易服务顾问 (Deal advisory)
       - 估值 (Valuation) 顾问
+      - 商业尽调 CDD 顾问
     high_quality_signals:
       - MECE 思维
       - 行业研究 / market sizing
@@ -376,6 +551,7 @@ tracks:
       - 财务尽调 FDD
       - 商业尽调 CDD
       - 估值模型
+      - PE 客户合作经验
     low_quality_signals:
       - 销售顾问
       - 营销咨询
@@ -395,25 +571,31 @@ tracks:
       - PE 客户做 CDD 和买方公司做 CDD 关注点有什么不同?
       - 一周时间完成 FDD,你是怎么 prioritize 工作的?哪些必须做,哪些可以 skip?
 
-  - canonical: 战略咨询
-    description: 非金融行业聚焦的 strategy 岗 / 公司战略组 / 通用咨询。新增于 2026-05-21,与 管理咨询·MBB 区分。
+  - canonical: 企业战略·管培·实业金融
+    description: 互联网公司战略部 / 战投 / Corp Dev + 实业管培生 + 实业集团金融岗 / 财务部 / 投融资部。SAIF 学生从金融能力迁移到产业 / 实业的主流出口。
     typical_employers:
-      - 罗兰贝格
-      - 埃森哲战略
-      - IBM 咨询
-      - Oliver Wyman
-      - Kearney 科尔尼
-      - 中欧国际工商学院 CDC
-      - 阿里战略组
-      - 美团战略与投资部
       - 字节跳动战略部
+      - 美团战略与投资部
+      - 阿里战略组
       - 腾讯战略发展部
+      - 京东战投
+      - 拼多多战略
+      - 华为战略部
+      - 远景动力 管培
+      - 中粮投资部
+      - 中远海运战投
+      - 招商局战投
+      - 中国移动战略部
+      - 麦当劳中国管培
     typical_roles:
-      - 战略咨询顾问
-      - 公司战略 Senior Associate
-      - Corp Dev / Strategy
       - 战略分析师
+      - Corp Dev / Strategy
+      - 战略与投资
+      - 公司战略 Senior Associate
       - 业务咨询顾问
+      - 实业管培生
+      - 集团财务部
+      - 投融资部
     high_quality_signals:
       - 行业分析 / 竞争格局
       - 商业模式 / 增长曲线
@@ -422,24 +604,25 @@ tracks:
       - 三年规划 / OKR 拆解
       - 跨部门访谈 / stakeholder 对齐
       - 增长引擎拆解
+      - 集团投融资项目
     low_quality_signals:
       - 销售战略
       - 营销策划
       - 渠道执行
     star_examples:
-      - context: 罗兰贝格 Summer Associate,客户是头部新能源车企
-        task: 评估海外建厂 vs 出口策略哪条路径 ROI 更高
-        action: 跑 10+ 国家政策梳理 + 制造成本拆解 + 与销售/供应链 6 个 stakeholder 访谈
-        result: 报告促成客户战略指导委员会通过墨西哥建厂方案,客户 review 拿 strong
       - context: 美团战略部实习,核心议题为同城零售竞争格局
         task: 拆解 美团/京东到家/朴朴/叮咚 4 家增长引擎差异
         action: 用 unit economics 框架对比单仓 GMV/履约成本/复购率,跑 30+ 一线运营访谈
         result: 输出 deck 进入战略月会,推动公司加大社区集采补贴 SKU 池 1.5x
+      - context: 远景动力 管培生轮岗,海外事业部
+        task: 评估欧洲建厂 vs 出口策略哪条路径 ROI 更高
+        action: 跑 10+ 国家政策梳理 + 制造成本拆解 + 与销售/供应链 6 个 stakeholder 访谈
+        result: 报告促成战略指导委员会通过墨西哥建厂方案,被评为 Q3 优秀管培生
     followup_templates:
-      - 你怎么界定 战略咨询 vs 管理咨询 项目的边界?这次属于哪种?
+      - 你怎么界定 战略咨询 vs 企业内战略组 项目的边界?这次属于哪种?
       - 多个 stakeholder 给出冲突方向时你怎么收敛?用了什么框架?
+      - 实业管培和互联网战略部最大的差异在你看来是什么?
       - 你提的方案在落地阶段遇到最大的阻力是什么?
-      - 如果重做这个项目你会改哪一步?
 
   - canonical: 大宗·能源
     description: 大宗商品贸易 / 能源 / 航运 / 矿业 / 农产品。LDC / Cargill / 托克 / 中石油国际 等。新增于 2026-05-21。

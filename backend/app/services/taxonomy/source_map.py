@@ -1,4 +1,4 @@
-"""把 crawler 的 source 标识映射到 8 大 canonical finance track。
+"""把 crawler 的 source 标识映射到 13 大 canonical finance track。
 
 Phase B (2026-05-16): 99113 行 Job 里只有 0% 跑过 LLM enrich(track_predicted
 留空),但每行都有 source。复用 Phase F 已经在 coverage_truth.yaml 里钉好的
@@ -6,7 +6,7 @@ canonical_tracks 映射,把 source 反推到 canonical,实现 backfill + 新增�
 自动打标。
 
 设计原则:
-- **只接受 1:1 source → canonical**。1:N (e.g. hedge_funds = [量化, 二级买方·基本面])
+- **只接受 1:1 source → canonical**。1:N (e.g. hedge_funds = [量化, 私募·基本面])
   歧义太大,让下游 LLM 或 job_title 信号决定,这里返 None。
 - **job_title 优先,source 兜底**。canonicalize_track(job_title) 命中(e.g.
   title 含"量化"/"PE")就直接用,跳过 source 推断 —— job-level 信号比
@@ -94,29 +94,29 @@ def is_ambiguous_source(source: str) -> bool:
 #
 # 关键场景:
 # - 券商的 "研究员 / 行业研究 / 金融工程 / 策略分析" 是 sell-side(卖方研究·S&T),
-#   而 canonical.TRACK_ALIASES 把它通用映到 二级买方·基本面(买方研究)。
+#   而 canonical.TRACK_ALIASES 把它通用映到 公募/资管·投研(买方研究)。
 # - 券商的 "投行业务 / 资本市场" 偶尔在 alias 漏掉的子部门,这里兜一下。
 _SOURCE_AWARE_TITLE_OVERRIDES: list[tuple[str, dict[str, str]]] = [
     (
         "securities_",
         {
-            "研究员":      "卖方研究·S&T",
-            "行业研究":    "卖方研究·S&T",
-            "金融工程":    "卖方研究·S&T",
-            "策略分析":    "卖方研究·S&T",
-            "宏观研究":    "卖方研究·S&T",
-            "固收研究":    "卖方研究·S&T",
-            "权益研究":    "卖方研究·S&T",
-            "债券分析":    "卖方研究·S&T",
-            "股票分析":    "卖方研究·S&T",
-            "策略研究":    "卖方研究·S&T",
-            "信用研究":    "卖方研究·S&T",
-            # IBD/一级 — 即便 alias 已覆盖 'ibd'/'投行',这里再兜一层
-            "投行业务":    "一级市场",
-            "并购重组":    "一级市场",
-            "资本市场":    "一级市场",
-            "ECM":         "一级市场",
-            "DCM":         "一级市场",
+            "研究员":      "卖方研究",
+            "行业研究":    "卖方研究",
+            "金融工程":    "卖方研究",
+            "策略分析":    "卖方研究",
+            "宏观研究":    "卖方研究",
+            "固收研究":    "卖方研究",
+            "权益研究":    "卖方研究",
+            "债券分析":    "卖方研究",
+            "股票分析":    "卖方研究",
+            "策略研究":    "卖方研究",
+            "信用研究":    "卖方研究",
+            # IBD/M&A/资本市场 — 即便 alias 已覆盖 'ibd'/'投行',这里再兜一层
+            "投行业务":    "投行·并购·资本市场",
+            "并购重组":    "投行·并购·资本市场",
+            "资本市场":    "投行·并购·资本市场",
+            "ECM":         "投行·并购·资本市场",
+            "DCM":         "投行·并购·资本市场",
             # 金融科技:券商科技子公司岗,通用 alias 漏抓
             "开发工程师":  "金融科技",
             "算法工程师":  "金融科技",
