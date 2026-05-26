@@ -1,0 +1,145 @@
+{
+  "scenario_id": "workspace_P2_2026_05_20",
+  "scenario_config": {
+    "target_track": "卖方研究 TMT (sell-side research)",
+    "target_jd_ref": "jds_real/02_cicc_tmt_research",
+    "student_tier": "strong",
+    "is_cross_major": false,
+    "generation_notes": "复旦本经济 + SAIF MF, 头部 2 段 (中金研究 TMT + 中信建投 TMT). 卖方研究主力代表."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "顾天瑜",
+      "headline": "复旦经济本 + SAIF MF / TMT 行研双覆盖 / 目标卖方研究首席助理",
+      "email": "gu.tianyu@saif.sjtu.edu.cn",
+      "location": "上海"
+    },
+    "education": [
+      {
+        "school": "上海交通大学上海高级金融学院 (SAIF)",
+        "degree": "硕士",
+        "major": "金融学 (MF)",
+        "start_date": "2025-09",
+        "end_date": "2027-06",
+        "highlights": [
+          "GPA 3.72/4.0, 行业研究专题 A+",
+          "SAIF TMT 行业研究小组负责人"
+        ]
+      },
+      {
+        "school": "复旦大学经济学院",
+        "degree": "本科",
+        "major": "经济学",
+        "start_date": "2021-09",
+        "end_date": "2025-06",
+        "highlights": [
+          "GPA 3.82/4.0, 专业排名 12/142",
+          "复旦经院 TMT 研究协会主席",
+          "本科毕业论文《半导体周期与设备国产化路径研究》获院级优秀"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中国国际金融股份有限公司 (CICC) · 研究部 · TMT 组",
+        "role": "研究实习生",
+        "start_date": "2024-06",
+        "end_date": "2024-12",
+        "bullets": [
+          "覆盖半导体设备子板块 4 家公司 (北方华创 / 中微公司 / 拓荆科技 / 长川科技), 协助首席撰写 9 篇业绩点评 + 2 篇深度报告",
+          "搭建半导体设备国产化率跟踪数据库, 数据源含 SEMI + 海关 + 财报口径, 周度更新, 累计写入 2300 条数据点",
+          "调研服务客户合计 38 次 (公募 / 险资 / 私募), 累计参与电话会议 22 场, 撰写客户路演纪要 12 份",
+          "参与某半导体公司股东大会 + IR 会议 3 次"
+        ]
+      },
+      {
+        "company": "中信建投证券 · 研究发展部 · TMT 组",
+        "role": "研究实习生",
+        "start_date": "2024-01",
+        "end_date": "2024-04",
+        "bullets": [
+          "覆盖 5G / 通信设备子板块 3 家公司 (中兴通讯 / 烽火通信 / 紫光股份), 撰写业绩点评 5 篇",
+          "维护组内通信板块周报, 每周整理 8 家公司公告 + 行业新闻, 累计完成 12 期",
+          "随首席参与 3 次客户路演, 旁听 PM 对通信板块的提问, 写过 4 篇内部 memo",
+          "整理一些客户问询和数据"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "半导体设备国产化跟踪体系",
+        "duration": "2024-06 至 2024-12",
+        "description": "在中金 TMT 实习期间立项, 整合 SEMI 月度数据 + 海关进出口数据 + 上市公司财报口径, 构建半导体设备国产化率月度跟踪模型",
+        "bullets": [
+          "数据来源 3 路 (SEMI / 海关 / 财报), 每月更新 1 次, 累计跟踪 28 个月",
+          "国产化率与板块涨跌幅 6 个月相关性 0.43, 在团队内部用作 leading indicator 之一",
+          "在中金 TMT 组内做了 1 次内部分享"
+        ]
+      }
+    ],
+    "skills": {
+      "technical": [
+        "财务三张表勾稽",
+        "DCF / 相对估值 / PEG",
+        "Python (pandas / matplotlib), 2 年使用经验",
+        "SQL 基础 (查询 + 聚合, 无窗口函数实战)",
+        "Wind API 高级用法"
+      ],
+      "tools": [
+        "Bloomberg Terminal",
+        "Wind 资讯",
+        "Choice 金融终端",
+        "Excel/PPT 专家级"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (托福 105, 能流畅阅读英文 sell-side report)"
+      ]
+    },
+    "awards": [
+      "复旦大学优秀毕业生 (2025)",
+      "CFA Level I 通过 (2024)",
+      "全国大学生数学建模竞赛二等奖 (2023)"
+    ],
+    "candidate_summary": "复旦经济本 + SAIF MF, 2 段头部卖方研究实习 (中金 TMT / 中信建投 TMT). 覆盖半导体设备 + 通信设备, 既有客户服务经验也有数据库建设经验. 希望加入头部券商研究所 (中金 / 中信 / 国君) 做 TMT 首席助理, 3 年内独立带新方向.",
+    "inferred_roles": ["卖方研究员", "行业分析师"],
+    "inferred_tracks": ["头部券商研究所 TMT", "外资行研究部 TMT", "公募 TMT 行研"]
+  },
+  "persona_voice": {
+    "communication_style": "条理清晰, 数字感强, 喜欢用具体数据支持观点",
+    "verbal_tics": [
+      "'数据上看……'",
+      "'我跟你 share 一下'",
+      "'从产业链角度'",
+      "'本质上'"
+    ],
+    "typical_message_length": "中等 (50-90 字), 倾向加 1-2 个数字",
+    "under_pressure": "被追问到知识盲点时会承认'这块我了解不深', 然后转回熟悉领域"
+  },
+  "flow_padding_internship": {
+    "company": "中信建投证券 · 研究发展部 · TMT 组",
+    "bullet_index": 3,
+    "original_text": "整理一些客户问询和数据"
+  },
+  "target_jd_anchors": [
+    "产业链深度",
+    "客户服务能力",
+    "首席思维",
+    "数据库建设",
+    "卖方写作框架"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0].bullets[2]",
+      "hidden_fact": "服务客户 38 次 + 电话会议 22 场 — 卖方研究核心能力 (客户覆盖密度) 但被简历语言淡化"
+    },
+    {
+      "where": "internships[0].bullets[1]",
+      "hidden_fact": "独立维护数据库 2300 条数据点 — 体现工程化能力 + 长期 ownership"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "中信建投实习里的事务性整理工作 — 怕显得只做基础数据",
+    "wants_to_emphasize": "中金 TMT 期间的客户服务密度 + 数据库 ownership — 想突出卖方研究的核心能力"
+  }
+}

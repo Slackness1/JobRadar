@@ -32,7 +32,7 @@ JobRadar 当前 taxonomy 是 13 canonical 金融赛道（公募/资管·投研�
 
 1. **细颗粒 taxonomy** —— 至少 3 个 dimension（strategy_type / industry_focus / institution_tier）的发现性 taxonomy，每个 dimension 下有 XHS 数据驱动出的 sub-categories
 2. **共识层级标注** —— 每个 sub-cat 标注共识强度（高/中/低），来源于 XHS + 就业报告 + Pony 现有 insights 三源交叉
-3. **端到端 demo** —— 输入 P1 简历（林思远），输出 top 5 投研岗推荐 + 每条带 KB-backed 理由（引用 XHS 学姐学长 verbatim quote）
+3. **端到端 demo（4 个投研画像）** —— 输入 4 份 SAIF 投研 persona（P1 公募行研 / P2 卖方 TMT / P3 私募基本面跨专业 / P6 量化私募），各输出 top 5 推荐 + KB-backed 理由（引用 XHS verbatim quote），并通过"taxonomy 区分力矩阵"验证系统能否真正分清不同画像
 4. **XHS 知识库种子** —— 每个 sub-cat 至少 5-10 条代表性 verbatim quote 入 `xhs_insights` 表
 5. **10 家 demo 公司清单** —— 综合 XHS 高频 + 就业报告流向 + 多源共识，自动选出
 
@@ -49,8 +49,9 @@ JobRadar 当前 taxonomy 是 13 canonical 金融赛道（公募/资管·投研�
 - `docs/taxonomy-投研-final-v1.md` —— taxonomy 文档，带共识层级
 - `backend/data/xhs/raw/<keyword>/{notes,comments}.csv` —— 全部原始数据落地
 - `xhs_notes` + `xhs_insights` 表填充
-- `scripts/demo_p1_match.py` —— 给 P1 简历跑一次匹配，输出 top 5 推荐
-- 跑完报告写 `docs/eval/<完工日期>-投研-demo-report.md`
+- `backend/data/personas/P{1,2,3,6}.{pdf,json}` —— 4 个 SAIF 投研 persona 源数据（已从飞书 `00_personas-saif/` 同步）
+- `scripts/demo_persona_match.py` —— 对 4 份简历分别跑匹配，各输出 top 5 推荐
+- 跑完报告写 `docs/eval/<完工日期>-投研-demo-report.md`（含 4 persona 推荐结果 + taxonomy 区分力矩阵评估）
 
 ---
 
@@ -229,27 +230,68 @@ sub_cat_quotes:
 
 ---
 
-## 7. 端到端 Demo 链路
+## 7. 端到端 Demo 链路（4 个投研画像）
 
-跑完上述发现 + 合成后，针对 P1 简历（林思远）走一次端到端：
+跑完 taxonomy 发现 + 合成后，针对 **4 份 SAIF 投研 persona** 走完整链路：
 
-### 7.1 学生分类器（针对 P1）
+### 7.0 4 个 demo persona 画像速览
 
-输入：林思远简历 全文 + final taxonomy
-输出：
+| Persona | 学校 + 实习 | 目标方向 | 测试什么 |
+|---|---|---|---|
+| **P1 林思远** | 清华本经济 + 中信研 + 易方达消费 + 高瓴 PE | 头部公募基本面（消费+医药） | 主流学霸画像；80 亿 deal size 隐藏亮点能否被挖出 |
+| **P2** | 复旦本经济 + 中金 TMT + 中信建投 TMT | 卖方研究 TMT | 卖方核心能力（客户覆盖密度 38 次 / 数据库 2300 点）能否被识别 |
+| **P3** | 上交本数学 + 中型公募 + 某私募 | 私募 / 资管基本面（Quantamental 倾向） | **跨专业**（理工→金融）；LSTM/Transformer 量化基本面结合能否被认为是稀缺技能 |
+| **P6** | 上交本数学+CS + 九坤/乾象级 2 段 | 头部量化私募（中频+alpha） | 量化主力画像；alpha 因子 sharpe>0.8 + backtest 性能优化能否被认为是高产出 |
 
+### 7.1 学生分类器（对 4 个 persona 跑同一 prompt）
+
+每个 persona 输入：简历 PDF + JSON 上帝视角字段（`hidden_highlights` / `target_jd_anchors` / `persona_voice`），LLM 抽出三维标签 + 核心能力栈：
+
+**P1 期望输出：**
 ```yaml
 student_p1:
   primary:
     strategy_type: 基本面权益
     industry_focus: [消费, 医药]    # 双覆盖
     institution_tier_target: [一线公募, 头部主观私募]
-  secondary_signals:
-    - 一级股权 PE 研究端（高瓴实习）
+  secondary_signals: [一级股权 PE 研究端（高瓴实习）]
   core_skills: [财务建模 DCF, 草根调研, Python pandas/Airflow, SQL, 时间序列计量]
-  weak_signals:
-    - 港股 / 海外（未涉及）
-    - 量化（未涉及，纯主动管理路径）
+  hidden_highlights_identified: [80 亿 deal size, 跨 3 行业可比公司估值]
+```
+
+**P2 期望输出：**
+```yaml
+student_p2:
+  primary:
+    strategy_type: 卖方研究
+    industry_focus: [TMT]
+    institution_tier_target: [卖方研究所]    # 中信 / 中金 / 海通研究所
+  core_skills: [产业链深度分析, 客户服务（电话会议 / 路演）, 数据库建设, 写作框架]
+  hidden_highlights_identified: [服务客户 38 次, 独立维护 2300 数据点]
+```
+
+**P3 期望输出：**
+```yaml
+student_p3:
+  primary:
+    strategy_type: 基本面权益
+    industry_focus: [跨行业 / Quantamental 倾向]
+    institution_tier_target: [中型公募, 头部主观私募]
+  secondary_signals: [量化 / 量化基本面结合]
+  core_skills: [财务勾稽, LSTM / Transformer 时序模型, 独立 thesis, backtest]
+  cross_major_signal: true    # 数学本科 → 金融
+  hidden_highlights_identified: [被 PM challenge 3 次后修订（承压思辨）]
+```
+
+**P6 期望输出：**
+```yaml
+student_p6:
+  primary:
+    strategy_type: 量化
+    industry_focus: null    # 量化不强依赖 industry
+    institution_tier_target: [头部量化私募, 中型量化私募]
+  core_skills: [alpha 因子开发, 回测框架优化, 高频订单簿, 机器学习 + 金融, IC / sharpe 指标体系]
+  hidden_highlights_identified: [backtest 18→7 分钟（60% 性能优化）, 因子入库 4 个 sharpe>0.8]
 ```
 
 ### 7.2 岗位分类器（针对 demo 10 家公司）
@@ -276,22 +318,46 @@ job_jobid_xxx:
   enrichment_confidence: high
 ```
 
-### 7.3 匹配 + 推荐输出
+### 7.3 匹配 + 推荐输出（4 persona 各 top 5）
+
+**P1 期望 top 5**：嘉实消费组 / 易方达消费组（回炉）/ 华夏医药组 / 高毅资产消费研究员 / 富国基金大消费组
+
+**P2 期望 top 5**：中金 TMT 研究所 / 中信证券 TMT 组 / 海通 TMT / 招商 TMT / 国君 TMT（卖方主导，**不出现公募行研**）
+
+**P3 期望 top 5**：景林资产研究员 / 中欧基金研究 / 宁泉资产 / 鸣石投资基本面组（如有）/ 工银瑞信研究（**跨专业友好的中型公募/私募**，**不出现需要 strong industry 网络的一线公募一线 sector head**）
+
+**P6 期望 top 5**：幻方量化研究员 / 九坤多因子 / 明汯高频策略 / 灵均机器学习 / 鸣石投资量化组（**完全不出现基本面研究岗**）
+
+每条推荐的 reasoning 模板：
 
 ```yaml
-p1_recommendations:
-  - rank: 1
-    job: 嘉实基金 消费组研究员（暑期实习）
-    match_score: 0.93
-    reasoning:
-      - "你在易方达消费组的实习经历，与本岗目标行业 100% 重合"
-      - "你的白酒批价-动销 VAR/VECM 模型，正是消费组研究员需要的量化建模能力"
-    xhs_evidence:
-      - quote: "嘉实消费组带新人的方式跟易方达类似，都是先给一个细分子赛道让你深度跟踪"
-        source: xhs_post_xxx
-    risk_signals: []
-  # ... 4 more ...
+- rank: 1
+  job: 嘉实基金 消费组研究员（暑期实习）
+  match_score: 0.93
+  reasoning:
+    - "你在易方达消费组的实习经历，与本岗目标行业 100% 重合"
+    - "你的白酒批价-动销 VAR/VECM 模型，正是消费组研究员需要的量化建模能力"
+  xhs_evidence:
+    - quote: "嘉实消费组带新人的方式跟易方达类似，都是先给一个细分子赛道让你深度跟踪"
+      source: xhs_post_xxx
+  risk_signals: []
 ```
+
+### 7.4 Taxonomy 区分力验证矩阵（demo 最关键的评估）
+
+跑完 4 个 persona 的推荐后，**人工 + LLM 双重检查** 4 个对比维度：
+
+| 测试维度 | 对比 | 通过判据 |
+|---|---|---|
+| **strategy 主轴区分** | P1 (基本面) vs P6 (量化) | P1 top 5 不出现"量化岗"；P6 top 5 不出现"行业研究员"。**0 误推** |
+| **同 strategy 不同 tier** | P1 (公募基本面) vs P3 (私募基本面) | P1 top 5 至少 3 个一线公募；P3 top 5 至少 3 个中型公募/私募。tier 重叠率 ≤ 40% |
+| **同 industry 不同 side** | P1 (买方消费医药) vs P2 (卖方 TMT) | P1 top 5 ≥ 4 个买方；P2 top 5 ≥ 4 个卖方。买卖方混淆 = 红线 |
+| **隐藏亮点挖掘** | P1/P2/P3/P6 各自的 hidden_highlights | 每个 persona 的 reasoning 字段中，≥ 1 个 highlight 被显式引用 |
+| **跨专业友好度** | P3 (理工→金融) | top 5 推荐中，≥ 1 条 reasoning 提到"跨专业 + 量化优势"或类似跳板表述 |
+
+**区分力矩阵得分** = 通过条数 / 5。**≥ 4 通过即认为 demo 验证成功**（taxonomy 有真区分力）。
+
+任何一条不通过 → 写入 `docs/eval/<完工日期>-投研-demo-report.md` 的"待改进"section，作为后续迭代输入。
 
 ---
 
@@ -345,6 +411,7 @@ p1_recommendations:
 - `backend/data/xhs/raw/<keyword>/{notes,comments}.csv` —— 全部 ~2500 帖原始数据
 - `backend/data/xhs/raw/_taxonomy_extracts/` —— DeepSeek dual schema 抽取 JSONL
 - `backend/data/saif_employment_reports_extracted.json` —— 3 年报告流向结构化
+- `backend/data/personas/P{1,2,3,6}.{pdf,json}` —— 4 个 SAIF 投研 persona 源数据（已从飞书同步）
 
 ### 10.3 DB
 
@@ -357,9 +424,10 @@ p1_recommendations:
 - `scripts/xhs_discovery_subagent.py` —— 6 个 strategy 大类的 subagent 入口
 - `scripts/extract_employment_reports.py` —— 报告 LLM 抽取
 - `scripts/opus_taxonomy_synthesis.py` —— Opus 合成入口
-- `scripts/classify_student.py` —— 学生分类器
+- `scripts/classify_student.py` —— 学生分类器（对 4 persona 批量跑）
 - `scripts/enrich_jobs_v2.py` —— 岗位分类器（按 demo 10 家公司 scoped）
-- `scripts/demo_p1_match.py` —— P1 端到端跑
+- `scripts/demo_persona_match.py` —— 对 P1/P2/P3/P6 各跑一次匹配，输出 4 份推荐
+- `scripts/eval_taxonomy_discrimination_matrix.py` —— §7.4 区分力矩阵自动评估
 
 ---
 
@@ -391,9 +459,10 @@ p1_recommendations:
 | Subagent 框架 + V1-V3 跑通 | 1.5 天 | 主体 |
 | DeepSeek dual schema 抽取脚本 | 0.5 天 | 主体 |
 | Opus 合成 + taxonomy 输出 | 1 天 | 主体 |
-| 学生 + 岗位 分类器 + demo 端到端 | 1 天 | 主体 |
+| 学生 + 岗位 分类器（4 persona）+ demo 端到端 | 1.5 天 | 主体（扩 4 persona 多花 0.5 天） |
+| 区分力矩阵评估脚本 + 跑 + 写报告 | 0.5 天 | 收官 |
 | 评估报告 + 文档收尾 | 0.5 天 | 收官 |
-| **合计** | **~5-6 天** | |
+| **合计** | **~5.5-6.5 天** | |
 
 ---
 
