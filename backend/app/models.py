@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary, event
+from sqlalchemy import Boolean, Column, Integer, Text, Float, DateTime, ForeignKey, UniqueConstraint, LargeBinary, event, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -1013,3 +1013,24 @@ class UserSession(Base):
     revoked_at = Column(DateTime, nullable=True)
     ua = Column(Text, nullable=True)
     ip = Column(Text, nullable=True)
+
+
+class XHSTaxonomyExtract(Base):
+    """Taxonomy 字段独立表 (跟 xhs_insights 拆开, 后者存 KB 5-type)。"""
+    __tablename__ = "xhs_taxonomy_extracts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    post_id = Column(Text, nullable=False, index=True)
+    url = Column(Text, nullable=False)
+    post_time = Column(Text, nullable=True)
+    author_uid = Column(Text, nullable=True, index=True)
+    relevance_score = Column(Float, nullable=False, default=0.0)
+    strategy_signals_json = Column(Text, nullable=False, default="[]")
+    industry_signals_json = Column(Text, nullable=False, default="[]")
+    institution_signals_json = Column(Text, nullable=False, default="[]")
+    discovered_sub_categories_json = Column(Text, nullable=False, default="[]")
+    company_role_pairs_json = Column(Text, nullable=False, default="[]")
+    dimension_distinctions_json = Column(Text, nullable=False, default="[]")
+    extraction_confidence = Column(Float, nullable=False, default=1.0)
+    strategy_bucket = Column(Text, nullable=True, index=True)
+    created_at = Column(DateTime, server_default=func.current_timestamp())
