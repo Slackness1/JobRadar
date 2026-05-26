@@ -18,6 +18,8 @@ rapidocr-onnxruntime>=1.4.0
 opencv-contrib-python-headless>=4.10.0
 numpy>=1.24.0
 
+pdfplumber==0.11.4
+
 # Testing + fixtures
 vcrpy==6.0.1
 requests-mock==1.12.1
