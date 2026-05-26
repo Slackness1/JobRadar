@@ -5100,3 +5100,873 @@
   background: #fff5ed;
   box-shadow: 0 0 0 1px var(--terracotta);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * P1 (2026-05-26) — CoachPane / RewritePane / ChatEmpty / StarStepper / etc.
+ *
+ * 决策 ⑥a (Coach wrap): CoachPane 只换视觉外壳, plan-mode 业务逻辑由
+ * MiddleChatPane 透传 (children).
+ * 决策 ①a (Rewrite 2 候选): 不强行 v3 placeholder.
+ *
+ * Scope: 所有选择器以 .workspace-hifi__ 开头, 不污染 .hf 根 / /upload / /interview.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* ── CoachPane shell ───────────────────────────────────────────────────── */
+.workspace-hifi__coach-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--parchment);
+  border-right: 1px solid var(--border-warm);
+  animation: rc-fade-in 0.2s ease-out;
+  overflow: hidden;
+}
+
+.workspace-hifi__coach-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  background: linear-gradient(135deg, var(--terracotta-wash) 0%, #fff5ed 100%);
+  border-bottom: 1.5px solid var(--terracotta);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-ribbon-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--terracotta);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-ribbon-title-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workspace-hifi__coach-ribbon-overline {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.workspace-hifi__coach-ribbon-overline-sep {
+  color: var(--ring-warm);
+}
+
+.workspace-hifi__coach-ribbon-overline-sub {
+  color: var(--olive);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.workspace-hifi__coach-ribbon-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.workspace-hifi__coach-ribbon-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--terracotta);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-ribbon-logo[data-tone='B'] {
+  background: var(--coral);
+}
+.workspace-hifi__coach-ribbon-logo[data-tone='C'] {
+  background: var(--warm-sand);
+  color: var(--olive);
+}
+
+.workspace-hifi__coach-ribbon-company {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workspace-hifi__coach-ribbon-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+.workspace-hifi__coach-ribbon-close {
+  color: var(--stone);
+  padding: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: transparent;
+  border: 0;
+  transition: background 120ms, color 120ms;
+}
+
+.workspace-hifi__coach-ribbon-close:hover {
+  background: rgba(201, 100, 66, 0.08);
+  color: var(--terracotta);
+}
+
+/* ── CoachPane body (intel quote + plan-mode children slot) ────────────── */
+.workspace-hifi__coach-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-hifi__coach-quote {
+  display: flex;
+  gap: 12px;
+  padding: 14px 22px;
+  margin: 14px 22px 4px;
+  background: var(--ivory);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+.workspace-hifi__coach-quote-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.workspace-hifi__coach-quote-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__coach-quote-overline {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__coach-quote-text {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.workspace-hifi__coach-quote-meta {
+  font-size: 11px;
+  color: var(--stone);
+  margin-top: 4px;
+}
+
+.workspace-hifi__coach-children-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* CoachPane wraps the existing .pane-body--middle div from MiddleChatPane.
+ * That div already has flex / overflow rules; nudge a couple here to keep
+ * the embedded composer flush with the footer ribbon. */
+.workspace-hifi__coach-children-slot > .workspace-hifi__pane-body--middle {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+}
+
+/* ── CoachPane footer ──────────────────────────────────────────────────── */
+.workspace-hifi__coach-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: var(--library-rail);
+  border-top: 1px solid var(--border-warm);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.workspace-hifi__coach-footer-overline {
+  font-size: 10px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-footer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  background: var(--ivory);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-footer-pill-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__coach-footer-pill-label {
+  font-size: 11.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.workspace-hifi__coach-footer-pill-sub {
+  font-size: 10.5px;
+  color: var(--stone);
+}
+
+.workspace-hifi__coach-footer-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+/* ── StarStepper ───────────────────────────────────────────────────────── */
+.workspace-hifi__star-stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 14px 22px 16px;
+  background: linear-gradient(180deg, #fff5ed 0%, var(--ivory) 100%);
+  border-bottom: 1px solid var(--border-warm);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__star-step {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-width: 0;
+  padding-right: 12px;
+}
+
+.workspace-hifi__star-step--pending {
+  opacity: 0.55;
+}
+
+.workspace-hifi__star-step-inner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.workspace-hifi__star-step-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border-warm);
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__star-node {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 13px;
+  background: var(--warm-sand);
+  color: var(--warm-silver);
+}
+
+.workspace-hifi__star-step--done .workspace-hifi__star-node {
+  background: var(--terracotta);
+  color: #fff;
+}
+
+.workspace-hifi__star-step--active .workspace-hifi__star-node {
+  background: #fff;
+  color: var(--terracotta);
+  border: 2px solid var(--terracotta);
+  box-shadow: 0 0 0 4px rgba(201, 100, 66, 0.14);
+}
+
+.workspace-hifi__star-node-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid var(--terracotta);
+  opacity: 0.6;
+  animation: rc-pulsering 2.4s ease-out infinite;
+}
+
+.workspace-hifi__star-step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.workspace-hifi__star-step-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.workspace-hifi__star-step-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.workspace-hifi__star-step-active-tag {
+  font-size: 10px;
+  color: var(--terracotta);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.workspace-hifi__star-step-summary {
+  font-size: 11px;
+  color: var(--olive);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* ── PhaseTrack (B-1/B-2/B-3/B-4 胶囊) ──────────────────────────────────── */
+.workspace-hifi__phase-track {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__phase-track-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workspace-hifi__phase-track-line {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--border-warm);
+  display: inline-block;
+}
+
+.workspace-hifi__phase-track-line.is-on {
+  background: var(--terracotta);
+}
+
+.workspace-hifi__phase-track-pill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.workspace-hifi__phase-track-pill--pending {
+  background: var(--warm-sand);
+  color: var(--stone);
+}
+
+.workspace-hifi__phase-track-pill--done {
+  background: var(--terracotta-wash);
+  color: var(--terracotta);
+}
+
+.workspace-hifi__phase-track-pill--active {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(201, 100, 66, 0.16);
+}
+
+.workspace-hifi__phase-track-count {
+  margin-left: 6px;
+  font-size: 11.5px;
+  color: var(--olive);
+  font-family: var(--font-mono);
+}
+
+/* ── RewritePane shell ─────────────────────────────────────────────────── */
+.workspace-hifi__rewrite-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--parchment);
+  border-right: 1px solid var(--border-warm);
+  animation: rc-fade-in 0.2s ease-out;
+  overflow: hidden;
+}
+
+.workspace-hifi__rewrite-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-warm);
+  background: linear-gradient(180deg, var(--terracotta-wash) 0%, var(--ivory) 100%);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__rewrite-header-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__rewrite-header-title-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.workspace-hifi__rewrite-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.workspace-hifi__rewrite-header-sub {
+  font-size: 11.5px;
+  color: var(--olive);
+}
+
+.workspace-hifi__rewrite-body {
+  flex: 1;
+  padding: 20px 28px;
+  overflow-y: auto;
+  max-width: 760px;
+  width: 100%;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.workspace-hifi__rewrite-overline {
+  margin-bottom: 6px;
+}
+
+.workspace-hifi__rewrite-original {
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-hifi__rewrite-original-text {
+  padding: 14px;
+  background: var(--warm-sand);
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--olive);
+}
+
+.workspace-hifi__rewrite-original-hint {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--olive);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.workspace-hifi__rewrite-hint-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ivory);
+  color: var(--terracotta-strong);
+  font-size: 11px;
+  box-shadow: 0 0 0 1px #eccfb6;
+}
+
+.workspace-hifi__rewrite-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  background: var(--ivory);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--olive);
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+.workspace-hifi__rewrite-error {
+  padding: 14px;
+  background: rgba(181, 51, 51, 0.08);
+  border-radius: 10px;
+  color: var(--crimson);
+  font-size: 13px;
+  box-shadow: 0 0 0 1px rgba(181, 51, 51, 0.3);
+}
+
+.workspace-hifi__rewrite-needs-plan {
+  padding: 14px 16px;
+  background: var(--ivory);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--terracotta-wash);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.workspace-hifi__rewrite-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workspace-hifi__rewrite-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  cursor: pointer;
+  background: #fff;
+  border-radius: 14px;
+  border: 0;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  transition: box-shadow 0.15s, transform 0.08s;
+  font: inherit;
+  color: inherit;
+}
+
+.workspace-hifi__rewrite-option:hover {
+  box-shadow: 0 0 0 1px var(--terracotta-wash), 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.workspace-hifi__rewrite-option.is-selected {
+  box-shadow: 0 0 0 2px var(--terracotta), 0 8px 24px rgba(201, 100, 66, 0.10);
+}
+
+.workspace-hifi__rewrite-option-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__rewrite-option-pill {
+  height: 22px;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.workspace-hifi__rewrite-option-selected-pill {
+  height: 22px;
+  font-size: 10.5px;
+}
+
+.workspace-hifi__rewrite-option-len {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--stone);
+}
+
+.workspace-hifi__rewrite-option-regen {
+  color: var(--stone);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  transition: background 120ms, color 120ms;
+}
+
+.workspace-hifi__rewrite-option-regen:hover {
+  background: var(--warm-sand);
+  color: var(--terracotta);
+}
+
+.workspace-hifi__rewrite-option-text {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+
+.workspace-hifi__rewrite-option-why {
+  font-size: 11.5px;
+  color: var(--olive);
+  line-height: 1.5;
+  padding-left: 14px;
+  border-left: 2px solid var(--terracotta-wash);
+}
+
+.workspace-hifi__rc-numeric {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  padding: 0 3px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.workspace-hifi__rewrite-en-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-hifi__rewrite-en-text {
+  padding: 14px;
+  background: var(--ivory);
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+.workspace-hifi__rewrite-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* ── FabricationGuardPanel ─────────────────────────────────────────────── */
+.workspace-hifi__guard-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--ivory);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  margin-top: 6px;
+}
+
+.workspace-hifi__guard-panel.is-alert {
+  background: rgba(181, 51, 51, 0.06);
+  box-shadow: 0 0 0 2px var(--crimson);
+}
+
+.workspace-hifi__guard-panel-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.workspace-hifi__guard-panel.is-alert .workspace-hifi__guard-panel-icon {
+  color: var(--crimson);
+}
+
+.workspace-hifi__guard-panel-body {
+  flex: 1;
+  font-size: 11.5px;
+  color: var(--olive);
+  line-height: 1.55;
+}
+
+.workspace-hifi__guard-panel-headline {
+  color: var(--ink);
+}
+
+.workspace-hifi__guard-panel.is-alert .workspace-hifi__guard-panel-headline {
+  color: var(--crimson);
+}
+
+.workspace-hifi__guard-panel-list {
+  margin: 6px 0 4px;
+  padding-left: 18px;
+  font-size: 11.5px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.workspace-hifi__guard-panel-list li {
+  margin-bottom: 2px;
+}
+
+.workspace-hifi__guard-panel-num {
+  font-family: var(--font-mono);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.workspace-hifi__guard-panel-pass {
+  margin-top: 6px;
+}
+
+.workspace-hifi__guard-panel-link {
+  color: var(--terracotta);
+  cursor: pointer;
+  margin-left: 4px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 11.5px;
+}
+
+.workspace-hifi__guard-panel-link:hover {
+  text-decoration: underline;
+}
+
+/* ── ChatEmpty (P1 4-card empty state) ─────────────────────────────────── */
+.workspace-hifi__chat-empty-v2 {
+  flex: 1;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 720px;
+  width: 100%;
+  align-self: center;
+  animation: rc-fade-in 0.2s ease-out;
+}
+
+.workspace-hifi__chat-empty-v2-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__chat-empty-v2-orb {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__chat-empty-v2-overline {
+  color: var(--terracotta);
+}
+
+.workspace-hifi__chat-empty-v2-h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 6px 0 0;
+}
+
+.workspace-hifi__chat-empty-v2-sub {
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.workspace-hifi__chat-empty-v2-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.workspace-hifi__chat-empty-v2-card {
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  background: var(--ivory);
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  transition: box-shadow 0.15s, transform 0.08s;
+  font: inherit;
+  color: inherit;
+}
+
+.workspace-hifi__chat-empty-v2-card:hover:not(:disabled) {
+  box-shadow: 0 0 0 1px var(--terracotta), 0 6px 18px rgba(201, 100, 66, 0.08);
+}
+
+.workspace-hifi__chat-empty-v2-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.workspace-hifi__chat-empty-v2-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__chat-empty-v2-card-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+}
+
+.workspace-hifi__chat-empty-v2-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-hifi__chat-empty-v2-card-sub {
+  font-size: 12px;
+  color: var(--olive);
+  line-height: 1.5;
+}

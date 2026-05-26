@@ -35,6 +35,7 @@ import {
   postSessionMemory,
   type PlanStateOut,
   type PlanItemWire,
+  type RewriteV0V2Out,
 } from '../api';
 import { RewriteThinkingBubble } from './chat/RewriteThinkingBubble';
 import { CoachThinkingIndicator, type CoachThinkingPhase } from './chat/CoachThinkingIndicator';
@@ -47,6 +48,10 @@ import {
 } from './chat/PlanProgressBar';
 import { PlanFocusPicker } from './chat/PlanFocusPicker';
 import { PlanDraftCard } from './chat/PlanDraftCard';
+import { ChatEmpty } from './chat/ChatEmpty';
+import { CoachPane, type CoachContext } from './coach/CoachPane';
+import { RewritePane, type RewriteBulletContext } from './rewrite/RewritePane';
+import type { StarLetter } from './coach/StarStepper';
 
 export type ChatComposerMode = 'normal' | 'plan';
 
@@ -87,6 +92,25 @@ export interface MiddleChatPaneProps {
   activeJobContext?: { job_id: string; company: string; job_title: string } | null;
   /** "退出岗位定制模式" — clears the job context banner. */
   onClearJobContext?: () => void;
+
+  // ── P1: Coach mode middle-pane takeover (决策 ⑥a) ───────────────────────
+  /** 非空时中栏切换到 CoachPane (wrap 现有 plan-mode 渲染 + 公司 context). */
+  coachContext?: CoachContext | null;
+  /** Coach pane 关闭 → 父清掉 coachContext, 回到正常 chat. */
+  onCloseCoach?: () => void;
+
+  // ── P1: Rewrite middle-pane takeover (决策 ①a) ──────────────────────────
+  /** 非空时中栏切换到 RewritePane. 由 RightResumePane 触发 v0v2 时父 set. */
+  rewriteBulletContext?: RewriteBulletContext | null;
+  /** Rewrite pane 关闭 — 父清掉 rewriteBulletContext. */
+  onCloseRewrite?: () => void;
+  /** v0v2 完整 result (含 rationale + warnings + en_text). 父透传; 没有时
+   *  RewritePane 会 fallback 到 RewriteContext (useRewriteState). */
+  rewriteResult?: RewriteV0V2Out | null;
+  /** ChatEmpty 用 — 简历主人名字 (来自 confirmed_profile.basic_info.name). */
+  studentName?: string;
+  /** ChatEmpty 用 — 今天有几张公司推荐卡 (recommendations.length). */
+  companyCount?: number | null;
 }
 
 const PLAN_TERMINAL_STATUSES = new Set([
@@ -112,6 +136,13 @@ export function MiddleChatPane({
   archiveSlot,
   activeJobContext,
   onClearJobContext,
+  coachContext,
+  onCloseCoach,
+  rewriteBulletContext,
+  onCloseRewrite,
+  rewriteResult,
+  studentName,
+  companyCount,
 }: MiddleChatPaneProps) {
   // ── mode + composer state ───────────────────────────────────────────────
   const [internalMode, setInternalMode] = useState<ChatComposerMode>('normal');
@@ -424,26 +455,25 @@ export function MiddleChatPane({
   }, [draft, handlePlanTurnSend, mode, sendChatMessage, sendDisabled, activeJobContext]);
 
   // ── Render ────────────────────────────────────────────────────────────
-  return (
-    <section
-      className="workspace-hifi__pane workspace-hifi__pane--middle"
-      aria-label="Chat 主区"
-    >
-      <header className="workspace-hifi__pane-header">
-        <span className="workspace-hifi__pane-header-icon" aria-hidden>
-          {I.sparkle(15)}
-        </span>
-        <span>AI 简历助手</span>
-        <span className="workspace-hifi__pane-header-count">
-          {feedbackReady
-            ? mode === 'plan'
-              ? `coach · ${planPhase}`
-              : `${messageCount} 条对话`
-            : '等待简历就绪'}
-        </span>
-      </header>
+  // P1 (2026-05-26): 当 rewriteBulletContext 非空时, 中栏完全切到 RewritePane.
+  // RightResumePane 触发 v0v2 → WorkspaceShell setRewriteBulletContext → 这里
+  // 渲染 RewritePane (改写守卫面板 + 2 候选). 不影响 plan-mode 状态.
+  if (rewriteBulletContext) {
+    return (
+      <RewritePane
+        bullet={rewriteBulletContext}
+        result={rewriteResult ?? null}
+        onClose={() => onCloseRewrite?.()}
+      />
+    );
+  }
 
-      <div className="workspace-hifi__pane-body workspace-hifi__pane-body--middle">
+  // P1: Coach takeover — coachContext 非空时, 中栏切到 CoachPane.
+  // CoachPane wrap (决策 ⑥a) 现有 plan-mode UI; 不重写 plan 业务逻辑,
+  // 只给 ribbon + STAR stepper + footer 视觉外壳. 整个 chat-stream + composer
+  // 仍然由 MiddleChatPane 内部驱动, 通过 children slot 透传进去.
+  const bodyInside = (
+    <div className="workspace-hifi__pane-body workspace-hifi__pane-body--middle">
         {/* 📌 我的档案 — 顶部贴条 (2026-05-20: 从右栏底部搬过来, 更显眼).
             Same ArchivePanel collapsed/expanded behaviour, just placed
             above the chat thread for visibility. */}
@@ -494,11 +524,28 @@ export function MiddleChatPane({
               </span>
             </div>
           )}
-          {chatMessages.length === 0 && feedbackReady && (
+          {chatMessages.length === 0 &&
+            feedbackReady &&
+            !isSendingChat &&
+            mode === 'normal' &&
+            !coachContext &&
+            !rewriteBulletContext && (
+              <ChatEmpty
+                studentName={studentName}
+                companyCount={companyCount}
+                disabled={!canChat}
+                onQuickPick={(prompt) => {
+                  if (!canChat) return;
+                  const opts = activeJobContext?.job_id
+                    ? { activeJobId: activeJobContext.job_id }
+                    : undefined;
+                  void sendChatMessage(prompt, opts);
+                }}
+              />
+            )}
+          {chatMessages.length === 0 && feedbackReady && mode === 'plan' && (
             <div className="workspace-hifi__chat-empty">
-              {mode === 'plan'
-                ? '切到了 coach — 选一段经历或自由聊新经历开始。'
-                : '从输入框发起问题,AI 会带着你的真实经历聊。'}
+              切到了 coach — 选一段经历或自由聊新经历开始。
             </div>
           )}
           {chatMessages.map((m) => (
@@ -699,39 +746,90 @@ export function MiddleChatPane({
           </div>
         </div>
       </div>
+  );
 
-      {/* B-3 切回 normal 确认 modal */}
-      {confirmCancelPlan && (
-        <div
-          className="workspace-hifi__chat-confirm-backdrop"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="workspace-hifi__chat-confirm">
-            <h4>退出 coach?</h4>
-            <p>
-              coach 未完成。退出后已聊的内容会暂存在 plan_json 里,下次切回
-              📌 还能继续 — 但当前 anchor 进度不会自动入档。
-            </p>
-            <div className="workspace-hifi__chat-confirm-actions">
-              <button
-                type="button"
-                className="workspace-hifi__chat-confirm-btn"
-                onClick={() => setConfirmCancelPlan(false)}
-              >
-                继续 coach
-              </button>
-              <button
-                type="button"
-                className="workspace-hifi__chat-confirm-btn is-danger"
-                onClick={confirmCancelPlanFinal}
-              >
-                确认退出
-              </button>
-            </div>
-          </div>
+  const confirmModal = confirmCancelPlan ? (
+    <div
+      className="workspace-hifi__chat-confirm-backdrop"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="workspace-hifi__chat-confirm">
+        <h4>退出 coach?</h4>
+        <p>
+          coach 未完成。退出后已聊的内容会暂存在 plan_json 里,下次切回
+          📌 还能继续 — 但当前 anchor 进度不会自动入档。
+        </p>
+        <div className="workspace-hifi__chat-confirm-actions">
+          <button
+            type="button"
+            className="workspace-hifi__chat-confirm-btn"
+            onClick={() => setConfirmCancelPlan(false)}
+          >
+            继续 coach
+          </button>
+          <button
+            type="button"
+            className="workspace-hifi__chat-confirm-btn is-danger"
+            onClick={confirmCancelPlanFinal}
+          >
+            确认退出
+          </button>
         </div>
-      )}
+      </div>
+    </div>
+  ) : null;
+
+  // ── P1 Coach takeover ─────────────────────────────────────────────────
+  if (coachContext) {
+    // STAR summary 来自 plan_state.current_item — 没拿到 plan 时所有 summary
+    // 为空, stepper 第一节点 (S) 默认 active.
+    const starSummaries: Partial<Record<StarLetter, string>> = {};
+    if (planState?.current_item_id) {
+      const cur = planState.items.find(
+        (it) => it.id === planState.current_item_id,
+      );
+      if (cur?.title) starSummaries.S = cur.title;
+    }
+    return (
+      <>
+        <CoachPane
+          coach={coachContext}
+          anchors={anchors}
+          starSummaries={starSummaries}
+          onClose={() => onCloseCoach?.()}
+          onSwitchChat={() => onCloseCoach?.()}
+        >
+          {bodyInside}
+        </CoachPane>
+        {confirmModal}
+      </>
+    );
+  }
+
+  // ── Default chat / plan-mode render ───────────────────────────────────
+  return (
+    <section
+      className="workspace-hifi__pane workspace-hifi__pane--middle"
+      aria-label="Chat 主区"
+    >
+      <header className="workspace-hifi__pane-header">
+        <span className="workspace-hifi__pane-header-icon" aria-hidden>
+          {I.sparkle(15)}
+        </span>
+        <span>AI 简历助手</span>
+        <span className="workspace-hifi__pane-header-count">
+          {feedbackReady
+            ? mode === 'plan'
+              ? `coach · ${planPhase}`
+              : `${messageCount} 条对话`
+            : '等待简历就绪'}
+        </span>
+      </header>
+
+      {bodyInside}
+
+      {confirmModal}
     </section>
   );
 }

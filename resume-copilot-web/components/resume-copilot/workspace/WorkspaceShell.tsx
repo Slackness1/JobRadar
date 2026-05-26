@@ -37,6 +37,9 @@ import { ArchivePanel } from './archive/ArchivePanel';
 import { WorkspaceConfirmGuide } from './WorkspaceConfirmGuide';
 import { ResizeHandle } from './ResizeHandle';
 import { IntelDrawer } from './intel/IntelDrawer';
+import type { CoachContext } from './coach/CoachPane';
+import type { RewriteBulletContext } from './rewrite/RewritePane';
+import type { RewriteV0V2Out } from '../api';
 
 import './workspace-theme.css';
 
@@ -236,11 +239,59 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     setIntelOpenContext({});
   }, []);
 
+  // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
+  // IntelDrawer 的 "用这些做 Coach 定制" → setCoachContext (中栏切 CoachPane),
+  // 同时关掉 IntelDrawer (中栏 takeover 期间右栏回到 RightResumePane).
+  const [coachContext, setCoachContext] = useState<CoachContext | null>(null);
+
   const handleIntelMock = useCallback(() => {
-    // P0b placeholder — P1 will wire to Coach plan-mode focused on the opened
-    // company. For now just log so we can verify the click signal flows.
-    console.log('[WorkspaceShell] IntelDrawer mock CTA for', intelOpenCompany);
-  }, [intelOpenCompany]);
+    if (!intelOpenCompany) return;
+    setCoachContext({
+      company: intelOpenCompany,
+      ch: intelOpenCompany,
+      pri: intelOpenContext.priority ?? 'A',
+      xhsCount:
+        typeof intelOpenContext.xhsCount === 'number'
+          ? intelOpenContext.xhsCount
+          : undefined,
+    });
+    // 关掉 IntelDrawer 让中栏 takeover 显眼些 (右栏回到 RightResumePane).
+    setIntelOpenCompany(null);
+    setIntelOpenContext({});
+    // 同时把 plan-mode focus picker 打开, 学生选一段经历进 STAR.
+    setPlanFocusRequest({ focusKind: 'experience' });
+  }, [intelOpenCompany, intelOpenContext]);
+
+  const handleCloseCoach = useCallback(() => {
+    setCoachContext(null);
+  }, []);
+
+  // ── P1 Rewrite middle-pane takeover state (2026-05-26) ────────────────
+  // RightResumePane 触发 v0v2 改写时, 通过 onMiddleRewriteRequested 上传 bullet
+  // 上下文给这里; 中栏切到 RewritePane 显示守卫面板 + 2 候选.
+  const [rewriteBulletContext, setRewriteBulletContext] =
+    useState<RewriteBulletContext | null>(null);
+  const [rewriteResult, setRewriteResult] = useState<RewriteV0V2Out | null>(null);
+
+  const handleMiddleRewriteRequested = useCallback(
+    (bulletId: string, originalText: string, sectionTitle?: string) => {
+      setRewriteBulletContext({ bulletId, originalText, sectionTitle });
+      setRewriteResult(null);
+    },
+    [],
+  );
+
+  const handleMiddleRewriteResult = useCallback(
+    (result: RewriteV0V2Out | null) => {
+      setRewriteResult(result);
+    },
+    [],
+  );
+
+  const handleCloseRewrite = useCallback(() => {
+    setRewriteBulletContext(null);
+    setRewriteResult(null);
+  }, []);
 
   const archiveSlot = (
     <ArchivePanel
@@ -307,6 +358,15 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               archiveSlot={archiveSlot}
               activeJobContext={activeJobContext}
               onClearJobContext={handleClearJobContext}
+              coachContext={coachContext}
+              onCloseCoach={handleCloseCoach}
+              rewriteBulletContext={rewriteBulletContext}
+              onCloseRewrite={handleCloseRewrite}
+              rewriteResult={rewriteResult}
+              studentName={
+                profile?.basic_info?.name ?? profile?.basic_info?.full_name ?? ''
+              }
+              companyCount={recommendations?.items?.length ?? null}
             />
             <ResizeHandle
               width={rightWidth}
@@ -333,6 +393,8 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
                 isDemo={isDemo}
                 xResumeUserKey={xResumeUserKey}
                 onExport={onExport}
+                onMiddleRewriteRequested={handleMiddleRewriteRequested}
+                onMiddleRewriteResult={handleMiddleRewriteResult}
               />
             )}
           </div>
