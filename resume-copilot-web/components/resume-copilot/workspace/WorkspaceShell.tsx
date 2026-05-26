@@ -19,6 +19,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import type {
   CopilotMessage,
@@ -34,7 +35,6 @@ import { MiddleChatPane } from './MiddleChatPane';
 import { RightResumePane } from './RightResumePane';
 import { RewriteProvider } from './RewriteContext';
 import { ArchivePanel } from './archive/ArchivePanel';
-import { WorkspaceConfirmGuide } from './WorkspaceConfirmGuide';
 import { ResizeHandle } from './ResizeHandle';
 import { IntelDrawer } from './intel/IntelDrawer';
 import type { CoachContext } from './coach/CoachPane';
@@ -117,10 +117,28 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     currentFitScore = null,
     xResumeUserKey,
     onStartPlanMode,
-    onSessionConfirmed,
+    // P2 (2026-05-26): retained for backward-compat with public-resume-copilot
+    // but no longer triggered from this shell — confirm step moved to the
+    // standalone `/resume-copilot/confirm` page, and a fresh workspace mount
+    // post-confirm re-fetches the session naturally.
+    onSessionConfirmed: _onSessionConfirmed,
   } = props;
+  void _onSessionConfirmed;
 
+  const router = useRouter();
   const needsConfirm = !!session && session.has_confirmed_profile === false;
+
+  // P2 (2026-05-26): If the loaded session hasn't been confirmed yet,
+  // redirect to the dedicated `/resume-copilot/confirm?session_id=N` page
+  // instead of rendering the legacy in-workspace overlay. Effect-only (not
+  // render-time) so SSR / first-paint stays stable. Once the student confirms
+  // there, they return to the workspace with `has_confirmed_profile=true`
+  // and this effect is a no-op (preventing redirect loops).
+  useEffect(() => {
+    if (needsConfirm && session) {
+      router.push(`/resume-copilot/confirm?session_id=${session.id}`);
+    }
+  }, [needsConfirm, session, router]);
 
   // ── Resizable columns (FE-1 polish, 2026-05-20) ─────────────────────────
   // Persist user-chosen widths so they stick across reloads. Defaults match
@@ -306,12 +324,9 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     <div className="hf">
       <RewriteProvider>
         <div className="workspace-hifi" data-testid="workspace-shell">
-          {needsConfirm && session ? (
-            <WorkspaceConfirmGuide
-              sessionId={session.id}
-              onConfirmed={() => onSessionConfirmed?.()}
-            />
-          ) : null}
+          {/* P2 (2026-05-26): legacy WorkspaceConfirmGuide overlay removed.
+              When `needsConfirm` is true, the useEffect above redirects to
+              `/resume-copilot/confirm?session_id=N` (standalone page). */}
           <TopTrackBar
             trackName={currentTrackName}
             fitScore={currentFitScore}

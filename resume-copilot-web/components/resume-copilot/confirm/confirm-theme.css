@@ -1,0 +1,518 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * confirm-theme.css — Resume Copilot Confirm Profile page scope
+ *
+ * Scope: `.hf .rc-confirm` (P2 2026-05-26)
+ *
+ * Layout-specific styles for `/resume-copilot/confirm` — the gateway page
+ * shown after upload + parse finishes. Student confirms parsed resume,
+ * picks track, picks target cities → clicks "确认进入工作台" → workspace.
+ *
+ * Token inheritance: all colors / shadows / radii / fonts come from
+ * `components/hifi/hifi-tokens.css` which is `.hf`-scoped. This file's
+ * selectors are nested under `.rc-confirm` so they never leak to `/`,
+ * `/upload`, `/interview/*`, `/resume-copilot`, or `/resume-copilot/sessions`.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.rc-confirm {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  padding-bottom: 64px;
+}
+
+/* ── Mini topbar ─────────────────────────────────────────────────────────── */
+
+.rc-confirm__topbar {
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rc-confirm__topbar-spacer {
+  flex: 1;
+}
+
+.rc-confirm__step-indicator {
+  font-size: 12.5px;
+  color: var(--stone);
+}
+
+.rc-confirm__step-dots {
+  font-family: var(--font-mono);
+  color: var(--terracotta);
+  letter-spacing: 0.18em;
+}
+
+/* ── Header (file icon + h2 + subtitle) ──────────────────────────────────── */
+
+.rc-confirm__header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 24px;
+}
+
+.rc-confirm__file-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--border-warm), 0 6px 20px rgba(15, 23, 42, 0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--terracotta);
+}
+
+.rc-confirm__title {
+  font-size: 30px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0;
+}
+
+.rc-confirm__subtitle {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.rc-confirm__subtitle strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ── Body — 3 stacked cards ──────────────────────────────────────────────── */
+
+.rc-confirm__body {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rc-confirm__card {
+  background: #fdfbf3;
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-ring);
+}
+
+/* ── Resume summary card ─────────────────────────────────────────────────── */
+
+.rc-confirm__summary {
+  padding: 6px 22px;
+}
+
+.rc-confirm__summary-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 18px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-warm);
+}
+
+.rc-confirm__summary-row:first-child {
+  border-top: none;
+}
+
+.rc-confirm__summary-key {
+  font-size: 12.5px;
+  color: var(--stone);
+  font-weight: 500;
+}
+
+.rc-confirm__summary-value {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.65;
+}
+
+.rc-confirm__summary-value-muted {
+  color: var(--stone);
+}
+
+.rc-confirm__summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rc-confirm__summary-list li {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+/* ── Track block ─────────────────────────────────────────────────────────── */
+
+.rc-confirm__block {
+  padding: 18px 22px;
+}
+
+.rc-confirm__block-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.rc-confirm__block-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.rc-confirm__block-hint {
+  font-size: 12px;
+  color: var(--olive);
+  flex: 1;
+}
+
+.rc-confirm__block-link {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--terracotta);
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.rc-confirm__block-link:hover {
+  background: rgba(201, 100, 66, 0.06);
+}
+
+/* Track list (2-col grid pill-style chips) */
+.rc-confirm__track-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 18px;
+  row-gap: 12px;
+}
+
+.rc-confirm__track-chip {
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.rc-confirm__track-chip:hover:not(.is-active) {
+  background: var(--ivory);
+}
+
+.rc-confirm__track-chip.is-active {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(201, 100, 66, 0.22);
+}
+
+.rc-confirm__track-chip-icon {
+  display: inline-flex;
+  color: var(--charcoal);
+}
+
+.rc-confirm__track-chip.is-active .rc-confirm__track-chip-icon {
+  color: #fff;
+}
+
+.rc-confirm__track-chip-kind {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.rc-confirm__track-chip-badge {
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ── City block ──────────────────────────────────────────────────────────── */
+
+.rc-confirm__city-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rc-confirm__city-pill {
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 0;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.rc-confirm__city-pill:hover:not(.is-on):not(:disabled) {
+  background: var(--ivory);
+}
+
+.rc-confirm__city-pill.is-on {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(201, 100, 66, 0.22);
+  font-weight: 600;
+}
+
+.rc-confirm__city-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── CTAs ────────────────────────────────────────────────────────────────── */
+
+.rc-confirm__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  padding: 24px 0 8px;
+}
+
+.rc-confirm__footnote {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--stone);
+}
+
+/* ── Loading / error states ──────────────────────────────────────────────── */
+
+.rc-confirm__state {
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--olive);
+}
+
+.rc-confirm__error {
+  background: rgba(220, 38, 38, 0.06);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #a8331f;
+  text-align: center;
+}
+
+/* ── Track selection modal (P2 — selection-only, no auto-PUT) ────────────── */
+
+.rc-confirm__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 19, 0.42);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+  padding: 40px;
+  animation: rc-confirm-fade 0.2s ease-out;
+}
+
+@keyframes rc-confirm-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.rc-confirm__modal-card {
+  width: 920px;
+  max-width: 100%;
+  max-height: calc(100vh - 48px);
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.22), 0 0 0 1px var(--ring-warm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rc-confirm__modal-head {
+  padding: 20px 24px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-warm);
+}
+
+.rc-confirm__modal-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 6px;
+}
+
+.rc-confirm__modal-sub {
+  font-size: 13px;
+  color: var(--olive);
+  line-height: 1.55;
+}
+
+.rc-confirm__modal-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  color: var(--stone);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rc-confirm__modal-close:hover {
+  background: var(--ivory);
+}
+
+.rc-confirm__modal-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  background: var(--parchment);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.rc-confirm__modal-card-item {
+  text-align: left;
+  cursor: pointer;
+  padding: 16px;
+  background: var(--ivory);
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: box-shadow 0.15s;
+  position: relative;
+  font-family: inherit;
+}
+
+.rc-confirm__modal-card-item:hover:not(.is-selected) {
+  box-shadow: 0 0 0 1px var(--ring-warm), 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.rc-confirm__modal-card-item.is-selected {
+  background: var(--terracotta-wash);
+  box-shadow: 0 0 0 2px var(--terracotta), 0 8px 20px rgba(201, 100, 66, 0.1);
+}
+
+.rc-confirm__modal-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: var(--warm-sand);
+  color: var(--charcoal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rc-confirm__modal-card-item.is-selected .rc-confirm__modal-card-icon {
+  background: #fff;
+  color: var(--terracotta);
+  box-shadow: 0 0 0 1px var(--terracotta-wash);
+}
+
+.rc-confirm__modal-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rc-confirm__modal-card-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.rc-confirm__modal-card-title-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rc-confirm__modal-card-blurb {
+  font-size: 12px;
+  color: var(--olive);
+  line-height: 1.55;
+  font-family: var(--font-mono);
+}
+
+.rc-confirm__modal-current-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.rc-confirm__modal-foot {
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--border-warm);
+  background: var(--ivory);
+}
+
+.rc-confirm__modal-foot-status {
+  font-size: 12px;
+  color: var(--olive);
+  flex: 1;
+}
+
+.rc-confirm__modal-foot-status-name {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
