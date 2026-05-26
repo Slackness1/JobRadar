@@ -20,3 +20,4 @@ numpy>=1.24.0
 
 # Testing + fixtures
 vcrpy==6.0.1
+requests-mock==1.12.1
