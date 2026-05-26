@@ -52,6 +52,11 @@ export interface LeftRecommendRailProps {
   /** Plan ② Job plan-mode (2026-05-21): 学生在卡上点 "🎯 针对这家定制" 触发,
    *  父切到 plan-mode 并把 job_id 当作 chat turn 的 active_job_id 发回后端。 */
   onCustomiseForJob?: (item: ResumeRecommendationItem) => void;
+  /** P0b — 学生点小红书 badge 或卡内 "同辈情报" 按钮触发. 父切右栏到 IntelDrawer。 */
+  onOpenIntel?: (
+    company: string,
+    ctx?: { priority?: string | null; xhsCount?: number | null },
+  ) => void;
 }
 
 function readLastSeen(sessionId: number | undefined): number {
@@ -74,6 +79,7 @@ export function LeftRecommendRail({
   onRequestRewrite,
   onRecommendationsChanged,
   onCustomiseForJob,
+  onOpenIntel,
 }: LeftRecommendRailProps) {
   // FE-2 reserves this prop for future C-6 cross-pane signal (推荐卡 → 改写).
   void onRequestRewrite;
@@ -231,35 +237,58 @@ export function LeftRecommendRail({
       </header>
 
       {sessionReady && (
-        <div className="workspace-hifi__rec-tabs" role="tablist" aria-label="推荐视图">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={viewMode === 'platform'}
-            className={`workspace-hifi__rec-tab${viewMode === 'platform' ? ' is-active' : ''}`}
-            onClick={() => setViewMode('platform')}
-          >
-            平台 <span className="workspace-hifi__rec-tab-count">{platforms?.length ?? 0}</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={viewMode === 'campus'}
-            className={`workspace-hifi__rec-tab${viewMode === 'campus' ? ' is-active' : ''}`}
-            onClick={() => setViewMode('campus')}
-          >
-            校招 <span className="workspace-hifi__rec-tab-count">{campusItems.length}</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={viewMode === 'intern'}
-            className={`workspace-hifi__rec-tab${viewMode === 'intern' ? ' is-active' : ''}`}
-            onClick={() => setViewMode('intern')}
-          >
-            实习 <span className="workspace-hifi__rec-tab-count">{internItems.length}</span>
-          </button>
-        </div>
+        <>
+          <div className="workspace-hifi__rec-tabs" role="tablist" aria-label="推荐视图">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'platform'}
+              className={`workspace-hifi__rec-tab${viewMode === 'platform' ? ' is-active' : ''}`}
+              onClick={() => setViewMode('platform')}
+            >
+              平台 <span className="workspace-hifi__rec-tab-count">{platforms?.length ?? 0}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'campus'}
+              className={`workspace-hifi__rec-tab${viewMode === 'campus' ? ' is-active' : ''}`}
+              onClick={() => setViewMode('campus')}
+            >
+              校招 <span className="workspace-hifi__rec-tab-count">{campusItems.length}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'intern'}
+              className={`workspace-hifi__rec-tab${viewMode === 'intern' ? ' is-active' : ''}`}
+              onClick={() => setViewMode('intern')}
+            >
+              实习 <span className="workspace-hifi__rec-tab-count">{internItems.length}</span>
+            </button>
+            <button
+              type="button"
+              className="workspace-hifi__rec-tabs-radar"
+              title="重新推荐"
+              aria-label="重新推荐"
+              onClick={() => {
+                // P0b placeholder — P1 wire to refresh recommendations.
+                console.log('[LeftRecommendRail] re-recommend — P1');
+              }}
+            >
+              {I.radar(16)}
+            </button>
+          </div>
+          {/* P0b — 过滤行 (视觉 placeholder,不接 filter 逻辑) */}
+          <div className="workspace-hifi__rec-filter-row" aria-hidden>
+            <span className="hf-pill">行业 ▾</span>
+            <span className="hf-pill">优先级 ▾</span>
+            <span className="hf-pill terra">有情报</span>
+            <span className="workspace-hifi__rec-filter-count">
+              {totalCount} → {totalCount}
+            </span>
+          </div>
+        </>
       )}
 
       <div className="workspace-hifi__pane-body">
@@ -333,6 +362,7 @@ export function LeftRecommendRail({
                     setExpandedCompany((prev) => (prev === p.company ? null : p.company))
                   }
                   sessionId={sid}
+                  onOpenIntel={onOpenIntel}
                 />
               </div>
             ))}
@@ -367,6 +397,7 @@ export function LeftRecommendRail({
                     onReject={(reason, note) => handleReject(jobId, reason, note)}
                     onCustomiseForJob={onCustomiseForJob}
                     sessionId={sid}
+                    onOpenIntel={onOpenIntel}
                   />
                 </div>
               );

@@ -36,6 +36,7 @@ import { RewriteProvider } from './RewriteContext';
 import { ArchivePanel } from './archive/ArchivePanel';
 import { WorkspaceConfirmGuide } from './WorkspaceConfirmGuide';
 import { ResizeHandle } from './ResizeHandle';
+import { IntelDrawer } from './intel/IntelDrawer';
 
 import './workspace-theme.css';
 
@@ -212,6 +213,35 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     setActiveJobContext(null);
   }, []);
 
+  // ── P0b IntelDrawer state (右栏 swap) ─────────────────────────────────────
+  // 当 intelOpenCompany != null 时,右栏渲染 <IntelDrawer/> 而不是 <RightResumePane/>。
+  // 决策 ②a:严格替换,不并列。priority / xhsCount 由 PlatformCard / RecommendCard
+  // 在 open 时透传,用于 logo tone + header sub-line.
+  const [intelOpenCompany, setIntelOpenCompany] = useState<string | null>(null);
+  const [intelOpenContext, setIntelOpenContext] = useState<{
+    priority?: string | null;
+    xhsCount?: number | null;
+  }>({});
+
+  const handleOpenIntel = useCallback(
+    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null }) => {
+      setIntelOpenCompany(company);
+      setIntelOpenContext(ctx ?? {});
+    },
+    [],
+  );
+
+  const handleCloseIntel = useCallback(() => {
+    setIntelOpenCompany(null);
+    setIntelOpenContext({});
+  }, []);
+
+  const handleIntelMock = useCallback(() => {
+    // P0b placeholder — P1 will wire to Coach plan-mode focused on the opened
+    // company. For now just log so we can verify the click signal flows.
+    console.log('[WorkspaceShell] IntelDrawer mock CTA for', intelOpenCompany);
+  }, [intelOpenCompany]);
+
   const archiveSlot = (
     <ArchivePanel
       key={`${session?.id ?? 'none'}-${archiveRefreshTick}`}
@@ -252,6 +282,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               onRequestRewrite={onRequestRewrite}
               onRecommendationsChanged={onRecommendationsChanged}
               onCustomiseForJob={handleCustomiseForJob}
+              onOpenIntel={handleOpenIntel}
             />
             <ResizeHandle
               width={leftWidth}
@@ -285,15 +316,25 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
               maxWidth={640}
               ariaLabel="拖动调整右栏(简历)宽度"
             />
-            <RightResumePane
-              session={session}
-              profile={profile}
-              isExporting={isExporting}
-              canExport={canExport}
-              isDemo={isDemo}
-              xResumeUserKey={xResumeUserKey}
-              onExport={onExport}
-            />
+            {intelOpenCompany ? (
+              <IntelDrawer
+                companyName={intelOpenCompany}
+                priority={intelOpenContext.priority}
+                xhsCount={intelOpenContext.xhsCount}
+                onClose={handleCloseIntel}
+                onMock={handleIntelMock}
+              />
+            ) : (
+              <RightResumePane
+                session={session}
+                profile={profile}
+                isExporting={isExporting}
+                canExport={canExport}
+                isDemo={isDemo}
+                xResumeUserKey={xResumeUserKey}
+                onExport={onExport}
+              />
+            )}
           </div>
         </div>
       </RewriteProvider>

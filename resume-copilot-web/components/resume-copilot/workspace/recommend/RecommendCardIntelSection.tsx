@@ -3,7 +3,13 @@
 /**
  * RecommendCardIntelSection — 推荐卡展开后挂载的同辈情报区.
  *
- * 行为:
+ * @deprecated P0b (2026-05-26) — see `intel/IntelDrawer.tsx`.
+ *   工作台情报抽屉重做后,此组件不再被 PlatformCard / RecommendCard 引用。
+ *   作为 fallback / 历史参考保留;empty-fallback 文案 "📭 同辈情报暂未覆盖
+ *   该公司" 已迁到 IntelDrawer 内的 empty 分支。新代码请直接使用 IntelDrawer
+ *   (受 WorkspaceShell 控制,通过 onOpenIntel 回调触发右栏 swap).
+ *
+ * 原行为(保留供参考):
  *   - Mount 时 fetch /api/intel/company-card?company=...&role=...
  *   - Loading: 显示一行 "📚 正在召唤同辈情报..." (LLM 总结一次 6-7s,缓存命中 4ms)
  *   - 数据为空 / 接口出错: 渲染 null,不打扰

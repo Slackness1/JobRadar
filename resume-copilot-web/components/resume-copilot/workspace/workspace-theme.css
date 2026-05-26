@@ -4477,3 +4477,626 @@
   padding: 0 5px;
   font-size: 10px;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * IntelDrawer (P0b, 2026-05-26)
+ * 420px 右栏抽屉,替换 RightResumePane 显示同辈情报 4 tab。
+ * 所有规则 `.workspace-hifi__intel-*` scope,绝不渗到其他设计系统。
+ * 1:1 复刻 hifi-ws-intel.jsx 样式 (HFIntelDrawer / HFIntelTabs / HFQuote).
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.workspace-hifi__intel-drawer {
+  background: var(--parchment);
+  border-left: 1.5px solid var(--terracotta);
+  box-shadow: -8px 0 24px rgba(201, 100, 66, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  animation: rc-drawer-in 0.28s ease-out;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-drawer-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-warm);
+  background: linear-gradient(180deg, #fff5ed 0%, var(--ivory) 100%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__intel-drawer-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__intel-drawer-logo[data-tone='A'] {
+  background: var(--terracotta-wash);
+  color: var(--terracotta);
+  box-shadow: 0 0 0 1px #eccfb6;
+}
+
+.workspace-hifi__intel-drawer-logo[data-tone='B'] {
+  background: var(--amber-bg);
+  color: var(--amber-fg);
+  box-shadow: 0 0 0 1px #ecdfa4;
+}
+
+.workspace-hifi__intel-drawer-logo[data-tone='C'] {
+  background: var(--warm-sand);
+  color: var(--stone);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+.workspace-hifi__intel-drawer-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__intel-drawer-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.workspace-hifi__intel-drawer-company {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__intel-drawer-suffix {
+  font-size: 11px;
+  color: var(--stone);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__intel-drawer-subtitle {
+  font-size: 11.5px;
+  color: var(--olive);
+  margin-top: 2px;
+}
+
+.workspace-hifi__intel-drawer-close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--stone);
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 120ms, color 120ms;
+}
+
+.workspace-hifi__intel-drawer-close:hover {
+  background: var(--warm-sand);
+  color: var(--ink);
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-warm);
+  background: var(--ivory);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__intel-tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 10px;
+  cursor: pointer;
+  color: var(--olive);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 120ms, border-color 120ms;
+}
+
+.workspace-hifi__intel-tab:hover {
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-tab.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--terracotta);
+  font-weight: 600;
+}
+
+.workspace-hifi__intel-tab-icon {
+  display: inline-flex;
+  color: var(--stone);
+}
+
+.workspace-hifi__intel-tab.is-active .workspace-hifi__intel-tab-icon {
+  color: var(--terracotta);
+}
+
+.workspace-hifi__intel-tab-count {
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: var(--warm-sand);
+  color: var(--stone);
+  font-family: var(--font-mono);
+  line-height: 16px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.workspace-hifi__intel-tab.is-active .workspace-hifi__intel-tab-count {
+  background: var(--terracotta);
+  color: #fff;
+}
+
+/* ── Body (scroll area) ──────────────────────────────────────────────────── */
+.workspace-hifi__intel-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  min-height: 0;
+}
+
+.workspace-hifi__intel-section {
+  display: block;
+}
+
+.workspace-hifi__intel-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--terracotta);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* loading & empty */
+.workspace-hifi__intel-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--olive);
+  padding: 14px 6px;
+}
+
+.workspace-hifi__intel-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  animation: rc-orb 1.4s ease-in-out infinite;
+}
+
+.workspace-hifi__intel-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--stone);
+  padding: 20px 6px;
+  background: var(--ivory);
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  justify-content: center;
+}
+
+.workspace-hifi__intel-empty--inline {
+  padding: 12px 10px;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+}
+
+/* ── Quotes tab ──────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-guard {
+  font-size: 11.5px;
+  color: var(--olive);
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  background: var(--ivory);
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+.workspace-hifi__intel-guard b {
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-quote {
+  padding: 13px 15px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  border-left: 3px solid var(--terracotta-wash);
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.workspace-hifi__intel-quote.is-hero {
+  padding: 18px 20px 14px;
+  background: linear-gradient(180deg, #fff8ef 0%, #faf4e9 100%);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px #eccfb6,
+    0 8px 24px rgba(201, 100, 66, 0.08);
+  border-left: 4px solid var(--terracotta);
+}
+
+.workspace-hifi__intel-quote-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.workspace-hifi__intel-quote-text {
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  line-height: 1.65;
+  font-style: italic;
+  color: var(--ink);
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.workspace-hifi__intel-quote.is-hero .workspace-hifi__intel-quote-text {
+  font-size: 16px;
+}
+
+.workspace-hifi__intel-quote-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--stone);
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__intel-quote-sep {
+  color: var(--stone);
+}
+
+.workspace-hifi__intel-quote-hearts {
+  color: var(--terracotta);
+  font-weight: 600;
+}
+
+.workspace-hifi__intel-quote-link {
+  appearance: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+}
+
+.workspace-hifi__intel-quote-link:hover {
+  color: var(--terracotta);
+}
+
+.workspace-hifi__intel-keywords {
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--ivory);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+.workspace-hifi__intel-keywords-title {
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__intel-keywords-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__intel-keyword-pill {
+  height: 22px;
+  font-size: 11px;
+}
+
+/* ── Comp tab ────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-comp-card {
+  background: var(--ivory);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-ring);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.workspace-hifi__intel-comp-big {
+  font-size: 22px;
+  font-family: var(--font-serif);
+  margin-bottom: 4px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__intel-comp-sub {
+  font-size: 13px;
+  color: var(--olive);
+  line-height: 1.6;
+}
+
+.workspace-hifi__intel-comp-footnote {
+  font-size: 11.5px;
+  color: var(--stone);
+  line-height: 1.6;
+}
+
+/* ── Req tab ─────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-req-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.workspace-hifi__intel-req-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--ivory);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-req-match {
+  padding: 12px;
+  background: var(--emerald-soft);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.workspace-hifi__intel-req-match b {
+  color: var(--emerald);
+}
+
+/* ── QA tab ──────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-qa-row {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--ivory);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.workspace-hifi__intel-qa-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--terracotta-wash);
+  color: var(--terracotta);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.workspace-hifi__intel-qa-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-qa-practice {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 11px;
+  color: var(--terracotta);
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 120ms, color 120ms;
+}
+
+.workspace-hifi__intel-qa-practice:hover {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.workspace-hifi__intel-drawer-footer {
+  padding: 14px;
+  border-top: 1px solid var(--border-warm);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  background: var(--ivory);
+}
+
+.workspace-hifi__intel-footer-primary {
+  flex: 1;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-hifi__intel-footer-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * P0b — PlatformCard "为你定制" 高亮叙事盒 + rail header polish
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.workspace-hifi__platform-card-customised {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--terracotta-wash);
+  border: 1px solid #eccfb6;
+  border-radius: 12px;
+}
+
+.workspace-hifi__platform-card-customised-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.workspace-hifi__platform-card-customised-icon {
+  color: var(--terracotta);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.workspace-hifi__platform-card-customised-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--terracotta-strong);
+  letter-spacing: 0.04em;
+}
+
+.workspace-hifi__platform-card-customised-meta {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--olive);
+}
+
+.workspace-hifi__platform-card-customised-body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+/* clickable XHS badge (replaces title-attribute affordance) */
+.workspace-hifi__platform-card-xhs-btn {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.workspace-hifi__platform-card-xhs-btn:hover .workspace-hifi__platform-card-xhs {
+  background: linear-gradient(135deg, #fff5ed, #fde2cf);
+  color: var(--terracotta-strong);
+  border-color: var(--terracotta);
+}
+
+/* ── Rail header filter row (P0b polish) ─────────────────────────────────── */
+.workspace-hifi__rec-filter-row {
+  padding: 8px 14px 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--library-rail);
+  border-bottom: 1px solid var(--border-warm);
+  flex-shrink: 0;
+}
+
+.workspace-hifi__rec-filter-count {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--stone);
+  font-family: var(--font-mono);
+}
+
+.workspace-hifi__rec-tabs-radar {
+  margin-left: auto;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--stone);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms, color 120ms;
+}
+
+.workspace-hifi__rec-tabs-radar:hover {
+  background: var(--warm-sand);
+  color: var(--terracotta);
+}
+
+/* PlatformCard inline CTA row to open IntelDrawer (P0b) */
+.workspace-hifi__intel-cta-row {
+  appearance: none;
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 8px;
+  background: #faf4ed;
+  border: 1px dashed var(--terracotta);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--terracotta);
+  font-weight: 600;
+  transition: background 120ms, box-shadow 120ms;
+}
+
+.workspace-hifi__intel-cta-row:hover {
+  background: #fff5ed;
+  box-shadow: 0 0 0 1px var(--terracotta);
+}

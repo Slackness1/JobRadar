@@ -263,6 +263,29 @@ export const I = {
       <path d="M4 21a8 8 0 0116 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   ),
+  // ── P0b additions for IntelDrawer (2026-05-26) ───────────────────────────
+  quote: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M7 7H4v6h3l-1 4M17 7h-3v6h3l-1 4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  ),
+  clipboard: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <rect x="6" y="4" width="12" height="17" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="9" y="2" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 11h6M9 15h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  yen: (s = 13) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M6 4l6 8 6-8M6 12h12M6 16h12M12 12v8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  download: (s = 14) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M12 4v12M7 11l5 5 5-5M4 20h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 } as const;
 
 // ── useCountUp ───────────────────────────────────────────────────────────────
