@@ -45,16 +45,34 @@ def _extract_decodo_text(body: dict) -> str:
 
 
 def _build_decodo_payload(url: str, strategy: str = "xhs-discovery") -> dict:
+    """Decodo payload — XHS web 反爬墙是 JS-rendered, 所以 device_type=desktop +
+    不传 headless (走纯 HTML 抓取) 才拿得到正文。
+    """
     return {
         "url": url,
         "proxy_pool": "premium",
-        "headless": "html",
         "geo": "China",
         "locale": "zh-cn",
-        "device_type": "mobile",
+        "device_type": "desktop",
         "session_id": f"xhs-discovery-{strategy}",
         "markdown": True,
     }
+
+
+def build_xhs_discovery_url(note_id: str, xsec_token: str) -> str:
+    """构造 XHS web 帖子页 URL (discovery/item 路径 + xsec_token, bypass 'open in app' 反爬墙)。
+
+    必须用 search_notes 返回的 xsec_token; 没 token 的话 fallback 到 /explore/<id>
+    会被反爬墙挡只返登录提示。
+    """
+    if not xsec_token:
+        return f"https://www.xiaohongshu.com/explore/{note_id}"
+    from urllib.parse import quote
+    token_q = quote(xsec_token, safe="")
+    return (
+        f"https://www.xiaohongshu.com/discovery/item/{note_id}"
+        f"?xsec_token={token_q}&xsec_source=app_share"
+    )
 
 
 class CrawlerClient:
@@ -114,7 +132,13 @@ class CrawlerClient:
         country_code = code_match.group(1).strip().lower() if code_match else ""
         country_name = country_match.group(1).strip() if country_match else ""
 
-        if country_code == "cn" or country_name.lower() in ("china", "中国"):
+        # ip.decodo.com 真实响应只有 "Country: CN" (没单独的 Country code 行),
+        # 所以 country_name 也可能是 2 字母码; 一并接纳。
+        country_name_norm = country_name.lower()
+        if (
+            country_code == "cn"
+            or country_name_norm in ("china", "中国", "cn")
+        ):
             self._geo_verified = True
             return
 
@@ -124,20 +148,32 @@ class CrawlerClient:
         )
 
     def search_notes(self, keyword: str, page: int = 1) -> list[dict[str, Any]]:
-        """TikHub search_notes — 单次 ~20 results。"""
+        """TikHub search_notes — 单次 ~20 results。
+
+        当前 API key scope 限 `/xiaohongshu/app/` 系列;web_v3 / app_v2 等新接口不可用。
+        响应结构: response.data.data.items[].note (扁平化后返 dict list, 每条含 id/title 等)。
+        """
         if not self.budget_tracker.can_afford(TIKHUB_COST):
             from .budget_tracker import BudgetExceededError
             raise BudgetExceededError(f"无余额跑 search_notes (剩 ${self.budget_tracker.remaining():.4f})")
         self._throttle()
         r = requests.get(
-            f"{TIKHUB_BASE}/xiaohongshu/web_v1/search/notes",
+            f"{TIKHUB_BASE}/xiaohongshu/app/search_notes",
             params={"keyword": keyword, "page": page},
             headers={"Authorization": f"Bearer {self.tikhub_key}"},
             timeout=30,
         )
         r.raise_for_status()
         self.budget_tracker.charge(TIKHUB_COST, "tikhub_search")
-        notes = r.json().get("data", {}).get("notes", [])
+        body = r.json()
+        items = (body.get("data") or {}).get("data", {}).get("items") or []
+        notes: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            note = item.get("note") if isinstance(item.get("note"), dict) else item
+            if note and isinstance(note, dict):
+                notes.append(note)
         return notes
 
     def decode_fetch_url(self, url: str) -> str:

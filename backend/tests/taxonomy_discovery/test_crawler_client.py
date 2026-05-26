@@ -56,22 +56,30 @@ def _decodo_xhs_response(content: str = "<html>fake xhs page</html>") -> dict:
 # --------------------------------------------------------------------------- #
 
 def test_tikhub_search_charges_budget(client: CrawlerClient, requests_mock) -> None:
-    """search_notes 调用一次扣 $0.010。"""
+    """search_notes 调用一次扣 $0.010。
+
+    TikHub `/xiaohongshu/app/search_notes` 真实响应是 wrap 在 data.data.items[].note 里。
+    """
     requests_mock.get(
-        "https://api.tikhub.io/api/v1/xiaohongshu/web_v1/search/notes",
+        "https://api.tikhub.io/api/v1/xiaohongshu/app/search_notes",
         json={
+            "code": 200,
             "data": {
-                "notes": [
-                    {"note_id": "n1", "title": "嘉实消费组实习", "user_id": "u1"},
-                    {"note_id": "n2", "title": "易方达 TMT 面经", "user_id": "u2"},
-                ]
+                "code": 0,
+                "success": True,
+                "data": {
+                    "items": [
+                        {"model_type": "note", "note": {"id": "n1", "title": "嘉实消费组实习"}},
+                        {"model_type": "note", "note": {"id": "n2", "title": "易方达 TMT 面经"}},
+                    ]
+                }
             }
         },
         status_code=200,
     )
     notes = client.search_notes(keyword="嘉实消费组")
     assert len(notes) == 2
-    assert notes[0]["note_id"] == "n1"
+    assert notes[0]["id"] == "n1"
     assert client.budget_tracker.spent() == pytest.approx(0.010, abs=1e-6)
 
 
