@@ -97,6 +97,11 @@ class ResumeCopilotSession(Base):
     # collapse rapid back-to-back regenerate triggers.
     rejected_job_ids_json = Column(Text, default="[]", nullable=True)
     last_recommend_trigger_at = Column(DateTime, nullable=True)
+    # P0a (resume-copilot-redesign-2026-05-26): soft-archive flag — sessions
+    # the user keeps but no longer actively edits. Surfaced to Sessions page so
+    # active / archived can be split into filter tabs without DELETE'ing rows.
+    # Defaults to False; default index keeps GET /sessions filter cheap.
+    is_archived = Column(Boolean, default=False, nullable=False, server_default='0', index=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",

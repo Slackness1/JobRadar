@@ -84,6 +84,9 @@ export interface ResumeCopilotSessionListItem {
   name: string;
   status: string;
   has_recommendations: boolean;
+  /** P0a (2026-05-26): soft-archive flag. Sessions page splits 使用中 /
+   *  归档 / 全部 tabs from this. Defaults false when backend hasn't migrated. */
+  is_archived?: boolean;
   created_at: string | null;
   updated_at: string | null;
 }

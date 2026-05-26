@@ -235,6 +235,11 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
             trackName={currentTrackName}
             fitScore={currentFitScore}
             onChangeTrack={onChangeTrack}
+            session={session}
+            recommendations={recommendations}
+            onExport={onExport}
+            isExporting={isExporting}
+            canExport={canExport}
           />
           <div
             className="workspace-hifi__grid"
