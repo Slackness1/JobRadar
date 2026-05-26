@@ -1,0 +1,224 @@
+{
+  "scenario_id": "ai_pm_dev_self_2026_05_27",
+  "scenario_config": {
+    "target_track": "AI 应用 / AI 产品经理 / LLM-Agent 应用开发 (跨域: 投研背景转 AI 应用)",
+    "target_jd_ref": "由 XHS AI 应用_PM_开发 bucket discovery + Opus synthesis 推荐",
+    "student_tier": "strong (跨域)",
+    "is_cross_major": true,
+    "generation_notes": "帝国理工 DS 硕士在读 + 剑桥经济硕士 + 利物浦金融数学本科. 4 段 0-1 全栈 AI 项目 (JobCopilot/StockRadar/Lewoo/AgentX), GitHub 累计 350+ stars, 已与 SAIF 签学生合作. 软肋: 中科创达能源数据实习 ≠ AI 应用,缺大厂 AI production 经验."
+  },
+  "resume": {
+    "basic_info": {
+      "name": "周传博",
+      "headline": "帝国理工 DS 硕士在读 + 剑桥经济硕士 / 4 段 0-1 全栈 AI 项目 / 目标 AI PM 或 AI 应用开发",
+      "email": "cz9z@outlook.com",
+      "github": "github.com/Slackness1",
+      "phone": "+86 195-2279-3128"
+    },
+    "education": [
+      {
+        "school": "英国帝国理工学院",
+        "degree": "硕士",
+        "major": "数据科学",
+        "start_date": "2024-09",
+        "end_date": "2026-08",
+        "highlights": [
+          "GPA 3.6/4.0",
+          "核心课程: 深度学习、机器学习与模型评估、概率建模 (贝叶斯&生成模型)、非结构化数据挖掘、分布式计算 (PySpark)"
+        ]
+      },
+      {
+        "school": "英国剑桥大学",
+        "degree": "硕士",
+        "major": "理论经济学",
+        "start_date": "2022-10",
+        "end_date": "2024-03",
+        "highlights": [
+          "GPA 3.3/4.0",
+          "计量经济学方法 (面板/时间序列/因果推断 DID-IV), 数学与统计 (静态&动态优化)"
+        ]
+      },
+      {
+        "school": "英国利物浦大学",
+        "degree": "本科",
+        "major": "金融数学",
+        "start_date": "2017-09",
+        "end_date": "2021-06",
+        "highlights": [
+          "GPA 4.0/4.0",
+          "概率论与数理统计、随机过程与金融随机建模、金融机器学习 (数学基础)"
+        ]
+      }
+    ],
+    "internships": [
+      {
+        "company": "中科创达软件有限公司",
+        "role": "能源数据分析实习生",
+        "location": "伦敦",
+        "start_date": "2025-01",
+        "end_date": "2025-05",
+        "project_title": "英国电力市场日前电价预测与负电价事件识别",
+        "bullets": [
+          "数据管道与回测框架: 面向英国电力市场日前小时电价与负电价事件, 搭建端到端数据管道与滚动回测框架, 处理时区/夏令时切换、小时级时间对齐、缺失值与异常值清洗",
+          "模型与特征工程: 以 seasonal naive 为基线, 围绕电价、负荷、风光出力、残余负荷、天气与日历变量构建 lag/rolling/trend 时序特征, 基于 LightGBM 建模, 将电价预测 MAE 降低 12%",
+          "输出接口与业务落地: 输出标准化的点预测结果与负电价事件概率, 作为下游'优化层'模块可直接调用的输入接口",
+          "误差复盘: 对误差分布、极端价格时段进行案例复盘, 沉淀'何时失效/如何干预'的使用说明, 支持团队策略评审中解释模型边界",
+          "(欧洲新能源市场决策项目) 风险量化: 参与英国 50MW 光伏项目财务尽调, 校准衰减假设并量化发电量高估对收入影响, 用于 SPA 谈判发电量担保"
+        ]
+      }
+    ],
+    "research": [
+      {
+        "title": "STA-TSN 视频动作识别模型研究 (PLOS ONE 2022, 论文第二作者)",
+        "start_date": "2020-09",
+        "end_date": "2022-03",
+        "bullets": [
+          "基于 TSN 视频分类框架, 引入空间注意力与时间注意力机制, 提升模型对关键人体区域与关键帧的识别能力",
+          "负责部分 PyTorch 模块实现, 搭建实验流程并在 UCF101 / HMDB51 / JHMDB / THUMOS14 等公开数据集上完成对比实验"
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "JobCopilot — AI 求职情报与决策平台 (0-1 个人全栈)",
+        "duration": "2025-10 — 至今",
+        "github_stars": 250,
+        "bullets": [
+          "问题定义与产品设计: 针对'官方岗位分散、JD 信息不足、用户难以判断真实适配度'的核心问题, 从 0 到 1 设计'岗位追踪—优先级判断—投递管理'的决策闭环, 将一次性浏览升级为持续跟踪与行动管理",
+          "核心机制: 设计'快速推荐 + 异步增强'的双阶段体验: 主链路基于结构化检索/规则过滤/语义重排生成首版推荐, 对 JD 模糊或信息不对称的岗位再触发外部情报补强",
+          "系统落地: 整合人工维护的高质量公司开招链接表与多源岗位数据, 完成 10 万级岗位的结构化入库/去重归一/历史回补/定向补抓; 以主控 orchestrator 串联简历解析/岗位检索/情报补强/岗位画像生成等模块",
+          "AI 能力: 将 AI 聚焦应用于简历结构化理解、岗位语义匹配、证据摘要与推荐理由生成, 通过异步任务机制隔离长耗时外部抓取, 平衡推荐深度与用户体验",
+          "产品验证: 累计沉淀 10 万级岗位数据, GitHub 上线 1 个月获 250+ Stars, 与上海交通大学高级金融学院正式签约长期学生合作"
+        ]
+      },
+      {
+        "name": "AgentX — 基于 LLM 与 MCP 的 Agent 平台 (共同开发者)",
+        "duration": "2024-12 — 至今",
+        "bullets": [
+          "平台能力建设: 围绕 Agent 管理 / 工具 MCP 接入 / RAG / 长期记忆等核心能力协同推进迭代, 从单点 Agent 演进为可配置/可调用/可扩展的通用平台底座",
+          "核心链路: 支持 Agent 从自然语言创建 → 能力配置 → 运行执行 → 结果调用 → 对外服务的完整闭环",
+          "产品定位: 推动项目以真实使用场景为导向, 明确平台并非轻量 SDK, 而是强调自然语言创建/MCP 扩展/对外集成与交付能力的 Agent 平台"
+        ]
+      },
+      {
+        "name": "Lewoo 校园论坛 Agent — 文本 Agent 负责人",
+        "duration": "2025-06 — 2025-10",
+        "bullets": [
+          "问题定义: 针对'信息分散、重复提问频繁、内容真假难辨'设计'可信校园论坛 Agent'",
+          "核心机制: 从 0 到 1 搭建文本 Agent + RAG 原型, 完成数据清洗/分块/向量检索/重排与引用溯源设计, 支持中英混合搜索/带引用回答/低置信度兜底",
+          "系统落地: 围绕社区内容质量与安全治理, 设计低质内容识别/重复问题检测/举报回执与申诉流程, 将 AI 能力嵌入搜索/问答/发布前检查/审核链路",
+          "产品验证: 通过用户—内容—互动分析识别冷启动阶段核心贡献者与内容缺口, 支持专题内容供给与种子用户运营"
+        ]
+      },
+      {
+        "name": "StockRadar Web — AI 股票分析与决策支持平台 (0-1 个人全栈)",
+        "duration": "2025-10 — 2026-01",
+        "github_stars": 100,
+        "bullets": [
+          "决策支持设计: 从 0 到 1 设计 AI 股票分析与决策支持产品, 围绕行情/资讯/观点分散的问题, 搭建'信息聚合—分析理解—重点跟踪—提醒触达'的使用闭环",
+          "AI 能力集成: 整合多源行情、新闻检索与大模型分析链路, 将原始市场数据转化为个股摘要/风险提示/关键变化信号/策略问答结果",
+          "产品验证: 项目上线 GitHub 一个月获 100+ Stars"
+        ]
+      }
+    ],
+    "skills": {
+      "ai_engineering": [
+        "Prompt Engineering",
+        "RAG (chunking / 向量检索 / rerank / 引用溯源)",
+        "Tool Calling",
+        "Agent Workflow",
+        "Memory 设计 (long-term / session)",
+        "AI 应用原型搭建与 Bad-case 迭代",
+        "LLM + MCP 集成 (AgentX 项目)"
+      ],
+      "engineering": [
+        "Python (主力), SQL",
+        "FastAPI (后端), React (前端)",
+        "Playwright + 浏览器/API 数据抓取",
+        "数据清洗与归一化",
+        "PyTorch (视频动作识别论文)",
+        "LightGBM (中科创达电价预测)",
+        "PySpark (帝国理工分布式计算课程)"
+      ],
+      "domain": [
+        "金融数学 / 量化建模 (利物浦本科 + 剑桥经济)",
+        "时间序列计量 (DID/IV/面板)",
+        "电力市场建模 (中科创达实习)"
+      ],
+      "languages": [
+        "中文 (母语)",
+        "英文 (TOEFL 109 / GRE 332, 全英 7 年留学)"
+      ]
+    },
+    "awards": [
+      "帝国理工羽毛球校队",
+      "剑桥力量举比赛男子二等奖",
+      "STA-TSN 论文 PLOS ONE 2022 第二作者"
+    ],
+    "candidate_summary": "三栈复合背景 (数据科学 + 经济计量 + 金融数学), 7 年英国留学, 4 段 0-1 全栈 AI 项目 (JobCopilot/StockRadar/Lewoo/AgentX) 累计 GitHub 350+ stars, JobCopilot 已与 SAIF 签学生合作. 目标 AI 产品经理 / AI 应用开发实习, 优先头部 AI 公司或大厂 AI 部门, 也接受高潜力创业团队. 强项是从问题定义 → 产品设计 → AI 链路集成 → 工程落地的端到端 ship 能力; 短板是无大厂 AI 正式实习 + 项目主要是个人/小团队 production code 经验.",
+    "inferred_roles": ["AI 产品经理", "AI 应用开发工程师", "LLM 工程师", "Agent 工程师", "GenAI PM"],
+    "inferred_tracks": ["大厂 AI 部门 (字节/阿里/腾讯)", "大模型独角兽 (待 XHS 数据 surface)", "AI Agent / 应用层创业 (待 XHS 数据 surface)", "出海 AI 公司"]
+  },
+  "persona_voice": {
+    "communication_style": "直接、简洁, 偏好结构化但不啰嗦. 经常用反问让对方独立思考 ('你觉得呢' / '咱们这个赛道确定下来之后你觉得什么流程是最好的'). 不轻信结论, 喜欢看数据 + 推理过程.",
+    "verbal_tics": [
+      "'你觉得呢'",
+      "'可以的'",
+      "'怎么样'",
+      "'我觉得...'",
+      "'是不是...'"
+    ],
+    "typical_message_length": "短 (中文 20-80 字), 一句话能问清就一句话; 复杂决策会列 1-2 个具体 sub-question",
+    "under_pressure": "不防御, 直接 '等等再看' 或追问澄清; 决策点会要求 review 我的方案而不是 blanket 同意",
+    "decision_style": "工程师产品经理混合 — 既看数据, 又会拍板. 不喜欢 over-engineering, 偏好 ship-first 验证"
+  },
+  "flow_padding_internship": {
+    "company": "中科创达软件有限公司",
+    "bullet_index": 4,
+    "original_text": "(欧洲新能源市场决策项目) 风险量化: 参与英国 50MW 光伏项目财务尽调, 校准衰减假设并量化发电量高估对收入影响",
+    "note": "(内部 ground truth: PVSyst/50MW/100 万欧元那条是测试用伪造内容, 真实只参与了 LightGBM 电价管道 — 见 user_resume_test_baselines memory)"
+  },
+  "target_jd_anchors": [
+    "0-1 全栈",
+    "AI Agent / LLM 应用开发",
+    "RAG / Memory / Tool Calling",
+    "GenAI 产品经理",
+    "用户决策闭环设计",
+    "跨域复合背景",
+    "产品 + 工程双线"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "projects[0] (JobCopilot)",
+      "hidden_fact": "已与 SAIF 签学生合作 — 不是 self-project, 是真有 institutional 客户的产品; 大多数 AI 应用实习生只能拿 self-project 演示"
+    },
+    {
+      "where": "projects[0] (JobCopilot)",
+      "hidden_fact": "'快速推荐 + 异步增强'双阶段架构 — 这是 senior AI PM 的产品思维 (平衡推荐深度 vs 用户体验), 实习生水平通常是单链路同步"
+    },
+    {
+      "where": "projects[0] + projects[3] (JobCopilot + StockRadar)",
+      "hidden_fact": "两个项目 GitHub 累计 350+ stars, 各自上线 1 个月内拿到 — 验证了产品口味 (而非纯个人 portfolio)"
+    },
+    {
+      "where": "internships[0] (中科创达)",
+      "hidden_fact": "'输出标准化接口给下游优化层' — 工程能力延伸到业务下游而非只交付模型; 多数实习生止步于'交个 jupyter notebook'"
+    },
+    {
+      "where": "projects[1] (AgentX)",
+      "hidden_fact": "明确'platform 非 SDK'的产品哲学思考 — 显示对 AI 平台产品定位的成熟判断"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "中科创达'能源数据分析'标签 — 跟 AI 应用/产品没直接关系, 怕 AI 公司 reviewer 误以为目标是能源金融或风控. 也避免被框成'纯研究/纯量化'背景.",
+    "wants_to_emphasize": "4 个 AI 项目的 0-1 ship 能力 + GitHub 真 traction + SAIF 学院级合作; 跨域复合背景 (数据科学 + 金融 + 经济) 在 AI for 垂直行业 (金融/科研/校园) 应用上的差异化优势"
+  },
+  "review_notes_for_user": [
+    "P_self.json 是我基于你 PDF + 这次对话观察的草稿, 不是定稿. 请重点 review:",
+    "1. persona_voice — 我从你这次对话里抽的'你觉得呢/可以的/怎么样'这些 verbal_tics 准吗? communication_style 描述对吗?",
+    "2. hidden_highlights — 我挑的 5 条隐藏亮点是不是你认的'reviewer 容易忽略但你想被发现的点'?",
+    "3. avoid_emphasize — wants_to_avoid 我猜的'能源数据可能误导 AI reviewer'是不是你的真实顾虑?",
+    "4. flow_padding_internship — 我按 user_resume_test_baselines memory 标了 PVSyst 那条为测试伪造, 简历真版要不要在这里也保留同样标记?",
+    "5. inferred_roles / inferred_tracks — 大厂 AI / 大模型独角兽 / 出海 这些方向你都接受吗?有想砍/想加的?"
+  ]
+}

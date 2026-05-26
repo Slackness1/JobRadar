@@ -38,6 +38,10 @@ _CONFIGS: dict[str, SaturationConfig] = {
     "卖方研究": SaturationConfig(4, 5, 5, 5, 60, 500),
     "多资产_FOF_衍生品": SaturationConfig(1, 5, 3, 3, 20, 200),
     "相关补充": SaturationConfig(1, 2, 2, 2, 10, 100),
+    # AI bucket: 跟 量化 bucket 类似量级 — 头部公司不多 (大厂 + 大模型独角兽 + Agent 公司)
+    # 期望发现 4-5 个 sub_cat (AI PM / AI 应用开发 / LLM 工程师 / Agent 工程师 等)
+    # 期望发现 8-10 家高频公司
+    "AI应用_PM_开发": SaturationConfig(4, 6, 8, 4, 80, 500),
 }
 
 
