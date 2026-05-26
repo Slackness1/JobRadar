@@ -4,7 +4,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class StrategyType(str, Enum):
@@ -60,6 +60,17 @@ class KBInsight(BaseModel):
     verbatim_quote: str = Field(description="原文截取")
     confidence: Literal["high", "med", "low"]
 
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _normalize_confidence(cls, v):
+        # LLM 偶尔吐 medium/Medium/MED 等变体, 归一到 med
+        if not isinstance(v, str):
+            return v
+        s = v.strip().lower()
+        if s in {"medium", "mid"}:
+            return "med"
+        return s
+
 
 class PostTaxonomyExtract(BaseModel):
     """Taxonomy 发现字段 (spec §5.1)。"""
@@ -86,3 +97,11 @@ class DualSchemaExtract(BaseModel):
     taxonomy: PostTaxonomyExtract
     kb: PostKBExtract
     extraction_confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="LLM 自评抽取置信度, <0.7 触发 Sonnet 二审")
+
+    @field_validator("time", "author", "post_id", "url", mode="before")
+    @classmethod
+    def _coerce_to_str(cls, v):
+        # XHS / TikHub 偶尔返 int (timestamp / user_id), 强转 str
+        if v is None:
+            return ""
+        return str(v)

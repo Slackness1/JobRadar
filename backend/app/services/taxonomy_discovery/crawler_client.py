@@ -1,5 +1,7 @@
 """TikHub + Decodo HTTP 客户端封装。
 
+
+
 TikHub: 小红书 search_notes / get_note_detail / get_note_comments
 Decodo: 通用 web scraping, 给定 URL 返抓取后的 markdown/html
 两个 API 调用都要先过 BudgetTracker; rate limit 10 RPS (TikHub 限制)。
@@ -11,6 +13,7 @@ Decodo IP 前置校验:
 """
 from __future__ import annotations
 
+import json
 import re
 import time
 from typing import Any
@@ -125,15 +128,24 @@ class CrawlerClient:
 
         text = _extract_decodo_text(r.json())
 
-        # 从文本中提取 Country code 字段 (格式: "Country code: cn" 或表格形式)
-        code_match = re.search(r"Country\s+code[:\s|]+([a-zA-Z]{2})", text, re.IGNORECASE)
-        country_match = re.search(r"Country[:\s|]+([^\n|]+)", text, re.IGNORECASE)
+        # ip.decodo.com 返 JSON (无 headless 时 直接吐 raw JSON, headless=html 时吐 markdown 表格)
+        # 先试 JSON, fail 再 fall back 到 markdown regex
+        country_code = ""
+        country_name = ""
+        try:
+            data = json.loads(text)
+            country_code = (data.get("country", {}).get("code") or "").strip().lower()
+            country_name = (data.get("country", {}).get("name") or "").strip()
+            isp_org = (data.get("isp", {}).get("organization") or data.get("isp", {}).get("isp") or "").lower()
+            if "china" in isp_org:
+                country_name = country_name or "China"
+        except (json.JSONDecodeError, AttributeError):
+            # markdown 兜底
+            code_match = re.search(r"Country\s+code[:\s|]+([a-zA-Z]{2})", text, re.IGNORECASE)
+            country_match = re.search(r"Country[:\s|]+([^\n|]+)", text, re.IGNORECASE)
+            country_code = code_match.group(1).strip().lower() if code_match else ""
+            country_name = country_match.group(1).strip() if country_match else ""
 
-        country_code = code_match.group(1).strip().lower() if code_match else ""
-        country_name = country_match.group(1).strip() if country_match else ""
-
-        # ip.decodo.com 真实响应只有 "Country: CN" (没单独的 Country code 行),
-        # 所以 country_name 也可能是 2 字母码; 一并接纳。
         country_name_norm = country_name.lower()
         if (
             country_code == "cn"
@@ -144,26 +156,47 @@ class CrawlerClient:
 
         raise RuntimeError(
             f"Decodo geo not CN: got country_code={country_code!r} country={country_name!r}. "
-            "请检查 Decodo 账户的 geo 配置是否支持中国出口 IP。"
+            f"原始响应: {text[:200]!r}. 请检查 Decodo 账户的 geo 配置。"
         )
 
-    def search_notes(self, keyword: str, page: int = 1) -> list[dict[str, Any]]:
+    def search_notes(self, keyword: str, page: int = 1, retries: int = 2) -> list[dict[str, Any]]:
         """TikHub search_notes — 单次 ~20 results。
 
         当前 API key scope 限 `/xiaohongshu/app/` 系列;web_v3 / app_v2 等新接口不可用。
         响应结构: response.data.data.items[].note (扁平化后返 dict list, 每条含 id/title 等)。
+
+        TikHub 偶发 400 ("Request failed, please retry"), 内置 retries 次重试。
+        每次实际请求才扣费; 重试 fail 不重复扣。
         """
         if not self.budget_tracker.can_afford(TIKHUB_COST):
             from .budget_tracker import BudgetExceededError
             raise BudgetExceededError(f"无余额跑 search_notes (剩 ${self.budget_tracker.remaining():.4f})")
-        self._throttle()
-        r = requests.get(
-            f"{TIKHUB_BASE}/xiaohongshu/app/search_notes",
-            params={"keyword": keyword, "page": page},
-            headers={"Authorization": f"Bearer {self.tikhub_key}"},
-            timeout=30,
-        )
-        r.raise_for_status()
+
+        last_err = None
+        for attempt in range(retries + 1):
+            self._throttle()
+            try:
+                r = requests.get(
+                    f"{TIKHUB_BASE}/xiaohongshu/app/search_notes",
+                    params={"keyword": keyword, "page": page},
+                    headers={"Authorization": f"Bearer {self.tikhub_key}"},
+                    timeout=45,
+                )
+                r.raise_for_status()
+            except requests.HTTPError as e:
+                last_err = e
+                if attempt < retries and r.status_code in (400, 429, 500, 502, 503, 504):
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+            except requests.RequestException as e:
+                last_err = e
+                if attempt < retries:
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+            break
+
         self.budget_tracker.charge(TIKHUB_COST, "tikhub_search")
         body = r.json()
         items = (body.get("data") or {}).get("data", {}).get("items") or []
@@ -176,10 +209,11 @@ class CrawlerClient:
                 notes.append(note)
         return notes
 
-    def decode_fetch_url(self, url: str) -> str:
+    def decode_fetch_url(self, url: str, retries: int = 2) -> str:
         """Decodo 抓单 URL, 返回 markdown/html 文本。
 
         首次调用时先做 IP 地理校验 (_verify_geo_is_cn), 确认出口在中国后才继续。
+        Decodo 偶发 400 (内部 status_code 15001 等), 内置 retries 次重试; 4xx 重试不再扣额外费。
         """
         if not self._geo_verified:
             self._verify_geo_is_cn()
@@ -187,18 +221,29 @@ class CrawlerClient:
         if not self.budget_tracker.can_afford(DECODE_COST):
             from .budget_tracker import BudgetExceededError
             raise BudgetExceededError(f"无余额跑 decode_fetch_url (剩 ${self.budget_tracker.remaining():.4f})")
-        self._throttle()
+
         payload = _build_decodo_payload(url)
-        r = requests.post(
-            DECODO_BASE,
-            json=payload,
-            headers={
-                "Authorization": f"Basic {self.decode_key}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-            timeout=60,
-        )
-        r.raise_for_status()
+        headers = {
+            "Authorization": f"Basic {self.decode_key}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        for attempt in range(retries + 1):
+            self._throttle()
+            try:
+                r = requests.post(DECODO_BASE, json=payload, headers=headers, timeout=90)
+                r.raise_for_status()
+                break
+            except requests.HTTPError as e:
+                if attempt < retries and r.status_code in (400, 429, 500, 502, 503, 504):
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+            except requests.RequestException:
+                if attempt < retries:
+                    time.sleep(1.5 ** attempt)
+                    continue
+                raise
+
         self.budget_tracker.charge(DECODE_COST, "decodo_fetch")
         return _extract_decodo_text(r.json())
