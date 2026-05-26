@@ -17,3 +17,6 @@ alembic>=1.13.0
 rapidocr-onnxruntime>=1.4.0
 opencv-contrib-python-headless>=4.10.0
 numpy>=1.24.0
+
+# Testing + fixtures
+vcrpy==6.0.1
