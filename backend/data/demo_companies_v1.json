@@ -1,0 +1,23 @@
+[
+  {"name": "易方达基金", "side": "investment", "strategy": "基本面权益", "tier": "一线公募", "xhs_typical_role": "行业研究员·消费/医药", "demo_pitch": "XHS 26 mention + 就业报告命中. P1 顶配 fit; 区分公募 vs 私募 institution_tier"},
+  {"name": "华夏基金", "side": "investment", "strategy": "基本面权益", "tier": "一线公募", "xhs_typical_role": "行业研究员/指数研究员", "demo_pitch": "XHS 42 mention 第二高 + 就业报告命中. 多赛道大平台, P1 / P3 双向 fit"},
+  {"name": "富国基金", "side": "investment", "strategy": "基本面权益", "tier": "一线公募", "xhs_typical_role": "权益研究员", "demo_pitch": "XHS + 就业报告双命中, 招聘强信号 ('应届生起薪 17-28 万')"},
+  {"name": "中金公司", "side": "investment", "strategy": "卖方研究", "tier": "头部券商研究所", "xhs_typical_role": "TMT 卖方研究员/FOF 投研", "demo_pitch": "XHS 13 mention + P2 简历目标. P2 主战场"},
+  {"name": "中信建投证券", "side": "investment", "strategy": "卖方研究", "tier": "头部券商研究所", "xhs_typical_role": "TMT/通信卖方研究员", "demo_pitch": "P2 backup target, 跟中金一对"},
+  {"name": "华泰证券", "side": "investment", "strategy": "卖方研究 + 基本面权益", "tier": "头部券商", "xhs_typical_role": "多赛道研究员", "demo_pitch": "XHS 34 mention 卖方 + 20 mention 权益, 总命中数最高. 显示'同公司 ≠ 同 strategy'"},
+  {"name": "灵均投资", "side": "investment", "strategy": "量化", "tier": "头部量化私募", "xhs_typical_role": "量化研究员·中频", "demo_pitch": "XHS 30 mention 量化第一. P6 顶配 fit, 与 P1 完全 strategy 隔离"},
+  {"name": "九坤投资", "side": "investment", "strategy": "量化", "tier": "头部量化私募", "xhs_typical_role": "量化研究员/量化开发", "demo_pitch": "XHS 28 mention + P6 简历直接命中 (P6 简历列'九坤投资 2024 实习 Top 5')"},
+  {"name": "高瓴资本", "side": "investment", "strategy": "相关补充 + 基本面权益", "tier": "头部主观私募/PE", "xhs_typical_role": "二级研究员/PE 投资", "demo_pitch": "就业报告命中 + P1 简历直接命中. P1/P3 双向, 区分公募 vs 私募 tier"},
+  {"name": "中再资产", "side": "investment", "strategy": "固定收益 + 基本面权益", "tier": "保险资管", "xhs_typical_role": "信用研究员/固收研究", "demo_pitch": "XHS 8 mention 固收 + 7 mention 权益. 险资头部"},
+
+  {"name": "字节跳动", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI 部门", "xhs_typical_role": "LLM 算法 + Agent 应用 + AI PM", "demo_pitch": "XHS 23 mention 第一. P_self GitHub traction 对标实习生画像; 建议主投 AI PM / LLM 应用方向", "fit_for_pself": "high", "entry_difficulty": "高"},
+  {"name": "腾讯", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI 部门", "xhs_typical_role": "Agent 开发/微信生态 LLM 应用", "demo_pitch": "XHS 13 mention. 混元/元宝 Agent. P_self Lewoo 校园 Agent 经验对腾讯校园 IM 场景天然 fit", "fit_for_pself": "high", "entry_difficulty": "高"},
+  {"name": "蚂蚁集团", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI (金融垂直)", "xhs_typical_role": "金融 AI Agent/百宝箱", "demo_pitch": "P_self 杀手锏匹配 — 跨域金融+AI 背景稀缺. 蚂蚁百宝箱 Agent 是核心战略", "fit_for_pself": "very_high", "entry_difficulty": "中-高"},
+  {"name": "阿里巴巴", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI", "xhs_typical_role": "通义 LLM 应用 + 业务算法", "demo_pitch": "XHS 6 mention. 通义实验室 + 业务侧 AI", "fit_for_pself": "medium-high", "entry_difficulty": "中-高"},
+  {"name": "百度", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI", "xhs_typical_role": "文心 LLM + Agent + 搜索 AI", "demo_pitch": "XHS 6 mention. P_self Agent 经验对百度搜索 Agent 化转型 fit", "fit_for_pself": "medium", "entry_difficulty": "中"},
+  {"name": "DeepSeek", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大模型独角兽", "xhs_typical_role": "LLM post-train + 推理优化", "demo_pitch": "XHS 5 mention. 行业最热但门槛极高 (ICML/NeurIPS 一作), P_self 实战项目拼一把", "fit_for_pself": "high (risk)", "entry_difficulty": "高"},
+  {"name": "小红书", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "互联网公司 AI 业务线", "xhs_typical_role": "LLM 应用 + 内容算法", "demo_pitch": "XHS 2 mention. JobCopilot 跟小红书'信息聚合 + AI 摘要'思路同向", "fit_for_pself": "medium-high", "entry_difficulty": "中"},
+  {"name": "美团", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "大厂 AI 应用层", "xhs_typical_role": "LLM 应用 (本地生活) + AI 算法", "demo_pitch": "XHS 3 mention. AI 应用落地导向, P_self 0-1 应用经验直接对标", "fit_for_pself": "medium-high", "entry_difficulty": "中"},
+  {"name": "TikTok", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "出海 AI", "xhs_typical_role": "LLM 算法 + 应用 (海外)", "demo_pitch": "XHS 4 mention. P_self 全英语 + 海外教育背景适合", "fit_for_pself": "medium", "entry_difficulty": "高"},
+  {"name": "AI 应用初创 (头部创业)", "side": "ai", "strategy": "AI应用_PM_开发", "tier": "Agent / 应用层创业", "xhs_typical_role": "LLM 应用 + Agent + AI PM 全栈", "demo_pitch": "XHS 17 mention (AI 初创 + 北京/上海 AI 初创 + AI 应用初创合计). P_self 重要 backup — GitHub traction 直接是面试敲门砖", "fit_for_pself": "very_high (low_friction)", "entry_difficulty": "低-中"}
+]
