@@ -1,0 +1,84 @@
+{
+  "a_strategy_main_axis": {
+    "p1_strategy": "基本面权益",
+    "p6_strategy": "量化",
+    "cross_leak_companies": [],
+    "leak_count": 0,
+    "pass": true
+  },
+  "b_institution_tier_overlap": {
+    "p1_tiers": [
+      "一线公募",
+      "头部券商研究所"
+    ],
+    "p3_tiers": [
+      "二线公募",
+      "中型私募"
+    ],
+    "overlap_pct": 0.0,
+    "pass": true
+  },
+  "c_buy_vs_sell": {
+    "p1_top_5_companies": [
+      "中信建投证券股份有限公司",
+      "高瓴资本",
+      "富国基金管理有限公司",
+      "中再资产管理股份有限公司",
+      "华夏基金"
+    ],
+    "p2_top_5_companies": [
+      "中信建投证券股份有限公司",
+      "中金公司",
+      "华夏基金",
+      "高瓴资本"
+    ],
+    "separated_count": 3,
+    "pass": false
+  },
+  "d_cross_major_friendly": {
+    "p3_reasoning_excerpt": "简历核心经历为新能源行业研究（国海富兰克林新能源车、中型私募光伏），目标私募基本面研究，且具备量化工具（时序模型）辅助基本面分析，符合基本面权益研究员定位。",
+    "cross_major_keyword_found": false,
+    "pass": false
+  },
+  "e_hidden_highlights_invoked": {
+    "by_persona": {
+      "P1": 1,
+      "P2": 2,
+      "P3": 4,
+      "P6": 4,
+      "P_self": 10
+    },
+    "all_have_at_least_1": true,
+    "pass": true
+  },
+  "f_cross_domain_ai_vs_investment": {
+    "pself_top": [
+      "阿里巴巴达摩院（杭州）科技有限公司",
+      "蚂蚁集团",
+      "九坤投资",
+      "灵均投资",
+      "深圳市腾讯计算机系统有限公司",
+      "华夏基金管理有限公司",
+      "AI 应用初创 (头部创业)",
+      "字节跳动"
+    ],
+    "investment_personas_top": [
+      "中信建投证券股份有限公司",
+      "高瓴资本",
+      "中金公司",
+      "富国基金管理有限公司",
+      "中再资产管理股份有限公司",
+      "易方达基金管理有限公司",
+      "华泰证券",
+      "华夏基金",
+      "九坤投资（北京）有限公司"
+    ],
+    "cross_domain_leak": [],
+    "pass": true
+  },
+  "_summary": {
+    "passed": 4,
+    "total": 6,
+    "score_pct": 66.7
+  }
+}

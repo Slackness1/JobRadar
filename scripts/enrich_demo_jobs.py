@@ -39,7 +39,13 @@ DB_PATH = REPO_ROOT / "backend" / "data" / "jobradar.db"
 
 
 def fetch_jobs_for_company(company_name: str, limit: int = 5) -> list[dict]:
-    """从 jobradar.db 捞这家公司的岗位 (fuzzy match)。"""
+    """从 jobradar.db 捞这家公司的岗位 (fuzzy match).
+
+    jobs 表 schema: id, job_id, source, company, department, job_title, location,
+    major_req, job_req, job_duty, job_stage, publish_date, detail_url, canonical_track 等.
+    返回字典里把 job_title -> title, job_duty + job_req -> snippet, detail_url -> jd_url
+    以便后续 enrich/match 统一字段名。
+    """
     import sqlite3
     if not DB_PATH.exists():
         return []
@@ -49,15 +55,27 @@ def fetch_jobs_for_company(company_name: str, limit: int = 5) -> list[dict]:
     short_name = company_name.replace("有限公司", "").replace("管理", "").replace("基金", "基金").strip()
     cur = conn.execute(
         """
-        SELECT id, company, title, location, source, snippet, jd_url, captured_at
+        SELECT id, job_id, company, job_title, department, location, source,
+               job_req, job_duty, job_stage, detail_url, canonical_track, publish_date
         FROM jobs
         WHERE (company LIKE ? OR company LIKE ?)
-        ORDER BY captured_at DESC
+        ORDER BY publish_date DESC NULLS LAST
         LIMIT ?
         """,
         (f"%{short_name[:6]}%", f"%{company_name[:6]}%", limit),
     )
-    rows = [dict(r) for r in cur.fetchall()]
+    rows = []
+    for r in cur.fetchall():
+        d = dict(r)
+        d["title"] = d.get("job_title", "")
+        snippet_parts = []
+        if d.get("job_duty"):
+            snippet_parts.append(f"职责: {d['job_duty'][:600]}")
+        if d.get("job_req"):
+            snippet_parts.append(f"要求: {d['job_req'][:600]}")
+        d["snippet"] = " | ".join(snippet_parts)
+        d["jd_url"] = d.get("detail_url", "")
+        rows.append(d)
     conn.close()
     return rows
 

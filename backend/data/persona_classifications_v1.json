@@ -1,0 +1,183 @@
+{
+  "P1": {
+    "strategy_type": {
+      "canonical": "基本面权益",
+      "sub_category": "行业研究员·消费/医药",
+      "confidence": 0.95
+    },
+    "industry_focus": [
+      "消费",
+      "医药"
+    ],
+    "institution_tier": [
+      "一线公募",
+      "头部券商研究所"
+    ],
+    "reasoning": "简历核心覆盖白酒和CXO，有卖方中信消费组和买方易方达消费+大健康组实习，深度参与渠道调研和专题研究，符合消费/医药行业研究员画像。高瓴二级PE实习进一步强化基本面研究能力。",
+    "raw_signals_from_resume": [
+      {
+        "verbatim": "覆盖白酒板块4家公司（贵州茅台/五粮液/山西汾酒/古井贡），协助首席撰写12篇业绩点评和3篇深度报告",
+        "supports": "strategy_type: 基本面权益, sub_category: 行业研究员·消费"
+      },
+      {
+        "verbatim": "在mentor指导下覆盖创新药CXO子板块3家公司（药明康德/康龙化成/泰格医药），撰写8篇季度业绩点评纳入组内研究库",
+        "supports": "strategy_type: 基本面权益, sub_category: 行业研究员·医药"
+      },
+      {
+        "verbatim": "主导'白酒头部企业渠道扁平化趋势'专题，走访6家终端门店+12家经销商，数据获组内2位基金经理在月度策略会引用",
+        "supports": "industry_focus: 消费, 渠道调研深度"
+      },
+      {
+        "verbatim": "搭建CXO板块订单领先指标体系（基于美股BD公告+Clinical Trials gov），Python+Airflow周度跑批，被沿用至今",
+        "supports": "industry_focus: 医药, 量化辅助研究"
+      },
+      {
+        "verbatim": "支持某医疗器械标的的尽职调查，完成80亿deal size项目的财务模型核查+12家可比公司估值表",
+        "supports": "institution_tier: 头部主观私募/PE, 跨部门协调"
+      }
+    ]
+  },
+  "P2": {
+    "strategy_type": {
+      "canonical": "卖方研究",
+      "sub_category": "卖方研究员·TMT",
+      "confidence": 0.95
+    },
+    "industry_focus": [
+      "TMT",
+      "半导体",
+      "通信设备"
+    ],
+    "institution_tier": [
+      "头部券商研究所"
+    ],
+    "reasoning": "两段实习均为头部券商TMT组（中金、中信建投），覆盖半导体设备和通信设备，具备客户服务（38次路演）和数据库建设（2300条数据点）能力，目标明确为卖方研究首席助理。",
+    "raw_signals_from_resume": [
+      {
+        "verbatim": "覆盖半导体设备子板块4家公司（北方华创/中微公司/拓荆科技/长川科技），协助首席撰写9篇业绩点评+2篇深度报告",
+        "supports": "卖方研究员·TMT"
+      },
+      {
+        "verbatim": "调研服务客户合计38次（公募/险资/私募），累计参与电话会议22场，撰写客户路演纪要12份",
+        "supports": "卖方研究员·TMT"
+      },
+      {
+        "verbatim": "搭建半导体设备国产化率跟踪数据库，数据源含SEMI+海关+财报口径，周度更新，累计写入2300条数据点",
+        "supports": "卖方研究员·TMT"
+      },
+      {
+        "verbatim": "覆盖5G/通信设备子板块3家公司（中兴通讯/烽火通信/紫光股份），撰写业绩点评5篇",
+        "supports": "卖方研究员·TMT"
+      },
+      {
+        "verbatim": "希望加入头部券商研究所（中金/中信/国君）做TMT首席助理",
+        "supports": "卖方研究员·TMT"
+      }
+    ]
+  },
+  "P3": {
+    "strategy_type": {
+      "canonical": "基本面权益",
+      "sub_category": "行业研究员·新能源",
+      "confidence": 0.95
+    },
+    "industry_focus": [
+      "新能源"
+    ],
+    "institution_tier": [
+      "中型私募",
+      "二线公募"
+    ],
+    "reasoning": "简历核心经历为新能源行业研究（国海富兰克林新能源车、中型私募光伏），目标私募基本面研究，且具备量化工具（时序模型）辅助基本面分析，符合基本面权益研究员定位。",
+    "raw_signals_from_resume": [
+      {
+        "verbatim": "覆盖新能源车产业链4家公司（宁德时代/比亚迪/亿纬锂能/国轩高科），撰写业绩点评7篇",
+        "supports": "industry_focus: 新能源"
+      },
+      {
+        "verbatim": "在PM指导下覆盖光伏产业链3家公司（隆基绿能/通威股份/阳光电源），撰写深度报告1篇+业绩点评4篇",
+        "supports": "industry_focus: 新能源"
+      },
+      {
+        "verbatim": "独立完成某光伏标的的财务模型（含DCF+相对估值），模型被PM反向challenge 3次后修订",
+        "supports": "strategy_type: 基本面权益"
+      },
+      {
+        "verbatim": "希望加入私募/资管（高毅/景林/千合）做基本面研究，利用量化能力做差异化",
+        "supports": "institution_tier: 中型私募"
+      }
+    ]
+  },
+  "P6": {
+    "strategy_type": {
+      "canonical": "量化",
+      "sub_category": "量化研究员·中频",
+      "confidence": 0.95
+    },
+    "industry_focus": [
+      "TMT",
+      "AI 基础设施"
+    ],
+    "institution_tier": [
+      "头部量化私募",
+      "外资 / 对冲"
+    ],
+    "reasoning": "简历核心经历为九坤中频策略组和乾象alpha因子组实习，开发中频(1-5天持仓)alpha因子，因子入库4个且sharpe>0.8，直接对齐中频量化研究员标签。同时有高频订单簿深度学习项目，但主要经历仍为中频alpha。目标公司九坤、明汯、鸣石、Point72均为头部量化私募或外资对冲。行业focus偏TMT和AI基础设施，因为因子开发涉及机器学习和高频数据。",
+    "raw_signals_from_resume": [
+      {
+        "verbatim": "在 senior researcher 指导下开发中频 (1-5 天持仓) alpha 因子, 提交因子 12 个, 入库 4 个 (单因子 sharpe > 0.8)",
+        "supports": "strategy_type: 量化研究员·中频"
+      },
+      {
+        "verbatim": "搭建因子回测框架 (基于团队内部 backtest infra), 优化数据 IO 效率, 单 backtest 耗时从 18 分钟降到 7 分钟",
+        "supports": "strategy_type: 量化研究员·中频 (工程能力)"
+      },
+      {
+        "verbatim": "希望加入头部量化私募 (九坤 / 明汯 / 鸣石 / Point72) 做 quant researcher, 中期目标 PM",
+        "supports": "institution_tier: 头部量化私募, 外资/对冲"
+      },
+      {
+        "verbatim": "复现并改进 4 篇 alpha 因子学术论文 (含 Avramov / Lin / Frazzini 几位作者), 输出复现报告 4 份",
+        "supports": "strategy_type: 量化研究员·中频 (因子研究)"
+      },
+      {
+        "verbatim": "深度学习在高频订单簿数据上的方向预测 (2024-09 至 2025-06)",
+        "supports": "industry_focus: TMT, AI 基础设施 (高频数据+ML)"
+      }
+    ]
+  },
+  "P_self": {
+    "strategy_type": {
+      "canonical": "AI应用_PM_开发",
+      "sub_category": "LLM 应用开发 / Agent 工程师",
+      "confidence": 0.95
+    },
+    "industry_focus": [
+      "AI 应用层",
+      "AI 基础设施"
+    ],
+    "institution_tier": [
+      "大厂 AI 部门",
+      "Agent / AI 应用层创业"
+    ],
+    "reasoning": "简历核心项目（JobCopilot、AgentX、Lewoo）均围绕 LLM 应用、Agent 平台、RAG 等 AI 应用层技术，且强调 0-1 全栈开发与产品思维，与 LLM 应用开发 / Agent 工程师高度匹配。同时，hidden_highlights 显示其产品已获 institutional 客户（SAIF），远超一般实习生水平。",
+    "raw_signals_from_resume": [
+      {
+        "verbatim": "基于 LLM 与 MCP 的 Agent 平台建设，围绕 Agent 管理、工具 / MCP 接入、RAG、长期记忆等核心能力",
+        "supports": "sub_category: LLM 应用开发 / Agent 工程师"
+      },
+      {
+        "verbatim": "设计“快速推荐 + 异步增强”的双阶段体验",
+        "supports": "sub_category: LLM 应用开发 / Agent 工程师; 产品思维"
+      },
+      {
+        "verbatim": "已与上海交通大学高级金融学院正式开展学生长期合作签约",
+        "supports": "institution_tier: 大厂 AI 部门 / AI 应用层创业 (验证产品成熟度)"
+      },
+      {
+        "verbatim": "GitHub 上线 1 个月获得 250+ Stars",
+        "supports": "industry_focus: AI 应用层 (社区认可)"
+      }
+    ]
+  }
+}
