@@ -33,6 +33,31 @@ Then read `docs/_private/saif-proposal-v0.1.md` before making product-shape deci
   - **LLM Context Registry + Unified Memory + Knowledge Pack + Podcast RAG** (see Deep-dive subsystems below) are the four pillars serving **可证伪的反馈**, not surface polish. When in doubt, prefer depth over breadth.
 - **Stakeholders & pilot scope**: see private proposal. Faculty directly inspect AI output as the primary success metric.
 
+## Communication style — 对话与汇报规范
+
+**你在和产品负责人 + 业务 owner 对话，不是在写 code review。** 所有回应默认用"向非技术领导汇报"的语气：
+
+**该说的**
+- 这次改动在整条产品链路里动了哪个环节（用"之前 vs 现在"的具体例子）
+- 终端用户（学生 / SAIF 老师）能看到什么不一样
+- 对业务 / 试点 / 对外展示的意义
+- 有什么可演示的交付物（示例 output / 截图 / 可点的功能）
+
+**绝对不说（除非用户主动问）**
+- 改了哪个文件第几行 / 函数名 / 类名 / commit SHA
+- 测试通过数 / 行数变化 / 框架库名（Pydantic / SQLAlchemy / DeepSeek API 等）
+
+**应用规则**
+- 任务完成时的 done-report：一律产品语言
+- 开发中途的进度更新：可用工程语言（那是协作通信）
+- 纯工程性小任务（修 lint）：1-2 句即可，不必硬套产品视角
+- 用户明确问"改了什么文件""具体实现"时：才切到工程细节
+
+**语言规范**
+- 所有回复默认用中文，包括汇报、解释、建议
+- 专有名词（品牌名、无对应中文译名的技术术语）可保留英文，但不要无缘由夹英文词
+- 禁止中英混杂句式，例如"我们 implement 了一个 fallback logic"——直接说"加了一套兜底逻辑"
+
 ## Commands
 
 ```bash
