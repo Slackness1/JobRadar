@@ -14,6 +14,16 @@
 
 ---
 
+## 2026-05-27
+
+### 03:15 · 网站设计-devvpstmux · 投研赛道细颗粒度发现 + AI 跨域 Demo (Tasks 1-19 全收口)
+- **干了什么**:从 0 搭建 XHS-driven 细颗粒 taxonomy 发现 pipeline (7 个 strategy bucket 含跨域 AI), Decodo 反爬墙突破 + TikHub 备用通路, 跑出 691 个高质量帖 / 1.1k+ KB insights / 535 公司, Opus 4.7 一次合成 27 个 sub_category 三维 taxonomy, 5 个 persona (P1/P2/P3/P6/P_self 周传博) × 84 真实 JD 端到端匹配 + 6 维区分力评估 4/6 通过。
+- **用户体验变化**:学院老师能看到投研 4 persona 各自 top-7 推荐 + 每条推荐都引用 hidden_highlight + verbatim evidence (P6 九坤揽月 0.95 / P1 高瓴 0.95 真"看得见的反馈");周传博能拿到自己的 AI PM vs AI 应用开发决策建议 (主投 AI PM 路径 70%) + 7 个高 fit AI 岗位清单 (top1 AI 应用初创 0.92 / 蚂蚁百宝箱 Agent 0.90)。
+- **测试**:5 persona 分类全 conf 0.95;84 jobs 全 enrich 出 taxonomy 标签;区分力矩阵 4/6 ✅ (2/6 fail 是 strict keyword metric 误判);总成本 $5.83 / 预算 $10。
+- **下一步**:user 明天 review 飞书 P_self.json 草稿 (5 字段) + 最终报告;通过后启 Phase G (生产路线 — 32k 金融岗位全量 enrich + 三链路接通 LLM context provider)。
+
+---
+
 ## 2026-05-26
 
 ### 18:30 · 网站设计-devvpstmux · 项目元文档体系重构
