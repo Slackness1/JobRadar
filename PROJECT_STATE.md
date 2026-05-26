@@ -1,31 +1,34 @@
 # PROJECT_STATE
 
-> 项目当前快照。每次大段工作结束时更新。**Last updated: 2026-05-18.**
+> 项目当前快照。每次大段工作结束时更新。**Last updated: 2026-05-26.**
 
 ## Modules
 
-| Module | Status | Notes |
-|---|---|---|
-| Crawlers (10 tier blocks) | ✅ stable | 9 daily blocks + Tata API。`foreign_ibs` ~4.5min 最慢。Job 落库时 `before_insert` 自动派生 `canonical_track`。 |
-| Sites monitor (`/sites`, `/api/sites`) | ✅ stable | 已嵌入 `/system-health`,2/8s 自适应轮询。 |
-| Coverage dashboard (`/coverage`) | ✅ stable | 13 tracks,每条 yaml 带 `canonical_tracks: [...]` 映射 8 canonical;`/api/coverage` response surface 该字段。golden-spiral starmap 默认视图。 |
-| Admin pages (`/review-queue`, `/system-health`) | ✅ stable | Wireframe 变体 C,HiFi terracotta 作用域隔离。 |
-| Resume Copilot pipeline | ✅ stable | Parse(inferred_tracks 自动 canonicalize) → preferences (8 canonical picker + 老值 union) → recommendation + LLM rerank → chat rewrites。 |
-| Resume Copilot demo session | ✅ stable | `DEMO_SESSION_ID=1`,lifespan 启动时强制重建。 |
-| Mock interview (text + voice) | ✅ stable | DashScope cosyvoice-v2 + paraformer-realtime-v2。Lingmou 数字人 dormant。 |
-| Adaptive interview picker | ✅ stable | Skeleton + LLM follow-up + recall + hard-rule + interest_decider (followup mean 2.40→3.00)。每个并行任务独立 SessionLocal (Q5-hardened)。 |
-| 5 ContextProviders fan-in | ✅ stable | sensitive_topic → tencent_track → student_memory → podcast → **track_knowledge** (Phase D 新加),按序短路。 |
-| Taxonomy module (`app.services.taxonomy/`) | ✅ stable | 8 canonical + 65+ aliases + 22 红线词 + source_map (1:1 source→canonical) + tracks.yaml (8 canonical knowledge data) + TrackKnowledgeProvider。142 unit tests。 |
-| `Job.canonical_track` + `Track.canonical_track` | ✅ stable | SQLAlchemy `before_insert` 自动派生 Job;Track DB 9 行 backfill;Alembic 0004/0005;`/api/tracks` surface。Job 99113 行 backfill 29592 (29.9%)。 |
-| Eval harness Phase 1+1.5 (投研 v1) | ✅ stable | 5 students × 5 JDs × 5 answers + judge.py 4 metric × MiMo + multi_turn simulator 接 interest_decider。JD fixtures 带 canonical_track,judge prompt enumerate 8 canonical。baseline.json checked in。 |
-| Knowledge pack (Tencent skill) | ✅ stable | 9 tables,8/8 verbatim quotes 验过,5 output constraints,8 sensitive topics。 |
-| Account system (alpha-1 内测) | ✅ stable | 4 表 + 6 endpoints + bcrypt + QQ SMTP + AuthModal。4/5 邀请码可用。 |
-| XHS crawler (`tools/xhs_post_comment_crawler/`) | ✅ usable | 新 A 账号 web_session 已注入。B 账号冷藏。smoke pass。`env -u ALL_PROXY` 跑。 |
-| Alembic migrations | 🟡 partial | Strangler-fig 与 `schema_patch.py` 共存。新 schema 走 Alembic only。当前 head `0005_job_canonical_track`。 |
+| Module | Status | Last verified | Notes |
+|---|---|---|---|
+| Crawlers (10 tier blocks + 12 新源) | ✅ stable | 2026-05-26 | 9 daily blocks + Tata API + 中信证券 / 鹏华 / Deutsche Bank / Barclays / Citadel 等 12 家 W22 新接。`foreign_ibs` ~4.5min 最慢。 |
+| Coverage dashboard (`/coverage`) | ✅ stable | 2026-05-26 | 13 coverage tracks (W22 新增 insurance_am / securities_am / bank_wealth);yaml `canonical_tracks` 映射 13 canonical;starmap 默认视图。 |
+| Sites monitor (`/sites`) | ✅ stable | 2026-05-19 | 已嵌入 `/system-health`,2/8s 自适应轮询。 |
+| Admin pages (`/review-queue`, `/system-health`) | ✅ stable | 2026-05-19 | HiFi terracotta 作用域隔离。 |
+| Resume Copilot pipeline | ✅ stable | 2026-05-26 | Parse → preferences (**13 canonical** picker) → recommendation V4 + LLM rerank + 个性化叙事 (Phase 7-8) + industry-tags (Phase 6) → chat rewrites with 编造数字守卫。 |
+| Resume Copilot UI (HiFi 三页) | ✅ stable | 2026-05-26 | W22 新增:Sessions 页 (登录首屏选简历) / ConfirmProfile 整页 (替代浮层) / IntelDrawer 420px 4-tab / CoachPane + RewritePane 中栏 takeover。 |
+| Resume Copilot demo session | ✅ stable | 2026-05-18 | `DEMO_SESSION_ID=1`,lifespan 启动时强制重建。 |
+| Mock interview (text + voice) | ✅ stable | 2026-05-18 | DashScope cosyvoice-v2 + paraformer-realtime-v2。Lingmou 数字人 dormant。 |
+| Adaptive interview picker | ✅ stable | 2026-05-18 | Skeleton + LLM follow-up + recall + interest_decider (followup mean 2.40→3.00)。每个并行任务独立 SessionLocal。 |
+| 5 ContextProviders fan-in | ✅ stable | 2026-05-18 | sensitive_topic → tencent_track → student_memory → podcast → track_knowledge,按序短路。 |
+| Taxonomy module (`app.services.taxonomy/`) | ✅ stable | 2026-05-26 | **13 canonical** (W22 从 10 扩出) + 280+ aliases + 22 红线词 + source_map + tracks.yaml 13 条 knowledge + TrackKnowledgeProvider。994 unit tests。 |
+| `Job.canonical_track` 派生 + backfill | ✅ stable | 2026-05-26 | SQLAlchemy `before_insert` 自动派生;v2 重构有 `canonical_track_pre_v2` 备份列;rule-based backfill 脚本拆 4 个 ambiguous 池。MiMo 总覆盖率 46.2%。 |
+| Eval harness Phase 1+1.5 (投研 v1) | ✅ stable | 2026-05-18 | 5 students × 5 JDs × 5 answers + judge.py 4 metric × MiMo + multi_turn simulator。JD fixtures + judge prompt 已升级 **13 canonical**。 |
+| Knowledge pack (Tencent skill) | ✅ stable | 2026-05-16 | 9 tables,8/8 verbatim quotes 验过,5 output constraints,8 sensitive topics。 |
+| Account system (alpha-1 内测) | ✅ stable | 2026-05-15 | 4 表 + 6 endpoints + bcrypt + QQ SMTP + AuthModal。 |
+| XHS crawler | 🟡 deprecated | 2026-05-26 | 2026-05-26 决策:爬取弃用,改 API 替代。详见 `WORKTREE_STATUS.md`。 |
+| Alembic migrations | 🟡 partial | 2026-05-26 | Strangler-fig 与 `schema_patch.py` 共存。新 schema 走 Alembic only。当前 head `f1a8e3c7b2d5`(13 canonical v2)。 |
 
 ## In flight
 
-(空) — 6-metric 试点级硬化 sprint 收官 (D-19):推荐侧 tier_label 三档强约束 + priority_letter A/B/C/D;简历侧 chat.py 接 audit_draft 5 维 (复用 plan-mode 算法);Evidence 100% / Overclaim 0% / Actionability 100%;30 新 unit tests。**MiMo backfill 收官 (D-17)**:canonical 覆盖 29.9% → 46.2%。等用户指派下一段。
+**等用户指派**。最近收官:W22 HiFi 三页一比一复刻 (Sessions/Confirm/Coach/Intel/Rewrite) + 13 canonical 赛道重构 + 推荐叙事 Phase 5-8 + 12 家金融爬虫扩展。
+
+**待部署**:今天合并的 W22 全部工作**尚未推到 prod VPS**(jobcopilot.top 仍是旧版),需跑 `jobradar-vps-deploy` skill。
 
 ## Recent shipped (last 2 weeks)
 

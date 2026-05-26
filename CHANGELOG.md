@@ -1,6 +1,36 @@
 # CHANGELOG
 
 > 最近 shipped 工作的轻量摘要。最新在上，按周分组。详细 entry 在 commit message 里。
+> **日常追加见 `ACTIVITY.md`**；本文件是周末汇总后的索引。
+
+## 2026-W22 (May 19-26) · HiFi 三页重设计 + 13 赛道重构 + 推荐叙事 Phase 5-8 + 12 家金融爬虫扩展
+
+- **🎯 Resume Copilot HiFi 三页一比一复刻 (P0a-P2, 2026-05-26)** —— 工作台从单页工具升级为完整"求职助手"产品形态。
+  - **Sessions 页 (P0a)**：登录后首屏从"每次重传简历"改为"选简历"，学生能续上修改一半的会话；workspace TopBar 重写为 HFWSTopBar（logo / 面包屑 / session chip / 计数 / 导出 / 头像）；新增 `is_archived` 软删字段，session 不再被 DELETE。
+  - **IntelDrawer (P0b)**：同辈情报从公司卡内嵌的小段升级为独立 420px 右栏 4-tab 抽屉（原话 hero + 待遇大字 + 要求 pills + 面试题 Q1/Q2/Q3），点小红书角标触发；hero 态 verbatim 逐字渲染 + VERBATIM 角标。
+  - **CoachPane + RewritePane (P1)**：中栏 chat 区加 2 个 takeover 模式 — Coach 模式（terracotta ribbon + STAR 4 节点 stepper + 公司 logo）；Rewrite 模式（v0/v2 双候选 + 数字 mark 高亮 + 编造数字守卫面板 + 港新英文块）。
+  - **ConfirmProfile 整页 (P2)**：解析确认从工作台浮层升级为独立路由 `/resume-copilot/confirm`，3 张暖米黄卡（简历摘要 / 想准备的赛道 / 目标城市）+ 步骤指示 ○●○ 2/3。
+  - **退役**：WorkspaceConfirmGuide 浮层、旧 entry-login 单步流程。
+
+- **🎯 13 canonical 赛道重构 (`cc4636a`, 2026-05-26)** —— 金融赛道从 10 个扩到 13 个，更贴近 SAIF 学生真实流向。
+  - **拆分**：二级买方·基本面 → 公募/资管·投研 + 私募·基本面；卖方研究·S&T → 卖方研究 + S&T·FICC·衍生品；一级市场 → 投行·并购·资本市场 + 一级股权·PE/VC；管理咨询·MBB + 战略咨询 → 咨询·MBB+Tier2 + 企业战略·管培·实业金融。
+  - **配套**：Alembic migration 备份旧值列；rule-based backfill 脚本拆 4 个 ambiguous 池；tracks.yaml 同步 13 条知识库；source_map.py 重接 securities 二级路由；recommendation.py prompt 改"13 大金融赛道"。
+  - **测试**：994 unit tests pass。
+
+- **🎯 推荐叙事 Phase 5-8 (May 24-25)** —— 推荐卡从"打分 + 标签"升级为"个性化叙事"。
+  - **Phase 5a (`ff60d1e`)** — 后台 back-office title 硬拦截 + 情报预烤脚本，从源头剔除不该出现的低质量岗位。
+  - **Phase 6 (`d0c6c35`)** — industry-tags mvp，推荐卡加行业方向 chip（互联网金融科技 / 消费产业等）。
+  - **Phase 7 (`91a3a8a`)** — LLM 个性化推荐叙事：基于简历自动写一段"为什么这个岗适合你"短文，替代干瘪的 tier_label。
+  - **Phase 8 (`d616811`)** — 平台 tab 加 mini-job 短 narrative，平台聚合视图也有叙事，不再只是岗位列表。
+
+- **🎯 V4 推荐模型 + 平台聚合 (`7b433ab`, May 23)** —— 推荐引擎升级到 V4，新增平台视图（按招聘平台聚合）+ 同辈情报 enrichment 接入推荐卡（`4eab4c9`）。
+
+- **金融爬虫扩展 +12 家 (May 19-25)** —— 覆盖率向 SAIF 学生真实流向收敛。
+  - 中信证券 careers.citics.com cookie scrape（10 暑期实习）；鹏华基金 phfund_api（10 暑期）；Deutsche Bank 解锁 + 诊断 VPS IP 软封禁；Barclays + 3 海外 elite quants Asia roles；Citadel WP-AJAX 7 SAIF 量化校招岗。
+  - 新增 3 个细分 track：保险资管 `insurance_am`（22 家 128 岗）、券商资管 `securities_am`（5 → 28 家 211 岗）、银行理财子 `bank_wealth`（piggyback 母行 portal）。
+  - 整合：hedge_funds + trust + 主观私募 3 赛道一起重梳；securities T1 21/21=100% 全覆盖；P1-quant5 5 家 SAIF 头部量化私募；互联网金科 derived_company track；投行 IBD + 券商资管 2 sub-direction track。
+
+- **元文档重组 (May 26)** —— CLAUDE.md P1 分层落地，根 + 4 个 service 子目录各有 CLAUDE.md；WORKTREE_STATUS.md 重写反映 5 个并行 Claude 会话拓扑；根 CLAUDE.md 加入对话风格规范（产品视角 + 全中文）；废弃 HANDOFF.md，新建 ACTIVITY.md 追加式日志。
 
 ## 2026-W21 (May 17-18) · MiMo backfill + SAIF 召回 + 6-metric + interview/eval 多 provider
 

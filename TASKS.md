@@ -1,14 +1,21 @@
 # TASKS
 
-> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。**Last updated: 2026-05-18 深夜.**
+> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。日常工作日志见 `ACTIVITY.md`。**Last updated: 2026-05-26.**
 
-## 收官 ✅ (2026-05-16 深夜)
+## 收官 ✅ (2026-05-26, W22)
 
-**Taxonomy 项目级铺线 sprint 全部完成** —— 6 phase 全 ship,8 canonical 贯穿 backend model + parser + provider + scoring,frontend picker,eval fixtures + judge prompt,DB jobs + tracks 全模块。142 unit tests pass。
+- **Resume Copilot HiFi 三页一比一复刻 (P0a-P2)** — Sessions 页 + IntelDrawer 4-tab + CoachPane/RewritePane 中栏 takeover + ConfirmProfile 整页。在 `resume-copilot` 分支干完后合到 main。
+- **13 canonical 赛道重构** — 从 10 扩到 13,新增 4 个细分赛道 + Alembic 备份 + rule-based backfill 脚本。994 unit tests pass。
+- **推荐叙事 Phase 5-8** — back-office 拦截 / industry-tags / LLM 个性化叙事 / 平台 tab mini narrative。
+- **金融爬虫扩展 +12 家** — 中信证券 / 鹏华 / Deutsche Bank / Barclays / Citadel 等;新增 3 个细分 track。
+- **元文档体系重构** — 废弃 HANDOFF.md;新建 ACTIVITY.md;CLAUDE.md 加冷启动路径 + 对话风格规范;CLAUDE.md P1 分层落地(4 个 service 子目录)。
 
-## 收官 ✅ (2026-05-18)
+## 收官 ✅ (2026-05-18, W21)
 
-**模拟面试评分接入 ContextProvider + personalization directive (C')** —— scoring.py 新增可选 db/user_key/profile/preferences 参数；总是 append directive；orchestrator 透传 user_key。10/10 scoring test pass。**已 push (`efb0ffe`)**。配套 demo: `backend/scripts/demo_abc_scoring_touyan.py` 一键复跑 4 版对照（投研嘉实场景）。
+- **6-metric 试点级硬化** — 推荐侧 tier_label 三档 + priority_letter A/B/C/D;简历侧 chat.py 接 audit_draft。Evidence 100% / Overclaim 0% / Actionability 100%。
+- **SAIF 投研召回 sprint** — 候选池 91k → 2235;track 权重 4→18;离线 harness 96.2% hit。
+- **MiMo backfill** — Job.canonical_track 覆盖率 29.9% → 46.2%。
+- **模拟面试评分接入 ContextProvider** — scoring.py 加 db/user_key/profile/preferences 参数。
 
 ## Active sprint — 真实闭环验证 + SAIF demo 准备
 
@@ -22,17 +29,10 @@
 - [ ] **接通：模拟面试→学生档案 的写入** —— 当前断在这里：面试算出来的弱点只写在 `interview_reports` 表，没存进 `account_memory`，所以"做完面试 → 系统记下来 → 下次面试调用"这个闭环根本不存在。预计半天～一天。改完后"同一学生连做两次面试，第二次反馈引用第一次"才成立。
 - [ ] **系统内"热展示"形态选型**：3 个候选 —— (A) 同一学生网页上连做 2 次面试，反馈引用上次  (B) 面试页侧边露 "AI 当下用了什么" 小窗  (C) 反馈下加 "看看不带历史版本" 切换按钮。A 是最直观演示，B 是产品长期卖点，C 是 A 的快捷补充。等 P0/P1 跑通后定。
 
-详见 `HANDOFF.md` "下次会话建议接什么"。
+### 🟢 P2 (W22 收官后新加)
 
-## ✅ Taxonomy sprint 已完成(7 commits)
-
-- [x] ✅ **Phase A** (`631e13b`) — taxonomy module 抽出,recommendation.py 改 import。
-- [x] ✅ **Phase F** (`2c39590`) — coverage_truth.yaml + Track DB 加 canonical_tracks。additive。
-- [x] ✅ **Phase B** (`1de7f81`) — Alembic 0005 加 `Job.canonical_track` + `before_insert` 自动派生 + 29592 行 backfill (29.9%)。新 source_map.py。
-- [x] ✅ **Phase C** (`36cd29c`) — parser inferred_tracks 跑 canonicalize + 前端 TRACK_OPTIONS 8 canonical + 老值 union 向后兼容。
-- [x] ✅ **Phase D-0** (`ce11b15`) — `tracks.yaml` 8 canonical 的 knowledge data。
-- [x] ✅ **Phase D** (`991342c`) — 5th ContextProvider `TrackKnowledgeProvider` (taxonomy/provider.py),注册 bootstrap 第 5 位。
-- [x] ✅ **Phase E** (`697cb37`) — JD fixtures + judge.py 引用 8 canonical。chat.py rewrite 口径调整未做(backlog)。
+- [ ] **部署 W22 全量工作到 prod VPS** —— HiFi 三页 + 13 赛道目前只在 dev,jobcopilot.top 仍是旧版。跑 `jobradar-vps-deploy` skill。
+- [ ] **观察元文档体系是否真的被各会话执行** —— 1-2 周后检查 ACTIVITY.md 是否被并行会话按规则追加,如有漏写考虑加 pre-commit hook 提醒。
 
 ## Backlog · 高优先级 (Eval / Recommendation / 性能)
 

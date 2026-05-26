@@ -1,6 +1,13 @@
 # CLAUDE.md
 
-> 新会话**先读这个**。然后看 `PRODUCT.md`（谁在用 / 为什么做） / `PROJECT_STATE.md`（当前状态）/ `TASKS.md`（接什么干）/ `HANDOFF.md`（上次留到哪）/ `DECISIONS.md`（为什么是现在的样子） / `REJECTED.md`（试过但没保留的）。
+> 新会话**先读这个**。冷启动阅读顺序（2026-05-26 起调整为多会话并行模式）：
+> 1. **CLAUDE.md**（本文件）— 静态架构与规则
+> 2. **WORKTREE_STATUS.md** — 当前 5 个 Claude 会话各自在干什么 / 占了哪个 worktree
+> 3. **ACTIVITY.md** — 最近 14 条交付日志（追加式，按倒序），快速摸清最近一周做了什么
+>
+> 不再依赖 `HANDOFF.md`（已废弃，多会话并行场景下失效）。
+>
+> 其它参考文档按需查：`PRODUCT.md`（谁在用 / 为什么）/ `PROJECT_STATE.md`（模块快照表）/ `TASKS.md`（active sprint）/ `CHANGELOG.md`（周度索引）/ `DECISIONS.md`（为什么是现在的样子）/ `REJECTED.md`（试过但没保留的）。
 
 ## What this project is
 
@@ -57,6 +64,12 @@ Then read `docs/_private/saif-proposal-v0.1.md` before making product-shape deci
 - 所有回复默认用中文，包括汇报、解释、建议
 - 专有名词（品牌名、无对应中文译名的技术术语）可保留英文，但不要无缘由夹英文词
 - 禁止中英混杂句式，例如"我们 implement 了一个 fallback logic"——直接说"加了一套兜底逻辑"
+
+**追加 ACTIVITY.md 是 done-report 的强制环节**
+- 每次完成一段重要工作（合并 PR、新功能上线、跨模块改造、关键 bug 修复），**在给用户汇报的同时，也往 `ACTIVITY.md` 顶部追加一条**
+- 追加格式见 `ACTIVITY.md` 文件头说明（5 行内：时间 + 会话名 + 模块 + 一句话产品视角 + 用户能看到什么变化 + 测试状态 + 下一步留给谁）
+- 纯工程小任务（修 lint、小重构、改注释）不必追加，避免日志噪声
+- 这是给其它并行 Claude 会话和新会话看的工作日志，**不写就等于没发生**——以前 7 天的工作集体消失就是因为没人写
 
 ## Commands
 
