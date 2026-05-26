@@ -16,7 +16,8 @@ from pathlib import Path
 
 from app.services.taxonomy_discovery.budget_tracker import BudgetTracker
 
-OUTPUT_ROOT = Path("backend/data/xhs/raw")
+REPO_ROOT = Path(__file__).resolve().parent.parent   # scripts/ -> repo root
+OUTPUT_ROOT = REPO_ROOT / "backend" / "data" / "xhs" / "raw"
 SUBAGENT_OUTPUTS = OUTPUT_ROOT / "_subagent_outputs"
 REPORTS_DIR = OUTPUT_ROOT / "_reports"
 BUDGET_STATE = OUTPUT_ROOT / "_budget.json"
