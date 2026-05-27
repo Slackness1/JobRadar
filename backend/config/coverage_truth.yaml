@@ -320,7 +320,12 @@ tracks:
       # 实测 105 unique Asia SAIF 岗 (HK 29 / SG 26 / Mumbai 22 / Tokyo 13 / Shanghai 4)
       - name: JP Morgan
       - name: HSBC
-        deferred_reason: 2026-05-26 经 Decodo 重测确认 mycareer.hsbc.com 是 HSBC Poland GSC 专属 portal (244KB 内容,0 Asia/HK/SG 提及,20 Poland 提及);Asia portal 公开 entry 不明,backlog
+        # 2026-05-27 翻案: 旧 mycareer.hsbc.com 真是 HSBC Poland GSC,但
+        # HSBC Asia 真渠道 portal.careers.hsbc.com (Eightfold AI) 找到了!
+        # /api/apply/v2/jobs 直通,首爬 +923 unique Asia 岗 (China 497 +
+        # HK 239 + Taiwan 78 + Singapore 49 + India 44 + Japan 16),含 381
+        # SAIF 关键词命中 (Corporate Banking VP / Hedge Fund Credit / Metals
+        # Origination / Private Banking 等真 IBD/Markets 岗)。
       # 2026-05-26 修正诊断: 不是 ASN 封锁,是 Workday 租户级应用层反爬
       # (WorkdayDetect 行为指纹 / CSRF / portal session cookies)。
       # Decodo premium residential 实测 422 / cookie-flow 也过不去。

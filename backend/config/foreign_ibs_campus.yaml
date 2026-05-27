@@ -83,6 +83,19 @@ sites:
     tls_impersonate: chrome120
     note: "2026-05-25: db.wd3/DBWebsite curl_cffi chrome120 解锁 — 92 unique Asia SAIF岗。前记'自建ATS'有误，实为标准Workday wd3。"
 
+  # HSBC — 2026-05-27 大翻案: 之前认为 mycareer.hsbc.com 是 HSBC Poland GSC
+  # 专属 portal(确实如此),但 HSBC Asia 真渠道找到了 — portal.careers.hsbc.com
+  # 后台用 Eightfold AI (`/gen/js/ef-*.js` 签名). API 直接 VPS curl_cffi 通,
+  # Asia 总量:Mainland China 497 / HK 239 / Shanghai 99 / Taipei 87 /
+  # Singapore 49 / Beijing 45 / Mumbai 45 / Bangalore 56 / Tokyo 16
+  - name: HSBC
+    handler: hsbc_eightfold
+    portal_url: https://portal.careers.hsbc.com/careers
+    page_size: 10            # Eightfold API caps at 10/req regardless of num value
+    max_pages_per_query: 50  # 500/query 覆盖 Mainland China 497 总量
+    search_queries: ["Hong Kong", "Mainland China", "Singapore", "Shanghai", "Beijing", "Taipei", "Tokyo", "Mumbai"]
+    note: "2026-05-27: portal.careers.hsbc.com Eightfold AI /api/apply/v2/jobs 直通,无需 Decodo"
+
   # JP Morgan — 2026-05-26 重新诊断: 原以为是 Workday(jpmc.wd5)被 IP 软封,
   # 实际 JPM 早已迁移到 Oracle Cloud Candidate Experience。jpmc.fa.oraclecloud.com
   # /hcmRestApi/recruitingCEJobRequisitions VPS plain requests 1.1s 200 OK,

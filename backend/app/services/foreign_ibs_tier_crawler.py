@@ -404,6 +404,102 @@ def _fetch_ubs_taleo_spa(
     return out
 
 
+def _fetch_hsbc_eightfold(
+    company: str,
+    portal_url: str,
+    queries: List[str],
+    page_size: int = 50,
+    max_pages_per_query: int = 6,
+    source: str = "foreign_ibs_official",
+    industry: str = "外资投行",
+    tags: str = "foreign_ib",
+) -> List[Dict[str, Any]]:
+    """HSBC Asia portal — `portal.careers.hsbc.com` 后台是 Eightfold AI。
+
+    2026-05-27 实测 (替换之前误判 mycareer.hsbc.com=Poland 的结论):
+    /api/apply/v2/jobs?domain=hsbc.com&location=<city>&num=50 直接 VPS curl_cffi
+    1s 返 200。Asia 总量 (single-keyword totals):
+      Mainland China 497 / HK 239 / Shanghai 99 / Taipei 87 / Bangalore 56 /
+      Singapore 49 / Beijing 45 / Mumbai 45 / Tokyo 16
+    """
+    import hashlib
+    import re as _re
+    base = portal_url.rstrip("/").rsplit("/careers", 1)[0] if "/careers" in portal_url else portal_url.rstrip("/")
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for q in queries:
+        for page in range(max_pages_per_query):
+            try:
+                r = requests.get(
+                    f"{base}/api/apply/v2/jobs",
+                    params={
+                        "domain": "hsbc.com",
+                        "location": q,
+                        "start": page * page_size,
+                        "num": page_size,
+                        "pid": "",
+                    },
+                    headers={**_ua_headers(), "Accept": "application/json",
+                             "Referer": f"{base}/careers"},
+                    timeout=25,
+                )
+            except Exception:
+                break
+            if r.status_code != 200:
+                break
+            try:
+                jd = r.json()
+            except Exception:
+                break
+            positions = jd.get("positions") or []
+            if not positions:
+                break
+            total = jd.get("count") or 0
+            for p in positions:
+                pid = str(p.get("id") or "").strip()
+                if not pid or pid in seen:
+                    continue
+                seen.add(pid)
+                title = (p.get("name") or "").strip()
+                if not title:
+                    continue
+                locs = p.get("locations") or []
+                if isinstance(locs, list) and locs and isinstance(locs[0], dict):
+                    loc_text = ", ".join(l.get("name", "") for l in locs if l.get("name"))
+                else:
+                    loc_text = str(p.get("location") or "")
+                if not _is_asia(loc_text):
+                    continue
+                duty_raw = str(p.get("job_description") or p.get("description") or "")
+                duty_clean = _re.sub(r"<[^>]+>", " ", duty_raw)
+                duty_clean = _re.sub(r"\s+", " ", duty_clean).strip()[:4000]
+                out.append({
+                    "job_id": _hash_id(source, company, pid),
+                    "source": source,
+                    "company": company,
+                    "company_type_industry": industry,
+                    "company_tags": tags,
+                    "department": str(p.get("department") or ""),
+                    "job_title": title,
+                    "location": loc_text or "未知",
+                    "major_req": "",
+                    "job_req": "",
+                    "job_duty": duty_clean,
+                    "application_status": "待申请",
+                    "job_stage": "campus" if any(k in title.lower() for k in ("intern", "graduate", "campus", "trainee", "associate program")) else "social",
+                    "source_config_id": f"{source}:hsbc_eightfold:{company}:{pid}",
+                    "publish_date": _parse_dt(p.get("posted_date") or p.get("created_at")),
+                    "deadline": None,
+                    "detail_url": f"{base}/careers/job/{pid}",
+                    "scraped_at": datetime.utcnow(),
+                })
+            if (page + 1) * page_size >= total:
+                break
+            if len(positions) < page_size:
+                break
+    return out
+
+
 def _fetch_oracle_ce(
     company: str,
     portal_url: str,
@@ -607,7 +703,7 @@ def crawl_foreign_ibs(
 
     for entry in raw:
         handler = entry.get("handler", "workday")
-        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html", "oracle_ce"):
+        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html", "hsbc_eightfold", "oracle_ce"):
             continue  # only supported handlers
 
         company = entry["name"]
@@ -658,6 +754,14 @@ def crawl_foreign_ibs(
                     site_number=entry.get("site_number", "CX_1001"),
                     queries=queries,
                     page_size=int(entry.get("page_size", 25)),
+                    max_pages_per_query=max_pages,
+                )
+            elif handler == "hsbc_eightfold":
+                records = _fetch_hsbc_eightfold(
+                    company=company,
+                    portal_url=entry.get("portal_url", ""),
+                    queries=queries,
+                    page_size=int(entry.get("page_size", 50)),
                     max_pages_per_query=max_pages,
                 )
 
