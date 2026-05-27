@@ -14,7 +14,23 @@
 
 ---
 
+## 2026-05-28
+
+### 02:55 · 岗位爬取-devvpstmux · Phase G T3 — 10 个短板 sub_cat XHS 补爬入库
+- **干了什么**:Phase G T1-T2 已分出 10 个 XHS 信号薄的 sub_cat(< 30 帖 OR < 10 公司),T3 对每个 sub_cat 跑 5 条真细分 query(原 T2 输出有 6 个 sub_cat 用"{sub_cat} 实习/招聘"模板被现场重写为公司名+赛道术语),用 TikHub+Decodo 抓帖 + DeepSeek extract 入 `taxonomy_xhs_posts` 新表。
+- **用户体验变化**:之前 10 个稀薄赛道(如行业研究员·消费 1 帖、自营FOF 1 帖)现在各拿到 18-59 帖 + 11-71 家真实公司名(中信/国君/中金/九坤/Optiver/字节豆包/华为等),T5/T6 合成 27 sub_cat 知识库时这些 sub_cat 不再饿死,推荐 narrative 引得到 verbatim quote。
+- **测试**:总抓 608 帖,relevance ≥0.3 入 jsonl 340 帖,加上 AI PM 预跑 36 帖共 376 帖入 `taxonomy_xhs_posts` 0 重复;relevance 88% high;总花 $2.32 / 预算 $5。
+- **下一步**:T4 — Opus 1-shot 生成 27 sub_cat × 必有/优选/可选公司 ground truth 清单(估算 $2 / 0.5 天),为 T5/T6 知识库合成提供 anchor。
+
+---
+
 ## 2026-05-27
+
+### 21:35 · 岗位爬取-devvpstmux · Phase G T0 — 推荐 v2 脚手架搭建
+- **干了什么**:Phase G 推荐链路 v2 的 T0 脚手架全部就位：灰度开关 `RECOMMENDATION_V2_ENABLED`（默认 OFF）、jobs 表新 7 列（sub_category / institution_tier 等 sub_cat 体系）、2 张新表（taxonomy_xhs_posts + knowledge_subcategories）、detect_internship() 实习岗识别函数。
+- **用户体验变化**：对学生暂无感知（开关 OFF），但 jobs 表已具备承载 27 sub_category × 3 维度分类结果的能力，T1–T21 可逐步填入。
+- **测试**：2 条 Alembic migration 已跑通（dev DB 验证列 + 表均存在）；detect_internship 单测 5/5 passed；全套 tests/ 144 passed + 1 pre-existing fail（test_crawler_llm 需 OPENAI_API_KEY 环境变量，与本次改动无关）。
+- **下一步**：T1（sub_category 分类器）由后续会话接手，分支 `phase-g/recommendation-pipeline-v2`，commit `434ebbb`。
 
 ### 13:00 · 网站设计-devvpstmux · P_self persona review 收口 + 测试数据隔离
 - **干了什么**:user 全面 review 后 5 字段修正 P_self.json — 关键是把 PVSyst 100 万欧元那条"内部测试用伪造内容"标记从 persona 主体彻底拆出, 新建独立 `P_self_demo_cases.json` 并加 `do_not_inject_into` 隔离声明(列出 6 个不允许被注入的下游文件); hidden_highlights 把"SAIF 签合作"语义降级为"SAIF 老师认可+学生试用/内测", GitHub stars 从 350+ 累计修正为 150+/100+ 实际值; inferred_roles 改 primary/secondary/stretch 三级 (LLM 工程师降到 stretch); avoid_emphasize 语气从"回避"→"叙事优先级"。

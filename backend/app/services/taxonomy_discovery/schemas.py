@@ -8,13 +8,14 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class StrategyType(str, Enum):
-    """6 大策略大类 (spec §4.1)。enum value 用中文,LLM 直接吐就行。"""
+    """7 大策略大类 (Phase G 扩 +AI 应用类, spec §4.1)。enum value 用中文,LLM 直接吐就行。"""
     基本面权益 = "基本面权益"
     量化 = "量化"
     固定收益 = "固定收益"
     卖方研究 = "卖方研究"
     多资产_FOF_衍生品 = "多资产_FOF_衍生品"
     相关补充 = "相关补充"
+    AI_应用_PM_开发 = "AI 应用_PM_开发"
 
 
 class KBInsightType(str, Enum):

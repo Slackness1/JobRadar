@@ -1,0 +1,56 @@
+{
+  "completed_sub_cats": [
+    "AI PM",
+    "行业研究员·消费",
+    "公募指数研究员",
+    "量化研究员·高频",
+    "利率宏观策略",
+    "卖方研究员·消费医药周期",
+    "卖方研究员·宏观策略",
+    "自营FOF",
+    "财富管理FOF",
+    "多模态推理优化"
+  ],
+  "totals": {
+    "AI PM": {
+      "processed": 38,
+      "written": 36
+    },
+    "行业研究员·消费": {
+      "processed": 74,
+      "written": 50
+    },
+    "公募指数研究员": {
+      "processed": 71,
+      "written": 29
+    },
+    "量化研究员·高频": {
+      "processed": 68,
+      "written": 59
+    },
+    "利率宏观策略": {
+      "processed": 75,
+      "written": 34
+    },
+    "卖方研究员·消费医药周期": {
+      "processed": 69,
+      "written": 55
+    },
+    "卖方研究员·宏观策略": {
+      "processed": 72,
+      "written": 39
+    },
+    "自营FOF": {
+      "processed": 58,
+      "written": 28
+    },
+    "财富管理FOF": {
+      "processed": 50,
+      "written": 18
+    },
+    "多模态推理优化": {
+      "processed": 71,
+      "written": 28
+    }
+  }
+}
