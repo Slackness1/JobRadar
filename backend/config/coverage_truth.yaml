@@ -280,7 +280,9 @@ tracks:
         deferred_reason: 主观多头 — 校友办 + 海投 listings,无 ATS,referral_heavy
       - name: 淡水泉投资
         jobs_company_match: [淡水泉]
-        deferred_reason: 无 careers 页;走公众号 + 校园宣讲 + 校友内推
+        # 2026-05-27: 用户提供 app.mokahr.com/campus-recruitment/springscapital
+        # /151579 真渠道 (Moka v3 init-data format)。当前 +2 校招岗:
+        # 投研暑期训练营 / Π型人才训练营。source=hedge_funds_moka_v3。
       - name: 睿郡资产
         jobs_company_match: [睿郡]
         deferred_reason: ruijunasset/ruijun 各 ATS 未注册,backlog
@@ -295,7 +297,10 @@ tracks:
         deferred_reason: 主观多头,无公开 ATS
       - name: 磐松量化
         jobs_company_match: [磐松]
-        deferred_reason: pansongasset 在所有主流 ATS 未注册,referral_heavy
+        # 2026-05-27: 用户提供 vb4gv9levr.jobs.feishu.cn/index (Feishu Hire
+        # 真渠道,title "加入磐松资产")。Decodo 渲染 OK 但当前 0 visible jobs
+        # — 渠道在,等开闸自动收。和 广发基金 同 Feishu Hire pattern,可复用
+        # funds_feishu_hire_decodo handler 但需新建 hedge_funds 同款。
 
       # === 海外 Elite Quants (Phase 11, 2026-05-23 已 wired) ===
       - name: Point72

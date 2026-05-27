@@ -66,7 +66,7 @@ HEDGE_FUNDS_CONFIG_PATH = (
 _KNOWN = {
     "hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "wintalent_sc",
     "greenhouse", "eightfold", "citadel_wp_ajax",
-    "self_html",
+    "self_html", "moka_v3",
 }
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
@@ -79,7 +79,71 @@ _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "eightfold":         "hedge_funds_eightfold",
     "citadel_wp_ajax":   "hedge_funds_citadel_wp",
     "self_html":         "hedge_funds_self_html",
+    "moka_v3":           "hedge_funds_moka_v3",
 }
+
+
+def _fetch_moka_v3_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Moka 新版 campus-recruitment 系列 — init-data 嵌入 HTML, 不需 API.
+
+    2026-05-27 实测淡水泉投资 (app.mokahr.com/campus-recruitment/springscapital
+    /151579): HTML 含 <input id="init-data"> 嵌入完整 jobs JSON。format 比
+    老 campus_apply 新,job 用 `title` 而非 `name`,location 是 list of dict
+    带 `address`,department 是 nested dict。
+    """
+    import html as _html, json as _json
+    company = target["name"]
+    entry = target["entry_url"]
+    try:
+        r = requests.get(entry, headers={**_ua_headers(),"Referer":entry}, timeout=20)
+    except Exception:
+        return []
+    if r.status_code != 200:
+        return []
+    m = re.search(r'<input id="init-data" type="hidden" value="(.*?)">', r.text, re.S)
+    if not m:
+        return []
+    try:
+        payload = _json.loads(_html.unescape(m.group(1)))
+    except Exception:
+        return []
+    jobs = payload.get("jobs") or []
+    out: List[Dict[str, Any]] = []
+    for j in jobs:
+        if not isinstance(j, dict):
+            continue
+        jid = str(j.get("id") or "").strip()
+        title = (j.get("title") or "").strip()
+        if not jid or not title:
+            continue
+        if (j.get("status") or "").lower() not in ("open","online","publish","published",""):
+            continue
+        loc_obj = j.get("location") or {}
+        location = (loc_obj.get("address") or loc_obj.get("country") or "未知").strip().replace("\n"," ")
+        dept = ((j.get("department") or {}).get("name") or "").strip()
+        zhineng = ((j.get("zhineng") or {}).get("name") or "").strip()
+        stage = "campus" if any(k in title for k in ("校招","校园","实习","训练营","graduate","intern")) else "social"
+        out.append({
+            "job_id": _hash_id("hedge_funds_moka_v3", company, jid),
+            "source": "hedge_funds_moka_v3",
+            "company": company,
+            "company_type_industry": "私募 (Hedge Fund) - 国内",
+            "company_tags": "hedge_fund_domestic,moka_v3," + (dept or zhineng),
+            "department": dept,
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": stage,
+            "source_config_id": f"hedge_funds_moka_v3:{company}:{jid}",
+            "publish_date": _parse_dt(j.get("publishedAt") or j.get("openedAt")),
+            "deadline": _parse_dt(j.get("closedAt")),
+            "detail_url": f"{entry.rstrip('/').split('?')[0]}#/positions/{jid}",
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
 
 
 def _hash_id(source: str, company: str, key: str) -> str:
@@ -429,6 +493,8 @@ def crawl_hedge_funds(
                     crawled = _fetch_citadel_wp_ajax(target)
                 elif family == "self_html":
                     crawled = _fetch_self_html_target(target)
+                elif family == "moka_v3":
+                    crawled = _fetch_moka_v3_target(target)
                 else:
                     crawled = []
             except Exception:

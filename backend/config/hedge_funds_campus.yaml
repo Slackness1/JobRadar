@@ -172,6 +172,19 @@ sites:
     category: 海外对冲基金
     note: 2026-05-23 WordPress wp-admin AJAX (action=careers_listing_filter),curl_cffi chrome120 必需,plain requests 403。pagination param 被忽略只能拿首 20,但其中 ~7 是 Asia 高度 SAIF 相关 (Quant Research/SWE Asia/Intern HK+SG)。pagination 逆向 backlog。
 
+  # 2026-05-27 翻案: 之前判 "主观多头无 ATS referral_heavy" 的私募,系统
+  # 用 Decodo + curl_cffi 重测 — 6 家 (景林/淡水泉/重阳/千合/睿郡/磐松) 中:
+  # - 景林/重阳/千合/睿郡: 网站 dead/SSL 错配,真无 ATS,保持 backlog
+  # - 淡水泉: 用户提供真渠道 mokahr campus-recruitment/springscapital/151579,
+  #   实测 2 真校招岗 (投研暑期训练营 / Π型人才训练营), Moka v3 init-data
+  # - 磐松: 用户提供 vb4gv9levr.jobs.feishu.cn/index (Feishu Hire),当前 0 岗
+  #   但渠道在,等开闸自动收
+  - name: 淡水泉投资
+    ats_family: moka_v3
+    entry_url: https://app.mokahr.com/campus-recruitment/springscapital/151579
+    category: 主观多头私募
+    note: 2026-05-27 Moka v3 init-data 直接解析,当前 2 校招岗 (投研暑期训练营+Π型人才训练营)。
+
   # 2026-05-27: Bridgewater 用 Greenhouse,slug=bridgewater89 (从 careers page
   # 解析 board URL 得出)。25 全球岗,其中 4 个 Singapore SAIF 极相关岗:
   # Equity Quantitative Research Associate / Portfolio Associate Singapore /
