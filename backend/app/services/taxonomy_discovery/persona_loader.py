@@ -27,14 +27,30 @@ def _extract_pdf_text(pdf_path: Path) -> str:
 
 
 def load_persona(persona_id: str) -> Persona:
+    """加载 persona: 优先用 .pdf, 没有 PDF 就 fallback 到 .md / .txt (生产用户上传的 markdown 简历直接读)。"""
     pdf = PERSONA_DIR / f"{persona_id}.pdf"
     js = PERSONA_DIR / f"{persona_id}.json"
-    if not pdf.exists() or not js.exists():
-        raise FileNotFoundError(f"persona files missing for {persona_id}: {pdf}, {js}")
+    md = PERSONA_DIR / f"{persona_id}.md"
+    txt = PERSONA_DIR / f"{persona_id}.txt"
+    if not js.exists():
+        raise FileNotFoundError(f"persona json missing for {persona_id}: {js}")
     raw = json.loads(js.read_text(encoding="utf-8"))
+
+    if pdf.exists():
+        resume_text = _extract_pdf_text(pdf)
+    elif md.exists():
+        resume_text = md.read_text(encoding="utf-8")
+    elif txt.exists():
+        resume_text = txt.read_text(encoding="utf-8")
+    elif raw.get("resume_text"):
+        # 兜底: JSON 内嵌 resume_text 字段
+        resume_text = raw["resume_text"]
+    else:
+        raise FileNotFoundError(f"persona resume missing for {persona_id} (no .pdf/.md/.txt/raw_json.resume_text)")
+
     return Persona(
         id=persona_id,
-        resume_text=_extract_pdf_text(pdf),
+        resume_text=resume_text,
         hidden_highlights=raw.get("hidden_highlights", []),
         target_jd_anchors=raw.get("target_jd_anchors", []),
         persona_voice=raw.get("persona_voice", {}),

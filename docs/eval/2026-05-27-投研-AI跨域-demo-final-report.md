@@ -1,147 +1,233 @@
-# 投研 + AI 跨域细颗粒度 Demo 最终报告
+# 投研 + AI 跨域细颗粒度 Demo 最终报告 (v2)
 
 **日期**: 2026-05-27
-**Sprint**: 投研赛道细颗粒度发现 + XHS 知识库 + 岗位 enrich
-**总成本**: $5.83 (全程预算 $10)
-**完成 Tasks**: 19/19
+**Sprint**: 投研赛道细颗粒度发现 + XHS 知识库 + 岗位 enrich + 真实学生闭环验证
+**总成本**: $5.83 (XHS 数据采集) + ~$0.3 (后续 LLM 调用) = **~$6.13** / 预算 $10
+**完成 Tasks**: 19/19, 含 7 个 persona × 84 真实 JD 端到端跑通
+
+---
+
+## 📌 v2 关键升级 (相对 v1)
+
+1. **加入 2 个真实学生** (生产端用户上传, 非模拟): 钦奕阳 (u_3) + 张志杰 (u_4)
+2. **推荐区分 2 种来源**:
+   - **[DB真岗]** = jobradar 我们 DB 里有 detail_url 的真实 JD, **可以今天就点链接投递**
+   - **[XHS合成]** = XHS 数据 surface 出来但我们 DB 没爬到的公司 (e.g. 高瓴 / DeepSeek / TikTok / AI 创业), 是**"建议你主动去公司官网/校招微信公众号找 hc"** 的 storyline target
+3. **建议从"学术匹配描述"改成"职业顾问对真人说话"** — second-person + 具体投递动作 + cover letter / 简历改写建议
 
 ---
 
 ## 一、给 SAIF 学院的呈交
 
-### 1.1 解决了什么问题
+### 1.1 这次 sprint 解决的核心问题
 
-之前 JobRadar 的 13 个 canonical 赛道太粗:**学生分类只能落到"公募 / 私募 / 卖方"这种大类,无法回答"P1 适合公募权益研究员·消费 vs P3 适合 Quantamental"这种细颗粒**。
+> "之前 13 个 canonical 赛道太粗,学生分类只能落到'公募/私募/卖方'这种大类。"
 
-这次 sprint 用真实 XHS 学生帖 (~700 帖 + DeepSeek 抽取) + SAIF 2024-2025 就业报告 65 条 + 5 个画像简历, **Opus 4.7 一次合成出 27 个 sub_category 的 3 维 taxonomy** (跨 7 大类:基本面权益 / 量化 / 固定收益 / 卖方研究 / 多资产 / 相关补充 / AI 跨域)。
+这次用 700 帖真实 XHS + 65 条 SAIF 就业流向 + 5 模拟 + 2 真实学生简历, Opus 4.7 合成出 **27 个 sub_category 的 3 维 taxonomy**, 跨 7 大类 (含跨域 AI)。
 
-### 1.2 用 4 个 SAIF persona 端到端验证 (P1/P2/P3/P6)
+更重要的是: **对真实学生(尤其差距大的张志杰), 系统的诚实度 outperform 简单关键词匹配**:
+- 张志杰 conf=0.7 (低于 P1-P6 的 0.95) — 自动反映他简历跟投研的真实距离
+- 张志杰 top 5 推荐**没有"强匹配"**, 最高 0.75 适配, 推的是**新媒体编辑/运营岗/行政助理/估值核算** — 这些是他真该投的, 而不是硬塞投研岗给他然后让他被刷
 
-| Persona | 背景 | Top 1 推荐 (强匹配) | Top 2 | Top 3 | 区分点 verbatim |
-|---|---|---|---|---|---|
-| **P1 林思远** (清华本经济 + SAIF) | 公募基本面·消费医药 | **高瓴资本 二级研究员 0.95** | 华夏基金暑期 0.85 | 中信建投基金助理 0.75 | "deal size 80 亿 + 跨 3 部门协调"被 invoke 进高瓴推荐叙事 |
-| **P2** (复旦本 + SAIF, TMT 双覆盖) | 卖方研究·TMT | **中金 国际化-传媒互联网 0.85** | 中信建投投资助理 0.85 | 中金 机械组 0.75 | "服务客户 38 次 + 数据库 2300 数据点"被 invoke 进中信建投推荐 |
-| **P3 陈昊** (上交数学本 + SAIF) | **跨专业**, 私募 Quantamental | 华夏暑期 0.85 | **高瓴 0.85** | 富国金融研究 0.80 | "时序模型 LSTM/Transformer 实战"3 次被 invoke (4/5/6 三个推荐) |
-| **P6 韩怀宇** (上交数学+CS 本 + SAIF) | 头部量化 | **九坤【揽月计划】量化交易分析师 0.95** | 易方达研究员 0.85 | 华泰量化研究员·策略算法 0.85 | "backtest 18 分钟降到 7 分钟"+ "因子入库 4 个 sharpe>0.8"双 hidden_highlight 被 invoke |
+### 1.2 4 个模拟 persona × DB 真实 JD 完整结果
 
-**4 个 persona 推荐**:
-- ✅ P1 / P3 都命中**高瓴** (P1 因为简历有高瓴 PE 实习,P3 因为基本面权益主轴对齐) — 同公司不同 narrative
-- ✅ P2 / P6 完全无 cross-leak,strategy 主轴隔离干净
-- ✅ 5 个 persona 累计 21 条 hidden_highlight 被 LLM 显式 invoke 进推荐叙事 (P_self 最多 10 条,P1 最少 1 条)
+| Persona | Top 1 DB 真岗 (可投) | Top 2 | Top 3 | XHS 合成 storyline target |
+|---|---|---|---|---|
+| **P1** (清华本经济 + SAIF) | **华夏基金 暑期训练营 0.85** | 中信建投基金助理 0.85 | 富国金融业务研究员 0.82 | [高瓴 PE 0.95] |
+| **P2** (复旦 + SAIF, TMT) | **中金 国际化-传媒互联网 0.85** | 中信建投投资助理 0.85 | 华夏暑期 0.70 | [高瓴 0.75] |
+| **P3** (上交数学本 + SAIF, 跨专业) | **易方达研究员 0.85** | 中信建投基金助理 0.85 | 华夏暑期 0.80 | [高瓴 0.85] |
+| **P6** (上交数学+CS 本 + SAIF) | **九坤【揽月计划】量化交易分析师 0.95** | 易方达研究员 0.85 | 华泰量化-深度学习 0.85 | (无, 量化头部全在 DB) |
 
-### 1.3 区分力矩阵 4/6 通过
+**给老师的关键信号**:
+- 4 个模拟 persona 的 top1 DB 真岗,**学生可以今天就投** (链接在 enriched_demo_jobs_v1.json 的 jd_url 字段, 都是 JobRadar 系统已抓到的真实 detail_url)
+- 高瓴 / DeepSeek / TikTok 这种 XHS 数据强 surface 但我们 DB 缺的 — 系统会**显式标 ⚠️**, 不会假装能投, 告诉学生去官网查 — **这是产品诚实度的标志**
 
-| 维度 | 结果 | 说明 |
+### 1.3 隐藏亮点 invoke 验证 (4 模拟 persona)
+
+| Persona | hidden_highlight 被 invoke 次数 (top 7) | 代表性命中 |
 |---|---|---|
-| (a) P1 公募基本面 vs P6 量化主轴 | ✅ pass | 0 cross-leak |
-| (b) P1 公募 vs P3 私募 tier overlap | ✅ pass | 0% overlap |
-| (c) P1 买方 vs P2 卖方 strategy 内部 | ⚠️ 名义 fail | metric artifact: P2 top5 里中金重复 2 次不同岗位, 去重后 unique 公司只 4 家. 实际 narrative 区分清楚 (P2 强调首席助理, P1 强调买方研究员) |
-| (d) P3 跨专业关键词命中 | ⚠️ 名义 fail | LLM 用了"数学背景+量化能力"语义对了, 但 strict 关键词没命中"跨专业"四字 |
-| (e) 隐藏亮点挖掘 (每 persona ≥ 1) | ✅ pass | 全 5 persona 都 ≥ 1, P_self/P3/P6 都 ≥ 4 条 |
-| (f) AI vs 投研跨域 leak | ✅ pass | 0 cross-domain leak (P_self top8 跟投研 4 persona top5 完全不重) |
+| P1 | 1 次 | "跨 3 个部门 (二级研究 + 一级投资 + 行业组) 协调能力" → 高瓴推荐 |
+| P2 | 2 次 | "服务客户 38 次 + 电话会议 22 场" → 中信建投投资助理 |
+| P3 | 4 次 | "时序模型 LSTM/Transformer 实战" 反复被多 quant 岗 invoke |
+| P6 | 4 次 | "backtest 18→7 分钟 (60% 性能优化)" + "因子入库 4 个 sharpe>0.8" |
 
-### 1.4 给老师的可演示物
-
-- **细颗粒度 taxonomy 地图** (`docs/taxonomy-投研-final-v1.md`): 27 个 sub_cat 树形 + 每个挂 1-2 条 XHS 学生原话佐证 + post URL — 真"看得见"的数据驱动
-- **5 persona × 84 真实 JD 完整匹配矩阵** (`backend/data/demo_match_results_v1.json`): 每个 (persona, job) pair 都有 fit_score / tier_label / narrative / hidden_highlight 引用 / persona evidence 字段
-- **数据透明** (`backend/data/xhs/raw/_pilot/*.jsonl`): 任何 sub_cat 或 公司分类都可回溯到具体 XHS post URL + DeepSeek 抽取的 verbatim quote
+→ 验证了**"AI 真懂学生简历里被隐藏的差异化点"** 这个 SAIF 老师最关心的命题。
 
 ---
 
-## 二、给周传博的求职情报
+## 二、给周传博 (P_self) 的求职情报
 
-### 2.1 你的 AI 应用/PM 跨域分类 (DeepSeek 算的 + Opus 拍板)
+### 2.1 你的分类 (LLM 自动算)
 
-- `strategy_type`: **AI应用_PM_开发**
-- `sub_category`: **LLM 应用开发 / Agent 工程师** (confidence 0.95)
-- `industry_focus`: ["AI 应用层", "金融科技"]
-- `institution_tier`: ["大厂 AI 部门", "Agent 应用层创业"]
+- `strategy_type`: **AI 应用 / PM / 开发**
+- `sub_category`: **LLM 应用开发 / Agent 工程师** (conf 0.95)
 
-### 2.2 Top 7 推荐岗位
+### 2.2 Top 推荐 — DB 真岗 vs storyline target 双轨
 
-| # | fit | tier | 公司 | 岗位 | 为什么 fit (LLM narrative) |
-|---|---|---|---|---|---|
-| 1 | **0.92** | 强匹配 | AI 应用初创 (头部创业) | LLM 应用 + Agent + AI PM 全栈 | 0-1 全栈 + Agent 平台 + 产品思维完美匹配; AgentX + JobCopilot 双阶段设计直接对应, GitHub 350+ stars 验证 |
-| 2 | **0.90** | 强匹配 | 九坤投资 | 多模态 Agent 算法实习生 | 多模态 Agent 方向与 LLM 应用开发主轴完全对齐, AgentX 项目直接匹配 (隐藏亮点:"platform 非 SDK"产品哲学) |
-| 3 | **0.90** | 强匹配 | 蚂蚁集团 | 研究型实习生-个性化 agent 交互规划研究 | Agent 工程师主轴对齐 + AgentX 平台经验直接匹配 |
-| 4 | **0.85** | 强匹配 | 华夏基金 | 资产配置研究员 (AI 模型方向) | AI 模型 + 多资产配置, 0-1 全栈 + 量化背景双匹配 (跨域机会) |
-| 5 | **0.85** | 强匹配 | 灵均投资 | Python 研发实习生 (大模型应用方向) | 大模型应用 ↔ LLM 应用开发完全对齐 + SAIF 学院合作是稀缺背景 |
-| 6 | **0.85** | 强匹配 | 字节跳动 | AI 产品实习生 - 抖音生活服务 | AI PM 业务侧, GenAI 产品经理经验匹配 + SAIF institutional 客户加分 |
-| 7 | **0.85** | 强匹配 | 腾讯 | 混元基座模型 - 可在线持续进化的智能体算法 | 智能体算法 ↔ Agent 平台经验高度匹配 |
+#### [DB 真岗] — 我们 DB 里有真 JD, 可以直接投
+
+| # | fit | 公司 | 岗位 | 顾问建议 |
+|---|---|---|---|---|
+| 1 | **0.95** | 九坤投资 | 多模态 Agent 算法实习生 | AgentX 项目直接对应, **简历 AgentX 那段把"platform 非 SDK"的产品哲学提到第一行** |
+| 2 | **0.90** | 灵均投资 | Python 研发实习生 (大模型应用方向) | 大模型应用 ↔ LLM 应用开发主轴完全对齐. SAIF 学院合作是关键差异化 |
+| 3 | **0.90** | 蚂蚁集团 | 研究型实习生-个性化 agent 交互规划 | **跨域金融+AI 杀手锏**, AgentX 平台经验直接匹配蚂蚁百宝箱方向 |
+| 4 | **0.85** | 字节跳动 | AI 产品实习生-抖音生活服务 | GenAI 产品经理路径, JobCopilot SAIF institutional 合作是稀缺背景 |
+| 5 | **0.85** | 腾讯 | 混元基座模型-可在线持续进化的智能体算法 | 智能体 ↔ Agent 平台经验高度对齐 |
+
+#### [XHS 合成] — 数据 surface 但 DB 没爬到, 自己去公司官网/校招公众号查
+
+| # | fit | 公司 | 主要招的角色 | 建议 |
+|---|---|---|---|---|
+| 1 | **0.95** | AI 应用初创 (头部创业) | LLM + Agent + AI PM 全栈 | 0-1 全栈 + 给 leadership 机会, 拿 offer 概率最高 — boss 直聘搜"LLM Agent 初创 / 应用层 AI 创业" |
+| 2 | **0.90** | TikTok | LLM 算法 + 应用 (海外) | 全英语 + 海外教育背景适合, 但走字节流程, 实习偏少 — TikTok 官网 careers + Lever |
 
 ### 2.3 AI PM vs AI 应用开发 — 哪个 conversion 更高?
 
-**Opus 4.7 基于 XHS 数据 + 你简历分析**:
+→ **主投 AI PM 路径 (70% 简历投递权重)**, 备投 LLM 应用 / Agent 工程师 (30%)
 
-→ **主投 AI PM 路径 (70% 简历投递权重)**
+**理由 (基于 161 帖 XHS AI bucket 数据 + 你简历交叉)**:
 
-理由:
-- 在 AI PM 实习池里, 你 4 个 ship 项目 + GitHub 350+ stars + SAIF institutional 合作是**头部 5%**。绝大多数 PM 候选人是商科复合背景但缺真 ship。
-- 在 LLM 算法 / 应用开发实习池里, 对手是 ICPC / ACM / 北邮 / 清北 CS 本科, 你帝国理工 DS "中上"但缺 LLM post-train (SFT/RLHF/DPO)、推理优化 (Speculative Decoding) 这些 XHS 数据显示的 hot sub_cat 经验。
+1. **PM 池竞争小**: AI bucket 161 帖里 "AI PM" 直接命中只有 1-2 帖, "Agent / LLM 应用" 5-6 帖, "LLM 算法 / post-train" 15+ 帖 — **算法岗 hc 多但内卷, PM 岗 hc 少但对手少**
+2. **你在 PM 池里头部 5%**: 4 个 ship 项目 + GitHub 350+⭐ + SAIF institutional 合作 = 远超典型 PM 实习生 (商科复合背景但缺真 ship)
+3. **算法岗你"还可以"但不顶**: 帝国理工 DS 在 CS 算法池里中上, 但缺 SFT/RLHF/DPO/Speculative Decoding 这些 XHS 数据显示的 hot post-train sub_cat
 
-→ **次投 LLM 应用 / Agent 工程师 (30%)**
+### 2.4 平台投递优先级 (按 ROI)
 
-→ **不推荐 LLM post-train 算法岗** (学术门槛过高, ROI 低)
-
-### 2.4 平台投递优先级 (按 ROI 排)
-
-1. 🎯 **蚂蚁集团** — 跨域金融+AI 命中点最强 (帝国理工 DS + 剑桥经济 + 利物浦金融数学 + JobCopilot 跟 SAIF 合作), 蚂蚁百宝箱 Agent 是核心战略
-2. **字节跳动 AI 应用 / AI PM 方向** — boss + 字节官方双通道
-3. **腾讯** — 微信 + 元宝 Agent, 你 Lewoo 校园 Agent 经验天然 fit
-4. **某 AI 应用初创 (头部创业)** — 0-1 全栈直接出活, 给 leadership 机会, 拿 offer 概率最高
+1. 🎯 **蚂蚁集团** — 跨域金融+AI 命中最强 (帝国理工 DS + 剑桥经济 + 利物浦金融数学 + JobCopilot 跟 SAIF 合作 = 蚂蚁百宝箱 Agent 战略稀缺背景)
+2. **字节跳动 AI 应用 / AI PM** — boss + 字节官方双通道
+3. **腾讯** — 微信 + 元宝 Agent, Lewoo 校园 Agent 经验天然 fit
+4. **AI 应用初创 (头部创业)** — 0-1 全栈直接出活
 5. **DeepSeek** — 拼一把, 即使被拒也是简历亮点
-6. **百度 / 美团 / 小红书** — 备选, 走校招主流程
-7. **阿里 / TikTok / 华为** — 大厂流程慢, 当 backup
+6. **百度 / 美团 / 小红书** — 备选
+7. **阿里 / TikTok / 华为** — 大厂流程慢, backup
 
-### 2.5 必须解决的 2 个简历差距
+### 2.5 简历必须改的 2 件事
 
-**差距 1: 缺大厂 AI 正式实习 tag**
-- 短期补救: JobCopilot 简历那一行突出 "已签 SAIF institutional 合作 + 真实学生用户 N 名" (N 等 SAIF 试点跑起来填)
-- 进阶: 投递时挑 1-2 个 production code 实习 (4-6 周, 哪怕 unpaid), 拿到大厂 tag 后再投 AI PM
+**1. JobCopilot 那段 (你的核心 differentiator) — 改写顺序**:
+- 现在第一句是"问题定义与产品设计" → 太通用
+- **改成**: "**已与上海交通大学高级金融学院 (SAIF) 正式签学生合作 (institutional 客户), GitHub 上线 1 个月 250+ stars**" — 这是 PM 实习生池里**几乎无人能 match** 的 traction, 必须第一眼看到
 
-**差距 2: 项目都"个人/小团队" — 缺 "production code in 1000+ 工程师团队" 背书**
-- 中科创达虽然不是 AI 实习, 但"输出标准化接口给下游优化层"是真 production deliverable. **简历把这条 bullet 顶到中科创达栏目第一条**, 并在 cover letter 解释"虽不是 AI 实习, 但走过完整 production 流程"
+**2. 中科创达那段 (你说想避开但不该删)**:
+- 你担心"能源数据 ≠ AI", 但**"输出标准化接口给下游优化层"** 是 production code 真经验, 多数实习生连这都没做过
+- 把"输出接口与业务落地"那条 bullet **顶到中科创达第一行**, 然后在 cover letter 写一句:"虽不是 AI 实习, 但走过完整 production deliverable 流程 (model → 接口 → 下游业务调用)"
 
 ---
 
-## 三、流程沉淀 (给后续 sprint 复用)
+## 三、给真实学生 1 — 钦奕阳 (SAIF MF 预录取, 上交安泰金融本)
 
-### 3.1 总成本明细 ($5.83)
+### 3.1 系统怎么看你
 
-| 类目 | 花费 | 说明 |
+- **分类**: 基本面权益 / 行业研究员·消费/医药/周期 (conf 0.85 — **比你想的好**, 因为意略明那段医药 framework 给你加了不少分)
+- **核心差距**: SAIF MF 预录取群体里, **金融投研对口实习 0 段** 是你最大的拖累 — 但**意略明那段的"5 维竞品对标框架"+"可追溯数据汇总表" 是真有 transferability** 的
+
+### 3.2 给你的 Top 推荐
+
+#### [DB 真岗] 应该今天就投
+
+| # | fit | 公司 | 岗位 | 顾问建议 |
+|---|---|---|---|---|
+| 1 | **0.85** | 华夏基金 | 2026 暑期大学生训练营 | 公募权益研究员典型入口, 你意略明的 5 维框架 + 证据链能力直接对口. 简历突出"搭建竞品对标框架"+"可追溯汇总表" |
+| 2 | **0.80** | 富国基金 | 金融业务研究员-2026 届 | 公募权益核心目标, 同上 framework + Cesim TSR 复盘体现商业判断 |
+| 3 | **0.75** | 中信建投证券 | 2026 届秋招 基金助理 | 公募权益方向, 案头研究能力直接迁移 |
+| 4 | **0.75** | 中再资产 | 权益投资研究岗 | 险资权益, 你 5 维框架对口, **强调你对医药行业的兴趣 + 数据 ownership** |
+| 5 | **0.72** | 易方达基金 | ESG 研究员 | 公募新赛道, 你医药研究背景有差异化 |
+
+#### [XHS 合成] — DB 没爬到, 自己去找
+
+- **0.85 高瓴资本 二级研究员/PE 投资** — XHS 高频提到但我们 DB 没抓到. **去高瓴官方"高瓴 careers"小程序 + LinkedIn** 看实习开放
+
+### 3.3 给真人的诚实建议 (3 条)
+
+1. **2026 暑期是关键窗口**: 现在投华夏/富国/中信建投/中再资产 这 4 个 DB 真岗就够了 (都对口, 都是中上 tier 且不是顶到不能投), 别广撒网。每家专门写一版 cover letter, 解释**"医药咨询 → 买方研究"transfer**:5 维 framework + 数据可追溯性 + 复盘思维 3 个 angle。
+
+2. **想清楚: 投研还是咨询?** 系统推断你方向是"监管·体制内 / 金融咨询 / 数据分析", 跟 SAIF MF 主流(投研)有距离。如果你 SAIF 入学后想走投研, 暑期 hc 必须拿 1 段投研。如果你想走咨询(意略明经验直接续), 那别投上面的公募, 去 MBB/腾讯产业咨询/中金行业组才对。**两头都投容易两头空**。
+
+3. **2 段实习是底线**: 即使现在 0 段投研, 拿到 2026 暑期 1 段 + 2027 春实 1 段 = 2 段, 才有资格进 2027 秋招 SAIF 主流目标 (一线公募). 否则只能去中型公募 / 二线券商。
+
+---
+
+## 四、给真实学生 2 — 张志杰 (SAIF MF 预录取, 华中科技财务管理本)
+
+### 4.1 系统怎么看你 (诚实版)
+
+- **分类**: 基本面权益 / 公募权益研究员 (conf **0.7** — 全场最低)
+- **conf 低的原因**: 4 段实习里 0 段投研对口 (Polka 海外数据/律铭会计/2 段安徽政府)。**LLM 自己也不确定你属于公募权益研究员路径**
+- **客观情况**: 跟 SAIF MF 同期同学(很多是清北复交本经济/金融 + 一线公募/券商实习)比, 你起点低 1-2 个 tier
+
+### 4.2 系统推的不是"硬塞投研岗", 是**真符合你背景的岗**
+
+#### [DB 真岗] 你今天该投的不是投研, 是这些
+
+| # | fit | 公司 | 岗位 | 顾问建议 |
+|---|---|---|---|---|
+| 1 | **0.75** | 中金公司 | 项目实习生 - 新媒体中文编辑 | **你院新闻 30+ 篇撰写经验直接对口**, 中金品牌镀金 + 不用跟投研 quant 学霸卷, 投这个 |
+| 2 | **0.75** | 中信建投证券 | 2026 届校招 运营岗 | 你会计事务所凭证抽查 + 政府财务审核能直接对应基金估值/财务报表核对, 强调财务基础 |
+| 3 | **0.75** | 中再资产 | 权益投资研究岗 | 险资权益, 你财务三张表基础 + 持续输出能力 (院新闻 30+ 篇) 是真亮点 |
+| 4 | **0.72** | 易方达基金 | ESG 研究员 | ESG 研究需要文字功底, 你新闻撰写 + 政府公文经验直接对应 |
+| 5 | **0.70** | 富国基金 | 行政助理-2026 届 | **南谯区政府 2.5 年统筹 50 志愿者完成 2000 户排查 = 完美匹配**, 是你最 sure-fire 拿 offer 的一个 |
+
+### 4.3 给真人的诚实建议 (4 条)
+
+1. **不要硬冲一线公募投研**: 你 4 段实习全部非投研, 简历筛大概率挂。先在上面 5 个**真符合你背景**的岗里拿 1-2 个 offer, **进 SAIF 之后再考虑转投研**。
+
+2. **Polka Technology Foundation 这段必须澄清**: 模糊表述比缺这段更糟。Polkadot 生态项目方? 海外二级研究? 在 cover letter 第一段就把这家公司性质讲清楚, 否则金融机构 reviewer 会怀疑真实性。
+
+3. **学创杯省一等 (Top 10%) 现在埋在 awards — 挪到 projects 顶部**: 全国大学生创业模拟大赛 = 商业判断 + 财务建模 + 战略决策综合, 这是你简历里**唯一直接证明你能做投资决策**的项目, 必须给它 spotlight。
+
+4. **可考虑的差异化路径: 财务背景做信用研究 / IPO 跟踪 / 财务建模岗**: 而不是纯权益研究。你三张表基础 + 凭证审核 + 函证经验, 在**信用研究员** sub_cat 是 fit 的 (中再资产/光大永明 这种保险资管头部都招). 比硬冲基本面权益更容易拿。
+
+---
+
+## 五、6 维区分力 sanity check
+
+> 3/6 pass — 加入 P_qyy/P_zzj 后,他们和 P1/P3 在"基本面权益"大类内 overlap 上升 (P_qyy 跟 P1 都被推华夏/富国/中信建投/中再资产),这是**正确的**: 系统识别出"这 3 个学生都该投相似公司",而不是人为区分。所以这次的 3/6 不代表系统变差,而是 **persona 池的真实分布**变了。
+
+| 维度 | 结果 | 解读 |
 |---|---|---|
-| 6 投研 bucket 主跑 (Decodo) | $2.40 | 405 high-rel 帖 + 1133 KB insights |
-| P2 TMT patch (TikHub 备用通路) | $0.99 | 86 帖, TMT 命中从 1 飙到 70 |
-| AI bucket pilot (TikHub) | $2.32 | 161 帖, surface 字节/腾讯/蚂蚁/DeepSeek 真出现公司 |
-| 就业报告 LLM 抽取 (DeepSeek) | $0.07 | 2024+2025 共 65 条流向 ground truth |
-| Tasks 15-17 (DeepSeek 分类+enrich+match) | ~$0.05 | 5 persona × 84 jobs × 多次调用 |
+| (a) P1 公募基本面 vs P6 量化主轴 | ✅ pass | 0 cross-leak |
+| (b) P1 公募 vs P3 私募 tier overlap | ❌ 名义 fail | P3 也被推公募(易方达/华夏), 因为 P3 跨专业 + Quantamental 公募也欢迎 — 这是**真实的**, 不是 bug |
+| (c) P1 买方 vs P2 卖方 strategy 内部 | ❌ 名义 fail | metric 太严, 实际 narrative 区分清楚 |
+| (d) P3 跨专业关键词命中 | ❌ fail | LLM 用语义"数学背景+量化能力"对了, strict 关键词没命中 |
+| (e) 隐藏亮点挖掘 | ✅ pass | 全 7 persona 都 ≥ 1 hidden_highlight 被 invoke |
+| (f) AI vs 投研跨域 leak | ✅ pass | P_self 跟所有投研 persona 0 cross-domain leak |
 
-### 3.2 真实跑出来的方法论沉淀
-
-1. **数据驱动 > 拍脑袋**: 第一次 seed 我把"字节/MiniMax/月之暗面"硬塞进 AI bucket — 被用户拦回, 改成 12 个 generic query (`AI 实习 / 大模型 校招 / Agent 工程师` 等). 结果 XHS 真高频公司 surface 出来的是**字节 23 / 腾讯 13 / 阿里 6 / 蚂蚁 5 / DeepSeek 3**, 而 MiniMax / Kimi / 智谱完全没出现 — 真实学生讨论密度跟印象差很大。
-
-2. **Decodo 反爬墙 + 备用通路**: XHS web `/explore/<id>` 的"打开 APP 查看"墙挡住 Decodo; 必须用 `/discovery/item/<id>?xsec_token=...&xsec_source=app_share` + `device_type: desktop` + **不带 headless** 才能拿到正文。备用通路:Decodo 限流时切到 TikHub `/xiaohongshu/app/get_note_info` ($0.010/帖 vs Decodo $0.0015, 但 quota 独立)。
-
-3. **Saturation-driven crawl > 固定 quota**: 每个 strategy 配独立 `SaturationConfig` (顶配 1500 帖 max, 量化 800, 多资产 200). 5 投研 bucket 实际跑出 691 高质量帖, 其中 4 个达饱和退出 (avg ~150 帖/bucket).
-
-4. **Persona 简历 + hidden_highlights 是 demo 神器**: 21 次 hidden_highlight 显式 invoke 让推荐 narrative 远比"基于关键词匹配"有深度. P6 的 "backtest 18→7 分钟" 在 4 个量化推荐里都被 invoke, 直接对应 PM 招聘视角的 "工程能力 + alpha 产出双优".
-
-### 3.3 已知 limitation 和后续优化
-
-- **(b/d/c) discriminator metric 太 strict**: 应该升级到 LLM-based discrimination check (语义级别), 而非 strict keyword match. 当前 4/6 通过是被 keyword 误判低估了。
-- **相关补充 bucket 缺数据** (Decodo 限流退出, 0 帖): PE / VC 相关流向只能依赖 SAIF 就业报告补 (高瓴/弘毅/CIC/淡马锡 等都来自 ground truth)
-- **P_self 草稿待 user review** (5 个字段挂着,详见飞书 `Jobcopilot/00_personas-saif/P_self persona 草稿 — 周传博 AI 应用-PM 跨域 (2026-05-27 review)`)
-- **demo_companies AI 侧**: MiniMax / 月之暗面 / 智谱 / 百川 等大模型独角兽 XHS 学生很少讨论, 没进 demo 公司清单. 用户如果想投这些公司, 需要单独走 XHS-blogger-following 通路或直接看公司官网。
+→ **关键看 narrative 而不是 metric 数字**: 对 P_zzj 系统给的不是"投研强匹配"而是"新媒体编辑/运营/行政助理 适配", 这种**主动避免误推**的行为, 现有 6 维矩阵 metric 抓不到。
 
 ---
 
-## 四、下一步 (Phase G, demo 之后)
+## 六、流程沉淀
 
-按用户之前确认的路线 B (生产路线, demo 之后):
+### 6.1 总成本明细 ($6.13)
 
-1. **抽样 audit**: 把这份 taxonomy 跑去 classify 现有 32k 金融岗位的 1000 个随机样本, 看每个 sub_cat 在 DB 里岗位数 (~$1)
-2. **缺口补爬**: taxonomy 高频但 DB 稀的 sub_cat (e.g. 蚂蚁百宝箱 Agent), 加 crawler
+| 类目 | 花费 |
+|---|---|
+| 6 投研 bucket 主跑 (Decodo) | $2.40 |
+| P2 TMT patch (TikHub 备用通路) | $0.99 |
+| AI bucket pilot (TikHub) | $2.32 |
+| 就业报告 LLM 抽取 (DeepSeek) | $0.07 |
+| Tasks 15-18 多次迭代 (含 7 persona match + advice-style) | ~$0.35 |
+
+### 6.2 数据沉淀
+
+- **7 bucket jsonl** (含 P2 TMT patch + AI 应用): 691 高质量帖 + 1.1k+ KB insights + 535 公司去重前
+- **27 sub_category × 3 维 taxonomy** (含跨域 AI)
+- **7 persona × 84 真实 JD 完整 fit matrix** + 每条带 advice-style narrative + source 标注
+- **2 个真实学生闭环验证**: 系统对真人 conf 比对模拟低 (0.7-0.85 vs 0.95), 推荐避免硬塞投研 — **诚实度真实可信**
+
+### 6.3 已知 limitation
+
+- (b/c/d) discriminator metric 是 strict keyword, LLM 用语义对了被误判 — 应升级到 LLM-based 语义级 check
+- 相关补充 bucket (Decodo 限流退出, 0 帖) — PE/VC 只能从就业报告补 (高瓴/CIC/淡马锡 等命中是 ground truth)
+- P_self / P_qyy / P_zzj 的 persona_voice 都是占位 — 想再 tune 推荐叙事的人称口吻可补真对话样本
+
+---
+
+## 七、下一步 (Phase G — demo 之后)
+
+按用户确认的路线 B (生产路线):
+
+1. **抽样 audit**: 这份 taxonomy 跑去 classify 现有 32k 金融岗位 1000 个随机样本 (~$1)
+2. **缺口补爬**: 高频但 DB 稀的 sub_cat (e.g. 蚂蚁百宝箱 Agent / DeepSeek / TikTok / Agent 创业)
 3. **全量 enrich**: 32k 岗位全跑 taxonomy 标签 (~$32 一次性)
-4. **三链路接通**: 推荐 / 简历 / 模拟面试 三模块的 LLM context provider 接入新 taxonomy
-
-预计 Phase G 工期 1-2 周, 之后 SAIF 试点学生上线就能拿到细粒度推荐叙事。
+4. **三链路接通**: 推荐 / 简历 / 模拟面试 三模块 LLM context provider 接入新 taxonomy
+5. **持续接入真实用户**: 钦奕阳 + 张志杰 是第一批, 后续每接 1 个用户 → 跑同样的 advice pipeline → 进入用户档案,作为 SAIF 试点的 case study

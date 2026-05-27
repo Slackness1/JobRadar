@@ -1,0 +1,63 @@
+{
+  "scenario_id": "real_qin_yiyang_2026_05_27",
+  "scenario_config": {
+    "target_track": "投研路径待定 (生产端推断: 策略分析 / 金融研究 / 数据分析)",
+    "student_tier": "mid (优秀学校底子 + 1 段中等咨询实习, 缺金融投研对口经验)",
+    "is_cross_major": false,
+    "is_real_student": true,
+    "source": "JobRadar 生产端 user_key=u_3 上传 (2026-05-20)",
+    "generation_notes": "上交安泰金融本 (辅修经济) + SAIF MF 预录取. 唯一实习是上海意略明医药咨询 (4 个月, 偏 case 类 secondary research). 推断岗位与 SAIF MF 主流目标 (投研/资管) 有错位 - 系统推断含'监管·体制内/金融咨询/数据分析', 属于 SAIF MF 中冷门方向."
+  },
+  "resume_summary_from_real_upload": {
+    "name": "钦奕阳",
+    "email": "sjtuqyy@163.com",
+    "phone": "(86) 189 1229 2536",
+    "location": "上海",
+    "education_top": "SAIF MF 预录取 (2026.09 入学) + 上交安泰金融本 (辅修经济)",
+    "internships_count": 1,
+    "internships_summary": "上海意略明数字科技 (2026.01-04, 医药行业 case 咨询: 疾病/产品/竞品 secondary research, 临床试验跟踪, 问卷/访谈材料准备)",
+    "projects": [
+      "Cesim 企业经营模拟 (组长, 10 轮决策 + TSR 驱动因素复盘)",
+      "家乡文化 IP 调研 (校三等奖 + 安泰一等)"
+    ],
+    "language": "CET-4 585 / CET-6 525 (无 TOEFL/GRE)",
+    "no_pdf_uploaded_yet": true
+  },
+  "persona_voice": {
+    "communication_style": "(暂无真实对话样本; 占位) 基于真实简历推测: 写作偏结构化, 习惯用'梳理/对标/复盘'这类咨询风格词",
+    "verbal_tics": [],
+    "typical_message_length": "未知",
+    "under_pressure": "未知"
+  },
+  "target_jd_anchors": [
+    "结构化分析框架",
+    "二手 / 案头研究 (secondary research)",
+    "证据链组织",
+    "竞品对标",
+    "行业 / 公司基础研究",
+    "数据驱动决策"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[0] 意略明",
+      "hidden_fact": "搭建'适应症/作用机制/证据强弱/差异化卖点/潜在误解点'5 维竞品对标框架 — 这种 framework-first 思维比典型实习生'写报告'层级高, 对买方研究的'独立 thesis' 训练有可迁移性"
+    },
+    {
+      "where": "internships[0] 意略明",
+      "hidden_fact": "'临床试验登记平台数据 + 公开资料 → 可追溯汇总表' — 数据 ownership + 可追溯性是 sell-side / buy-side 研究核心能力, 但简历用'跟踪/提取/形成'这种平淡动词被淡化"
+    },
+    {
+      "where": "projects[0] Cesim",
+      "hidden_fact": "组长 + 10 轮 + TSR 驱动因素复盘 = 商业敏感度 + 财务思维 + 复盘文化, SAIF MF 入学前能 own 这个项目说明 leadership + 商业判断"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "投研岗位筛简历容易因'唯一实习是医药咨询'被刷 — 需要 cover letter 显式回答'为什么咨询经历能 transfer 到 buy-side 研究' (5 维 framework + 数据可追溯性 + 复盘思维 3 个 angle)",
+    "wants_to_emphasize": "SAIF MF 预录取 + 安泰金融本辅修经济 = 学术底子打好, 配合 Cesim leadership + 意略明 framework 思维, 应该 frame 成 '研究方法论已 ready, 入学后立即接金融 domain 训练' 的故事"
+  },
+  "real_challenges": [
+    "本科 + 硕士都在准备阶段, 9 月才入学 SAIF MF — 现在投暑期实习是关键窗口",
+    "金融投研对口实习 0 段 — 拿头部公募 / 头部券商研究所暑期实习 hc 的概率低, 需先去中型公募 / 二线券商 / 咨询接金融 client 的项目 build credibility",
+    "推断方向'监管·体制内 / 金融咨询' 跟 SAIF MF 主流目标 (公募投研 / 私募 / 卖方) 有距离 — 需先想清楚到底要投投研还是要走咨询路径, 否则 2026 秋招容易两头空"
+  ]
+}

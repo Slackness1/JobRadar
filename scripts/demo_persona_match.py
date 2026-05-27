@@ -39,12 +39,16 @@ OUTPUT_JSON = REPO_ROOT / "backend" / "data" / "demo_match_results_v1.json"
 
 
 def _compact_job(j: dict) -> dict:
-    """瘦身: 留 LLM 真正需要的字段, 删掉占字符的 URL / 时间戳 / 长 snippet."""
+    """瘦身 + 标 source: 'db_real' 是真 JD 可投, 'xhs_proxy' 是 XHS 数据合成的 placeholder."""
+    src_raw = j.get("source", "") or ""
+    source_label = "xhs_proxy" if "xhs" in src_raw.lower() else "db_real"
     return {
         "job_id": j.get("id") or j.get("job_id"),
         "company": j.get("company"),
         "title": j.get("title") or j.get("job_title", ""),
         "location": j.get("location", "")[:30],
+        "source": source_label,  # db_real | xhs_proxy
+        "jd_url": (j.get("jd_url") or j.get("detail_url") or "")[:150],
         "tax": j.get("taxonomy_labels", {}),
         # 截短的 duty + req
         "duty_brief": (j.get("job_duty") or "")[:300],
@@ -59,11 +63,14 @@ def match_for_persona(persona, persona_class: dict, jobs: list[dict], taxonomy_m
     最后汇总。每 batch 拿到的 fit_score 都是基于 persona 全简历独立打的, 可放心 sort。
     """
     system = (
-        "你是金融求职 + AI 求职双域匹配引擎。给你 persona 的简历 + taxonomy 分类, 和一批 enriched job. "
+        "你是金融求职 + AI 求职双域职业顾问。给你 persona 的简历 + taxonomy 分类, 和一批 enriched job. "
         "为每个 job 独立算 fit_score (0-1, 严格基于 taxonomy 主轴对齐 + 经验 transferability) + "
-        "tier_label (强匹配 ≥0.8 / 适配 0.5-0.79 / 可考虑 0.3-0.49 / 不匹配 <0.3) + 1-2 句叙事. "
-        "若命中 persona hidden_highlights 显式 invoke. **必须对输入 batch 里每个 job 都输出一条**, 不要漏. "
-        "严格 JSON 输出."
+        "tier_label (强匹配 ≥0.8 / 适配 0.5-0.79 / 可考虑 0.3-0.49 / 不匹配 <0.3) + 给真人的 advice-style narrative. "
+        "narrative 要直接 (像真职业顾问对学生说话), 不要写'persona 的 X 与岗位的 Y 匹配'这种学究语. "
+        "用'你这段 X 可以直接对应到岗位的 Y, 投递时简历突出 Z' 这种 second-person 风格. "
+        "如果 job source='xhs_proxy' (不是 DB 真岗位), 要在 narrative 末尾标注 '⚠️ 这家公司不在我们 DB 里, "
+        "建议去 [公司官网/校招微信公众号] 直接看 hc 开放情况'. "
+        "若命中 persona hidden_highlights 显式 invoke. **必须对输入 batch 里每个 job 都输出一条**, 不要漏."
     )
 
     all_results: list[dict] = []
@@ -89,9 +96,11 @@ classification (3 维 taxonomy): {persona_class}
       "job_id": <job.job_id>,
       "company": "...",
       "title": "...",
+      "source": "db_real | xhs_proxy (透传输入)",
+      "jd_url": "<透传 jd_url 如果有>",
       "fit_score": <0-1, 严格按 strategy_type 主轴对齐 + 经验 transferability 打分>,
       "tier_label": "强匹配 | 适配 | 可考虑 | 不匹配",
-      "narrative": "<1-2 句, 引用 taxonomy dimension + persona evidence>",
+      "narrative": "<2-3 句, second-person advice 风格 — '你这段 X 直接对应岗位 Y, 投时突出 Z'; xhs_proxy 必须在末尾加'⚠️ 不在 DB 里, 自己去公司官网查 hc'>",
       "hidden_highlight_invoked": "<persona hidden_highlights 命中的 1 条文本, 否则 null>",
       "evidence_from_persona": "<persona 简历里支持 fit 的 verbatim 截取, 最多 30 字>"
     }}

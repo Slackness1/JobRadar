@@ -2,83 +2,84 @@
   "a_strategy_main_axis": {
     "p1_strategy": "基本面权益",
     "p6_strategy": "量化",
-    "cross_leak_companies": [],
-    "leak_count": 0,
-    "pass": true
+    "cross_leak_companies": [
+      "易方达基金管理有限公司"
+    ],
+    "leak_count": 1,
+    "pass": false
   },
   "b_institution_tier_overlap": {
     "p1_tiers": [
-      "一线公募",
-      "头部券商研究所"
+      "头部券商研究所",
+      "一线公募"
     ],
     "p3_tiers": [
-      "二线公募",
-      "中型私募"
+      "中型私募",
+      "一线公募"
     ],
-    "overlap_pct": 0.0,
+    "overlap_pct": 0.333,
     "pass": true
   },
   "c_buy_vs_sell": {
     "p1_top_5_companies": [
-      "中信建投证券股份有限公司",
-      "高瓴资本",
+      "易方达基金管理有限公司",
       "富国基金管理有限公司",
-      "中再资产管理股份有限公司",
+      "高瓴资本",
+      "中信建投证券股份有限公司",
       "华夏基金"
     ],
     "p2_top_5_companies": [
-      "中信建投证券股份有限公司",
       "中金公司",
       "华夏基金",
-      "高瓴资本"
+      "高瓴资本",
+      "中信建投证券股份有限公司"
     ],
     "separated_count": 3,
     "pass": false
   },
   "d_cross_major_friendly": {
-    "p3_reasoning_excerpt": "简历核心经历为新能源行业研究（国海富兰克林新能源车、中型私募光伏），目标私募基本面研究，且具备量化工具（时序模型）辅助基本面分析，符合基本面权益研究员定位。",
+    "p3_reasoning_excerpt": "简历核心经历为新能源产业链（光伏、动力电池）的深度研究，覆盖4-3家公司，撰写深度报告和财务模型，符合行业研究员·TMT-医药-周期中的周期/新能源细分。同时具备量化背景（时序模型），但主要投研方向为基本面权益，目标私募基本面研究。",
     "cross_major_keyword_found": false,
     "pass": false
   },
   "e_hidden_highlights_invoked": {
     "by_persona": {
-      "P1": 1,
-      "P2": 2,
-      "P3": 4,
-      "P6": 4,
-      "P_self": 10
+      "P1": 3,
+      "P2": 6,
+      "P3": 10,
+      "P6": 5,
+      "P_self": 8
     },
     "all_have_at_least_1": true,
     "pass": true
   },
   "f_cross_domain_ai_vs_investment": {
     "pself_top": [
-      "阿里巴巴达摩院（杭州）科技有限公司",
       "蚂蚁集团",
       "九坤投资",
-      "灵均投资",
+      "字节跳动",
       "深圳市腾讯计算机系统有限公司",
-      "华夏基金管理有限公司",
+      "灵均投资",
       "AI 应用初创 (头部创业)",
-      "字节跳动"
+      "TikTok"
     ],
     "investment_personas_top": [
-      "中信建投证券股份有限公司",
-      "高瓴资本",
-      "中金公司",
-      "富国基金管理有限公司",
-      "中再资产管理股份有限公司",
       "易方达基金管理有限公司",
+      "九坤投资（北京）有限公司",
+      "华夏基金管理有限公司",
+      "富国基金管理有限公司",
       "华泰证券",
-      "华夏基金",
-      "九坤投资（北京）有限公司"
+      "中金公司",
+      "高瓴资本",
+      "中信建投证券股份有限公司",
+      "华夏基金"
     ],
     "cross_domain_leak": [],
     "pass": true
   },
   "_summary": {
-    "passed": 4,
+    "passed": 3,
     "total": 6,
-    "score_pct": 66.7
+    "score_pct": 50.0
   }
 }

@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 TAXONOMY_MD = REPO_ROOT / "docs" / "taxonomy-投研-final-v1.md"
 OUTPUT_JSON = REPO_ROOT / "backend" / "data" / "persona_classifications_v1.json"
 
-PERSONA_IDS = ["P1", "P2", "P3", "P6", "P_self"]
+PERSONA_IDS = ["P1", "P2", "P3", "P6", "P_self", "P_qyy", "P_zzj"]
 
 
 def classify_persona(persona, taxonomy_md: str, client) -> dict:

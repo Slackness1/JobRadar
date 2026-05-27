@@ -1,0 +1,68 @@
+{
+  "scenario_id": "real_zhang_zhijie_2026_05_27",
+  "scenario_config": {
+    "target_track": "投研路径明显错位 (4 段实习偏会计+体制内, 跟 SAIF MF 投研目标距离大)",
+    "student_tier": "weak (相对 SAIF MF 群体而言; 实习数量虽多但全部非投研)",
+    "is_cross_major": false,
+    "is_real_student": true,
+    "source": "JobRadar 生产端 user_key=u_4 上传 (2026-05-24)",
+    "generation_notes": "华中科技大学财务管理本 + SAIF MF 预录取 (2026.09 入学). 4 段实习: Polka Technology Foundation (海外科技公司数据归档 4 个月) / 安徽律铭会计 (凭证抽查 3 个月) / 安徽政府机关 × 2 (2.5 年累计, 协调志愿者 + 处理凭证 + 农业补贴). 院新闻 + 体育部 + 心理委员 学生工作丰富但缺金融投研对口."
+  },
+  "resume_summary_from_real_upload": {
+    "name": "张志杰",
+    "email": "zzjyyf1030@gmail.com",
+    "phone": "(86) 178 5500 1630",
+    "education_top": "SAIF MF 预录取 (2026.09 入学) + 华中科技大学财务管理本 (2023 毕业, gap 2 年, 期间在政府工作)",
+    "internships_count": 4,
+    "internships_summary": "Polka Tech Foundation (2024.04-08, 海外科技公司数据整理) / 律铭会计 (2023.06-09, 凭证抽查 + 函证) / 章广镇政府 (2022.07-08, 凭证审核 + 农业补贴) / 南谯区政府 (2019.10-2022.04, 2.5 年, 协调 50 志愿者完成 2000 户社区排查)",
+    "projects": [
+      "院新闻宣传中心 MBA 小组组长 (撰写新闻稿 30+ 篇)",
+      "院体育部骨干 (院级 + 校级运动会)",
+      "班级心理委员"
+    ],
+    "language": "英语流利 CET-6 535",
+    "awards": [
+      "学创杯全国大学生创业模拟大赛 湖北省一等奖 (Top 10%)",
+      "管理学院暑期社会实践二等奖"
+    ],
+    "no_pdf_uploaded_yet": true
+  },
+  "persona_voice": {
+    "communication_style": "(暂无真实对话样本; 占位) 推测: 写作偏行政化 (政府文风影响), 简历动词集中在'协助/审核/处理'被动语态",
+    "verbal_tics": [],
+    "typical_message_length": "未知",
+    "under_pressure": "未知"
+  },
+  "target_jd_anchors": [
+    "财务三张表基础",
+    "数据整理 + 归档",
+    "跨部门协调",
+    "行政事务处理",
+    "公文 / 报告写作",
+    "金融基础知识 (在学)"
+  ],
+  "hidden_highlights": [
+    {
+      "where": "internships[3] 南谯区政府",
+      "hidden_fact": "2.5 年时长 (2019.10-2022.04) + 协调 50 余志愿者完成 2000 户排查 — 'follow-through 完整度'+'多线任务并行能力' 是真稀缺, 但简历用'协助/统筹'淡化, 实际是 owner 级 ownership"
+    },
+    {
+      "where": "projects[0] 院新闻中心",
+      "hidden_fact": "组长 + 30+ 篇新闻稿 + 现场采访 + 院公众号发布 = 持续输出 + 终端交付能力, 对'卖方研究员日均产出'类岗位有可迁移性 (虽然题材不是金融)"
+    },
+    {
+      "where": "awards 学创杯省一等",
+      "hidden_fact": "全国大学生创业模拟大赛 省一等 Top 10% — 商业判断 + 财务建模 + 战略决策综合演练, 简历应该把这个挪到 projects 顶部而非埋在 awards"
+    }
+  ],
+  "avoid_emphasize": {
+    "wants_to_avoid": "4 段实习全部非投研 — 投 SAIF 主流投研岗 (公募行研 / 卖方研究 / 私募) 简历筛大概率刷掉. Polka Technology Foundation 是 Polkadot 生态项目方, 但简历表述模糊容易被误解 / 怀疑真实性. 政府机关 2.5 年 gap 容易被金融机构 reviewer 视为'转金融决心不足'",
+    "wants_to_emphasize": "follow-through + ownership (南谯区政府 2.5 年 + 学创杯 + 院新闻) 是软实力, 但需 reframing 成 '已经具备投行 grunt work 强度 + 持续输出能力, 入学后补金融 hard skill 即可'"
+  },
+  "real_challenges": [
+    "❗ 最紧迫: 4 段实习里 0 段对口 SAIF MF 投研目标 — 2026 暑期实习是补救最后窗口, 必须拿到 1 段真正的金融 buy-side / sell-side 实习 (哪怕中小机构) 才能进 2026 秋招",
+    "Polka Technology Foundation 这段需要在 cover letter 明确解释公司性质 (Web3 生态金融基础设施? 海外二级研究?) — 模糊表述比缺这段更糟",
+    "本科是华科财务管理 (非金融) → SAIF MF — 跟其它清北复交本经济/金融 + SAIF 的同学比, 起点低 1-2 个 tier. 选目标时要务实: 主投中型公募 + 二线券商研究所 + 银行理财子, 别硬冲一线公募 / 三中一华",
+    "财务背景虽然不是投研, 但可以打成差异化: 财务分析 sense + 三张表勾稽是行研员必须能力, 可以投'信用研究 / IPO 跟踪 / 财务建模岗'这种偏 micro 的方向, 比纯投研更容易拿"
+  ]
+}
