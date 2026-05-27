@@ -1,0 +1,60 @@
+{
+  "sub_cat": "量化研究员·中频",
+  "sub_cat_slug": "quant_researcher_mid_freq",
+  "strategy_type": "量化",
+  "industry_focus_candidates": ["全市场选股", "股票多头", "市场中性", "CTA期货", "另类数据"],
+  "institution_tier_candidates": ["头部量化私募", "中型量化私募", "公募量化部"],
+  "typical_companies": [
+    {"name": "灵均投资", "tier": "头部量化私募", "xhs_mention_count": 5, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "明汯投资", "tier": "头部量化私募", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "幻方量化", "tier": "头部量化私募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "九坤投资", "tier": "头部量化私募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "鸣石基金", "tier": "头部量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "衍复投资", "tier": "头部量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "宽德投资", "tier": "头部量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "洛书投资", "tier": "中型量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "因诺资产", "tier": "中型量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "龙旗科技", "tier": "中型量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "佳期投资", "tier": "中型量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "易方达基金量化投资部", "tier": "公募量化部", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "985/211 或 QS50 院校,理工科/金融工程/数学/计算机硕士及以上,头部岗位明确偏好 PhD",
+    "扎实的统计与概率基础,熟练 Python+numpy,头部量化普遍要 C++ 或工程化能力",
+    "至少 1 段头部量化私募或公募量化部实习,做过完整因子挖掘/回测闭环",
+    "对 IC、rank IC、换手率、Sharpe/Calmar、过拟合等核心概念能在面试现场推导"
+  ],
+  "soft_signals": [
+    "数学建模/ACM/Kaggle/顶会论文等可量化的竞赛与科研产出",
+    "对 A 股市场结构有具体洞察(如大小盘风格风险、对冲品种缺口)而非泛泛而谈",
+    "有自己跑过实盘或公开 GitHub 策略代码,能讲清单一因子的失效原因",
+    "中低频股票方向实习经历(明汯/灵均面试官明确询问)"
+  ],
+  "transfer_paths": [
+    {"from": "卖方研究员·TMT", "to": "量化研究员·中频", "difficulty": "high", "notes": "需补统计建模+编程,通常要再加一段量化私募实习才有面试机会"},
+    {"from": "量化开发QD", "to": "量化研究员·中频", "difficulty": "medium", "notes": "工程底子够,但要把因子构建/回测方法论补成研究语言"},
+    {"from": "公募指数研究员", "to": "量化研究员·中频", "difficulty": "medium", "notes": "对指数与组合优化熟,转中频私募需补 alpha 因子和换手率思维"}
+  ],
+  "pitfalls": [
+    "把通用机器学习简历直接投头部量化,不展示金融数据/因子细节会一面被刷",
+    "不准备 coding 题(九坤等头部会现场写题),思维定势认为只考因子",
+    "实习 offer 转正率不透明就 all-in,挤掉其他秋招面试窗口"
+  ],
+  "interview_style": "头部量化以技术面+因子头脑风暴为主:1)简历项目深挖,追问时间复杂度、尾部样本处理;2)概念硬题如 IC/rank IC 区别、Sharpe 对低胜率高赔率策略失效、市场中性与股指期货匹配;3)九坤等会突然加 coding,明汯偏因子头脑风暴。氛围轻松但题目密度极高。",
+  "compensation_signal": "头部量化策略研究员校招总包约 150 万/年(verbatim Post 18);灵均资深 CTA 研究员月薪 30-60k",
+  "career_trajectory": "1 年内:跟资深研究员做因子挖掘+回测,产出可上线的小因子;3 年:独立负责一个策略子线(如中频量价或基本面因子组),管理实盘部分敞口;5 年:晋升资深研究员或基金经理助理,带 1-2 人小组或独立管理产品,头部机构核心团队从业普遍 9 年以上。",
+  "verbatim_quotes": [
+    {"quote": "1. IC和rank IC有什么区别 2. 【简历项目】讲一下你做的那个\"框架\"。【追问】怎么算时间复杂度 3. 如何考虑换手率的影响 7. 衡量低胜率高赔率策略,Sharpe和Calmar会出现什么问题?", "source_url": "https://www.xiaohongshu.com/discovery/item/69ddec0700000000230109d4?xsec_token=YBEzoC_NUM9Hs_g1SC5efzn9G3GNf0nCJSpgFmSSTyrvE%3D&xsec_source=app_share", "context": "上海量化私募真实面试题清单,中频核心考点"},
+    {"quote": "北京五道口某坤摇人了,top量化私募,股票组,应届or社招,理工科PhD优先。充足的算力资源,海量数据储备,深耕量化10年以上的因子库", "source_url": "https://www.xiaohongshu.com/discovery/item/69426f43000000001e0307eb?xsec_token=YBgOKKSQWxL2s3u44HfPMtsKomZT3nqt0SxRwstE2DaVU%3D&xsec_source=app_share", "context": "九坤股票组招聘原文,印证 PhD 偏好"},
+    {"quote": "中频(日/分钟)因子挖掘与组合优化是核心(ex.量价因子、基本面因子、另类数据因子),统计建模与机器学习应用广泛。中频因子过度拟合了市场短期噪声", "source_url": "https://www.xiaohongshu.com/discovery/item/688d878600000000230288e0?xsec_token=YBAU-e2fPjic7MlBXlZGjcwc-9k72XE1L2hZpBDmnNfPs%3D&xsec_source=app_share", "context": "中频实习日常与典型陷阱"},
+    {"quote": "头部量化策略的offer,150个左右,大模型方向80个,个人倾向后者", "source_url": "https://www.xiaohongshu.com/discovery/item/68cae53d000000001202f446?xsec_token=YB6sUdubqXW36uqrDddVMOlNOUR_qGKQD1-tBjo_POKPg%3D&xsec_source=app_share", "context": "头部量化校招总包 150 万 verbatim"}
+  ],
+  "hiring_season": {
+    "spring": "3-5 月密集网申,半鞍/鸣石等 5 月集中开春招,招满即止",
+    "fall": "8-10 月秋招主战场,头部私募实习转正与外部社招同步",
+    "verbatim": "半鞍私募2026春招来了,网申5.15起,招满即止,手慢无",
+    "peak_month": [3, 4, 5, 9, 10]
+  },
+  "data_confidence": "medium",
+  "data_basis": {"post_count": 26, "company_mention_count": 59, "saif_alumni_count": 36}
+}

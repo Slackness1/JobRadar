@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 03:15 · 岗位爬取-devvpstmux · Phase G T5 — 5 pilot sub_cat 知识库合成 + pipeline gap 修复
+- **干了什么**:第一轮 5 个 subagent 跑出来全部 0 verbatim — 4 个 sub_cat 在 taxonomy_xhs_posts 表里 0 帖。诊断:T1 分类的 433 帖只写到 jsonl 没入 DB(只 T3 补爬的 376 帖入了表)。写补救脚本 join (T1 sub_cat 分类) + (Phase F raw extract) 按 primary_sub_cat 入表 → 全 29 sub_cat 在 DB 都有数据。然后重 dispatch 4 个 pilot,加上之前正常的 AI PM 共 5 份知识库出炉:每份 15 字段,含 4-8 条真实 verbatim quote(每条 source_url 验证存在于原 XHS 帖)。
+- **用户体验变化**:学院老师 / SAIF 学生现在能看到 5 份 docx 风格的 md 知识库 — 公募权益研究员 / 量化研究员·中频 / 卖方研究员·TMT / PE投后VC行研 / AI PM,每份带:典型公司表(must_have 标识)/ 硬门槛 / 加分项 / 转赛道路径 / 排雷 / 面试样态 / 薪酬区间 / 1-3-5 年职业轨迹 / 真实学姐学长 verbatim 引用 / 招聘季节。AI PM 那份对 SAIF 金融学生特别有用 — 明确给出"金融研究员/卖方分析师→AI PM" transfer path + 字节 1st-choice + 伪 AI 岗识别 + 70-100W 薪酬锚点。
+- **测试**:5 JSON 字段长度 100% 合规(interview_style/career_trajectory ≤150 字、hard_req/soft/pitfalls 单条 ≤80 字、verbatim ≤150 字);26 条 verbatim 全 source_url 真实存在;data_confidence 与 expected 一致(4 medium + 1 low)。
+- **下一步**:T6 — 剩 24 sub_cat 走 subagent batch dispatch(plan 原版让走 Anthropic API 但 KEY 未配, subagent 模式产物等价),并行 6 个/批 × 4 批 ~20 min 跑完;之后入 knowledge_subcategories 表 + 算 DashScope embedding。
+
 ### 03:05 · 岗位爬取-devvpstmux · Phase G T4 — 29 sub_cat × 119 公司 ground truth 落地
 - **干了什么**:T3 补爬完后用 Opus 4.7 subagent 一次合成 29 个 sub_cat (此前一直误称 27,实际列表是 29) × 公司 ground truth 清单。输入 4 路:SAIF 2023-2025 就业报告 + Phase F demo 锁定公司 + taxonomy 主表 + T3 刚跑的 XHS 统计。每条公司必带 evidence source (saif:YYYY / xhs:sub_cat:N / demo_v1 / taxonomy_doc / common_knowledge:理由)。
 - **用户体验变化**:T5/T6 知识库合成、T7 库 audit、T8 缺失公司补爬都有了 anchor — 不再是"看 LLM 想到什么就推什么"。SAIF 老师以后查"我们 cover 了高瓴吗"这种问题,这份 119 家公司清单就是答案的根据。

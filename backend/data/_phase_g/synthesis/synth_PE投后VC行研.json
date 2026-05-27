@@ -1,0 +1,59 @@
+{
+  "sub_cat": "PE投后VC行研",
+  "sub_cat_slug": "pe_post_investment_vc_research",
+  "strategy_type": "相关补充",
+  "industry_focus_candidates": ["消费", "TMT", "医药", "硬科技", "新能源"],
+  "institution_tier_candidates": ["头部PE", "头部VC", "产业基金/国资基金", "保险资管另类投资部"],
+  "typical_companies": [
+    {"name": "九坤投资", "tier": "头部私募创投平台", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "越秀产业基金", "tier": "产业基金/国资基金", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "华夏基金", "tier": "一线公募(股权投资)", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "腾讯投资", "tier": "互联网大厂CVC", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "高瓴资本", "tier": "头部PE", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "红杉中国", "tier": "头部VC", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "弘毅投资", "tier": "头部PE", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "德弘资本", "tier": "头部PE", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "晨壹基金", "tier": "头部PE(并购)", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "中投公司", "tier": "主权基金", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "凯雷投资", "tier": "外资头部PE", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "淡马锡", "tier": "主权基金/外资PE", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "硕士在读且能保证 6 个月以上连续坐班实习(华夏基金股权投资等岗明确要求)",
+    "已有 1 段 PE/VC/FA/卖方研究所/咨询实习,熟悉行业研究+尽调+投资分析+投后管理全流程",
+    "熟练做财务建模与估值(DCF/可比/Paper LBO),头部 PE 要求 30 分钟白纸手算 LBO 模型",
+    "中英文均可工作沟通,能直接读英文研报与外资 LP 材料",
+    "有产业/理工科背景(EE/CS/新能源)在硬科技/AIC/能源安全等赛道是硬加分"
+  ],
+  "soft_signals": [
+    "对一级市场早期项目有真实兴趣,能讲清自己跟踪过的某个 AI/消费/硬科技标的",
+    "在校友/校友会/行业峰会有积累,能拿到 BP 或 founder 一手沟通机会",
+    "做过完整一段访谈纪要+投研报告产出,而非只跑过腿",
+    "理解 LP/GP/FOF/S 基金的结构差异,知道母基金扩募投决会要看什么",
+    "面试中能讲清楚 takeaway 而非只罗列做了什么"
+  ],
+  "transfer_paths": [
+    {"from": "卖方研究所行业组实习", "to": "PE投后VC行研", "difficulty": "medium", "notes": "行业判断框架直接迁移,要补 LBO/估值与一级市场尽调流程"},
+    {"from": "投行 IBD 实习", "to": "PE投后VC行研", "difficulty": "low", "notes": "建模与尽调能力直接通用,买方思维与项目判断需重训"},
+    {"from": "FA/精品投行", "to": "PE投后VC行研", "difficulty": "low", "notes": "项目 sourcing 与行业 mapping 经验高度匹配,买方决策视角要补"},
+    {"from": "产业背景(理工科/科研)", "to": "PE投后VC行研", "difficulty": "medium", "notes": "AIC/硬科技 VC 偏好理工复合,需补金融建模与财务尽调"}
+  ],
+  "pitfalls": [
+    "小基金实习只跑腿不上项目,简历上写不出可量化的 takeaway,面试官会一路追问到露怯",
+    "把 Paper LBO 当 Excel 模型练,真到现场无工具白纸手算 30 分钟就崩",
+    "只会背三张表勾稽,讲不清这门生意怎么赚钱,头部 PE 终面必挂"
+  ],
+  "interview_style": "头部 PE 终面常出 Paper LBO:30 分钟无 Excel 无计算器,白纸口述搭杠杆收购模型,练到 20 分钟才 ready。面试官关心 takeaway 而非流程,连环追问 PIK 利息、Mezz 成本、EBITDA 下跌触发 covenant、deal 好坏,核心考你懂不懂这门生意。",
+  "compensation_signal": null,
+  "career_trajectory": "1 年 Analyst:跑行业 mapping、写访谈纪要、做财务尽调与初版估值。3 年 Associate:独立 cover 1-2 个细分赛道(硬科技/消费),主导筛选与投决材料。5 年 VP:负责完整 deal 执行与投后;头部进入 Principal,独立判断 deal 并对募资负责。",
+  "verbatim_quotes": [
+    {"quote": "30分钟内完成⏱️ 不能用Excel 没有计算器 没有任何工具 的金融建模", "source_url": "https://www.xiaohongshu.com/discovery/item/69ef2fe0000000001a02d2c5?xsec_token=YB0AZrVZxecd2hbT210Ex8ZW54AfeSafFWRpP0TBXVtk4%3D&xsec_source=app_share", "context": "头部 PE Paper LBO 真题要求"},
+    {"quote": "PE考的是:你懂不懂这门生意怎么赚钱💰", "source_url": "https://www.xiaohongshu.com/discovery/item/69ef2fe0000000001a02d2c5?xsec_token=YB0AZrVZxecd2hbT210Ex8ZW54AfeSafFWRpP0TBXVtk4%3D&xsec_source=app_share", "context": "PE 面试本质考点"},
+    {"quote": "面试官对于每段实习做的具体事情不太关心,只关注总结的takeaway,会不断追问", "source_url": "https://www.xiaohongshu.com/discovery/item/67c9867a000000001201db42?xsec_token=YBFDYLgynpticLgEssNPPvOocryLGEO-mvax9hbjIGL7Y%3D&xsec_source=app_share", "context": "腾讯投资 FOF 实习面"},
+    {"quote": "一级市场拼的从来不是个人努力,而是资源积累和专业团队的选择。", "source_url": "https://www.xiaohongshu.com/discovery/item/69f082cc000000001a0375f1?xsec_token=YBWVBv8aon3TonSF_jztjzvPfszw7uT33rqKhkF4uWFKA%3D&xsec_source=app_share", "context": "VC 合伙人复盘"},
+    {"quote": "实习日常:找项目、财务尽调、写访谈纪要、做投研报告", "source_url": "https://www.xiaohongshu.com/discovery/item/696ba449000000000e03e3b9?xsec_token=YBp4RXc4YlNJ_bWkofE_pBYQiNtc8wSanlCUOWdT5rKmQ%3D&xsec_source=app_share", "context": "基金公司实习日常"}
+  ],
+  "hiring_season": {"spring": "3-5 月日常实习释放为主,头部 PE/VC 偶有 SA 项目", "fall": "9-11 月头部机构开放 full-time analyst 校招,投行/卖方转 PE 高峰", "verbatim": null, "peak_month": [3, 4, 9, 10, 11]},
+  "data_confidence": "low",
+  "data_basis": {"post_count": 11, "company_mention_count": 17, "saif_alumni_count": 0}
+}
