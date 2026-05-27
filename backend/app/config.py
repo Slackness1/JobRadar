@@ -188,6 +188,11 @@ STUDENT_KB_AUTO_CONFIRM_THRESHOLD = float(
 # PR once UI consumers fully migrate to account_memory.
 UNIFIED_MEMORY_ENABLED = os.environ.get("UNIFIED_MEMORY_ENABLED", "1") in {"1", "true", "True"}
 
+# Phase G — 27 sub_category × 3-dim 推荐 v2 链路灰度开关。
+# 默认 OFF，dev VPS 手动设 RECOMMENDATION_V2_ENABLED=1 验证；
+# 生产切换需等 T1–T21 完成后再统一上线。
+RECOMMENDATION_V2_ENABLED = os.environ.get("RECOMMENDATION_V2_ENABLED", "0") in {"1", "true", "True"}
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 

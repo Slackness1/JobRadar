@@ -282,6 +282,16 @@ class Job(Base):
     # cron 每天 10:00 跑 link_prober 更新; 推荐 SQL 排除 link_status='dead'。
     link_status = Column(Text, nullable=True, index=True)
     link_checked_at = Column(DateTime, nullable=True)
+    # Phase G (2026-05-27): 27 sub_category × 3-dim taxonomy 字段。
+    # sub_category / sub_cat_* 由 T1 分类器写入; institution_tier 由 T2 写入。
+    # 推荐 v2 链路通过 RECOMMENDATION_V2_ENABLED 灰度切换。
+    sub_category = Column(Text, nullable=True, index=True)
+    sub_category_secondary = Column(Text, nullable=True)
+    industry_focus = Column(Text, nullable=True)        # JSON array as string
+    institution_tier = Column(Text, nullable=True, index=True)
+    sub_cat_confidence = Column(Float, nullable=True)
+    sub_cat_reasoning = Column(Text, nullable=True)
+    sub_cat_enriched_at = Column(DateTime, nullable=True)
 
     scores = relationship("JobScore", back_populates="job", cascade="all, delete-orphan")
 
@@ -1034,3 +1044,33 @@ class XHSTaxonomyExtract(Base):
     extraction_confidence = Column(Float, nullable=False, default=1.0)
     strategy_bucket = Column(Text, nullable=True, index=True)
     created_at = Column(DateTime, server_default=func.current_timestamp())
+
+
+class TaxonomyXhsPost(Base):
+    """Phase G — XHS 帖 per 27 sub_cat."""
+    __tablename__ = "taxonomy_xhs_posts"
+    id = Column(Integer, primary_key=True)
+    sub_cat = Column(Text, nullable=False, index=True)
+    source_url = Column(Text, nullable=False, unique=True)
+    company_mentions = Column(Text)        # JSON array
+    verbatim_signals = Column(Text)        # JSON array
+    raw_content = Column(Text, nullable=False)
+    extracted_fields = Column(Text)        # JSON
+    relevance_score = Column(Float)
+    scraped_at = Column(DateTime, default=datetime.utcnow)
+
+
+class KnowledgeSubcategory(Base):
+    """Phase G — 27 sub_cat 结构化知识库."""
+    __tablename__ = "knowledge_subcategories"
+    id = Column(Integer, primary_key=True)
+    sub_cat = Column(Text, nullable=False, unique=True)
+    sub_cat_slug = Column(Text, nullable=False, unique=True)
+    strategy_type = Column(Text, nullable=False)
+    payload_json = Column(Text, nullable=False)        # 15 字段 JSON
+    data_confidence = Column(Text, nullable=False)     # high/medium/low
+    data_basis_json = Column(Text, nullable=False)
+    hiring_season_json = Column(Text)
+    embedding = Column(LargeBinary)                    # DashScope text-embedding-v3
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
