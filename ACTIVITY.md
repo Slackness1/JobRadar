@@ -16,6 +16,18 @@
 
 ## 2026-05-27
 
+### 13:00 · 网站设计-devvpstmux · P_self persona review 收口 + 测试数据隔离
+- **干了什么**:user 全面 review 后 5 字段修正 P_self.json — 关键是把 PVSyst 100 万欧元那条"内部测试用伪造内容"标记从 persona 主体彻底拆出, 新建独立 `P_self_demo_cases.json` 并加 `do_not_inject_into` 隔离声明(列出 6 个不允许被注入的下游文件); hidden_highlights 把"SAIF 签合作"语义降级为"SAIF 老师认可+学生试用/内测", GitHub stars 从 350+ 累计修正为 150+/100+ 实际值; inferred_roles 改 primary/secondary/stretch 三级 (LLM 工程师降到 stretch); avoid_emphasize 语气从"回避"→"叙事优先级"。
+- **用户体验变化**:周传博的 persona JSON 现在是干净的"真实事实+求职偏好",不会再被任何 demo / 报告污染; 简历水分识别这种功能将来要测可以单独跑 demo_cases 文件不影响主链路。
+- **测试**:persona_loader 验证 P_self 仍能 load (5 hidden_highlights / 7 anchors / 5 voice keys), flow_padding_internship/review_notes_for_user 字段已不存在; inferred_roles 是 dict 三层结构。
+- **下一步**:user 后续主动触发时重跑 demo v3 用 cleaned P_self;Phase G 路线 B (32k 岗位全量 enrich + 三链路接通) 待启动。
+
+### 12:00 · 网站设计-devvpstmux · 投研 demo v2 — 加 2 真实学生 + DB/XHS source 标注 + advice-style
+- **干了什么**:接 2 份生产端真实学生上传简历 (钦奕阳 u_3 + 张志杰 u_4), persona_loader 加 .md fallback, 5 → 7 persona 端到端重跑。match 输出加 source 标 db_real / xhs_proxy (XHS 合成的 narrative 自动加 ⚠️ "不在 DB 里, 自己去公司官网查"); narrative 风格从学究语 → 第二人称职业顾问语 ("你这段 X 直接对应岗位 Y, 投时突出 Z")。
+- **用户体验变化**:张志杰 conf 0.7 (全场最低), 系统主动避免硬塞投研岗, 推的是中金新媒体编辑/中信建投运营岗/富国行政助理 — 这种"对真人诚实"远比对模拟 persona 给 0.95 强匹配更说明系统真有用。给老师交付 v2 报告 (飞书 docx https://ecnrutb2bd5c.feishu.cn/docx/Yx9udcDaRop3QdxLlRqcMoLXnHg)。
+- **测试**:7 persona 全分类成功 (conf 0.7-0.95), 84 enriched jobs (80 DB 真 JD + 4 XHS placeholder), advice-style narrative 100% second-person + source 标注。
+- **下一步**:user 后续 review v2 → 跟老师讨论"细颗粒赛道知识库支持转赛道建议"的方法论, 已记录到工作台设计 backlog。
+
 ### 03:15 · 网站设计-devvpstmux · 投研赛道细颗粒度发现 + AI 跨域 Demo (Tasks 1-19 全收口)
 - **干了什么**:从 0 搭建 XHS-driven 细颗粒 taxonomy 发现 pipeline (7 个 strategy bucket 含跨域 AI), Decodo 反爬墙突破 + TikHub 备用通路, 跑出 691 个高质量帖 / 1.1k+ KB insights / 535 公司, Opus 4.7 一次合成 27 个 sub_category 三维 taxonomy, 5 个 persona (P1/P2/P3/P6/P_self 周传博) × 84 真实 JD 端到端匹配 + 6 维区分力评估 4/6 通过。
 - **用户体验变化**:学院老师能看到投研 4 persona 各自 top-7 推荐 + 每条推荐都引用 hidden_highlight + verbatim evidence (P6 九坤揽月 0.95 / P1 高瓴 0.95 真"看得见的反馈");周传博能拿到自己的 AI PM vs AI 应用开发决策建议 (主投 AI PM 路径 70%) + 7 个高 fit AI 岗位清单 (top1 AI 应用初创 0.92 / 蚂蚁百宝箱 Agent 0.90)。

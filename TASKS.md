@@ -1,6 +1,11 @@
 # TASKS
 
-> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。日常工作日志见 `ACTIVITY.md`。**Last updated: 2026-05-26.**
+> 当前 sprint + 短期 backlog。完成项搬到 `CHANGELOG.md`。日常工作日志见 `ACTIVITY.md`。**Last updated: 2026-05-27.**
+
+## 收官 ✅ (2026-05-27, W22)
+
+- **投研 + AI 跨域 demo (Tasks 1-19 + 2 真实学生闭环)** — 7 个 XHS bucket (含跨域 AI 应用) → 27 sub_cat 三维 taxonomy (Opus 4.7 合成) → 10 投研 + 10 AI demo 公司 → 7 persona (5 模拟 + 2 真实学生) × 84 真实 JD 端到端匹配, advice-style narrative + DB真岗/XHS合成 source 标注。区分力 5/6 通过 (含跨域 AI vs 投研 0 leak)。总成本 $6.13 (预算 $10)。docs/eval/2026-05-27-投研-AI跨域-demo-final-report.md (v2) 飞书 docx 已交付老师 + 用户。
+- **P_self persona review 收口** — user 全字段 review 完毕, flow_padding_internship (PVSyst 测试数据) 拆到独立 P_self_demo_cases.json 隔离, hidden_highlights / wants_to_avoid / inferred_roles 全部按 user 反馈修正 (没重跑 demo, user 明确说后续再触发)。
 
 ## 收官 ✅ (2026-05-26, W22)
 
