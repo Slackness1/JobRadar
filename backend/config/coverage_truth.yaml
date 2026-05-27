@@ -309,7 +309,11 @@ tracks:
         deferred_reason: 公开 RSS 0 Asia,backlog
       - name: Bridgewater
         jobs_company_match: [Bridgewater, 桥水]
-        deferred_reason: 中国 entry-level 极少,referral-driven
+        # 2026-05-27 翻案: 之前判 "referral-driven backlog" 错了。从
+        # bridgewater.com/careers 解析出 Greenhouse board slug=bridgewater89,
+        # 实测 25 全球岗 / 4 Singapore SAIF 直击 (Equity Quant Research /
+        # Portfolio Associate / Data Engineer / Quantitative Developer)。
+        # Singapore 是 Bridgewater 亚太总部,SAIF MF/Quant 学生强相关。
 
   # ─────────────────────────── 外资投行 (Bulge Bracket) ─────────
   - id: foreign_ibs

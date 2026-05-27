@@ -171,3 +171,15 @@ sites:
     portal_url: https://www.citadel.com/careers/
     category: 海外对冲基金
     note: 2026-05-23 WordPress wp-admin AJAX (action=careers_listing_filter),curl_cffi chrome120 必需,plain requests 403。pagination param 被忽略只能拿首 20,但其中 ~7 是 Asia 高度 SAIF 相关 (Quant Research/SWE Asia/Intern HK+SG)。pagination 逆向 backlog。
+
+  # 2026-05-27: Bridgewater 用 Greenhouse,slug=bridgewater89 (从 careers page
+  # 解析 board URL 得出)。25 全球岗,其中 4 个 Singapore SAIF 极相关岗:
+  # Equity Quantitative Research Associate / Portfolio Associate Singapore /
+  # Research Associate Data Engineer / Quantitative Developer。推翻之前
+  # "中国 entry-level 极少,referral-driven" 的 backlog 判断。
+  - name: Bridgewater
+    ats_family: greenhouse
+    greenhouse_slug: bridgewater89
+    portal_url: https://www.bridgewater.com/careers
+    category: 海外对冲基金
+    note: 2026-05-27 Greenhouse boards API 解锁,bridgewater89 board 25 全球岗 / 4 Singapore SAIF 直击岗。
