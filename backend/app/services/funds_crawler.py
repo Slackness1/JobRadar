@@ -445,7 +445,7 @@ def crawl_wintalent_sc_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 # ---- Tagging helpers for source sub-strings --------------------------------
 
-_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "zhiye_spa", "wintalent_sc", "phfund_api"}
+_KNOWN = {"hotjob", "zhiye", "moka_embedded", "zhiye_beisen_cms", "zhiye_spa", "wintalent_sc", "phfund_api", "feishu_hire_decodo", "beisen_legacy_decodo"}
 
 _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "hotjob":            "funds_hotjob",
@@ -455,7 +455,162 @@ _FAMILY_SOURCE_OVERRIDE: Dict[str, str] = {
     "zhiye_spa":         "funds_zhiye_spa",
     "wintalent_sc":      "funds_wintalent_sc",
     "phfund_api":        "funds_phfund_api",
+    "feishu_hire_decodo":  "funds_feishu_hire_decodo",
+    "beisen_legacy_decodo": "funds_beisen_legacy_decodo",
 }
+
+
+# ---- 广发基金 (gffunds.jobs.feishu.cn) Feishu Hire SPA via Decodo ----------
+
+def crawl_feishu_hire_decodo_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Feishu Hire SPA portal — Decodo Camoufox render + parse `<a data-id>` job tiles.
+
+    2026-05-27 实测 gffunds.jobs.feishu.cn/833056 (广发基金):default proxy_pool
+    + wait_after_page_load=20s 完整渲染。每个岗位是 `<a data-id="<long_id>"
+    href="/<short_id>/position/<long_id>/detail">` 包 `<span class=
+    "positionItem-title-text">标题</span>` + `<span>城市</span>` +
+    `<span class="infoText">校招/社招/实习</span>` + `<span data-cy-value=
+    "<category>">分类</span>`。
+    """
+    from app.services.decodo_client import fetch_decodo_spa
+
+    company = target.get("name") or "?"
+    url = target["entry_url"]
+    html = fetch_decodo_spa(url, wait_ms=int(target.get("wait_ms") or 20000))
+    if not html:
+        return []
+
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    # Each job: <a data-id="<id>" target="_blank" href="<detail>">...
+    for m in re.finditer(
+        r'<a\s+data-id="(\d+)"[^>]*href="([^"]+)"[^>]*>(.*?)</a>',
+        html, re.S,
+    ):
+        jid = m.group(1)
+        if jid in seen:
+            continue
+        seen.add(jid)
+        href = m.group(2)
+        inner = m.group(3)
+        # Title
+        tm = re.search(r'positionItem-title-text"[^>]*>([^<]+)<', inner)
+        title = (tm.group(1) if tm else "").strip()
+        if not title:
+            continue
+        # Pull location + stage from the spans within the whole job card
+        # (subTitle 容器内有 <div class="lineDevider"></div>,会让 sub_html
+        # 截断,所以在整个 inner 上做模式匹配更稳)。
+        all_spans = re.findall(r'<span[^>]*>([^<]+)</span>', inner)
+        # First non-trivial city-like span
+        location = next(
+            (s.strip() for s in all_spans
+             if s.strip() and s.strip() not in (title, "实习", "校招", "社招")),
+            "未知",
+        )
+        # Stage label lives in <span class="infoText...">校招/社招/实习</span>
+        info_m = re.search(r'class="[^"]*infoText[^"]*"[^>]*>([^<]+)<', inner)
+        stage_label = info_m.group(1).strip() if info_m else ""
+        stage = (
+            "internship" if "实习" in stage_label else
+            "campus" if "校" in stage_label else
+            "social"
+        )
+        # Category
+        cat_m = re.search(r'data-cy-value="([^"]+)"', inner)
+        category = cat_m.group(1) if cat_m else ""
+        # Detail URL absolute
+        base_match = re.match(r"^(https?://[^/]+)", url)
+        base = base_match.group(1) if base_match else ""
+        detail_url = href if href.startswith("http") else f"{base}{href}"
+        out.append({
+            "job_id": _hash_id("funds_feishu_hire_decodo", company, jid),
+            "source": "funds_feishu_hire_decodo",
+            "company": company,
+            "company_type_industry": "公募基金",
+            "company_tags": "feishu_hire," + category if category else "feishu_hire",
+            "department": category,
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": stage,
+            "source_config_id": f"funds_feishu_hire_decodo:{company}:{jid}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": detail_url,
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
+
+
+# ---- 大成基金 (dachengjj.zhiye.com) Beisen legacy CMS SPA via Decodo --------
+
+def crawl_beisen_legacy_decodo_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Beisen 老式 CMS Portal (jQuery + ajax) via Decodo Camoufox render.
+
+    2026-05-27 实测 dachengjj.zhiye.com/campus: default proxy_pool +
+    wait=12s 渲染出完整 nav + filter,但当前 "无任何在招职位"。等开窗后
+    每个岗位形如 `<tr ...><a href="/zpdetail/<id>?...">标题</a>...
+    <td>城市</td>...<td>类型</td>...<td>日期</td></tr>` (基于其它 Beisen
+    legacy 租户的通用模式)。当前 parser 返 0,等开窗时再迭代。
+    """
+    from app.services.decodo_client import fetch_decodo_spa
+    company = target.get("name") or "?"
+    url = target["entry_url"]
+    html = fetch_decodo_spa(url, wait_ms=int(target.get("wait_ms") or 12000))
+    if not html:
+        return []
+
+    # Sanity: "无任何在招职位" => 当前空,直接返
+    if "无任何在招职位" in html and "/zpdetail" not in html:
+        return []
+
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    base_match = re.match(r"^(https?://[^/]+)", url)
+    base = base_match.group(1) if base_match else ""
+    # Beisen legacy CMS row pattern (best-effort,等数据上来再 verify)
+    for m in re.finditer(
+        r'<a[^>]+href="(/(?:zpdetail|campusxq|jobdetail)[^"]+)"[^>]*>([^<]+)</a>(.*?)</tr>',
+        html, re.S,
+    ):
+        href = m.group(1)
+        title = m.group(2).strip()
+        rest = m.group(3)
+        if not title or title in ("详情","查看","Apply","Detail"):
+            continue
+        rid_m = re.search(r"/([a-zA-Z]+)/?(\d+)", href)
+        rid = rid_m.group(2) if rid_m else href
+        if rid in seen:
+            continue
+        seen.add(rid)
+        cols = re.findall(r'<td[^>]*>([^<]*)</td>', rest)
+        location = (cols[1].strip() if len(cols) > 1 else "未知") or "未知"
+        cat = (cols[0].strip() if cols else "")
+        out.append({
+            "job_id": _hash_id("funds_beisen_legacy_decodo", company, rid),
+            "source": "funds_beisen_legacy_decodo",
+            "company": company,
+            "company_type_industry": "公募基金",
+            "company_tags": "beisen_legacy",
+            "department": cat,
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": "campus" if any(k in title for k in ("校招","实习","校园")) else "social",
+            "source_config_id": f"funds_beisen_legacy_decodo:{company}:{rid}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": f"{base}{href}",
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
 
 
 # ---- 鹏华基金 (job.phfund.com.cn) POST JSON API ---------------------------
@@ -574,6 +729,10 @@ def crawl_configured_funds_targets(
             crawled = crawl_wintalent_sc_target(target)
         elif family == "phfund_api":
             crawled = crawl_phfund_api_target(target)
+        elif family == "feishu_hire_decodo":
+            crawled = crawl_feishu_hire_decodo_target(target)
+        elif family == "beisen_legacy_decodo":
+            crawled = crawl_beisen_legacy_decodo_target(target)
         else:
             crawled = []
         _override_source(crawled, family)

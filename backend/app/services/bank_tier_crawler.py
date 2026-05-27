@@ -209,4 +209,86 @@ def crawl_banks(db: Session, parent_log_id: Optional[int] = None) -> int:
         finally:
             browser.close()
 
+    # 农业银行 — Decodo Camoufox SPA render (Playwright Chromium 被反爬识破)
+    try:
+        total_new += _crawl_abc_decodo(db, parent_log_id=parent_log_id)
+    except Exception as exc:
+        print(f"[BANK][农业银行] crawl failed: {exc}")
+
     return total_new
+
+
+def _crawl_abc_decodo(db: Session, parent_log_id: Optional[int] = None) -> int:
+    """农业银行 career.abchina.com via Decodo Camoufox render.
+
+    2026-05-27 实测: SPA 用 jsencrypt + sm3 客户端签名, Playwright Chromium
+    被识破 ERR_EMPTY_RESPONSE。改走 Decodo (default pool, ~¥0.011/req) 让
+    Firefox-based Camoufox 完整渲染 SPA + 自己跑加密签名。
+
+    Hash routes #/99 (校招/全分行) + #/103 (实习/部分分行) 都返回 "招聘机构"
+    列表 + "热招事项" 区域。当前 "暂无热招事项" — 渠道通,等秋招开闸。
+    """
+    import hashlib, re as _re
+    from datetime import datetime
+    from app.services.decodo_client import fetch_decodo_spa
+
+    URLS = [
+        ("校园招聘", "https://career.abchina.com/build/index.html#/99"),
+        ("实习生计划", "https://career.abchina.com/build/index.html#/103"),
+    ]
+    out: list[dict] = []
+    seen: set[str] = set()
+    for cat_label, url in URLS:
+        html = fetch_decodo_spa(url, wait_ms=12000)
+        if not html:
+            continue
+        # 农行 SPA "热招事项" 渲染后形如:
+        #   <li ...><a href="#/[recruit_type]/[post_id]">职位标题</a>
+        #     <span>地点</span>...
+        # 当前空,但 wire 等开窗
+        if "暂无热招事项" in html and not _re.search(r'<a[^>]+href="#/\d+/\d+', html):
+            continue
+        for m in _re.finditer(
+            r'<a[^>]+href="(#/\d+/\d+[^"]*)"[^>]*>([^<]+)</a>',
+            html,
+        ):
+            href, title = m.group(1).strip(), m.group(2).strip()
+            if not title or title in seen:
+                continue
+            rid_m = _re.search(r"/(\d+)/(\d+)", href)
+            rid = (rid_m.group(2) if rid_m else href).strip()
+            seen.add(rid)
+            out.append({
+                "job_id": hashlib.md5(f"bank_official|农业银行|{rid}".encode()).hexdigest()[:24],
+                "source": "bank_official",
+                "company": "农业银行",
+                "company_type_industry": "银行",
+                "company_tags": "bank,state_owned,abc," + cat_label,
+                "department": "",
+                "job_title": title,
+                "location": "未知",
+                "major_req": "",
+                "job_req": "",
+                "job_duty": "",
+                "application_status": "待申请",
+                "job_stage": "campus" if "校园" in cat_label or "实习" in cat_label else "social",
+                "source_config_id": f"bank_official:abc_decodo:{rid}",
+                "publish_date": None,
+                "deadline": None,
+                "detail_url": f"https://career.abchina.com/build/index.html{href}",
+                "scraped_at": datetime.utcnow(),
+            })
+
+    new_count = 0
+    with company_crawl_log(db, source='bank_official',
+                           company='农业银行', parent_log_id=parent_log_id) as log:
+        existing_ids = {j.job_id for j in db.query(Job.job_id).all() if j.job_id}
+        for mapped in out:
+            if mapped["job_id"] in existing_ids:
+                continue
+            db.add(Job(**mapped))
+            new_count += 1
+        db.commit()
+        log.fetched_count = len(out)
+        log.new_count = new_count
+    return new_count

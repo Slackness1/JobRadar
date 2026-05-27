@@ -65,7 +65,11 @@ tracks:
       - name: 中国银行
       - name: 建设银行
       - name: 农业银行
-        deferred_reason: career.abchina.com SPA = jsencrypt + sm3 + 重度 obfuscated anti-debug；POST 空 body 返 Empty reply。秋招开窗后再 Playwright + JS 钩子方案
+        # 2026-05-27: career.abchina.com SPA hash 路由 (#/99 校招 / #/103 实习)
+        # Decodo Camoufox 渲染 OK (Playwright Chromium 之前被 anti-debug 识破)。
+        # SPA 自己跑 jsencrypt + SM3 加密 → 服务端返完整 nav + "招聘机构"
+        # (33 分行 + 农银投资/农银理财)。当前 "暂无热招事项" — 渠道通,
+        # 等秋招开闸自动收。source=bank_official(子 source bank_abc_decodo)。
       - name: 交通银行
         deferred_reason: 主域 SSL legacy renegotiation 才通；首页/m 站均无公开 jobs 通道；走 WeChat 小程序/微招聘
       - name: 邮储银行
@@ -202,7 +206,9 @@ tracks:
       - name: 华夏基金
       - name: 嘉实基金
       - name: 广发基金
-        deferred_reason: Feishu Hire (gffunds.jobs.feishu.cn)，endpoint 在 webpack chunk 后段，待逆向
+        # 2026-05-27: gffunds.jobs.feishu.cn/833056 Feishu Hire SPA via
+        # Decodo (default pool ~¥0.011/req) + wait=20s 渲染。首爬 +3 实习岗
+        # (AI算法/销售助理/营销策划),source=funds_feishu_hire_decodo。秋招开闸自动收。
       - name: 南方基金
         deferred_reason: hotjob ok (SU6138665)，季节性空档，秋招开闸自动收
       - name: 工银瑞信
@@ -217,7 +223,10 @@ tracks:
       - name: 汇添富基金
       - name: 海富通基金
       - name: 大成基金
-        deferred_reason: LinkedIn only，无公开 ATS (dcfund.zhiye/mokahr/hotjob 均未注册)
+        # 2026-05-27: 用户提供真渠道 dachengjj.zhiye.com (Beisen 老式 CMS),
+        # Decodo Camoufox 渲染 OK,当前 "无任何在招职位" (招聘区域 深圳/北京/
+        # 上海, 类型 研究员/交易员/渠道销售岗/项目经理)。等秋招开闸自动收。
+        # source=funds_beisen_legacy_decodo。
       - name: 银华基金
         deferred_reason: moka ok (yhfund/78005)，季节性空档，秋招开闸自动收
 

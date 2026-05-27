@@ -124,11 +124,11 @@ sites:
     note: "2026-05-23 飞书表 spy 出 hotjob 真渠道 SU67ac68866202cc7916aea66e。实测 rt=1 校招 0 (季节空)、rt=12 精英实习生 1 页 ~15 岗、rt=2 社招 10 页 (不属校招池,过滤掉)。秋招开闸 rt=1 自动收。"
 
   - name: 广发基金
-    entry_url: https://www.gffunds.com.cn/recruitment
-    ats_family: other
-    backlog_status: official_dynamic_ok
+    entry_url: https://gffunds.jobs.feishu.cn/833056
+    ats_family: feishu_hire_decodo
     category: 头部公募
-    note: "2026-05-23 飞书表 spy 出双入口: (a) 自家 SPA gffunds.com.cn/recruitment (b) 飞书招聘 portal gffunds.jobs.feishu.cn/833056。(a) 全 JS 渲染需 Playwright,(b) 是飞书招聘第三方,有公开 API 但需 anon token。下一 sprint 二选一上 SPA handler 即可激活。"
+    wait_ms: 20000
+    note: "2026-05-27: Feishu Hire SPA via Decodo (default pool, ~¥0.011/req) — wait=20s 渲染 <a data-id> 岗位卡片; 当前 3 实习岗 (AI算法/销售助理/营销策划)。秋招开闸自动收。"
 
   - name: 汇添富基金
     entry_url: http://htffund.zhiye.com/campus
@@ -172,11 +172,11 @@ sites:
     note: "2026-05-24: 专属 job portal at job.phfund.com.cn。POST /general/demand/listDemandPage JSON API，校招+实习+社招全量，实测 62 条。"
 
   - name: 大成基金
-    entry_url: https://www.dcfund.com.cn/
-    ats_family: other
-    backlog_status: linkedin_only_unverified
+    entry_url: https://dachengjj.zhiye.com/campus
+    ats_family: beisen_legacy_decodo
     category: 头部公募
-    note: "官网首页 1.5kB shell + dcfund.zhiye/mokahr/hotjob 均未注册。中尾部公募,SAIF 流量低。LinkedIn 偶发岗位,公开 ATS 入口未找到。低优先级。"
+    wait_ms: 12000
+    note: "2026-05-27: 用户提供真渠道 dachengjj.zhiye.com (Beisen 老式 CMS Portal)。Decodo Camoufox 渲染 OK,当前 0 在招职位 (招聘区域: 深圳/北京/上海, 类型: 研究员/交易员/渠道销售岗/项目经理)。等秋招开闸。"
 
   - name: 国投瑞银基金
     entry_url: http://www.ubssdic.com/
