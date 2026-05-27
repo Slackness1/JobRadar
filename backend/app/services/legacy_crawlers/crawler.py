@@ -170,6 +170,17 @@ def build_job_from_item(company: str, job_type: str, item: Dict[str, Any], base_
         url = f'https://jobs.bilibili.com/campus/positions?positionId={pid}'
     elif company == '拼多多' and pid:
         url = f'https://careers.pddglobalhr.com/campus/grad?jobId={pid}'
+    elif company == 'BOSS直聘':
+        # 2026-05-28: zhipin.com/<pid> URL (前爬虫产物) 实测 link_probe 100%
+        # 失效。真正 job_detail URL 用加密 slug (e8cf4f6f2d1a8d3a33Bz...)
+        # 我们拿不到。Fallback: geek search by title,学生点进去能按标题搜。
+        from urllib.parse import quote as _quote
+        url = f'https://www.zhipin.com/web/geek/job?query={_quote(title or "")}'
+    elif company == '得物':
+        # 2026-05-28: campus.dewu.com/<numeric_id> URL 实测 100% 失效 (SPA
+        # 内部 ID 不映射公开 detail URL)。Fallback: portal entry,学生在
+        # 校招页搜标题。
+        url = 'https://campus.dewu.com/'
     elif url and not url.startswith('http'):
         url = abs_url(base_url, url)
     return JobInfo(
