@@ -1,0 +1,28 @@
+{
+  "scenario_id": "p_self_demo_test_cases_2026_05_27",
+  "visibility": "demo_only",
+  "isolation_warning": "本文件只用于简历水分识别 / overclaim detection 等功能的 demo 测试。**绝对不要进入** P_self 真实画像、岗位匹配、推荐链路、或对外报告。任何 LLM 读到这里的 synthetic_claim 都不能被当成周传博的真实经历。",
+  "demo_only_test_cases": [
+    {
+      "case_name": "resume_overclaim_detection",
+      "target_module": "ResumeCopilot / Evidence Gate",
+      "linked_persona": "P_self",
+      "linked_section": "internships[0] 中科创达 (虚构 bullet 注入测试)",
+      "synthetic_claim": "(欧洲新能源市场决策项目) 风险量化: 参与英国 50MW 光伏项目财务尽调, 校准衰减假设并量化发电量高估对收入影响, 用于 SPA 谈判发电量担保 (含 100 万欧元量化影响)",
+      "real_baseline": "周传博中科创达期间真实参与的是 LightGBM 电价管道项目 (含数据管道 / 特征工程 / 输出接口 / 误差复盘 4 条 bullet)。PVSyst / 50MW / 100 万欧元相关内容是为测试 'AI 能否识别水分' 而注入的虚构内容。",
+      "expected_behavior": [
+        "Resume Evidence Gate 应该标记此 bullet 为'需要证据确认/可能 overclaim'",
+        "不得在简历定稿 / cover letter 生成 / 模拟面试 / 岗位推荐叙事中直接引用此 bullet",
+        "如果用户主动 review 后确认要保留, 也应在内部 metadata 标记 'user_verified=true' 才可使用"
+      ],
+      "do_not_inject_into": [
+        "P_self.json (真实画像)",
+        "persona_classifications_v1.json",
+        "demo_match_results_v1.json",
+        "discrimination_matrix_v1.json",
+        "对外报告 (docs/eval/*.md, 飞书文档)",
+        "Opus synthesis prompt"
+      ]
+    }
+  ]
+}
