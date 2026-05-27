@@ -1,0 +1,3769 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-27T18:56:30Z",
+  "generator": "claude-opus-4-7-subagent",
+  "ground_truth": {
+    "公募权益研究员": [
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·消费",
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药",
+          "TMT"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc",
+          "xhs:公募指数研究员:10"
+        ],
+        "must_have": true,
+        "notes": "全市场公募 AUM 第一,权益条线核心"
+      },
+      {
+        "name": "华夏基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募指数研究员",
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "医药",
+          "消费"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc",
+          "xhs:公募指数研究员:3"
+        ],
+        "must_have": true,
+        "notes": "多赛道大平台,XHS mention 第二高"
+      },
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "消费",
+          "金融"
+        ],
+        "source": [
+          "saif:2024",
+          "taxonomy_doc",
+          "xhs:公募指数研究员:2"
+        ],
+        "must_have": true,
+        "notes": "老牌一线公募,中后台招聘量近年抬升"
+      },
+      {
+        "name": "嘉实基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费",
+          "TMT"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "权益+消费组传统强项"
+      },
+      {
+        "name": "广发基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "saif:2024",
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,公募 AUM top 5"
+      },
+      {
+        "name": "富国基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "应届招聘强信号,起薪 17-28 万"
+      },
+      {
+        "name": "汇添富基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "common_knowledge:头部公募",
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,消费医药条线知名"
+      },
+      {
+        "name": "兴证全球基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "周期"
+        ],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 行业研究员命中"
+      },
+      {
+        "name": "鹏华基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募权益研究员"
+        ],
+        "industry_focus": [
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 流向"
+      },
+      {
+        "name": "工银瑞信基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "银行系公募,行业首席强"
+      }
+    ],
+    "行业研究员·消费": [
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·消费",
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药",
+          "TMT"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "易方达消费组业内标杆"
+      },
+      {
+        "name": "嘉实基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "消费白酒/CXO 调研深"
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,消费行业研究员强"
+      },
+      {
+        "name": "兴业证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "行业研究员·消费",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:行业研究员·消费:5"
+        ],
+        "must_have": true,
+        "notes": "XHS mention 第一,消费研究突出"
+      },
+      {
+        "name": "华创证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:行业研究员·消费:3"
+        ],
+        "must_have": true,
+        "notes": "XHS 消费组 3 次"
+      },
+      {
+        "name": "天风证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "行业研究员·消费",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:行业研究员·消费:3"
+        ],
+        "must_have": true,
+        "notes": "消费/医药双覆盖"
+      },
+      {
+        "name": "开源证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:行业研究员·消费:2"
+        ],
+        "must_have": false,
+        "notes": "XHS 消费组 2 次"
+      },
+      {
+        "name": "中泰证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "行业研究员·消费"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:行业研究员·消费:2"
+        ],
+        "must_have": false,
+        "notes": "XHS 消费组 2 次"
+      }
+    ],
+    "行业研究员·TMT-医药-周期": [
+      {
+        "name": "华夏基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "医药"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "行业首席齐全"
+      },
+      {
+        "name": "永赢基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "新能源"
+        ],
+        "source": [
+          "saif:2024",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "TMT 高弹性产品强"
+      },
+      {
+        "name": "工银瑞信基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "TMT/周期产业链覆盖"
+      },
+      {
+        "name": "中欧基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "医药",
+          "TMT"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,医药主动权益强"
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "common_knowledge:头部公募",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "银华基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "医药",
+          "TMT"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,医药条线知名"
+      },
+      {
+        "name": "汇丰晋信基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT",
+          "周期"
+        ],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 命中"
+      },
+      {
+        "name": "国泰基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "行业研究员·TMT-医药-周期"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 命中"
+      }
+    ],
+    "公募指数研究员": [
+      {
+        "name": "华夏基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "saif:2024",
+          "saif:2025",
+          "xhs:公募指数研究员:3",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "ETF 市场份额第一"
+      },
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "消费",
+          "TMT"
+        ],
+        "source": [
+          "xhs:公募指数研究员:10",
+          "saif:2024",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "宽基 ETF 强,XHS 指数赛道 mention 最多"
+      },
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "金融",
+          "周期"
+        ],
+        "source": [
+          "xhs:公募指数研究员:2",
+          "saif:2024"
+        ],
+        "must_have": true,
+        "notes": "ETF 老牌玩家"
+      },
+      {
+        "name": "工银瑞信基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "saif:2024"
+        ],
+        "must_have": true,
+        "notes": "银行系 ETF 强"
+      },
+      {
+        "name": "嘉实基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,指数基金重要参与方"
+      },
+      {
+        "name": "中金基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:公募指数研究员:2"
+        ],
+        "must_have": false,
+        "notes": "XHS 指数 2 次"
+      },
+      {
+        "name": "摩根资产管理",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "xhs:公募指数研究员:1"
+        ],
+        "must_have": false,
+        "notes": "外资指数产品"
+      },
+      {
+        "name": "博时基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "公募指数研究员"
+        ],
+        "industry_focus": [
+          "周期"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "公募基金中后台": [
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募权益研究员",
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "中后台风控/产品近年扩招"
+      },
+      {
+        "name": "华夏基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "产品/风控/合规岗大量"
+      },
+      {
+        "name": "富国基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "产品风控简历数超投研类"
+      },
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,中后台规模大"
+      },
+      {
+        "name": "嘉实基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "广发基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "汇添富基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "公募基金中后台"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "量化研究员·中频": [
+      {
+        "name": "灵均投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "XHS 30 mention 量化第一"
+      },
+      {
+        "name": "九坤投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2025",
+          "demo_v1",
+          "xhs:量化研究员·高频:6",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "中频+QD 双线"
+      },
+      {
+        "name": "明汯投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "百亿量化老牌"
+      },
+      {
+        "name": "幻方量化",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "AI 量化工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:8",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "DeepSeek 母公司,XHS mention 高"
+      },
+      {
+        "name": "鸣石基金",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "AI 量化工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "百亿量化,AI 量化方向激进"
+      },
+      {
+        "name": "衍复投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "百亿量化老牌"
+      },
+      {
+        "name": "乾象投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2025 量化命中"
+      },
+      {
+        "name": "锐天投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2025 量化命中"
+      },
+      {
+        "name": "世纪前沿",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2025 量化命中"
+      },
+      {
+        "name": "因诺资产",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 量化命中"
+      }
+    ],
+    "量化研究员·高频": [
+      {
+        "name": "Optiver",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:15",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "XHS mention 第一,做市商"
+      },
+      {
+        "name": "Jane Street",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部做市商"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,顶尖做市商"
+      },
+      {
+        "name": "Citadel",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "量化研究员·高频",
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部对冲基金"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,Citadel Securities 高频"
+      },
+      {
+        "name": "幻方量化",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:8"
+        ],
+        "must_have": true,
+        "notes": "国内高频强"
+      },
+      {
+        "name": "九坤投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:6"
+        ],
+        "must_have": true,
+        "notes": "国内高频/QD 双强"
+      },
+      {
+        "name": "Tower Research",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "纽约高频做市商"
+      },
+      {
+        "name": "黑翼资产",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:2"
+        ],
+        "must_have": false,
+        "notes": "XHS 高频 2 次"
+      },
+      {
+        "name": "IMC",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:2"
+        ],
+        "must_have": false,
+        "notes": "荷兰做市商"
+      },
+      {
+        "name": "DRW",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:2"
+        ],
+        "must_have": false,
+        "notes": "芝加哥做市商"
+      },
+      {
+        "name": "SIG",
+        "tier": "衍生品做市商",
+        "primary_sub_cats": [
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:量化研究员·高频:2"
+        ],
+        "must_have": false,
+        "notes": "费城做市商"
+      }
+    ],
+    "量化开发QD": [
+      {
+        "name": "九坤投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "QD 主战场之一"
+      },
+      {
+        "name": "明汯投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "C++ 系统开发"
+      },
+      {
+        "name": "鸣石基金",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "QD 招聘强"
+      },
+      {
+        "name": "量派投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "QD 高薪 25-40K·15薪"
+      },
+      {
+        "name": "宽德投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化开发QD",
+          "量化研究员·高频"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc",
+          "xhs:量化研究员·高频:2"
+        ],
+        "must_have": true,
+        "notes": "C++/Linux 系统强"
+      },
+      {
+        "name": "灵均投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "幻方量化",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "衍复投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化开发QD"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "AI 量化工程师": [
+      {
+        "name": "鸣石基金",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "AI 量化博士 70-100W·20薪"
+      },
+      {
+        "name": "DeepSeek",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "AI 量化工程师",
+          "LLM算法post-train"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "量化条线源自幻方"
+      },
+      {
+        "name": "幻方量化",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "AI 量化先驱"
+      },
+      {
+        "name": "九坤投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,AI 量化方向投入大"
+      },
+      {
+        "name": "明汯投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "灵均投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "衍复投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "AI 量化工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "量化因子工程师": [
+      {
+        "name": "明汯投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "因子工程主战场"
+      },
+      {
+        "name": "九坤投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "因子库规模大"
+      },
+      {
+        "name": "衍复投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化研究员·中频",
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "因子工程岗位多"
+      },
+      {
+        "name": "灵均投资",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "鸣石基金",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "幻方量化",
+        "tier": "头部量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部量化私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "佳期投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 量化命中"
+      },
+      {
+        "name": "宽德投资",
+        "tier": "中型量化私募",
+        "primary_sub_cats": [
+          "量化因子工程师"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "因子+QD 双线"
+      }
+    ],
+    "信用研究员": [
+      {
+        "name": "中诚信国际",
+        "tier": "信用评级机构",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投",
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部信用评级"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,国内头部信评"
+      },
+      {
+        "name": "联合资信",
+        "tier": "信用评级机构",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投",
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部信用评级"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,头部信评"
+      },
+      {
+        "name": "大公国际",
+        "tier": "信用评级机构",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投"
+        ],
+        "source": [
+          "common_knowledge:头部信用评级"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,信评三大之一"
+      },
+      {
+        "name": "中再资产",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投",
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "保险资管头部信用研究"
+      },
+      {
+        "name": "平安资产管理",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "信用研究员",
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融",
+          "城投"
+        ],
+        "source": [
+          "saif:2024",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "保险资管 AUM 头部"
+      },
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投"
+        ],
+        "source": [
+          "common_knowledge:头部公募固收"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,公募固收信用组"
+      },
+      {
+        "name": "光大永明资产",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "保险资管信评"
+      },
+      {
+        "name": "华富基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "信用研究员"
+        ],
+        "industry_focus": [
+          "城投"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "公募固收信用"
+      }
+    ],
+    "固收交易员": [
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "固收交易员",
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部券商"
+        ],
+        "must_have": true,
+        "notes": "FICC 自营交易头部"
+      },
+      {
+        "name": "平安证券",
+        "tier": "中型券商",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "FICC 团队强"
+      },
+      {
+        "name": "中信建投证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,自营 FICC 头部"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "招商证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,自营固收强"
+      },
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "兴业银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "固收交易员"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部银行金融市场部"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,金融市场部交易强"
+      }
+    ],
+    "固收+多资产": [
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,固收+规模大"
+      },
+      {
+        "name": "广发基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "华夏基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "平安资产管理",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "信用研究员",
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "saif:2024",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "保险资管固收+核心"
+      },
+      {
+        "name": "国寿投资",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": true,
+        "notes": "SAIF 2025 命中"
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "固收+多资产"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "利率宏观策略": [
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "利率宏观策略",
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:利率宏观策略:2",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "利率债首席强"
+      },
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "利率宏观策略",
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "宏观利率研究领军"
+      },
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募固收"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,公募固收利率组"
+      },
+      {
+        "name": "贝莱德",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:利率宏观策略:2"
+        ],
+        "must_have": true,
+        "notes": "外资固收策略"
+      },
+      {
+        "name": "平安资产管理",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:利率宏观策略:1",
+          "saif:2024"
+        ],
+        "must_have": true,
+        "notes": "保险资管利率配置"
+      },
+      {
+        "name": "摩根大通",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:利率宏观策略:1"
+        ],
+        "must_have": false,
+        "notes": "外资行宏观利率"
+      },
+      {
+        "name": "华泰资产",
+        "tier": "保险资管",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:利率宏观策略:1"
+        ],
+        "must_have": false,
+        "notes": "保险资管"
+      },
+      {
+        "name": "中国国际金融",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "利率宏观策略"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,与中金公司同体系"
+      }
+    ],
+    "卖方研究员·TMT": [
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·宏观策略",
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "TMT 研究领军"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·消费医药周期",
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "saif:2025",
+          "xhs:卖方研究员·消费医药周期:10"
+        ],
+        "must_have": true,
+        "notes": "全市场卖方第一"
+      },
+      {
+        "name": "中信建投证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "saif:2024",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "半导体/计算机首席强"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "xhs:卖方研究员·宏观策略:8"
+        ],
+        "must_have": true,
+        "notes": "TMT 研究全覆盖"
+      },
+      {
+        "name": "招商证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "xhs:卖方研究员·消费医药周期:13"
+        ],
+        "must_have": true,
+        "notes": "通信/电子强"
+      },
+      {
+        "name": "国信证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "TMT 中型卖方"
+      },
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:4",
+          "demo_v1"
+        ],
+        "must_have": false,
+        "notes": "TMT 横跨多赛道"
+      },
+      {
+        "name": "天风证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT"
+        ],
+        "industry_focus": [
+          "TMT"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:6"
+        ],
+        "must_have": false,
+        "notes": "中型卖方 TMT"
+      }
+    ],
+    "卖方研究员·消费医药周期": [
+      {
+        "name": "招商证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:13",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "XHS 消费医药周期第一"
+      },
+      {
+        "name": "广发证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:11",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "消费医药行业首席多"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药",
+          "周期"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:10"
+        ],
+        "must_have": true,
+        "notes": "全行业覆盖"
+      },
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:4",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "消费医药全覆盖"
+      },
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:4",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "三中一华之一"
+      },
+      {
+        "name": "天风证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:6"
+        ],
+        "must_have": false,
+        "notes": "中型消费组"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "周期"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:4"
+        ],
+        "must_have": false,
+        "notes": "国泰君安+海通合并体"
+      },
+      {
+        "name": "东吴证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:4"
+        ],
+        "must_have": false,
+        "notes": "中型卖方"
+      },
+      {
+        "name": "国金证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·消费医药周期"
+        ],
+        "industry_focus": [
+          "消费"
+        ],
+        "source": [
+          "xhs:卖方研究员·消费医药周期:3"
+        ],
+        "must_have": false,
+        "notes": "中型卖方"
+      }
+    ],
+    "卖方研究员·宏观策略": [
+      {
+        "name": "申万宏源证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:12",
+          "saif:2024",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "宏观策略 XHS 第一"
+      },
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:12",
+          "saif:2025"
+        ],
+        "must_have": true,
+        "notes": "宏观研究领军"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:8",
+          "saif:2024"
+        ],
+        "must_have": true,
+        "notes": "宏观研究头部"
+      },
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "利率宏观策略",
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "宏观+大类资产配置"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:2"
+        ],
+        "must_have": true,
+        "notes": "全市场宏观首席"
+      },
+      {
+        "name": "中国银河证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2024",
+          "xhs:卖方研究员·宏观策略:1"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2024 命中"
+      },
+      {
+        "name": "天风证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:1"
+        ],
+        "must_have": false,
+        "notes": "中型卖方宏观"
+      },
+      {
+        "name": "中银证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·宏观策略"
+        ],
+        "industry_focus": [],
+        "source": [
+          "xhs:卖方研究员·宏观策略:1"
+        ],
+        "must_have": false,
+        "notes": "银行系券商"
+      }
+    ],
+    "买方 Quant": [
+      {
+        "name": "Point72",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "顶尖对冲基金"
+      },
+      {
+        "name": "Citadel",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "量化研究员·高频",
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部对冲基金"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "Millennium",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部对冲基金"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,多策略对冲基金"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部券商自营"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,头部券商自营 Quant"
+      },
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部券商自营"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "Two Sigma",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部对冲基金"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "高瓴量化",
+        "tier": "头部主观私募",
+        "primary_sub_cats": [
+          "买方 Quant"
+        ],
+        "industry_focus": [],
+        "source": [
+          "common_knowledge:头部主观私募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,高瓴量化条线"
+      }
+    ],
+    "投行 IBD": [
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "TMT",
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "saif:2025"
+        ],
+        "must_have": true,
+        "notes": "投行业务头部"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "卖方研究员·TMT",
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商",
+          "saif:2025"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,A 股 IPO 第一"
+      },
+      {
+        "name": "华泰联合证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部投行"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,华泰投行子"
+      },
+      {
+        "name": "高盛",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融",
+          "TMT"
+        ],
+        "source": [
+          "common_knowledge:头部外资投行"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,顶尖外资投行"
+      },
+      {
+        "name": "Morgan Stanley",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "saif:2025",
+          "common_knowledge:头部外资投行"
+        ],
+        "must_have": true,
+        "notes": "SAIF 2025 命中"
+      },
+      {
+        "name": "中信建投证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "Bank of America",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "SAIF 2025 命中"
+      },
+      {
+        "name": "瑞银证券",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "投行 IBD"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部外资投行"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "资管FOF": [
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "FOF 公募头部"
+      },
+      {
+        "name": "融通基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "FOF 老牌玩家"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "券商资管 FOF 头部"
+      },
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "中欧基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,FOF 产品线齐"
+      },
+      {
+        "name": "兴证全球基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "资管FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部公募"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "自营FOF": [
+      {
+        "name": "平安银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "银行自营 FOF"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:2"
+        ],
+        "must_have": true,
+        "notes": "券商自营 FOF 头部"
+      },
+      {
+        "name": "中信保诚基金",
+        "tier": "二线公募",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:2"
+        ],
+        "must_have": true,
+        "notes": "XHS 自营 FOF 2 次"
+      },
+      {
+        "name": "南方基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:2"
+        ],
+        "must_have": true,
+        "notes": "公募自营 FOF"
+      },
+      {
+        "name": "招商银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:2"
+        ],
+        "must_have": true,
+        "notes": "零售之王自营"
+      },
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:1"
+        ],
+        "must_have": false,
+        "notes": "券商自营"
+      },
+      {
+        "name": "光大证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "自营FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:自营FOF:1"
+        ],
+        "must_have": false,
+        "notes": "券商自营"
+      }
+    ],
+    "财富管理FOF": [
+      {
+        "name": "信银理财",
+        "tier": "理财子",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "中信银行理财子"
+      },
+      {
+        "name": "招商银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "财富管理龙头"
+      },
+      {
+        "name": "平安银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "财富线 + 自营双线"
+      },
+      {
+        "name": "中欧基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1"
+        ],
+        "must_have": true,
+        "notes": "FOF 投顾产品"
+      },
+      {
+        "name": "易方达基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1"
+        ],
+        "must_have": true,
+        "notes": "投顾业务发展中"
+      },
+      {
+        "name": "建设银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1"
+        ],
+        "must_have": false,
+        "notes": "国有大行财富"
+      },
+      {
+        "name": "中国银行",
+        "tier": "银行系资管",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1"
+        ],
+        "must_have": false,
+        "notes": "国有大行财富"
+      },
+      {
+        "name": "富国基金",
+        "tier": "一线公募",
+        "primary_sub_cats": [
+          "财富管理FOF"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "xhs:财富管理FOF:1"
+        ],
+        "must_have": false,
+        "notes": "投顾产品线"
+      }
+    ],
+    "结构化产品衍生品": [
+      {
+        "name": "中金公司",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "场外衍生品头部"
+      },
+      {
+        "name": "中信证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,衍生品做市头部"
+      },
+      {
+        "name": "华泰证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "国泰海通证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "中信建投证券",
+        "tier": "头部券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": true,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "招商证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      },
+      {
+        "name": "广发证券",
+        "tier": "中型券商研究所",
+        "primary_sub_cats": [
+          "结构化产品衍生品"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "common_knowledge:头部券商衍生品"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ],
+    "PE投后VC行研": [
+      {
+        "name": "高瓴资本",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药",
+          "TMT"
+        ],
+        "source": [
+          "saif:2025",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "国内 PE 头部"
+      },
+      {
+        "name": "红杉中国",
+        "tier": "头部VC",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "TMT",
+          "消费",
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部VC"
+        ],
+        "must_have": true,
+        "notes": "按行业共识,VC 头部"
+      },
+      {
+        "name": "弘毅投资",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "消费",
+          "金融"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "联想系 PE 头部"
+      },
+      {
+        "name": "德弘资本",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "消费",
+          "医药"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "前 KKR 大中华团队"
+      },
+      {
+        "name": "晨壹基金",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "TMT",
+          "消费"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "并购基金头部"
+      },
+      {
+        "name": "中投公司",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "金融"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "主权基金"
+      },
+      {
+        "name": "凯雷投资",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "消费",
+          "TMT"
+        ],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "外资 PE"
+      },
+      {
+        "name": "华平投资",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "消费",
+          "TMT"
+        ],
+        "source": [
+          "saif:2025"
+        ],
+        "must_have": false,
+        "notes": "外资 PE"
+      },
+      {
+        "name": "淡马锡",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "金融",
+          "TMT"
+        ],
+        "source": [
+          "saif:2025",
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "新加坡主权基金"
+      },
+      {
+        "name": "云锋基金",
+        "tier": "头部PE",
+        "primary_sub_cats": [
+          "PE投后VC行研"
+        ],
+        "industry_focus": [
+          "TMT",
+          "消费"
+        ],
+        "source": [
+          "saif:2024"
+        ],
+        "must_have": false,
+        "notes": "阿里系 PE"
+      }
+    ],
+    "LLM算法post-train": [
+      {
+        "name": "字节跳动",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "Agent工程师",
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 基础设施",
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:16",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "豆包 post-train 团队大"
+      },
+      {
+        "name": "腾讯",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:14",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "混元大模型"
+      },
+      {
+        "name": "阿里巴巴",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "通义千问团队"
+      },
+      {
+        "name": "蚂蚁集团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层",
+          "金融"
+        ],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "金融 AI post-train"
+      },
+      {
+        "name": "DeepSeek",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:1",
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "post-train 行业标杆"
+      },
+      {
+        "name": "百度",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:2",
+          "demo_v1"
+        ],
+        "must_have": false,
+        "notes": "文心 post-train"
+      },
+      {
+        "name": "月之暗面",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "LLM算法post-train"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "Kimi"
+      },
+      {
+        "name": "智谱AI",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "LLM算法post-train"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "GLM 大模型"
+      },
+      {
+        "name": "MiniMax",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "LLM算法post-train"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "海螺 AI"
+      }
+    ],
+    "Agent工程师": [
+      {
+        "name": "字节跳动",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "Agent工程师",
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:16",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "Coze + 豆包 Agent"
+      },
+      {
+        "name": "腾讯",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:3",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "元宝/微信 Agent"
+      },
+      {
+        "name": "蚂蚁集团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层",
+          "金融"
+        ],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "百宝箱 Agent 平台"
+      },
+      {
+        "name": "小红书",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师",
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "内容 Agent"
+      },
+      {
+        "name": "AI 应用初创 (头部创业)",
+        "tier": "AI 初创",
+        "primary_sub_cats": [
+          "Agent工程师",
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "demo_v1",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "Agent 创业团队聚集地"
+      },
+      {
+        "name": "美团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:2",
+          "demo_v1"
+        ],
+        "must_have": false,
+        "notes": "本地生活 Agent"
+      },
+      {
+        "name": "阿里巴巴",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:1"
+        ],
+        "must_have": false,
+        "notes": "通义 Agent"
+      },
+      {
+        "name": "百度",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:2"
+        ],
+        "must_have": false,
+        "notes": "搜索 Agent 化"
+      }
+    ],
+    "多模态推理优化": [
+      {
+        "name": "字节跳动",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc",
+          "common_knowledge:大厂AI"
+        ],
+        "must_have": true,
+        "notes": "豆包多模态团队"
+      },
+      {
+        "name": "腾讯",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:14"
+        ],
+        "must_have": true,
+        "notes": "XHS 多模态 mention 第一"
+      },
+      {
+        "name": "商汤科技",
+        "tier": "AI 初创",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:8",
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "CV 多模态老牌"
+      },
+      {
+        "name": "华为",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "盘古多模态"
+      },
+      {
+        "name": "百度",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:2"
+        ],
+        "must_have": true,
+        "notes": "文心多模态"
+      },
+      {
+        "name": "阿里巴巴",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:1"
+        ],
+        "must_have": false,
+        "notes": "通义多模态"
+      },
+      {
+        "name": "DeepSeek",
+        "tier": "大模型独角兽",
+        "primary_sub_cats": [
+          "LLM算法post-train",
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:1"
+        ],
+        "must_have": false,
+        "notes": "推理优化标杆"
+      },
+      {
+        "name": "NVIDIA",
+        "tier": "外资行",
+        "primary_sub_cats": [
+          "多模态推理优化"
+        ],
+        "industry_focus": [
+          "AI 基础设施"
+        ],
+        "source": [
+          "xhs:多模态推理优化:2"
+        ],
+        "must_have": false,
+        "notes": "推理硬件+优化"
+      }
+    ],
+    "AI PM": [
+      {
+        "name": "字节跳动",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM",
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:16",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "XHS AI PM 第一,16 次"
+      },
+      {
+        "name": "腾讯",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:3",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "元宝/混元 PM"
+      },
+      {
+        "name": "阿里巴巴",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:1",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "通义 + 业务 AI PM"
+      },
+      {
+        "name": "美团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM",
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:2"
+        ],
+        "must_have": true,
+        "notes": "本地生活 AI 应用 PM"
+      },
+      {
+        "name": "百度",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:2",
+          "demo_v1"
+        ],
+        "must_have": true,
+        "notes": "文心一言 PM"
+      },
+      {
+        "name": "蚂蚁集团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层",
+          "金融"
+        ],
+        "source": [
+          "demo_v1"
+        ],
+        "must_have": false,
+        "notes": "百宝箱 PM"
+      },
+      {
+        "name": "网易",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI PM"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "xhs:AI PM:1"
+        ],
+        "must_have": false,
+        "notes": "游戏 + AI PM"
+      },
+      {
+        "name": "AI 应用初创 (头部创业)",
+        "tier": "AI 初创",
+        "primary_sub_cats": [
+          "AI PM",
+          "Agent工程师"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "demo_v1"
+        ],
+        "must_have": false,
+        "notes": "0-1 PM 经验机会多"
+      }
+    ],
+    "AI算法业务": [
+      {
+        "name": "阿里巴巴",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "淘天广告/推荐算法"
+      },
+      {
+        "name": "美团",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "外卖/到店推荐算法"
+      },
+      {
+        "name": "字节跳动",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "抖音推荐算法"
+      },
+      {
+        "name": "小红书",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "Agent工程师",
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "内容推荐/搜索算法"
+      },
+      {
+        "name": "米哈游",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": true,
+        "notes": "游戏 AI/推荐"
+      },
+      {
+        "name": "小米",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "taxonomy_doc"
+        ],
+        "must_have": false,
+        "notes": "推荐/广告算法"
+      },
+      {
+        "name": "拼多多",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部电商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识,电商推荐算法"
+      },
+      {
+        "name": "京东",
+        "tier": "互联网大厂",
+        "primary_sub_cats": [
+          "AI算法业务"
+        ],
+        "industry_focus": [
+          "AI 应用层"
+        ],
+        "source": [
+          "common_knowledge:头部电商"
+        ],
+        "must_have": false,
+        "notes": "按行业共识"
+      }
+    ]
+  },
+  "stats": {
+    "total_unique_companies": 119,
+    "must_have_companies": 67,
+    "by_sub_cat": {
+      "公募权益研究员": 10,
+      "行业研究员·消费": 8,
+      "行业研究员·TMT-医药-周期": 8,
+      "公募指数研究员": 8,
+      "公募基金中后台": 8,
+      "量化研究员·中频": 10,
+      "量化研究员·高频": 10,
+      "量化开发QD": 8,
+      "AI 量化工程师": 7,
+      "量化因子工程师": 8,
+      "信用研究员": 8,
+      "固收交易员": 7,
+      "固收+多资产": 7,
+      "利率宏观策略": 8,
+      "卖方研究员·TMT": 8,
+      "卖方研究员·消费医药周期": 9,
+      "卖方研究员·宏观策略": 8,
+      "买方 Quant": 7,
+      "投行 IBD": 9,
+      "资管FOF": 7,
+      "自营FOF": 7,
+      "财富管理FOF": 8,
+      "结构化产品衍生品": 7,
+      "PE投后VC行研": 10,
+      "LLM算法post-train": 9,
+      "Agent工程师": 8,
+      "多模态推理优化": 8,
+      "AI PM": 8,
+      "AI算法业务": 8
+    }
+  }
+}

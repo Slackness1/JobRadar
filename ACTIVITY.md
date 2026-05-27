@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 03:05 · 岗位爬取-devvpstmux · Phase G T4 — 29 sub_cat × 119 公司 ground truth 落地
+- **干了什么**:T3 补爬完后用 Opus 4.7 subagent 一次合成 29 个 sub_cat (此前一直误称 27,实际列表是 29) × 公司 ground truth 清单。输入 4 路:SAIF 2023-2025 就业报告 + Phase F demo 锁定公司 + taxonomy 主表 + T3 刚跑的 XHS 统计。每条公司必带 evidence source (saif:YYYY / xhs:sub_cat:N / demo_v1 / taxonomy_doc / common_knowledge:理由)。
+- **用户体验变化**:T5/T6 知识库合成、T7 库 audit、T8 缺失公司补爬都有了 anchor — 不再是"看 LLM 想到什么就推什么"。SAIF 老师以后查"我们 cover 了高瓴吗"这种问题,这份 119 家公司清单就是答案的根据。
+- **测试**:schema 测试 5/5 通过 (29 sub_cat 全覆盖 / 每条公司必有 name+tier+must_have+source);7 条 sanity check 全 pass(易方达/华夏/南方/嘉实/广发 公募 5/5 命中,灵均/九坤/明汯/幻方 量化 4/4 命中,中金/中信/中信建投/国泰海通/招商 卖方 5/5 命中,字节/腾讯/阿里/美团/百度 AI PM 5/5 命中,高瓴/红杉/弘毅 PE 3/3 命中,中诚信/联合/大公 信用 3/3 命中)。
+- **下一步**:T5 — Hybrid Opus 合成 27 sub_cat 知识库前 5 个 sub_cat (subagent 模式),T6 后 22 个走 pure API loop。本工序总成本 0 (subagent 不计 API)。
+
 ### 02:55 · 岗位爬取-devvpstmux · Phase G T3 — 10 个短板 sub_cat XHS 补爬入库
 - **干了什么**:Phase G T1-T2 已分出 10 个 XHS 信号薄的 sub_cat(< 30 帖 OR < 10 公司),T3 对每个 sub_cat 跑 5 条真细分 query(原 T2 输出有 6 个 sub_cat 用"{sub_cat} 实习/招聘"模板被现场重写为公司名+赛道术语),用 TikHub+Decodo 抓帖 + DeepSeek extract 入 `taxonomy_xhs_posts` 新表。
 - **用户体验变化**:之前 10 个稀薄赛道(如行业研究员·消费 1 帖、自营FOF 1 帖)现在各拿到 18-59 帖 + 11-71 家真实公司名(中信/国君/中金/九坤/Optiver/字节豆包/华为等),T5/T6 合成 27 sub_cat 知识库时这些 sub_cat 不再饿死,推荐 narrative 引得到 verbatim quote。
