@@ -1,0 +1,254 @@
+{
+  "baseline": {
+    "posts": 30,
+    "companies": 10
+  },
+  "distribution": {
+    "公募权益研究员": {
+      "primary_count": 24,
+      "secondary_count": 1,
+      "combined_count": 25,
+      "company_count": 49
+    },
+    "行业研究员·消费": {
+      "primary_count": 1,
+      "secondary_count": 0,
+      "combined_count": 1,
+      "company_count": 1
+    },
+    "行业研究员·TMT-医药-周期": {
+      "primary_count": 15,
+      "secondary_count": 0,
+      "combined_count": 15,
+      "company_count": 12
+    },
+    "公募指数研究员": {
+      "primary_count": 2,
+      "secondary_count": 1,
+      "combined_count": 3,
+      "company_count": 11
+    },
+    "公募基金中后台": {
+      "primary_count": 13,
+      "secondary_count": 0,
+      "combined_count": 13,
+      "company_count": 16
+    },
+    "量化研究员·中频": {
+      "primary_count": 26,
+      "secondary_count": 5,
+      "combined_count": 31,
+      "company_count": 53
+    },
+    "量化研究员·高频": {
+      "primary_count": 5,
+      "secondary_count": 0,
+      "combined_count": 5,
+      "company_count": 10
+    },
+    "量化开发QD": {
+      "primary_count": 18,
+      "secondary_count": 7,
+      "combined_count": 25,
+      "company_count": 26
+    },
+    "AI 量化工程师": {
+      "primary_count": 14,
+      "secondary_count": 3,
+      "combined_count": 17,
+      "company_count": 17
+    },
+    "量化因子工程师": {
+      "primary_count": 30,
+      "secondary_count": 2,
+      "combined_count": 32,
+      "company_count": 19
+    },
+    "信用研究员": {
+      "primary_count": 25,
+      "secondary_count": 3,
+      "combined_count": 28,
+      "company_count": 52
+    },
+    "固收交易员": {
+      "primary_count": 14,
+      "secondary_count": 0,
+      "combined_count": 14,
+      "company_count": 43
+    },
+    "固收+多资产": {
+      "primary_count": 13,
+      "secondary_count": 3,
+      "combined_count": 16,
+      "company_count": 71
+    },
+    "利率宏观策略": {
+      "primary_count": 2,
+      "secondary_count": 3,
+      "combined_count": 5,
+      "company_count": 23
+    },
+    "卖方研究员·TMT": {
+      "primary_count": 23,
+      "secondary_count": 0,
+      "combined_count": 23,
+      "company_count": 23
+    },
+    "卖方研究员·消费医药周期": {
+      "primary_count": 6,
+      "secondary_count": 1,
+      "combined_count": 7,
+      "company_count": 14
+    },
+    "卖方研究员·宏观策略": {
+      "primary_count": 7,
+      "secondary_count": 0,
+      "combined_count": 7,
+      "company_count": 8
+    },
+    "买方 Quant": {
+      "primary_count": 37,
+      "secondary_count": 0,
+      "combined_count": 37,
+      "company_count": 94
+    },
+    "投行 IBD": {
+      "primary_count": 11,
+      "secondary_count": 1,
+      "combined_count": 12,
+      "company_count": 40
+    },
+    "资管FOF": {
+      "primary_count": 26,
+      "secondary_count": 1,
+      "combined_count": 27,
+      "company_count": 46
+    },
+    "自营FOF": {
+      "primary_count": 1,
+      "secondary_count": 0,
+      "combined_count": 1,
+      "company_count": 1
+    },
+    "财富管理FOF": {
+      "primary_count": 5,
+      "secondary_count": 2,
+      "combined_count": 7,
+      "company_count": 9
+    },
+    "结构化产品衍生品": {
+      "primary_count": 17,
+      "secondary_count": 1,
+      "combined_count": 18,
+      "company_count": 14
+    },
+    "PE投后VC行研": {
+      "primary_count": 11,
+      "secondary_count": 1,
+      "combined_count": 12,
+      "company_count": 20
+    },
+    "LLM算法post-train": {
+      "primary_count": 24,
+      "secondary_count": 6,
+      "combined_count": 30,
+      "company_count": 18
+    },
+    "Agent工程师": {
+      "primary_count": 24,
+      "secondary_count": 5,
+      "combined_count": 29,
+      "company_count": 19
+    },
+    "多模态推理优化": {
+      "primary_count": 4,
+      "secondary_count": 0,
+      "combined_count": 4,
+      "company_count": 5
+    },
+    "AI PM": {
+      "primary_count": 17,
+      "secondary_count": 1,
+      "combined_count": 18,
+      "company_count": 5
+    },
+    "AI算法业务": {
+      "primary_count": 18,
+      "secondary_count": 0,
+      "combined_count": 18,
+      "company_count": 11
+    }
+  },
+  "queries_to_run": {
+    "行业研究员·消费": [
+      "行业研究员·消费 实习",
+      "行业研究员·消费 招聘",
+      "行业研究员·消费 学姐分享",
+      "行业研究员·消费 应届生",
+      "行业研究员·消费 求职"
+    ],
+    "公募指数研究员": [
+      "公募指数研究员 实习",
+      "公募指数研究员 招聘",
+      "公募指数研究员 学姐分享",
+      "公募指数研究员 应届生",
+      "公募指数研究员 求职"
+    ],
+    "量化研究员·高频": [
+      "量化研究员·高频 实习",
+      "量化研究员·高频 招聘",
+      "量化研究员·高频 学姐分享",
+      "量化研究员·高频 应届生",
+      "量化研究员·高频 求职"
+    ],
+    "利率宏观策略": [
+      "公募 利率 宏观策略",
+      "保险资管 利率研究",
+      "货币中介 利率",
+      "宏观利率分析 实习",
+      "公募 利率 大类资产"
+    ],
+    "卖方研究员·消费医药周期": [
+      "卖方研究员·消费医药周期 实习",
+      "卖方研究员·消费医药周期 招聘",
+      "卖方研究员·消费医药周期 学姐分享",
+      "卖方研究员·消费医药周期 应届生",
+      "卖方研究员·消费医药周期 求职"
+    ],
+    "卖方研究员·宏观策略": [
+      "卖方研究员·宏观策略 实习",
+      "卖方研究员·宏观策略 招聘",
+      "卖方研究员·宏观策略 学姐分享",
+      "卖方研究员·宏观策略 应届生",
+      "卖方研究员·宏观策略 求职"
+    ],
+    "自营FOF": [
+      "自营FOF 实习",
+      "自营FOF 招聘",
+      "自营FOF 学姐分享",
+      "自营FOF 应届生",
+      "自营FOF 求职"
+    ],
+    "财富管理FOF": [
+      "信银理财 FOF",
+      "平安 财富 FOF",
+      "公募 财富线 FOF",
+      "招商 财富 FOF 投后",
+      "财富 FOF 客户服务"
+    ],
+    "多模态推理优化": [
+      "字节 多模态 推理优化",
+      "投机采样 Speculative",
+      "商汤 多模态大模型",
+      "华为 推理优化 实习",
+      "腾讯 多模态 算法"
+    ],
+    "AI PM": [
+      "AI PM 实习",
+      "AI PM 招聘",
+      "AI PM 学姐分享",
+      "AI PM 应届生",
+      "AI PM 求职"
+    ]
+  }
+}
