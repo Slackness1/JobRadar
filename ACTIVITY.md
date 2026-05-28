@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 13:35 · 网站设计-devvpstmux · Phase G T9-T10 — quality_label 7 等级升级 + 40k 帖 backfill 待跑
+- **干了什么**:把 quality_label 从老 4 等级 (good/agency/spam/low_signal) 升到 7 等级 (加 support_role/low_pay/internship_only) — 学生最痛的"标题写量化研究员,JD 一看是销售岗"这类 support_role 终于能识别;low_pay 卡薪资 ≤6k 的明显坑;internship_only 不混淆正式岗。Model 切 DeepSeek v4-Pro + reasoning_effort=medium (利用 prefix cache 降本)。同时写好 28k → 实际 40k 帖的 backfill 脚本 (12 线程并发 + 中断重跑安全 + 连续 5 个 402 自动 abort)。
+- **用户体验变化**:升级后 SAIF 学生在推荐链路上**看到的"客户经理/销售/客服"这类伪量化/伪投研岗会被自动滤掉**,推荐池干净度大幅提升 — 之前 40k 帖里目测至少 30% 是中后台/销售,真正"对口投研/算法/产品"的可能不到 1/3。
+- **测试**:6 个 prompt schema + 边界 case + 调用参数 + 兜底逻辑测试全过 (golden LLM 测试标 @pytest.mark.slow 待真实 API 调用)。
+- **下一步**:**T10 backfill 跑批被 block — DeepSeek API 余额耗尽 (402 Insufficient Balance)**。需要充值 ~$10 才能跑 40k 全量 (预算 Pro medium + prefix cache 估 $8-10)。T11-T12 sub_cat enrich 后续也吃 DeepSeek,**建议一次充足 $30-50 把 T9/T11/T12 一起跑完**。Phase G 9/21 已 commit,但 T10/T11/T12 跑批进度卡在余额。
+
 ### 13:10 · 岗位爬取-devvpstmux · Phase G T7 — 库内 32k 岗位 vs 119 ground truth 公司 audit 出报告
 - **干了什么**:写 audit 脚本对 alive 岗位库 (116k 帖 / 3274 公司) 跑 119 家 ground truth 公司命中。先做了三步公司名匹配 (alias 表 60+ 条 / 归一去公司形态后缀 / 双向 substring),其中 alias 通用词 (联合/大公/中信 等) 走完整 alias 不走 2 字兜底,避免"联合资信"误命中"中华联合保险"这类。
 - **用户体验变化**:学院老师现在能拿到一份"我们 cover 了 ground truth 多少 / 哪家 must_have 在库里 0 岗"的可读 md 报告 (docs/phase_g_audit/ground_truth_coverage_2026-05-28.md),按 sub_cat 排序 + 缺口明细 + 每家公司命中详情。明确告诉你: AI PM/资管 FOF/卖方研究 这几个 sub_cat 是 100% 命中, PE 投后 / 评级机构 / 头部外资做市商 是真没岗位 (T8 优先级)。
