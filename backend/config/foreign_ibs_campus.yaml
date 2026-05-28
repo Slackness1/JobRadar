@@ -96,6 +96,20 @@ sites:
     search_queries: ["Hong Kong", "Mainland China", "Singapore", "Shanghai", "Beijing", "Taipei", "Tokyo", "Mumbai"]
     note: "2026-05-27: portal.careers.hsbc.com Eightfold AI /api/apply/v2/jobs 直通,无需 Decodo"
 
+  # BlackRock — 2026-05-28: T8 派单 Tier A 解锁。careers.blackrock.com SilkRoad
+  # TalentBrew. /search-jobs/results JSON API 需 session cookies (空响应);
+  # 替代方案 sitemap.xml 公开列 502 个 job URLs (pattern /job/<city>/<title>/45831/<id>)
+  # 直接 parse city + title + id 无需 session。
+  # SAIF-core Asia 55 岗 (HK/SG/Shanghai/Tokyo/Taipei),含直击:
+  #   Shanghai: Equity & Multi Asset Researcher / Analyst Compliance Officer
+  #   HK: VP Fundamental Equities Research Analyst / Director Product Strategist
+  #   Tokyo: Fundamental Equities Japan Head Of Research Director / 2028 FT Analyst Program APAC
+  #   Singapore: Director SE Asia Institutional Client Business / Aladdin Alternatives
+  - name: BlackRock
+    handler: blackrock_sitemap
+    portal_url: https://careers.blackrock.com
+    note: "2026-05-28 sitemap.xml 公开 502 job URLs / SAIF-core 55 Asia 岗 — Buy-side Research + Aladdin Tech + APAC Institutional"
+
   # JP Morgan — 2026-05-26 重新诊断: 原以为是 Workday(jpmc.wd5)被 IP 软封,
   # 实际 JPM 早已迁移到 Oracle Cloud Candidate Experience。jpmc.fa.oraclecloud.com
   # /hcmRestApi/recruitingCEJobRequisitions VPS plain requests 1.1s 200 OK,

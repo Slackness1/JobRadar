@@ -358,6 +358,16 @@ tracks:
         deferred_reason: Workday 租户级应用反爬(同 BofA);Decodo residential 实测 422,backlog
       - name: Deutsche Bank
       - name: Barclays
+      # 2026-05-28: T8 派单 Tier A — careers.blackrock.com SilkRoad TalentBrew
+      # 不开 JSON API (空响应),但 sitemap.xml 公开 502 个 job URLs,直接 parse
+      # /job/<city>/<title>/45831/<id> URL pattern。首爬 +152 Asia 岗 (SG 18 /
+      # Tokyo 16 / HK 10 / Taipei 6 / Shanghai 5 / Seoul 2,加 Mumbai 54 / Gurgaon 41)。
+      # 含 SAIF MF/MBA 直击: Shanghai Equity & Multi Asset Researcher / HK VP
+      # Fundamental Equities Research / Tokyo Equity Research Head Director /
+      # Singapore Director SE Asia Institutional Client Business / 2028 FT
+      # Analyst Program APAC。注意 industry='资管 (Asset Manager)' 不是 IB,
+      # 暂归 foreign_ibs T1 list 跟其他外资行并列展示。
+      - name: BlackRock
 
   # ─────────────────────────── PE / VC ──────────────────────────
   - id: pe_vc

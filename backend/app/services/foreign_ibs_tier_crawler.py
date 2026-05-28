@@ -500,6 +500,89 @@ def _fetch_hsbc_eightfold(
     return out
 
 
+def _fetch_blackrock_sitemap(
+    company: str,
+    portal_url: str = "https://careers.blackrock.com",
+    sitemap_path: str = "/sitemap.xml",
+    asia_cities: Optional[List[str]] = None,
+    source: str = "foreign_ibs_official",
+    industry: str = "资管 (Asset Manager)",
+    tags: str = "foreign_am,blackrock",
+) -> List[Dict[str, Any]]:
+    """BlackRock — careers.blackrock.com SilkRoad TalentBrew.
+
+    2026-05-28 实测: /search-jobs/results JSON API 返 `{filters,results,hasJobs,
+    hasContent}` 但需要 session-warmed cookies 才有数据 (results 是 HTML 串)。
+    替代方案: sitemap.xml 公开列出全 502 个 jobs,URL pattern
+    `/job/<city-slug>/<title-slug>/45831/<job_id>`。直接 parse sitemap 拿 city +
+    job_id + title,无需 session。
+
+    Asia 总量 (sitemap.xml 实测): SAIF-core 55 (HK/SG/Shanghai/Tokyo/Taipei) +
+    India ops 100+。含 SAIF MF 直击岗: Shanghai Equity & Multi Asset Researcher
+    / HK Fundamental Equities Research VP / Tokyo Equity Research Head /
+    2028 Full Time Analyst Program APAC。
+    """
+    import re as _re
+    if asia_cities is None:
+        asia_cities = [
+            "hong-kong", "singapore", "shanghai", "beijing",
+            "tokyo", "taipei", "seoul",
+            "mumbai", "bangalore", "gurgaon", "hyderabad", "pune", "chennai",
+        ]
+    try:
+        r = requests.get(
+            f"{portal_url.rstrip('/')}{sitemap_path}",
+            headers=_ua_headers(), timeout=30,
+        )
+    except Exception:
+        return []
+    if r.status_code != 200:
+        return []
+    locs = _re.findall(r"<loc>([^<]+)</loc>", r.text)
+    job_url_re = _re.compile(
+        r"^https://careers\.blackrock\.com/job/([^/]+)/([^/]+)/(\d+)/(\d+)$"
+    )
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for url in locs:
+        m = job_url_re.match(url)
+        if not m:
+            continue
+        city_slug, title_slug, _category_id, job_id = m.groups()
+        if city_slug not in asia_cities:
+            continue
+        if job_id in seen:
+            continue
+        seen.add(job_id)
+        title = title_slug.replace("-", " ").title()
+        city_label = city_slug.replace("-", " ").title()
+        stage = "campus" if any(k in title.lower() for k in (
+            "analyst program", "intern", "graduate", "campus", "trainee",
+            "rotational", "futurefocus",
+        )) else "social"
+        out.append({
+            "job_id": _hash_id(source, company, job_id),
+            "source": source,
+            "company": company,
+            "company_type_industry": industry,
+            "company_tags": tags,
+            "department": "",
+            "job_title": title,
+            "location": city_label,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": stage,
+            "source_config_id": f"{source}:blackrock_sitemap:{job_id}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": url,
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
+
+
 def _fetch_oracle_ce(
     company: str,
     portal_url: str,
@@ -703,7 +786,7 @@ def crawl_foreign_ibs(
 
     for entry in raw:
         handler = entry.get("handler", "workday")
-        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html", "hsbc_eightfold", "oracle_ce"):
+        if handler not in ("workday", "goldman_graphql", "ubs_taleo_spa", "hsbc_html", "hsbc_eightfold", "oracle_ce", "blackrock_sitemap"):
             continue  # only supported handlers
 
         company = entry["name"]
@@ -763,6 +846,12 @@ def crawl_foreign_ibs(
                     queries=queries,
                     page_size=int(entry.get("page_size", 50)),
                     max_pages_per_query=max_pages,
+                )
+            elif handler == "blackrock_sitemap":
+                records = _fetch_blackrock_sitemap(
+                    company=company,
+                    portal_url=entry.get("portal_url", "https://careers.blackrock.com"),
+                    asia_cities=entry.get("asia_cities") or None,
                 )
 
             company_new = 0
