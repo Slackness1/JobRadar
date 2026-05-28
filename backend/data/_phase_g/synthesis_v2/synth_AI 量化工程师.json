@@ -1,0 +1,71 @@
+{
+  "sub_cat": "AI 量化工程师",
+  "sub_cat_slug": "ai_quant_engineer",
+  "strategy_type": "量化",
+  "industry_focus_candidates": [
+    "AI 量化投资",
+    "股票 Alpha",
+    "量化交易"
+  ],
+  "institution_tier_candidates": [
+    "头部量化私募",
+    "一线量化私募"
+  ],
+  "typical_companies": [
+    {"name": "鸣石基金", "tier": "头部量化私募", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "明汯投资", "tier": "头部量化私募", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "幻方量化/High-Flyer", "tier": "头部量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "九坤投资", "tier": "头部量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "宽德投资", "tier": "头部量化私募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "灵均投资", "tier": "一线量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "乾象投资", "tier": "一线量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "超量子基金", "tier": "量化私募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "同时具备 AI/ML/DL 技术与 alpha/因子/交易/组合目标",
+    "熟练 Python/C++，掌握 PyTorch/TensorFlow 与大规模数据建模",
+    "能做收益预测、因子挖掘、回测验证、样本外评估和实盘迭代",
+    "理解市场微观结构、行情/order book、PnL、风险约束与交易成本",
+    "数理统计、优化、线性代数扎实，能完成推导、实现和实验诊断"
+  ],
+  "soft_signals": [
+    "对量化金融有强兴趣，能把算法结果转化为可交易假设",
+    "逻辑严密、创新意识强，能处理过拟合和样本外失效",
+    "竞赛、论文、算法工程或大规模数据项目经历加分",
+    "简历突出算法、数据建模、编程和超算/GPU相关经历"
+  ],
+  "transfer_paths": [
+    {"from": "互联网 AI 算法岗", "to": "AI 量化工程师", "difficulty": "medium", "notes": "技术栈可迁移，但必须补因子、回测、交易目标和金融市场理解"},
+    {"from": "传统量化研究员", "to": "AI 量化工程师", "difficulty": "medium", "notes": "已有金融框架，需补深度学习、GPU训练和非线性建模能力"},
+    {"from": "AI 学术 PhD", "to": "AI 量化工程师", "difficulty": "low", "notes": "研究能力强，但需证明能围绕收益预测和策略落地优化"}
+  ],
+  "pitfalls": [
+    "AI公司/大模型岗位 ≠ AI量化，DeepSeek本身不能单独支撑归类",
+    "量化私募普通 ML infra ≠ AI量化，缺alpha/PnL/交易目标应排除",
+    "金融科技·量化平台 ≠ AI量化，客户研究/ESG/数据产品无PnL目标应排除",
+    "AI应用开发工程师 ≠ AI量化，前后端/全栈接入AI能力不是策略研究",
+    "只有AI/ML/DL技术信号或只有量化公司名，均不足以高置信归类"
+  ],
+  "interview_style": "笔试常覆盖深度学习、机器学习、凸优化、线性代数、代码实现和数学推导；面试追问AI在量化交易中的局限、过拟合、因子有效性、回测与实盘落地，流程多为投递、沟通、线上笔试、2-3轮面试。",
+  "compensation_signal": "个案/市场贴帖信号：幻方AI研究员80-300万、量化研究员60-200万；非行业整体薪资。",
+  "career_trajectory": "可从 AI 量化研究/工程切入，向股票Alpha、机器学习策略、组合优化、交易系统协同和研究团队负责人发展；长期壁垒取决于算法能力、金融理解、实盘归因和风险控制。",
+  "verbatim_quotes": [
+    {"quote": "研究员序列（全职/实习）：量化因子工程师、AI量化工程师、Quantitative Research（Monetization & Optimization）", "source_url": "https://www.xiaohongshu.com/discovery/item/6979e092000000000e00ecd4?xsec_token=YBcuSm_5RG5FDUoAFBOZevRYeSV5FHW4EUxezGcMitvXE%3D&xsec_source=app_share", "context": "鸣石岗位序列直接命中"},
+    {"quote": "明汯是国内最早把深度学习（AI）大规模应用于量化交易的机构之一。", "source_url": "https://www.xiaohongshu.com/discovery/item/6a0dd22b000000003700e861?xsec_token=YBm4Y5lD0UeO4fv4xPCt09ZzZHE6ETWMcmH7G7sBIEw0Y%3D&xsec_source=app_share", "context": "明汯AI量化定位"},
+    {"quote": "AI研究员（大模型方向）💰 年薪80-300万 ✅ 要求：PhD，NLP/CV/强化学习背景，顶会论文", "source_url": "https://www.xiaohongshu.com/discovery/item/69a792eb0000000022030502?xsec_token=YBs-4avNvayEyYORKHdX6UCHlKAuhJEeb1GFsp674-Hnw%3D&xsec_source=app_share", "context": "幻方薪酬与要求个案"},
+    {"quote": "深度学习在量化交易中的应用有哪些局限？你怎么解决过拟合问题？", "source_url": "https://www.xiaohongshu.com/discovery/item/698f41fb000000000a028ea7?xsec_token=YBfaOPkjFA_lzkwp3ZyjgHU8AeRhp_D9J1quG_pQE5GTM%3D&xsec_source=app_share", "context": "面试边界与风险意识"},
+    {"quote": "真的有人用ai完成过一整套可实盘的量化策略吗？我咋感觉ai挖出来的因子乱七八糟的，用ai做策略比自己做还麻烦", "source_url": "https://www.xiaohongshu.com/discovery/item/6a0bd5bf00000000080304f9?xsec_token=YBPCtCgFFhYVnxVIKu8MByAmj1iJSLzH-IxOX8TR3qVRg%3D&xsec_source=app_share", "context": "AI因子实盘落地风险"}
+  ],
+  "hiring_season": {
+    "spring": "春招与暑期实习有明显岗位帖，量化私募滚动招聘",
+    "fall": "秋招通常覆盖全职与次年实习，证据不足不写具体月份",
+    "verbatim": "招满即止，建议尽早锁定席位",
+    "peak_month": [3, 4, 9, 10]
+  },
+  "data_confidence": "low",
+  "data_basis": {
+    "post_count": 14,
+    "company_mention_count": 8,
+    "saif_alumni_count": 1
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "sub_cat": "自营FOF",
+  "sub_cat_slug": "proprietary_fof",
+  "strategy_type": "多资产_FOF_衍生品",
+  "industry_focus_candidates": [
+    "金融"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "一线公募",
+    "二线公募"
+  ],
+  "typical_companies": [
+    {"name": "中信证券", "tier": "头部券商研究所", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "华泰证券", "tier": "头部券商研究所", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "中信建投", "tier": "头部券商研究所", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "南方基金", "tier": "一线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "易方达基金", "tier": "一线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "华夏基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "中信保诚基金", "tier": "二线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true}
+  ],
+  "hard_requirements": [
+    "明确服务自有资金、自营盘或机构自营配置，而非客户投顾或资管产品发行",
+    "能做底层基金筛选、管理人尽调、基金画像、FOF组合构建和持续跟踪",
+    "熟悉多资产配置、CTA/中性/套利等策略评价、回撤控制和绩效归因",
+    "能用Python/Wind/基金数据库做回测、因子指标、持仓穿透和投委会材料",
+    "理解自营FOF与资管FOF、财富FOF、基金产品运营的资金属性差异"
+  ],
+  "soft_signals": [
+    "重视绝对收益、回撤约束和实盘闭环，不只追求产品规模或客户方案",
+    "对多资产配置、行业轮动、定量和定性研究均有基础，并能形成个人标签",
+    "能识别管理人稀缺额度、策略容量、团队稳定性和风控纪律",
+    "愿意承担业绩波动和资金配置压力，能解释行情好坏下的组合取舍"
+  ],
+  "transfer_paths": [
+    {"from": "公募FOF研究员", "to": "券商自营FOF", "difficulty": "medium", "notes": "基金筛选和组合研究可复用，但需补自有资金绝对收益和投委会框架"},
+    {"from": "量化私募CTA/中性研究员", "to": "自营FOF多策略配置", "difficulty": "medium", "notes": "策略评价和回撤管理对口，但需补管理人尽调和组合配置语言"},
+    {"from": "券商资管FOF", "to": "券商自营FOF", "difficulty": "low", "notes": "同属FOF投研近邻，但需从产品规模导向切到自营盘收益导向"},
+    {"from": "财富管理基金投顾", "to": "自营FOF", "difficulty": "high", "notes": "客户配置经验可迁移有限，需证明投资研究和实盘组合能力"}
+  ],
+  "pitfalls": [
+    "私行、财富管理、基金投顾、家办客户组合建议 ≠ 自营FOF，优先财富管理FOF",
+    "公募、理财子、保险资管的FOF/MOM产品投研 ≠ 自营FOF，优先资管FOF",
+    "基金运营、产品助理、产品支持、估值清算、TA、申赎登记 ≠ 自营FOF",
+    "基金产品运营·中后台只做产品材料、存续、系统数据维护时不得归自营FOF",
+    "中金财富等买方投顾或定制方案业务 ≠ 自营FOF，除非明确自有资金配置",
+    "只讨论FOF行业规模、新发、清盘或产品表现，不能单独支撑自营FOF",
+    "券商金融创新部衍生品、做市、自营交易 ≠ 自营FOF，除非写FOF投研配置",
+    "金融公司自有母基金若核心是对接私募市场/家办客户，需谨慎降置信"
+  ],
+  "interview_style": "常围绕FOF与普通基金区别、利率下行周期资产配置、底层基金筛选指标、管理人尽调、CTA/宏观策略评价、回撤控制、组合归因和投委会表达追问。",
+  "compensation_signal": "市场传闻：自营FOF门槛高但给得未必高；个案信号显示行情好钱多、行情差钱少。",
+  "career_trajectory": "早期可从FOF研究、基金评价、资管FOF或多策略研究切入；中期走自营盘组合投资、管理人研究、资产配置和投委会支持；长期可转多资产投资经理、FOF投资经理或机构自营配置负责人。",
+  "verbatim_quotes": [
+    {"quote": "而各类金融机构自营资金的fof下投的思路：首先对管理几个亿大资金定制组合更有经验", "source_url": "https://www.xiaohongshu.com/discovery/item/693e065c000000021e029e20?xsec_token=YBHnwsTf9MGpmgQdrtDV-hHE7Pu0hENRz2PrH5k4cqxXM%3D&xsec_source=app_share", "context": "自营资金FOF配置"},
+    {"quote": "自营FOF最追求绝对收益，资管FOF最看重规模和业绩排名，财富FOF最看重客户需求和投后服务", "source_url": "https://www.xiaohongshu.com/discovery/item/66810504000000021c03d3c9?xsec_token=YBqK5jnKPXduLaptP992q2CzlfIeViMOhl1jLZrGIBoIg%3D&xsec_source=app_share", "context": "三类FOF边界"},
+    {"quote": "有实盘经验及投资追求去自营FOF", "source_url": "https://www.xiaohongshu.com/discovery/item/66810504000000021c03d3c9?xsec_token=YBqK5jnKPXduLaptP992q2CzlfIeViMOhl1jLZrGIBoIg%3D&xsec_source=app_share", "context": "候选人画像"},
+    {"quote": "知名券商-FOF研究员-上海", "source_url": "https://www.xiaohongshu.com/discovery/item/6953425e000000021f00f294?xsec_token=YBESGoHrR-DEWyhY3gl_h-odUMoA32f3tSS_3t9Wc1e1k%3D&xsec_source=app_share", "context": "券商FOF岗位"},
+    {"quote": "FOF就是一个要求全面能力都要合格的这个一个职业", "source_url": "https://www.xiaohongshu.com/discovery/item/69427259000000021e027bca?xsec_token=YBPCbg0ZeyVPclci2f1lLEatcLy-tFfZdE1cUQLarrLEo%3D&xsec_source=app_share", "context": "能力结构"},
+    {"quote": "做私募 FOF 配置，选对管理人远比盲目看产品重要！", "source_url": "https://www.xiaohongshu.com/discovery/item/69b28557000000000800d75f?xsec_token=YB3Co1CYcrkvfl7UOGWawHlvWVWKexhQ46lPvvPpXO7gI%3D&xsec_source=app_share", "context": "管理人筛选"}
+  ],
+  "hiring_season": {
+    "spring": "春招多为少量补录或项目制实习，岗位随机性较高",
+    "fall": "秋招关注券商、公募、多资产和FOF研究条线，HC不稳定",
+    "verbatim": "缺点：稳定性低，hc随机",
+    "peak_month": [3, 4, 9, 10]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 29,
+    "company_mention_count": 38,
+    "saif_alumni_count": 0
+  }
+}

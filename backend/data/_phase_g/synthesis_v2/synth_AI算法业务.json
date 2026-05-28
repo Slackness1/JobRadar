@@ -1,0 +1,169 @@
+{
+  "sub_cat": "AI算法业务",
+  "sub_cat_slug": "ai_algorithm_business",
+  "strategy_type": "AI 应用_PM_开发",
+  "industry_focus_candidates": [
+    "AI 应用层",
+    "互联网",
+    "金融科技"
+  ],
+  "institution_tier_candidates": [
+    "互联网大厂",
+    "头部电商",
+    "金融科技"
+  ],
+  "typical_companies": [
+    {
+      "name": "字节跳动",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 1,
+      "is_saif_alumni_dest": false,
+      "is_must_have": true
+    },
+    {
+      "name": "阿里巴巴",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 1,
+      "is_saif_alumni_dest": false,
+      "is_must_have": true
+    },
+    {
+      "name": "美团",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 0,
+      "is_saif_alumni_dest": false,
+      "is_must_have": true
+    },
+    {
+      "name": "小红书",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 0,
+      "is_saif_alumni_dest": false,
+      "is_must_have": true
+    },
+    {
+      "name": "蚂蚁集团",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 2,
+      "is_saif_alumni_dest": false,
+      "is_must_have": false
+    },
+    {
+      "name": "快手",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 1,
+      "is_saif_alumni_dest": false,
+      "is_must_have": false
+    },
+    {
+      "name": "腾讯",
+      "tier": "互联网大厂",
+      "xhs_mention_count": 1,
+      "is_saif_alumni_dest": false,
+      "is_must_have": false
+    },
+    {
+      "name": "华泰证券",
+      "tier": "金融科技",
+      "xhs_mention_count": 4,
+      "is_saif_alumni_dest": false,
+      "is_must_have": false
+    },
+    {
+      "name": "中金公司",
+      "tier": "金融科技",
+      "xhs_mention_count": 1,
+      "is_saif_alumni_dest": false,
+      "is_must_have": false
+    }
+  ],
+  "hard_requirements": [
+    "岗位标题或职责需明确搜推广告/风控/反欺诈/数据挖掘，不能只写AI应用",
+    "掌握搜索/推荐/广告召回排序、CTR/CVR预估、特征工程、样本构造",
+    "能讲清离线评估、线上A/B、模型上线、监控回滚和在线指标收益",
+    "Python/SQL熟练，至少有一段业务算法项目或实习可追问到数据-模型-上线",
+    "LLM/RAG/Agent项目不能替代业务算法，除非落到排序/推荐/风控指标"
+  ],
+  "soft_signals": [
+    "能把GMV、转化、留存、风险损失拆成可优化指标",
+    "对AI搜/生成式推荐有判断，能讲传统搜推如何迁移",
+    "能用bad case分析驱动特征、召回、排序和产品策略迭代",
+    "理解业务、产品、工程协同，不只会调包或背八股"
+  ],
+  "transfer_paths": [
+    {
+      "from": "课程项目/ACM/数模竞赛",
+      "to": "互联网搜推广告/风控算法实习",
+      "difficulty": "medium",
+      "notes": "补真实数据、特征工程、离线评估和A/B闭环后可转"
+    },
+    {
+      "from": "传统搜推/广告算法",
+      "to": "AI搜/生成式推荐",
+      "difficulty": "medium",
+      "notes": "保留召回排序与在线指标经验，补LLM生成与评估范式"
+    },
+    {
+      "from": "金融数分/AI应用开发",
+      "to": "金融科技业务算法",
+      "difficulty": "high",
+      "notes": "需从报表/应用接入升级到推荐、风控或反欺诈模型上线"
+    },
+    {
+      "from": "Agent/RAG demo项目",
+      "to": "业务算法岗",
+      "difficulty": "high",
+      "notes": "必须补搜推广告/风控场景，不能只讲LangChain和向量库"
+    }
+  ],
+  "pitfalls": [
+    "大模型SFT/RLHF/DPO/对齐训练 ≠ AI算法业务，缺业务指标应归post-train",
+    "Agent/RAG/tool calling/工作流编排 ≠ AI算法业务，缺召回排序风控信号应排除",
+    "前端/后端/全栈AI应用接入 ≠ AI算法业务，应优先归AI应用开发工程师",
+    "ML Infra/机器学习引擎/推理性能工程 ≠ AI算法业务，无在线业务模型目标应排除",
+    "多模态/VLM推理加速/端侧部署 ≠ AI算法业务，除非服务搜推广告风控模型",
+    "AI PM/策略产品/PRD/需求分析 ≠ AI算法业务，除非JD明确算法建模上线"
+  ],
+  "interview_style": "大厂策略/业务算法面试偏技术硬核，常问Transformer/注意力、手撕代码、特征工程、SQL/Python、A/B与项目细节；金融科技类还会追问业务理解和公司科技应用。",
+  "compensation_signal": "市场传闻：大模型岗涨约50%不代表业务算法；个案信号：西二旗大厂实习+蚂蚁OC；无官方约束。",
+  "career_trajectory": "算法实习→搜推/广告/风控算法校招→业务算法工程师；后续可深耕推荐广告/风控，或迁移AI搜、生成式推荐、金融科技智能投顾，但需持续补线上实验与LLM融合能力。",
+  "verbatim_quotes": [
+    {
+      "quote": "LLM浪潮下，传统搜推乃至业务算法的出路在哪？",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69d36476000000001e00c089?xsec_token=YBFAF3ELSmto-2QMgBM2pJvYQHXuEdQIf0HLuqcCh_EWU%3D&xsec_source=app_share",
+      "context": "传统搜推范式焦虑"
+    },
+    {
+      "quote": "简历中项目经历>院校背景（门槛）>垂直相关的竞赛（ACM之类）>专业排名、国奖、英语（锦上添花）>不够垂直的竞赛（比如美赛O奖）",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68a28fb5000000001c006aff?xsec_token=YBrHCC6EfzHTPhS33o6AIf_IQGg73eBFFmOo_HaXxf__k%3D&xsec_source=app_share",
+      "context": "项目经历权重"
+    },
+    {
+      "quote": "面试下来感觉中金很看重技术落地和业务理解，宝子们准备时记得多研究公司近期科技动态！",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e12963000000000400602e?xsec_token=YBoMACpj-L2xybKn7Neuw7-fKkHjNSchL1W07QkUdUvsg%3D&xsec_source=app_share",
+      "context": "金融科技算法面试"
+    },
+    {
+      "quote": "听劝，别在简历里继续写熟悉RAG了，穿帮！",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/685becf3000000001703532d?xsec_token=YBBaV-j0Krd76FE_g7dBz9QLzJo_nfUsCKFUjueAa0Z_I%3D&xsec_source=app_share",
+      "context": "RAG边界混淆"
+    },
+    {
+      "quote": "面试结束狂补了transformer的八股和代码，注意力机制真的高频考点！",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/687df509000000001c035d6b?xsec_token=YBdOfmTMvQaptXHKNr1_co4eBYJnhgRc6gcKoPGuR-c3Q%3D&xsec_source=app_share",
+      "context": "策略算法技术面"
+    }
+  ],
+  "hiring_season": {
+    "spring": "春招/暑期实习有5月面试链路个案",
+    "fall": "秋招与实习留用、校招终面强相关",
+    "verbatim": "实习考核优秀直接解锁2027届校招终面，不用再挤秋招独木桥。",
+    "peak_month": [5, 9, 10]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 18,
+    "company_mention_count": 17,
+    "saif_alumni_count": 0
+  }
+}
