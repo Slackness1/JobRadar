@@ -113,9 +113,9 @@ def test_enrich_full_pipeline(mock_p1, mock_p2):
     assert 0.89 < result["sub_cat_confidence"] < 0.91
     # industry_focus 应该是 JSON array str
     assert json.loads(result["industry_focus"]) == ["A股权益"]
-    # reasoning 应该拼了 P1 + P2 的 reasoning
+    # reasoning 应该拼了 P1 + P2 的 reasoning + evidence_path (v2: GPT 5.5 Pro Call 1)
     assert "P1[量化" in result["sub_cat_reasoning"]
-    assert "P2:" in result["sub_cat_reasoning"]
+    assert "P2[" in result["sub_cat_reasoning"]
 
 
 @patch("app.services.phase_g.sub_cat_enricher.pass1_classify_strategy")

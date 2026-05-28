@@ -1,0 +1,120 @@
+{
+  "schema_version": "taxonomy_v2_1",
+  "generated_at": "2026-05-29",
+  "generator": "GPT 5.5 Pro Call 1 (Phase G T13 76.4% fix)",
+  "baseline": "29 sub_cat (T0-T19)",
+  "net_change": "+5 (29 → 34)",
+  "strategy_types_unchanged": [
+    "基本面权益",
+    "量化",
+    "固定收益",
+    "卖方研究",
+    "多资产_FOF_衍生品",
+    "相关补充",
+    "AI 应用_PM_开发"
+  ],
+  "new_sub_cats": [
+    {
+      "name": "机构销售·销售支持",
+      "strategy_type": "卖方研究",
+      "boundary": "服务机构客户、销售材料、路演支持、客户覆盖、交易询价协调；不是写研报的卖方研究员，不是管头寸/P&L/报价执行的交易员",
+      "typical_companies": ["中金公司", "国金证券", "中信证券", "华泰证券", "国泰海通证券"],
+      "industry_focus_candidates": ["权益", "固收", "衍生品", "FOF/资产配置"],
+      "institution_tier_candidates": ["头部券商研究所", "中型券商研究所", "外资行/外资投行"],
+      "rationale": "T13 错样本 #9/#28/#42/#74/#135/#139/#172/#178/#196/#200 — 机构销售/客户经理被误归卖方研究员或固收交易员"
+    },
+    {
+      "name": "债券承做DCM·ABS/REITs",
+      "strategy_type": "固定收益",
+      "boundary": "一级市场债券/ABS/REITs 发行承做、材料制作、报送、簿记、存续管理；不是二级交易，不是信用研究，不是固收+组合投资",
+      "typical_companies": ["中信证券", "中金公司", "平安证券", "国金证券", "国信证券"],
+      "industry_focus_candidates": ["公募债承做", "ABS/REITs 承做", "私募债承做"],
+      "institution_tier_candidates": ["头部券商研究所", "中型券商研究所"],
+      "rationale": "T13 错样本 #18/#65/#99/#100/#133/#176 — DCM/ABS/REITs 承做与固收交易/信用研究混淆"
+    },
+    {
+      "name": "基金产品运营·中后台",
+      "strategy_type": "多资产_FOF_衍生品",
+      "boundary": "基金产品、运营、估值清算、TA、产品基础设施、申赎/登记/存续/产品材料；不是 FOF 投研，不是公募权益研究，不是 PE/VC 投后",
+      "typical_companies": ["中金公司", "鹏华基金", "易方达基金", "招商银行", "中欧基金"],
+      "industry_focus_candidates": ["公募基金运营", "理财子运营", "信托运营", "券商资管运营"],
+      "institution_tier_candidates": ["一线公募", "二线公募", "理财子", "头部券商资管", "信托公司"],
+      "rationale": "T13 错样本 #1/#35/#46/#121/#184/#189 — 基金产品运营/产品助理被误归 FOF 投资或 PE 投后"
+    },
+    {
+      "name": "AI应用开发工程师",
+      "strategy_type": "AI 应用_PM_开发",
+      "boundary": "前端/后端/全栈/客户端/服务端开发，把 AI 能力工程化接入业务；不是 Agent 核心编排，不是 post-train，不是业务算法训练",
+      "typical_companies": ["字节跳动", "美团", "腾讯", "阿里巴巴", "小红书"],
+      "industry_focus_candidates": ["AI 应用前端", "AI 应用后端", "AI 应用全栈", "AI 应用客户端"],
+      "institution_tier_candidates": ["互联网大厂", "AI 初创", "大模型独角兽"],
+      "rationale": "T13 错样本 #61/#110/#113/#125 — AI 应用前端/全栈被误归 Agent 或 post-train"
+    },
+    {
+      "name": "金融科技·量化平台",
+      "strategy_type": "量化",
+      "boundary": "金融科技、量化平台、客户研究、ESG量化、数字金融、风险/投研数据产品；没有 alpha/PnL/交易目标时不归量化因子、买方 Quant、AI量化",
+      "typical_companies": ["国金证券", "中金公司", "蚂蚁集团", "招商银行", "国信证券"],
+      "industry_focus_candidates": ["数字金融", "投研平台", "ESG 量化", "金融数据产品", "客户研究平台"],
+      "institution_tier_candidates": ["头部券商研究所", "中型券商研究所", "理财子", "互联网大厂金融科技"],
+      "rationale": "T13 错样本 #80/#104/#129/#145 — 金融科技/量化平台/ESG 与量化因子/AI 量化串台"
+    }
+  ],
+  "rename_or_collapse": [
+    {
+      "old_name": "AI 应用初创 (头部创业)",
+      "new_location": "persona_bucket (移出 company ground_truth)",
+      "operation": "从 must_have 公司表移除，改放 persona/institution_tier 桶",
+      "rationale": "User audit 确认: 不是具体公司, 不能按 119 公司 ground_truth 口径验证"
+    },
+    {
+      "old_name": "买方 Quant",
+      "new_name": "海外买方量化/衍生品研究",
+      "new_strategy_type": "量化",
+      "operation": "从「卖方研究」迁移到「量化」 + 重命名",
+      "rationale": "当前 strategy 归属错位, 容易把券商金工、机构业务、Trading Intern 误判为买方 Quant"
+    },
+    {
+      "old_name": "公募基金中后台",
+      "operation": "收窄为「公募管理人内部运营/合规/风控/运营支持」",
+      "rationale": "基金产品/运营/产品基础设施交给新增「基金产品运营·中后台」, 避免和 FOF、产品助理混淆"
+    },
+    {
+      "old_name": "行业研究员·TMT-医药-周期",
+      "new_name": "非公募买方行业研究员·TMT医药周期",
+      "rationale": "公募公司行业研究应归「公募权益研究员」, 券商研究所应归卖方研究"
+    },
+    {
+      "old_name": "PE投后VC行研",
+      "new_name": "PEVC投资研究·投后支持",
+      "rationale": "排除企业战略、互联网战略、纯行业研究, 保留股权投资/投后/尽调场景"
+    },
+    {
+      "old_name": "固收+多资产",
+      "new_name": "固收投资研究·转债/多资产",
+      "operation": "收窄 + DCM 类分流到新增 sub_cat",
+      "rationale": "原 sub_cat 过度吸收 DCM/承做样本, 收窄到投资研究"
+    }
+  ],
+  "fof_discriminator": {
+    "applies_to": ["自营FOF", "财富管理FOF", "资管FOF"],
+    "new_field": "capital_owner_type",
+    "values": {
+      "proprietary": {"sub_cat": "自营FOF", "description": "机构自有资金/自营盘"},
+      "wealth_client": {"sub_cat": "财富管理FOF", "description": "高净值客户/私行/家办"},
+      "asset_management_product": {"sub_cat": "资管FOF", "description": "公募/理财子/保险资管/券商资管产品"}
+    }
+  },
+  "total_after": {
+    "count": 34,
+    "by_strategy": {
+      "基本面权益": ["公募权益研究员", "非公募买方行业研究员·TMT医药周期", "行业研究员·消费", "公募指数研究员", "公募基金中后台"],
+      "量化": ["量化研究员·中频", "量化研究员·高频", "量化开发QD", "AI 量化工程师", "量化因子工程师", "金融科技·量化平台", "海外买方量化/衍生品研究"],
+      "固定收益": ["信用研究员", "固收交易员", "固收投资研究·转债/多资产", "利率宏观策略", "债券承做DCM·ABS/REITs"],
+      "卖方研究": ["卖方研究员·TMT", "卖方研究员·消费医药周期", "卖方研究员·宏观策略", "投行 IBD", "机构销售·销售支持"],
+      "多资产_FOF_衍生品": ["资管FOF", "自营FOF", "财富管理FOF", "结构化产品衍生品", "基金产品运营·中后台"],
+      "相关补充": ["PEVC投资研究·投后支持"],
+      "AI 应用_PM_开发": ["LLM算法post-train", "Agent工程师", "多模态推理优化", "AI PM", "AI算法业务", "AI应用开发工程师"]
+    }
+  }
+}

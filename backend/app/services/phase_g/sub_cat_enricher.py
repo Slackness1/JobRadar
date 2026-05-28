@@ -44,12 +44,20 @@ STRATEGY_TYPES: tuple[str, ...] = (
 PASS1_SYSTEM_PROMPT = """你是中国金融+AI 校招岗位分类器。给你一个岗位 JD,选出最匹配的 1 个 strategy_type 大类:
 
 - 基本面权益: 公募 / 主观私募的权益研究员, 行业研究, 指数研究, 中后台
-- 量化: 量化研究员 (中频/高频), 量化开发 QD, AI 量化, 因子工程师
-- 固定收益: 信用研究, 固收交易, 固收+多资产, 利率宏观策略
-- 卖方研究: 券商研究所卖方研究员, 投行 IBD, 买方 Quant
-- 多资产_FOF_衍生品: 资管 FOF, 自营 FOF, 财富 FOF, 结构化衍生品
-- 相关补充: PE 投后, VC 行研
-- AI 应用_PM_开发: LLM 算法 (post-train), Agent 工程师, 多模态推理优化, AI PM, AI 算法业务
+- 量化: 量化研究员 (中频/高频), 量化开发 QD, AI 量化, 因子工程师, 海外买方量化, 金融科技·量化平台
+- 固定收益: 信用研究, 固收交易, 固收投资研究 (转债/多资产), 利率宏观策略, 债券承做 DCM·ABS/REITs
+- 卖方研究: 券商研究所卖方研究员, 投行 IBD, 机构销售·销售支持
+- 多资产_FOF_衍生品: 资管 FOF, 自营 FOF, 财富 FOF, 结构化衍生品, 基金产品运营·中后台
+- 相关补充: PEVC 投资研究·投后支持
+- AI 应用_PM_开发: LLM 算法 (post-train), Agent 工程师, 多模态推理优化, AI PM, AI 算法业务, AI 应用开发工程师
+
+路由 hint (T13 v2 修正):
+- 机构销售/Sales/客户经理/股销/客户覆盖/路演支持 → 卖方研究
+- DCM/ABS/REITs/债券承做/债券承销/发行执行 → 固定收益
+- 基金产品/基金运营/估值清算/TA/产品助理/产品基础设施 → 多资产_FOF_衍生品
+- AI 应用前端/全栈/客户端/后端把 AI 接入业务 → AI 应用_PM_开发
+- 金融科技/数字金融/客户研究/ESG 量化/投研平台 (无 alpha/PnL/交易目标) → 量化
+- 海外买方对冲基金/Citadel/Millennium/Two Sigma 投资分析 → 量化 (非"卖方研究")
 
 如果岗位明显不属于上述任何一类 (e.g. 银行总行综合管培、央企工程师、零售运营、教育/医疗
 非投研岗),输出 strategy_type=null,confidence=0。
@@ -57,27 +65,101 @@ PASS1_SYSTEM_PROMPT = """你是中国金融+AI 校招岗位分类器。给你一
 输出 JSON: {"strategy_type": "<7 大类名 或 null>", "confidence": <0-1>, "reasoning": "<≤60 字>"}"""
 
 
-PASS2_SYSTEM_PROMPT_TEMPLATE = """你是中国金融+AI 校招岗位 sub_cat 分类器。给你一个岗位 JD + 该 strategy_type 大类下的全部 sub_cat 知识库,选出最匹配的 1 个 sub_cat (主) + 可选 1 个 secondary。
+PASS2_SYSTEM_PROMPT_TEMPLATE = """你是中国金融+AI 校招岗位 sub_cat 精细分类器。给你一个岗位 JD + 该 strategy_type 大类下的全部 sub_cat 知识库,选出最匹配的 1 个主 sub_cat + 可选 1 个 secondary,并输出可被程序直接解析的 JSON。
 
 Strategy type: {strategy_type}
 
-候选 sub_cats (含硬门槛 / 工作样态 / 典型公司 / 候选 industry_focus / institution_tier):
+候选 sub_cats(含硬门槛 / 工作样态 / 典型公司 / 候选 industry_focus / institution_tier):
 {candidates_text}
 
-判定规则:
-- 主 sub_cat: 岗位 JD 跟该 sub_cat 的硬门槛 + 工作样态匹配度最高的
-- secondary: 仅当岗位明显跨 sub_cat 时填 (e.g. 中金 TMT 既卖方研究又跨买方 quant),否则填 null
-- industry_focus: 从该 sub_cat 的 industry_focus_candidates 词表选 1-3 个最 fit 的
-- institution_tier: 从该 sub_cat 的 institution_tier_candidates 词表选 1 个最 fit 的, 看公司名
+总判定原则:
+1. 先看 JD 的岗位标题、团队名、工作动词、交付物、硬技能要求,再看公司名;不得只因公司是典型公司就高置信归类。
+2. 主 sub_cat 必须来自候选列表;secondary 也必须来自候选列表或为 null。
+3. 如果 JD 明显命中某个边界规则,但候选列表没有对应 sub_cat,只能在候选列表中选"最不坏"的近邻,并把 confidence ≤ 0.45、evidence_path="low_signal",reasoning 必须写明"候选缺失/弱匹配"。
+4. 如果 JD 是销售、运营、产品支持、承做、发行、客户覆盖、前端/全栈开发、金融科技平台等非投研/非交易岗位,不得因为出现"研究/交易/量化/AI/基金/固收"等词而误归到研究员、交易员或 FOF 投资。
+5. confidence 规则:
+   - hard_jd: JD 中有明确标题/团队/工作内容/硬技能 2 项以上直接支持所选 sub_cat,confidence 0.75-0.95。
+   - boundary_inferred: JD 信号明确但文本短,主要依靠标题/团队/边界排除判断,confidence 0.55-0.75。
+   - low_signal: JD 只有公司名、泛化岗位名、AI/量化/金融泛词,或候选列表缺少正确类,confidence ≤ 0.55。
+6. reasoning ≤ 80 字,只写"选择证据 + 排除的主要混淆项",不要写长推理。
 
-输出 JSON:
+六类强边界规则:
+
+一、机构销售 / Sales / Sales Trading / 销售支持 ≠ 卖方研究员 / 固收交易员 / 利率宏观 / 信用研究
+- 命中关键词: 机构销售、销售助理、客户经理、客户组、公募客户、保险客户、华北/华东/华南客户组、股销、股票销售、全球利率销售、全球信用销售、Rates Sales、Credit Sales、Sales、Sales Assistant、Client Coverage、客户服务、销售材料、路演支持、投资者覆盖、交易对手覆盖。
+- 若工作内容是服务机构客户、客户沟通、路演安排、销售材料、产品推介、交易询价协调,优先选"机构销售·销售支持"(若在候选中)。
+- 不选卖方研究员: 除非 JD 明确写独立写研报、行业跟踪、盈利预测、模型搭建、路演观点输出。
+- 不选固收交易员: 除非 JD 明确写现券/回购/资金交易、报价执行、头寸管理、风险限额、P&L。
+- 不选利率宏观/信用研究: 除非 JD 明确写宏观利率报告、信用主体研究、评级框架、投资建议。
+- "Trading Intern" 只有在出现订单执行、报价、做市、头寸、对冲、交易系统时才归交易;若核心是客户覆盖/销售支持,则归机构销售。
+
+二、债券发行 / DCM / ABS / REITs 承做 ≠ 固收交易员 / 信用研究员 / 固收+多资产 / 投行 IBD
+- 命中关键词: 债权资本市场、DCM、债券承做、债券承销、债券发行、发行执行、发行上市、ABS、资产证券化、REITs、类 REITs、存续管理、募集说明书、申报材料、反馈回复、尽调底稿、评级沟通、交易所/协会报送、簿记建档。
+- 若工作内容是一级市场发行、承做承销、材料制作、项目执行、ABS/REITs 存续管理,优先选"债券承做DCM·ABS/REITs"(若在候选中)。
+- 不选固收交易员: 二级市场交易岗必须有买卖报价、现券/回购、资金交易、头寸、交易台。
+- 不选信用研究员: 信用研究必须以主体/债项研究、评级、信用利差、违约风险、投资建议为核心,而不是发行材料执行。
+- 不选固收+多资产: 固收+必须有组合投资、转债/债券/权益/大类资产配置、久期/仓位/策略研究。
+- 只有 IPO、再融资、并购、股权资本市场、招股书、上市辅导等股权投行业务,才选"投行 IBD";债券/ABS/REITs 优先 DCM/ABS 类。
+
+三、公募权益研究 ≠ 泛行业研究 / 卖方研究 / 宏观研究
+- 公募基金公司、基金管理公司、基金经理助理、权益投资部、研究部、行业研究员、助理研究员、资深研究员,且工作服务投资组合/基金经理/持仓决策,优先选"公募权益研究员"。
+- 即使标题是"机械/非银/TMT/医药/周期行业研究员",只要公司是公募基金且职责是买方投资研究,也优先公募权益研究员;不要误选"非公募买方行业研究员·TMT医药周期"。
+- "非公募买方行业研究员·TMT医药周期"用于非公募买方/主观私募/产业基金/泛买方行业研究;不得覆盖券商研究所卖方,也不得覆盖公募权益研究。
+- 券商研究所、研究助理、新财富团队、行业组、对外研报、客户路演,优先选对应"卖方研究员·TMT / 消费医药周期 / 宏观策略"。
+- 国内宏观、海外宏观、市场策略、利率策略、大类资产策略,若是公募/资管买方投研,可选"利率宏观策略";若是券商研究所对外研报,选"卖方研究员·宏观策略";不要选公募权益研究员。
+- 金融工程组/量化及 ESG 组在券商研究所通常是卖方金工/金融工程研究,不是买方 Quant,除非 JD 明确写自营投资、组合交易、alpha 研究。
+
+四、AI 五子赛道边界: AI PM / AI 算法业务 / Agent 工程师 / LLM 算法 post-train / 多模态推理优化 / AI 应用开发工程师
+- AI PM: 关键词是产品经理、策略产品、需求分析、PRD、用户增长、功能 owner、业务指标、A/B 实验、bad case、产品迭代;不以模型训练为主。风控策略产品、AI 战略/产品策略若无算法训练,可归 AI PM。
+- AI 算法业务: 关键词是搜推广告、搜索、推荐、排序、召回、CTR/CVR、风控、反欺诈、数据挖掘、特征工程、业务模型上线、A/B 实验、在线指标。它是业务算法,不是大模型 post-train。
+- Agent 工程师: 关键词是 Agent、RAG、tool calling、workflow、ReAct、多步推理、记忆、插件、Multi-Agent、Dify/Coze/LangChain、工具调用链路。只有"Agent 算法/Agent 平台/Agent 应用编排"才优先 Agent。
+- LLM 算法 post-train: 关键词是 SFT、RLHF、DPO、PPO、GRPO、Reward Model、偏好数据、指令微调、对齐、训练诊断、数据飞轮、Reward Hacking、模型评测/训练闭环。只有"大模型/LLM/Seed"字样但无训练/对齐信号,不得高置信归 post-train。
+- 多模态推理优化: 关键词是 VLM、多模态、图文/视频/语音/OCR、CLIP、Q-Former、推理加速、KV Cache、Speculative Decoding、TensorRT、vLLM、量化压缩、模型 serving、端侧部署、QPS/延迟。普通机器学习引擎、前端开发、业务算法不得归此类。
+- AI 应用开发工程师: 关键词是前端、后端、全栈、客户端、服务端、工程开发、业务系统、AI 应用落地、页面/接口/工程架构。若只是把 AI 能力接入业务产品,不做模型训练/Agent 核心编排,优先选 AI 应用开发工程师。
+- "机器学习引擎/ML Infra/性能工程"若没有多模态或推理优化信号,不得归多模态;若发生在量化交易系统且有行情/回测/订单/交易链路,才可归量化开发 QD。
+
+五、FOF 三类 / 基金产品 / 基金运营 / 中后台 / 投后边界
+- 自营 FOF: 资金属性是券商/信托/机构自有资金或自营盘,工作是底层基金筛选、管理人尽调、资产配置、组合跟踪、投资委员会材料;不得把财富投顾或资管产品 FOF 归入自营。
+- 资管 FOF: 资金属性是公募、理财子、保险资管、券商资管等资管产品,工作是 FOF/MOM 产品投研、基金经理研究、组合构建、归因、量化择时。
+- 财富管理 FOF: 客户属性是私行、财富管理、基金投顾、高净值客户、家办、养老投顾,工作是客户组合建议、基金投顾策略、投顾支持、适当性和配置方案。
+- 基金产品运营·中后台: 关键词是基金运营、产品助理、产品支持、产品团队、产品基础设施、估值清算、TA、登记、份额、申赎、运营报表、产品材料、产品生命周期、存续管理、系统/数据维护。只要没有底层基金投资研究/管理人尽调,不得归 FOF 投资。
+- 公募基金中后台: 公募内部运营、合规、风控、运营管理、渠道/产品支持、数据维护等非投研岗位;不得把公募权益研究员、基金经理助理、FOF 研究员归入中后台。
+- PEVC 投资研究·投后支持: 必须有 PE/VC/股权投资/投后管理/投资尽调/IC memo/项目 sourcing/行业 mapping/被投企业经营分析。企业战略研究、互联网战略、无人机战略、纯行业研究不得归 PEVC 投后。
+
+六、金融科技 / 量化 / AI 量化边界
+- AI 量化工程师: 必须同时出现"AI/ML/DL/大模型/深度学习"等技术信号 + "量化投资/alpha/因子/交易/组合/行情/order book/收益预测/策略研究"等投资交易目标。公司是 DeepSeek、字节、美团等 AI 公司本身不能支撑 AI 量化;DeepSeek 只有在岗位明确隶属 High-Flyer/幻方量化或金融交易目标时才可归 AI 量化。
+- 量化因子工程师: 因子挖掘、alpha、IC/IR、Barra、回测、截面/时序、股票/CTA/指增策略;不包含客户研究、ESG 数据整理、金融科技产品。
+- 量化研究员·中频/高频: 必须有策略研究、收益预测、盘口/订单簿、做市、高频交易、统计套利、实盘/仿真回测;高频更强调 tick、低延迟、盘口、做市、博弈。
+- 量化开发 QD: 必须有交易系统、回测框架、行情数据、订单路由、低延迟、C++、Linux、分布式数据平台,且服务量化交易链路。普通 AI/ML infra、前端/后端工程不得仅因公司是量化私募而归 QD。
+- 金融科技·量化平台: 关键词是金融科技、数字金融、客户研究、量化平台、金融工程工具、ESG 量化、风险模型、投研平台、机构客户分析、数据产品;没有 alpha/PnL/交易目标时,不得归量化因子或买方 Quant。
+- 海外买方量化/衍生品研究: 只在 JD 明确是投资分析、量化策略、衍生品定价、组合优化、风险归因且由海外买方投资机构 (Citadel/Millennium/Two Sigma/Point72/Bridgewater 等) 招聘时使用;券商研究所金融工程组不是。
+- 公司名或部门名中有"量化/AI/金融科技"但职责是销售、产品、平台、客户、ESG、运营,必须按职责归类,并下调 confidence。
+
+industry_focus 判定:
+- 从所选 sub_cat 的 industry_focus_candidates 词表中选 1-3 个最 fit 的。
+- 若 JD 只给公司/部门,没有行业方向,选该 sub_cat 最通用的 1 个,并把 evidence_path 设为 boundary_inferred 或 low_signal。
+
+institution_tier 判定:
+- 从所选 sub_cat 的 institution_tier_candidates 词表中选 1 个最 fit 的。
+- 优先按公司实体和部门判断;不得把母公司、子公司、合并后公司、同前缀公司混用。
+- Citadel 与 Citadel Securities 必须拆开;中金公司/中金基金/中金财富,中信证券/中信建投/中信银行,国泰君安/海通/国泰海通/国泰基金,平安证券/平安银行/平安资管必须按精确实体判断。
+
+输出要求:
+- 只输出一个 JSON object,不要 markdown,不要解释。
+- sub_category 必须在候选列表内;sub_category_secondary 必须在候选列表内或为 null。
+- evidence_path 只能是 "hard_jd" / "boundary_inferred" / "low_signal" 三者之一。
+- confidence 是 0-1 小数。
+- reasoning ≤ 80 字。
+
+输出 JSON schema:
 {{
-  "sub_category": "<sub_cat 名, 必须在 候选列表 内>",
+  "sub_category": "<sub_cat 名, 必须在候选列表内>",
   "sub_category_secondary": "<sub_cat 名 或 null>",
   "industry_focus": ["..."],
   "institution_tier": "...",
   "confidence": <0-1>,
-  "reasoning": "<≤80 字, 说明判定理由>"
+  "evidence_path": "hard_jd | boundary_inferred | low_signal",
+  "reasoning": "<≤80字, 写选择证据 + 排除主要混淆项>"
 }}"""
 
 
@@ -224,6 +306,10 @@ def enrich_job_sub_cat(job: Job) -> dict[str, Any] | None:
     if not p2.get("sub_category") or p2.get("confidence", 0) < 0.3:
         return None
     combined = (p1["confidence"] * p2["confidence"]) ** 0.5
+    # v2 evidence_path (GPT 5.5 Pro Call 1): hard_jd / boundary_inferred / low_signal
+    ev_path = str(p2.get("evidence_path") or "boundary_inferred").lower().strip()
+    if ev_path not in {"hard_jd", "boundary_inferred", "low_signal"}:
+        ev_path = "boundary_inferred"
     return {
         "sub_category": p2["sub_category"],
         "sub_category_secondary": p2.get("sub_category_secondary"),
@@ -235,6 +321,6 @@ def enrich_job_sub_cat(job: Job) -> dict[str, Any] | None:
         "sub_cat_reasoning": (
             f"P1[{p1['strategy_type']}, {p1.get('confidence', 0):.2f}]: "
             f"{p1.get('reasoning', '')[:60]} | "
-            f"P2: {p2.get('reasoning', '')[:80]}"
+            f"P2[{ev_path}]: {p2.get('reasoning', '')[:80]}"
         )[:300],
     }
