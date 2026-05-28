@@ -1,0 +1,92 @@
+{
+  "sub_cat": "固收+多资产",
+  "sub_cat_slug": "fixed_income_plus_multi_asset",
+  "strategy_type": "固定收益",
+  "industry_focus_candidates": ["金融", "宏观大类资产", "可转债", "国债期货", "REITs"],
+  "institution_tier_candidates": ["一线公募", "头部理财子", "保险资管", "券商资管", "央企财务公司", "金融基础设施"],
+  "typical_companies": [
+    {"name": "易方达基金", "tier": "一线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "广发基金", "tier": "一线公募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "华夏基金", "tier": "一线公募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "平安资产管理", "tier": "保险资管", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "国寿投资", "tier": "保险资管", "xhs_mention_count": 1, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "招银理财", "tier": "头部理财子", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "信银理财", "tier": "头部理财子", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "工银理财", "tier": "头部理财子", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "建信理财", "tier": "头部理财子", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "嘉实资本", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "融通基金", "tier": "二线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "具备固收基础知识框架:理解久期、收益率曲线、信用利差、可转债定价等核心概念,能在面试中讲清楚",
+    "至少 1 段固收+ / 多资产 / 转债 / 量化方向的实习,垂直堆叠效果优于横跨多赛道",
+    "掌握大类资产配置思维:能讨论股债跷跷板、加息周期下美股美债黄金比例调整、股债相关性转正后的策略",
+    "懂衍生品对冲基本框架:期权/期货对冲组合尾部风险、转债定价、国债期货套保",
+    "Python + 数据库基本功:固收量化/多资产方向门槛比纯固收高,要能跑策略回测和数据维护"
+  ],
+  "soft_signals": [
+    "学历标化高仍是硬通货:理财子投研卡清北不在少数,公募固收门槛低于权益但 SAIF 背景仍需匹配头部实习",
+    "AI/coding 能力对纯文商科是差异化加分:固收+量化结合还在探索期,招人需求好于纯债",
+    "能讲清楚为什么从权益转固收/或反向:跨赛道转型故事要自洽,体现对两边的理解",
+    "对公司战略有具体认知:能讲出目标公募的固收+/权益+/FOF 布局,不要泛泛而谈",
+    "对监管趋严方向有判断:理财子风控信评重要性凸显,可作为投研背景的备选岗"
+  ],
+  "transfer_paths": [
+    {"from": "纯固收/信用研究", "to": "固收+多资产", "difficulty": "medium", "notes": "纯债极度内卷,转固收+需补大类资产配置框架+衍生品+coding,门槛反而低于主观纯债"},
+    {"from": "股票研究/权益投研", "to": "固收+多资产", "difficulty": "medium", "notes": "权益门槛高、固收门槛低,转固收+理财子可行,但要补久期/信用/转债定价等固收基础"},
+    {"from": "FOF/基金研究", "to": "固收+多资产", "difficulty": "low", "notes": "FOF 已有大类配置思维,补一层底层资产自管能力即可;保险资管 FOF+权益研究路径常见"},
+    {"from": "理财子内部条线流转", "to": "固收+多资产", "difficulty": "low", "notes": "理财子固收/权益/衍生品/产品/内控间流转较顺,固收最正统、留用率高"}
+  ],
+  "pitfalls": [
+    "多数市场化机构暑期确定名额后秋招不开放,固收+岗位务必抓暑期实习留用窗口",
+    "纯债研究极度内卷,学历标化不顶尖者建议直接押固收+/量化/转债方向,避免硬刚",
+    "理财子权益条线今年招聘意愿不强,纯权益背景投递理财子要做好转产品岗/内控岗的预期管理"
+  ],
+  "interview_style": "半结构化为主:理财子初面线上群面,终面线下多对一,研究总+HR 做结构化+简历+专业+行为面;公募多资产侧重情景题(加息周期资产配置、衍生品对冲、股债相关性转正),融通基金强调对公司 FOF/固收+战略的具体了解",
+  "compensation_signal": "资管起薪 25-35w,3 年追平投行,5-7 年有概率过百;央企财务公司应届 35w 稳定;金融基础设施起薪约 25w 但天花板高于总行",
+  "career_trajectory": "1 年:实习生/管培起步,做策略研发/数据库维护/资产配置报告。3 年:投研岗 owner 一个子策略(转债/利率/信用/资产配置),薪资追平投行。5-7 年:固收+组合经理/多资产研究主管,总包有概率过百,女生友好不拼体力",
+  "verbatim_quotes": [
+    {
+      "quote": "低利率时代建议关注多资产、量化、转债、国债期货等固收+方向",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a03466a000000000702f4c4?xsec_token=YBHOt7zneE8YP4HgVHcNE3uPkUsDCRauMCju0BEuxouic%3D&xsec_source=app_share",
+      "context": "暑期实习全流程复盘对低利率赛道的判断"
+    },
+    {
+      "quote": "固收量化/以债券为底仓的多资产量化校招进入的bg门槛反而可能<主观纯债<股票量化<主观权益",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f59005000000002003b6a6?xsec_token=YB5End22irg_cTWO62zbIg24kEDtYKSllo3LVLBWkbV9k%3D&xsec_source=app_share",
+      "context": "固收校招门槛对比"
+    },
+    {
+      "quote": "资管起薪普遍在25-35w之间，虽然略低于头部投行，但基本上3年追平，天花板比投行更高，5-7年就有一定概率过百。不拼体力，吃能力和天赋，女生友好",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6941241e000000001d03bb37?xsec_token=YBSeArbBOqqhQMs6u3xUZLLgmKZ6Ql4jjkJ5f6KMAMFu4%3D&xsec_source=app_share",
+      "context": "资管薪资天花板与投行对比"
+    },
+    {
+      "quote": "固定收益是最“正统”的，现金管理校招很少，主动权益…个人体验今年各家招聘意愿不强，偏好量化衍生品背景同学",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67a9bc52000000002902a1dc?xsec_token=YBo8OIcAO6aAOoxRVrlUpaHYPuepGLU9CuOppcT2xUgRw%3D&xsec_source=app_share",
+      "context": "理财子岗位条线结构"
+    },
+    {
+      "quote": "若美联储加息周期启动，如何调整组合中的美股、美债、黄金比例？如何利用衍生品（如期权、期货）对冲组合尾部风险？当股债相关性从负转正时，如何调整资产配置策略？",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6800d2f9000000001c005f7d?xsec_token=YBbxBITm4NOrj3PH2urOHYM00s21snFNhC5P-8r3kQp2Y%3D&xsec_source=app_share",
+      "context": "易方达多资产研究岗面试真题"
+    },
+    {
+      "quote": "纯固收越来越难做的背景下，多资产，大类资产配置和固收量化是这个细分领域的发展方向",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69fc59410000000035033df7?xsec_token=YBMVn1RFZuLCNCpexZRAr5gbS42XqSQYhg3TGyDSz5gCs%3D&xsec_source=app_share",
+      "context": "固收赛道演化方向"
+    }
+  ],
+  "hiring_season": {
+    "spring": "3-5 月暑期实习投递窗口,多数市场化机构在暑期确定名额",
+    "fall": "9-11 月理财子可直接秋招投递,但市场化公募/券商秋招名额很少",
+    "verbatim": "由于多数市场化机构在暑期确定名额后秋招不开放",
+    "peak_month": [3, 4, 5, 9, 10]
+  },
+  "data_confidence": "low",
+  "data_basis": {
+    "post_count": 13,
+    "company_mention_count": 64,
+    "saif_alumni_count": 0
+  }
+}

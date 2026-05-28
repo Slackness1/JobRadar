@@ -1,0 +1,97 @@
+# 财富管理FOF — 知识库
+
+**策略类型**: 多资产_FOF_衍生品
+**数据置信度**: medium (post=23, company_mention=24, saif_alumni=0)
+**行业方向候选**: 金融 / 财富管理 / 高净值客户 / 大类资产配置 / 基金投顾 / 养老金融
+**机构层级候选**: 银行私行 / 理财子 / 一线公募 / 券商财富管理子 / 三方财富 / 家族办公室 / 保险资管FOF
+
+## 典型公司
+
+- **信银理财** — 理财子 (XHS 提及 0 次) ⭐
+- **招商银行** — 银行私行 (XHS 提及 1 次) ⭐
+- **平安银行** — 银行私行 (XHS 提及 1 次) ⭐
+- **中欧基金** — 一线公募 (XHS 提及 1 次) ⭐
+- **易方达基金** — 一线公募 (XHS 提及 1 次) ⭐
+- **富国基金** — 一线公募 (XHS 提及 1 次)
+- **广发基金** — 一线公募 (XHS 提及 1 次)
+- **建设银行** — 银行私行 (XHS 提及 1 次)
+- **中国银行** — 银行私行 (XHS 提及 1 次)
+- **招银理财** — 理财子 (XHS 提及 1 次)
+
+## 硬门槛
+
+- 理解大类资产配置框架:股债跷跷板/股债相关性/黄金REITs配置,能讲清楚选基与配置的区别
+- 至少 1 段 FOF 研究 / 基金投顾 / 私行投顾 / 资产配置相关实习,纯权益/纯固收实习不够
+- 掌握基金经理研究方法:看持仓/换手/风格漂移/业绩归因,能写基金经理尽调报告
+- Python 数据分析与建模能力:跑组合回测、净值归因、基金筛选模型(平安银行 FOF 研究员实习硬要求)
+- 研究生学历+金融数学/金融工程/统计/数学背景优先,理工科复合背景加分
+
+## 加分项
+
+- 懂'卖产品转卖配置方案'的渠道变迁:银行私行 RM 不再卖单只产品,而是出具配置建议书
+- 对私行/家办/私募FOF三类财富管家差异有判断:服务客群、收费模式、定制化程度都不同
+- 心态稳得住:FOF 强调'买定离手',前期功课、中期观察、后期管理,不被市场情绪牵着走
+- 对 FOF 行业转型有清醒认知:FOF 部正改名'多元资产配置部',产品形态纳入黄金ETF/REITs/QDII
+- 英文好+海外经历加分:USD 家办、外资私行投顾岗对英语硬要求
+
+## 转岗路径
+
+- **卖方研究所机构销售 → 财富管理FOF投研** (难度: low) — 机构销售对基金经理认知最全面,转 FOF 投研最顺;比投研背景转过去优势大
+- **公募/资管 FOF 投研 → 财富管理FOF投顾** (难度: low) — 资管 FOF 偏产品,财富 FOF 偏客户陪伴,补客户沟通和配置建议书撰写即可
+- **银行私行 RM/客户经理 → 财富管理FOF配置岗** (难度: medium) — 私行 RM 有客户认知,补底层资产研究和配置框架,可转向买方投顾/IC 投委会
+- **权益/固收单一资产研究 → 财富管理FOF** (难度: medium) — 需补大类资产配置和基金经理研究方法;但 FOF 投研被认为'经纪业务非投资业务',热爱投资的人慎转
+
+## 风险/排雷
+
+- FOF 投研被业内定性为'经纪业务非投资业务',想做真投资的人入行后落差大,做投顾岗更要谨慎
+- 理财子 FOF 业绩争议大(如'远离招银理财FOF'声音),投递前要看公司近年 FOF 产品业绩和投诉量
+- FOF 研究多停留贴标签层面,深度不如行研;若以做真研究为目标,不如直奔公募权益/固收投研
+
+## 面试样态
+
+结构化为主:平安银行 FOF 研究员实习考 Python 数据分析与建模、尽调报告写作、资产配置专题研究;公募 FOF 重情景题(加息周期股债黄金比例、股债相关性转正后配置调整);USD 家办偏二级 FoF 项目经验+英文 case
+
+## 薪酬信号
+
+—
+
+## 职业路径
+
+1 年:实习/管培,做基金经理尽调、配置报告、产品池维护。3 年:FOF 研究员独立 cover 一类策略(权益/固收/另类),写买方投顾建议书。5-7 年:FOF 投资经理/资产配置部副总,管理私行/家办客户组合,与 IC 投委会协同;转私募 FOF 合伙人/家办 CIO 是常见路径
+
+## 招聘节奏
+
+- **春招**: 3-5 月暑期实习投递窗口,平安银行 FOF 研究员实习集中放出
+- **秋招**: 9-11 月理财子、银行私行 FOF 岗位秋招直招,公募 FOF 名额很少
+- **高峰月**: 3, 4, 5, 9, 10, 11
+- **XHS 原话**: 平安银行FOF研究员实习招继任啦！25/26届必投！
+
+## XHS 原文锚点 (verbatim)
+
+> FOF正从'选基'转向'配置'，有的公司已经把'FOF部'改名'多元资产配置部'
+>
+> — [FOF 行业从选基到配置的转型](https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share)
+
+> 二是银行渠道从'卖产品'转向'卖配置方案'
+>
+> — [银行私行渠道从代销转向投顾](https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share)
+
+> fof是经纪业务，不是投资业务...客户想投什么方面什么类型什么赛道的基金，在基金经理池里面选一下，一键生成就可以了
+>
+> — [FOF 业务本质定性(行业内人士)](https://www.xiaohongshu.com/discovery/item/69db4636000000001d01f74d?xsec_token=YBqC8zKLBHTutVyhZchm3Ds1Ipq2u3jtC5W_Ee8EKRM0o%3D&xsec_source=app_share)
+
+> fof投研不适合想做投资的人...fof投研挺适合研究所机构销售转型的
+>
+> — [FOF 投研适合的转型路径](https://www.xiaohongshu.com/discovery/item/69db4636000000001d01f74d?xsec_token=YBqC8zKLBHTutVyhZchm3Ds1Ipq2u3jtC5W_Ee8EKRM0o%3D&xsec_source=app_share)
+
+> 财富管理的一大核心就是'买定离手'...控制内心躁动和理性思考当初下投的原因，前期做好功课，中期做好观察，后期做好管理，不被市场情绪牵着走，是优秀FOF投资经理的必修课。
+>
+> — [FOF 投资经理的心态修养](https://www.xiaohongshu.com/discovery/item/6839df15000000002102c991?xsec_token=YBstH9Fp2Z3HrG4RrNsQ4fvpMV5uw16OV0PlLFVpG4xTo%3D&xsec_source=app_share)
+
+> 私行、家办、私募FOF：超高净值人群的财富管家怎么选？
+>
+> — [三类财富管家服务对象同为超高净值](https://www.xiaohongshu.com/discovery/item/6909912c000000000302c453?xsec_token=YByGC8qzNDFmdU-keILeRmMMcErJOgq-rLg44vNIgMxOs%3D&xsec_source=app_share)
+
+> 国内外名院校研究生及以上学历，金融数学、金融工程、统计、数学、管理科学等相关专业优先，有理工科复合背景加分；会Python数据分析与建模
+>
+> — [平安银行 FOF 研究员实习硬性要求](https://www.xiaohongshu.com/discovery/item/6749157d0000000007038f23?xsec_token=YBXtBKwpTgdOLSc1X7Rw4CyWhoEONVzjr5EOVwJWep3kI%3D&xsec_source=app_share)

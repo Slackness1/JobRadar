@@ -1,0 +1,95 @@
+# 量化因子工程师 — 知识库
+
+**策略类型**: 量化
+**数据置信度**: medium (post=30, company_mention=19, saif_alumni=0)
+**行业方向候选**: 全市场股票 / 中证500/1000指增 / 商品/股指CTA / ETF/期权
+**机构层级候选**: 头部量化私募 / 中型量化私募 / 券商研究所金工组 / 海外量化平台
+
+## 典型公司
+
+- **WorldQuant** — 海外量化平台 (XHS 提及 4 次)
+- **鸣石基金** — 头部量化私募 (XHS 提及 2 次) ⭐
+- **灵均投资** — 头部量化私募 (XHS 提及 2 次) ⭐
+- **幻方量化** — 头部量化私募 (XHS 提及 1 次)
+- **九坤投资** — 头部量化私募 (XHS 提及 1 次) ⭐
+- **明汯投资** — 头部量化私募 (XHS 提及 1 次) ⭐
+- **衍复投资** — 头部量化私募 (XHS 提及 1 次) ⭐
+- **世纪前沿** — 头部量化私募 (XHS 提及 1 次)
+- **黑翼资产** — 中型量化私募 (XHS 提及 1 次)
+- **量派投资** — 中型量化私募 (XHS 提及 1 次)
+- **佳期投资** — 中型量化私募 (XHS 提及 0 次) (SAIF 校友流向)
+- **宽德投资** — 中型量化私募 (XHS 提及 0 次)
+
+## 硬门槛
+
+- 数学/物理/计算机/金工硕博背景, 高数、线代、概率统计扎实, 加分项随机过程、凸优化
+- Python (numpy/pandas) 数据处理熟练, 能在 Pandas 中高效完成截面/时序运算
+- 熟悉因子投资理论 (Fama-French、Barra), 掌握 IC/IR、因子衰减、过拟合检验
+- 做过因子挖掘项目 (Alpha101 复现、研报复现、CTA 因子挖掘等), 简历能写出 IC/夏普/年化
+- 技术岗笔试包含 LeetCode 算法 + 数理统计题, 头部私募对清北博士、QS50 海外硕博偏好明显
+
+## 加分项
+
+- Economic Intuition: 能把信号处理转化为可落地的投资叙事, 而不是只懂算法
+- 对 Alpha decay 有认知, 知道单种群 GP 易过拟合, 会用岛屿模型等结构化搜索提升多样性
+- 对量价 vs 基本面因子的取舍有判断 (量价 IC 高但衰减快, 基本面 IC 低但稳定)
+- 看过华泰/广发/中银国际等卖方多因子研报系列, 能讲清一两个研报因子的构造逻辑
+- 英文流利 (港圈/海外大厂量化标配)
+
+## 转岗路径
+
+- **数学/物理/CS 硕博 → 头部量化私募因子工程师** (难度: medium) — 刷 Alpha101、跟一遍华泰多因子研报、做出 IC 可见的因子项目, 配 LeetCode 即可进笔试
+- **券商金工组实习生 → 量化私募因子工程师** (难度: medium) — 研报复现经验直接可迁移, 头部私募尤其认认真做过中证 500/1000 指增 backtest 的候选人
+- **WorldQuant 兼职/Consultant → 国内量化私募** (难度: easy_to_medium) — 在 WQ 提交过 spectacular/excellent 因子的成绩可直接当因子能力证明
+- **主观股票研究 → 量化因子工程师** (难度: hard) — 需要补齐数学和工程能力, 多数主观转量化是先做基本面 alpha 再过渡到量价
+- **国内因子工程师 → 港圈量化** (难度: medium) — 幻方/九坤/明汯/衍复港办扩招, 提供签证担保 + 外派补贴, 但要求英文流利 + 名校硕博
+
+## 风险/排雷
+
+- 只会照抄 Alpha101 / 抄研报因子, 没有自己的因子构造逻辑, 面试一问业务意义就答不出
+- 因子项目不写 IC、夏普、年化、回撤等可证伪指标, 简历看起来像学习笔记而不是研究产出
+- 过度依赖暴力枚举/随机生成, 不会用 seed family 清洗、约束设计提升搜索质量
+
+## 面试样态
+
+技术笔试硬核 (LeetCode + 数理统计 + 概率论), 面试会深挖一个你做过的因子: 构造逻辑、经济含义、IC/IR、衰减情况、与已有因子的相关性, 北美/港圈 QR 岗尤其看重 Economic Intuition — 能把信号处理讲成可落地的投资叙事
+
+## 薪酬信号
+
+鸣石公开档: 硕士 40-50K, 博士 50-60K; AI 量化博士 70-100W·20薪; 港圈头部行业顶薪 + 外派补贴
+
+## 职业路径
+
+实习路径: 因子 → 模型 → 策略, 校招进头部私募先做因子挖掘 / seed family 清洗 / 因子有效性检验, 1-2 年后参与 AI 因子整合、组合优化, 资深后可独立负责某条策略线 (指增 / CTA / 中性) 的因子库, 顶尖者可向 PM 或港圈/海外分部转
+
+## 招聘节奏
+
+- **春招**: 实习常态开放, 灵均/鸣石/WorldQuant 等长期收因子方向实习生
+- **秋招**: 校招 9-11 月集中, 头部私募技术面多轮, 港圈量化新增牌照扩招
+- **高峰月**: 9, 10, 11
+
+## XHS 原文锚点 (verbatim)
+
+> 量化因子工程师（全职+实习）：做什么：挖A股/期货因子，优化交易模型；要求：数学/物理/计算机专业，会Python；薪资：硕士40-50K，博士50-60K
+>
+> — [鸣石基金公开岗位 JD + 薪资档](https://www.xiaohongshu.com/discovery/item/697c39c9000000002202daf1?xsec_token=YB-KFxfkO-4Ya2Z2pS9K1tg84sBseqPLIm4tJr1vylKNA%3D&xsec_source=app_share)
+
+> 五环多核模式：将投研分为因子挖掘、AI因子整合、优化、量化风控、交易执行五个环节
+>
+> — [鸣石投研体系拆解](https://www.xiaohongshu.com/discovery/item/69d8c87a000000001f003e76?xsec_token=YBq5QfHxJDg9yBL3G5hdrsqnxRoEtFXKc8GK61WuqRfvg%3D&xsec_source=app_share)
+
+> 因子挖掘的核心并不是扩大生成数量，而是提高搜索空间质量。seed family清洗、父本选择、约束设计和失败反馈，比单纯的表达式枚举更重要。
+>
+> — [WorldQuant 因子工程方法论](https://www.xiaohongshu.com/discovery/item/69f82ef2000000001e00df76?xsec_token=YBk3SyiRmp3Bb3C3uyb7VsC18llXNZaTZjq9m9H1W46pI%3D&xsec_source=app_share)
+
+> 正确的实习路径应该是：因子—模型—策略。
+>
+> — [量化实习入门顺序](https://www.xiaohongshu.com/discovery/item/69e71ce8000000001a0217c7?xsec_token=YBpv9fdTqpAPYCLHfEnk8baR0klvoLC8UJO3b5XYhOhqw%3D&xsec_source=app_share)
+
+> Alpha不是灵感，而是一条信号生产线。
+>
+> — [Alpha pipeline 工程化视角](https://www.xiaohongshu.com/discovery/item/6a13a317000000003503052e?xsec_token=YBjVuHKy1mETs6hyXgcBgsT1ffIIMHeU2_MyAFs14inrI%3D&xsec_source=app_share)
+
+> 北美大厂的面试官（尤其是 QR 岗）很看重你的 Economic Intuition。懂算法只是敲门砖，能把复杂的信号处理转化为可落地的投资叙事，才是拉开差距的关键
+>
+> — [北美 QR 面试看重的能力](https://www.xiaohongshu.com/discovery/item/69ede13d0000000020039f43?xsec_token=YBD4QwUQ1gDenFeGyKbsuLOpyHwX5jBxjnIFnMHBcTOuA%3D&xsec_source=app_share)

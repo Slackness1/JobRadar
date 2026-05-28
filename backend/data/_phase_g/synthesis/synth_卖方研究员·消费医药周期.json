@@ -1,0 +1,115 @@
+{
+  "sub_cat": "卖方研究员·消费医药周期",
+  "sub_cat_slug": "sell_side_researcher_consumer_pharma_cyclical",
+  "strategy_type": "卖方研究",
+  "industry_focus_candidates": [
+    "食品饮料",
+    "医药",
+    "化工",
+    "有色金属",
+    "钢铁/煤炭/建材",
+    "家电/纺服/轻工",
+    "新能源汽车",
+    "ESG/碳中和"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所(三中一华)",
+    "中型券商研究所",
+    "腰腿部券商研究所",
+    "第三梯队及以下"
+  ],
+  "typical_companies": [
+    {"name": "招商证券", "tier": "中型券商研究所", "xhs_mention_count": 13, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "广发证券", "tier": "中型券商研究所", "xhs_mention_count": 11, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "中信证券", "tier": "头部券商研究所", "xhs_mention_count": 10, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "中金公司", "tier": "头部券商研究所", "xhs_mention_count": 4, "is_saif_alumni_dest": true, "is_must_have": true},
+    {"name": "华泰证券", "tier": "头部券商研究所", "xhs_mention_count": 4, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "国泰海通证券", "tier": "头部券商研究所", "xhs_mention_count": 4, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "中信建投", "tier": "头部券商研究所", "xhs_mention_count": 5, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "天风证券", "tier": "中型券商研究所", "xhs_mention_count": 6, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "东吴证券", "tier": "中型券商研究所", "xhs_mention_count": 4, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "国金证券", "tier": "中型券商研究所", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "申万宏源证券", "tier": "头部券商研究所", "xhs_mention_count": 2, "is_saif_alumni_dest": true, "is_must_have": false},
+    {"name": "银河证券", "tier": "中型券商研究所", "xhs_mention_count": 2, "is_saif_alumni_dest": true, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "重点院校研究生(2027年及以后毕业)或优秀本科生,统计/金融/经济相关专业,复合背景优先",
+    "掌握金融、财务基本知识,熟练使用Wind、Excel,实习期至少3个月",
+    "具备行业分析框架能力:能从行业周期、竞争格局、关键驱动因素三维度搭建研究框架",
+    "财务分析硬功夫:熟悉ROE、毛利率、现金流、负债率等核心指标,能识别财务舞弊风险",
+    "估值方法掌握:能比较PE/DCF/可比公司法在不同行业的适用性,完成首次覆盖建模"
+  ],
+  "soft_signals": [
+    "有二级市场研究实习经历者优先,研究所电面通常意味着已成功一半",
+    "撰写过行业深度报告或个股报告(如蒙牛/瓶装饮料等消费医药标的)的能体现产出能力",
+    "抗压能力强、能承受dirty work,行研是长期扎根一个行业的'业界博士'",
+    "对当前研究热点(硬科技/ESG/碳中和/创新药/老龄化)有自主观点和跟踪习惯",
+    "能向基金经理或投资者清晰路演,在观点与市场相左时敢于坚持发布"
+  ],
+  "transfer_paths": [
+    {"from": "卖方研究员·消费医药周期", "to": "公募基金行业研究员", "difficulty": "medium", "notes": "最常规去处,但通常要降薪且坐班打卡,从研究员重新做起"},
+    {"from": "卖方研究员·消费医药周期", "to": "私募基金研究员", "difficulty": "medium", "notes": "限制少薪酬可观,激励到位但稳定性弱"},
+    {"from": "卖方研究员·消费医药周期", "to": "上市公司IR", "difficulty": "easy", "notes": "压力小行业地位不错,消费医药公司IR对口度高"},
+    {"from": "卖方研究员·消费医药周期", "to": "周期商品期货研究", "difficulty": "easy", "notes": "新品种层出不穷,周期类研究员对口"},
+    {"from": "卖方研究员·消费医药周期", "to": "战略咨询(BCG/MBB)", "difficulty": "hard", "notes": "消费方向不景气时常见,JPM消费转BCG有先例"}
+  ],
+  "pitfalls": [
+    "2024-2025券商整体降薪30%-60%,研究岗虽仍是高薪序列但奖金大幅缩水,新财富评选+降佣冲击双杀",
+    "分析覆盖盲区会被买方戳穿(如分析瓶装饮料不提瑞幸蜜雪冰城对现制茶饮的冲击)",
+    "广发等中型券商存在高管面'一票否决权',偏好理工/AI能力而非金融实习积累,业务与高管口味割裂"
+  ],
+  "interview_style": "电面15分钟起步,问自我介绍、转行动机、行业框架、财务比率、估值方法;深度面要求1分钟讲一份个股报告(如蒙牛);浙商等会问佣金分仓模式看法+路演与深度报告的时间分配;面试本身专业深度考察不算高,更看综合素质",
+  "compensation_signal": "头部研究所优秀研究员年薪破百万;应届底薪本科8K+/研究生10K+;2024-2025整体降薪30%-60%,研究岗奖金大幅缩水",
+  "career_trajectory": "研究助理(1-2年跑数据写底稿)→分析师(3-5年覆盖个股/出深度报告/跑路演)→首席分析师(冲新财富/水晶球);中后期转买方(公募/保险/私募)、上市公司IR、产业战略或一级股权;消费不景气周期下转咨询也有先例",
+  "verbatim_quotes": [
+    {
+      "quote": "1、重点院校研究生（2027年及以后毕业）或优秀本科生；2、统计、金融、经济等相关专业，复合背景优先；3、掌握金融、财务基本知识，熟练使用Wind、Excel；4、实习期至少3个月",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/695da799000000001a0363e4?xsec_token=YBD416BTKsOmYskAisbawBhDkPepamhq7y_b2bvUcosGQ%3D&xsec_source=app_share",
+      "context": "头部券商食品饮料组实习硬性要求"
+    },
+    {
+      "quote": "研究所：优秀研究员年薪轻松破百万",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e26c010000000007003796?xsec_token=YBiLZIu4lCpOWM980SQZ1TEt5JpK1syyir_Ov1ROjJm2M%3D&xsec_source=app_share",
+      "context": "中信证券薪酬盘点"
+    },
+    {
+      "quote": "2024-2025年券商整体降薪幅度在30%-60%，投行条线是重灾区。国君投行2024年的奖金普遍降幅超50%",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/693035b6000000001d03f336?xsec_token=YBhEFQik3ewutfUMB2Eho2tlOh2PQhF7InRh25ndNhuTU%3D&xsec_source=app_share",
+      "context": "国君降薪冲击波及研究岗"
+    },
+    {
+      "quote": "二级卖的行业研究需要研究员长期扎根于一个行业...有点像业界的博士。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/670934ad000000001a021290?xsec_token=YB5tZ26U1y5ZnJQAuuB6W-4CwtPDvV0VKjzCINU-oW8zU%3D&xsec_source=app_share",
+      "context": "行研工作性质描述"
+    },
+    {
+      "quote": "公募、保险是较为理想和常规的转行去处...私募&外资...上市公司...产业...商品研究",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/65f075d30000000013027055?xsec_token=YB4zlwX2yk16CbAU7N8nO1k9wdnjrVx52IGx4ugioYOvI%3D&xsec_source=app_share",
+      "context": "卖方研究员退出路径全景"
+    },
+    {
+      "quote": "前两年消费方向不太景气",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/686a1af1000000002201fb35?xsec_token=YByc7U3jdknrlHqT0d5RK1ffwkcSkNcHJD722sL5RPDbM%3D&xsec_source=app_share",
+      "context": "消费方向研究员转BCG先例"
+    },
+    {
+      "quote": "分析瓶装饮料的时候，一点也不提及瑞幸蜜雪冰城喜茶沪上阿姨这种现制茶饮对瓶装饮料的冲击。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/688391e2000000001301251c?xsec_token=YBEwZyNwSFHUsLh1Q8Zoa10kFyRb1lirQjVzaVK76ni4s%3D&xsec_source=app_share",
+      "context": "券商食饮分析师覆盖盲区"
+    }
+  ],
+  "hiring_season": {
+    "spring": "3-4月暑期实习窗口集中,中信建投/国泰海通/招商证券暑期实习常在4月30日截止",
+    "fall": "9-10月秋招网申,11-12月笔面试+课题研究,广发2026届网申截止2025年10月31日",
+    "verbatim": "中信建投、国泰海通、招商证券均4月30日（今日）截止⚡中信证券总部暑期实习也已开放，及时投递",
+    "peak_month": [3, 4, 9, 10, 11]
+  },
+  "data_confidence": "high",
+  "data_basis": {
+    "post_count": 61,
+    "company_mention_count": 82,
+    "saif_alumni_count": 8,
+    "ground_truth_must_have_count": 5,
+    "verbatim_quote_count": 7
+  }
+}

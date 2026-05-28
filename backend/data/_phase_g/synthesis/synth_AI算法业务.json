@@ -1,0 +1,179 @@
+{
+  "sub_cat": "AI算法业务",
+  "sub_cat_slug": "ai_algorithm_business",
+  "strategy_type": "AI 应用_PM_开发",
+  "industry_focus_candidates": [
+    "AI 应用层",
+    "互联网"
+  ],
+  "institution_tier_candidates": [
+    "互联网大厂",
+    "头部电商",
+    "金融科技"
+  ],
+  "typical_companies": [
+    {
+      "name": "字节跳动",
+      "tier": "互联网大厂",
+      "is_must_have": true,
+      "notes": "抖音/TikTok 推荐 + 广告算法"
+    },
+    {
+      "name": "阿里巴巴",
+      "tier": "互联网大厂",
+      "is_must_have": true,
+      "notes": "淘天搜推广 + 1688 业务算法"
+    },
+    {
+      "name": "美团",
+      "tier": "互联网大厂",
+      "is_must_have": true,
+      "notes": "外卖到店推荐 + 搜索"
+    },
+    {
+      "name": "小红书",
+      "tier": "互联网大厂",
+      "is_must_have": true,
+      "notes": "内容推荐 + 搜索算法"
+    },
+    {
+      "name": "米哈游",
+      "tier": "互联网大厂",
+      "is_must_have": true,
+      "notes": "游戏 AI + 推荐"
+    },
+    {
+      "name": "拼多多",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "电商搜推 + 广告"
+    },
+    {
+      "name": "京东",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "搜推 + 风控算法"
+    },
+    {
+      "name": "腾讯",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "广告/视频号推荐 + AI 应用开发"
+    },
+    {
+      "name": "快手",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "策略算法 + 短视频推荐"
+    },
+    {
+      "name": "蚂蚁集团",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "风控算法 + AI 应用开发"
+    },
+    {
+      "name": "小米",
+      "tier": "互联网大厂",
+      "is_must_have": false,
+      "notes": "推荐 + 广告算法"
+    }
+  ],
+  "hard_requirements": [
+    "扎实的 ML/DL 基础：手撕 Transformer 注意力、LR/GBDT/Deep&Cross 等模型",
+    "至少 1 段完整业务算法项目（搜推/广告/风控/特征工程），能讲清数据-模型-上线全链路",
+    "Python + SQL 熟练；至少接触过 PyTorch/TF 训练 + A/B 实验框架",
+    "项目经历 > 院校背景，垂直方向 ACM 类竞赛是加分项"
+  ],
+  "soft_signals": [
+    "业务理解：能区分 CTR/CVR/GMV/留存 等指标在不同业务的优先级",
+    "A/B 实验意识：知道指标拆解、显著性、长期收益 vs 短期收益的权衡",
+    "对新技术保持敏感：LLM、生成式推荐、AI 搜的范式转变要有自己判断",
+    "工程落地能力：特征工程 + 模型 + 上线推理三位一体，不只是调包"
+  ],
+  "transfer_paths": [
+    {
+      "from": "ACM/数模竞赛 + AI 课程项目",
+      "to": "互联网大厂算法实习",
+      "difficulty": "medium",
+      "notes": "项目经历 + 垂直竞赛是核心门票，海投 BOSS/实习僧可破局"
+    },
+    {
+      "from": "传统搜推业务算法",
+      "to": "AI 搜/生成式推荐方向",
+      "difficulty": "medium",
+      "notes": "LLM 范式下旧框架价值衰减，需补 prompt + RAG + Agent"
+    },
+    {
+      "from": "互联网业务算法",
+      "to": "券商/资管金融科技 AI 应用",
+      "difficulty": "low",
+      "notes": "华泰/中金/中邮资管均新开 AI 应用方向，金融业务理解是新门槛"
+    }
+  ],
+  "pitfalls": [
+    "简历写'熟悉 RAG' 但只跑过 Langchain+向量库 demo，三面被拷问 prompt 设计/上下文拼接必穿帮",
+    "只调包不懂模型原理：手撕注意力、特征工程细节是高频考点，背八股不够",
+    "忽视 A/B 实验和指标拆解：业务算法岗最忌讳只讲 AUC 不讲线上收益"
+  ],
+  "interview_style": "技术面硬核，必撕 Transformer 注意力 + 手写代码，项目要追问到特征工程/模型选型/AB 实验细节；二面+综合面考业务理解（如中金会问公司近期科技动态、字节会拷问推荐场景）",
+  "compensation_signal": "26 届大模型/算法岗薪资比 25 届涨约 50%，西二旗大厂 + 蚂蚁为头部档位",
+  "career_trajectory": "实习→秋招转正进大厂算法组；2-3 年后或留互联网做高级算法，或转金融科技（券商/资管 AI 应用方向新开口子），LLM 浪潮下传统搜推面临 skill 化压力，需主动靠拢生成式推荐/AI 搜",
+  "verbatim_quotes": [
+    {
+      "quote": "LLM席卷一切，旧范式故事不好讲，AI搜和生成式推荐一夜之间成了新宠儿",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69d36476000000001e00c089?xsec_token=YBFAF3ELSmto-2QMgBM2pJvYQHXuEdQIf0HLuqcCh_EWU%3D&xsec_source=app_share",
+      "context": "业务算法范式转变"
+    },
+    {
+      "quote": "搜推算法刚入门，却感到越来越慌",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69d36476000000001e00c089?xsec_token=YBFAF3ELSmto-2QMgBM2pJvYQHXuEdQIf0HLuqcCh_EWU%3D&xsec_source=app_share",
+      "context": "搜推岗位前景焦虑"
+    },
+    {
+      "quote": "面试过不少人,说自己熟悉 RAG ,结果一问都穿帮",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/685becf3000000001703532d?xsec_token=YBBaV-j0Krd76FE_g7dBz9QLzJo_nfUsCKFUjueAa0Z_I%3D&xsec_source=app_share",
+      "context": "RAG简历穿帮反例"
+    },
+    {
+      "quote": "这个方向对个人的要求会更综合。既要有工程开发能力，也要对AI工具和模型使用足够熟练",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a040768000000003700e572?xsec_token=YBaeb85LThEO4PNqrTgJEF2fOALDIOuV3cFZRGi4gkQSY%3D&xsec_source=app_share",
+      "context": "AI应用研发综合能力"
+    },
+    {
+      "quote": "首轮技术面超硬核！被问到A股预测项目的特征工程",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e12963000000000400602e?xsec_token=YBoMACpj-L2xybKn7Neuw7-fKkHjNSchL1W07QkUdUvsg%3D&xsec_source=app_share",
+      "context": "中金金科特征工程拷问"
+    },
+    {
+      "quote": "面试官都非常标准的理工男生，强逻辑思维",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/687df509000000001c035d6b?xsec_token=YBdOfmTMvQaptXHKNr1_co4eBYJnhgRc6gcKoPGuR-c3Q%3D&xsec_source=app_share",
+      "context": "快手策略算法面试风格"
+    },
+    {
+      "quote": "九坤投资大模型团队扩张，多岗位急招",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a143c4d0000000007027cd5?xsec_token=YBOEKqVMqnM_AnNg9CQJFPJZDV7wsSn7MZe4ICqcWEths%3D&xsec_source=app_share",
+      "context": "量化机构大模型岗扩张"
+    }
+  ],
+  "hiring_season": {
+    "spring": "3-5 月暑期实习投递高峰，互联网大厂 + 金融科技岗位",
+    "fall": "8-11 月秋招正式批，实习转正 + 社招开放",
+    "verbatim": "26届大模型秋招岗位薪资过于吓人，普遍比25届涨了50%",
+    "peak_month": [
+      3,
+      4,
+      8,
+      9,
+      10
+    ]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 18,
+    "saif_record_count": 0,
+    "ground_truth_count": 8,
+    "high_relevance_posts": 7,
+    "notes": "互联网大厂 must_have 8 家全覆盖；金融科技 AI 应用方向（华泰/中金/中邮资管/九坤）作为延伸路径补充；缺乏 SAIF MF 学生直接 case，置信度 medium"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "sub_cat": "信用研究员",
+  "sub_cat_slug": "credit_researcher",
+  "strategy_type": "固定收益",
+  "industry_focus_candidates": [
+    "城投",
+    "金融",
+    "地产",
+    "产业债（钢铁/煤炭等周期）",
+    "可转债（部分兼看）"
+  ],
+  "institution_tier_candidates": [
+    "信用评级机构",
+    "公募基金固收信用研究",
+    "保险资管信用研究",
+    "银行理财子固收研究",
+    "券商资管/自营/研究所固收信用"
+  ],
+  "typical_companies": [
+    {"name": "易方达基金", "tier": "一线公募", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "富国基金", "tier": "一线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "华夏基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "广发基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "华富基金", "tier": "二线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "招银理财", "tier": "银行理财子", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "北银理财", "tier": "银行理财子", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "中诚信国际", "tier": "信用评级机构", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "联合资信", "tier": "信用评级机构", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "大公国际", "tier": "信用评级机构", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "中再资产", "tier": "保险资管", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "平安资产管理", "tier": "保险资管", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true}
+  ],
+  "hard_requirements": [
+    "硕士及以上学历，国内985/211或海外QS前50院校，金融/经济/统计/金工等专业优先",
+    "熟练使用Wind/Python，具备数据处理、逻辑梳理与报告撰写能力",
+    "需有公募/券商/保险资管/理财子等买方或卖方固收信用相关实习经历",
+    "能读懂财务报表主体与附注细节，CPA/CFA/FRM加分",
+    "头部公募/券商信评普遍要求本硕双985/211，头部默认清北复交"
+  ],
+  "soft_signals": [
+    "对债市热点有持续跟踪，能结合简历主体给出最新观点",
+    "行业分析+财务分析+市场敏感度+复盘总结的综合研究能力",
+    "对城投政策、金融监管、地产风险等结构性议题有自己的判断框架",
+    "能耐住寂寞做长期主体跟踪、入库报告等基础工作",
+    "职业道德意识强，能应对评级压力与利益冲突场景"
+  ],
+  "transfer_paths": [
+    {"from": "卖方券商信用研究", "to": "买方公募/险资/理财子信评", "difficulty": "medium", "notes": "卖方更看资源约调研，买方偏入库判断，转岗需补内部评级流程经验"},
+    {"from": "信用评级机构", "to": "买方信用研究员", "difficulty": "medium", "notes": "评级机构出身有评级框架优势，但需积累买方视角的策略与估值能力"},
+    {"from": "买方信用研究员", "to": "纯债（信用主题）基金助理/基金经理", "difficulty": "hard", "notes": "信用研究员可逐步发展为纯债基金助理至基金经理，路径较长"},
+    {"from": "中小机构买方信评", "to": "大型公募/券商信评", "difficulty": "medium", "notes": "先在中小机构积累买方信评经验再跳大机构是常见路径"}
+  ],
+  "pitfalls": [
+    "买方信评需求收缩，信用债收益率走低+违约减少导致hc明显减少，赛道更卷",
+    "头部公募暑期实习考核流程不透明、答辩拖延、留用比例低（多数1/3-1/5）",
+    "信评职能正从风险防范扩展到策略推荐+量化能力，单纯财务派转型压力大"
+  ],
+  "interview_style": "多见简历面+真题拆解：考城投评级冲突、信用下沉、地产暴跌、流动性枯竭、与投资经理沟通、AI替代信评等场景题；常追问最近债市观点与具体主体看法，并对比同业（如富国vs易方达vs华夏）。",
+  "compensation_signal": null,
+  "career_trajectory": "信用评级机构/卖方券商信评入门 → 买方公募/险资/理财子信用研究员 → 资深信评 → 纯债（信用主题）基金助理 → 基金经理；理财子路径进可攻退可守但话语权弱于总行。",
+  "verbatim_quotes": [
+    {
+      "quote": "信用研究需要读懂财务报表的主体部分和附注等小细节，CPA会计有增益",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/666508a50000000015013d5b?xsec_token=YBO99kGCuvZhqwBa8kasFntIiTQAfZ7UbZED2dWOJK910%3D&xsec_source=app_share",
+      "context": "固收三方向对比"
+    },
+    {
+      "quote": "买方信评的需求在减少，而且应聘难度也在提升。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6940a5f1000000001e008bba?xsec_token=YByqzy3a9rHtS8jFGHIs3m78m2fwSvuJJvKe5cN3sEj_o%3D&xsec_source=app_share",
+      "context": "买方信评收缩趋势"
+    },
+    {
+      "quote": "对于信评的要求，也从原来的防范信用风险拓展到“制定信用策略，推荐有性价比的个券”等类似基金经理助理的职能，而且也有职位还要求一定的量化研究能力。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6940a5f1000000001e008bba?xsec_token=YByqzy3a9rHtS8jFGHIs3m78m2fwSvuJJvKe5cN3sEj_o%3D&xsec_source=app_share",
+      "context": "信评职能扩展"
+    },
+    {
+      "quote": "完整的信用评级框架涵盖宏观、中观和微观，产业债看重行业研究、财务分析，城投债侧重政策研究和区域经济。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69a7f6fb0000000026033fab?xsec_token=YBtEta8CEhDXf9X_AVIxRtL8d14RzxK-0I48ddpjsOoHU%3D&xsec_source=app_share",
+      "context": "信用评级框架"
+    },
+    {
+      "quote": "信用研究员面试真题拆解分析",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69a8107c000000001a0256c1?xsec_token=YBKa6dGSqoDQiE-oV489_9WKftQkmztfGn52RVw7CycAU%3D&xsec_source=app_share",
+      "context": "富国基金面试"
+    },
+    {
+      "quote": "中大型公募险资固收投研hc在40个左右（信用20+，宏观利率策略10+，转债5-），略微收缩。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67813b85000000001a013d18?xsec_token=YBJnMpASVF-sU456RZAC5X1PkjZTfznOlgiPuPe9wBVGU%3D&xsec_source=app_share",
+      "context": "25届固收hc结构"
+    }
+  ],
+  "hiring_season": {
+    "spring": "春招以日常/暑期转留用为主，hc少于秋招",
+    "fall": "秋招仍有大量机会，但整体hc收缩、岗位以买方信评+券商资管为主",
+    "verbatim": "暑期留用占比大，但秋招仍有很多机会。",
+    "peak_month": [9, 10, 11]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 25,
+    "company_mention_count": 47,
+    "saif_alumni_count": 0,
+    "ground_truth_count": 8,
+    "notes": "XHS 25 帖覆盖买方信评收缩、暑期留用、富国/广发面试真题、理财子培养体系；评级机构（中诚信/联合/大公）+ 部分保险资管来自 ground_truth 行业共识，XHS 未直接命中。"
+  }
+}

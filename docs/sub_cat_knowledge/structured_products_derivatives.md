@@ -1,0 +1,100 @@
+# 结构化产品衍生品 — 知识库
+
+**策略类型**: 多资产_FOF_衍生品
+**数据置信度**: medium (post=17, company_mention=9, saif_alumni=0)
+**行业方向候选**: 场外衍生品OTC / 雪球收益凭证 / FCN/ELN/Autocall / 利率衍生品IRD / 期权做市
+**机构层级候选**: 头部券商衍生品部 / 中型券商场外业务部 / 外资投行Global Markets / 私人银行PWM / 期货风险子公司 / 资管衍生品中台
+
+## 典型公司
+
+- **中金公司** — 头部券商衍生品部 (XHS 提及 0 次) ⭐
+- **中信证券** — 头部券商衍生品部 (XHS 提及 0 次) ⭐
+- **华泰证券** — 头部券商衍生品部 (XHS 提及 0 次) ⭐
+- **国泰海通证券** — 头部券商衍生品部 (XHS 提及 0 次) ⭐
+- **中信建投证券** — 头部券商衍生品部 (XHS 提及 0 次) ⭐
+- **招商证券** — 中型券商场外业务部 (XHS 提及 0 次)
+- **广发证券** — 中型券商场外业务部 (XHS 提及 0 次)
+- **UBS** — 外资投行Global Markets (XHS 提及 1 次)
+- **JP Morgan** — 外资投行Global Markets (XHS 提及 1 次)
+- **平安银行金融市场部** — 股份行FICC (XHS 提及 1 次)
+
+## 硬门槛
+
+- 扎实掌握期权定价理论(BS/Heston),能手推 BS 公式与边界条件、给定参数算出 vanilla 期权价格
+- 熟悉 Greeks(Delta/Gamma/Vega/Theta/Rho)与 Delta 对冲机制,能解释做市商如何动态对冲
+- 理解波动率曲面与隐含波动率,能讲清楚 skew/term structure 在结构化产品定价中的作用
+- 至少 1 段衍生品/场外/做市/PWM 结构化产品实习,能说明 FCN/ELN/Autocall/雪球 等产品结构
+- 随机过程 + PDE 基础(Ito 引理、Brownian Motion、有限差分),数学/金工/统计/物理背景优先
+
+## 加分项
+
+- 懂区别于普通量化:衍生品偏交易+做市+风险管理,量化偏 alpha 研究,面试时要讲清自己的赛道选择
+- 能徒手讲产品结构: FCN/ELN/Autocall/雪球/鲨鱼鳍/Booster 拆成卖看跌+票息+敲入/敲出条款
+- 对监管与市场周期敏感:22 年下半年场外集体降薪+雪球敲入舆情,要能讨论合规与产品调整
+- 英文 + 港股美股知识:外资行 Global Markets 与 PWM 岗位经常挂钩美科技股/美债/港股标的
+- AI+量化报价方向是新增量:大型资管中台子公司用 AI 自动询价提效,coding 能力差异化加分
+
+## 转岗路径
+
+- **量化研究员 → 结构化产品衍生品** (难度: medium) — 量化偏 alpha 研究,转衍生品要补做市/风险/期权定价框架,数学基础占优
+- **固收交易/利率衍生品 → 结构化产品衍生品** (难度: low) — IRS/Swaption/CMS 基础与场外衍生品高度相通,转头部券商衍生品部路径自然
+- **PWM/财富管理 → 结构化产品衍生品** (难度: medium) — PWM 销售端懂客户需求,转结构化中台/产品设计需补定价与对冲技术
+- **投行 IBD → 结构化产品衍生品** (难度: high) — IBD 偏融资,转 Global Markets 要重建期权定价/Greeks/做市知识体系,跨度大
+
+## 风险/排雷
+
+- 22 年下半年场外衍生品集体降薪+雪球大面积敲入,行业进入收缩期,投递前先看公司近 1 年场外业务规模
+- 面试不会要求现场当人形电脑做复杂定价,但 BS 公式手推、Greeks 直觉、概率推理是 100% 会考的硬门槛
+- 雪球/Autocall 类产品监管趋严+客诉舆情高发,卖方/PWM 岗要预判合规收紧对岗位 headcount 的冲击
+
+## 面试样态
+
+技术面比重高于其它金融岗:必考期权定价(BS 公式、Greeks 直觉、概率推理)+产品结构拆解(FCN/ELN/Autocall 拆成期权组合)+市场情景题(降息周期对结构化产品影响、敲入风险讨论);外资行加英文 brain teaser 与现场推导,头部券商加风控+合规题
+
+## 薪酬信号
+
+—
+
+## 职业路径
+
+1 年:中台/交易助理起步,跑定价模型、监督自动询价、对接私行风控系统。3 年:做市/产品设计自主负责一类产品(雪球/FCN/利率结构化),独立报价。5-7 年:衍生品交易主管/产品线 head,降息周期与监管周期对成长是 game changing 时间段
+
+## 招聘节奏
+
+- **春招**: 3-5 月暑期实习是头部券商衍生品部/外资行 Global Markets 主力窗口
+- **秋招**: 9-11 月秋招主要靠暑期留用,头部券商场外业务部秋招社招化明显
+- **高峰月**: 3, 4, 5, 9, 10
+
+## XHS 原文锚点 (verbatim)
+
+> FICC交易:了解FICC(债券、衍生品、外汇、贵金属等)相关知识，学习定价和相关交易策略;协助交易策略和模型的开发和测试
+>
+> — [平安银行金融市场部 FICC 实习 JD](https://www.xiaohongshu.com/discovery/item/69a45130000000001a033e1a?xsec_token=YBQ_OWSik-h4fo3XpbnNv-Mi2rbNPozaN1LdiSboC5sHI%3D&xsec_source=app_share)
+
+> 期权交易离不开对希腊字母的分析...常见希腊字母包括Delta、Gamma、Theta、Rho
+>
+> — [期权交易策略学习要点](https://www.xiaohongshu.com/discovery/item/65c430a6000000000c0063ab?xsec_token=YBn0hzMF7uiH9pB7wzcPMYEHJWsvi34SVllOmq6LtzHvQ%3D&xsec_source=app_share)
+
+> Global Markets中最基礎的三種IRD是IRS, Interest Rate Cap/Swaption。除了基础的还有结构性产品，通常用CMS來構建。核心有Steepener/Inverse Floater/Range Accrual/Callable Note
+>
+> — [外资行 Global Markets 利率衍生品产品谱系](https://www.xiaohongshu.com/discovery/item/69b4c8810000000021007635?xsec_token=YBWGy4UwejIhdEvKTlLILSJA4R9pohuM2iSOnpXmb9x50%3D&xsec_source=app_share)
+
+> 很多结构化产品背后逻辑都是卖看跌期权，如FCN/ELN/Autocall
+>
+> — [私行结构化产品核心逻辑拆解](https://www.xiaohongshu.com/discovery/item/69ad77b8000000001a03211f?xsec_token=YBoTMFEfaHDCg178m-TzcNyG9k4KL1-I-aH3WiXktzuAQ%3D&xsec_source=app_share)
+
+> 采用了 AI+量化客户需求自动询价的方式，大大提高了传统结构化产品的报价效率
+>
+> — [资管中台子公司 AI+量化报价新模式](https://www.xiaohongshu.com/discovery/item/68eb20dc0000000004000381?xsec_token=YB6mozU0a9eo6xHWyi2kaBEXHN8AkBNGSzKnehjgDeTnw%3D&xsec_source=app_share)
+
+> 去面试也不会要求你现场当个人形电脑[大笑R] option pricing其实很多时候就是个概率问题，用直觉的方式想会简单很多
+>
+> — [衍生品技术面真实风格](https://www.xiaohongshu.com/discovery/item/685ab3a80000000015020806?xsec_token=YB4vgWwSN9zbiyVpzEnnwz94J-uL6OgPZEM8X39roLho4%3D&xsec_source=app_share)
+
+> 哪怕是一个牛市中间，哪怕挂钩的是一些很稳定的龙头股，如果买产品的时间点不好的话，一样可能会敲入。
+>
+> — [雪球/结构化产品敲入风险案例](https://www.xiaohongshu.com/discovery/item/695354e1000000002203aec7?xsec_token=YBuktAn_QRs4uFQEKyqxRo6pBGYJ6D1Fc7Npehc2-S0Bg%3D&xsec_source=app_share)
+
+> 利率变化周期可长可短，不过一般来说再怎么短，对一个交易员（尤其是年轻交易员）的成长和职业规划来说都会是gaming changing的时间段。
+>
+> — [降息周期对衍生品交易员职业的影响](https://www.xiaohongshu.com/discovery/item/66ca0ad4000000001d019443?xsec_token=YBvdH6OcCkYXvWS69B34HSXhTrjw1e_ABYPVGDt15s57Q%3D&xsec_source=app_share)

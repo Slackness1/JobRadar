@@ -1,0 +1,104 @@
+{
+  "sub_cat": "自营FOF",
+  "sub_cat_slug": "proprietary_fof",
+  "strategy_type": "多资产_FOF_衍生品",
+  "industry_focus_candidates": [
+    "金融"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "中型券商研究所",
+    "银行系资管",
+    "一线公募",
+    "二线公募",
+    "保险资管",
+    "信托自营"
+  ],
+  "typical_companies": [
+    {"name": "中信证券", "tier": "头部券商研究所", "is_must_have": true, "notes": "券商自营 FOF 头部, 股衍 / 自营资管利润梯队顶端"},
+    {"name": "中信建投", "tier": "头部券商研究所", "is_must_have": false, "notes": "XHS 出现 FOF 投资经理岗"},
+    {"name": "华泰证券", "tier": "头部券商研究所", "is_must_have": false, "notes": "金融创新部场外衍生品 + 做市自营"},
+    {"name": "光大证券", "tier": "中型券商研究所", "is_must_have": false, "notes": "金融创新部条线"},
+    {"name": "招商银行", "tier": "银行系资管", "is_must_have": true, "notes": "TREE 多元资产配置计划推动 FOF 新发"},
+    {"name": "平安银行", "tier": "银行系资管", "is_must_have": true, "notes": "银行自营 FOF"},
+    {"name": "南方基金", "tier": "一线公募", "is_must_have": true, "notes": "南方合顺 FOF + 黄金配置约 10% 贡献净值"},
+    {"name": "中信保诚基金", "tier": "二线公募", "is_must_have": true, "notes": "FOF 增强策略 + ETF 工具核心抓手"},
+    {"name": "易方达基金", "tier": "一线公募", "is_must_have": false, "notes": "FOF 研究员面试真题来源"},
+    {"name": "中泰资管", "tier": "中型券商研究所", "is_must_have": false, "notes": "中泰时钟资产配置 + 长期持仓黄金 ETF"}
+  ],
+  "hard_requirements": [
+    "金融工程 / 数理 / 统计 / 经济金融硕士背景, 公募 / 券商 / 私募 FOF 或基金评价相关实习 2 段以上",
+    "熟练 Python 做多资产回测 / 因子构建 / 基金画像, 能写 CTA + 宏观策略评价框架",
+    "理解 FOF 与普通基金区别 + 利率下行周期资产配置 + 底层基金筛选指标, 能扛面试追问",
+    "对绝对收益 / 回撤控制 / 多策略组合 (CTA + 中性 + 套利) 有方法论, 不只会卖 Beta"
+  ],
+  "soft_signals": [
+    "全面能力都要合格, 但能把其中一项 (多资产配置 / 行业轮动 / 定量 / 定性) 做大做强当个人标签",
+    "对自营机构资金的 FOF 思路 (稀缺额度 + 灵活要素 + 几亿大资金组合经验) 有认知, 能区别于资管 FOF",
+    "抗压能力强 + 愿意被业绩 / 回撤指标硬控, 行情好钱多行情差没钱, 心态稳",
+    "对决策流程 + 闭环交易 + 数据沉淀的差异化逻辑有理解, 不迷信新技术 / 新模型"
+  ],
+  "transfer_paths": [
+    {"from": "公募 FOF 研究员", "to": "券商自营 FOF / 银行自营 FOF", "difficulty": "medium", "notes": "门槛更高 + pay 更低, 但有实盘和绝对收益经验后是顺向迁移"},
+    {"from": "量化私募研究员 (CTA / 中性)", "to": "券商 / 信托自营 FOF 多策略组合", "difficulty": "medium", "notes": "自营盘看多策略组合, CTA + 套利背景稀缺"},
+    {"from": "券商资管 FOF", "to": "自营 FOF", "difficulty": "easy", "notes": "同一家券商内部条线迁移, 资管做大锅饭, 自营更灵活"},
+    {"from": "保险资管多资产", "to": "银行 / 券商自营 FOF", "difficulty": "easy", "notes": "保险大类资产配置经验直接对口自营 FOF 绝对收益目标"},
+    {"from": "美元 FoF + coinvestment", "to": "境内自营 FOF / 直投 / IBD", "difficulty": "hard", "notes": "学习空间窄 + 离市场远, 转直投或 IBD 都要重新建网络"}
+  ],
+  "pitfalls": [
+    "公募 FOF 受公募新规 + 产品硬伤拖累, 容易清盘, 晋升道路狭窄, 不要把它当稳定铁饭碗",
+    "FOF 整体小众赛道, 人才流失到保险 / 私募, 兴证全球已把 FOF 投资部改名多元资产配置部",
+    "自营 FOF 门槛高 pay 低, 想从基金投顾 / 美元 FoF 转过来要算清楚机会成本"
+  ],
+  "interview_style": "易方达类公募走 FOF vs 普通基金区别 + 利率下行周期资产配置 + 底层基金筛选三段式, 喜欢追问历史业绩与未来风格冲突时怎么取舍; 自营盘更看 CTA / 宏观策略框架 + Python 回测, 让你讲真实管过的多资产组合及回撤归因",
+  "compensation_signal": null,
+  "career_trajectory": "实习 (公募 / 券商 / 私募 FOF) → 公募 FOF 研究员 → 自营 FOF 投资经理助理 / 券商资管 FOF → 自营 FOF 投资经理 / 多资产配置组合管理; 资深可向保险资管 / 私募多策略 / 家办 CIO 横切, 公募新规下不建议长 stay",
+  "verbatim_quotes": [
+    {
+      "quote": "自营机构资金的FOF下投思路更优：投资经理经验丰富、有稀缺额度、能控制回撤、要素灵活",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/693e065c000000021e029e20?xsec_token=YBHnwsTf9MGpmgQdrtDV-hHE7Pu0hENRz2PrH5k4cqxXM%3D&xsec_source=app_share",
+      "context": "自营 vs 资管 FOF 思路对比"
+    },
+    {
+      "quote": "自营FOF最追求绝对收益，资管FOF最看重规模和业绩排名，财富FOF最看重客户需求和投后服务",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/66810504000000021c03d3c9?xsec_token=YBqK5jnKPXduLaptP992q2CzlfIeViMOhl1jLZrGIBoIg%3D&xsec_source=app_share",
+      "context": "FOF 三大条线考核分野"
+    },
+    {
+      "quote": "底层无外乎股债商三个大类品种。差异化来自于",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/682003950000000012004c92?xsec_token=YBkBiUxr1vgmuF9SZyZnmQfptiD4XG8_w4tf7Vm6RVfyo%3D&xsec_source=app_share",
+      "context": "券商做 FOF 的差异化逻辑"
+    },
+    {
+      "quote": "知名券商-FOF研究员-上海",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6953425e000000021f00f294?xsec_token=YBESGoHrR-DEWyhY3gl_h-odUMoA32f3tSS_3t9Wc1e1k%3D&xsec_source=app_share",
+      "context": "券商自营 FOF 在招岗位标题"
+    },
+    {
+      "quote": "FOF就是一个要求全面能力都要合格的这个一个职业，但是可以把其中一个能力做大做强",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69427259000000021e027bca?xsec_token=YBPCbg0ZeyVPclci2f1lLEatcLy-tFfZdE1cUQLarrLEo%3D&xsec_source=app_share",
+      "context": "FOF 岗位能力模型"
+    },
+    {
+      "quote": "有抗压能力、愿意学习成长以后致力于投资的去资管和自营FOF",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/66810504000000021c03d3c9?xsec_token=YBqK5jnKPXduLaptP992q2CzlfIeViMOhl1jLZrGIBoIg%3D&xsec_source=app_share",
+      "context": "选条线建议"
+    }
+  ],
+  "hiring_season": {
+    "spring": "春招以社招 / 实习转正为主, 公募 FOF 新增 HC 少, 自营盘按业绩季度滚动招",
+    "fall": "走券商资管 / 银行金市部 / 公募校招通道, FOF / 多资产岗集中 9-11 月",
+    "verbatim": null,
+    "peak_month": [9, 10, 11]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 29,
+    "high_relevance_post_count": 23,
+    "company_mention_count": 38,
+    "ground_truth_count": 7,
+    "saif_alumni_count": 0,
+    "verbatim_quote_count": 6,
+    "notes": "29 帖 XHS + 7 条 ground truth 公司清单; 无 SAIF 校友直接流向数据, 故 confidence 维持 medium; 自营 / 资管 / 财富三分线 + 自营盘灵活要素的认知来自 2 条独立帖子交叉验证"
+  }
+}

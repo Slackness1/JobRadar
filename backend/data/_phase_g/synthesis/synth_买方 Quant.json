@@ -1,0 +1,65 @@
+{
+  "sub_cat": "买方 Quant",
+  "sub_cat_slug": "buy_side_quant",
+  "strategy_type": "卖方研究",
+  "industry_focus_candidates": ["因子投资", "组合优化与风险归因", "衍生品定价与对冲", "FOF/多策略配置", "Smart Beta/ETF"],
+  "institution_tier_candidates": ["顶尖外资对冲基金", "头部券商自营/资管量化", "头部公募量化部", "保险资管/银行理财子量化组", "头部主观私募量化条线"],
+  "typical_companies": [
+    {"name": "Point72", "tier": "顶尖外资对冲基金", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "Citadel", "tier": "顶尖外资对冲基金", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "Millennium", "tier": "顶尖外资对冲基金", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "Two Sigma", "tier": "顶尖外资对冲基金", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "AQR", "tier": "顶尖外资对冲基金", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "Brevan Howard", "tier": "顶尖外资对冲基金", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "中信证券", "tier": "头部券商自营/资管量化", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "中金公司", "tier": "头部券商自营/资管量化", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "华泰证券", "tier": "头部券商自营/资管量化", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "招商证券", "tier": "头部券商自营/资管量化", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "汇添富基金", "tier": "头部公募量化部", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "南方基金", "tier": "头部公募量化部", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "招商基金", "tier": "头部公募量化部", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "兴银理财", "tier": "银行理财子量化组", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "高瓴量化", "tier": "头部主观私募量化条线", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "QS50/清北复交/中科大等顶级理工或金融工程硕士及以上,外资对冲基金普遍要 PhD",
+    "扎实的概率统计、随机过程、衍生品定价(BS、希腊字母、波动率微笑)理论基础",
+    "熟练 Python+SQL,会因子研究/回测框架,外资 HF 看 C++、kdb+/q,A股方向看 Wind/Tushare",
+    "至少 1 段头部券商自营/公募量化部/外资对冲基金量化组实习,做过组合归因或风险模型"
+  ],
+  "soft_signals": [
+    "能讲清 alpha 的来源(风险溢价/行为偏差/市场摩擦),而非只展示模型 accuracy",
+    "对所服务的主动投资经理痛点有具体理解(归因维度选择、风险预算、容量约束)",
+    "跨大类资产配置/FOF 视角,熟悉量化私募策略图谱与相关性结构",
+    "英文工作能力(外资对冲基金、香港 buy-side 必备)"
+  ],
+  "transfer_paths": [
+    {"from": "量化研究员·中频", "to": "买方 Quant", "difficulty": "medium", "notes": "从纯系统化转服务主动 PM,需补归因/风险模型语言和与 PM 沟通能力"},
+    {"from": "卖方研究员TMT", "to": "买方 Quant", "difficulty": "high", "notes": "需补统计建模+衍生品定价,通常要追加一段券商自营量化实习"},
+    {"from": "量化开发QD", "to": "买方 Quant", "difficulty": "medium", "notes": "工程底子可直接搭归因平台,要把研究语言和金融直觉补齐"},
+    {"from": "公募权益研究员", "to": "买方 Quant", "difficulty": "high", "notes": "需要从基本面转因子/组合优化思维,门槛在量化技能栈"}
+  ],
+  "pitfalls": [
+    "拿纯系统化策略简历投买方 Quant 岗,忽略 PM 服务属性会被刷",
+    "只准备 coding 题,不准备衍生品/因子机制的底层追问(AQR 类必考)",
+    "海归 PhD 不熟 A 股交易规则与国内数据源,深圳/上海 buy-side 一面就露馅"
+  ],
+  "interview_style": "技术面+概念深挖+brain teaser 三段式:1)简历项目追问 alpha 来源与失效场景;2)衍生品定价(BS、希腊字母、波动率微笑)高频必考;3)外资 HF 加期望值/做市 spread,香港 buy-side 看 Bloomberg 实操,答题节奏稳重于答对。",
+  "compensation_signal": "FOF 投资经理岗 35-60 万,外资对冲基金顶尖实习薪资接近 10 万",
+  "career_trajectory": "1 年内:跟资深 Quant 搭归因/风险模型,服务 1-2 位 PM;3 年:独立负责一类资产或一个组合的量化支持,能与 PM 共同决策风险预算;5 年:晋升资深 Quant 或转 Quant PM,带小组或独立管理量化产品线,顶尖外资多策略平台 pod 内部晋升路径更陡。",
+  "verbatim_quotes": [
+    {"quote": "QR专业DS、Finance、Economics、Statistics、CS相关都可以，掌握mathematics、掌握数据基础技能，有较好沟通能力。", "source_url": "https://www.xiaohongshu.com/discovery/item/69da1d440000000023012ee8?xsec_token=YBdoJR_-FNDPYxtIlFoAtgWHvpuumpQhudKKU28sQac0c%3D&xsec_source=app_share", "context": "头部量化私募 QR 专业与技能要求"},
+    {"quote": "面试官真正想听的，不是你模型accuracy多高，而是你的策略为什么会赚钱。", "source_url": "https://www.xiaohongshu.com/discovery/item/6a0ed0e600000000350204bf?xsec_token=YBhAiRDWVP3qdYwYknqIMxwQfsnWze1xDb6qu_8tnVf3U%3D&xsec_source=app_share", "context": "香港 buy-side QR 面试核心评判标准"},
+    {"quote": "AQR这种典型因子派的buy-side面试中，factor investing不只是会不会用，而是一定会往底层机制深挖。", "source_url": "https://www.xiaohongshu.com/discovery/item/69ccee71000000002003bcc1?xsec_token=YB-2ylZDk7B4YOmFyOzIBkURs67_GWnky56PTNus5FkmE%3D&xsec_source=app_share", "context": "AQR 等因子派买方对底层机制的追问深度"},
+    {"quote": "券商：中信 / 华泰 / 广发 / 招商 公募：汇添富 / 南方 / 招商基金 只投：✔ 量化 / 自营 / 衍生品", "source_url": "https://www.xiaohongshu.com/discovery/item/69d432b200000000230165ba?xsec_token=YB8P2sbk6XOuWvtBsp0Qw4RFxCEDtP9oT_Q6sMVDVtcIA%3D&xsec_source=app_share", "context": "国内买方 Quant 在券商/公募的承接机构清单"},
+    {"quote": "FOF投资经理 上海 (ID: 5313) ：¥35万 - ¥60万", "source_url": "https://www.xiaohongshu.com/discovery/item/6a10be940000000008027ad7?xsec_token=YBgVepef6Q5-h3PAJO7pWd6ZcmnbE_tNSeHtDnA8EuuM0%3D&xsec_source=app_share", "context": "上海 FOF 投资经理薪资区间"}
+  ],
+  "hiring_season": {
+    "spring": "3-5 月外资对冲基金春招与暑期实习同步,券商资管量化补录",
+    "fall": "8-10 月校招主战场,头部券商自营/公募量化部集中开,外资 HF 走 target school",
+    "verbatim": "在九坤量化&SIG的周日和周一，十分令人印象深刻的两天",
+    "peak_month": [3, 4, 5, 9, 10]
+  },
+  "data_confidence": "medium",
+  "data_basis": {"post_count": 37, "company_mention_count": 91, "saif_alumni_count": 0}
+}
