@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 12:30 · 岗位爬取-devvpstmux · Phase G T6 — 剩 24 sub_cat 知识库 batch subagent + 29 入 DB + embedding
+- **干了什么**:剩 24 sub_cat 走 6 并行 × 4 批 Opus subagent (T5 5 个 + T6 24 个 = 29 全覆盖)。每个 subagent 读自家预生成的 self-contained bundle (posts + saif + ground_truth + expected_conf),输出 15 字段 JSON,自检字段长度 + verbatim substring 匹配 + URL 真实性。全 29 sub_cat 入 knowledge_subcategories 表,每条带 DashScope text-embedding-v3 1024 维向量 (cosine normalized),md 文档写到 `docs/sub_cat_knowledge/`。
+- **用户体验变化**:学院老师 / SAIF 学生现在能看到 29 份赛道知识库 md — 涵盖基本面权益 5 + 量化 5 + 固收 4 + 卖方研究 5 + 多资产/FOF 4 + 相关补充 1 + AI 应用 5。每份带典型公司表 (must_have ⭐)、硬门槛、加分项、转岗路径、排雷、面试样态、薪酬区间、1-3-5 年职业轨迹、真实 verbatim 引用、招聘季节。AI 5 个 (AI PM / LLM post-train / Agent / 多模态推理 / AI 算法业务) 对 SAIF 转 AI 学生特别有用。投行 IBD / 高频量化 / 衍生品 这些原本数据薄的赛道也都补到 ≥10 公司 + ≥4 verbatim。
+- **测试**:DB 全表 29 sub_cat / 29 带 embedding (0 失败);7 strategy 桶 (5+5+4+5+4+1+5=29);confidence high 3 (行业·消费 / 卖方·消费医药周期 / 卖方·宏观策略) / medium 20 / low 6。verbatim quote 全 subagent 自检过 substring 匹配 post.verbatim_signals 或 post.content (前一轮发现 6/7 quote 在 content 找不到 — 实际是 LLM 摘要短, 原文锚在 verbatim_signals 字段, 校验逻辑已合并双字段查找)。
+- **下一步**:T7 — audit 脚本对照 ground truth 119 公司 × 32k 真实岗位库, 出"哪些 must_have 公司在库里 0 岗 / sub_cat 覆盖率多低"的 gap 报告; T8 — 给短板公司跑补爬 (内置 5 套 crawler primitive)。Phase G 21 工序中 6/21 完成,设计预算 $51-61 中已花 $2.32 + 本次 Opus subagent 计入 SAIF 老师不付钱的内部用量。
+
 ### 03:15 · 岗位爬取-devvpstmux · Phase G T5 — 5 pilot sub_cat 知识库合成 + pipeline gap 修复
 - **干了什么**:第一轮 5 个 subagent 跑出来全部 0 verbatim — 4 个 sub_cat 在 taxonomy_xhs_posts 表里 0 帖。诊断:T1 分类的 433 帖只写到 jsonl 没入 DB(只 T3 补爬的 376 帖入了表)。写补救脚本 join (T1 sub_cat 分类) + (Phase F raw extract) 按 primary_sub_cat 入表 → 全 29 sub_cat 在 DB 都有数据。然后重 dispatch 4 个 pilot,加上之前正常的 AI PM 共 5 份知识库出炉:每份 15 字段,含 4-8 条真实 verbatim quote(每条 source_url 验证存在于原 XHS 帖)。
 - **用户体验变化**:学院老师 / SAIF 学生现在能看到 5 份 docx 风格的 md 知识库 — 公募权益研究员 / 量化研究员·中频 / 卖方研究员·TMT / PE投后VC行研 / AI PM,每份带:典型公司表(must_have 标识)/ 硬门槛 / 加分项 / 转赛道路径 / 排雷 / 面试样态 / 薪酬区间 / 1-3-5 年职业轨迹 / 真实学姐学长 verbatim 引用 / 招聘季节。AI PM 那份对 SAIF 金融学生特别有用 — 明确给出"金融研究员/卖方分析师→AI PM" transfer path + 字节 1st-choice + 伪 AI 岗识别 + 70-100W 薪酬锚点。
