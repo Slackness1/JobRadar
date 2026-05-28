@@ -1,8 +1,8 @@
 {"sub_cat": "公募权益研究员", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
-{"sub_cat": "公募权益研究员", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏久盈资产管理有限责任公司", "华夏基金", "华夏基金管理有限公司", "华夏幸福基业股份有限公司", "华夏银行", "华夏银行股份有限公司"], "job_count": 539, "job_count_including_dead": 539, "dead_only": false}
-{"sub_cat": "公募权益研究员", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
+{"sub_cat": "公募权益研究员", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏基金", "华夏基金管理有限公司"], "job_count": 65, "job_count_including_dead": 65, "dead_only": false}
+{"sub_cat": "公募权益研究员", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
 {"sub_cat": "公募权益研究员", "name": "嘉实基金", "tier": "一线公募", "must_have": true, "matched_companies": ["嘉实基金", "嘉实基金管理有限公司"], "job_count": 57, "job_count_including_dead": 57, "dead_only": false}
-{"sub_cat": "公募权益研究员", "name": "广发基金", "tier": "一线公募", "must_have": true, "matched_companies": ["广发基金", "广发基金管理有限公司", "广发证券", "广发证券股份有限公司", "广发银行", "广发银行股份有限公司"], "job_count": 359, "job_count_including_dead": 359, "dead_only": false}
+{"sub_cat": "公募权益研究员", "name": "广发基金", "tier": "一线公募", "must_have": true, "matched_companies": ["广发基金", "广发基金管理有限公司"], "job_count": 89, "job_count_including_dead": 89, "dead_only": false}
 {"sub_cat": "公募权益研究员", "name": "富国基金", "tier": "一线公募", "must_have": true, "matched_companies": ["富国基金", "富国基金管理有限公司"], "job_count": 62, "job_count_including_dead": 62, "dead_only": false}
 {"sub_cat": "公募权益研究员", "name": "汇添富基金", "tier": "一线公募", "must_have": false, "matched_companies": ["汇添富基金", "汇添富基金管理股份有限公司"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
 {"sub_cat": "公募权益研究员", "name": "兴证全球基金", "tier": "一线公募", "must_have": false, "matched_companies": ["兴证全球基金管理有限公司"], "job_count": 17, "job_count_including_dead": 20, "dead_only": false}
@@ -10,36 +10,36 @@
 {"sub_cat": "公募权益研究员", "name": "工银瑞信基金", "tier": "二线公募", "must_have": false, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "嘉实基金", "tier": "一线公募", "must_have": true, "matched_companies": ["嘉实基金", "嘉实基金管理有限公司"], "job_count": 57, "job_count_including_dead": 57, "dead_only": false}
-{"sub_cat": "行业研究员·消费", "name": "招商基金", "tier": "一线公募", "must_have": true, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "行业研究员·消费", "name": "招商基金", "tier": "一线公募", "must_have": true, "matched_companies": ["招商基金"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "兴业证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["兴业证券", "兴业证券股份有限公司"], "job_count": 78, "job_count_including_dead": 78, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "华创证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["北京七星华创精密电子科技有限责任公司", "北方华创", "北方华创科技集团股份有限公司"], "job_count": 15, "job_count_including_dead": 15, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "天风证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["天风证券", "天风证券股份有限公司"], "job_count": 74, "job_count_including_dead": 74, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "开源证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["开源证券股份有限公司"], "job_count": 43, "job_count_including_dead": 43, "dead_only": false}
 {"sub_cat": "行业研究员·消费", "name": "中泰证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["中泰证券", "中泰证券股份有限公司"], "job_count": 102, "job_count_including_dead": 102, "dead_only": false}
-{"sub_cat": "行业研究员·TMT-医药-周期", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏久盈资产管理有限责任公司", "华夏基金", "华夏基金管理有限公司", "华夏幸福基业股份有限公司", "华夏银行", "华夏银行股份有限公司"], "job_count": 539, "job_count_including_dead": 539, "dead_only": false}
+{"sub_cat": "行业研究员·TMT-医药-周期", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏基金", "华夏基金管理有限公司"], "job_count": 65, "job_count_including_dead": 65, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "永赢基金", "tier": "二线公募", "must_have": true, "matched_companies": ["永赢基金", "永赢基金管理有限公司"], "job_count": 32, "job_count_including_dead": 32, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "工银瑞信基金", "tier": "二线公募", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "中欧基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中欧基金", "中欧基金管理有限公司"], "job_count": 46, "job_count_including_dead": 46, "dead_only": false}
-{"sub_cat": "行业研究员·TMT-医药-周期", "name": "招商基金", "tier": "一线公募", "must_have": true, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "行业研究员·TMT-医药-周期", "name": "招商基金", "tier": "一线公募", "must_have": true, "matched_companies": ["招商基金"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "银华基金", "tier": "二线公募", "must_have": false, "matched_companies": ["银华基金管理股份有限公司"], "job_count": 10, "job_count_including_dead": 10, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "汇丰晋信基金", "tier": "二线公募", "must_have": false, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "行业研究员·TMT-医药-周期", "name": "国泰基金", "tier": "二线公募", "must_have": false, "matched_companies": ["国泰基金", "国泰基金管理有限公司"], "job_count": 14, "job_count_including_dead": 14, "dead_only": false}
-{"sub_cat": "公募指数研究员", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏久盈资产管理有限责任公司", "华夏基金", "华夏基金管理有限公司", "华夏幸福基业股份有限公司", "华夏银行", "华夏银行股份有限公司"], "job_count": 539, "job_count_including_dead": 539, "dead_only": false}
+{"sub_cat": "公募指数研究员", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏基金", "华夏基金管理有限公司"], "job_count": 65, "job_count_including_dead": 65, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
-{"sub_cat": "公募指数研究员", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
+{"sub_cat": "公募指数研究员", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "工银瑞信基金", "tier": "二线公募", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "嘉实基金", "tier": "一线公募", "must_have": true, "matched_companies": ["嘉实基金", "嘉实基金管理有限公司"], "job_count": 57, "job_count_including_dead": 57, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "中金基金", "tier": "二线公募", "must_have": false, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "摩根资产管理", "tier": "外资行", "must_have": false, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "公募指数研究员", "name": "博时基金", "tier": "二线公募", "must_have": false, "matched_companies": ["博时基金管理有限公司"], "job_count": 41, "job_count_including_dead": 44, "dead_only": false}
-{"sub_cat": "公募基金中后台", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
-{"sub_cat": "公募基金中后台", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏久盈资产管理有限责任公司", "华夏基金", "华夏基金管理有限公司", "华夏幸福基业股份有限公司", "华夏银行", "华夏银行股份有限公司"], "job_count": 539, "job_count_including_dead": 539, "dead_only": false}
+{"sub_cat": "公募基金中后台", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
+{"sub_cat": "公募基金中后台", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏基金", "华夏基金管理有限公司"], "job_count": 65, "job_count_including_dead": 65, "dead_only": false}
 {"sub_cat": "公募基金中后台", "name": "富国基金", "tier": "一线公募", "must_have": true, "matched_companies": ["富国基金", "富国基金管理有限公司"], "job_count": 62, "job_count_including_dead": 62, "dead_only": false}
 {"sub_cat": "公募基金中后台", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
 {"sub_cat": "公募基金中后台", "name": "嘉实基金", "tier": "一线公募", "must_have": true, "matched_companies": ["嘉实基金", "嘉实基金管理有限公司"], "job_count": 57, "job_count_including_dead": 57, "dead_only": false}
-{"sub_cat": "公募基金中后台", "name": "广发基金", "tier": "一线公募", "must_have": false, "matched_companies": ["广发基金", "广发基金管理有限公司", "广发证券", "广发证券股份有限公司", "广发银行", "广发银行股份有限公司"], "job_count": 359, "job_count_including_dead": 359, "dead_only": false}
+{"sub_cat": "公募基金中后台", "name": "广发基金", "tier": "一线公募", "must_have": false, "matched_companies": ["广发基金", "广发基金管理有限公司"], "job_count": 89, "job_count_including_dead": 89, "dead_only": false}
 {"sub_cat": "公募基金中后台", "name": "汇添富基金", "tier": "一线公募", "must_have": false, "matched_companies": ["汇添富基金", "汇添富基金管理股份有限公司"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
-{"sub_cat": "公募基金中后台", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "公募基金中后台", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
 {"sub_cat": "量化研究员·中频", "name": "灵均投资", "tier": "头部量化私募", "must_have": true, "matched_companies": ["灵均投资"], "job_count": 15, "job_count_including_dead": 15, "dead_only": false}
 {"sub_cat": "量化研究员·中频", "name": "九坤投资", "tier": "头部量化私募", "must_have": true, "matched_companies": ["九坤投资", "九坤投资（北京）有限公司"], "job_count": 34, "job_count_including_dead": 34, "dead_only": false}
 {"sub_cat": "量化研究员·中频", "name": "明汯投资", "tier": "头部量化私募", "must_have": true, "matched_companies": ["上海明汯投资管理有限公司"], "job_count": 4, "job_count_including_dead": 4, "dead_only": false}
@@ -95,16 +95,16 @@
 {"sub_cat": "固收交易员", "name": "平安证券", "tier": "中型券商", "must_have": true, "matched_companies": ["平安证券", "平安证券股份有限公司"], "job_count": 55, "job_count_including_dead": 55, "dead_only": false}
 {"sub_cat": "固收交易员", "name": "中信建投证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信建投", "中信建投证券股份有限公司"], "job_count": 56, "job_count_including_dead": 56, "dead_only": false}
 {"sub_cat": "固收交易员", "name": "国泰海通证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["国泰海通证券股份有限公司"], "job_count": 33, "job_count_including_dead": 33, "dead_only": false}
-{"sub_cat": "固收交易员", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "固收交易员", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商证券", "招商证券股份有限公司"], "job_count": 75, "job_count_including_dead": 75, "dead_only": false}
 {"sub_cat": "固收交易员", "name": "中金公司", "tier": "头部券商研究所", "must_have": false, "matched_companies": ["中国国际金融股份有限公司", "中金公司", "中金所数据有限公司"], "job_count": 610, "job_count_including_dead": 610, "dead_only": false}
 {"sub_cat": "固收交易员", "name": "兴业银行", "tier": "银行系资管", "must_have": false, "matched_companies": ["兴业银行", "兴业银行股份有限公司", "兴业银行股份有限公司上海分行"], "job_count": 1558, "job_count_including_dead": 1558, "dead_only": false}
 {"sub_cat": "固收+多资产", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
-{"sub_cat": "固收+多资产", "name": "广发基金", "tier": "一线公募", "must_have": true, "matched_companies": ["广发基金", "广发基金管理有限公司", "广发证券", "广发证券股份有限公司", "广发银行", "广发银行股份有限公司"], "job_count": 359, "job_count_including_dead": 359, "dead_only": false}
-{"sub_cat": "固收+多资产", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏久盈资产管理有限责任公司", "华夏基金", "华夏基金管理有限公司", "华夏幸福基业股份有限公司", "华夏银行", "华夏银行股份有限公司"], "job_count": 539, "job_count_including_dead": 539, "dead_only": false}
+{"sub_cat": "固收+多资产", "name": "广发基金", "tier": "一线公募", "must_have": true, "matched_companies": ["广发基金", "广发基金管理有限公司"], "job_count": 89, "job_count_including_dead": 89, "dead_only": false}
+{"sub_cat": "固收+多资产", "name": "华夏基金", "tier": "一线公募", "must_have": true, "matched_companies": ["华夏基金", "华夏基金管理有限公司"], "job_count": 65, "job_count_including_dead": 65, "dead_only": false}
 {"sub_cat": "固收+多资产", "name": "平安资产管理", "tier": "保险资管", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "固收+多资产", "name": "国寿投资", "tier": "保险资管", "must_have": true, "matched_companies": ["中国人寿", "中国人寿保险（集团）公司"], "job_count": 689, "job_count_including_dead": 689, "dead_only": false}
-{"sub_cat": "固收+多资产", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
-{"sub_cat": "固收+多资产", "name": "南方基金", "tier": "一线公募", "must_have": false, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
+{"sub_cat": "固收+多资产", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
+{"sub_cat": "固收+多资产", "name": "南方基金", "tier": "一线公募", "must_have": false, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
 {"sub_cat": "利率宏观策略", "name": "华泰证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["华泰证券", "华泰证券股份有限公司"], "job_count": 271, "job_count_including_dead": 271, "dead_only": false}
 {"sub_cat": "利率宏观策略", "name": "中金公司", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中国国际金融股份有限公司", "中金公司", "中金所数据有限公司"], "job_count": 610, "job_count_including_dead": 610, "dead_only": false}
 {"sub_cat": "利率宏观策略", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
@@ -117,11 +117,11 @@
 {"sub_cat": "卖方研究员·TMT", "name": "中信证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信证券(山东)有限责任公司", "中信证券股份有限公司"], "job_count": 8, "job_count_including_dead": 8, "dead_only": false}
 {"sub_cat": "卖方研究员·TMT", "name": "中信建投证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信建投", "中信建投证券股份有限公司"], "job_count": 56, "job_count_including_dead": 56, "dead_only": false}
 {"sub_cat": "卖方研究员·TMT", "name": "国泰海通证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["国泰海通证券股份有限公司"], "job_count": 33, "job_count_including_dead": 33, "dead_only": false}
-{"sub_cat": "卖方研究员·TMT", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "卖方研究员·TMT", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商证券", "招商证券股份有限公司"], "job_count": 75, "job_count_including_dead": 75, "dead_only": false}
 {"sub_cat": "卖方研究员·TMT", "name": "国信证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["国信证券", "国信证券股份有限公司", "国信证券资产管理有限公司"], "job_count": 138, "job_count_including_dead": 138, "dead_only": false}
 {"sub_cat": "卖方研究员·TMT", "name": "华泰证券", "tier": "头部券商研究所", "must_have": false, "matched_companies": ["华泰证券", "华泰证券股份有限公司"], "job_count": 271, "job_count_including_dead": 271, "dead_only": false}
 {"sub_cat": "卖方研究员·TMT", "name": "天风证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["天风证券", "天风证券股份有限公司"], "job_count": 74, "job_count_including_dead": 74, "dead_only": false}
-{"sub_cat": "卖方研究员·消费医药周期", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "卖方研究员·消费医药周期", "name": "招商证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["招商证券", "招商证券股份有限公司"], "job_count": 75, "job_count_including_dead": 75, "dead_only": false}
 {"sub_cat": "卖方研究员·消费医药周期", "name": "广发证券", "tier": "中型券商研究所", "must_have": true, "matched_companies": ["广发证券", "广发证券股份有限公司"], "job_count": 103, "job_count_including_dead": 103, "dead_only": false}
 {"sub_cat": "卖方研究员·消费医药周期", "name": "中信证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信证券(山东)有限责任公司", "中信证券股份有限公司"], "job_count": 8, "job_count_including_dead": 8, "dead_only": false}
 {"sub_cat": "卖方研究员·消费医药周期", "name": "华泰证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["华泰证券", "华泰证券股份有限公司"], "job_count": 271, "job_count_including_dead": 271, "dead_only": false}
@@ -157,14 +157,14 @@
 {"sub_cat": "资管FOF", "name": "易方达基金", "tier": "一线公募", "must_have": true, "matched_companies": ["易方达基金", "易方达基金管理有限公司"], "job_count": 134, "job_count_including_dead": 134, "dead_only": false}
 {"sub_cat": "资管FOF", "name": "融通基金", "tier": "二线公募", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "资管FOF", "name": "国泰海通证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["国泰海通证券股份有限公司"], "job_count": 33, "job_count_including_dead": 33, "dead_only": false}
-{"sub_cat": "资管FOF", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
+{"sub_cat": "资管FOF", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
 {"sub_cat": "资管FOF", "name": "中欧基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中欧基金", "中欧基金管理有限公司"], "job_count": 46, "job_count_including_dead": 46, "dead_only": false}
 {"sub_cat": "资管FOF", "name": "兴证全球基金", "tier": "一线公募", "must_have": false, "matched_companies": ["兴证全球基金管理有限公司"], "job_count": 17, "job_count_including_dead": 20, "dead_only": false}
-{"sub_cat": "资管FOF", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "资管FOF", "name": "招商基金", "tier": "一线公募", "must_have": false, "matched_companies": ["招商基金"], "job_count": 26, "job_count_including_dead": 26, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "平安银行", "tier": "银行系资管", "must_have": true, "matched_companies": ["平安银行", "平安银行股份有限公司", "平安银行股份有限公司上海分行"], "job_count": 55, "job_count_including_dead": 55, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "中信证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信证券(山东)有限责任公司", "中信证券股份有限公司"], "job_count": 8, "job_count_including_dead": 8, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "中信保诚基金", "tier": "二线公募", "must_have": true, "matched_companies": ["中信保诚人寿保险有限公司"], "job_count": 11, "job_count_including_dead": 11, "dead_only": false}
-{"sub_cat": "自营FOF", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["中国南方电网", "中国南方电网有限责任公司", "中建八局南方公司", "南方出版传媒股份有限公司", "南方基金管理股份有限公司", "南方报业传媒集团", "广州南方投资集团有限公司", "浙江三狮南方新材料有限公司", "湖南南方水泥集团有限公司"], "job_count": 59, "job_count_including_dead": 64, "dead_only": false}
+{"sub_cat": "自营FOF", "name": "南方基金", "tier": "一线公募", "must_have": true, "matched_companies": ["南方基金管理股份有限公司"], "job_count": 29, "job_count_including_dead": 29, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "招商银行", "tier": "银行系资管", "must_have": true, "matched_companies": ["招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 326, "job_count_including_dead": 326, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "华泰证券", "tier": "头部券商研究所", "must_have": false, "matched_companies": ["华泰证券", "华泰证券股份有限公司"], "job_count": 271, "job_count_including_dead": 271, "dead_only": false}
 {"sub_cat": "自营FOF", "name": "光大证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["光大证券股份有限公司"], "job_count": 20, "job_count_including_dead": 20, "dead_only": false}
@@ -181,7 +181,7 @@
 {"sub_cat": "结构化产品衍生品", "name": "华泰证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["华泰证券", "华泰证券股份有限公司"], "job_count": 271, "job_count_including_dead": 271, "dead_only": false}
 {"sub_cat": "结构化产品衍生品", "name": "国泰海通证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["国泰海通证券股份有限公司"], "job_count": 33, "job_count_including_dead": 33, "dead_only": false}
 {"sub_cat": "结构化产品衍生品", "name": "中信建投证券", "tier": "头部券商研究所", "must_have": true, "matched_companies": ["中信建投", "中信建投证券股份有限公司"], "job_count": 56, "job_count_including_dead": 56, "dead_only": false}
-{"sub_cat": "结构化产品衍生品", "name": "招商证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["招商基金", "招商局工业集团有限公司", "招商局积余产业运营服务股份有限公司", "招商局蛇口工业区控股股份有限公司", "招商局集团有限公司", "招商证券", "招商证券股份有限公司", "招商银行", "招商银行股份有限公司", "招商银行股份有限公司信用卡中心"], "job_count": 544, "job_count_including_dead": 544, "dead_only": false}
+{"sub_cat": "结构化产品衍生品", "name": "招商证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["招商证券", "招商证券股份有限公司"], "job_count": 75, "job_count_including_dead": 75, "dead_only": false}
 {"sub_cat": "结构化产品衍生品", "name": "广发证券", "tier": "中型券商研究所", "must_have": false, "matched_companies": ["广发证券", "广发证券股份有限公司"], "job_count": 103, "job_count_including_dead": 103, "dead_only": false}
 {"sub_cat": "PE投后VC行研", "name": "高瓴资本", "tier": "头部PE", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
 {"sub_cat": "PE投后VC行研", "name": "红杉中国", "tier": "头部VC", "must_have": true, "matched_companies": ["海南红杉国内投资集团有限公司"], "job_count": 2, "job_count_including_dead": 2, "dead_only": false}
@@ -206,7 +206,7 @@
 {"sub_cat": "Agent工程师", "name": "腾讯", "tier": "互联网大厂", "must_have": true, "matched_companies": ["深圳市腾讯计算机系统有限公司", "腾讯", "腾讯云雀（天津）信息技术有限公司", "腾讯音乐娱乐（深圳）有限公司"], "job_count": 6647, "job_count_including_dead": 6647, "dead_only": false}
 {"sub_cat": "Agent工程师", "name": "蚂蚁集团", "tier": "互联网大厂", "must_have": true, "matched_companies": ["蚂蚁科技集团股份有限公司", "蚂蚁集团"], "job_count": 1584, "job_count_including_dead": 1584, "dead_only": false}
 {"sub_cat": "Agent工程师", "name": "小红书", "tier": "互联网大厂", "must_have": true, "matched_companies": ["小红书"], "job_count": 18, "job_count_including_dead": 18, "dead_only": false}
-{"sub_cat": "Agent工程师", "name": "AI 应用初创 (头部创业)", "tier": "AI 初创", "must_have": true, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
+{"sub_cat": "Agent工程师", "name": "AI 应用初创 (头部创业)", "tier": "AI 初创", "must_have": true, "matched_companies": ["上海稀宇科技有限公司", "上海阶跃星辰智能科技有限公司", "北京月之暗面科技有限公司", "北京百川智能科技有限公司", "北京面壁智能科技有限责任公司", "杭州深度求索人工智能基础技术研究有限公司"], "job_count": 234, "job_count_including_dead": 234, "dead_only": false}
 {"sub_cat": "Agent工程师", "name": "美团", "tier": "互联网大厂", "must_have": false, "matched_companies": ["北京三快科技有限公司", "美团"], "job_count": 5775, "job_count_including_dead": 5775, "dead_only": false}
 {"sub_cat": "Agent工程师", "name": "阿里巴巴", "tier": "互联网大厂", "must_have": false, "matched_companies": ["蚂蚁科技集团股份有限公司", "蚂蚁集团", "阿里云计算有限公司", "阿里健康科技（中国）有限公司", "阿里巴巴", "阿里巴巴国际站", "阿里巴巴文化娱乐有限公司", "阿里巴巴达摩院（杭州）科技有限公司", "阿里巴巴（中国）有限公司"], "job_count": 2546, "job_count_including_dead": 2556, "dead_only": false}
 {"sub_cat": "Agent工程师", "name": "百度", "tier": "互联网大厂", "must_have": false, "matched_companies": ["百度", "百度在线网络技术（北京）有限公司"], "job_count": 1141, "job_count_including_dead": 1141, "dead_only": false}
@@ -225,7 +225,7 @@
 {"sub_cat": "AI PM", "name": "百度", "tier": "互联网大厂", "must_have": true, "matched_companies": ["百度", "百度在线网络技术（北京）有限公司"], "job_count": 1141, "job_count_including_dead": 1141, "dead_only": false}
 {"sub_cat": "AI PM", "name": "蚂蚁集团", "tier": "互联网大厂", "must_have": false, "matched_companies": ["蚂蚁科技集团股份有限公司", "蚂蚁集团"], "job_count": 1584, "job_count_including_dead": 1584, "dead_only": false}
 {"sub_cat": "AI PM", "name": "网易", "tier": "互联网大厂", "must_have": false, "matched_companies": ["广州网易计算机系统有限公司", "网易", "网易游戏", "网易雷火"], "job_count": 334, "job_count_including_dead": 334, "dead_only": false}
-{"sub_cat": "AI PM", "name": "AI 应用初创 (头部创业)", "tier": "AI 初创", "must_have": false, "matched_companies": [], "job_count": 0, "job_count_including_dead": 0, "dead_only": false}
+{"sub_cat": "AI PM", "name": "AI 应用初创 (头部创业)", "tier": "AI 初创", "must_have": false, "matched_companies": ["上海稀宇科技有限公司", "上海阶跃星辰智能科技有限公司", "北京月之暗面科技有限公司", "北京百川智能科技有限公司", "北京面壁智能科技有限责任公司", "杭州深度求索人工智能基础技术研究有限公司"], "job_count": 234, "job_count_including_dead": 234, "dead_only": false}
 {"sub_cat": "AI算法业务", "name": "阿里巴巴", "tier": "互联网大厂", "must_have": true, "matched_companies": ["蚂蚁科技集团股份有限公司", "蚂蚁集团", "阿里云计算有限公司", "阿里健康科技（中国）有限公司", "阿里巴巴", "阿里巴巴国际站", "阿里巴巴文化娱乐有限公司", "阿里巴巴达摩院（杭州）科技有限公司", "阿里巴巴（中国）有限公司"], "job_count": 2546, "job_count_including_dead": 2556, "dead_only": false}
 {"sub_cat": "AI算法业务", "name": "美团", "tier": "互联网大厂", "must_have": true, "matched_companies": ["北京三快科技有限公司", "美团"], "job_count": 5775, "job_count_including_dead": 5775, "dead_only": false}
 {"sub_cat": "AI算法业务", "name": "字节跳动", "tier": "互联网大厂", "must_have": true, "matched_companies": ["北京抖音信息服务有限公司", "字节跳动"], "job_count": 12787, "job_count_including_dead": 12787, "dead_only": false}
