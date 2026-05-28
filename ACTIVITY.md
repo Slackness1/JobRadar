@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 15:45 · 网站设计-devvpstmux · Phase G T11/T12/T14-T18 — 推荐链路 v2 后端 7 工序全收口
+- **干了什么**:推荐链路 v2 后端 6 个核心模块 + 2 个跑批脚本全 commit。Multi-pass C sub_cat enricher (T11, 7 大类 → 4-5 sub_cat 决策树 + 知识库 RAG) / sub_cat enrich runner (T12, 等 T10 完跑) / 新 SQL recall (T14, sub_category-only + alive + 7 等级 quality 过滤) / 三维 cross 加权评分 (T15, 50% sub + 25% industry + 15% tier + 10% freshness) / LLM rerank with 知识库 (T16, per-job KB lookup 给 Pro reasoning_effort=high 评分 + reasoning) / 4-anchor 推荐叙事 (T17, 学生 highlight + 硬门槛 + tier 区分 + 差距 4 个锚点 ≥3) / 公司 fallback API (T18, must_have 公司库内活跃 <3 → 卡片 显示 KB 季节性 + verbatim hint)。所有模块都接 env flag RECOMMENDATION_V2_ENABLED 灰度 (default OFF)。
+- **用户体验变化**:**SAIF 学生未来打开推荐界面时**:首屏拿到 sub_category-only 推荐 (不再看到伪投研岗) → 每条带 4-anchor narrative ("你的 200 亿市值消费股深度报告对齐易方达硬门槛 + ... + 差距: 缺一次推票模拟") → 头部 must_have 公司没活跃岗位时也会有 fallback 卡片"高瓴本季暂未开放,关注 3-5 月暑期" — 不会再出现"我们这个赛道居然没覆盖高瓴"的尴尬体验。
+- **测试**:53 个新单元测试全过 (Multi-pass C 8 / recall 8 / scoring 20 / rerank 6 / narrative 4 / company_fallback 7)。API endpoint /api/recommend-v2/companies-fallback boot smoke 通,RECOMMENDATION_V2_ENABLED=0 时返 403 正常。
+- **下一步**:**T10 backfill 后台跑 9% (3594/40k, 还需 ~3-4h)** — 跑完后 T12 sub_cat enrich (5-8k 帖 × Pro high, ~$8-12) → T13 50 样本人工 review (验收硬指标 5 ≥90%) → T19 env flag 接到 frontend → T20 9 persona A/B 测试。T8 crawler 派单 (BlackRock/华泰联合/平安资管已被岗位爬取-devvpstmux 接了 3-4 家) 并行进行不卡 Phase G 主路径。Phase G **15/21 完成**。
+
 ### 13:35 · 网站设计-devvpstmux · Phase G T9-T10 — quality_label 7 等级升级 + 40k 帖 backfill 待跑
 - **干了什么**:把 quality_label 从老 4 等级 (good/agency/spam/low_signal) 升到 7 等级 (加 support_role/low_pay/internship_only) — 学生最痛的"标题写量化研究员,JD 一看是销售岗"这类 support_role 终于能识别;low_pay 卡薪资 ≤6k 的明显坑;internship_only 不混淆正式岗。Model 切 DeepSeek v4-Pro + reasoning_effort=medium (利用 prefix cache 降本)。同时写好 28k → 实际 40k 帖的 backfill 脚本 (12 线程并发 + 中断重跑安全 + 连续 5 个 402 自动 abort)。
 - **用户体验变化**:升级后 SAIF 学生在推荐链路上**看到的"客户经理/销售/客服"这类伪量化/伪投研岗会被自动滤掉**,推荐池干净度大幅提升 — 之前 40k 帖里目测至少 30% 是中后台/销售,真正"对口投研/算法/产品"的可能不到 1/3。
