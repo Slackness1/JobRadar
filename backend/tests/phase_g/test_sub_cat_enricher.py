@@ -27,8 +27,9 @@ def test_strategy_types_7():
     assert "AI 应用_PM_开发" in STRATEGY_TYPES  # 注意空格
 
 
-@patch("app.services.phase_g.sub_cat_enricher.build_pro_client")
-def test_pass1_returns_strategy_known(mock_client_fn):
+@patch("app.services.phase_g.sub_cat_enricher.build_flash_client")
+def test_pass1_returns_strategy_known_flash_default(mock_client_fn):
+    """Pass 1 默认走 Flash (2026-05-28 cost 优化)。"""
     mock_client = MagicMock()
     mock_client.chat.completions.create.return_value = _mock_resp(
         {"strategy_type": "量化", "confidence": 0.92, "reasoning": "因子 + sharpe"}
@@ -40,12 +41,28 @@ def test_pass1_returns_strategy_known(mock_client_fn):
     })
     assert out["strategy_type"] == "量化"
     assert out["confidence"] == 0.92
-    # 验证调用了 Pro client + reasoning_effort=high
+    # Flash 不带 reasoning_effort
+    call = mock_client.chat.completions.create.call_args
+    assert "extra_body" not in call.kwargs
+
+
+@patch("app.services.phase_g.sub_cat_enricher.build_pro_client")
+def test_pass1_returns_strategy_known_pro_optional(mock_client_fn):
+    """use_flash=False 时走 Pro reasoning_effort=high。"""
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.return_value = _mock_resp(
+        {"strategy_type": "量化", "confidence": 0.92, "reasoning": "因子 + sharpe"}
+    )
+    mock_client_fn.return_value = mock_client
+    out = pass1_classify_strategy(
+        {"company": "x", "job_title": "y"}, use_flash=False,
+    )
+    assert out["strategy_type"] == "量化"
     call = mock_client.chat.completions.create.call_args
     assert call.kwargs["extra_body"] == {"reasoning_effort": "high"}
 
 
-@patch("app.services.phase_g.sub_cat_enricher.build_pro_client")
+@patch("app.services.phase_g.sub_cat_enricher.build_flash_client")
 def test_pass1_unknown_strategy_treated_as_null(mock_client_fn):
     """LLM 写了不在 7 大类的 strategy → 兜底 null + confidence 0。"""
     mock_client = MagicMock()

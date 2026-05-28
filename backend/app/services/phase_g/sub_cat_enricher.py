@@ -1,9 +1,9 @@
 """Phase G 工序 4 — Multi-pass C sub_cat enrichment with knowledge base RAG.
 
 设计 (per spec Section 4 工序 4):
-- Pass 1: 7 大类 strategy_type 分类 (小搜索空间, ~95% 准, prefix cache 友好)
+- Pass 1: 7 大类 strategy_type 分类 — 搜索空间小, 用 Flash 即可 (cost 优化, 2026-05-28)
 - Pass 2: 在该 strategy 下 4-5 个 sub_cat + 知识库 hard_req/工作样态/典型公司 选最匹配
-- 两 pass 都用 DeepSeek v4-Pro reasoning_effort=high
+  → Pro reasoning_effort=high (核心判定, 保留)
 
 Output dict (caller 写 DB):
   sub_category / sub_category_secondary / industry_focus (JSON array str) /
@@ -19,7 +19,12 @@ import app.config  # noqa: F401
 
 from app.database import SessionLocal
 from app.models import Job, KnowledgeSubcategory
-from app.services.crawler_llm import build_pro_client, pro_model_name
+from app.services.crawler_llm import (
+    build_flash_client,
+    build_pro_client,
+    flash_model_name,
+    pro_model_name,
+)
 from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
 
 log = logging.getLogger(__name__)
@@ -85,19 +90,37 @@ def _build_job_user_msg(job_dict: dict[str, Any]) -> str:
     )
 
 
-def pass1_classify_strategy(job_dict: dict[str, Any]) -> dict[str, Any]:
-    """Pass 1: 7 大类分类。"""
-    client = build_pro_client()
-    resp = client.chat.completions.create(
-        model=pro_model_name(),
-        messages=[
-            {"role": "system", "content": PASS1_SYSTEM_PROMPT},
-            {"role": "user", "content": _build_job_user_msg(job_dict)},
-        ],
-        extra_body={"reasoning_effort": "high"},
-        response_format={"type": "json_object"},
-        temperature=0.1,
-    )
+def pass1_classify_strategy(
+    job_dict: dict[str, Any], *, use_flash: bool = True,
+) -> dict[str, Any]:
+    """Pass 1: 7 大类分类。
+
+    use_flash=True (默认) — 用 Flash non-thinking, 7-way 分类够用且省钱 ($0.0003 vs Pro $0.0014/call)。
+    use_flash=False — Pro reasoning_effort=high, 复杂 case (e.g. 战略管培 vs 投行 IBD 边界) 时切回。
+    """
+    if use_flash:
+        client = build_flash_client()
+        resp = client.chat.completions.create(
+            model=flash_model_name(),
+            messages=[
+                {"role": "system", "content": PASS1_SYSTEM_PROMPT},
+                {"role": "user", "content": _build_job_user_msg(job_dict)},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+        )
+    else:
+        client = build_pro_client()
+        resp = client.chat.completions.create(
+            model=pro_model_name(),
+            messages=[
+                {"role": "system", "content": PASS1_SYSTEM_PROMPT},
+                {"role": "user", "content": _build_job_user_msg(job_dict)},
+            ],
+            extra_body={"reasoning_effort": "high"},
+            response_format={"type": "json_object"},
+            temperature=0.1,
+        )
     parsed = json.loads(resp.choices[0].message.content or "{}")
     st = parsed.get("strategy_type")
     if st is not None and st not in STRATEGY_TYPES:
