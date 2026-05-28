@@ -16,6 +16,12 @@
 
 ## 2026-05-28
 
+### 13:10 · 岗位爬取-devvpstmux · Phase G T7 — 库内 32k 岗位 vs 119 ground truth 公司 audit 出报告
+- **干了什么**:写 audit 脚本对 alive 岗位库 (116k 帖 / 3274 公司) 跑 119 家 ground truth 公司命中。先做了三步公司名匹配 (alias 表 60+ 条 / 归一去公司形态后缀 / 双向 substring),其中 alias 通用词 (联合/大公/中信 等) 走完整 alias 不走 2 字兜底,避免"联合资信"误命中"中华联合保险"这类。
+- **用户体验变化**:学院老师现在能拿到一份"我们 cover 了 ground truth 多少 / 哪家 must_have 在库里 0 岗"的可读 md 报告 (docs/phase_g_audit/ground_truth_coverage_2026-05-28.md),按 sub_cat 排序 + 缺口明细 + 每家公司命中详情。明确告诉你: AI PM/资管 FOF/卖方研究 这几个 sub_cat 是 100% 命中, PE 投后 / 评级机构 / 头部外资做市商 是真没岗位 (T8 优先级)。
+- **测试**:236 行 audit (29 sub_cat × 119 公司含 alias 展开): 全部命中率 83% (195/236), must_have 命中率 89% (132/149)。缺 17 行 = 去重 14 家公司 (1 高盛库内 155 帖全 dead 可刷活, 13 家纯无 — 外资 4 + 评级保险 4 + 头部 PE 4 + 二线公募 1 + 头部券商联合 1)。
+- **下一步**:T8 — 给这 14 家走 crawler primitive 补爬 (评级/保险资管/二线公募 有官网大概率能补; 外资 Optiver/Jane Street + 头部 PE 历来不公开校招, 走"备选"标签即可)。Phase G 7/21 完成。
+
 ### 12:30 · 岗位爬取-devvpstmux · Phase G T6 — 剩 24 sub_cat 知识库 batch subagent + 29 入 DB + embedding
 - **干了什么**:剩 24 sub_cat 走 6 并行 × 4 批 Opus subagent (T5 5 个 + T6 24 个 = 29 全覆盖)。每个 subagent 读自家预生成的 self-contained bundle (posts + saif + ground_truth + expected_conf),输出 15 字段 JSON,自检字段长度 + verbatim substring 匹配 + URL 真实性。全 29 sub_cat 入 knowledge_subcategories 表,每条带 DashScope text-embedding-v3 1024 维向量 (cosine normalized),md 文档写到 `docs/sub_cat_knowledge/`。
 - **用户体验变化**:学院老师 / SAIF 学生现在能看到 29 份赛道知识库 md — 涵盖基本面权益 5 + 量化 5 + 固收 4 + 卖方研究 5 + 多资产/FOF 4 + 相关补充 1 + AI 应用 5。每份带典型公司表 (must_have ⭐)、硬门槛、加分项、转岗路径、排雷、面试样态、薪酬区间、1-3-5 年职业轨迹、真实 verbatim 引用、招聘季节。AI 5 个 (AI PM / LLM post-train / Agent / 多模态推理 / AI 算法业务) 对 SAIF 转 AI 学生特别有用。投行 IBD / 高频量化 / 衍生品 这些原本数据薄的赛道也都补到 ≥10 公司 + ≥4 verbatim。
