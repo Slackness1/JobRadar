@@ -11,6 +11,7 @@ import yaml
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
+from app.config import RECOMMENDATION_V2_ENABLED
 from app.models import Job
 from app.schemas_resume_copilot import (
     ResumePreferencePayload,
@@ -912,6 +913,209 @@ RECOMMEND_TOP_N = 10
 RECOMMEND_MIN_SCORE = 50
 
 
+# ===== Phase G T19 (2026-05-28) — v2 dispatcher =====
+# RECOMMENDATION_V2_ENABLED=1 时由 recommend_jobs_for_profile 入口 dispatch 到这里。
+# 输出 tuple shape 严格跟 v1 一致 — caller (router / chat) 不需要任何改动, 卡片
+# 字段 (matched_track_label / tier_label / why_recommended / strengths / risks) 都
+# 用 v2 模块产出填充, 但语义对齐到 v1 概念 (matched_track_label ← sub_category 等)。
+#
+# v2 模块: recall (T14) → scoring (T15) → rerank (T16) → narrative (T17)
+# narrative.anchors_used / sub_cat_confidence 也透传到 strengths / risks 调试可见。
+
+def _v2_extract_preferred_sub_cats(
+    profile: ResumeProfilePayload, preferences: ResumePreferencePayload | None,
+) -> list[str]:
+    """从 profile/preferences 拿学生偏好 sub_cat 列表 (v2)。
+
+    profile.inferred_roles / preferences.tracks 都是 v1 canonical_track,
+    需要先映射到 v2 sub_category。简版规则: 用 preferences.tracks 字符串
+    跟 SUBCAT_TO_STRATEGY 做关键词 substring 匹配。这是最朴素的接线; 真正
+    更精确的 mapping 由 ResumePreferencePayload 新加 preferred_sub_cats 字段
+    (T19+ frontend 配套改) 提供。
+    """
+    out: list[str] = []
+    from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
+    all_sub_cats = list(SUBCAT_TO_STRATEGY.keys())
+    raw_signals: list[str] = []
+    if preferences:
+        for t in getattr(preferences, "tracks", None) or []:
+            raw_signals.append(str(t))
+        for r in getattr(preferences, "roles", None) or []:
+            raw_signals.append(str(r))
+    for r in getattr(profile, "inferred_roles", None) or []:
+        raw_signals.append(str(r))
+    if not raw_signals:
+        return out
+    haystack = " ".join(raw_signals).lower()
+    for sc in all_sub_cats:
+        if sc.lower() in haystack:
+            out.append(sc)
+            continue
+        # 粗 fuzzy: sub_cat 关键字段命中 (量化 / 公募 / 卖方 / AI 等)
+        for token in sc.replace("·", " ").replace("+", " ").split():
+            if len(token) >= 2 and token in haystack:
+                out.append(sc)
+                break
+    # 去重保序
+    seen: set[str] = set()
+    dedup: list[str] = []
+    for sc in out:
+        if sc not in seen:
+            seen.add(sc)
+            dedup.append(sc)
+    return dedup
+
+
+def _v2_tier_label_from_score(final_score: float, anchors_used: list[str]) -> str:
+    """final_score (0-1) + anchors 数量 → 三档 tier_label。"""
+    n_anchors = len(anchors_used or [])
+    if final_score >= 0.75 and n_anchors >= 3:
+        return "强匹配"
+    if final_score >= 0.55 or n_anchors >= 2:
+        return "可迁移"
+    return "有差距"
+
+
+def _v2_priority_letter(final_score: float) -> str:
+    """final_score → A/B/C/D 投递分层。"""
+    if final_score >= 0.80:
+        return "A"
+    if final_score >= 0.65:
+        return "B"
+    if final_score >= 0.45:
+        return "C"
+    return "D"
+
+
+def _recommend_v2_dispatcher(
+    db: Session,
+    *,
+    profile: ResumeProfilePayload,
+    preferences: ResumePreferencePayload | None,
+    rejected_job_ids: list[str],
+    limit: int | None,
+    min_score: int | None,
+    top_n: int | None,
+) -> tuple[list[ResumeRecommendationItem], bool, str]:
+    """Phase G v2 推荐流水线 — 输出兼容 v1 的 tuple。
+
+    步骤:
+      1. recall (T14): sub_cat-only + quality + freshness SQL 拉候选池
+      2. scoring (T15): 3 维 cross 加权排序
+      3. rerank (T16): top-N 跑 LLM rerank with 知识库 (含异常容错)
+      4. narrative (T17): top-10 跑 4-anchor 推荐叙事
+
+    profile / preferences 字段映射成 v2 StudentProfile (preferred_sub_cats /
+    industries / tiers) — v1 学生 preference 大多用 canonical_track 关键词,
+    用 substring 映射到 v2 sub_cat。学生没填偏好 → v2 拉全部 enriched 帖。
+    """
+    from app.services.phase_g.recommendation_v2.narrative import generate_narrative
+    from app.services.phase_g.recommendation_v2.recall import recall_candidates
+    from app.services.phase_g.recommendation_v2.rerank import rerank_top_n
+    from app.services.phase_g.recommendation_v2.scoring import StudentProfile, rank_jobs
+
+    effective_top_n = RECOMMEND_TOP_N if top_n is None else int(top_n)
+    rejected_set = {str(j).strip() for j in (rejected_job_ids or []) if str(j).strip()}
+    preferred_sub_cats = _v2_extract_preferred_sub_cats(profile, preferences)
+
+    # 学生 profile dict (给 rerank / narrative 用)
+    profile_dict: dict[str, Any] = {
+        "name": getattr(profile, "name", "") or "",
+        "background": "; ".join(
+            f"{e.get('company', '')} {e.get('title', '')}"
+            for e in (getattr(profile, "experiences", None) or [])[:3]
+        ),
+        "hidden_highlights": list(getattr(profile, "hidden_highlights", None) or [])[:6],
+        "preferred_sub_cats": preferred_sub_cats,
+    }
+
+    student_p = StudentProfile(
+        preferred_sub_cats=preferred_sub_cats,
+        preferred_industries=[],  # v1 profile 没有这字段, 暂留空
+        preferred_tiers=[],
+    )
+
+    # Step 1: SQL recall
+    candidates = recall_candidates(
+        db,
+        preferred_sub_cats=preferred_sub_cats,
+        limit=200,
+    )
+    if rejected_set:
+        candidates = [j for j in candidates if str(j.job_id) not in rejected_set]
+    if not candidates:
+        return [], False, "v2_no_candidates"
+
+    # Step 2: 3 维评分
+    ranked = rank_jobs(student_p, candidates)
+
+    # Step 3: top-N LLM rerank (含异常 swallow, 单条挂掉不破坏 batch)
+    reranked = rerank_top_n(profile_dict, ranked, n=min(20, len(ranked)))
+
+    # Step 4: narrative — top-10 跑 4 anchor
+    items: list[ResumeRecommendationItem] = []
+    for i, r in enumerate(reranked[: max(effective_top_n, 10)]):
+        job: Job = r["job"]
+        # final_score 0-1 → int 0-100 (跟 v1 final_score 量纲对齐)
+        final_int = int(round(r["final_score"] * 100))
+        if i < 10:
+            try:
+                narr = generate_narrative(profile_dict, job, llm_rerank=r)
+            except Exception:  # noqa: BLE001
+                narr = {"narrative": "", "anchors_used": [], "kb_available": False}
+        else:
+            narr = {"narrative": "", "anchors_used": [], "kb_available": False}
+
+        why = [narr["narrative"]] if narr.get("narrative") else []
+        strengths = []
+        risks = []
+        if r.get("llm_reasoning"):
+            strengths = [r["llm_reasoning"]]
+        if narr.get("kb_available") is False and final_int < 50:
+            risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
+
+        items.append(
+            ResumeRecommendationItem(
+                job_id=str(job.job_id),
+                company=str(job.company or ""),
+                job_title=str(job.job_title or ""),
+                location=str(job.location or ""),
+                detail_url=str(job.detail_url or ""),
+                objective_score=0,  # v2 不细分,统一在 final_score 体现
+                preference_score=0,
+                base_job_score=int(round(r["base_score"] * 100)),
+                company_priority_score=0,
+                base_match_score=int(round(r["base_score"] * 100)),
+                enhanced_score=int(round(r["base_score"] * 100)),
+                final_score=final_int,
+                matched_track_key=str(job.sub_category or "").lower(),
+                matched_track_label=str(job.sub_category or ""),
+                matched_role_family=str(job.institution_tier or ""),
+                company_priority_tier=str(r.get("data_confidence") or ""),
+                company_priority_label="",
+                topic_key=str(job.sub_category_secondary or job.sub_category or ""),
+                used_ai=bool(r.get("kb_available")),
+                why_recommended=why,
+                strengths=strengths,
+                risks=risks,
+                target_direction=preferred_sub_cats[0] if preferred_sub_cats else "",
+                tier_label=_v2_tier_label_from_score(r["final_score"], narr.get("anchors_used")),
+                priority_letter=_v2_priority_letter(r["final_score"]),
+                track_match_kind="hit" if job.sub_category in preferred_sub_cats else (
+                    "transferable" if job.sub_category_secondary in preferred_sub_cats else "no_pref"
+                ),
+                is_internship=(job.quality_label == "internship_only"),
+                industry_tags=[],
+            )
+        )
+
+    # v1 有 min_score floor, v2 也保留同样的语义 — 分 < min_score 滤掉
+    effective_min = RECOMMEND_MIN_SCORE if min_score is None else int(min_score)
+    items = [it for it in items if it.final_score >= effective_min]
+    items = items[:effective_top_n]
+    return items, True, ""
+
+
 def recommend_jobs_for_profile(
     db: Session,
     profile: ResumeProfilePayload,
@@ -940,7 +1144,31 @@ def recommend_jobs_for_profile(
     - ``min_score`` / ``top_n`` are escape hatches for unit tests that need
       to assert scoring contracts in isolation; production callers leave
       them ``None`` to get the product defaults.
+
+    Phase G T19 (2026-05-28): RECOMMENDATION_V2_ENABLED 切 v2 链路 (sub_category +
+    3 维 + LLM rerank with 知识库 + 4-anchor narrative)。Flag OFF (default) 走老路
+    径,完全不动。Flag ON 时本函数只做参数 normalize 和 dispatch, 真正逻辑在
+    _recommend_v2_dispatcher 里, 输出统一 (list[ResumeRecommendationItem], used_ai, fallback_reason)
+    跟老路径同 tuple shape, caller 不需要改。
     """
+    if RECOMMENDATION_V2_ENABLED:
+        try:
+            return _recommend_v2_dispatcher(
+                db,
+                profile=profile,
+                preferences=preferences,
+                rejected_job_ids=rejected_job_ids or [],
+                limit=limit,
+                min_score=min_score,
+                top_n=top_n,
+            )
+        except Exception as exc:  # noqa: BLE001 — v2 fail 永远 fallback v1, 不破坏推荐
+            import logging as _lg
+            _lg.getLogger(__name__).warning(
+                "recommend_v2 failed, fallback to v1: %s", exc
+            )
+            # 继续走下面 v1 路径
+
     rejected_set: set[str] = {str(j).strip() for j in (rejected_job_ids or []) if str(j).strip()}
     effective_min_score = RECOMMEND_MIN_SCORE if min_score is None else int(min_score)
     effective_top_n = RECOMMEND_TOP_N if top_n is None else int(top_n)
