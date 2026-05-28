@@ -185,6 +185,23 @@ sites:
     category: 主观多头私募
     note: 2026-05-27 Moka v3 init-data 直接解析,当前 2 校招岗 (投研暑期训练营+Π型人才训练营)。
 
+  # 2026-05-28: Optiver 用 Greenhouse (slug=optiverus,从 careers page job URL
+  # 模式 optiver.com/working-at-optiver/career-opportunities/<id>/ 识别出 — IDs
+  # 8xxxxxxxxx 是 Greenhouse job ID)。174 全球岗 / 80 Asia 岗,Shanghai 26 含
+  # 多个 SAIF Quant 学生顶级目标:
+  #   2026 Shanghai ML Engineer / ML Modelling Engineer / Software Developer
+  #     Summer Internship
+  #   AI Researcher (Shanghai) / Commodity Quantitative Researcher (Shanghai)
+  #   Options Quantitative Researcher (Shanghai) / ML Modelling Engineer PhD
+  #   FutureFocus Shanghai - Trading and Research 2026 (graduate program)
+  # 推翻 Tier B "外资做市商 backlog" 判断。
+  - name: Optiver
+    ats_family: greenhouse
+    greenhouse_slug: optiverus
+    portal_url: https://optiver.com/careers/
+    category: 海外做市商
+    note: 2026-05-28 Greenhouse boards API 解锁,optiverus board 174 全球 / 80 Asia / 26 Shanghai SAIF Quant 实习生 + AI Researcher。
+
   # 2026-05-27: Bridgewater 用 Greenhouse,slug=bridgewater89 (从 careers page
   # 解析 board URL 得出)。25 全球岗,其中 4 个 Singapore SAIF 极相关岗:
   # Equity Quantitative Research Associate / Portfolio Associate Singapore /
