@@ -120,6 +120,18 @@ tracks:
         # curl_cffi chrome120 直通 aia.wd3.myworkdayjobs.com/External CXS;
         # Asia 总量 HK 162 / SG 84 / China 198,含 2026 AIA HK+Macau Summer
         # Internship Program。首爬 +116 入库 (HK/SG/Shanghai/Macau)。
+      - name: 平安资产管理
+        aliases: [平安资管, 平安资产管理]
+        jobs_company_match: [平安资管, 平安资产管理]
+        # 2026-05-28 T8 派单 Tier A 第 5 家。实测 campus.pingan.com 是平安集团
+        # 统一 ATS,SPA Vue + chunks (chunk_position/chunk_freshStudent 等);
+        # JS bundle 里 API 路径找到了 /candidate/position/campus/positionSearch/
+        # queryPositionPage,但所有 POST 都返 405 (proxy 层拦),GET 返 SPA shell。
+        # Decodo Camoufox render 各子路由都只见 38KB boilerplate,SPA 内部 fetch
+        # 失败 — 跟 BofA/BNP/SC/Nomura 同款 application-layer 反爬 (需 session
+        # cookies + CSRF token,可能要登录态)。结构性 backlog,需 Multilogin
+        # 类真指纹浏览器 + 行为脚本。当前 0 rows in DB。
+        deferred_reason: campus.pingan.com SPA + 405 反爬;同 BofA/BNP 套路,需 Multilogin 真指纹浏览器,ROI 中等 backlog
 
   # ─────────────────────────── 券商 ───────────────────────────────
   - id: securities
@@ -144,6 +156,18 @@ tracks:
       - name: 华泰证券
         # exclude '联合证券' 防止华泰联合 子公司被算到母 entry (单独 backlog 已配)
         jobs_company_match: [华泰证券]
+      - name: 华泰联合证券
+        # 2026-05-28: T8 派单 Tier A 第 6 家。华泰联合证券是华泰证券投行子品牌,
+        # 没独立 ATS — piggyback 母券商 wecruit.hotjob.cn/SU6419b58b... 校招池。
+        # DB 实测 7 IBD 岗在 company='华泰证券' / '华泰证券股份有限公司' 下
+        # (title 含'投资银行股权业务岗' / '债券业务岗' / 'REITs承做业务岗'),
+        # 由 investment_banking 派生 track 自动识别 (line 552 already includes
+        # 华泰联合 in company_keywords)。这里加 T1 entry 让 SAIF UI 显示
+        # "华泰联合证券 active",但 jobs_company_match=[华泰联合证券,华泰联合]
+        # 当前返 0 (Tata 数据无独立法人 row),deferred_reason 指向派生 track。
+        aliases: [华泰联合证券, 华泰联合]
+        jobs_company_match: [华泰联合证券, 华泰联合]
+        deferred_reason: piggyback 华泰证券 SU6419 hotjob;7 IBD 岗见 investment_banking 派生 track (title 含 投行/承做/承销/REITs)
       - name: 国泰海通
         # 2026 合并后母券商。aliases 含历史名 国泰君安 / 海通证券
         aliases: [国泰君安, 海通证券, 国泰海通]
