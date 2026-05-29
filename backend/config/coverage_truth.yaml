@@ -270,6 +270,11 @@ tracks:
         # source=funds_beisen_legacy_decodo。
       - name: 银华基金
         deferred_reason: moka ok (yhfund/78005)，季节性空档，秋招开闸自动收
+      - name: 融通基金
+        # 2026-05-29 ground_truth audit: 官网 rtfund.com「人才招聘」→ rtjj.hotjob.cn
+        # → hotjob suite SU625785ebbef57c10b08dc5cc。已接 funds_campus.yaml,
+        # 当前 rt=1/2/3 全 0 (positonNum=0 季节空),秋招开闸自动收。
+        deferred_reason: hotjob ok (SU625785ebbef57c10b08dc5cc)，季节性空档，秋招开闸自动收
 
   # ─────────────────────────── 头部私募 (Hedge Funds) ───────────
   - id: hedge_funds

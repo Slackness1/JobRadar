@@ -121,8 +121,9 @@ def map_record(rec: dict) -> dict | None:
         "application_status": "待申请",
         "job_stage": "campus",
         "source_config_id": CONFIG_ID,
-        "publish_date": publish_date,
-        "deadline": expire_date,
+        # DateTime 列：空串会被 SQLAlchemy 读取时报 Invalid isoformat，必须写 NULL
+        "publish_date": publish_date or None,
+        "deadline": expire_date or None,
         "detail_url": detail_url,
         "scraped_at": datetime.now(timezone.utc).isoformat(),
     }

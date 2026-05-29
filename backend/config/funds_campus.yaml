@@ -123,6 +123,15 @@ sites:
     max_pages: 10
     note: "2026-05-23 飞书表 spy 出 hotjob 真渠道 SU67ac68866202cc7916aea66e。实测 rt=1 校招 0 (季节空)、rt=12 精英实习生 1 页 ~15 岗、rt=2 社招 10 页 (不属校招池,过滤掉)。秋招开闸 rt=1 自动收。"
 
+  - name: 融通基金
+    entry_url: https://wecruit.hotjob.cn/SU625785ebbef57c10b08dc5cc/pb/school.html
+    ats_family: hotjob
+    category: 中型公募
+    hotjob_suite: SU625785ebbef57c10b08dc5cc
+    recruit_types: ["1", "3"]
+    max_pages: 10
+    note: "2026-05-29 ground_truth audit 补。官网 rtfund.com「人才招聘」→ rtjj.hotjob.cn → hotjob suite SU625785ebbef57c10b08dc5cc。当前 rt=1/2/3 全 0 (positonNum=0 季节空),秋招开闸自动收。"
+
   - name: 广发基金
     entry_url: https://gffunds.jobs.feishu.cn/833056
     ats_family: feishu_hire_decodo
