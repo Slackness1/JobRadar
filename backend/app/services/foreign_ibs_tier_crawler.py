@@ -278,7 +278,8 @@ def _fetch_goldman_graphql(
                     "source_config_id": f"{source}:goldman_gql:{company}",
                     "publish_date": _parse_dt(it.get("lastPostedDate")),
                     "deadline": None,
-                    "detail_url": f"{portal_url.rstrip('/')}/role/{rid}" if portal_url else "",
+                    # higher.gs.com 用 /roles/<rid> (复数);/role/<rid> 一律 404 (实测)
+                    "detail_url": f"{portal_url.rstrip('/')}/roles/{rid}" if portal_url else "",
                     "scraped_at": datetime.utcnow(),
                 })
             pg = res.get("page") or {}
