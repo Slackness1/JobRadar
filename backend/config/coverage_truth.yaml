@@ -143,6 +143,7 @@ tracks:
       - securities_moka_embedded
       - securities_hotjob
       - securities_citics_dom    # 中信证券 careers.citics.com Playwright + 用户 cookie
+      - securities_stc_cms_decodo # 中银证券 bocichina.zhiye.com stc-cms via Decodo
     mode: enumerate
     t1_companies:
       - name: 中信证券
@@ -211,6 +212,14 @@ tracks:
         jobs_company_match: [国金证券]
       - name: 天风证券
         jobs_company_match: [天风证券]
+      - name: 中银证券
+        # 2026-05-29 ground_truth audit 补 (中型券商研究所, must_have 卖方宏观)。
+        # bocichina.zhiye.com 切 stc-cms 新版 SPA,走 Decodo Camoufox 渲染
+        # (source=securities_stc_cms_decodo)。当前季节空 ("无任何在招职位"),
+        # 渠道通,秋招开闸自动收。
+        aliases: [中银证券, 中银国际证券]
+        jobs_company_match: [中银证券, 中银国际证券]
+        deferred_reason: bocichina.zhiye.com stc-cms SPA 渠道已 wire (Decodo),当前季节空,秋招自动收
 
   # ─────────────────────────── 公募基金 ──────────────────────────
   - id: funds
@@ -229,6 +238,14 @@ tracks:
         deferred_reason: 自家 SPA，无外露 ATS (飞书 hotjob 实测 1 条)
       - name: 华夏基金
       - name: 嘉实基金
+      - name: 中金基金
+        # 2026-05-29 ground_truth audit: ciccfund.com 是 5.5KB SPA shell 无独立
+        # ATS。中金基金岗 piggyback 母公司 cicc.zhiye.com (已作为中金公司爬,
+        # source=securities_zhiye)。但 cicc API 的 Org 字段全 None,无法把
+        # 中金基金子公司岗从中金公司岗里拆出来 (55 "基金"命中实为中金公司自身
+        # title 含"基金"的岗,如 项目实习生-基金运营)。强行 title-derive 会误标,
+        # 故标 deferred,数据在 securities track 中金公司 entry 下。
+        deferred_reason: 无独立 ATS;piggyback 中金公司 cicc.zhiye (Org 字段空无法拆分),数据见 securities track
       - name: 广发基金
         # 2026-05-27: gffunds.jobs.feishu.cn/833056 Feishu Hire SPA via
         # Decodo (default pool ~¥0.011/req) + wait=20s 渲染。首爬 +3 实习岗

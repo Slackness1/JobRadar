@@ -811,7 +811,67 @@ def crawl_hotjob_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 
-_KNOWN_ATS_FAMILIES = {"zhiye", "hotjob", "moka_embedded", "zhiye_legacy"}
+def crawl_stc_cms_decodo_target(target: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Beisen 新版 stc-cms SPA portal via Decodo Camoufox render.
+
+    2026-05-29: 中银证券 bocichina.zhiye.com 切到 stc-cms 新版 SPA (同 大成
+    dachengjj),老 /Api/Jobad/GetJobAdPageList 404,VPS Chromium 被反爬挡。
+    走 Decodo (default pool) Camoufox 渲染。当前 "无任何在招职位" (季节空),
+    渠道通,等秋招开闸自动收。岗位 DOM 形如
+    `<a href="/zpdetail/<id>?...">标题</a>` 或 stc-cms 表格行。
+    """
+    from app.services.decodo_client import fetch_decodo_spa
+    company = target["name"]
+    entry = target["entry_url"]
+    html_text = fetch_decodo_spa(entry, wait_ms=int(target.get("wait_ms") or 12000))
+    if not html_text:
+        return []
+    # 季节空: stc-cms 渲染出 "无任何在招职位" 且无 detail link → 返 0
+    if "无任何在招职位" in html_text and "/zpdetail" not in html_text and "/campusxq" not in html_text:
+        return []
+    base_match = re.match(r"^(https?://[^/]+)", entry)
+    base = base_match.group(1) if base_match else ""
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for m in re.finditer(
+        r'<a[^>]+href="(/(?:zpdetail|campusxq|jobdetail)[^"]+)"[^>]*>([^<]+)</a>(.*?)</tr>',
+        html_text, re.S,
+    ):
+        href, title, rest = m.group(1), m.group(2).strip(), m.group(3)
+        if not title or title in ("详情", "查看", "Apply", "Detail"):
+            continue
+        rid_m = re.search(r"/(?:zpdetail|campusxq|jobdetail)[^\d]*(\d+)", href)
+        rid = rid_m.group(1) if rid_m else href
+        if rid in seen:
+            continue
+        seen.add(rid)
+        cols = re.findall(r"<td[^>]*>([^<]*)</td>", rest)
+        location = (cols[1].strip() if len(cols) > 1 else "未知") or "未知"
+        cat = (cols[0].strip() if cols else "")
+        out.append({
+            "job_id": _build_api_job_id("securities_stc_cms_decodo", company, rid),
+            "source": "securities_stc_cms_decodo",
+            "company": company,
+            "company_type_industry": "证券",
+            "company_tags": cat or "stc_cms",
+            "department": cat,
+            "job_title": title,
+            "location": location,
+            "major_req": "",
+            "job_req": "",
+            "job_duty": "",
+            "application_status": "待申请",
+            "job_stage": "campus" if any(k in title for k in ("校招", "校园", "实习", "训练营")) else "social",
+            "source_config_id": f"securities_stc_cms_decodo:{company}:{rid}",
+            "publish_date": None,
+            "deadline": None,
+            "detail_url": f"{base}{href}",
+            "scraped_at": datetime.utcnow(),
+        })
+    return out
+
+
+_KNOWN_ATS_FAMILIES = {"zhiye", "hotjob", "moka_embedded", "zhiye_legacy", "stc_cms_decodo"}
 
 
 def crawl_configured_securities_targets(target_names: Optional[List[str]] = None) -> Dict[str, List[Dict[str, Any]]]:
@@ -837,6 +897,8 @@ def crawl_configured_securities_targets(target_names: Optional[List[str]] = None
             crawled = crawl_moka_embedded_target(target)
         elif ats_family == "zhiye_legacy":
             crawled = crawl_zhiye_legacy_target(target)
+        elif ats_family == "stc_cms_decodo":
+            crawled = crawl_stc_cms_decodo_target(target)
         else:
             crawled = []
         company_records = results.setdefault(company, [])
@@ -857,6 +919,7 @@ _ATS_FAMILY_TO_SOURCE: Dict[str, str] = {
     "zhiye_legacy": "securities_zhiye_legacy",
     "hotjob": "securities_hotjob",
     "moka_embedded": "securities_moka_embedded",
+    "stc_cms_decodo": "securities_stc_cms_decodo",
 }
 
 

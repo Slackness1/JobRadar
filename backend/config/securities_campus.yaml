@@ -248,6 +248,14 @@ sites:
     category: 资管子公司
     note: "2026-05-23 探 gtja-am / gtht-am 等 slug 均未注册。母公司国泰海通 (hr.gtht.com) 本身 station 不稳定,子公司大概率同。子公司无独立 ATS,岗位走母公司 sub-direction 重分类。"
 
+  # ---- 中型券商 (Phase T8-followup, 2026-05-29) ----
+  - name: 中银证券
+    entry_url: https://bocichina.zhiye.com/campus
+    ats_family: stc_cms_decodo
+    category: 中型券商
+    wait_ms: 12000
+    note: "2026-05-29 ground_truth audit 补。bocichina.zhiye.com 切 stc-cms 新版 SPA (同大成 dachengjj),老 /Api/Jobad 404,VPS Chromium 被反爬挡。走 Decodo Camoufox 渲染。当前'无任何在招职位'(季节空),渲染出完整 6 业务线 (投行/研究销售/财富/资管/自营/金科),秋招开闸自动收。"
+
   # ---- 期货 (Phase P1-feishu, 2026-05-23) ----
   - name: 南华期货
     entry_url: https://nawaa.zhiye.com/campus
