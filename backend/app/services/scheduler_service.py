@@ -44,6 +44,11 @@ def _daily_crawl_job():
         new_count = int(getattr(log, "new_count", 0) or 0)
         if new_count > 0:
             score_all_jobs(db)
+        try:
+            from app.services.job_hygiene import dedup_jobs
+            print(f"[HYGIENE][daily] {dedup_jobs(db)}")
+        except Exception as he:
+            print(f"[HYGIENE ERROR][daily] {he}")
         db.close()
     except Exception as e:
         print(f"[SCHEDULER ERROR] {e}")
@@ -216,6 +221,12 @@ def _daily_tier_crawl_job():
 
         if total_new > 0:
             score_all_jobs(db)
+        try:
+            from app.services.job_hygiene import dedup_jobs
+            print(f"[HYGIENE][tier] {dedup_jobs(db)}")
+        except Exception as he:
+            _tb.print_exc()
+            print(f"[HYGIENE ERROR][tier] {he}")
     except Exception as exc:
         _tb.print_exc()
         print(f"[TIER CRAWL ERROR][outer] {exc}")
