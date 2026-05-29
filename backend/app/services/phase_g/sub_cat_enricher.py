@@ -236,15 +236,33 @@ def _gather_subcat_candidates(strategy_type: str) -> tuple[list[str], str]:
                 payload = json.loads(r.payload_json)
             except json.JSONDecodeError:
                 continue
-            companies = [c.get("name", "") for c in payload.get("typical_companies") or []][:6]
-            parts.append(
-                f"### {r.sub_cat}\n"
-                f"- 硬门槛: {' / '.join((payload.get('hard_requirements') or [])[:3])}\n"
-                f"- 工作样态: {(payload.get('interview_style') or '')[:200]}\n"
-                f"- 典型公司: {', '.join(companies)}\n"
-                f"- industry_focus_candidates: {payload.get('industry_focus_candidates') or []}\n"
-                f"- institution_tier_candidates: {payload.get('institution_tier_candidates') or []}"
-            )
+            try:
+                companies = [c.get("name", "") for c in payload.get("typical_companies") or []][:6]
+                # defensive: hard_requirements 可能被 LLM 输出成 dict (e.g. DCM v2)
+                hard_req = payload.get("hard_requirements")
+                if isinstance(hard_req, dict):
+                    # flatten dict values to list (跳过 key 名)
+                    hard_req_list = []
+                    for v in hard_req.values():
+                        if isinstance(v, list):
+                            hard_req_list.extend(str(x) for x in v)
+                        elif isinstance(v, str):
+                            hard_req_list.append(v)
+                elif isinstance(hard_req, list):
+                    hard_req_list = [str(x) for x in hard_req]
+                else:
+                    hard_req_list = []
+                parts.append(
+                    f"### {r.sub_cat}\n"
+                    f"- 硬门槛: {' / '.join(hard_req_list[:3])}\n"
+                    f"- 工作样态: {(payload.get('interview_style') or '')[:200]}\n"
+                    f"- 典型公司: {', '.join(companies)}\n"
+                    f"- industry_focus_candidates: {payload.get('industry_focus_candidates') or []}\n"
+                    f"- institution_tier_candidates: {payload.get('institution_tier_candidates') or []}"
+                )
+            except Exception:
+                # 任何 sub_cat KB schema 异常都 skip, 不影响其它候选注入
+                continue
         return subcats_in_strategy, "\n\n".join(parts) or "(知识库空)"
     finally:
         db.close()

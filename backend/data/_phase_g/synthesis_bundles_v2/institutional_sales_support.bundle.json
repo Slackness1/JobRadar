@@ -1,0 +1,645 @@
+{
+  "sub_cat": "机构销售·销售支持",
+  "sub_cat_slug": "institutional_sales_support",
+  "strategy_type": "卖方研究",
+  "boundary": "服务机构客户、销售材料、路演支持、客户覆盖、交易询价协调；不是写研报的卖方研究员，不是管头寸/P&L/报价执行的交易员",
+  "typical_companies_seed": [
+    "中金公司",
+    "国金证券",
+    "中信证券",
+    "华泰证券",
+    "国泰海通证券"
+  ],
+  "industry_focus_candidates": [
+    "权益",
+    "固收",
+    "衍生品",
+    "FOF/资产配置"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "中型券商研究所",
+    "外资行/外资投行"
+  ],
+  "rationale": "T13 错样本 #9/#28/#42/#74/#135/#139/#172/#178/#196/#200 — 机构销售/客户经理被误归卖方研究员或固收交易员",
+  "ground_truth_pool_in_strategy": [
+    {
+      "name": "中金公司",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "卖方研究员·宏观策略",
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "saif:2025",
+        "demo_v1",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "TMT 研究领军"
+    },
+    {
+      "name": "中信证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "卖方研究员·消费医药周期",
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "saif:2025",
+        "xhs:卖方研究员·消费医药周期:10"
+      ],
+      "must_have": true,
+      "notes": "全市场卖方第一"
+    },
+    {
+      "name": "中信建投证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "saif:2024",
+        "demo_v1",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "半导体/计算机首席强"
+    },
+    {
+      "name": "国泰海通证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "卖方研究员·宏观策略"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "xhs:卖方研究员·宏观策略:8"
+      ],
+      "must_have": true,
+      "notes": "TMT 研究全覆盖"
+    },
+    {
+      "name": "招商证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "卖方研究员·消费医药周期"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "xhs:卖方研究员·消费医药周期:13"
+      ],
+      "must_have": true,
+      "notes": "通信/电子强"
+    },
+    {
+      "name": "国信证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": false,
+      "notes": "TMT 中型卖方"
+    },
+    {
+      "name": "华泰证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT",
+        "卖方研究员·消费医药周期"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "xhs:卖方研究员·消费医药周期:4",
+        "demo_v1"
+      ],
+      "must_have": false,
+      "notes": "TMT 横跨多赛道"
+    },
+    {
+      "name": "天风证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·TMT"
+      ],
+      "industry_focus": [
+        "TMT"
+      ],
+      "source": [
+        "xhs:卖方研究员·消费医药周期:6"
+      ],
+      "must_have": false,
+      "notes": "中型卖方 TMT"
+    },
+    {
+      "name": "广发证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·消费医药周期"
+      ],
+      "industry_focus": [
+        "消费",
+        "医药"
+      ],
+      "source": [
+        "xhs:卖方研究员·消费医药周期:11",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "消费医药行业首席多"
+    },
+    {
+      "name": "东吴证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·消费医药周期"
+      ],
+      "industry_focus": [
+        "消费",
+        "医药"
+      ],
+      "source": [
+        "xhs:卖方研究员·消费医药周期:4"
+      ],
+      "must_have": false,
+      "notes": "中型卖方"
+    },
+    {
+      "name": "国金证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·消费医药周期"
+      ],
+      "industry_focus": [
+        "消费"
+      ],
+      "source": [
+        "xhs:卖方研究员·消费医药周期:3"
+      ],
+      "must_have": false,
+      "notes": "中型卖方"
+    },
+    {
+      "name": "申万宏源证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·宏观策略"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:卖方研究员·宏观策略:12",
+        "saif:2024",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "宏观策略 XHS 第一"
+    },
+    {
+      "name": "中国银河证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·宏观策略"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2024",
+        "xhs:卖方研究员·宏观策略:1"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2024 命中"
+    },
+    {
+      "name": "中银证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "卖方研究员·宏观策略"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:卖方研究员·宏观策略:1"
+      ],
+      "must_have": false,
+      "notes": "银行系券商"
+    },
+    {
+      "name": "Point72",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2025",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "顶尖对冲基金"
+    },
+    {
+      "name": "Citadel",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "量化研究员·高频",
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部对冲基金"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "Millennium",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "common_knowledge:头部对冲基金"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,多策略对冲基金"
+    },
+    {
+      "name": "Two Sigma",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "common_knowledge:头部对冲基金"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "高瓴量化",
+      "tier": "头部主观私募",
+      "primary_sub_cats": [
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "common_knowledge:头部主观私募"
+      ],
+      "must_have": false,
+      "notes": "按行业共识,高瓴量化条线"
+    },
+    {
+      "name": "华泰联合证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部投行"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,华泰投行子"
+    },
+    {
+      "name": "高盛",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "金融",
+        "TMT"
+      ],
+      "source": [
+        "common_knowledge:头部外资投行"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,顶尖外资投行"
+    },
+    {
+      "name": "Morgan Stanley",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "saif:2025",
+        "common_knowledge:头部外资投行"
+      ],
+      "must_have": true,
+      "notes": "SAIF 2025 命中"
+    },
+    {
+      "name": "Bank of America",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "saif:2025"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2025 命中"
+    },
+    {
+      "name": "瑞银证券",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "投行 IBD"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部外资投行"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    }
+  ],
+  "mined_xhs_posts": [
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f858120000000235022921?xsec_token=YBTho_UcH_pdvehUjeddHAVis2eeh-G03PPKL_3YfNf5k%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "申万宏源是团队型券商，非平台型券商，各城市业务水平差距大，影响HC。\n\n申万宏源IBD岗位中，股权承做在承销保荐子公司，债券承做在固定收益融资总部，ABS承做在资管子公司。\n\n申万宏源权益投研唯二岗位：资管子公司研究助理和金融创新总部投资研究岗，建议选前者。\n\n申万宏源固收岗位：资管子公司投顾投资经理助理、固定收益外汇商品事业部投资助理岗。\n\n申万宏源机构销售岗位包括机构客户总部、固定收益销售交易总部、战略客户总部等。\n\n申万宏源股承业务城市排名：深圳≥广州≥南京≥成都≥北京=上海。",
+      "verbatim_signals": [
+        "因为是“团队型券商”，而非“平台型券商”，各个城市的业务水平差距很大，而业务水平会极大的影响HC。",
+        "“承销保荐子公司”里面的均为股权承做。...“固定收益融资总部”里面的“业务承做”即为“债券承做”...“资管子公司”里面的“项目承做岗”，即为“ABS承做”。",
+        "“资产管理子公司-研究助理”和“金融创新总部-投资研究岗”唯二权益投研的岗位。...我会更建议选前者（资管）",
+        "资产管理子公司-投顾投资经理助理、固定收益外汇商品事业部-投资助理岗",
+        "机构客户总部-机构销售...固定收益销售交易总部-销售交易岗...战略客户总部-产业项目经理/战略客户经理岗"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "申万宏源"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67e3d5db000000001d01ceac?xsec_token=YB8O0M4reImwTRSyyEvQ9eFgk8SX0hzbL5BmAoxqEf41w%3D&xsec_source=app_share",
+      "origin_sub_cat": "行业研究员·消费",
+      "content": "公募投研和交易岗位竞争激烈，大部分申请者都是炮灰，建议基于实习经历选岗。\n\n渠道/机构销售岗位HC充足，适合不想面客但想进公募的同学。\n\n中后台岗位如风险监控、基金会计等HC有限，但适合够不着投研又不想做销售的同学。\n\n基金投顾和理财专员岗位，作者持负面态度。\n\n南方基金招聘分布显示公募基金各条线岗位情况。",
+      "verbatim_signals": [
+        "大部分申请公募投研&交易的，都是炮灰，年年如此",
+        "渠道/机构销售，咱不说这个岗位的好，至少HC还是公募里面很充足的",
+        "风险监控岗有3个HC、基金会计+登记结算有3个HC，算的上是‘够不着投研+交易’+‘不想去市场+销售’情况下的合适选择了",
+        "基金投顾和理财专员，我个人在选岗的时候是负面态度",
+        "从南方基金的岗位分布，我们可以看到"
+      ],
+      "company_mentions": [
+        "南方基金"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f0aa2a000000001f00110b?xsec_token=YBM4eHPfnRLI_HE6okUGLLCLVqw1NH4xXpzkkb0_R63A8%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "中信证券暑期实习IB hc保守预计100+，对学历包容，双非本或qs200也有机会进入头部券商。\n\n固收业务分为研究、销售与交易，销售主要做债券销售，交易细分做市、自营、资金，研究涉及信评。\n\n资管业务助理分为机构销售、研究和交易，研究岗位有机会转投资助理。\n\n股衍业务助理分为量化研究和衍生品交易，建议有编程和数据分析背景的同学投递。\n\n机构业务助理包含公募、私募、同业等细分方向，面试时各业务线领导参与，表现好的会电话沟通。",
+      "verbatim_signals": [
+        "CITIC应该是前十券商里面对于学历最包容的，暑期IB hc保守预计100+。",
+        "固收业务：分为研究、销售与交易。销售主要是债券销售...交易的话估计里面会细分做市交易、自营交易、资金交易等岗位，研究业务则涉及如信评等方向。",
+        "资管业务助理：分为机构销售、研究和交易。研究岗位是对应券商里面资管二级研究...后续会有机会转投资助理。",
+        "股衍业务助理：...主要分为量化研究和衍生品交易两个方向，这个领域建议有编程和数据分析背景的同学投递。",
+        "机构业务助理：...分为公募、私募、同业等板块...各个业务线领导在面试的时候都参与，对于表现比较满意的候选人会打电话沟通和和捞出来。"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "CITIC"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69b90ca10000000023021f8d?xsec_token=YBYhJN9E0l4EYISbz8EyT45yhJlVJg1vFoGq71jBMKgl8%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "国泰海通暑期实习岗位复杂，涵盖投行、权益研究、固收、机构销售等大类，其中固收销售交易HC最多。\n\n国泰君安和海通证券并购整合仍在进行，岗位分布复杂反映了权力重新分配。\n\n国泰海通暑期实习期6-10月，长达5个月，不利于海归学生，且投行HC不确定，成本高。\n\n国泰海通卡本科学历，对投行实习要求有所放宽。",
+      "verbatim_signals": [
+        "HC最多的，我认为是固收销售交易（销售交易）这个岗位。",
+        "国泰君安和海通证券的并购整合和权力重新分配还在“持续进行”。",
+        "今年的实习期是6-10月，可以说非常不利于海归同学们了。",
+        "国泰海通继承了国泰君安的特色，一如既往的卡本科学历；但是对于投行实习的要求有所放宽。"
+      ],
+      "company_mentions": [
+        "国泰海通",
+        "国泰君安",
+        "海通证券"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69db4636000000001d01f74d?xsec_token=YBqC8zKLBHTutVyhZchm3Ds1Ipq2u3jtC5W_Ee8EKRM0o%3D&xsec_source=app_share",
+      "origin_sub_cat": "财富管理FOF",
+      "content": "FOF投研的难度比传统行研低，研究对象是基金经理而非个股，主要通过公开资料、访谈等方式了解基金经理的投资框架，目前研究多停留在贴标签层面，不需要深度基本面研究。\n\nFOF业务本质是经纪业务而非投资业务，规模大的平台接到客户需求后，在基金经理池中选基金一键生成组合，AI辅助作用大。\n\nFOF投研不适合对投资有热情的人，更适合研究所机构销售转型，因为机构销售对基金经理的认知更全面。\n\n与FOF投研相关的投顾岗位不好干，入行需谨慎。",
+      "verbatim_signals": [
+        "fof投研的难度更低。fof的研究对象是基金经理...不用深度研究基本面，也不需要搓模型",
+        "fof是经纪业务，不是投资业务...客户想投什么方面什么类型什么赛道的基金，在基金经理池里面选一下，一键生成就可以了",
+        "fof投研不适合想做投资的人...fof投研挺适合研究所机构销售转型的",
+        "和fof投研相关的还有一个岗位叫投顾，投顾不好干，入行要谨慎"
+      ],
+      "company_mentions": [],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/690438f30000000004006a6a?xsec_token=YBzsHB2IkeocWdplFvSZGVt7xK-1mBxXtpf9B2nn4NH28%3D&xsec_source=app_share",
+      "origin_sub_cat": "行业研究员·消费",
+      "content": "券商研究员的核心竞争力是销售和服务，而非研究和写报告。\n\n金融行业99%的核心是信息差，信息差来源于人脉而非专业能力。\n\n销售岗（机构销售、DCM、ECM）是离钱和信息最近的地方。",
+      "verbatim_signals": [
+        "券商研究所的研究员，其核心竞争力根本不是研究和写报告，而是销售和服务。",
+        "金融行业 99% 的核心是信息差，而信息差的来源不是你的专业能力，是人脉。",
+        "无论是投行的 DCM、ECM 岗，还是机构销售部，这些直接面对客户、建立关系、创造收入的岗位，才是离钱和信息最近的地方。"
+      ],
+      "company_mentions": [
+        "公募基金",
+        "券商"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6988a604000000000c037d42?xsec_token=YBXUa0AU1fbRcF0U_SY2oKCHoD02w21Ub_pnNoMbjkgQI%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "易方达基金招聘渠道销售支持实习生，工作城市上海，主要职责包括协助渠道经理服务代销机构、数据统计、会议支持等。",
+      "verbatim_signals": [
+        "易方达基金-渠道销售支持实习生"
+      ],
+      "company_mentions": [
+        "易方达基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e26c010000000007003796?xsec_token=YBiLZIu4lCpOWM980SQZ1TEt5JpK1syyir_Ov1ROjJm2M%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "中信证券投行新人月薪可达数万，年终奖为底薪数倍至十几倍。\n\n中信证券研究所优秀研究员年薪轻松破百万。\n\n中信证券营业部销售北京客户经理月薪6-15万，上海陆家嘴12-24万，副总经理12-35万。\n\n中信证券资管管培生起薪8-12万/月。\n\n中信证券2021年上半年人均月薪11.35万，2024年回落到6.18万。\n\n中信证券应届生底薪本科8K+，研究生10K+。\n\n中信证券招聘流程：网申→笔试→面试→实习（2-6个月）→签约。\n\n中信证券薪酬结构：固定薪资+个人提成+团队激励+年终奖+董事长奖励基金。",
+      "verbatim_signals": [
+        "投行业务：妥妥的天花板！新人月薪就能达到数万，年终奖是底薪的几倍到十几倍",
+        "研究所：优秀研究员年薪轻松破百万",
+        "北京客户经理：6-15万/月；上海陆家嘴：12-24万/月；副总经理级别：12-35万/月",
+        "资管岗位：管培生起薪8-12万/月",
+        "2021年上半年人均月薪高达11.35万！虽然2024年回落到6.18万"
+      ],
+      "company_mentions": [
+        "中信证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a140c94000000003600064e?xsec_token=YBRzo-hNT4ZPXDcS5fA1AgySh-BmLbwiGc15KMU19Gu-o%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "广发证券暑期实习采用定向招聘，不在官网发布，仅通过特定学校Career office用邮件接收申请。\n\n广发证券去年秋招高管面有“一票否决权”，看重学校背景（两财一贸不如西交/哈工大）、生源（留学生不如内地生）、专业（经管不如理工）、科研成果、大赛成果和AI大模型能力，而金融实习积累不那么重要。\n\n投行岗位选岗建议：投行/卖方研究/机构销售/股权投资业务“4选3”；股票研究：卖方研究+机构销售+股权投资业务；固收研究&交易：卖方研究+投资研究（FICC）+金融产品研究。\n\n广发证券招聘存在割裂：业务部门需要经管背景和实习经验，高管却偏好理工和AI能力，导致拿到大厂产品经理或中金/华泰投行offer的同学可能无法通过广发高管面。",
+      "verbatim_signals": [
+        "所谓的定向招聘，就是自己的官网不写暑期实习，没有投递窗口。结果在特定学校的Career office发放暑期实习的投递信息，而且是用E-mail接受大家的申请和投递。",
+        "但是能否留用，主要取决于高管面的“一票否决权”，你的学校背景（例如两财一贸不如西交/哈工大，留学生不如内地生）、专业背景（经管＜＜＜理工）、科研成果和大赛成果、AI 大模型的能力，这些才是高管比较看重的能力。而至于你之前在金融方向的实习积累，没有那么重要。",
+        "做投行的同学，考虑投行/卖方研究/机构销售/股权投资业务的“4选3”的组合。做股票研究的同学，考虑卖方研究+机构销售+股权投资业务的组合。做固收研究&交易的同学，考虑卖方研究+投资研究（FICC）+金融产品研究的组合。",
+        "这就使得广发证券的招聘是非常割裂的。业务部门肯定希望招来一个即插即用的人才，那么你需要是经管背景和相关的实习经历，你才能做好投行的工作。而高管们希望你是一个做互联网大厂算法的人才画像。"
+      ],
+      "company_mentions": [
+        "广发证券",
+        "广发基金",
+        "中金公司",
+        "华泰证券",
+        "国泰海通",
+        "中信建投"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67ab3f9200000000290183a3?xsec_token=YBK9l9QtnsLzn6jb2gxQhK5USbWMeEOVocM48PFrw1KNM%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "广发证券正在社招财富管理、机构销售及行研人才，包括私人财富业务总监/经理、机构销售类、研报质量审核、行业研究员等岗位。",
+      "verbatim_signals": [
+        "广发证券招聘私人财富业务总监/经理、机构销售类、研报质量审核、行业研究员等岗位"
+      ],
+      "company_mentions": [
+        "广发证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a155ee500000000060370b4?xsec_token=YBm3Y5JyYOl3pHQpV1WJCxNhn46VW7xOTfxjgM4W9Vr_U%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "国泰海通2026年Q1股权主承销规模94.2亿元同比+528.8%，IPO主承销19家募资45亿元；债券主承销规模3770亿元同比+55.8%排名行业第二；IPO储备项目16家排名行业第一\n\n投行研究分析助理、资本市场策略支持、大客户服务协调员、债务融资研究分析员、投行业务数据分析员等实习岗位，base上海、北京、深圳，可部分远程，6月入职\n\n要求头部高校金融/经济/会计/法学，有投行或律所实习经验优先，熟练使用Wind、PPT和Excel，对资本市场与企业融资策略有热情，实习3个月起，每周4天+",
+      "verbatim_signals": [
+        "2026年Q1公司股权主承销规模94.2亿元同比+528.8%，IPO主承销19家募资45亿元；债券主承销规模3770亿元同比+55.8%排名行业第二；IPO储备项目16家排名行业第一",
+        "实习岗位：投行研究分析助理、资本市场策略支持、大客户服务协调员、债务融资研究分析员、投行业务数据分析员",
+        "要求：头部高校金融/经济/会计/法学，有投行或律所实习经验优先，熟练使用Wind、PPT和Excel，对资本市场与企业融资策略有热情，实习3个月起，每周4天+"
+      ],
+      "company_mentions": [
+        "国泰海通"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69baaa87000000001a0296ff?xsec_token=YBv4ziZExENfR61QXN3aydDGlEo3ZseYIXg2gT3ow2pnM%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "国泰海通summer岗位分析：研究与机构、权益投资、权益客需、融资融券、托管等条线的具体岗位介绍和发展建议。\n\n国泰海通是合并后的券商，第二次招聘，各部门条线整合结束，岗位丰富，只允许投一个志愿。\n\n券商summer intern岗位选择建议，涵盖研究、销售、投资、衍生品、托管等方向。",
+      "verbatim_signals": [
+        "国泰海通summer，我建议投什么（上）",
+        "本次是合并后的第二次招聘，各部门条线整合结束后重新补充年轻力量，岗位相较于去年丰富了很多，仍然是只允许投一个志愿",
+        "如果你的Skillset偏公司金融，可选研究/机构销售，如果偏金工，选择权益客需和融券管理更有优势，如果偏财会/文科，托管更为对口"
+      ],
+      "company_mentions": [
+        "国泰海通"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a1578e3000000000702521b?xsec_token=YBBfv217qB_17rOCHxjmMwGrsLmoWGrkJSzpW48GovlgM%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募权益研究员",
+      "content": "新华基金是老牌金牛公募，含金量高，面向2027届研究生，有权益研究员和销售经理岗位，理工科复合背景友好。\n\n权益研究员岗位属于基本面权益策略，销售经理属于相关补充策略。",
+      "verbatim_signals": [
+        "老牌金牛公募 含金量拉满💼 面向2027届在读研究生 [向右R]两大核心岗可选 ▫️权益研究员 北京 ▫️销售经理 北上深渝多城 [向右R]理工科复合背景也友好，正规投研/机构销售履历，金融求职背书狠狠加分",
+        "权益研究员 北京"
+      ],
+      "company_mentions": [
+        "新华基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f1bd7200000000220258d8?xsec_token=YBpOiGUZGAO5e0oVTdmaM7xNtwTowbKBtXrbZTLKULua8%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募权益研究员",
+      "content": "华夏基金香港子公司开放研究助理和业务拓展助理实习岗位，研究助理偏投研方向，业务拓展助理偏市场与客户方向。\n\n华夏基金香港子公司提供实习岗位，要求国内外重点高校硕士及以上，中英双语流利，能base香港线下坐班，周期1-3个月。\n\n实习适合想攒香港资管/公募基金正规实习经历、留学生背景提升、补强金融简历的人群。",
+      "verbatim_signals": [
+        "研究助理（Research Assistant）：偏投研方向，做宏观/港股/亚太市场研究、数据整理、报告辅助。业务拓展助理（Business Development Assistant）：偏市场与客户方向，协助机构业务、产品推广、投资人对接。",
+        "学历：国内外重点高校硕士及以上，金融/经济/会计/理工科等相关专业优先。语言：中英双语流利（读写+口语），日常工作需处理英文研报与客户沟通。身份：留学生/内地在读硕士均可，能base香港线下坐班，周期1–3个月。",
+        "适合人群：想攒香港资管/公募基金正规实习经历；留学生背景提升、补强金融简历；计划未来从事投研、跨境业务、机构销售等方向。"
+      ],
+      "company_mentions": [
+        "华夏基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/66810504000000001c0356f3?xsec_token=YBrYn6Go3X4Uv3b4jchE61X9q5HOHB2EOrCbBN6gVWnJU%3D&xsec_source=app_share",
+      "origin_sub_cat": "资管FOF",
+      "content": "FOF岗位分为资管FOF、自营FOF、财富管理FOF三类，分别侧重规模业绩、绝对收益、客户服务。\n\n应届生/新人更适合资管FOF、财富FOF；有实盘经验及投资追求去自营FOF。\n\nFOF岗位开设在基金公司、券商、银行理财子等机构。\n\nFOF属于二级投研领域，涉及多资产配置。",
+      "verbatim_signals": [
+        "自营FOF最追求绝对收益，资管FOF最看重规模和业绩排名，财富FOF最看重客户需求和投后服务",
+        "应届生/新人更适合资管FOF、财富FOF；有实盘经验及投资追求去自营FOF。",
+        "FOF一般开设在基金公司、券商、银行理财子等投资相关的机构",
+        "#二级投研 #二级市场 #fof"
+      ],
+      "company_mentions": [
+        "基金公司",
+        "券商",
+        "银行理财子"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    }
+  ],
+  "post_count": 15,
+  "company_mention_dedup_count": 19
+}

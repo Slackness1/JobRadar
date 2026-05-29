@@ -1,0 +1,576 @@
+{
+  "sub_cat": "金融科技·量化平台",
+  "sub_cat_slug": "fintech_quant_platform",
+  "strategy_type": "量化",
+  "boundary": "金融科技、量化平台、客户研究、ESG量化、数字金融、风险/投研数据产品；没有 alpha/PnL/交易目标时不归量化因子、买方 Quant、AI量化",
+  "typical_companies_seed": [
+    "国金证券",
+    "中金公司",
+    "蚂蚁集团",
+    "招商银行",
+    "国信证券"
+  ],
+  "industry_focus_candidates": [
+    "数字金融",
+    "投研平台",
+    "ESG 量化",
+    "金融数据产品",
+    "客户研究平台"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "中型券商研究所",
+    "理财子",
+    "互联网大厂金融科技"
+  ],
+  "rationale": "T13 错样本 #80/#104/#129/#145 — 金融科技/量化平台/ESG 与量化因子/AI 量化串台",
+  "ground_truth_pool_in_strategy": [
+    {
+      "name": "灵均投资",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "demo_v1",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "XHS 30 mention 量化第一"
+    },
+    {
+      "name": "九坤投资",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频",
+        "量化开发QD"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2025",
+        "demo_v1",
+        "xhs:量化研究员·高频:6",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "中频+QD 双线"
+    },
+    {
+      "name": "明汯投资",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频",
+        "量化因子工程师"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:1",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "百亿量化老牌"
+    },
+    {
+      "name": "幻方量化",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频",
+        "AI 量化工程师"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:8",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "DeepSeek 母公司,XHS mention 高"
+    },
+    {
+      "name": "鸣石基金",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频",
+        "AI 量化工程师"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "百亿量化,AI 量化方向激进"
+    },
+    {
+      "name": "衍复投资",
+      "tier": "头部量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频",
+        "量化因子工程师"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "百亿量化老牌"
+    },
+    {
+      "name": "乾象投资",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2025"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2025 量化命中"
+    },
+    {
+      "name": "锐天投资",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2025"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2025 量化命中"
+    },
+    {
+      "name": "世纪前沿",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2025"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2025 量化命中"
+    },
+    {
+      "name": "因诺资产",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化研究员·中频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2024"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2024 量化命中"
+    },
+    {
+      "name": "Optiver",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:15",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "XHS mention 第一,做市商"
+    },
+    {
+      "name": "Jane Street",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部做市商"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,顶尖做市商"
+    },
+    {
+      "name": "Citadel",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "量化研究员·高频",
+        "买方 Quant"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部对冲基金"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,Citadel Securities 高频"
+    },
+    {
+      "name": "Tower Research",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": false,
+      "notes": "纽约高频做市商"
+    },
+    {
+      "name": "黑翼资产",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:2"
+      ],
+      "must_have": false,
+      "notes": "XHS 高频 2 次"
+    },
+    {
+      "name": "IMC",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:2"
+      ],
+      "must_have": false,
+      "notes": "荷兰做市商"
+    },
+    {
+      "name": "DRW",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:2"
+      ],
+      "must_have": false,
+      "notes": "芝加哥做市商"
+    },
+    {
+      "name": "SIG",
+      "tier": "衍生品做市商",
+      "primary_sub_cats": [
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "xhs:量化研究员·高频:2"
+      ],
+      "must_have": false,
+      "notes": "费城做市商"
+    },
+    {
+      "name": "量派投资",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化开发QD"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "QD 高薪 25-40K·15薪"
+    },
+    {
+      "name": "宽德投资",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化开发QD",
+        "量化研究员·高频"
+      ],
+      "industry_focus": [],
+      "source": [
+        "taxonomy_doc",
+        "xhs:量化研究员·高频:2"
+      ],
+      "must_have": true,
+      "notes": "C++/Linux 系统强"
+    },
+    {
+      "name": "DeepSeek",
+      "tier": "大模型独角兽",
+      "primary_sub_cats": [
+        "AI 量化工程师",
+        "LLM算法post-train"
+      ],
+      "industry_focus": [
+        "AI 基础设施"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "demo_v1"
+      ],
+      "must_have": true,
+      "notes": "量化条线源自幻方"
+    },
+    {
+      "name": "佳期投资",
+      "tier": "中型量化私募",
+      "primary_sub_cats": [
+        "量化因子工程师"
+      ],
+      "industry_focus": [],
+      "source": [
+        "saif:2024"
+      ],
+      "must_have": false,
+      "notes": "SAIF 2024 量化命中"
+    }
+  ],
+  "mined_xhs_posts": [
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0c2659000000003501c0b8?xsec_token=YBWo3_04eqG7GfzDfPD8xw2IDqvAm1GxyL7BT86NKKem8%3D&xsec_source=app_share",
+      "origin_sub_cat": "量化因子工程师",
+      "content": "幻方、九坤、明汯、衍复是量化“四大天王”出海主力，规模700-800亿，香港办公室持续扩招，提供签证担保和外派补贴。\n\n灵均2025年以73.51%收益斩获百亿量化业绩冠军，世纪前沿规模跃升至500-600亿，两家香港团队扩张期，对因子挖掘、建模能力强的同学友好。\n\n黑翼2025年新获香港9号牌，量派2024年拿下4+9号双牌照，规模突破300亿，入行门槛相对友好。\n\n港圈量化求职门槛：名校硕博，数理/计算机/金工背景优先，英文流利是标配。\n\n港圈量化优势：行业顶薪+外派补贴+签证担保，国际化投研平台，职业天花板更高。",
+      "verbatim_signals": [
+        "幻方 / 九坤 / 明汯 / 衍复：量化“四大天王”出海主力，规模普遍在700-800亿区间...香港办公室持续扩招。提供签证担保和外派补贴",
+        "灵均 / 世纪前沿：2025年灵均以73.51%收益斩获百亿量化业绩冠军...世纪前沿规模跃升至500-600亿...两家香港团队均处于扩张期，对因子挖掘、建模能力强的同学非常友好",
+        "黑翼 / 量派：黑翼2025年新获香港9号牌...量派2024年拿下4+9号双牌照，2025年规模已突破300亿...入行门槛相对友好",
+        "门槛：名校硕博为主，数理/计算机/金工背景优先，英文流利是标配",
+        "优势：行业顶薪+外派补贴+签证担保，国际化投研平台，职业天花板更高"
+      ],
+      "company_mentions": [
+        "幻方",
+        "九坤",
+        "明汯",
+        "衍复",
+        "灵均",
+        "世纪前沿",
+        "黑翼",
+        "量派"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68591c4c0000000010024d60?xsec_token=YBkxVCvrEkqb0vIXClQgPYCp_Lq7YYT2zJcjlVJoXTtWM%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "国泰君安2025暑期实习内推急捞，提供投研、投行、金融科技、跨境业务、财富管理等多方向岗位。\n\n岗位类型包括投研方向（行业研究、量化策略、资产配置）、投行方向（IPO/并购方案设计、尽职调查）、金融科技（量化模型开发、AI金融应用）、跨境业务（FICC衍生品、跨境投资策略）、财富管理（基金研究、产品设计）。\n\n偏好金融经济、金工、数理统计、计算机等专业，要求扎实的数理分析/编程能力（如Python/SQL/R）或财务估值基础。",
+      "verbatim_signals": [
+        "国泰君安2025暑期实习内推急捞！",
+        "投研方向：行业研究、量化策略、资产配置（研究所/金工部）",
+        "专业不限但偏金融经济、金工、数理统计、计算机等专业更佳"
+      ],
+      "company_mentions": [
+        "国泰君安"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0f1d3e000000000702ace7?xsec_token=YB9MVh1sELWdJvRY7-4rURZo9qtVNwXXJJLAGIjlCzytE%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "中信证券多项业务指标连年夺魁，是券商中的'神'级公司。\n\n国泰海通由国开君安和海通证券合成，资本实力跃居行业榜首。\n\n中金公司是首家中外合资投行，投行业务标杆。\n\n华泰证券是金融科技+财富管理领域的标杆。\n\n中信建投证券降薪严重，与前三个相比掉队。\n\n2025年证券行业呈现'强者恒强'的马太效应，头部券商占据大部分市场份额。\n\n头部券商总部前台岗求职难度不输国有总行，建议根据学历背景和实习相关性合理选择。\n\n随着大A慢牛市场，证券公司实习机会增多，26届应把握机会。",
+      "verbatim_signals": [
+        "中信证券可以单独开一个'神'级，多项业务指标连年夺魁",
+        "国泰海通由国开君安和海通证券合成而成的新龙头，资本实力跃居行业榜首",
+        "中金公司，首家中外合资投行，投行业务标杆",
+        "华泰证券，金融科技+财富管理领域的标杆",
+        "中信建投证券，降薪严重，跟前三个相比，确实有点掉队了"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "国泰海通",
+        "中金公司",
+        "华泰证券",
+        "中信建投证券",
+        "申万宏源",
+        "招商证券",
+        "银河证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6866ac87000000002201f0bb?xsec_token=YBp3eKCODqPFmC2Zh5YDQzWpb7AYEen0S_53_x5sSQDV0%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "广发证券2026届校招面向2025下半年-2026上半年毕业生，开放投行/研究/金融科技等9类岗位，覆盖全国及香港地区。研究类开放至2027届，复合专业背景优先。网申截止2025年10月31日，流程含11-12月笔面试→课题研究→总裁见面会发offer。应届生落户较易。\n\n广发证券职级序列为A-SA-VP-SVP-D-ED-MD，对应年收入大约30-40-50-70-90-100以上。数据管理岗15K-20K；品运营岗30K-40K；场外衍生品海外金融工程岗30K-50K。金融科技岗总包35万左右（base 1万+奖金），福利含六险二金+30项生活补贴。",
+      "verbatim_signals": [
+        "广发证券（\"博士军团\"券商）2026届校招面向2025下半年-2026上半年毕业生，开放投行/研究/金融科技等9类岗位，覆盖全国及香港地区。特色岗位要求：研究类开放至2027届，复合专业背景优先。网申截止2025年10月31日，流程含11-12月笔面试→课题研究→总裁见面会发offer。应届生落户较易。",
+        "薪酬方面，广发的职级序列是A-SA-VP-SVP-D-ED-MD，对应年收入大约30-40-50-70-90-100以上，根据当年的项目进展会，奖金变化幅度很大，以广州为例数据管理岗15K-20K；品运营岗30K-40K；场外衍生品海外金融工程岗30K-50K，以上只是大致参考。金融科技岗总包35万左右（base 1万+奖金），福利含六险二金+30项生活补贴​（托幼费/开门利是等）。"
+      ],
+      "company_mentions": [
+        "广发证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a007dbd0000000006033be8?xsec_token=YBsNhXOTI38nQHFtlKmC5ApK0CukIuys4WYVIe8_8tn_Q%3D&xsec_source=app_share",
+      "origin_sub_cat": "量化开发QD",
+      "content": "华泰证券金融科技岗面试问题涵盖计算机背景转金融动机、项目进度管理、Bug解决、低延迟编码、限流组件设计、数据一致性、微服务容错、代码质量等。",
+      "verbatim_signals": [
+        "1. 你学计算机的，为什么想进入金融行业，而不是去互联网公司？\n2. 在完成一个大型课程项目时，你是如何管理项目进度，确保按时交付的？\n3. 你遇到最难的一个Bug是什么？花了多长时间，最后是怎么解决的？\n4. 在证券交易系统中，低延迟至关重要。在编码时，你会注意哪些方面来提升代码执行效率？\n5. 如果让你设计一个极简的限流组件，来保护后端服务不被突发流量打垮，你会怎么设计？\n6. 金融系统对数据一致性要求极高，在开发过程中，你会通过哪些手段来保证？\n7. 你了解微服务架构吗？在微服务间调用时，如果某个服务响应缓慢或失败，有哪些常见的容错处理模式？\n8. 如何保证你写的代码质量？你会有意识地进行单元测试或代码审查吗？\n9. 团队目前主要的技术栈是什么？新员工会有专门的业务知识培训吗？"
+      ],
+      "company_mentions": [
+        "华泰证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/695d1eb7000000000a03c76d?xsec_token=YBrmTdVctPPyl7QovJaKaV_d7-SJ7pUrrFnv6XbaJQrSw%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI算法业务",
+      "content": "华泰证券金融科技AI算法工程师面试题目，涵盖BERT模型优化、实体识别、智能投顾推荐模型、知识图谱构建、边缘部署等。",
+      "verbatim_signals": [
+        "华泰证券｜金融科技｜AI算法工程师面经🔥"
+      ],
+      "company_mentions": [
+        "华泰证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e12963000000000400602e?xsec_token=YBoMACpj-L2xybKn7Neuw7-fKkHjNSchL1W07QkUdUvsg%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI算法业务",
+      "content": "中金金融科技校招面试包括技术面和综合面，技术面涉及A股预测项目的特征工程、随机森林调优、SQL优化、LSTM与ARIMA对比、大规模数据处理等；综合面考察对中金财富管理科技应用、合规效率、机构客户系统等的理解。\n\n中金公司金融科技岗面试重视技术落地和业务理解，面试官会问及公司近期科技动态。",
+      "verbatim_signals": [
+        "首轮技术面超硬核！被问到A股预测项目的特征工程...二轮综合面更考对公司的理解～被问中金财富管理科技应用...",
+        "面试下来感觉中金很看重技术落地和业务理解，宝子们准备时记得多研究公司近期科技动态！"
+      ],
+      "company_mentions": [
+        "中金公司"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/698f41fb000000000a028ea7?xsec_token=YBfaOPkjFA_lzkwp3ZyjgHU8AeRhp_D9J1quG_pQE5GTM%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI 量化工程师",
+      "content": "华泰证券Fintech专项面试题包含量化交易、AI应用、手撕代码等，涉及深度学习在量化交易中的局限和过拟合问题。\n\n华泰证券设有Fintech专项岗位，强调科技驱动，关注数字化产品如涨乐财富通、行知、机构服务。\n\n金融科技岗需要同时对接业务、产品、开发，向不懂技术的业务同事解释技术边界。",
+      "verbatim_signals": [
+        "深度学习在量化交易中的应用有哪些局限？你怎么解决过拟合问题？",
+        "华泰强调'科技驱动'，你关注过华泰的哪些数字化产品或技术成果？",
+        "金融科技岗往往需要同时对接业务、产品、开发，你如何向不懂技术的业务同事解释技术边界？"
+      ],
+      "company_mentions": [
+        "华泰证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69e97cd8000000001a033844?xsec_token=YBc11JooR0NZ98F21otDUFVbFosSpW07s-wFiuuUnIkSE%3D&xsec_source=app_share",
+      "origin_sub_cat": "量化开发QD",
+      "content": "华泰证券金融科技岗面试问题包括：为何从计算机转金融、项目进度管理、最难Bug、低延迟编码、限流组件设计、数据一致性、微服务容错、代码质量保证、技术栈和业务培训。",
+      "verbatim_signals": [
+        "1. 你学计算机的，为什么想进入金融行业，而不是去互联网公司？\n2. 在完成一个大型课程项目时，你是如何管理项目进度，确保按时交付的？\n3. 你遇到最难的一个Bug是什么？花了多长时间，最后是怎么解决的？\n4. 在证券交易系统中，低延迟至关重要。在编码时，你会注意哪些方面来提升代码执行效率？\n5. 如果让你设计一个极简的限流组件，来保护后端服务不被突发流量打垮，你会怎么设计？\n6. 金融系统对数据一致性要求极高，在开发过程中，你会通过哪些手段来保证？\n7. 你了解微服务架构吗？在微服务间调用时，如果某个服务响应缓慢或失败，有哪些常见的容错处理模式？\n8. 如何保证你写的代码质量？你会有意识地进行单元测试或代码审查吗？\n9. 团队目前主要的技术栈是什么？新员工会有专门的业务知识培训吗？"
+      ],
+      "company_mentions": [
+        "华泰证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69e9e8300000000020007004?xsec_token=YBc11JooR0NZ98F21otDUFVYPtpfcbAB15sOU99-7Wv0g%3D&xsec_source=app_share",
+      "origin_sub_cat": "投行 IBD",
+      "content": "国内券商存在明显的等级鄙视链，夯梯队（三中一华+国君海通）为投行天花板，项目资源多、薪资顶流，但门槛极高，要求清北复交+海外名校硕及头部实习经历。\n\n应届生求职建议包括：能冲夯梯队和顶级梯队直接冲；想回老家发展的优先看本地龙头券商；实习比空学历重要；不要死磕投行，研究所、财富管理、金融科技竞争小且发展空间不差。",
+      "verbatim_signals": [
+        "中信证券、中金公司、华泰证券、国泰海通、中信建投...项目资源多到做不完，薪资顶流，应届生base普遍20w+...门槛也真的🐮：清北复交+海外名校硕是基本盘",
+        "能冲夯梯队+顶级梯队直接冲...想回老家发展的，优先看人上人里的本地龙头券商...实习＞空学历！...别死磕投行，研究所、财富管理、金融科技竞争小很多"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "中金公司",
+        "华泰证券",
+        "国泰海通",
+        "中信建投",
+        "申万宏源",
+        "银河证券",
+        "东方财富"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6892de2a0000000002000f15?xsec_token=YBuRai1_WLLZJdPd3F3F0ULHMDIGtEBYHhUyNFP5AmbwA%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "全球top15公司分析师数量5年减少30%，反映卖方研究行业整体萎缩。\n\n海外合规要求导致买方为每份报告单独付费，压缩研究预算。\n\n国内牛市依赖政策驱动，研究报告沦为事后说明书。\n\n被动基金规模超过主动基金，减少对卖方研究的依赖。\n\n卖方研究岗位工作量增加，薪酬下降，转型困难。\n\n作者通过请教在职朋友获得卖方研究现状的一手信息。\n\n建议应届生逃离卖方研究，转向金融科技或产业端。\n\n全球top15公司分析师数量减少，反映行业趋势。",
+      "verbatim_signals": [
+        "全球top 15公司分析师数量5年减少30%",
+        "合规要求导致欧洲、美国买方需要为每份报告单独付费，直接导致资管公司暴砍研究预算",
+        "24年以来牛市高度依赖政策驱动，研究报告与其说是报告，不如说是给小作文写的事后说明书",
+        "进入2023年，中美的被动基金规模都超过了主动基金。被动基金交易频率低、不依赖主动选股。这对卖方研究更是釜底抽薪",
+        "工作量增：裁了人，活没变少，甚至更多...薪酬下降：年终奖灰飞烟灭...转型焦虑：听说被裁的同事出路普遍一般"
+      ],
+      "company_mentions": [
+        "全球top15公司"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a15741e00000000070278b8?xsec_token=YBtykXCAFyiHSXD_GpX4xfBFke_35ll-7M1DTKg6YcoIw%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI算法业务",
+      "content": "中邮资管是央企资管，做机构资金投资，工作体面稳定，秋招留用率60%以上。\n\n中邮资管新开AI应用方向岗位，适合计算机+金融复合背景，竞争小。\n\n中邮保险总部岗位不是销售，而是精算、核保、市场等中后台岗。\n\n中邮消费金融实习考核优秀可直接解锁2027届校招终面。\n\n中邮消费金融是持牌消金头部，背靠邮储银行，是金融科技和消费金融赛道的跳板。",
+      "verbatim_signals": [
+        "中邮资管，做机构资金的投资管理，不用对接个人客户，工作体面又稳定。六险二金、免费食堂、带薪年假。我带过的学生里秋招留用率能到60%以上。",
+        "今年新开了AI应用方向，很多人还不知道，现在冲就是捡漏哈。",
+        "很多人对保险有误解，觉得就是卖保险，大错特错！总部岗全是中台后台，根本不是干销售哈。",
+        "实习考核优秀直接解锁2027届校招终面，不用再挤秋招独木桥。",
+        "中邮消费金融，持牌消金公司头部，总部在广州，背靠邮储银行，资金成本低、业务稳定，是金融科技和消费金融赛道不错的跳板。"
+      ],
+      "company_mentions": [
+        "中邮资管",
+        "中邮保险",
+        "中邮消费金融"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69a45130000000001a033e1a?xsec_token=YBQ_OWSik-h4fo3XpbnNv-Mi2rbNPozaN1LdiSboC5sHI%3D&xsec_source=app_share",
+      "origin_sub_cat": "结构化产品衍生品",
+      "content": "平安银行总行暑期实习有转正机会，涵盖运营管理、风险管理、公司业务、零售业务、金融市场等多个方向，适合不同背景学生。\n\n金融市场橙光实习生（资金运营中心）涉及FICC交易和量化分析，要求了解债券、衍生品、外汇、贵金属等知识，协助交易策略和模型开发。\n\n总行风险管理橙光实习生适合走风控策略、风控模型、数据分析方向的学生，工作包括数据分析、风险模型搭建、风险策略制定等。\n\n总行公司业务橙光实习生适合经管商科类学生，有产品、行研、战略咨询经历加分，工作包括营销计划、活动策划、经营分析、产品优化。\n\n总行零售业务橙光实习生专业不限，要求积极乐观，工作包括营销计划、活动策划、经营分析、产品优化。\n\n总行运营管理橙光实习生不需要编程，适合运营、商分、数分背景的学生。",
+      "verbatim_signals": [
+        "平安总行暑期实习（有转正机会~）",
+        "FICC交易:了解FICC(债券、衍生品、外汇、贵金属等)相关知识，学习定价和相关交易策略;协助交易策略和模型的开发和测试;交易及相关信息的整理、录入和分析;量化分析:学习和参与利率、外汇和商品期货市场上使用的定价模型开发和维护，以及流动性期权市场定价模型;",
+        "协助开展数据分析、风险模型搭建、风险策略制定、报告审核、合规文化建设等工作",
+        "协助制定营销计划、活动策划，参与经营分析、产品优化等工作",
+        "什么专业都行，积极乐观~"
+      ],
+      "company_mentions": [
+        "平安银行",
+        "平安科技",
+        "平安租赁",
+        "平安资产管理事业部"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69ce943e000000001b002ef9?xsec_token=YBFDVxut9k2kFvxOZuK-Zfw7gmtcLoWUMPv5-VzW3HOLk%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI算法业务",
+      "content": "券商总部IT岗位，前台金融科技组和后台信息科技总部，均为AI应用开发方向。\n\n前台研发管培和后台开发组，前者偏前台，后者偏后台。",
+      "verbatim_signals": [
+        "都是券商总部，前者偏前台研发管培在前台金融科技组AI应用开发相关，后者就在后台信息科技总部后台开发组，名义是算法岗其实也是AI应用开发相关。",
+        "前者偏前台研发管培在前台金融科技组AI应用开发相关，后者就在后台信息科技总部后台开发组"
+      ],
+      "company_mentions": [
+        "券商"
+      ],
+      "relevance_score": 0.3,
+      "hit_count": 1
+    }
+  ],
+  "post_count": 14,
+  "company_mention_dedup_count": 29
+}

@@ -52,6 +52,11 @@ SUBCAT_TO_STRATEGY: dict[str, str] = {
     "多模态推理优化": "AI 应用_PM_开发",
     "AI PM": "AI 应用_PM_开发",
     "AI算法业务": "AI 应用_PM_开发",
+    # v2 修复 (2026-05-29): 4 个新 sub_cat (Opus subagent 重做 KB 入库后接候选)
+    "机构销售·销售支持": "卖方研究",
+    "债券承做DCM·ABS/REITs": "固定收益",
+    "基金产品运营·中后台": "多资产_FOF_衍生品",
+    "金融科技·量化平台": "量化",
 }
 
 

@@ -1,0 +1,604 @@
+{
+  "sub_cat": "债券承做DCM·ABS/REITs",
+  "sub_cat_slug": "dcm_abs_reits_underwriting",
+  "strategy_type": "固定收益",
+  "boundary": "一级市场债券/ABS/REITs 发行承做、材料制作、报送、簿记、存续管理；不是二级交易，不是信用研究，不是固收+组合投资",
+  "typical_companies_seed": [
+    "中信证券",
+    "中金公司",
+    "平安证券",
+    "国金证券",
+    "国信证券"
+  ],
+  "industry_focus_candidates": [
+    "公募债承做",
+    "ABS/REITs 承做",
+    "私募债承做"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "中型券商研究所"
+  ],
+  "rationale": "T13 错样本 #18/#65/#99/#100/#133/#176 — DCM/ABS/REITs 承做与固收交易/信用研究混淆",
+  "ground_truth_pool_in_strategy": [
+    {
+      "name": "中诚信国际",
+      "tier": "信用评级机构",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投",
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部信用评级"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,国内头部信评"
+    },
+    {
+      "name": "联合资信",
+      "tier": "信用评级机构",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投",
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部信用评级"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,头部信评"
+    },
+    {
+      "name": "大公国际",
+      "tier": "信用评级机构",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投"
+      ],
+      "source": [
+        "common_knowledge:头部信用评级"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,信评三大之一"
+    },
+    {
+      "name": "中再资产",
+      "tier": "保险资管",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投",
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "demo_v1"
+      ],
+      "must_have": true,
+      "notes": "保险资管头部信用研究"
+    },
+    {
+      "name": "平安资产管理",
+      "tier": "保险资管",
+      "primary_sub_cats": [
+        "信用研究员",
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融",
+        "城投"
+      ],
+      "source": [
+        "saif:2024",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "保险资管 AUM 头部"
+    },
+    {
+      "name": "易方达基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投"
+      ],
+      "source": [
+        "common_knowledge:头部公募固收"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,公募固收信用组"
+    },
+    {
+      "name": "光大永明资产",
+      "tier": "保险资管",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": false,
+      "notes": "保险资管信评"
+    },
+    {
+      "name": "华富基金",
+      "tier": "二线公募",
+      "primary_sub_cats": [
+        "信用研究员"
+      ],
+      "industry_focus": [
+        "城投"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": false,
+      "notes": "公募固收信用"
+    },
+    {
+      "name": "中信证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "固收交易员",
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部券商"
+      ],
+      "must_have": true,
+      "notes": "FICC 自营交易头部"
+    },
+    {
+      "name": "平安证券",
+      "tier": "中型券商",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "FICC 团队强"
+    },
+    {
+      "name": "中信建投证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,自营 FICC 头部"
+    },
+    {
+      "name": "国泰海通证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "招商证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,自营固收强"
+    },
+    {
+      "name": "中金公司",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "兴业银行",
+      "tier": "银行系资管",
+      "primary_sub_cats": [
+        "固收交易员"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部银行金融市场部"
+      ],
+      "must_have": false,
+      "notes": "按行业共识,金融市场部交易强"
+    },
+    {
+      "name": "广发基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "华夏基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "国寿投资",
+      "tier": "保险资管",
+      "primary_sub_cats": [
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "saif:2025"
+      ],
+      "must_have": true,
+      "notes": "SAIF 2025 命中"
+    },
+    {
+      "name": "招商基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "南方基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "固收+多资产"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "华泰证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "利率宏观策略",
+        "卖方研究员·宏观策略"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:利率宏观策略:2",
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "利率债首席强"
+    },
+    {
+      "name": "贝莱德",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "利率宏观策略"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:利率宏观策略:2"
+      ],
+      "must_have": true,
+      "notes": "外资固收策略"
+    },
+    {
+      "name": "摩根大通",
+      "tier": "外资行",
+      "primary_sub_cats": [
+        "利率宏观策略"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:利率宏观策略:1"
+      ],
+      "must_have": false,
+      "notes": "外资行宏观利率"
+    },
+    {
+      "name": "华泰资产",
+      "tier": "保险资管",
+      "primary_sub_cats": [
+        "利率宏观策略"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:利率宏观策略:1"
+      ],
+      "must_have": false,
+      "notes": "保险资管"
+    },
+    {
+      "name": "中国国际金融",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "利率宏观策略"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商"
+      ],
+      "must_have": false,
+      "notes": "按行业共识,与中金公司同体系"
+    }
+  ],
+  "mined_xhs_posts": [
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69ce44cc000000001d01f7ed?xsec_token=YBIR2Y3LBhuk-vRmL2g0YltYiXkuB0U2Z6pD9wk7QrRGg%3D&xsec_source=app_share",
+      "origin_sub_cat": "投行 IBD",
+      "content": "兴业证券最赚钱的业务是自营投资和资产管理，投行和研究所相对不赚钱。\n\n兴业证券投行岗位包括投行业务助理、债券承做助理、资产证券化承做助理、承销发行助理。\n\n兴业证券自营部门推荐证券投资部-行业研究助理和债券与衍生产品业务部-研究助理。\n\n兴证资管核心岗位是研究助理，涵盖权益、量化、FOF和衍生品方向。\n\n兴业证券投行对本科学历门槛可放松至末9及同Level学校。\n\n兴业证券股权业务体量在券商中排名10-20名。",
+      "verbatim_signals": [
+        "最赚钱的，当属自营投资和资产管理。而大家最为熟悉的投资银行和研究所属于兴业“最不赚钱”的业务。",
+        "投行业务助理、债券承做助理、资产证券化承做助理、承销发行助理，一共4个岗位。",
+        "首推证券投资部-行业研究助理和债券与衍生产品业务部-研究助理。",
+        "兴证资管最核心的岗位，是研究助理，内含权益方向、量化方向、 FOF 方向和衍生品方向。",
+        "兴业证券这个级别的券商投行，对于本科学历的门槛可以“放松”至“末9”及同Level学校。"
+      ],
+      "company_mentions": [
+        "兴业证券",
+        "兴证资管",
+        "兴全基金"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a1572ec000000000702d717?xsec_token=YBJXceSEhkLQc7puTGKMxN_jjSjoFry-zyFtIIxEYC4MU%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "天风证券债券条线质控合规部招聘实习生，负责债券项目立项资料核查、尽调底稿核查、内核项目资料核查等质量控制和合规工作，可迅速了解债券发行业务全流程。\n\n天风证券提供实习补助和早午餐，实习结束通过考核可开具实习证明。",
+      "verbatim_signals": [
+        "质控合规部为债券业务一级承做的中台岗位，实习生将进行债券项目立项资料核查、尽职调查工作底稿的核查、内核项目资料核查、客户洗钱等级评定及受益人识别等质量控制和合规工作，可迅速了解债券发行业务全流程。",
+        "公司提供早午餐（食堂相当给力），提供实习补助，实习结束通过考核开具实习证明。"
+      ],
+      "company_mentions": [
+        "天风证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f858120000000235022921?xsec_token=YBTho_UcH_pdvehUjeddHAVis2eeh-G03PPKL_3YfNf5k%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·宏观策略",
+      "content": "申万宏源是团队型券商，非平台型券商，各城市业务水平差距大，影响HC。\n\n申万宏源IBD岗位中，股权承做在承销保荐子公司，债券承做在固定收益融资总部，ABS承做在资管子公司。\n\n申万宏源权益投研唯二岗位：资管子公司研究助理和金融创新总部投资研究岗，建议选前者。\n\n申万宏源固收岗位：资管子公司投顾投资经理助理、固定收益外汇商品事业部投资助理岗。\n\n申万宏源机构销售岗位包括机构客户总部、固定收益销售交易总部、战略客户总部等。\n\n申万宏源股承业务城市排名：深圳≥广州≥南京≥成都≥北京=上海。",
+      "verbatim_signals": [
+        "因为是“团队型券商”，而非“平台型券商”，各个城市的业务水平差距很大，而业务水平会极大的影响HC。",
+        "“承销保荐子公司”里面的均为股权承做。...“固定收益融资总部”里面的“业务承做”即为“债券承做”...“资管子公司”里面的“项目承做岗”，即为“ABS承做”。",
+        "“资产管理子公司-研究助理”和“金融创新总部-投资研究岗”唯二权益投研的岗位。...我会更建议选前者（资管）",
+        "资产管理子公司-投顾投资经理助理、固定收益外汇商品事业部-投资助理岗",
+        "机构客户总部-机构销售...固定收益销售交易总部-销售交易岗...战略客户总部-产业项目经理/战略客户经理岗"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "申万宏源"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f02746000000003700ea35?xsec_token=YBcLFWSWfmIW4YRxWS0ex2PjUnDtG4fAHFAKKVpCJNEdU%3D&xsec_source=app_share",
+      "origin_sub_cat": "利率宏观策略",
+      "content": "公募REITs、结构间ABS、类REITs是三种不同的不动产证券化工具。",
+      "verbatim_signals": [
+        "公募REITs、结构间ABS、类REITs，这三种工"
+      ],
+      "company_mentions": [],
+      "relevance_score": 0.3,
+      "hit_count": 3
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share",
+      "origin_sub_cat": "财富管理FOF",
+      "content": "FOF（基金中的基金）近期在公募市场热度上升，发行数量和规模大幅增长，银行渠道推动明显，产品设计以短持有期、偏债混合策略为主。\n\nFOF总规模突破3000亿，头部公司如富国、中欧、易方达、广发规模超200亿，但行业格局未固化。\n\nFOF热度背后原因包括存款利率下行、市场波动大、银行渠道转型、产品设计适配等。\n\nFOF行业趋势：从选基转向配置，产品形态纳入黄金ETF、REITs、QDII等，与养老联动。",
+      "verbatim_signals": [
+        "FOF（基金中的基金）突然成了公募市场的热门话题。截至3月14日，今年全市场已经有40只FOF成立，合计募了619.73亿元。跟去年一季度比，数量增加了233%，规模增长了361%。",
+        "截至3月14日，FOF总规模突破3000亿。84家公募有布局，但头部还没固化：规模最大的管理人约245亿，规模超100亿的只有11家。第一梯队：富国、中欧、易方达、广发都超200亿。",
+        "一是存款利率下行，叠加市场波动大，个人做择时、选基金的难度在增加。FOF的逻辑是通过专业选基+多资产配置，降低单一资产的波动。二是银行渠道从'卖产品'转向'卖配置方案'。三是产品设计的适配。",
+        "FOF正从'选基'转向'配置'，有的公司已经把'FOF部'改名'多元资产配置部'。产品形态在变，部分FOF开始纳入黄金ETF、REITs、QDII等资产。养老联动，很多客户先通过普通FOF体验多资产配置，再通过Y份额布局养老投资。"
+      ],
+      "company_mentions": [
+        "富国基金",
+        "中欧基金",
+        "易方达基金",
+        "广发基金",
+        "博时基金",
+        "交银施罗德基金",
+        "民生加银基金",
+        "招商银行"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/690438f30000000004006a6a?xsec_token=YBzsHB2IkeocWdplFvSZGVt7xK-1mBxXtpf9B2nn4NH28%3D&xsec_source=app_share",
+      "origin_sub_cat": "行业研究员·消费",
+      "content": "券商研究员的核心竞争力是销售和服务，而非研究和写报告。\n\n金融行业99%的核心是信息差，信息差来源于人脉而非专业能力。\n\n销售岗（机构销售、DCM、ECM）是离钱和信息最近的地方。",
+      "verbatim_signals": [
+        "券商研究所的研究员，其核心竞争力根本不是研究和写报告，而是销售和服务。",
+        "金融行业 99% 的核心是信息差，而信息差的来源不是你的专业能力，是人脉。",
+        "无论是投行的 DCM、ECM 岗，还是机构销售部，这些直接面对客户、建立关系、创造收入的岗位，才是离钱和信息最近的地方。"
+      ],
+      "company_mentions": [
+        "公募基金",
+        "券商"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a1163d5000000003701f9e9?xsec_token=YB-ytYsXaETuxWOMalLnmNS1SieO69lxemP-6F61KY6SY%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "公募REITs迎来指数化时代，易方达、华夏、南方、中金四家基金公司同步申报中证REITs全收益指数基金。",
+      "verbatim_signals": [
+        "当公募REITs迎来指数化时代"
+      ],
+      "company_mentions": [
+        "易方达基金",
+        "华夏基金",
+        "南方基金",
+        "中金基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/686f24b5000000000b02f700?xsec_token=YBKNUC6T_fspMeLf3C25n-CL1M3OvH4CMv6t23RSE099g%3D&xsec_source=app_share",
+      "origin_sub_cat": "固收交易员",
+      "content": "固收行业整体收入趋势是逐渐靠近银行的50w水平，各岗位收入范围及机构排名有详细列举。\n\n固收投资岗位收入范围30-500万，中型券商自营最高，信托最低。\n\n固收交易岗位收入范围15-150万，中型券商自营最高，小型银行自营最低。\n\n固收研究岗位收入范围20-200万，大型公募最高，信托最低。\n\n固收销交岗位收入范围15-500万，小型券商最高，大型券商最低。\n\n固收DCM岗位收入范围15-300万，中型券商最高，小型券商最低。\n\n固收中后台岗位收入范围20-150万，大型公募最高，小型券商最低。",
+      "verbatim_signals": [
+        "未来固收行业的总收入水平是逐渐靠近银行的50w。",
+        "投资（30-500）：中型券商自营>中型公募>大型公募>小型券商自营>大型券商自营>银行理财>中型银行自营>小型公募>大型银行自营>小型银行自营>保险>信托",
+        "交易（15-150）：中型券商自营>大型公募>大型银行自营>中型公募>银行理财>大型券商自营>小型券商自营>中型银行>小型公募>信托>券商资管>保险>小型银行自营",
+        "研究（20-200）：大型公募>中型公募>大型券商自营>银行理财>中型券商自营>大型银行自营>小型公募>中型银行自营>小型券商自营>券商资管>保险>信托",
+        "销交（15-500）：小型券商>中型券商>小型银行>信托>大型券商"
+      ],
+      "company_mentions": [
+        "中型券商自营",
+        "中型公募",
+        "大型公募",
+        "小型券商自营",
+        "大型券商自营",
+        "银行理财",
+        "中型银行自营",
+        "小型公募"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0f15bf00000000380359a3?xsec_token=YBW44QnWKNWr74ewOHTd98psfrDUHv17CHiVuAkTFCiVs%3D&xsec_source=app_share",
+      "origin_sub_cat": "信用研究员",
+      "content": "该岗位为券商资管固收研究员，面向2026届应届生，工作地点深圳，职责包括信用债研究、多资产研究（REITs、可转债）等。\n\nxx证券资管招聘固收研究员，要求2026届海内外重点院校硕士及以上，有相关实习经验优先。",
+      "verbatim_signals": [
+        "某券商资管招聘2026年应届生\nxx证券|2026届校招固收研究员\n招聘岗位：资管固收研究员\n招聘人数：1人\n工作地点：深圳\n岗位性质：正式校招应届生岗，面向2026届应届毕业生，无全职工作经验均可投递\n岗位职责\n1、信用债研究：学习并掌握固收信用分析框架，协助开展信用债基本面研究、个券梳理、风险排查，夯实固收信用研究基础能力。\n2、多资产研究：协助开展公募REITs、可转债等固收+多资产辅助研究，参与标的梳理、入库报告撰写、分析框架完善与基础数据维护工作。\n3、投研协作支持：配合团队开展日常投研辅助，跟踪市场行情，维护数据库等。\n4、其他工作：完成团队交办的其他投研相关工作。",
+        "岗位要求\n1、2026届海内外重点院校硕士及以上学历，国内985/211、双一流院校，或海外QS排名前50院校优先，数学、金融、金融工程、经济、统计等相关专业优先。\n2、有券商资管、基金、银行、自营、保险资管固收实习经历优先，有信用研究、REITs/可转债专题研究经验加分。\n3、持有CFA/FRM、证券从业资格证者优先。\n4、熟练使用办公软件，具备良好的数据处理、逻辑梳理和报告撰写能力。"
+      ],
+      "company_mentions": [
+        "xx证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69bcd0e1000000001a035c38?xsec_token=YBn8TO43p-qWCpgiMFhkVlLpWUOLIcupWnN8XtIXuDJBY%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募基金中后台",
+      "content": "REITs实习岗位职责包括存续期管理、投研体系搭建、项目尽调等\n\n国泰海通证券资管提供REITs实习岗位，要求4月中下旬到岗，每周至少3天，在岗3个月可开实习证明，有餐补无工资",
+      "verbatim_signals": [
+        "协助基金经理开展REITs存续期全流程管理，包括底层基础设施资产运营监控、合规信息披露支持、投资者关系辅助等；参与REITs投研体系搭建，涵盖行业政策解读、底层资产市场动态分析、估值模型数据校验与参数优化、投研报告撰写等；辅助完成项目尽调资料整理、运营数据可视化呈现、投决会议材料汇编等支持性工作。",
+        "4月中下旬到岗，每周至少 3 天，在岗时间3个月开具实习证明。实习生提供每日餐补，无工资补贴"
+      ],
+      "company_mentions": [
+        "国泰海通证券资管"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a12f2c80000000237007d97?xsec_token=YBusPMoncitcB1kRRDhQ1vSt6MLNwncklmgIZRvqql0jk%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "REITs指数化投资正式起步，华夏、中金、易方达、南方四家基金公司上报首批REITs指数基金，跟踪中证REITs全收益指数。\n\n境内已成立REITs 87只，数量全球领先，但合计规模接近2000亿，对指数化投资来说不算大。\n\n中证REITs全收益指数历史走势表征性作用大于投资实践，成分数量变动，精选品种跑赢指数难度不大。\n\n单一REITs品种波动像股票，回报像债券，对个人投资者研究性价比不够，更适合作为资产配置工具。\n\n个人投资者现阶段应认真研究银行股和红利指数，花同样时间能换来更有价值的投资决策。",
+      "verbatim_signals": [
+        "2026年5月18日，华夏、中金、易方达、南方四家基金公司向证监会正式上报首批REITs指数基金，均跟踪中证REITs全收益指数（932047.CSI），标志国内REITs指数化投资正式起步。",
+        "目前境内已成立的REITs有87只，产品数量在全球资本市场已经遥遥领先。指数成分一般不少于30只，数量上是够了；整个REITs市场的合计规模接近2000亿，对于指数化投资来说，不算大。",
+        "从实际投资的角度，中证REITs全收益指数历史走势展现出来的情况，它对市场的表征性作用目前可能还是要大于投资实践。这个指数的编制规则之一是，REITs上市三个月就符合纳入指数的条件，因而它的成分数量也是一直变动的。上周的食息指南里面提到，不同的REITs品种分化很大。换句话说，稍微精选一下品种，跑赢指数的难度并不大。",
+        "单一REITs品种，波动像股票（年化波动率10%~20%），回报像债券，整体来说对个人投资者研究的回报性价比不够，也许以后会好一点。目前更多用它来观察经济水温。",
+        "如果你是偏好吃息的个人投资者，现阶段认认真真研究银行股和红利指数，花同样的时间，大概率能换来更有价值的投资决策。"
+      ],
+      "company_mentions": [
+        "华夏基金",
+        "中金基金",
+        "易方达基金",
+        "南方基金"
+      ],
+      "relevance_score": 0.3,
+      "hit_count": 1
+    }
+  ],
+  "post_count": 11,
+  "company_mention_dedup_count": 29
+}

@@ -1,0 +1,949 @@
+{
+  "sub_cat": "基金产品运营·中后台",
+  "sub_cat_slug": "fund_product_ops_middle_back",
+  "strategy_type": "多资产_FOF_衍生品",
+  "boundary": "基金产品、运营、估值清算、TA、产品基础设施、申赎/登记/存续/产品材料；不是 FOF 投研，不是公募权益研究，不是 PE/VC 投后",
+  "typical_companies_seed": [
+    "中金公司",
+    "鹏华基金",
+    "易方达基金",
+    "招商银行",
+    "中欧基金"
+  ],
+  "industry_focus_candidates": [
+    "公募基金运营",
+    "理财子运营",
+    "信托运营",
+    "券商资管运营"
+  ],
+  "institution_tier_candidates": [
+    "一线公募",
+    "二线公募",
+    "理财子",
+    "头部券商资管",
+    "信托公司"
+  ],
+  "rationale": "T13 错样本 #1/#35/#46/#121/#184/#189 — 基金产品运营/产品助理被误归 FOF 投资或 PE 投后",
+  "ground_truth_pool_in_strategy": [
+    {
+      "name": "易方达基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "common_knowledge:头部公募"
+      ],
+      "must_have": true,
+      "notes": "FOF 公募头部"
+    },
+    {
+      "name": "融通基金",
+      "tier": "二线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "FOF 老牌玩家"
+    },
+    {
+      "name": "国泰海通证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "券商资管 FOF 头部"
+    },
+    {
+      "name": "南方基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "中欧基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": true,
+      "notes": "按行业共识,FOF 产品线齐"
+    },
+    {
+      "name": "兴证全球基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "招商基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "资管FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部公募"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "平安银行",
+      "tier": "银行系资管",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc"
+      ],
+      "must_have": true,
+      "notes": "银行自营 FOF"
+    },
+    {
+      "name": "中信证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:自营FOF:2"
+      ],
+      "must_have": true,
+      "notes": "券商自营 FOF 头部"
+    },
+    {
+      "name": "中信保诚基金",
+      "tier": "二线公募",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:自营FOF:2"
+      ],
+      "must_have": true,
+      "notes": "XHS 自营 FOF 2 次"
+    },
+    {
+      "name": "招商银行",
+      "tier": "银行系资管",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:自营FOF:2"
+      ],
+      "must_have": true,
+      "notes": "零售之王自营"
+    },
+    {
+      "name": "华泰证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:自营FOF:1"
+      ],
+      "must_have": false,
+      "notes": "券商自营"
+    },
+    {
+      "name": "光大证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "自营FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:自营FOF:1"
+      ],
+      "must_have": false,
+      "notes": "券商自营"
+    },
+    {
+      "name": "信银理财",
+      "tier": "理财子",
+      "primary_sub_cats": [
+        "财富管理FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "demo_v1"
+      ],
+      "must_have": true,
+      "notes": "中信银行理财子"
+    },
+    {
+      "name": "建设银行",
+      "tier": "银行系资管",
+      "primary_sub_cats": [
+        "财富管理FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:财富管理FOF:1"
+      ],
+      "must_have": false,
+      "notes": "国有大行财富"
+    },
+    {
+      "name": "中国银行",
+      "tier": "银行系资管",
+      "primary_sub_cats": [
+        "财富管理FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:财富管理FOF:1"
+      ],
+      "must_have": false,
+      "notes": "国有大行财富"
+    },
+    {
+      "name": "富国基金",
+      "tier": "一线公募",
+      "primary_sub_cats": [
+        "财富管理FOF"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "xhs:财富管理FOF:1"
+      ],
+      "must_have": false,
+      "notes": "投顾产品线"
+    },
+    {
+      "name": "中金公司",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "结构化产品衍生品"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "taxonomy_doc",
+        "demo_v1"
+      ],
+      "must_have": true,
+      "notes": "场外衍生品头部"
+    },
+    {
+      "name": "中信建投证券",
+      "tier": "头部券商研究所",
+      "primary_sub_cats": [
+        "结构化产品衍生品"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商衍生品"
+      ],
+      "must_have": true,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "招商证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "结构化产品衍生品"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商衍生品"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    },
+    {
+      "name": "广发证券",
+      "tier": "中型券商研究所",
+      "primary_sub_cats": [
+        "结构化产品衍生品"
+      ],
+      "industry_focus": [
+        "金融"
+      ],
+      "source": [
+        "common_knowledge:头部券商衍生品"
+      ],
+      "must_have": false,
+      "notes": "按行业共识"
+    }
+  ],
+  "mined_xhs_posts": [
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67e3d5db000000001d01ceac?xsec_token=YB8O0M4reImwTRSyyEvQ9eFgk8SX0hzbL5BmAoxqEf41w%3D&xsec_source=app_share",
+      "origin_sub_cat": "行业研究员·消费",
+      "content": "公募投研和交易岗位竞争激烈，大部分申请者都是炮灰，建议基于实习经历选岗。\n\n渠道/机构销售岗位HC充足，适合不想面客但想进公募的同学。\n\n中后台岗位如风险监控、基金会计等HC有限，但适合够不着投研又不想做销售的同学。\n\n基金投顾和理财专员岗位，作者持负面态度。\n\n南方基金招聘分布显示公募基金各条线岗位情况。",
+      "verbatim_signals": [
+        "大部分申请公募投研&交易的，都是炮灰，年年如此",
+        "渠道/机构销售，咱不说这个岗位的好，至少HC还是公募里面很充足的",
+        "风险监控岗有3个HC、基金会计+登记结算有3个HC，算的上是‘够不着投研+交易’+‘不想去市场+销售’情况下的合适选择了",
+        "基金投顾和理财专员，我个人在选岗的时候是负面态度",
+        "从南方基金的岗位分布，我们可以看到"
+      ],
+      "company_mentions": [
+        "南方基金"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69fd52e9000000001f003428?xsec_token=YBMr_thyXngm8ptqzFbVrNffoOvo0uEZPmz9__XqZxGVg%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募基金中后台",
+      "content": "嘉实基金面试中面试官深挖实习经历，特别是AI战略项目，追问成果如何落地，强调要准备好交付物。\n\n面试官询问基金会计与普通会计的区别，学生回答基金会计以产品为核算主体算净值，企业会计看整体利润。\n\n面试官问及基金运营变化少是否会无聊，学生回答“宁慢勿错，返工成本更高”，强调责任心。\n\n嘉实基金是公募基金，学生认为比券商更稳定，路径更清晰。\n\n学生有事务所、券商投行、四大咨询、财务审计和嘉实实习经历，以及“互联网+”省金和市调大赛国三。",
+      "verbatim_signals": [
+        "面试官追问“成果怎么落地的？”——大家准备类似项目一定要想清楚交付物是什么！",
+        "基金会计是以“产品”为核算主体，算净值；企业会计看整体利润。",
+        "宁慢勿错，返工成本更高",
+        "觉得公募基金比券商更稳定，路径更清晰",
+        "过往几段实习：事务所、券商投行、四大咨询、财务审计和嘉实实习"
+      ],
+      "company_mentions": [
+        "嘉实基金"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69d4b71d000000002101239e?xsec_token=YBXTQkhcnvpkVGQk-5X32kwt7EVY6MCz-yqxNJt6iIGQo%3D&xsec_source=app_share",
+      "origin_sub_cat": "自营FOF",
+      "content": "用户正在寻找CTA策略产品经理职位，同时需要对接私募市场经理，涉及FOF发行和家办客户投资CTA策略。",
+      "verbatim_signals": [
+        "找CTA策略产品经理！！！金融公司自有母基金要发fof，我去哪里找私募市场经理呀！求推！自有大资金，求深圳本地的私募公司，手里家办客户想投cta策略的"
+      ],
+      "company_mentions": [
+        "金融公司自有母基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 2
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6880a9d50000000010011ba0?xsec_token=YBd9faHjVDkkQSHFf23cH7LLya_pA4wf0Drwhyk37lwAc%3D&xsec_source=app_share",
+      "origin_sub_cat": "量化研究员·高频",
+      "content": "面试中考察了期货次高频策略的基本概念，包括tick size、换月逻辑、期货贴水、CTAs以及基差波动对alpha decay的影响。\n\nQuant Trading Intern岗位需要熟悉期货次高频策略，包括midprice做市、库存控制、延迟执行下的报价优化。\n\nOptiver、DRW、SIG、Akuna等HFT/Quant firm对期货次高频策略有较高要求。",
+      "verbatim_signals": [
+        "不知道tick size、换月逻辑、期货贴水、CTAs这些基本概念",
+        "Quant Trading Intern",
+        "Optiver / DRW / SIG / Akuna 这一类 firm"
+      ],
+      "company_mentions": [
+        "Optiver",
+        "DRW",
+        "SIG",
+        "Akuna Capital"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0a7f680000000008031335?xsec_token=YBKIhJxwMnT3-xozYV8AIDyveQspyhbomD64UFFtudtIw%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募权益研究员",
+      "content": "二级主观投研岗位面临薪资低、前景不确定的问题，应届生月薪1-2万，3年后2-3万，年终奖缩水/拖延。\n\n二级投研行业面临被动份额蚕食、监管限薪、AI替代研究员等挑战。\n\n公募基金从业人员薪资可能进一步降低，且有递延、30%自购等规则。\n\n学生背景为top4金融本硕，有券商行研实习经历，一直向二级主观投研方向发展。\n\n学生询问公募薪资和前景，考虑是否应该加入二级投研。",
+      "verbatim_signals": [
+        "二级公募（或类似资管机构）应届月薪大部分为1-2w，3年后2-3w，奖金没有了解到具体数额，但看网上都说年终奖缩水/拖延",
+        "行业蛋糕层面，1）被动的份额蚕食；个人价值兑现层面，2）监管的限薪，并且似乎还在进一步加强，3）AI对研究员的价值替代",
+        "监管趋严下公募人员薪资可能还会进一步降低？此外还有递延、30%自购等使到手减少的规则",
+        "主包为top4金融本硕，近期面临求职问题，回顾自身过往职业规划，忽而迷茫。主包第一份实习在券商行研，后续原本吸收大量就业的一级市场也持续低迷，故一直在二级主观投研方向发展。",
+        "在这种背景下，还应该加入二级投研做一个主观研究员吗？"
+      ],
+      "company_mentions": [
+        "公募基金"
+      ],
+      "relevance_score": 0.9,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67ebc3e1000000001c01f1b7?xsec_token=YBWa4KeVAPAIULbEbAZXtohEB7fLDgjNIzRKmbx1Mtf7g%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节面试偏好有owner意识的人，独立拆解问题；熟悉AI产品体验，对趋势有自己见解；能结合体验反馈提出能落地的优化建议。\n\nAI岗重点问题包括：如何验证功能的效果？用户反馈生成的信息过时，怎么处理？形容自己适合这个岗位的特质？\n\n从百度实习到拿下字节豆包AI产品经理岗位。",
+      "verbatim_signals": [
+        "字节面试偏好：喜欢有owner意识的人，独立拆解问题；熟悉AI产品体验，对趋势有自己见解（错也没啥）；能结合体验反馈提出能落地的优化建议。",
+        "AI岗重点问题（建议准备）：如何验证功能的效果？用户反馈生成的信息过时，怎么处理？形容自己适合这个岗位的特质？",
+        "从百度实习到拿下字节豆包"
+      ],
+      "company_mentions": [
+        "字节跳动",
+        "百度"
+      ],
+      "relevance_score": 0.85,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a034f9d000000000603551e?xsec_token=YBlluoNSTOyvYktIZZFtTURGBTornU2LjPXvOn9tJInqc%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "面试官希望候选人有C端经验，但作者过往全是商业化广告经验，无C端经验。\n\nAI产品经理岗位面试主要围绕产品体验、数据引导、业务价值、实习经历等展开。\n\n字节跳动Byteintern项目主动捞人面试AI产品经理岗位。\n\n面试官在反问环节给出了培养C端用户sense的建议，并举例说明产品布局和手势设计。",
+      "verbatim_signals": [
+        "反问对候选人的预期，结果依旧是希望有C端经验[捂脸R]，恰好过往0个C端经验，全是做商业化广告[失望R]",
+        "1️⃣你觉得当前这个产品体验完之后，有哪些地方符合预期，哪些不符合预期...2️⃣通过数据发现用户打开该app后，不知道该如何使用...3️⃣你觉得【灵感】tab在app内承载什么业务价值...4️⃣请介绍一下快手的实习经历...5️⃣这段经历中最大的困难和最让你有成就感的事是什么...6️⃣非业务问题...",
+        "没投递该岗，被主动捞的。",
+        "在反问环节，在讲如何去培养c端的用户sense（并现场讲了2个case：比如产品布局上顶部、底部要放哪些tab，以及为什么这么排序；又比如播放器的长按手势：抖音app是全局长按2倍速，快手app虽然也是长按2倍速，但是在右侧互动区（赞藏评）单击手势和长按手势做了互斥，以及为什么这么做）"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a11010f0000000035028495?xsec_token=YBOoV-Er_cJP2jEogZtajMG3Tje7RhtPqfxa9rj-WUjVE%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理需要具备工作流拆解能力，能够将复杂任务抽象为可复用的节点库和决策树。\n\n字节跳动的工作流优化方向PM具备强大的系统设计能力。\n\nAI产品经理需要掌握工作流拆解工具和思维模型，如n8n、Zapier、ProcessOn等。",
+      "verbatim_signals": [
+        "他把自己经手和研究过的所有工作流项目，都抽象成可复用的节点库、衔接模板和决策树，形成了庞大的产品工作流武器库。",
+        "团队新来的AI pm，之前在大厂专攻工作流优化方向。",
+        "跟踪前沿：n8n、Zapier、Microsoft Power Automate官方博客 看最新节点设计"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69e5edfd000000002003aece?xsec_token=YBLMt3ip4-vz5aVXhqvEQ-_U-B6ipwVu1hY0T8uvNLpI8%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "面试官从数据归因、产研协作、AI产品数据流向、技术架构等方面进行了深入拷问，展示了技术PM面试的典型问题。\n\n产品经理需要具备数据驱动思维、理解C/S架构、前端与后端通信、本地存储与云端数据库等知识。",
+      "verbatim_signals": [
+        "碰到技术出身的pm面试官真是好一场酣畅淋漓的拷打qwq",
+        "需要搞懂C/S架构，弄清前端是怎么通过请求API接口拿到后端JSON数据的，理清本地存储和云端数据库（MySQL/Redis）的调用边界。"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/690040a700000000050390d1?xsec_token=YBopIfnmfPr8iCeuGIfygVQ861mAvi7-Tc7Yof9naKKmw%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节AI数据平台产品运营面试包括自我介绍、提问和反问三部分，面试官关注候选人上一段AI PM经历中解决的问题和贡献，以及如何推动项目、排优先级、处理跨部门冲突等。\n\n面试官询问了英文场景题：当业务部门提出紧急需求但研发和产品团队无人力时，作为运营如何处理。\n\n面试官还问了数据权限问题：员工自己可以赋予文档权限会出现什么问题，作为产品如何解决。",
+      "verbatim_signals": [
+        "面试分三部分，1自我介绍，希望听到你上一段ai pm的解决的问题和困难，contribution 2提问 3反问",
+        "英文：when business unit has given you an urgent requirement but the R&D team and product management team said they don't have more manpower and what would you do as an operation?",
+        "数据权限问题：员工自己可以赋予文档的权限，会出现什么问题？你作为产品，怎么解决？"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f9eb1b00000000200392d6?xsec_token=YBBgMKelGpOJtEkcG45mbb_zlQchjxpI_-zYrpb-HHIpU%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理的技术门槛被提前了，需要懂大模型、知识库问答、Agent、工作流等基础概念。\n\n字节跳动明星AI产品的校招PM JD要求技术基础。\n\n非计算机专业学生可通过做AI项目实践来证明能力，如课程资料问答助手、简历修改小助手等。\n\nAI产品经理岗位对技术理解要求提升，但传统产品基本功仍然重要。",
+      "verbatim_signals": [
+        "AI产品经理的技术门槛被提前了。...你要知道大模型、知识库问答、Agent、工作流、模型效果这些词大概是什么意思。",
+        "我分析了字节几个明星AI产品的校招生JD",
+        "非计算机专业...关键是证明你愿意学、学得快、能做出东西。...可以从身边场景开始，比如课程资料问答助手、简历修改小助手、论文阅读笔记助手、校园活动信息整理工具。",
+        "传统产品经理的基本功仍然重要：用户理解、业务判断、产品设计、数据分析、跨团队协作。但AI产品经理多了一层要求：你要知道大模型、知识库问答、Agent、工作流、模型效果这些词大概是什么意思。"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a13bd9c000000003502a497?xsec_token=YBJtnw1ejHiLBOMQYh93rwG-_DcUrl7e0Kkyr06-NHSYw%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理需要具备工作流拆解能力，能够将复杂任务抽象为可复用的节点库、衔接模板和决策树。\n\n字节跳动的工作流优化方向AI产品经理具备强大的工作流拆解能力。\n\nAI产品经理需要掌握工作流拆解、节点设计、异常处理等技能，并关注行业趋势和工具。",
+      "verbatim_signals": [
+        "他把自己经手和研究过的所有工作流项目，都抽象成可复用的节点库、衔接模板和决策树，形成了庞大的产品工作流武器库。",
+        "团队新来的AI pm，之前在大厂专攻工作流优化方向。",
+        "行业趋势与前沿框架：跟踪前沿：n8n、Zapier、Microsoft Power Automate官方博客 看最新节点设计；DBA、BPM社区 追流程拆解案例"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69fc5e5e000000003502d52b?xsec_token=YB5eCfhKL15UCJbM4kyAnn04aZ245KSKamS0BywnxtIm4%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节AI产品经理暑期实习三面（交叉业务面）面经分享，面试官强调AI PM的关键是懂用户、懂场景，把AI变成真正能解决问题的产品。",
+      "verbatim_signals": [
+        "AI PM到最后，关键不是会用多少工具，而是能不能懂用户、懂场景，把AI变成真正能解决问题的产品"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0800310000000035025bda?xsec_token=YBHpO6TxgKQiQyngY28wFBJcaEpoZPIMzApQWCPTGDSj4%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "腾讯AI产品经理（2-5年经验）月薪35K-55K+，全年16-18薪，总包约70W-100W。\n\n腾讯AI产品面试不深挖Transformer推导，但要求清晰回答AI能力上限、出错情况、兜底方案；必须掌握监督/无监督/强化学习适用场景、模型幻觉成因与mitigation（如RAG、提示词约束）、SFT与RLHF成本对比。\n\n腾讯AI产品面试会追问成本问题：调用混元API vs 自建小模型 vs 规则，哪个划算？需要量化延迟、吞吐、单次调用成本、bad case人工审核成本。\n\n腾讯AI产品面试要求PRD包含准确率目标（如95%）、人工兜底链路、bad case闭环流程、ROI测算。\n\n腾讯AI产品面试会考察数据验证能力：模型迭代后准确率从92%提到94%，但延迟增加200ms，用户留存怎么变？需要权衡效果、体验、成本。\n\n腾讯AI产品面试会深挖如何让算法团队优先解决你的bad case，考察跨部门协同能力。\n\n腾讯内部AI项目常被挑战：“不用AI能不能做？”需要回答为什么非用AI不可，规则引擎哪里不够。\n\n腾讯AI产品核心逻辑：AI不是功能，是解决用户问题的手段。",
+      "verbatim_signals": [
+        "腾讯AI产品（2-5年经验）月薪35K-55K+是主流，全年16-18薪，总包约70W-100W。",
+        "腾讯面试不深挖Transformer推导，但要求你清晰回答：这个AI能力上限在哪？会出什么错？怎么兜底？必须掌握：监督/无监督/强化学习的适用场景区别、模型幻觉的成因与 mitigation（如RAG、提示词约束）、SFT与RLHF的成本对比。",
+        "你会被追问：“调用混元API vs 自建小模型 vs 规则，哪个划算？”答不出延迟、吞吐、单次调用成本、bad case人工审核成本的量化对比，直接扣分。",
+        "PRD必须包含：准确率目标（如95%）、人工兜底链路、bad case闭环流程、ROI测算（节省多少人天/提升多少转化）。",
+        "你要能回答：“模型迭代了一版，准确率从92%提到94%，但延迟增加了200ms，用户留存怎么变？”面试官想听你如何权衡效果、体验、成本。"
+      ],
+      "company_mentions": [
+        "腾讯",
+        "字节"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69ba50e4000000001d01dacb?xsec_token=YBZucO-WSEjPLQtjg5e5RnvNdLqHDU-fuJQIC_1BzV0kE%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "大厂AI产品经理的工作强度高，涉及数据看板、晨会、评审、写PRD、对齐需求等，薪资40k。\n\n大厂AI产品经理的日常工作包括查看数据看板、参与晨会、评审、写PRD、与运营对齐需求等。",
+      "verbatim_signals": [
+        "给大家普及下大厂AI产品经理40k的工作强度",
+        "9:30–10:00：到岗先看数据看板：DAU、模型调用量、线上bad case。"
+      ],
+      "company_mentions": [
+        "大厂"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a135531000000000803c863?xsec_token=YB37OyhD0Jekrxv5MFZwIhynJqDWI3_iYaWa4VoxjhwVw%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理岗位存在挂羊头卖狗肉现象，很多公司没有真实AI项目\n\n面试10家左右，拿到3个offer，但入职后因团队无AI项目或节奏太快而跑路\n\n第一家团队0产品、无真实AI项目，合同不写薪资；第二家全是传统B端项目，节奏快\n\n作者有开发+客户成功背景，但原型、业务拆解没系统练过，转AI产品吃力\n\nAI产品经理求职竞争激烈，转行不易",
+      "verbatim_signals": [
+        "好多AI产品岗都是挂羊头卖狗肉",
+        "4月中—5月上旬疯狂面试10家左右，面试真的很累，拿到3个offer",
+        "第一家：团队0产品、无真实AI项目，合同不写薪资；第二家：福利好氛围好待遇佳，但全是传统B端项目",
+        "我之前做过开发+客户成功，但原型、业务拆解没系统练过",
+        "转AI产品根本没有想象中简单"
+      ],
+      "company_mentions": [
+        "未指明"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69d5de6600000000210397b5?xsec_token=YBAIFWPWGhriBYbPvaKskmyjXdP8G6Rl7LjPLmC_g5gKo%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "招聘AI产品经理，负责用AI重构人才成长，要求有AI落地实战经验，如agent、workflow、AI小工具等。\n\n头部互联网科技公司技术学院人才发展团队，面向工程师与技术管理者，打造AI驱动的人才成长新范式。",
+      "verbatim_signals": [
+        "亲手做过agent、workflow、AI小工具或side project都可",
+        "头部互联网科技公司技术学院人才发展团队，正面向工程师与技术管理者，打造AI驱动的人才成长新范式"
+      ],
+      "company_mentions": [
+        "头部互联网科技公司"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/683457280000000021009434?xsec_token=YBEv1EOZVzAmN3tLVp4SnjG2kwYH394dnJ9MZGnqvOZpE%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理的一天包括数据监测、案例收集、产研对接、产品教育设计、定制化项目推进和模型行为复盘等工作内容。",
+      "verbatim_signals": [
+        "📢大厂AI产品经理的一天做什么\n报告各位 已成功landing完毕 跟大家分享下AI产品/运营每天干什么\n🕘 10:00 - 10:30｜数据监测\n- 监测模型调用频率是否正常\n- 客户关键行为路径是否被卡断？DAU/转化率/使用深度有没有大幅波动？\n- 有无大模型幻觉集中爆发？如答非所问 / 知识幻觉 / 无效过滤\n📌 每天看的case都快能总结成一本笑话集锦了，如医疗行业的用户问agent病情，他回：你是公还是母\n🧩 10:30 - 11:30｜案例收集 & 使用路径梳理\n- Bot对话数据回流：标记高频提问 & 异常回答\n- 沉淀“黄金路径”：研究什么行为组合最容易让客户上手模型能力\n🤝 11:30 - 12:30｜产研对接：打磨模型\n- 和研发一起开模型优化会\n- 我会拿出一堆“幻觉Top案例”：输入是什么、问题在哪、用户到底想要什么输出\n- 研发判断是Prompt模板不精细？结构化数据解析失败？模型本体输出随机？这一步要能“翻译”两端语言：把客户场景翻成Prompt链，把技术思路翻成落地建议\n📚 14:00 - 16:00｜产品教育设计 & 内容资产沉淀\n- 与行业同学交流，做行业客户专属手册\n- 设计Prompt模板：不同行业话术入口\n- 生成可落地的教育方案\n🧾 16:00 - 18:00｜定制化项目推进 & 横向协同\n- 跟进重点行业客户的定制知识库上线进度\n- 推动行业Agent的使用反馈收集\n- 跟市场、销售沟通下一波的联合宣发节奏\n🏋️ 18:00 - 19:30｜健身，说也阻挡不了我这个时间健身\n🌙 19:30 - 21:00｜模型行为复盘\n- 把白天的异常调用做结构化记录\n- 整理新的模型幻觉case库，按行业 + 模型能力 + 幻觉类型分类（RAG偏离、语义匹配失败、Agent流转崩溃等）\n- 分析客户使用频次&行为转化率低的路径\n🕙 21:00 下班！"
+      ],
+      "company_mentions": [
+        "未明确"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a13ae5a0000000036030597?xsec_token=YB37OyhD0Jekrxv5MFZwIhyjS8W5MAw2RgfWP2EoDZTq8%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理需要具备需求分析能力，使用四层漏斗框架过滤伪需求、定义真问题、权衡方案、预演成功与风险。\n\n腾讯的AI产品总监展示了需求分析的方法论，强调从模糊需求中抽取出核心问题。",
+      "verbatim_signals": [
+        "在腾讯做AI需求必用的四层漏斗框架：第一层：伪需求过滤...第二层：真问题定义与量化...第三层：方案权衡与设计...第四层：成功预演与风险备案...",
+        "我们组空降了一位腾讯来的AI产品总监。首次需求评审会上，就让我们见识了什么叫降维打击"
+      ],
+      "company_mentions": [
+        "腾讯"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68e0078c00000000030367f3?xsec_token=YB4kCMNLlBhyABM5NAl5IKzZkXEa1HRdkAodl_g-8ZBy4%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "用户询问腾讯、阿里等大厂对AI产品经理的偏好，表明自己9本海硕背景，担心不被接受。",
+      "verbatim_signals": [
+        "到底喜欢什么样的ai产品经理啊 现在腾讯 阿里等大厂的ai产品到底喜欢什么样的人啊！想去大厂，9本海硕能接受不，太难了"
+      ],
+      "company_mentions": [
+        "腾讯",
+        "阿里"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0464c0000000003700fdd3?xsec_token=YB8ToLweoSdLiunVDfvYGhJxlgsdWnWTLhgHi-d-QvKNE%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "Apple中国招聘AI产品经理实习生，参与Agent Platform规划与产品设计，要求具备技术背景、重度AI用户、熟悉主流agent平台和vibe coding工具。",
+      "verbatim_signals": [
+        "AI 产品经理实习生 / AI Product Manager Intern 岗位职责 • 参与内部 Agent Platform（智能体平台）的规划与产品设计，负责部分核心功能模块的设计，共同探索和定义产品的用户旅程。"
+      ],
+      "company_mentions": [
+        "Apple"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/67d3fc92000000001b03d178?xsec_token=YB-2gnomoe8TvlKQTiwhBaeU4sAqjnEAZwdGFOeT25N6g%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI agent产品经理需要技术理解、懂用户、商业化思维和风险意识。技术理解包括掌握大模型技术边界（如token限制和幻觉问题）和熟悉LangChain等开发工具；懂用户包括人机协作心理和对话设计策略；商业化思维包括算力成本控制和竞品对标；风险意识包括合规设计和失效预案。\n\n米哈游2025年校招有Agent产品经理/云技术产品经理岗位，主要负责云游戏运营相关的产品化建设和迭代。",
+      "verbatim_signals": [
+        "做AI agent所需要的能力模型是酱⬇️：技术理解：1️⃣掌握大模型技术边界，如：token限制和幻觉问题。2️⃣熟悉类似LangChain的开发工具，至少能和研发上桌讨论技术方案。懂用户：1️⃣人机协作心理：比如，拟人化程度接受度（情感型用户需要更高拟真度）。2️⃣对话设计的策略：信息密度、容错提示、个性化表达（如Z世代用户偏好emoji辅助沟通）。商业化思维：1️⃣算力成本控制：评估模型推理成本（如GPT-4每千 token 0.03美元）与商业回报的平衡点。2️⃣竞品对标：分析C端竞品（如ChatGPT、Claude）与B端竞品（如微软Copilot）。风险意识：1️⃣合规设计：内容安全（防止生成违法信息）、可解释性（医疗Agent需提供决策依据）。2️⃣失效预案：设置人工接管流程、fallback话术（如“这个问题我需要更多时间思考”）。",
+        "这个岗位在内部既可以叫“Agent产品经理”也会叫“云技术产品经理”。是今年米哈游的校招岗位之一，主要负责云游戏运营相关的产品化建设和迭代"
+      ],
+      "company_mentions": [
+        "米哈游"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/66b0e4a400000000250313d3?xsec_token=YBrZ3WoQvKXv8nAQcec3PRoKP7YMY6ywdqPDaZObqMVp8%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "面试问题涵盖智能体产品设计、大模型与小模型并行、RAG处理、prompt调优、badcase处理、竞品分析等。\n\n00后agent应用产品经理，985硕非计算机专业，两段大厂实习经历。",
+      "verbatim_signals": [
+        "1、自我介绍内容...2、过往的项目中智能体产品如何设计的？...3、提到的大模型与小模型并行解决业务问题，是如何做到的？...4、如何评估你的模型指标？如何评估你的业务指标？...5、项目中提到的rag是如何处理的？...6、分享几个你提到的几个prompt调优的例子？...7、你可以举例说明一些具体的场景是如何处理badcase的...8、平时使用过哪些agent产品？...9、刚才提到的xxx使用体验上略有差异，如果是你你该如何优化？...10、如果让你来设计一款AI语音智能体产品？你该如何设计？",
+        "今天招了一个00后的agent应用产品经理...背景：985硕 非计算机专业 两段大厂实习经历"
+      ],
+      "company_mentions": [
+        "大厂"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6982b870000000002801d3d9?xsec_token=YBQG2yVhIiJYIdg7rC9nySF5bWm9fudNT9ZRmPTOHnWYE%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理需要掌握Agent冷启动方法，包括产品侧做精准小功能、数据侧造数据、用户侧找种子用户。\n\n面试中可能会被问到Agent冷启动的具体策略，如场景收窄、知识库构建、人工兜底等。",
+      "verbatim_signals": [
+        "面了个新人连Agent如何进行冷启动都不知道"
+      ],
+      "company_mentions": [
+        "互联网大厂"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69e5f5990000000023011cb0?xsec_token=YBXFkTdKgE90Ra3Qs5Q70X2fkJqyO1GliXNot5Ek2BK1E%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节AI Agent产品经理暑期实习面试经历，一面和二面已过，等待三面。\n\nAI Agent产品经理岗位，面向暑期实习，需要产品经理实习经历。",
+      "verbatim_signals": [
+        "新鲜的字节AI Agent产品经理暑期实习面经",
+        "AI Agent产品经理暑期实习"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69b3f9550000000023023762?xsec_token=YB_KCEP_L8wbounTLldwTuWoY-hPAB2N1S4hsQVVMUKX4%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI产品经理面试中，面试官关注Agent评估的五个指标：成、快、省、稳、安全。评估需考虑任务集设计，包括真实用户数据、竞品任务采样和人工构造任务。同时，进行对照实验，比较传统流程、简化版Agent和完整版Agent的效果。",
+      "verbatim_signals": [
+        "AI产品经理面试中，面试官关注Agent评估的五个指标：成、快、省、稳、安全。评估需考虑任务集设计，包括真实用户数据、竞品任务采样和人工构造任务。同时，进行对照实验，比较传统流程、简化版Agent和完整版Agent的效果。"
+      ],
+      "company_mentions": [],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6911c5b8000000000300ef16?xsec_token=YBBS8TsCgs4seerom5HIg4rncsQuGbs1jvHqHliaXQ6Lg%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "AI Agent产品经理的工作内容包括定义Agent行为、设计交互流程、评估模型效果等，与普通App产品经理有显著差异。\n\n2025年是AI Agent元年，Agent创业潮来临，该赛道急需资深产品经理。",
+      "verbatim_signals": [
+        "AI Agent产品经理每天都在干嘛？...做的事情和普通产品经理有什么差别？",
+        "2025是AI Agent的元年，Agent的创业潮来了。很多产品同学都在挤入这个赛道，同样，这个赛道也是急缺资深产品经理的。"
+      ],
+      "company_mentions": [
+        "互联网大厂"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68c54ec2000000001d01cc74?xsec_token=YBkzEtWY35RQds_hprSMABbryp2KPX-a2GmbSNt2j9p9k%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节豆包资深策略产品经理面试题，核心负责知识问答中的联网搜索部分（RAG系统）的产品策略。",
+      "verbatim_signals": [
+        "核心就是负责知识问答中的“联网搜索”部分，也就是我们常说的RAG（检索增强生成）系统中的产品策略。"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a042dd900000000380366c0?xsec_token=YBBSm9q7rUaK4nGgyPYjULEVJPqQVw5vVgnRxtyPRYUjc%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节豆包AI产品经理面试时长1小时35分钟，难度很大",
+      "verbatim_signals": [
+        "字节豆包AI产品经理1h35min面试（贼难）"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/691591150000000007008085?xsec_token=YBbcvINwqu1MGFQLqM_1LEiONNBYDBjBqDI-a-uUblvCM%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节跳动豆包爱学AI产品经理面试经验已复盘",
+      "verbatim_signals": [
+        "字节跳动｜豆包爱学ai产品经理面经已复盘✅"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f9ab1600000000220241e4?xsec_token=YBX4EXvrQxucCsxaVkiD6zaLw5NvZZVEwTKrPP0i_1y74%3D&xsec_source=app_share",
+      "origin_sub_cat": "AI PM",
+      "content": "字节跳动豆包爱学AI产品经理面试中，面试官考察对通用大模型在K12教育辅导中能力短板和风险的认知，包括技术理解、教育行业专业认知、风险识别、价值观与责任感、产品思维深度、行业前瞻性。",
+      "verbatim_signals": [
+        "Q6: 目前市面上的通用大模型，在直接应用于'严肃的K12教育辅导'时，最大的'能力短板'或'风险'是什么？"
+      ],
+      "company_mentions": [
+        "字节跳动"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6953425e000000021f00f294?xsec_token=YBESGoHrR-DEWyhY3gl_h-odUMoA32f3tSS_3t9Wc1e1k%3D&xsec_source=app_share",
+      "origin_sub_cat": "自营FOF",
+      "content": "知名券商招聘FOF研究员，要求2-4年FOF研究、基金评价或策略开发经验，尤其对CTA和宏观策略有深刻理解，需熟练掌握Python等编程语言。",
+      "verbatim_signals": [
+        "知名券商-FOF研究员-上海"
+      ],
+      "company_mentions": [
+        "知名券商"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68f5d3770000000003038fc1?xsec_token=YBo_FODNuCvfZ8VVMUXBjdv9KvxJ722ovoBrDdB5IY_KU%3D&xsec_source=app_share",
+      "origin_sub_cat": "自营FOF",
+      "content": "公募FOF从业者感到价值感弱，被回撤指标硬控，面临追涨科技回调、规模压力等问题。\n\n公募FOF行业面临价值困惑，研究员在调多资产回测模型，但模型在真正CTA面前可能拿不出手。",
+      "verbatim_signals": [
+        "做公募FOF的感觉价值感很弱，今年一个快死的赛道被招行类投顾模式救起来了，看上去规模是提高了，但从业的大家，还好吗？有没有被回撤指标硬控，黄金是不是买的太多了，追涨的科技回调时怎么办？其他家又发了新的，我的产品规模怎么办？",
+        "研究员们还在调多资产回测模型吗，时序动量的模型在真正的cta面前拿的出手吗，选基还在回测根据几个因子构建模型看过往调仓超额收益和实际上只有标签细化但没有超额认知的基金调研报告吗？"
+      ],
+      "company_mentions": [
+        "招行"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share",
+      "origin_sub_cat": "财富管理FOF",
+      "content": "FOF（基金中的基金）近期在公募市场热度上升，发行数量和规模大幅增长，银行渠道推动明显，产品设计以短持有期、偏债混合策略为主。\n\nFOF总规模突破3000亿，头部公司如富国、中欧、易方达、广发规模超200亿，但行业格局未固化。\n\nFOF热度背后原因包括存款利率下行、市场波动大、银行渠道转型、产品设计适配等。\n\nFOF行业趋势：从选基转向配置，产品形态纳入黄金ETF、REITs、QDII等，与养老联动。",
+      "verbatim_signals": [
+        "FOF（基金中的基金）突然成了公募市场的热门话题。截至3月14日，今年全市场已经有40只FOF成立，合计募了619.73亿元。跟去年一季度比，数量增加了233%，规模增长了361%。",
+        "截至3月14日，FOF总规模突破3000亿。84家公募有布局，但头部还没固化：规模最大的管理人约245亿，规模超100亿的只有11家。第一梯队：富国、中欧、易方达、广发都超200亿。",
+        "一是存款利率下行，叠加市场波动大，个人做择时、选基金的难度在增加。FOF的逻辑是通过专业选基+多资产配置，降低单一资产的波动。二是银行渠道从'卖产品'转向'卖配置方案'。三是产品设计的适配。",
+        "FOF正从'选基'转向'配置'，有的公司已经把'FOF部'改名'多元资产配置部'。产品形态在变，部分FOF开始纳入黄金ETF、REITs、QDII等资产。养老联动，很多客户先通过普通FOF体验多资产配置，再通过Y份额布局养老投资。"
+      ],
+      "company_mentions": [
+        "富国基金",
+        "中欧基金",
+        "易方达基金",
+        "广发基金",
+        "博时基金",
+        "交银施罗德基金",
+        "民生加银基金",
+        "招商银行"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f4bed20000000022029a7d?xsec_token=YBHMLfffsKSk0y4CLcVmrJdxE13kul4jDBllso1-TDakk%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "公募产品经理负责全周期管理基金，需要细心、抗压、数据控，技能包括设计、协作、分析，发展路径从新人到总监。\n\n面试公募产品经理需要回答行业成熟成长大等问题。\n\n选公司要关注投研实力和产品布局。",
+      "verbatim_signals": [
+        "公募产品经理攻略📚：全周期管理基金，细心抗压数据控首选 💼选公司盯投研实力+产品布局，面试答行业成熟成长大 📊技能设计协作分析，发展新人到总监路径清晰💯",
+        "面试答行业成熟成长大",
+        "选公司盯投研实力+产品布局"
+      ],
+      "company_mentions": [
+        "公募基金公司"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a06e57600000000060203dd?xsec_token=YBG4oMV0GM4EvWWfreDkf8CNldd4GiWDoLVZq1kwR9yoQ%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "公募基金产品经理需要基于行业趋势、客户需求、投研判断与监管导向等多重因素设计产品，而非简单追风口。\n\n公募基金行业管理规模持续增长、产品供给日益丰富。\n\n摩根资产管理资深产品经理刘楠在复旦大学分享公募基金产品发展趋势。",
+      "verbatim_signals": [
+        "基金产品的设计要基于行业趋势、客户需求、投研判断与监管导向等多重因素，远非“追风口”那么简单。",
+        "公募基金行业管理规模持续增长、产品供给日益丰富",
+        "摩根资产管理走进复旦大学管理学院，资深产品经理刘楠作为主讲嘉宾，分享了公募基金行业的发展现状与投资思考。"
+      ],
+      "company_mentions": [
+        "摩根资产管理",
+        "摩根基金"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/68bc3028000000001d004b66?xsec_token=YBE0wtosqLYp_7vFWfdihTqjCzpKHyztzMbpKke4C5hdo%3D&xsec_source=app_share",
+      "origin_sub_cat": "公募指数研究员",
+      "content": "易方达指数投资支持专员面试题目包括指数基金运作原理、指数编制方法、估值核算、数据来源、ETF与普通指数基金区别、申赎清单处理效率、指数管理系统、合规风险、学习计划、重要能力等。",
+      "verbatim_signals": [
+        "1. 请解释指数基金的运作原理，与主动管理型基金有哪些主要区别？\n2. 常见的指数编制方法有哪些？它们各自的特点是什么？\n3. 如何协助进行指数基金的估值核算？关键步骤有哪些？\n4. 指数数据的来源有哪些？如何确保数据的准确性和及时性？\n5. ETF与普通指数基金在运作上有哪些区别？支持工作有何不同？\n6. 如何提高指数基金申赎清单的处理效率？可能遇到哪些挑战？\n7. 你了解哪些指数管理系统？如何利用系统进行成分股调整跟踪？\n8. 指数基金运作中需要注意哪些合规风险？如何防范？\n9. 如何快速了解一个新的指数产品？请描述你的学习计划。\n10. 你认为指数投资支持专员最重要的能力是什么？为什么？"
+      ],
+      "company_mentions": [
+        "易方达"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69fea769000000023802b1d0?xsec_token=YBK5xJnNXzkFWINmwp0mc3mBx2bmTdui7k0pq7BXBb_Lg%3D&xsec_source=app_share",
+      "origin_sub_cat": "利率宏观策略",
+      "content": "真正的宏观策略需要自上而下判断经济环境（复苏/衰退、通胀、货币政策、全球流动性），然后决定做多/做空哪些资产，具备跨资产能力和风险预算思维。\n\n市场上常见的伪宏观类型包括：债券底色型、股票增强型、CTA换马甲型、多策略拼接型。",
+      "verbatim_signals": [
+        "真正的宏观管理人，第一步不是选股票，而是先判断经济环境。",
+        "别再被“宏观”两个字骗了"
+      ],
+      "company_mentions": [],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69a2ebe6000000001a030a6c?xsec_token=YBfLk_AZ3ZnMlq0yQIdrwv96k4DBcXuzxS-8EogYI84mY%3D&xsec_source=app_share",
+      "origin_sub_cat": "利率宏观策略",
+      "content": "券商宏观实习工作内容包括课题项目、专题报告、深度报告、日报周报、路演PPT，成长路径明晰。\n\n宏观实习需要高精力和高表达能力，无法实现work life balance。\n\n实习中精进了python编程技能和与GPT深度对话的习惯，对各个机器学习模型熟悉度提升。\n\n熟练使用彭博、CEIC、FRED、英为财情、IMF、TRADEDATA等数据源，以及大型投行报告搜集。\n\n好的报告是让人看第一句话就能明白观点，并认为有道理。",
+      "verbatim_signals": [
+        "实习四个月的工作内容：课题项目、专题报告、深度报告、日报周报、路演PPT，工作量比较饱和，但成长路径也非常明晰",
+        "需要高精力和高表达能力才能在这个行业做到很好，而且要有不断学习和积累的习惯，而且无法实现work life balance",
+        "在干中学中精进了python编程技能和与GPT深度对话的习惯，对各个机器学习模型熟悉度提升",
+        "熟练彭博，CEIC，FRED，英为财情，IMF，TRADEDATA，大型投行（花旗，野村等）数据与报告的搜集",
+        "好的报告是让人看第一句话就能明白观点，并认为你说的有道理"
+      ],
+      "company_mentions": [
+        "未知券商"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    },
+    {
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a0f1d3e000000000702ace7?xsec_token=YB9MVh1sELWdJvRY7-4rURZo9qtVNwXXJJLAGIjlCzytE%3D&xsec_source=app_share",
+      "origin_sub_cat": "卖方研究员·消费医药周期",
+      "content": "中信证券多项业务指标连年夺魁，是券商中的'神'级公司。\n\n国泰海通由国开君安和海通证券合成，资本实力跃居行业榜首。\n\n中金公司是首家中外合资投行，投行业务标杆。\n\n华泰证券是金融科技+财富管理领域的标杆。\n\n中信建投证券降薪严重，与前三个相比掉队。\n\n2025年证券行业呈现'强者恒强'的马太效应，头部券商占据大部分市场份额。\n\n头部券商总部前台岗求职难度不输国有总行，建议根据学历背景和实习相关性合理选择。\n\n随着大A慢牛市场，证券公司实习机会增多，26届应把握机会。",
+      "verbatim_signals": [
+        "中信证券可以单独开一个'神'级，多项业务指标连年夺魁",
+        "国泰海通由国开君安和海通证券合成而成的新龙头，资本实力跃居行业榜首",
+        "中金公司，首家中外合资投行，投行业务标杆",
+        "华泰证券，金融科技+财富管理领域的标杆",
+        "中信建投证券，降薪严重，跟前三个相比，确实有点掉队了"
+      ],
+      "company_mentions": [
+        "中信证券",
+        "国泰海通",
+        "中金公司",
+        "华泰证券",
+        "中信建投证券",
+        "申万宏源",
+        "招商证券",
+        "银河证券"
+      ],
+      "relevance_score": 0.8,
+      "hit_count": 1
+    }
+  ],
+  "post_count": 40,
+  "company_mention_dedup_count": 43
+}

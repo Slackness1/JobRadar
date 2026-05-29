@@ -1,0 +1,206 @@
+{
+  "sub_cat": "债券承做DCM·ABS/REITs",
+  "sub_cat_slug": "dcm_abs_reits_underwriting",
+  "strategy_type": "固定收益",
+  "industry_focus_candidates": [
+    "公募债承做",
+    "私募债承做",
+    "ABS/REITs 承做",
+    "城投债",
+    "金融债",
+    "公司债",
+    "类REITs/结构间ABS",
+    "不动产证券化"
+  ],
+  "institution_tier_candidates": [
+    "头部券商投行 DCM",
+    "中型券商投行 DCM",
+    "券商资管 ABS/REITs 承做",
+    "券商投行固定收益融资总部"
+  ],
+  "typical_companies": [
+    {
+      "name": "中信证券",
+      "tier": "头部券商投行 DCM",
+      "team": "投行委固定收益部 / DCM",
+      "must_have": true,
+      "notes": "头部券商 DCM 承做体量行业第一档,公司债/金融债/ABS 全条线齐备"
+    },
+    {
+      "name": "中信建投证券",
+      "tier": "头部券商投行 DCM",
+      "team": "债券承销部 / 资产证券化业务部",
+      "must_have": true,
+      "notes": "DCM + ABS 承做长期前三,城投与金融债主力"
+    },
+    {
+      "name": "中金公司",
+      "tier": "头部券商投行 DCM",
+      "team": "固定收益部 / 结构融资部",
+      "must_have": true,
+      "notes": "公募 REITs 申报与承做头部之一,跨境与结构化产品强"
+    },
+    {
+      "name": "华泰证券",
+      "tier": "头部券商投行 DCM",
+      "team": "债券承销部 / 资产证券化部",
+      "must_have": true,
+      "notes": "ABS 与公募 REITs 承做活跃,产业类 ABS 经验丰富"
+    },
+    {
+      "name": "平安证券",
+      "tier": "中型券商投行 DCM",
+      "team": "债券融资事业部",
+      "must_have": false,
+      "notes": "bundle seed,DCM 承做团队规模可观"
+    },
+    {
+      "name": "国信证券",
+      "tier": "中型券商投行 DCM",
+      "team": "债务融资部",
+      "must_have": false,
+      "notes": "bundle seed,公司债/城投承做活跃"
+    },
+    {
+      "name": "国金证券",
+      "tier": "中型券商投行 DCM",
+      "team": "固定收益总部",
+      "must_have": false,
+      "notes": "bundle seed,中型券商 DCM 代表"
+    },
+    {
+      "name": "申万宏源证券",
+      "tier": "中型券商投行 DCM",
+      "team": "固定收益融资总部 / 资管子公司 ABS 承做",
+      "must_have": false,
+      "notes": "verbatim 显示申万 DCM 在固定收益融资总部,ABS 在资管子公司"
+    },
+    {
+      "name": "兴业证券",
+      "tier": "中型券商投行 DCM",
+      "team": "投行 - 债券承做 / 资产证券化承做",
+      "must_have": false,
+      "notes": "verbatim 显示投行下设债券承做助理与资产证券化承做助理"
+    },
+    {
+      "name": "天风证券",
+      "tier": "中型券商投行 DCM",
+      "team": "债券条线 / 质控合规部(中台)",
+      "must_have": false,
+      "notes": "verbatim 显示债券一级承做的中台质控合规"
+    },
+    {
+      "name": "国泰海通证券资管",
+      "tier": "券商资管 ABS/REITs 承做",
+      "team": "REITs 业务团队",
+      "must_have": false,
+      "notes": "verbatim 显示 REITs 存续期管理 + 投研体系搭建实习"
+    }
+  ],
+  "hard_requirements": [
+    "education: 海内外重点院校硕士及以上,985/211、双一流或海外 QS 前 50 优先;金融、金融工程、经济、法学、会计相关专业优先",
+    "certificates: 证券从业资格证为基本门槛;CFA/CPA/法律职业资格证加分;持续督导岗位优先 CPA",
+    "experience: 需有头部券商投行 DCM/ABS 承做实习 ≥ 2 段;熟悉债券发行全流程(立项、尽调、底稿、申报材料、簿记建档、反馈回复、发行执行、存续管理);Wind/iFinD/中证报价系统/上交所债券业务系统/银行间市场本币交易系统操作熟练",
+    "skills: Word/Excel/PPT 制作能力(募集说明书、评级报告、推介材料);债券承销底稿与申报文件规范(交易所与银行间两套体系);ABS 基础资产尽调与现金流模型;REITs 底层基础设施估值与运营数据校验",
+    "≠ 固收交易员(二级市场买卖):承做做的是一级市场发行,核心是项目执行与材料制作,KPI 是发行成功率与项目落地;固收交易员在二级市场报价做市/自营持仓买卖,KPI 是交易盈亏与持仓久期管理",
+    "≠ 信用研究员(信用主体分析/评级):承做对接发行人做项目执行,信用评级由外部评级机构(中诚信/联合资信/大公)出具;券商内部信用研究员是为自营/资管投资决策服务,关注主体违约概率而非发行流程",
+    "≠ 投行 IBD 股权(IPO/再融资):股权承做在投行的股权融资部/承销保荐子公司,做 IPO/定增/可转债;债券承做在固定收益融资总部,产品是公司债/企业债/金融债/ABS/REITs,执行节奏、监管口径、底稿规范完全不同",
+    "≠ 固收+多资产组合投资:承做不做投资决策、不持仓、不择时;固收+在基金/保险资管做组合配置(债基/REITs/可转债权重)",
+    "≠ DCM 销售/簿记销售:DCM 销售对接机构投资者卖券、簿记建档时报价;DCM 承做对接发行人做项目尽调与材料申报,两者在同一债券生命周期但角色不同(verbatim:'机构销售...销售交易岗...产业项目经理')"
+  ],
+  "soft_signals": [
+    "材料质量与细节意识:募集说明书、尽调报告、评级辅助材料动辄上百页,错一个数字交易所反馈一轮就是几周延误",
+    "高强度项目执行能力:债券承做单项目周期 2-6 个月,常驻发行人现场尽调与簿记冲刺,可承受连续出差与加班",
+    "对监管口径敏感:交易所(上交所/深交所)与银行间(交易商协会/NAFMII)两套体系规则不同,反馈意见需快速响应",
+    "财务与法律基础:看得懂发行人三表、了解担保增信结构、能与律师/会计师/评级机构沟通",
+    "客户对接与服务意识:DCM 是高频回头业务,与发行人(尤其国企/城投/金融机构融资部)保持关系决定项目储备"
+  ],
+  "transfer_paths": [
+    "DCM 承做 → DCM 销售/簿记(同一产品线下游,客户面从发行人切到投资人)",
+    "DCM 承做 → 发行人融资部(国企/城投/金融机构融资条线,甲方化)",
+    "ABS/REITs 承做 → 公募 REITs 基金经理助理/存续期管理(国泰海通/中金/华夏等公募 REITs 团队)",
+    "ABS/REITs 承做 → 不动产投资/产业基金(产业类 ABS 经验可迁移至 Pre-REITs/不动产私募)",
+    "DCM 承做 → 信用评级机构(中诚信/联合资信)信评分析师 — 路径存在但少见,主要是材料制作 → 主体评级思路转向",
+    "DCM 承做 → 投行综合岗(并购/ECM)— 路径存在但需要重新学习股权产品规则"
+  ],
+  "pitfalls": [
+    "ABS/REITs 承做 ≠ 信用研究:承做是项目执行(尽调、材料、申报、簿记),信用研究是信评分析(违约概率、行业利差);用信用研究简历投承做岗会被认为'不懂项目流程',反之亦然 — 这是 T13 #18/#65/#99 错样本的核心成因",
+    "DCM 销售 ≠ DCM 承做:销售对接投资人簿记报价,KPI 是新发分销份额;承做对接发行人做材料申报,KPI 是项目落地数与发行成功率;同在 DCM 条线但日常工作与考核指标完全分离",
+    "项目执行 ≠ IBD IPO:债券承做与股权 IPO 承做都叫'投行承做',但产品规则、监管口径、底稿要求、客户类型差异巨大;混投会被认为方向不清",
+    "不要把'公募 REITs 申报承做'误投到'公募基金投研'岗 — 前者在券商投行/券商资管做发行执行,后者在公募基金做组合管理与策略研究",
+    "中型券商 DCM(申万/兴业/天风)的债券承做、ABS 承做、股权承做分属不同部门(verbatim:'股权承做在承销保荐子公司,债券承做在固定收益融资总部,ABS 承做在资管子公司'),投递前要确认岗位归属",
+    "'债券承做助理'与'债券业务质控合规'(中台)不同(verbatim:天风证券质控合规部是中台岗位),前者做项目执行,后者做合规审核,职业路径分叉",
+    "兴业证券一类券商投行学历门槛可放松至'末九'同 level(verbatim),但头部三中一华 DCM 仍以 C9 + 海外 QS 前 30 为主流"
+  ],
+  "interview_style": [
+    "面试以'项目细节+材料规范'为主:让你拆解最近一单参与的债券或 ABS 项目(发行人是谁、产品类型、基础资产、增信结构、承销规模、簿记区间、最终利率、有没有撤回反馈意见)",
+    "高频问题:'谈谈交易所债与银行间债的差异'、'ABS 的基础资产类型有哪些、为什么用 SPV 结构'、'公募 REITs 与类 REITs 的核心区别'、'城投债的政策窗口与化债背景'",
+    "考察对反馈回复的实战经验:'交易所给过你哪些反馈、你怎么回复'、'信评下调对存量债定价的影响怎么评估'",
+    "对 ABS/REITs 岗位会问基础资产估值与现金流模型搭建(收费收益权、CMBS、保障房 REITs)",
+    "性格考察:能否承受高强度出差与项目冲刺、与发行人/律师/会计师的沟通方式、抗压能力"
+  ],
+  "compensation_signal": {
+    "intern_daily": "150-300 元/天(头部券商投行实习补贴),部分券商无补贴只开实习证明(verbatim:国泰海通证券资管 REITs 实习'每日餐补,无工资补贴')",
+    "campus_total": "应届校招总包 30-60 万(头部券商 DCM 第一年),中型券商 15-30 万",
+    "3-5y_range": "DCM 承做 3-5 年 50-150 万,头部券商 ABS/REITs 承做项目奖金高的年份可冲 200 万+",
+    "vs_交易岗": "verbatim 收入对照:'DCM(15-300)':承做岗低位接近 DCM 销售,高位明显低于固收交易(30-500),但项目奖金可观、波动比交易岗小",
+    "structural": "底薪相对稳定,大头看项目奖金(单单分成),与团队全年承销规模强挂钩;资管子公司 ABS 承做与投行 DCM 收入结构相近"
+  },
+  "career_trajectory": [
+    "校招起步: 头部券商 DCM 承做助理(分析师) — 2-3 年做项目执行、尽调、材料、簿记",
+    "3-5 年: 高级分析师/项目经理 — 独立带小项目、对接发行人主要联系人",
+    "5-8 年: 副总裁/团队负责人 — 负责项目储备与客户开拓,核心 KPI 转为承销规模与团队产能",
+    "8-15 年: 业务董事/MD — 负责区域条线或细分产品(城投/金融债/ABS/REITs),与发行人高层维护关系",
+    "横向出口: 转发行人融资部、公募 REITs 基金经理、不动产投资基金、信用评级机构"
+  ],
+  "verbatim_quotes": [
+    {
+      "quote": "投行业务助理、债券承做助理、资产证券化承做助理、承销发行助理，一共4个岗位。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69ce44cc000000001d01f7ed?xsec_token=YBIR2Y3LBhuk-vRmL2g0YltYiXkuB0U2Z6pD9wk7QrRGg%3D&xsec_source=app_share",
+      "context": "兴业证券投行下设的债券与 ABS 承做岗,可佐证 DCM 与资产证券化承做在中型券商投行的标准岗位拆分"
+    },
+    {
+      "quote": "质控合规部为债券业务一级承做的中台岗位，实习生将进行债券项目立项资料核查、尽职调查工作底稿的核查、内核项目资料核查、客户洗钱等级评定及受益人识别等质量控制和合规工作，可迅速了解债券发行业务全流程。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a1572ec000000000702d717?xsec_token=YBJXceSEhkLQc7puTGKMxN_jjSjoFry-zyFtIIxEYC4MU%3D&xsec_source=app_share",
+      "context": "天风证券债券条线质控合规岗,verbatim 划清承做(前台) vs 质控合规(中台)的边界,佐证 pitfalls 中职业路径分叉"
+    },
+    {
+      "quote": "“承销保荐子公司”里面的均为股权承做。...“固定收益融资总部”里面的“业务承做”即为“债券承做”...“资管子公司”里面的“项目承做岗”，即为“ABS承做”。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f858120000000235022921?xsec_token=YBTho_UcH_pdvehUjeddHAVis2eeh-G03PPKL_3YfNf5k%3D&xsec_source=app_share",
+      "context": "申万宏源股承/债承/ABS 承做分别归属三个不同部门,直接佐证 hard_requirements 中 DCM 承做 ≠ 股权承做的部门归属与岗位边界"
+    },
+    {
+      "quote": "公募REITs、结构间ABS、类REITs是三种不同的不动产证券化工具。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69f02746000000003700ea35?xsec_token=YBcLFWSWfmIW4YRxWS0ex2PjUnDtG4fAHFAKKVpCJNEdU%3D&xsec_source=app_share",
+      "context": "三种不动产证券化工具是 ABS/REITs 承做岗位的核心产品认知,interview_style 高频问题来源"
+    },
+    {
+      "quote": "无论是投行的 DCM、ECM 岗，还是机构销售部，这些直接面对客户、建立关系、创造收入的岗位，才是离钱和信息最近的地方。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/690438f30000000004006a6a?xsec_token=YBzsHB2IkeocWdplFvSZGVt7xK-1mBxXtpf9B2nn4NH28%3D&xsec_source=app_share",
+      "context": "DCM 与机构销售并称'离钱最近的岗位',佐证 soft_signals 中客户对接与服务意识的重要性"
+    },
+    {
+      "quote": "固收DCM岗位收入范围15-300万，中型券商最高，小型券商最低。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/686f24b5000000000b02f700?xsec_token=YBKNUC6T_fspMeLf3C25n-CL1M3OvH4CMv6t23RSE099g%3D&xsec_source=app_share",
+      "context": "固收行业岗位薪酬带宽 verbatim,DCM 承做与销售合并口径 15-300 万,直接支撑 compensation_signal"
+    },
+    {
+      "quote": "协助基金经理开展REITs存续期全流程管理，包括底层基础设施资产运营监控、合规信息披露支持、投资者关系辅助等；参与REITs投研体系搭建，涵盖行业政策解读、底层资产市场动态分析、估值模型数据校验与参数优化、投研报告撰写等；辅助完成项目尽调资料整理、运营数据可视化呈现、投决会议材料汇编等支持性工作。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share",
+      "context": "国泰海通证券资管 REITs 实习 JD verbatim,展示 ABS/REITs 承做岗的存续期管理 + 申报材料 + 估值校验完整职责面"
+    },
+    {
+      "quote": "2026年5月18日，华夏、中金、易方达、南方四家基金公司向证监会正式上报首批REITs指数基金，均跟踪中证REITs全收益指数（932047.CSI），标志国内REITs指数化投资正式起步。",
+      "source_url": "https://www.xiaohongshu.com/discovery/item/6a12f2c80000000237007d97?xsec_token=YBusPMoncitcB1kRRDhQ1vSt6MLNwncklmgIZRvqql0jk%3D&xsec_source=app_share",
+      "context": "2026 公募 REITs 指数化起步事件,佐证 REITs 承做行业目前处于扩容窗口期"
+    }
+  ],
+  "hiring_season": {
+    "campus_main": "9-11 月秋招(头部券商 DCM 校招集中放 HC,中信/中金/华泰/中信建投投行各产品线分开招)",
+    "campus_supplement": "次年 3-5 月春招补录(中型券商 DCM 与资管子公司 ABS 承做团队补招居多)",
+    "intern_window": "全年滚动,大三/研一暑期(7-9 月)与寒假(1-2 月)是头部投行 DCM 留用前的主要实习窗口",
+    "abs_reits_special": "公募 REITs 申报窗口与监管节奏强相关,2026 年指数化起步与新基础设施扩容带来阶段性增量 HC"
+  },
+  "data_confidence": "medium",
+  "data_basis": "bundle 含 11 帖 mined XHS 与 25 家固定收益 strategy ground_truth 公司池;DCM/ABS/REITs 直接命中 verbatim 6 条(申万宏源岗位拆分、兴业承做岗、天风质控合规、REITs 三种工具、DCM 薪酬带宽、国泰海通 REITs 实习);ground_truth 池中 must_have=true 公司主要分布在信评/固收交易/固收+,DCM 承做团队 typical_companies 由 bundle seed + 头部券商共识(中信/中金/华泰/中信建投)合成补全;边界划分(承做 ≠ 交易 ≠ 信评 ≠ IBD)有 verbatim 直接支撑(申万部门归属、天风质控边界);REITs/ABS 产品认知 verbatim 充分,但具体团队 headcount 与项目分成机制缺乏直接帖子佐证,故 confidence 标 medium 而非 high"
+}

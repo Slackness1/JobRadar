@@ -1,0 +1,78 @@
+{
+  "sub_cat": "机构销售·销售支持",
+  "sub_cat_slug": "institutional_sales_support",
+  "strategy_type": "卖方研究",
+  "industry_focus_candidates": [
+    "权益",
+    "固收",
+    "衍生品",
+    "FOF/资产配置"
+  ],
+  "institution_tier_candidates": [
+    "头部券商研究所",
+    "中型券商研究所",
+    "一线公募",
+    "外资行/外资投行"
+  ],
+  "typical_companies": [
+    {"name": "中信证券", "tier": "头部券商研究所", "xhs_mention_count": 3, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "中金公司", "tier": "头部券商研究所", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "国泰海通证券", "tier": "头部券商研究所", "xhs_mention_count": 4, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "华泰证券", "tier": "头部券商研究所", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "申万宏源证券", "tier": "中型券商研究所", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "广发证券", "tier": "中型券商研究所", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "国金证券", "tier": "中型券商研究所", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "南方基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "易方达基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "华夏基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "服务机构客户、协调路演与销售材料，不是写卖方研报或拉评分（区分卖方研究员）",
+    "做客户覆盖、订单收集与询价撮合，不管头寸/P&L/做市报价（区分固收交易员）",
+    "侧重客户关系与产品分发，不做利率走势预测或大类资产策略写作（区分利率宏观）",
+    "对接公募/私募/同业等机构买家，不做发行人信评打分（区分信用研究）",
+    "熟悉Wind/PPT/Excel与销售材料整理，掌握至少一类资产（权益/固收/衍生品/FOF）的客户语言"
+  ],
+  "soft_signals": [
+    "重视客户响应速度、沟通能力和路演执行细节，不以写出深度报告为优先目标",
+    "对研究所、交易部、产品部的资源整合敏感，懂得做研究员和客户之间的桥梁",
+    "可承受KPI（覆盖客户数、分仓佣金、产品销量）压力并能持续维护人脉网络",
+    "对市场叙事和热点更新敏感，能快速把研究员观点转译成客户能懂的销售话术"
+  ],
+  "transfer_paths": [
+    {"from": "卖方研究员", "to": "机构销售", "difficulty": "low", "notes": "研究框架可直接用于客户路演，但需补客户覆盖技巧与销售KPI意识"},
+    {"from": "公募/券商研究助理", "to": "机构销售支持", "difficulty": "low", "notes": "对研究产品熟悉，转去做销售支持/路演协调相对自然"},
+    {"from": "机构销售", "to": "FOF投研", "difficulty": "medium", "notes": "对基金经理认知全面，可转FOF研究但需补基金画像与组合构建"},
+    {"from": "固收交易员", "to": "固收销售", "difficulty": "medium", "notes": "产品熟、客户名单可继承，但需从盘口思维切到客户响应思维"},
+    {"from": "财富管理客户经理", "to": "机构销售", "difficulty": "high", "notes": "面客经验有，但客户对象从零售转机构，话术与产品复杂度需重学"}
+  ],
+  "pitfalls": [
+    "标“客户经理”但实际在写研报、跑数据、做行业模型的 → 归卖方研究员，不归这",
+    "标“销售交易”“交易员”但岗位本质是做市/自营/资金头寸的 → 归固收交易员，不归这",
+    "标“渠道销售”面向C端零售或银行网点的 → 归财富管理，不归机构销售"
+  ],
+  "interview_style": "常围绕：你怎么覆盖一个新客户、研究员观点你怎么传递、客户提反对意见怎么应对、对当前权益/固收市场的客户关心点、Wind/PPT做销售材料的实操、对分仓佣金或产品销量KPI的理解、为什么不做研究员而选销售。",
+  "compensation_signal": "头部券商客户经理6-15万/月（北京）、12-24万/月（上海陆家嘴），副总经理级12-35万/月；公募渠道/机构销售HC稳定但底薪低于投研。",
+  "career_trajectory": "早期从机构销售助理/路演协调/销售支持切入，中期做客户覆盖经理（按机构类型或区域分配），长期可走机构业务负责人、分支机构总经理，或横向转FOF研究、买方IR、产品经理。",
+  "verbatim_quotes": [
+    {"quote": "机构客户总部-机构销售", "source_url": "https://www.xiaohongshu.com/discovery/item/69f858120000000235022921?xsec_token=YBTho_UcH_pdvehUjeddHAVis2eeh-G03PPKL_3YfNf5k%3D&xsec_source=app_share", "context": "申万宏源机构销售条线"},
+    {"quote": "渠道/机构销售，咱不说这个岗位的好，至少HC还是公募里面很充足的", "source_url": "https://www.xiaohongshu.com/discovery/item/67e3d5db000000001d01ceac?xsec_token=YB8O0M4reImwTRSyyEvQ9eFgk8SX0hzbL5BmAoxqEf41w%3D&xsec_source=app_share", "context": "公募渠道/机构销售HC"},
+    {"quote": "资管业务助理：分为机构销售、研究和交易", "source_url": "https://www.xiaohongshu.com/discovery/item/69f0aa2a000000001f00110b?xsec_token=YBM4eHPfnRLI_HE6okUGLLCLVqw1NH4xXpzkkb0_R63A8%3D&xsec_source=app_share", "context": "中信证券资管业务条线"},
+    {"quote": "HC最多的，我认为是固收销售交易（销售交易）这个岗位。", "source_url": "https://www.xiaohongshu.com/discovery/item/69b90ca10000000023021f8d?xsec_token=YBYhJN9E0l4EYISbz8EyT45yhJlVJg1vFoGq71jBMKgl8%3D&xsec_source=app_share", "context": "国泰海通固收销售交易HC"},
+    {"quote": "fof投研挺适合研究所机构销售转型的", "source_url": "https://www.xiaohongshu.com/discovery/item/69db4636000000001d01f74d?xsec_token=YBqC8zKLBHTutVyhZchm3Ds1Ipq2u3jtC5W_Ee8EKRM0o%3D&xsec_source=app_share", "context": "机构销售→FOF转型路径"},
+    {"quote": "券商研究所的研究员，其核心竞争力根本不是研究和写报告，而是销售和服务。", "source_url": "https://www.xiaohongshu.com/discovery/item/690438f30000000004006a6a?xsec_token=YBzsHB2IkeocWdplFvSZGVt7xK-1mBxXtpf9B2nn4NH28%3D&xsec_source=app_share", "context": "卖方核心是销售而非研究"},
+    {"quote": "易方达基金-渠道销售支持实习生", "source_url": "https://www.xiaohongshu.com/discovery/item/6988a604000000000c037d42?xsec_token=YBXUa0AU1fbRcF0U_SY2oKCHoD02w21Ub_pnNoMbjkgQI%3D&xsec_source=app_share", "context": "公募渠道销售支持实习"}
+  ],
+  "hiring_season": {
+    "spring": "春招以销售支持实习/路演协调实习为主，HC不稳定但比投研多",
+    "fall": "秋招券商/公募机构销售HC较投研充裕，主要覆盖权益/固收/衍生品销售条线",
+    "verbatim": "渠道/机构销售，咱不说这个岗位的好，至少HC还是公募里面很充足的",
+    "peak_month": [3, 4, 6, 9, 10]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 15,
+    "company_mention_count": 19,
+    "saif_alumni_count": 0
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "sub_cat": "基金产品运营·中后台",
+  "sub_cat_slug": "fund_product_ops_middle_back",
+  "strategy_type": "多资产_FOF_衍生品",
+  "industry_focus_candidates": [
+    "公募基金运营",
+    "理财子运营",
+    "信托运营",
+    "券商资管运营"
+  ],
+  "institution_tier_candidates": [
+    "一线公募",
+    "二线公募",
+    "理财子",
+    "头部券商资管",
+    "信托公司"
+  ],
+  "typical_companies": [
+    {"name": "易方达基金", "tier": "一线公募", "xhs_mention_count": 2, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "南方基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "嘉实基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "中欧基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "鹏华基金", "tier": "一线公募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "富国基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "广发基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "招商基金", "tier": "一线公募", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "博时基金", "tier": "一线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "摩根资产管理", "tier": "二线公募", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "招商银行", "tier": "银行系资管", "xhs_mention_count": 1, "is_saif_alumni_dest": false, "is_must_have": true},
+    {"name": "建设银行", "tier": "银行系资管", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "中金公司", "tier": "头部券商研究所", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false},
+    {"name": "信银理财", "tier": "理财子", "xhs_mention_count": 0, "is_saif_alumni_dest": false, "is_must_have": false}
+  ],
+  "hard_requirements": [
+    "岗位职责必须围绕基金产品全生命周期支持：产品助理/产品支持/产品材料/存续管理/数据维护，或基金估值、TA、登记结算、申赎清算等运营中后台职能",
+    "不做底层基金研究、不做管理人尽调、不做FOF组合构建——与自营FOF/资管FOF/财富管理FOF三类底层基金投研严格切分",
+    "不做行业研究、不做权益/固收/指数投研判断——与公募权益研究员、指数研究员等买方投研严格切分",
+    "可以做产品方案设计、产品立项、产品材料、合规备案、招募说明书更新、产品规模与业绩跟踪、销售支持材料、客户问询答复",
+    "懂基金会计核算逻辑（以产品为核算主体算净值）、估值流程、申赎清单处理、指数管理系统、合规风险、份额登记等运营基础设施"
+  ],
+  "soft_signals": [
+    "细心、抗压、数据控，能做全周期管理基金的协作型工作，强调宁慢勿错",
+    "对公募/理财子/券商资管产品体系熟悉，能讲清行业趋势（如存款利率下行、银行渠道从卖产品转向卖配置方案）",
+    "能跨部门协作：与投研、销售、合规、IT、托管行打通，沉淀可复用的产品材料与流程",
+    "对产品形态变化敏感：黄金ETF、REITs、QDII、养老Y份额、ETF联接等新产品类型能快速上手"
+  ],
+  "transfer_paths": [
+    {"from": "事务所/四大审计", "to": "公募基金产品运营/基金会计", "difficulty": "low", "notes": "财务审计基础可直接迁移到产品核算主体的净值算法，需补基金行业产品知识"},
+    {"from": "券商投行/财务审计实习", "to": "嘉实/南方等公募中后台", "difficulty": "low", "notes": "实习经历可信度高，需在面试中讲清交付物与基金运营场景的衔接"},
+    {"from": "银行理财客户经理/渠道", "to": "理财子产品运营", "difficulty": "medium", "notes": "客户视角可迁移，需补产品端的合规、估值、申赎链路"},
+    {"from": "FOF/公募投研助理", "to": "公募基金产品经理", "difficulty": "medium", "notes": "对投研团队的理解可复用，但需从研究语言切到产品全周期管理语言"},
+    {"from": "AI/数据工程师", "to": "基金产品支持/数据维护岗", "difficulty": "high", "notes": "数据工程能力有迁移空间，但需补金融产品业务理解；不能等同于量化研究"}
+  ],
+  "pitfalls": [
+    "FOF研究员（自营/资管/财富三类）≠ 产品运营·中后台——FOF三类都做底层基金筛选与组合构建，本岗不做",
+    "基金经理助理、投研助理 ≠ 中后台——基金经理助理偏投资决策支持，本岗偏产品与运营",
+    "公募权益研究员、指数研究员、固收研究员 ≠ 中后台——本岗不做投资研究判断",
+    "公募基金中后台中的合规/风控/法务条线 ≠ 本岗——本岗更偏产品/估值/TA/运营基础设施侧",
+    "PE/VC投后管理 ≠ 本岗——PE投后是企业经营管理参与，本岗是公募/资管产品的运营支持",
+    "数据工程师做产品支持 ≠ 量化研究——给产品运营提供数据基础设施支持的工程岗不应归入量化",
+    "渠道销售、机构销售、基金投顾、理财专员 ≠ 中后台——前者是客户/销售条线",
+    "基金公司IT岗、信息技术部 ≠ 产品运营——除非JD明确产品系统支持职能",
+    "私募基金运营、私募TA ≠ 公募产品运营·中后台——私募行政属另一赛道，需谨慎降置信"
+  ],
+  "interview_style": "面试常深挖实习经历交付物（追问成果如何落地）、基金会计与企业会计的区别（核算主体不同）、ETF与普通指数基金运作差异、申赎清单处理效率与挑战、指数管理系统使用、合规风险防范、数据来源准确性、对枯燥重复工作的态度（宁慢勿错的责任心）。",
+  "compensation_signal": "市场传闻：中后台薪资低于投研但稳定性高、路径清晰；个案信号：基金会计+登记结算HC稳定但起薪一般；行业趋势是公募从业人员薪资可能进一步降低且有递延/30%自购等规则。",
+  "career_trajectory": "校招从基金产品助理、基金会计、登记结算、指数投资支持专员、产品支持等中后台岗切入；中期可走产品经理（全周期管理基金）、产品总监方向，或横向转产品方案设计、产品立项；长期能做到产品部门负责人或公募/资管运营总监；亦有人由此转去渠道/机构销售或基金投顾。",
+  "verbatim_quotes": [
+    {"quote": "风险监控岗有3个HC、基金会计+登记结算有3个HC，算的上是‘够不着投研+交易’+‘不想去市场+销售’情况下的合适选择了", "source_url": "https://www.xiaohongshu.com/discovery/item/67e3d5db000000001d01ceac?xsec_token=YB8O0M4reImwTRSyyEvQ9eFgk8SX0hzbL5BmAoxqEf41w%3D&xsec_source=app_share", "context": "南方基金中后台HC分布"},
+    {"quote": "基金会计是以“产品”为核算主体，算净值；企业会计看整体利润。", "source_url": "https://www.xiaohongshu.com/discovery/item/69fd52e9000000001f003428?xsec_token=YBMr_thyXngm8ptqzFbVrNffoOvo0uEZPmz9__XqZxGVg%3D&xsec_source=app_share", "context": "基金会计与企业会计区别"},
+    {"quote": "宁慢勿错，返工成本更高", "source_url": "https://www.xiaohongshu.com/discovery/item/69fd52e9000000001f003428?xsec_token=YBMr_thyXngm8ptqzFbVrNffoOvo0uEZPmz9__XqZxGVg%3D&xsec_source=app_share", "context": "基金运营责任心"},
+    {"quote": "面试官追问“成果怎么落地的？”——大家准备类似项目一定要想清楚交付物是什么！", "source_url": "https://www.xiaohongshu.com/discovery/item/69fd52e9000000001f003428?xsec_token=YBMr_thyXngm8ptqzFbVrNffoOvo0uEZPmz9__XqZxGVg%3D&xsec_source=app_share", "context": "嘉实基金面试风格"},
+    {"quote": "公募产品经理攻略📚：全周期管理基金，细心抗压数据控首选", "source_url": "https://www.xiaohongshu.com/discovery/item/69f4bed20000000022029a7d?xsec_token=YBHMLfffsKSk0y4CLcVmrJdxE13kul4jDBllso1-TDakk%3D&xsec_source=app_share", "context": "公募产品经理人物画像"},
+    {"quote": "基金产品的设计要基于行业趋势、客户需求、投研判断与监管导向等多重因素，远非“追风口”那么简单。", "source_url": "https://www.xiaohongshu.com/discovery/item/6a06e57600000000060203dd?xsec_token=YBG4oMV0GM4EvWWfreDkf8CNldd4GiWDoLVZq1kwR9yoQ%3D&xsec_source=app_share", "context": "摩根资产管理产品经理分享"},
+    {"quote": "如何提高指数基金申赎清单的处理效率？可能遇到哪些挑战？", "source_url": "https://www.xiaohongshu.com/discovery/item/68bc3028000000001d004b66?xsec_token=YBE0wtosqLYp_7vFWfdihTqjCzpKHyztzMbpKke4C5hdo%3D&xsec_source=app_share", "context": "易方达指数投资支持专员面试题"},
+    {"quote": "FOF正从'选基'转向'配置'，有的公司已经把'FOF部'改名'多元资产配置部'。", "source_url": "https://www.xiaohongshu.com/discovery/item/69b7adf5000000001d01e2cb?xsec_token=YBUbBPgCnu6HsJND6ndu6QErhvAcLeTam3vb19cHq1TBk%3D&xsec_source=app_share", "context": "产品形态演进趋势"}
+  ],
+  "hiring_season": {
+    "spring": "春招少量补录，部分公募/理财子有产品助理与基金会计岗位",
+    "fall": "秋招主战场，公募/券商资管/理财子集中放出产品运营条线HC，与销售/渠道一同发布",
+    "verbatim": "中后台岗位如风险监控、基金会计等HC有限，但适合够不着投研又不想做销售的同学。",
+    "peak_month": [3, 9, 10, 11]
+  },
+  "data_confidence": "medium",
+  "data_basis": {
+    "post_count": 40,
+    "company_mention_count": 43,
+    "saif_alumni_count": 0
+  }
+}
