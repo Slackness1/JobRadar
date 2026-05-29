@@ -58,35 +58,32 @@ def map_record(rec: dict) -> dict | None:
     # 公司名优先用 main_company_name，其次 company_alias，最后 company_name
     company = rec.get("main_company_name", "") or rec.get("company_alias", "") or rec.get("company_name", "")
 
+    def join_safe(val):
+        # API list fields can contain None elements — filter before join
+        if isinstance(val, list):
+            return ", ".join(str(x) for x in val if x is not None)
+        return str(val) if val is not None else ""
+
     # 行业
-    industry_list = rec.get("industry", [])
-    industry = ", ".join(industry_list) if isinstance(industry_list, list) else str(industry_list)
+    industry = join_safe(rec.get("industry", []))
 
     # 性质
-    org_type_list = rec.get("org_type", [])
-    org_type = ", ".join(org_type_list) if isinstance(org_type_list, list) else str(org_type_list)
+    org_type = join_safe(rec.get("org_type", []))
 
     # 地点
-    addr_list = rec.get("address_str", [])
-    location = ", ".join(addr_list) if isinstance(addr_list, list) else str(addr_list)
+    location = join_safe(rec.get("address_str", []))
 
     # 岗位类别
-    job_title_str = rec.get("job_title_str", [])
-    job_title_names = ", ".join(job_title_str) if isinstance(job_title_str, list) else ""
+    job_title_names = join_safe(rec.get("job_title_str", []))
 
     # 专业要求
-    major_str = rec.get("major_str", "")
-    if isinstance(major_str, list):
-        major_str = ", ".join(major_str)
+    major_str = join_safe(rec.get("major_str", ""))
 
     # 学历要求
-    degree_str = rec.get("degree_str", [])
-    if isinstance(degree_str, list):
-        degree_str = ", ".join(degree_str)
+    degree_str = join_safe(rec.get("degree_str", []))
 
     # 标签
-    tags = rec.get("tags", [])
-    tags_str = ", ".join(tags) if isinstance(tags, list) else str(tags)
+    tags_str = join_safe(rec.get("tags", []))
 
     # 工作职责/要求
     responsibility = rec.get("responsibility", "") or ""
