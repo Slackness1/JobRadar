@@ -137,8 +137,10 @@ def _fetch_workday_filtered(
                 title = str(it.get("title") or "").strip()
                 if not title:
                     continue
+                # portal_url 已含 /en-US/<site> (如 .../en-US/External);只拼
+                # base_origin+/en-US 会漏掉 <site> 段 → detail 页 404 (实测)。
                 detail = (
-                    f"{base_origin}/en-US{ext_path}"
+                    f"{portal_url.rstrip('/')}{ext_path}"
                     if ext_path.startswith("/") else portal_url
                 )
                 out.append({
