@@ -54,6 +54,9 @@ export interface CoachPaneProps {
   currentPhase?: number;
   /** 中栏 body — MiddleChatPane 传现有 plan-mode 渲染 (chat-stream + picker + draft card). */
   children: ReactNode;
+  /** Fix-1 (2026-05-26): 「我的档案」slot — 现有 ArchivePanel,Coach 模式
+   *  里也要显示(P1 漏了,只在默认 chat 模式渲染过). */
+  archiveSlot?: ReactNode;
   /** 关闭 Coach pane → 回到正常 chat 模式. */
   onClose: () => void;
   /** "回 Chat" — 同 onClose; 留独立 callback 让父定制 (e.g. preserve plan state). */
@@ -80,6 +83,7 @@ export function CoachPane({
   starSummaries,
   currentPhase,
   children,
+  archiveSlot,
   onClose,
   onSwitchChat,
   onSaveDraft,
@@ -181,6 +185,12 @@ export function CoachPane({
         ) : null}
 
         <div className="workspace-hifi__coach-children-slot">{children}</div>
+
+        {/* Fix-1 (2026-05-26): ArchivePanel 也要在 Coach 模式可见,
+            放在 footer 之前的卡片区,跟设计的"档案"扩展对齐. */}
+        {archiveSlot ? (
+          <div className="workspace-hifi__coach-archive-slot">{archiveSlot}</div>
+        ) : null}
       </div>
 
       {/* ── Footer ribbon ─────────────────────────────────────────────────── */}

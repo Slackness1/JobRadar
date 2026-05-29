@@ -2117,33 +2117,39 @@
   background: var(--library-rail);
 }
 
+/* Fix-2a #4 (2026-05-27): segmented capsule 样式 — 对齐设计 hifi-ws-chat.jsx
+   顶部 Chat/Coach toggle (warm-sand 槽 + 选中态 #fff 凸起). */
 .workspace-hifi__composer-toggle {
   display: inline-flex;
-  gap: 6px;
+  gap: 0;
+  background: var(--warm-sand);
+  border-radius: 999px;
+  padding: 2px;
+  align-self: flex-start;
 }
 
 .workspace-hifi__composer-toggle-btn {
-  padding: 3px 12px;
-  border-radius: var(--r-pill);
-  background: var(--ivory);
-  border: 1px solid var(--border-warm);
-  color: var(--stone);
-  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  color: var(--olive);
+  font-size: 11.5px;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
-  transition: all 120ms ease;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
 }
 
-.workspace-hifi__composer-toggle-btn:hover:not(:disabled) {
+.workspace-hifi__composer-toggle-btn:hover:not(:disabled):not(.is-active) {
   color: var(--ink-soft);
-  border-color: var(--terracotta-ring);
 }
 
 .workspace-hifi__composer-toggle-btn.is-active {
-  background: var(--terracotta-wash);
-  color: var(--terracotta-strong);
-  border-color: var(--terracotta);
-  font-weight: 500;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .workspace-hifi__composer-toggle-btn:disabled {
@@ -5970,3 +5976,63 @@
   color: var(--olive);
   line-height: 1.5;
 }
+
+/* === Fix-1 (2026-05-26) — Coach 模式徽章 + Coach 模式档案 slot === */
+
+/* 顶栏中部 Coach 模式徽章 — 对齐设计 hifi-ws-app.jsx:129-150
+   terracotta 实心圆角 + 白字 + 内嵌 target icon + 公司名 */
+.workspace-hifi__top-bar-coach-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 14px 0 4px;
+  margin: 0 8px 0 4px;
+  background: var(--terracotta);
+  color: #fff;
+  border-radius: 999px;
+  box-shadow:
+    0 4px 12px rgba(201, 100, 66, 0.28),
+    0 0 0 1px var(--terracotta-strong);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: rc-fade-in 0.2s ease-out;
+}
+
+.workspace-hifi__top-bar-coach-badge-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--terracotta);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__top-bar-coach-badge-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.92;
+}
+
+.workspace-hifi__top-bar-coach-badge-sep {
+  opacity: 0.4;
+}
+
+.workspace-hifi__top-bar-coach-badge-company {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* Coach 模式里的 ArchivePanel slot — 在 footer 上方,跟 default chat
+   模式的 archive-slot 视觉一致 */
+.workspace-hifi__coach-archive-slot {
+  flex-shrink: 0;
+  margin: 0 22px 14px;
+}
+

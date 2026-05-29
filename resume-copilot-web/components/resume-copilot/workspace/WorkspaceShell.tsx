@@ -219,21 +219,6 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     { job_id: string; company: string; job_title: string } | null
   >(null);
 
-  const handleCustomiseForJob = useCallback((it: ResumeRecommendationItem) => {
-    setActiveJobContext({
-      job_id: String(it.job_id),
-      company: String(it.company || ''),
-      job_title: String(it.job_title || ''),
-    });
-    // Drop the student into plan-mode focused on the first internship bullet
-    // by default — they can switch focus in the picker.
-    setPlanFocusRequest({ focusKind: 'experience' });
-  }, []);
-
-  const handleClearJobContext = useCallback(() => {
-    setActiveJobContext(null);
-  }, []);
-
   // ── P0b IntelDrawer state (右栏 swap) ─────────────────────────────────────
   // 当 intelOpenCompany != null 时,右栏渲染 <IntelDrawer/> 而不是 <RightResumePane/>。
   // 决策 ②a:严格替换,不并列。priority / xhsCount 由 PlatformCard / RecommendCard
@@ -243,6 +228,37 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     priority?: string | null;
     xhsCount?: number | null;
   }>({});
+
+  // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
+  // 入口:① IntelDrawer "用这些做 Coach 定制" ② 公司卡 "针对这家定制"
+  // (Fix-1 2026-05-26 补:P1 漏了 ②,导致顶栏徽章 / STAR ribbon 不显示)
+  const [coachContext, setCoachContext] = useState<CoachContext | null>(null);
+
+  const handleCustomiseForJob = useCallback((it: ResumeRecommendationItem) => {
+    const company = String(it.company || '');
+    setActiveJobContext({
+      job_id: String(it.job_id),
+      company,
+      job_title: String(it.job_title || ''),
+    });
+    // Drop the student into plan-mode focused on the first internship bullet
+    // by default — they can switch focus in the picker.
+    setPlanFocusRequest({ focusKind: 'experience' });
+    // Fix-1 (2026-05-26): 公司卡 "针对这家定制" 也要触发 CoachPane wrap
+    // (徽章 / STAR stepper / ribbon / footer). P1 漏了这条入口 — 学生从公司
+    // 卡进入时 coachContext 没设,plan-mode body 直接渲染没 CoachPane 外壳.
+    if (company) {
+      // ch 留空 — CoachPane 自动取首字, 避免长公司名溢出 logo bubble.
+      setCoachContext({
+        company,
+        pri: (it.company_priority_tier || 'A').toString().charAt(0).toUpperCase(),
+      });
+    }
+  }, []);
+
+  const handleClearJobContext = useCallback(() => {
+    setActiveJobContext(null);
+  }, []);
 
   const handleOpenIntel = useCallback(
     (company: string, ctx?: { priority?: string | null; xhsCount?: number | null }) => {
@@ -257,16 +273,10 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     setIntelOpenContext({});
   }, []);
 
-  // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
-  // IntelDrawer 的 "用这些做 Coach 定制" → setCoachContext (中栏切 CoachPane),
-  // 同时关掉 IntelDrawer (中栏 takeover 期间右栏回到 RightResumePane).
-  const [coachContext, setCoachContext] = useState<CoachContext | null>(null);
-
   const handleIntelMock = useCallback(() => {
     if (!intelOpenCompany) return;
     setCoachContext({
       company: intelOpenCompany,
-      ch: intelOpenCompany,
       pri: intelOpenContext.priority ?? 'A',
       xhsCount:
         typeof intelOpenContext.xhsCount === 'number'
@@ -283,6 +293,25 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
   const handleCloseCoach = useCallback(() => {
     setCoachContext(null);
   }, []);
+
+  // Fix-2a #4 v2 (2026-05-28): composer "coach" pill + ChatEmpty 卡的入口.
+  // 优先级:
+  //   1. activeJobContext.company — 学生点过"针对这家定制" → 公司级 Coach
+  //   2. currentTrackName — 学生选好赛道但没指定公司 → 赛道级 Coach
+  //   3. 兜底 '简历定制' — 都没有时仍显示 Coach 外壳, 避免静默失败
+  // CoachPane 外壳(ribbon + STAR stepper + footer)始终出来, 学生才知道自己进了 Coach.
+  const handleEnterCoach = useCallback(() => {
+    const company =
+      activeJobContext?.company
+      || currentTrackName
+      || '简历定制';
+    if (coachContext?.company === company) return;
+    // ch 留空, CoachPane companyInitial() 自动取首字, 避免长名溢出 logo bubble.
+    setCoachContext({
+      company,
+      pri: activeJobContext ? 'A' : undefined,
+    });
+  }, [activeJobContext, currentTrackName, coachContext]);
 
   // ── P1 Rewrite middle-pane takeover state (2026-05-26) ────────────────
   // RightResumePane 触发 v0v2 改写时, 通过 onMiddleRewriteRequested 上传 bullet
@@ -336,6 +365,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
             onExport={onExport}
             isExporting={isExporting}
             canExport={canExport}
+            coachCompany={coachContext?.company ?? null}
           />
           <div
             className="workspace-hifi__grid"
@@ -382,6 +412,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
                 profile?.basic_info?.name ?? profile?.basic_info?.full_name ?? ''
               }
               companyCount={recommendations?.items?.length ?? null}
+              onEnterCoach={handleEnterCoach}
             />
             <ResizeHandle
               width={rightWidth}

@@ -111,6 +111,11 @@ export interface MiddleChatPaneProps {
   studentName?: string;
   /** ChatEmpty 用 — 今天有几张公司推荐卡 (recommendations.length). */
   companyCount?: number | null;
+  /** Fix-2a #4 (2026-05-27): Coach 入口聚合 callback. composer 底 "coach"
+   *  pill + ChatEmpty 引导卡 都调它. 父 (WorkspaceShell) 负责 setCoachContext
+   *  + default company fallback. 不传时 composer pill 仍能切 plan-mode 但不显
+   *  Coach ribbon. */
+  onEnterCoach?: () => void;
 }
 
 const PLAN_TERMINAL_STATUSES = new Set([
@@ -143,6 +148,7 @@ export function MiddleChatPane({
   rewriteResult,
   studentName,
   companyCount,
+  onEnterCoach,
 }: MiddleChatPaneProps) {
   // ── mode + composer state ───────────────────────────────────────────────
   const [internalMode, setInternalMode] = useState<ChatComposerMode>('normal');
@@ -244,11 +250,15 @@ export function MiddleChatPane({
         } else {
           setPlanPhase('picking');
         }
+        // Fix-2a #4 v2 (2026-05-28): 切到 plan-mode 同时通知父开 CoachPane 外壳.
+        // 父 handleEnterCoach 走 activeJobContext → currentTrackName → fallback 的
+        // 3 步链, 确保 ribbon / STAR stepper / footer 始终显示 (没有公司就走赛道).
+        onEnterCoach?.();
       } else if (next === 'normal') {
         setPlanPhase('idle');
       }
     },
-    [isDemo, mode, planPhase, planState, sessionId, setMode],
+    [isDemo, mode, planPhase, planState, sessionId, setMode, onEnterCoach],
   );
 
   const confirmCancelPlanFinal = useCallback(() => {
@@ -475,10 +485,8 @@ export function MiddleChatPane({
   // 仍然由 MiddleChatPane 内部驱动, 通过 children slot 透传进去.
   const bodyInside = (
     <div className="workspace-hifi__pane-body workspace-hifi__pane-body--middle">
-        {/* 📌 我的档案 — 顶部贴条 (2026-05-20: 从右栏底部搬过来, 更显眼).
-            Same ArchivePanel collapsed/expanded behaviour, just placed
-            above the chat thread for visibility. */}
-        {archiveSlot ? (
+        {/* 📌 我的档案 — 顶部贴条. Coach 模式时隐藏(CoachPane 有独立布局). */}
+        {archiveSlot && !coachContext ? (
           <div className="workspace-hifi__middle-archive-slot">{archiveSlot}</div>
         ) : null}
 
@@ -542,6 +550,12 @@ export function MiddleChatPane({
                     : undefined;
                   void sendChatMessage(prompt, opts);
                 }}
+                onEnterCoach={onEnterCoach ? () => {
+                  // Fix-2a #4: "针对一家公司定制" 卡 → 直接切 plan-mode +
+                  // 父 setCoachContext (CoachPane wrap 显示)
+                  onEnterCoach();
+                  handleSwitchMode('plan');
+                } : undefined}
               />
             )}
           {chatMessages.length === 0 && feedbackReady && mode === 'plan' && (
@@ -669,7 +683,7 @@ export function MiddleChatPane({
               }`}
               onClick={() => handleSwitchMode('normal')}
             >
-              💬 chat
+              chat
             </button>
             <button
               type="button"
@@ -686,14 +700,16 @@ export function MiddleChatPane({
                   : 'coach:AI 带你 4 个 anchor 把一段经历聊透'
               }
             >
-              📌 coach
+              coach
             </button>
           </div>
 
-          {mode === 'plan' && planPhase === 'turning' && (
+          {/* Coach 模式由顶部 StarStepper 显示 anchor 进度, 这里 PlanProgressBar
+              会重复, 仅 non-coach plan-mode 时显示. */}
+          {mode === 'plan' && planPhase === 'turning' && !coachContext && (
             <PlanProgressBar anchors={anchors} />
           )}
-          {mode === 'plan' && planPhase === 'idle' && (
+          {mode === 'plan' && planPhase === 'idle' && !coachContext && (
             <PlanProgressBar anchors={emptyAnchorState()} />
           )}
 

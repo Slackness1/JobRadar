@@ -69,12 +69,21 @@ export function PlatformCard({
       className={`workspace-hifi__platform-card${isExpanded ? ' is-expanded' : ''}`}
       data-priority={priorityLetter || undefined}
     >
-      <button
-        type="button"
+      {/* Fix-1 (2026-05-26): 用 div role="button" 替代 <button>,因为
+          内部嵌了 xhs badge <button> — <button>嵌<button>触发 hydration error. */}
+      <div
+        role="button"
+        tabIndex={0}
         className="workspace-hifi__platform-card-header"
         onClick={onToggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
         aria-expanded={isExpanded}
-        aria-label={`${platform.company} — ${platform.n_jobs} 个岗位，${isExpanded ? '收起' : '展开'}`}
+        aria-label={`${platform.company} — ${platform.n_jobs} 个岗位,${isExpanded ? '收起' : '展开'}`}
       >
         <div
           className="workspace-hifi__rec-card-logo"
@@ -131,7 +140,7 @@ export function PlatformCard({
         >
           {I.chevron(11)}
         </span>
-      </button>
+      </div>
 
       {isExpanded && (
         <div className="workspace-hifi__platform-expanded">
