@@ -57,28 +57,52 @@ def _hash_id(zpxxid: str) -> str:
     return f"thu_{zpxxid}"
 
 
-def _fetch_listing(industry_code: str = _INDUSTRY_FINANCE) -> List[Tuple[str, str, str]]:
-    """GET listing page, return [(zpxxid, raw_title_with_company, _),...]."""
-    r = requests.get(
-        _LIST_URL,
-        params={"dwhydm": industry_code},
-        headers={"User-Agent": _UA},
-        timeout=20,
-    )
-    if r.status_code != 200:
-        return []
-    html = r.text
-    rows = re.findall(
-        r"<a[^>]*href=[\"\']?[^\"\'<>]*showZwxx\?zpxxid=(\d+)[^\"\'<>]*[\"\']?[^>]*>([^<]+)</a>",
-        html,
-    )
+_ROW_RE = re.compile(
+    r"<a[^>]*href=[\"\']?[^\"\'<>]*showZwxx\?zpxxid=(\d+)[^\"\'<>]*[\"\']?[^>]*>([^<]+)</a>"
+)
+_TOTALPG_RE = re.compile(r'id="totalPg"[^>]*>\s*(\d+)')
+
+
+def _fetch_listing(
+    industry_code: str = _INDUSTRY_FINANCE, max_pages: int = 15
+) -> List[Tuple[str, str, str]]:
+    """翻页抓列表 — POST /anony/xxfb 带 pgno (匿名可翻全量,实测金融业 126 页)。
+
+    列表按发布倒序,page 1 最新;daily 跑前 N 页即可滚动捕获新岗。
+    """
+    sess = requests.Session()
+    sess.headers.update({"User-Agent": _UA})
     seen: set[str] = set()
     out: List[Tuple[str, str, str]] = []
-    for zpxxid, raw_title in rows:
-        if zpxxid in seen:
-            continue
-        seen.add(zpxxid)
-        out.append((zpxxid, raw_title.strip(), ""))
+    total_pages = max_pages
+    for pgno in range(1, max_pages + 1):
+        try:
+            r = sess.post(
+                _LIST_URL,
+                data={"dwhydm": industry_code, "pgno": str(pgno)},
+                timeout=20,
+            )
+        except Exception:
+            break
+        if r.status_code != 200:
+            break
+        html = r.text
+        if pgno == 1:
+            m = _TOTALPG_RE.search(html)
+            if m:
+                total_pages = min(max_pages, int(m.group(1)))
+        rows = _ROW_RE.findall(html)
+        page_new = 0
+        for zpxxid, raw_title in rows:
+            if zpxxid in seen:
+                continue
+            seen.add(zpxxid)
+            out.append((zpxxid, raw_title.strip(), ""))
+            page_new += 1
+        if page_new == 0:  # 末页或重复,停
+            break
+        if pgno >= total_pages:
+            break
     return out
 
 
@@ -169,12 +193,13 @@ def crawl_thu_career_finance(
     db: Session,
     existing_jobs: Optional[Dict[str, Job]] = None,
     parent_log_id: Optional[int] = None,
+    max_pages: int = 15,
 ) -> Tuple[int, int, Dict[str, int]]:
-    """单次爬清华就业网金融业匿名公开列表的最新 ~20 条。"""
+    """爬清华就业网金融业匿名公开列表前 max_pages 页 (每页 20,POST pgno 翻页)。"""
     if existing_jobs is None:
         existing_jobs = {j.job_id: j for j in db.query(Job).all() if j.job_id}
 
-    listings = _fetch_listing()
+    listings = _fetch_listing(max_pages=max_pages)
     new_count = 0
     fetched = 0
     per_company: Dict[str, int] = {}
@@ -215,12 +240,14 @@ def crawl_thu_career_finance(
 
 
 if __name__ == "__main__":
+    import sys
     import app.config  # noqa
     from app.database import SessionLocal
 
+    pages = int(sys.argv[1]) if len(sys.argv) > 1 else 15
     db = SessionLocal()
     try:
-        new, fetched, per = crawl_thu_career_finance(db)
+        new, fetched, per = crawl_thu_career_finance(db, max_pages=pages)
         db.commit()
         print(f"thu_career: fetched={fetched} new={new}")
         print("by company:")
