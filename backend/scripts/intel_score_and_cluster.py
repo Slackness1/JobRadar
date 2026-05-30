@@ -1,4 +1,4 @@
-"""Task E — 情报打分 + 多源印证 + 硬门槛交叉验证。零 LLM,纯本地向量聚类。
+"""Task E — 情报打分 + 多源印证 + 硬门槛交叉验证。
 
 跑顺序: 先 A(知乎入库)、B(809 XHS 反查),让 XhsInsight 有真数据,再跑本脚本。
 
@@ -6,6 +6,8 @@
   E1 跨源聚类: 每家公司内部,按 embedding cosine ≥ 0.78 聚类; 簇横跨 ≥2 信源
       → 簇内所有 insight confidence='verified', corroboration_json 互写 sibling id。
       信源判定:note_id 前缀 — zh_ = 知乎, xhsp_ = 历史 XHS, xhs_ = 现 XHS。
+  E2 分歧检测: 先用 LLM (DeepSeek Pro) 判定口径/表述/数值/潜规则冲突;
+      LLM 失败时回落到旧 regex 版 (数字硬差异)。
   E3 硬门槛验证: 每个 sub_cat 的 hard_requirements 项,在该赛道相关公司的情报库里
       找 cosine > 0.55 的匹配;命中 ≥3 → 该硬门槛 payload 加 verified_by=[insight_ids]。
   E4-helper: 输出每档 confidence 的统计 + 抽样几条 verified,让人肉评估。
@@ -16,6 +18,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import sys
@@ -24,7 +27,11 @@ from pathlib import Path
 
 import numpy as np
 
-# E2 分歧检测启发: 同簇内若同 keyword 出现 ≥2 个不同数字 → 标 conflicting
+log = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────
+# E2 分歧检测 — 旧 regex 版 (fallback)
+# ─────────────────────────────────────────────
 # 抓"N 轮/N 面/N 年/N 万"这种关键事实的硬数字差异
 _CONFLICT_RE = re.compile(r"(\d+)\s*(轮|面|分钟|小时|天|周|w|W|万)")  # 排除 年/月/人 等高噪关键词
 
@@ -37,13 +44,78 @@ def _claims(text: str) -> dict[str, set[str]]:
 
 
 def _cluster_conflict(members_texts: list[str]) -> tuple[bool, dict[str, list[str]]]:
-    """同簇内同 keyword 出现 ≥2 不同数字 → True + 冲突明细。"""
+    """旧版: 同簇内同 keyword 出现 ≥2 不同数字 → True + 冲突明细。LLM 失败时的 fallback。"""
     agg: dict[str, set[str]] = defaultdict(set)
     for t in members_texts:
         for kw, nums in _claims(t).items():
             agg[kw].update(nums)
     dispute = {kw: sorted(nums) for kw, nums in agg.items() if len(nums) > 1}
     return bool(dispute), dispute
+
+
+# ─────────────────────────────────────────────
+# E2 分歧检测 — LLM 版 (主路径, DeepSeek Pro)
+# ─────────────────────────────────────────────
+_CONFLICT_SYSTEM = """你是一个情报质量审核助手。
+你会收到多条来自不同信源（知乎/小红书）关于同一家公司同一类岗位的描述片段。
+请判断这些描述之间是否存在事实或口径上的冲突。
+
+冲突的四类典型例子:
+1. 数值差异: "面试 3 轮" vs "面试 6 轮"、"薪资 30W" vs "薪资 50W"
+2. 口径矛盾: "门槛 985+硕士" vs "本科也能进"、"只招应届" vs "社招也收"
+3. 工作状态相反: "朝九晚六 几乎不加班" vs "周常 996 几乎没有休息"
+4. 公司潜规则相反: "晋升快 氛围好" vs "天花板低 内卷严重"
+
+注意:
+- "略有侧重不同"不是冲突 (如一条讲薪资、另一条讲氛围)
+- 主观感受程度差异 (如"还不错" vs "很好") 不算冲突
+- 只有实质上互相矛盾才算 conflict
+
+请严格输出 JSON，不要有任何额外文字:
+{"conflict": true/false, "details": {"<冲突点简短描述>": ["<说法1>", "<说法2>"]}}
+如果无冲突，details 为空对象 {}。"""
+
+
+def _cluster_conflict_llm(members_texts: list[str]) -> tuple[bool, dict]:
+    """LLM 版分歧检测 (DeepSeek Flash — 速度优先, 分类任务不需要 Pro reasoning)。
+    失败时返 (False, {}) — 不阻塞 pipeline。"""
+    try:
+        from app.services.crawler_llm import build_flash_client, flash_model_name, safe_json_extract
+    except ImportError as e:
+        log.warning("crawler_llm import failed: %s", e)
+        return False, {}
+
+    # 拼装用户消息: 每条片段截断到 1500 字符，避免超长
+    parts = []
+    for idx, text in enumerate(members_texts, 1):
+        snippet = (text or "").strip()[:1500]
+        parts.append(f"[片段 {idx}]\n{snippet}")
+    user_msg = "\n\n".join(parts)
+
+    try:
+        client = build_flash_client()
+        resp = client.chat.completions.create(
+            model=flash_model_name(),
+            messages=[
+                {"role": "system", "content": _CONFLICT_SYSTEM},
+                {"role": "user", "content": user_msg},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.1,
+        )
+        raw = resp.choices[0].message.content or ""
+        parsed = safe_json_extract(raw)
+        if not isinstance(parsed, dict):
+            log.warning("LLM conflict: unexpected response type, raw=%r", raw[:200])
+            return False, {}
+        conflict = bool(parsed.get("conflict", False))
+        details = parsed.get("details") or {}
+        if not isinstance(details, dict):
+            details = {}
+        return conflict, details
+    except Exception as exc:
+        log.warning("LLM conflict detection failed (%s), falling back to regex", exc)
+        return False, {}  # fallback 交给调用方处理
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.chdir(str(Path(__file__).resolve().parent.parent))
@@ -126,9 +198,17 @@ def main() -> int:
                 if len(sources) < 2:
                     continue
                 sibling_ids = [valid[i].insight_id for i in members]
-                # E2 分歧: 同簇内同 keyword 出现 ≥2 不同数字 → conflicting (不当 verified)
+                # E2 分歧: LLM 主路径 → 失败回落 regex
                 texts = [valid[i].content for i in members]
-                in_conflict, dispute = _cluster_conflict(texts)
+                in_conflict, dispute = _cluster_conflict_llm(texts)
+                if not in_conflict and not dispute:
+                    # LLM 无冲突 or 失败 → 再跑 regex 兜底
+                    regex_conflict, regex_dispute = _cluster_conflict(texts)
+                    # 只在 LLM 明确失败 (dispute 空 dict 且 in_conflict=False) 时才用 regex
+                    # 但无法区分"LLM 判定无冲突"和"LLM 调用失败后返(False,{})"
+                    # 保守策略: 两者都判 False → 取 regex 结果 (regex False → 不标 conflict)
+                    if regex_conflict:
+                        in_conflict, dispute = regex_conflict, regex_dispute
                 tag = "conflicting" if in_conflict else "verified"
                 if in_conflict:
                     n_conflict += 1
