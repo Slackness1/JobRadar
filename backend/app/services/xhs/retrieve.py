@@ -32,6 +32,7 @@ class _CachedInsight:
     speaker: str
     confidence: str
     corroboration: list
+    dispute: dict  # {topic: [claim_a, claim_b, ...]} — 仅 conflicting 簇有, 其它为 {}
     vector: np.ndarray
     captured_at: float  # epoch seconds, for freshness decay
 
@@ -59,6 +60,16 @@ def _load_cache(db: Session) -> dict:
             continue
         types = json.loads(row.type_json or "[]")
         captured = row.captured_at.timestamp() if getattr(row, "captured_at", None) else 0.0
+        # corroboration_json 兼容两种格式:
+        #   list (verified / 老数据): [sibling_id, ...]
+        #   dict (conflicting): {"siblings": [...], "dispute": {topic: [claims]}}
+        _corro_raw = json.loads(row.corroboration_json or "[]")
+        if isinstance(_corro_raw, dict):
+            _siblings = _corro_raw.get("siblings") or []
+            _dispute = _corro_raw.get("dispute") or {}
+        else:
+            _siblings = _corro_raw if isinstance(_corro_raw, list) else []
+            _dispute = {}
         insights.append(_CachedInsight(
             insight_id=row.insight_id,
             source_note_id=row.source_note_id,
@@ -71,7 +82,8 @@ def _load_cache(db: Session) -> dict:
             source_quote=row.source_quote or "",
             speaker=row.speaker or "unknown",
             confidence=row.confidence or "med",
-            corroboration=json.loads(row.corroboration_json or "[]"),
+            corroboration=_siblings,
+            dispute=_dispute,
             vector=v,
             captured_at=captured,
         ))
@@ -216,6 +228,7 @@ def search(
             "speaker": ins.speaker,
             "confidence": ins.confidence,
             "corroboration": ins.corroboration,
+            "dispute": ins.dispute,
             "source": {
                 "note_id": ins.source_note_id,
                 "title": n.title if n else "",

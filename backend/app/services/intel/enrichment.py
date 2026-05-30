@@ -57,6 +57,7 @@ SYSTEM_PROMPT = """你是金融求职情报分析师。从一组小红书帖子�
 3. **不要编造薪资数字**。如果 insights 里没具体数字段,compensation.package 返 "未明确",detail 总结其它信息(加班、奖金弹性等)即可。
 4. 评级 difficulty 只在 insights 里有信息支持时给出,否则 null。
 5. key_questions / hard / soft 等 list 字段每条 ≤ 50 字。
+6. **如果任何 insight 的 conf=conflicting**, summary 的开头必须以 "⚠ 社区说法存在分歧:" 起头, 用 1 句概括对立观点 (例: "⚠ 社区说法存在分歧: 学历门槛部分认为只招 PhD/名校硕博, 也有声音说本科也能进。整体看..."), 然后再接你的总结。这条非常重要 — 学生需要知道情报有冲突, 不能只看一面。
 
 **输出严格 JSON**:
 {
@@ -279,8 +280,10 @@ def enrich(
             seen_urls.append(url)
 
     # E5 透明: 置信度聚合 + 顶级 tier 标 (给学生看 "3 源印证·最高可信" 这类徽章)。
-    _conf_count: dict[str, int] = {"verified": 0, "high": 0, "med": 0, "low": 0}
+    _conf_count: dict[str, int] = {"verified": 0, "high": 0, "med": 0, "low": 0, "conflicting": 0}
     _sources: set[str] = set()
+    # E5.1 分歧聚合: 把各 insight 上挂的 dispute 合并去重, 给前端"对立说法"折叠面板
+    _conflicts_agg: dict[str, list[str]] = {}
     for ins in insights:
         c = (ins.get("confidence") or "").lower()
         if c in _conf_count:
@@ -289,14 +292,26 @@ def enrich(
         if nid.startswith("zh_"): _sources.add("知乎")
         elif nid.startswith("xhsp_"): _sources.add("小红书·历史")
         elif nid.startswith("xhs_"): _sources.add("小红书")
+        # dispute 由 retrieve.search() 透传, 仅 conflicting 簇有
+        for topic, claims in (ins.get("dispute") or {}).items():
+            if not isinstance(claims, list) or len(claims) < 2:
+                continue
+            slot = _conflicts_agg.setdefault(str(topic), [])
+            for claim in claims:
+                if claim and claim not in slot:
+                    slot.append(str(claim))
+    _conflicts_out = [{"topic": t, "claims": c} for t, c in _conflicts_agg.items() if len(c) >= 2]
+
     if _conf_count["verified"] >= 1:
         _tier = "verified"; _tier_label = f"{len(_sources)} 源印证 · 最高可信"
     elif _conf_count["high"] >= 5:
         _tier = "high"; _tier_label = "高互动单源 · 较可信"
-    elif sum(_conf_count.values()) >= 5:
+    elif sum(v for k, v in _conf_count.items() if k != "conflicting") >= 5:
         _tier = "med"; _tier_label = "样本充足 · 一般可信"
     else:
         _tier = "low"; _tier_label = "样本较少 · 仅供参考"
+    # 分歧信号: 召回里有 conflicting 条 → 学生侧顶部加 "⚠ 有分歧" 徽章
+    _has_conflict = _conf_count["conflicting"] >= 1 or len(_conflicts_out) > 0
 
     payload = {
         "company": company,
@@ -315,6 +330,9 @@ def enrich(
         "confidence_label": _tier_label,
         "confidence_breakdown": _conf_count,
         "sources": sorted(_sources),
+        # E5.1 分歧显式化 — 前端"⚠ 有分歧"徽章 + 折叠面板
+        "has_conflict": _has_conflict,
+        "conflicts": _conflicts_out,
         "_llm": {
             "model": DS_MODEL,
             "elapsed_sec": round(elapsed, 2),

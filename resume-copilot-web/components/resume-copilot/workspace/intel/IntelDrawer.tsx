@@ -70,8 +70,11 @@ interface IntelCard {
   // E5 置信度透明 (2026-05-30) — 后端 enrich() 计算并返
   confidence_tier?: 'verified' | 'high' | 'med' | 'low';
   confidence_label?: string;
-  confidence_breakdown?: { verified?: number; high?: number; med?: number; low?: number };
+  confidence_breakdown?: { verified?: number; high?: number; med?: number; low?: number; conflicting?: number };
   sources?: string[];
+  // E5.1 分歧显式化 (2026-05-30) — LLM 簇内判出冲突时, 后端把对立说法聚合传上来
+  has_conflict?: boolean;
+  conflicts?: { topic: string; claims: string[] }[];
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -129,6 +132,7 @@ export function IntelDrawer({
   const [card, setCard] = useState<IntelCard | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [failed, setFailed] = useState<boolean>(false);
+  const [conflictExpanded, setConflictExpanded] = useState<boolean>(false);
 
   if (companyName !== activeCompany) {
     setActiveCompany(companyName);
@@ -252,18 +256,28 @@ export function IntelDrawer({
                 ? `${displayXhsCount} 条洞察 · 来源 ${(card?.sources || []).join('+') || '小红书'}`
                 : '暂无同辈洞察'}
           </div>
-          {card?.confidence_tier ? (
-            <div
-              className={`workspace-hifi__intel-conf-badge workspace-hifi__intel-conf-badge--${card.confidence_tier}`}
-              title={
-                card.confidence_breakdown
-                  ? `verified ${card.confidence_breakdown.verified ?? 0} · high ${card.confidence_breakdown.high ?? 0} · med ${card.confidence_breakdown.med ?? 0} · low ${card.confidence_breakdown.low ?? 0}`
-                  : undefined
-              }
-            >
-              {card.confidence_tier === 'verified' ? '✓ ' : ''}{card.confidence_label}
-            </div>
-          ) : null}
+          <div className="workspace-hifi__intel-badge-row">
+            {card?.confidence_tier ? (
+              <div
+                className={`workspace-hifi__intel-conf-badge workspace-hifi__intel-conf-badge--${card.confidence_tier}`}
+                title={
+                  card.confidence_breakdown
+                    ? `verified ${card.confidence_breakdown.verified ?? 0} · high ${card.confidence_breakdown.high ?? 0} · med ${card.confidence_breakdown.med ?? 0} · low ${card.confidence_breakdown.low ?? 0}${(card.confidence_breakdown.conflicting ?? 0) ? ` · conflicting ${card.confidence_breakdown.conflicting}` : ''}`
+                    : undefined
+                }
+              >
+                {card.confidence_tier === 'verified' ? '✓ ' : ''}{card.confidence_label}
+              </div>
+            ) : null}
+            {card?.has_conflict ? (
+              <div
+                className="workspace-hifi__intel-conf-badge workspace-hifi__intel-conf-badge--conflict"
+                title="社区对该公司/岗位的描述存在相互矛盾的说法"
+              >
+                ⚠ 社区说法有分歧
+              </div>
+            ) : null}
+          </div>
         </div>
         <button
           type="button"
@@ -280,6 +294,44 @@ export function IntelDrawer({
 
       {/* ── Body ────────────────────────────────────────────────────────────── */}
       <div className="workspace-hifi__intel-drawer-body">
+        {!loading && card?.has_conflict ? (
+          <div className="workspace-hifi__intel-conflict-panel">
+            <button
+              type="button"
+              className="workspace-hifi__intel-conflict-toggle"
+              onClick={() => setConflictExpanded((v) => !v)}
+              aria-expanded={conflictExpanded}
+            >
+              <span aria-hidden>⚠</span>
+              <span>社区说法存在分歧 — {conflictExpanded ? '收起' : '展开看对立说法'}</span>
+              <span aria-hidden style={{ marginLeft: 'auto', transform: conflictExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
+            </button>
+            {conflictExpanded && (
+              <div className="workspace-hifi__intel-conflict-body">
+                {(card.conflicts || []).length === 0 ? (
+                  <div className="workspace-hifi__intel-conflict-note">
+                    召回里有 {card.confidence_breakdown?.conflicting ?? 0} 条标记为冲突的洞察, 但具体分歧点未抽出。请直接在原话 tab 里看不同声音, 自己判断。
+                  </div>
+                ) : (
+                  (card.conflicts || []).map((c, i) => (
+                    <div key={`cf-${i}`} className="workspace-hifi__intel-conflict-row">
+                      <div className="workspace-hifi__intel-conflict-topic">{c.topic}</div>
+                      <ul className="workspace-hifi__intel-conflict-claims">
+                        {c.claims.map((claim, j) => (
+                          <li key={`cf-${i}-${j}`}>{claim}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                )}
+                <div className="workspace-hifi__intel-conflict-foot">
+                  这些对立说法来自不同信源 (知乎 / 小红书)。求职决定前请综合多条原话, 不要只信一面之词。
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
+
         {loading && (
           <div className="workspace-hifi__intel-loading">
             <span className="workspace-hifi__intel-loading-dot" aria-hidden />

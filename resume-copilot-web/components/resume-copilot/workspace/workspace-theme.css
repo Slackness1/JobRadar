@@ -4758,6 +4758,90 @@
   box-shadow: 0 0 0 1px var(--border-warm);
 }
 
+/* E5.1 (2026-05-30) 分歧徽章 + 折叠面板 */
+.workspace-hifi__intel-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.workspace-hifi__intel-conf-badge--conflict {
+  background: #fdf2e6;
+  color: #b8551a;
+  box-shadow: 0 0 0 1px #f3c79a;
+}
+
+.workspace-hifi__intel-conflict-panel {
+  margin: 12px 16px 0;
+  border: 1px solid #f3c79a;
+  border-radius: 8px;
+  background: #fdf8f1;
+}
+
+.workspace-hifi__intel-conflict-toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b8551a;
+  cursor: pointer;
+  text-align: left;
+}
+
+.workspace-hifi__intel-conflict-toggle:hover {
+  background: #f9ecdb;
+}
+
+.workspace-hifi__intel-conflict-body {
+  padding: 8px 12px 12px;
+  border-top: 1px solid #f3c79a;
+}
+
+.workspace-hifi__intel-conflict-row {
+  padding: 8px 0;
+  border-bottom: 1px dashed #ead7be;
+}
+
+.workspace-hifi__intel-conflict-row:last-of-type {
+  border-bottom: 0;
+}
+
+.workspace-hifi__intel-conflict-topic {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.workspace-hifi__intel-conflict-claims {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 4px 0 0;
+}
+
+.workspace-hifi__intel-conflict-claims li {
+  font-size: 12.5px;
+  color: var(--stone);
+  line-height: 1.5;
+  margin-bottom: 3px;
+}
+
+.workspace-hifi__intel-conflict-note,
+.workspace-hifi__intel-conflict-foot {
+  font-size: 11.5px;
+  color: var(--stone);
+  font-style: italic;
+  line-height: 1.5;
+  padding-top: 6px;
+}
+
 .workspace-hifi__intel-drawer-close {
   appearance: none;
   background: transparent;

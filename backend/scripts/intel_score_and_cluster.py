@@ -215,10 +215,16 @@ def main() -> int:
                     print(f"  ⚔ {company}: 簇内分歧 {dict(dispute)} ({len(members)} 条)")
                 for i in members:
                     valid[i].confidence = tag
-                    valid[i].corroboration_json = json.dumps(
-                        [s for s in sibling_ids if s != valid[i].insight_id],
-                        ensure_ascii=False,
-                    )
+                    siblings_only = [s for s in sibling_ids if s != valid[i].insight_id]
+                    # E2.1: 对 conflicting 簇, corroboration_json 升级成 dict 同时存 dispute,
+                    # 让下游(retrieve + enrichment)能拿到对立说法。verified 簇仍存 list 兼容旧格式。
+                    if in_conflict:
+                        valid[i].corroboration_json = json.dumps(
+                            {"siblings": siblings_only, "dispute": dict(dispute)},
+                            ensure_ascii=False,
+                        )
+                    else:
+                        valid[i].corroboration_json = json.dumps(siblings_only, ensure_ascii=False)
                     if tag == "verified":
                         n_verified += 1
         db.commit()
