@@ -278,6 +278,26 @@ def enrich(
         if url and url not in seen_urls:
             seen_urls.append(url)
 
+    # E5 透明: 置信度聚合 + 顶级 tier 标 (给学生看 "3 源印证·最高可信" 这类徽章)。
+    _conf_count: dict[str, int] = {"verified": 0, "high": 0, "med": 0, "low": 0}
+    _sources: set[str] = set()
+    for ins in insights:
+        c = (ins.get("confidence") or "").lower()
+        if c in _conf_count:
+            _conf_count[c] += 1
+        nid = (ins.get("source") or {}).get("note_id") or ""
+        if nid.startswith("zh_"): _sources.add("知乎")
+        elif nid.startswith("xhsp_"): _sources.add("小红书·历史")
+        elif nid.startswith("xhs_"): _sources.add("小红书")
+    if _conf_count["verified"] >= 1:
+        _tier = "verified"; _tier_label = f"{len(_sources)} 源印证 · 最高可信"
+    elif _conf_count["high"] >= 5:
+        _tier = "high"; _tier_label = "高互动单源 · 较可信"
+    elif sum(_conf_count.values()) >= 5:
+        _tier = "med"; _tier_label = "样本充足 · 一般可信"
+    else:
+        _tier = "low"; _tier_label = "样本较少 · 仅供参考"
+
     payload = {
         "company": company,
         "role": role,
@@ -290,6 +310,11 @@ def enrich(
         "career_path": card.get("career_path"),
         "voices": voices_out,
         "evidence_urls": seen_urls,
+        # E5 置信度透明 — 前端 IntelDrawer 顶部展示
+        "confidence_tier": _tier,
+        "confidence_label": _tier_label,
+        "confidence_breakdown": _conf_count,
+        "sources": sorted(_sources),
         "_llm": {
             "model": DS_MODEL,
             "elapsed_sec": round(elapsed, 2),

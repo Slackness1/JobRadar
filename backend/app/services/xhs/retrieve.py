@@ -33,6 +33,7 @@ class _CachedInsight:
     confidence: str
     corroboration: list
     vector: np.ndarray
+    captured_at: float  # epoch seconds, for freshness decay
 
 
 @dataclass
@@ -57,6 +58,7 @@ def _load_cache(db: Session) -> dict:
         if v.shape[0] != DIMENSION:
             continue
         types = json.loads(row.type_json or "[]")
+        captured = row.captured_at.timestamp() if getattr(row, "captured_at", None) else 0.0
         insights.append(_CachedInsight(
             insight_id=row.insight_id,
             source_note_id=row.source_note_id,
@@ -71,6 +73,7 @@ def _load_cache(db: Session) -> dict:
             confidence=row.confidence or "med",
             corroboration=json.loads(row.corroboration_json or "[]"),
             vector=v,
+            captured_at=captured,
         ))
         matrix.append(v)
     notes = {}
@@ -126,7 +129,16 @@ def reload_cache(db: Session) -> int:
     return len(_CACHE["insights"])
 
 
-CONF_RANK = {"high": 3, "med": 2, "low": 1}
+CONF_RANK = {"verified": 5, "high": 3, "med": 2, "low": 1, "conflicting": 1}
+# E4 (2026-05-30) 检索加权: confidence 高的乘大、过老的乘小; 半衰期 1 年 (面经长保鲜)
+CONF_MUL = {"verified": 1.30, "high": 1.15, "med": 1.0, "low": 0.85, "conflicting": 0.7}
+
+
+def _score_adj(base: float, ins: "_CachedInsight", now_ts: float) -> float:
+    import math
+    age_d = max(0.0, (now_ts - ins.captured_at) / 86400.0) if ins.captured_at else 365.0
+    fresh = math.exp(-age_d / 365.0)
+    return float(base) * CONF_MUL.get(ins.confidence, 1.0) * (0.85 + 0.15 * fresh)
 
 
 def search(
@@ -170,17 +182,20 @@ def search(
     if not indices:
         return []
 
+    now_ts = time.time()
     if query:
         q = embed_one(query)
         sub_matrix = cache["matrix"][indices]
         scores = sub_matrix @ q
-        order = np.argsort(-scores)[:limit]
-        ranked = [(indices[int(j)], float(scores[int(j)])) for j in order]
+        adjusted = [_score_adj(float(scores[k]), insights[idx], now_ts) for k, idx in enumerate(indices)]
+        order = sorted(range(len(indices)), key=lambda k: -adjusted[k])[:limit]
+        ranked = [(indices[k], adjusted[k]) for k in order]
     else:
         ranked = []
         for i in indices:
             ins = insights[i]
-            ranked.append((i, CONF_RANK.get(ins.confidence, 1) + len(ins.content) / 1000.0))
+            base = CONF_RANK.get(ins.confidence, 1) + len(ins.content) / 1000.0
+            ranked.append((i, _score_adj(base, ins, now_ts)))
         ranked.sort(key=lambda x: -x[1])
         ranked = ranked[:limit]
 

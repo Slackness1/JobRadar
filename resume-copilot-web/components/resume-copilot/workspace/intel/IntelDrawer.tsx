@@ -67,6 +67,11 @@ interface IntelCard {
   voices?: VoiceField[];
   _status?: string;
   _from_cache?: boolean;
+  // E5 置信度透明 (2026-05-30) — 后端 enrich() 计算并返
+  confidence_tier?: 'verified' | 'high' | 'med' | 'low';
+  confidence_label?: string;
+  confidence_breakdown?: { verified?: number; high?: number; med?: number; low?: number };
+  sources?: string[];
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -244,9 +249,21 @@ export function IntelDrawer({
           <div className="workspace-hifi__intel-drawer-subtitle">
             {loading ? '正在召唤同辈情报…' :
               displayXhsCount > 0
-                ? `${displayXhsCount} 条洞察 · 来自小红书同辈`
+                ? `${displayXhsCount} 条洞察 · 来源 ${(card?.sources || []).join('+') || '小红书'}`
                 : '暂无同辈洞察'}
           </div>
+          {card?.confidence_tier ? (
+            <div
+              className={`workspace-hifi__intel-conf-badge workspace-hifi__intel-conf-badge--${card.confidence_tier}`}
+              title={
+                card.confidence_breakdown
+                  ? `verified ${card.confidence_breakdown.verified ?? 0} · high ${card.confidence_breakdown.high ?? 0} · med ${card.confidence_breakdown.med ?? 0} · low ${card.confidence_breakdown.low ?? 0}`
+                  : undefined
+              }
+            >
+              {card.confidence_tier === 'verified' ? '✓ ' : ''}{card.confidence_label}
+            </div>
+          ) : null}
         </div>
         <button
           type="button"
