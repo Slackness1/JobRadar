@@ -64,17 +64,96 @@ export function PlatformCard({
     });
   };
 
+  // Phase G G2-C — 公司兜底卡: 秋招前岗位稀, 展示头部目标公司 + 招聘窗口 (无 live 岗位)
+  if (platform.is_fallback) {
+    const tier = platform.institution_tier || platform.company_priority_tier || '';
+    return (
+      <article
+        className={`workspace-hifi__platform-card workspace-hifi__platform-card--fallback${isExpanded ? ' is-expanded' : ''}`}
+      >
+        <button
+          type="button"
+          className="workspace-hifi__platform-card-header"
+          onClick={onToggle}
+          aria-expanded={isExpanded}
+          aria-label={`${platform.company} — 目标公司，${isExpanded ? '收起' : '展开招聘窗口'}`}
+        >
+          <div className="workspace-hifi__rec-card-logo workspace-hifi__rec-card-logo--fallback" aria-hidden>
+            {initial}
+          </div>
+          <div className="workspace-hifi__platform-card-info">
+            <div className="workspace-hifi__platform-card-headline">
+              <span className="workspace-hifi__platform-card-rank">{rank}.</span>
+              <span className="workspace-hifi__platform-card-name">{platform.company}</span>
+            </div>
+            <div className="workspace-hifi__platform-card-badges">
+              {tier && <span className="workspace-hifi__platform-card-tier-tag">{tier}</span>}
+              {platform.fallback_status && (
+                <span className="workspace-hifi__platform-card-fallback-status">
+                  {platform.fallback_status}
+                </span>
+              )}
+            </div>
+          </div>
+          <span
+            className={`workspace-hifi__platform-card-chevron${isExpanded ? ' is-open' : ''}`}
+            aria-hidden
+          >
+            {I.chevron(11)}
+          </span>
+        </button>
+        {isExpanded && (
+          <div className="workspace-hifi__platform-expanded">
+            {platform.hiring_season && (
+              <div className="workspace-hifi__platform-card-season">
+                <span className="workspace-hifi__platform-card-season-label">招聘窗口</span>
+                <span className="workspace-hifi__platform-card-season-body">
+                  {platform.hiring_season}
+                </span>
+              </div>
+            )}
+            {platform.verbatim_hint && (
+              <div className="workspace-hifi__platform-card-verbatim">
+                “{platform.verbatim_hint}”
+              </div>
+            )}
+            {onOpenIntel && (
+              <button
+                type="button"
+                className="workspace-hifi__intel-cta-row"
+                onClick={openIntel}
+              >
+                <span aria-hidden style={{ display: 'inline-flex' }}>{I.book(14)}</span>
+                <span style={{ flex: 1, textAlign: 'left' }}>查看 {platform.company} 同辈情报</span>
+                <span aria-hidden style={{ display: 'inline-flex' }}>{I.arrowRight(12)}</span>
+              </button>
+            )}
+          </div>
+        )}
+      </article>
+    );
+  }
+
   return (
     <article
       className={`workspace-hifi__platform-card${isExpanded ? ' is-expanded' : ''}`}
       data-priority={priorityLetter || undefined}
     >
-      <button
-        type="button"
+      {/* Fix-1 (2026-05-26): 用 div role="button" 替代 <button>,因为
+          内部嵌了 xhs badge <button> — <button>嵌<button>触发 hydration error. */}
+      <div
+        role="button"
+        tabIndex={0}
         className="workspace-hifi__platform-card-header"
         onClick={onToggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
         aria-expanded={isExpanded}
-        aria-label={`${platform.company} — ${platform.n_jobs} 个岗位，${isExpanded ? '收起' : '展开'}`}
+        aria-label={`${platform.company} — ${platform.n_jobs} 个岗位,${isExpanded ? '收起' : '展开'}`}
       >
         <div
           className="workspace-hifi__rec-card-logo"
@@ -131,7 +210,7 @@ export function PlatformCard({
         >
           {I.chevron(11)}
         </span>
-      </button>
+      </div>
 
       {isExpanded && (
         <div className="workspace-hifi__platform-expanded">

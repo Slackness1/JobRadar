@@ -7,6 +7,7 @@ import type {
   ResumeCopilotSessionCreatedOut,
   ResumeCopilotSessionListItem,
   ResumeFeedbackResult,
+  ResumeJobMode,
   ResumeParsedProfileOut,
   ResumePreferenceOut,
   ResumePreferencePayload,
@@ -247,6 +248,14 @@ export function deleteResumeCopilotSession(sessionId: number) {
   return requestJson<void>(`/api/resume-copilot/sessions/${sessionId}`, { method: 'DELETE' });
 }
 
+/** 复制一份会话(克隆 简历/偏好/推荐快照)。后端 409 = 在用简历达上限。 */
+export function duplicateResumeCopilotSession(sessionId: number) {
+  return requestJson<ResumeCopilotSessionListItem>(
+    `/api/resume-copilot/sessions/${sessionId}/duplicate`,
+    { method: 'POST' },
+  );
+}
+
 // ── Profile / preferences / generate ─────────────────────────────────────────
 
 export function getResumeCopilotParsedProfile(sessionId: number) {
@@ -319,6 +328,13 @@ export function getResumeCopilotRecommendations(sessionId: number) {
 export function getResumeCopilotPlatforms(sessionId: number) {
   return requestJson<ResumeRecommendationPlatformsOut>(
     `/api/resume-copilot/sessions/${sessionId}/recommendations/platforms`,
+  );
+}
+
+// Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner
+export function getResumeCopilotJobMode(sessionId: number) {
+  return requestJson<ResumeJobMode>(
+    `/api/resume-copilot/sessions/${sessionId}/job-mode`,
   );
 }
 

@@ -53,7 +53,6 @@ export function HFHero() {
   const router = useRouter();
   const [tickerPaused, setTickerPaused] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -68,29 +67,26 @@ export function HFHero() {
   const daily = useCountUp(2092, 1400);
 
   const handleCTA = (destination: string) => {
+    // 已登录直接去目标页; 未登录先弹登录, 登录后统一落"选简历"页 (见 onLoginSuccess)。
     if (isAuthenticated() || isGuestUser()) {
       router.push(destination);
       return;
     }
-    setPendingDestination(destination);
     setModalOpen(true);
   };
 
   const handleLoginNav = () => {
     if (isAuthenticated() || isGuestUser()) return;
-    setPendingDestination(null);
     setModalOpen(true);
   };
 
   const onLoginSuccess = () => {
     setModalOpen(false);
     setLoggedIn(true);
-    // 决策 (b) 2026-05-26:登录后默认到 /resume-copilot/sessions 选简历页,
-    // 让用户能续上之前修改一半的简历,而不是停在 hero 或被迫重传。
-    // CTA 显式设了 pendingDestination 时尊重原值(例如点"上传简历"仍走 /upload)。
-    const destination = pendingDestination ?? '/resume-copilot/sessions';
-    setPendingDestination(null);
-    router.push(destination);
+    // 2026-05-29:登录后一律落到"选简历"页, 不再因点了"上传"CTA 直接跳上传。
+    // 选简历页本身就带"上传新简历"卡 —— 让用户先看到已有简历(续上修改一半的),
+    // 再决定进哪份 or 传新的。这是登录的统一落点。
+    router.push('/resume-copilot/sessions');
   };
 
   return (

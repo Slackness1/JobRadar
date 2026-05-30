@@ -54,6 +54,23 @@ export interface ResumePreferencePayload {
   social_ok: boolean;
   preference_notes: string;
   all_skipped: boolean;
+  // Phase G G2-B — 学生求职阶段: in_school / fresh_grad / graduated / unknown / ''
+  job_stage?: string;
+  // Phase G — 学生确认的预计毕业时间 (YYYY-MM)。确认页校正后驱动阶段判定。
+  graduation_date?: string;
+}
+
+export interface ResumeJobMode {
+  session_id: number;
+  stage: string;
+  stage_label: string;
+  stage_inferred: boolean;
+  primary_sub_cat: string;
+  mode: string;          // intern_first / fulltime_first / both
+  mode_label: string;
+  default_tab: string;   // intern / campus / platform
+  advice_text: string;
+  advice_evidence: string;
 }
 
 export interface ResumeCopilotSession {
@@ -78,6 +95,11 @@ export interface ResumeCopilotSession {
   finished_at: string | null;
 }
 
+export interface ResumeSessionThumbSection {
+  label: string;
+  bullets: number;
+}
+
 export interface ResumeCopilotSessionListItem {
   id: number;
   file_name: string;
@@ -89,6 +111,13 @@ export interface ResumeCopilotSessionListItem {
   is_archived?: boolean;
   created_at: string | null;
   updated_at: string | null;
+  /** 2026-05-29 (P2 卡片真实化): 列表卡片摘要 — 全部可选, 后端没回时前端回退占位。 */
+  track?: string;
+  n_companies?: number;
+  n_jobs?: number;
+  top_companies?: string[];
+  thumb_name?: string;
+  thumb_sections?: ResumeSessionThumbSection[];
 }
 
 export interface ResumeCopilotSessionCreatedOut {
@@ -294,6 +323,13 @@ export interface ResumeRecommendationPlatform {
   matched_track_label: string;
   top_jobs: ResumeRecommendationPlatformJobBrief[];
   all_job_ids: string[];
+  // Phase G G2-C — 公司兜底卡 (秋招前岗位稀时补头部目标公司)
+  is_fallback?: boolean;
+  fallback_status?: string;
+  hiring_season?: string;
+  verbatim_hint?: string;
+  institution_tier?: string;
+  sub_cat?: string;
 }
 
 export interface ResumeRecommendationPlatformsOut {
@@ -316,4 +352,6 @@ export const EMPTY_PREFERENCES: ResumePreferencePayload = {
   social_ok: false,
   preference_notes: '',
   all_skipped: false,
+  job_stage: '',
+  graduation_date: '',
 };

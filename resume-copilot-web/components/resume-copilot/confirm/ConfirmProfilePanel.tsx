@@ -69,6 +69,33 @@ const OFFICE_TO_CITIES: Record<string, string[]> = {
   global: ['香港', '新加坡', '上海'],
 };
 
+// 从简历 education 取最晚一段的毕业时间, 归一成 YYYY-MM (给 <input type=month>)。
+// 抠不出 (含 至今/Present) → 返 ''。
+function latestGradDate(profile: ResumeProfilePayload): string {
+  let best = '';
+  for (const edu of profile.education ?? []) {
+    const end = (edu?.end_date ?? '').trim();
+    const m = end.match(/(\d{4})\s*[.\-/年]?\s*(\d{1,2})?/);
+    if (!m) continue;
+    const ym = `${m[1]}-${String(m[2] ? Number(m[2]) : 6).padStart(2, '0')}`;
+    if (ym > best) best = ym;
+  }
+  return best;
+}
+
+// 前端镜像 backend job_mode.infer_stage_from_education 的阈值, 用于毕业时间→阶段
+// 的即时预选 (后端仍是判定权威; 这里只为 UX 默认勾选)。
+function deriveStage(gradYM: string): string {
+  const m = gradYM.match(/^(\d{4})-(\d{1,2})$/);
+  if (!m) return '';
+  const now = new Date();
+  const months =
+    (Number(m[1]) - now.getFullYear()) * 12 + (Number(m[2]) - (now.getMonth() + 1));
+  if (months < 0) return 'graduated';
+  if (months <= 13) return 'fresh_grad';
+  return 'in_school';
+}
+
 type FetchState =
   | { kind: 'loading' }
   | {
@@ -89,6 +116,10 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
   const [fetchState, setFetchState] = useState<FetchState>({ kind: 'loading' });
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [selectedCities, setSelectedCities] = useState<string[]>(DEFAULT_CITIES);
+  // Phase G G2-B — 学生阶段 (在读/应届/已毕业); 后端按毕业时间预填, 学生可改
+  const [selectedStage, setSelectedStage] = useState<string>('');
+  // Phase G — 学生确认的预计毕业时间 (YYYY-MM); 改它会即时重算建议阶段
+  const [gradDate, setGradDate] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -127,6 +158,16 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
         }
         const preferences = prefs?.preferences ?? EMPTY_PREFERENCES;
         setFetchState({ kind: 'ready', profile: parsed.profile, preferences });
+
+        // ── Seed 毕业时间 + 阶段 ─────────────────────────────────────────
+        // 毕业时间: 学生上次确认的 > 简历解析的最晚毕业时间
+        const seededGrad =
+          (preferences.graduation_date ?? '').trim() || latestGradDate(parsed.profile);
+        setGradDate(seededGrad);
+        // 阶段: 学生上次显式选的 > 由毕业时间即时推导 (后端仍是判定权威)
+        setSelectedStage(
+          (preferences.job_stage ?? '').trim() || deriveStage(seededGrad),
+        );
 
         // ── Seed selectedTrack ─────────────────────────────────────────
         // 1. preferences.preferred_tracks[0] (if valid canonical key)
@@ -211,6 +252,8 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
         ...fetchState.preferences,
         preferred_tracks: [selectedTrack],
         preferred_locations: selectedCities,
+        job_stage: selectedStage,
+        graduation_date: gradDate,
         all_skipped: false,
       });
       // 2. Persist confirmed-profile — flips has_confirmed_profile=true and
@@ -227,7 +270,7 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
       setSubmitError(e instanceof Error ? e.message : String(e));
       setSubmitting(false);
     }
-  }, [fetchState, isDemo, router, sessionId, selectedCities, selectedTrack]);
+  }, [fetchState, isDemo, router, sessionId, selectedCities, selectedTrack, selectedStage, gradDate]);
 
   const handleBackToUpload = useCallback(() => {
     router.push('/upload');
@@ -283,6 +326,59 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
                 inferredOffices={inferredOffices}
                 disabled={submitting}
               />
+              {/* Phase G G2-B/G2-grad — 毕业时间 + 阶段 (驱动主推实习/全职/both) */}
+              <div className="rc-confirm__stage-block">
+                <div className="rc-confirm__stage-head">
+                  <span className="rc-confirm__stage-title">毕业时间与阶段</span>
+                  <span className="rc-confirm__stage-hint">
+                    确认毕业时间，我据此判断主推实习还是全职
+                  </span>
+                </div>
+                <div className="rc-confirm__grad-row">
+                  <label className="rc-confirm__grad-label" htmlFor="rc-grad-date">
+                    预计毕业时间
+                  </label>
+                  <input
+                    id="rc-grad-date"
+                    type="month"
+                    className="rc-confirm__grad-input"
+                    value={gradDate}
+                    disabled={submitting}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setGradDate(v);
+                      // 改毕业时间 → 即时重算建议阶段 (学生随后仍可手动覆盖)
+                      const d = deriveStage(v);
+                      if (d) setSelectedStage(d);
+                    }}
+                  />
+                  {!gradDate && (
+                    <span className="rc-confirm__grad-warn">
+                      简历没解析出毕业时间，请补一下
+                    </span>
+                  )}
+                </div>
+                <div className="rc-confirm__stage-options" role="radiogroup" aria-label="求职阶段">
+                  {[
+                    { v: 'in_school', label: '在读', sub: '距毕业一年以上' },
+                    { v: 'fresh_grad', label: '应届', sub: '今年毕业找全职' },
+                    { v: 'graduated', label: '已毕业', sub: '走全职/社招' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.v}
+                      type="button"
+                      role="radio"
+                      aria-checked={selectedStage === opt.v}
+                      className={`rc-confirm__stage-opt${selectedStage === opt.v ? ' is-active' : ''}`}
+                      onClick={() => setSelectedStage(opt.v)}
+                      disabled={submitting}
+                    >
+                      <span className="rc-confirm__stage-opt-label">{opt.label}</span>
+                      <span className="rc-confirm__stage-opt-sub">{opt.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </>
           )}
 

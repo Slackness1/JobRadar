@@ -22,11 +22,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I } from '@/components/hifi/hifi-primitives';
 import type {
   ResumeCopilotSession,
+  ResumeJobMode,
   ResumeRecommendationItem,
   ResumeRecommendationPlatform,
   ResumeRecommendationResult,
 } from '../types';
 import {
+  getResumeCopilotJobMode,
   getResumeCopilotPlatforms,
   postRejectRecommendation,
   type RecommendRejectReason,
@@ -95,6 +97,10 @@ export function LeftRecommendRail({
   const [platforms, setPlatforms] = useState<ResumeRecommendationPlatform[] | null>(null);
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
   const platformFetchingRef = useRef(false);
+  // Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner
+  const [jobMode, setJobMode] = useState<ResumeJobMode | null>(null);
+  const jobModeFetchingRef = useRef(false);
+  const [modeBannerDismissed, setModeBannerDismissed] = useState<boolean>(false);
 
   // "Adjusting state when props change" idiom (React 19): track previous
   // recommendations via a setState rather than a ref (react-compiler bans ref
@@ -110,6 +116,8 @@ export function LeftRecommendRail({
     setBannerDismissed(false);
     setPlatforms(null);
     setExpandedCompany(null);
+    setJobMode(null);
+    setModeBannerDismissed(false);
   }
 
   const flip = useFlipAnimation<string>();
@@ -146,6 +154,25 @@ export function LeftRecommendRail({
       .catch(() => setPlatforms([]))
       .finally(() => { platformFetchingRef.current = false; });
   }, [sid, platforms, recommendations]);
+
+  // Phase G G2-D — 拉求职模式判定 (session ready 后一次)
+  useEffect(() => {
+    if (!sid || jobMode !== null || jobModeFetchingRef.current) return;
+    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
+    if (!recReady) return;
+    jobModeFetchingRef.current = true;
+    getResumeCopilotJobMode(sid)
+      .then((m) => {
+        setJobMode(m);
+        // 落一次默认 tab (此分支仅在 jobMode===null 时触发, 即首次; 之后学生手动切不覆盖)
+        const dt = m.default_tab;
+        if (dt === 'platform' || dt === 'campus' || dt === 'intern') {
+          setViewMode(dt);
+        }
+      })
+      .catch(() => setJobMode(null))
+      .finally(() => { jobModeFetchingRef.current = false; });
+  }, [sid, jobMode, recommendations]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -279,6 +306,35 @@ export function LeftRecommendRail({
               {I.radar(16)}
             </button>
           </div>
+          {/* Phase G G2-D — 求职模式解释 banner (时点×门槛×经历 → 主推策略) */}
+          {jobMode && jobMode.advice_text && !modeBannerDismissed && (
+            <div className="workspace-hifi__mode-banner" role="note">
+              <div className="workspace-hifi__mode-banner-head">
+                <span className="workspace-hifi__mode-banner-tag">{jobMode.mode_label}</span>
+                {jobMode.stage_label && (
+                  <span className="workspace-hifi__mode-banner-stage">
+                    {jobMode.stage_inferred
+                      ? `按简历推断：${jobMode.stage_label}（可在偏好里改）`
+                      : jobMode.stage_label}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className="workspace-hifi__mode-banner-close"
+                  aria-label="收起"
+                  onClick={() => setModeBannerDismissed(true)}
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="workspace-hifi__mode-banner-body">{jobMode.advice_text}</p>
+              {jobMode.advice_evidence && (
+                <p className="workspace-hifi__mode-banner-evidence">
+                  依据 · {jobMode.advice_evidence}
+                </p>
+              )}
+            </div>
+          )}
           {/* P0b — 过滤行 (视觉 placeholder,不接 filter 逻辑) */}
           <div className="workspace-hifi__rec-filter-row" aria-hidden>
             <span className="hf-pill">行业 ▾</span>
@@ -352,7 +408,7 @@ export function LeftRecommendRail({
                 />
               </div>
             )}
-            {platforms !== null && platforms.map((p, idx) => (
+            {platforms !== null && platforms.filter((p) => !p.is_fallback).map((p, idx) => (
               <div key={p.company} className="workspace-hifi__rec-list-item" role="listitem">
                 <PlatformCard
                   platform={p}
@@ -366,6 +422,30 @@ export function LeftRecommendRail({
                 />
               </div>
             ))}
+            {platforms !== null && platforms.some((p) => p.is_fallback) && (
+              <div className="workspace-hifi__rec-fallback-divider" role="presentation">
+                <span className="workspace-hifi__rec-fallback-divider-label">
+                  你的目标公司 · 本季暂未开新岗，按招聘窗口提前准备
+                </span>
+              </div>
+            )}
+            {platforms !== null && platforms.filter((p) => p.is_fallback).map((p, idx) => {
+              const liveCount = platforms.filter((x) => !x.is_fallback).length;
+              return (
+                <div key={`fb-${p.company}`} className="workspace-hifi__rec-list-item" role="listitem">
+                  <PlatformCard
+                    platform={p}
+                    rank={liveCount + idx + 1}
+                    isExpanded={expandedCompany === p.company}
+                    onToggle={() =>
+                      setExpandedCompany((prev) => (prev === p.company ? null : p.company))
+                    }
+                    sessionId={sid}
+                    onOpenIntel={onOpenIntel}
+                  />
+                </div>
+              );
+            })}
             {platforms !== null && platforms.length === 0 && (
               <div className="workspace-hifi__rec-empty">
                 <span className="workspace-hifi__rec-empty-title">暂无平台数据</span>

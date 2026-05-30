@@ -18,7 +18,16 @@ interface ResumeThumbProps {
   name?: string;
   /** Small tag under the name, e.g. "MF" / "投行 v2" */
   tag?: string;
+  /** 2026-05-29: 真实简历段落 (来自列表接口的 thumb_sections)。给了就按真实段落
+   *  + 条数渲染, 让缩略图反映这份简历的实际结构; 没给/空数组则回退占位骨架。 */
+  sections?: Array<{ label: string; bullets: number }>;
 }
+
+const PLACEHOLDER_SECTIONS: Array<{ label: string; bullets: number }> = [
+  { label: '实习经历', bullets: 4 },
+  { label: '教育背景', bullets: 2 },
+  { label: '技能', bullets: 2 },
+];
 
 // Deterministic bullet widths — keeps the visual stable across re-renders
 // and matches the original HiFi source. The `_sectionIdx` arg is kept for
@@ -32,12 +41,10 @@ export function ResumeThumb({
   accentColor = '#fdebe2',
   name = '我的简历',
   tag = 'JobRadar',
+  sections: realSections,
 }: ResumeThumbProps) {
-  const sections: Array<{ label: string; bullets: number }> = [
-    { label: '实习经历', bullets: 4 },
-    { label: '教育背景', bullets: 2 },
-    { label: '技能', bullets: 2 },
-  ];
+  const sections =
+    realSections && realSections.length > 0 ? realSections : PLACEHOLDER_SECTIONS;
 
   const cornerStyle: CSSProperties = {
     background: `linear-gradient(225deg, ${accentColor}, transparent 70%)`,

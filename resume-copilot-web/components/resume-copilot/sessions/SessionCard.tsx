@@ -16,6 +16,8 @@
  * fields (trackTitle / trackIcon / coverColor) that P0a defaults sensibly.
  */
 
+import { useEffect, useRef, useState } from 'react';
+
 import { I } from '@/components/hifi/hifi-primitives';
 import type { ResumeCopilotSessionListItem } from '../types';
 
@@ -53,8 +55,14 @@ interface SessionCardProps {
   data: SessionCardData;
   /** Click on the card body / "切换到此会话" button. */
   onSwitch: (sessionId: number) => void;
-  /** Click on "⋯" — opens action menu (P0a: no-op stub). */
-  onMore?: (sessionId: number) => void;
+  /** ⋯ 菜单 → 复制(克隆推荐/简历/偏好到新会话)。 */
+  onDuplicate?: (sessionId: number) => void;
+  /** ⋯ 菜单 → 删除会话(确认后)。 */
+  onDelete?: (sessionId: number) => void;
+  /** 复制是否被在用上限禁用(满 3 份时置灰)。 */
+  duplicateDisabled?: boolean;
+  /** 复制/删除进行中 — 禁用 ⋯ 防重复点。 */
+  busy?: boolean;
 }
 
 function formatRelative(iso: string | null): string {
@@ -85,7 +93,14 @@ function renderTrackIcon(key: IconKey | undefined, size = 13) {
   return ICON_FALLBACK(size);
 }
 
-export function SessionCard({ data, onSwitch, onMore }: SessionCardProps) {
+export function SessionCard({
+  data,
+  onSwitch,
+  onDuplicate,
+  onDelete,
+  duplicateDisabled = false,
+  busy = false,
+}: SessionCardProps) {
   const {
     id,
     name,
@@ -99,6 +114,8 @@ export function SessionCard({ data, onSwitch, onMore }: SessionCardProps) {
     topPicks = [],
     created_at,
     updated_at,
+    thumb_name,
+    thumb_sections,
   } = data;
 
   const displayName = (name && name.trim()) || file_name || `会话 #${id}`;
@@ -111,9 +128,34 @@ export function SessionCard({ data, onSwitch, onMore }: SessionCardProps) {
   const rewrites = stats?.rewrites ?? 0;
 
   const handleEnter = () => onSwitch(id);
-  const handleMore = (e: React.MouseEvent) => {
+
+  // ⋯ 弹出菜单 (复制 / 删除) + 点外面关闭
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [menuOpen]);
+
+  const handleMoreToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onMore?.(id);
+    setMenuOpen((v) => !v);
+  };
+  const pickDuplicate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    if (!duplicateDisabled) onDuplicate?.(id);
+  };
+  const pickDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    onDelete?.(id);
   };
 
   return (
@@ -132,7 +174,12 @@ export function SessionCard({ data, onSwitch, onMore }: SessionCardProps) {
         <span className="rc-sessions__archived-badge">归档</span>
       ) : null}
 
-      <ResumeThumb accentColor={coverColor} name={displayName} tag={thumbTag} />
+      <ResumeThumb
+        accentColor={coverColor}
+        name={(thumb_name && thumb_name.trim()) || displayName}
+        tag={thumbTag}
+        sections={thumb_sections}
+      />
 
       <div className="rc-sessions__card-body">
         <div>
@@ -223,15 +270,43 @@ export function SessionCard({ data, onSwitch, onMore }: SessionCardProps) {
               切换到此会话 {I.arrowRight(12)}
             </button>
           )}
-          <button
-            type="button"
-            onClick={handleMore}
-            className="hf-btn ghost sm rc-sessions__card-action-more"
-            title="更多"
-            aria-label="更多操作"
-          >
-            ⋯
-          </button>
+          <div className="rc-sessions__card-more-wrap" ref={menuRef}>
+            <button
+              type="button"
+              onClick={handleMoreToggle}
+              disabled={busy || (!onDuplicate && !onDelete)}
+              className="hf-btn ghost sm rc-sessions__card-action-more"
+              title="更多操作"
+              aria-label="更多操作"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+            >
+              {busy ? <span className="hf-spin" aria-hidden /> : '⋯'}
+            </button>
+            {menuOpen ? (
+              <div className="rc-sessions__card-menu" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="rc-sessions__card-menu-item"
+                  onClick={pickDuplicate}
+                  disabled={duplicateDisabled || !onDuplicate}
+                  title={duplicateDisabled ? '在用简历已达 3 份上限,先删/归档一份' : '复制(克隆推荐与简历到新会话)'}
+                >
+                  复制{duplicateDisabled ? ' (已达上限)' : ''}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="rc-sessions__card-menu-item rc-sessions__card-menu-item--danger"
+                  onClick={pickDelete}
+                  disabled={!onDelete}
+                >
+                  删除
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

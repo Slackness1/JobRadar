@@ -20,6 +20,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { HFBtn, HFLogo, I } from '@/components/hifi/hifi-primitives';
 import {
+  deleteResumeCopilotSession,
+  duplicateResumeCopilotSession,
   isAuthenticated,
   isGuestUser,
   listResumeCopilotSessions,
@@ -46,6 +48,9 @@ const COVER_PALETTE = [
 function pickCover(idx: number): string {
   return COVER_PALETTE[idx % COVER_PALETTE.length];
 }
+
+// 每账号"在使用中"(非归档)简历上限 — 与后端 MAX_ACTIVE_SESSIONS 对齐。
+const MAX_ACTIVE_SESSIONS = 3;
 
 function compareSessions(a: ResumeCopilotSessionListItem, b: ResumeCopilotSessionListItem, sort: SessionSort): number {
   if (sort === 'name') {
@@ -122,12 +127,17 @@ export function SessionsPanel() {
     return visibleSessions.map((s, idx) => ({
       ...s,
       isCurrent: currentSessionId === s.id,
-      // P0a 占位 — 真 track / stats / topPicks 留 P2 聚合。
-      trackTitle: '尚未选定赛道',
+      // 2026-05-29: 用列表接口回的真实摘要 (没回时回退占位)。
+      trackTitle: (s.track && s.track.trim()) || '尚未选定赛道',
       trackIcon: 'target',
       coverColor: pickCover(idx),
-      stats: { companies: 0, jobs: 0, intel: 0, rewrites: 0 },
-      topPicks: [],
+      stats: {
+        companies: s.n_companies ?? 0,
+        jobs: s.n_jobs ?? 0,
+        intel: 0, // 同辈情报数据待重新入库, 暂 0
+        rewrites: 0,
+      },
+      topPicks: s.top_companies ?? [],
     }));
   }, [visibleSessions, currentSessionId]);
 
@@ -142,6 +152,51 @@ export function SessionsPanel() {
   const handleUpload = useCallback(() => {
     router.push('/upload');
   }, [router]);
+
+  // ⋯ 菜单 → 删除 / 复制。busyId 防重复点。
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const handleDelete = useCallback(
+    async (sessionId: number) => {
+      const target = sessions.find((s) => s.id === sessionId);
+      const label =
+        (target?.name && target.name.trim()) || target?.file_name || `会话 #${sessionId}`;
+      const ok = window.confirm(
+        `删除「${label}」?\n会同时清掉这份简历的推荐 / 同辈情报 / Coach 拆解 / 改写记录,且不可恢复。`,
+      );
+      if (!ok) return;
+      setBusyId(sessionId);
+      try {
+        await deleteResumeCopilotSession(sessionId);
+        setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        window.alert(`删除失败: ${msg}`);
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [sessions],
+  );
+  const handleDuplicate = useCallback(
+    async (sessionId: number) => {
+      setBusyId(sessionId);
+      try {
+        const dup = await duplicateResumeCopilotSession(sessionId);
+        // 新副本插到列表最前 (后端已按 updated_at desc, 这里乐观前插)
+        setSessions((prev) => [dup, ...prev]);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        window.alert(
+          /\b409\b|上限/.test(msg)
+            ? '在使用中的简历已达 3 份上限,请先删除或归档一份再复制。'
+            : `复制失败: ${msg}`,
+        );
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [],
+  );
 
   const handleBackToWorkspace = useCallback(() => {
     if (currentSessionId) {
@@ -230,9 +285,22 @@ export function SessionsPanel() {
                   key={c.id}
                   data={c}
                   onSwitch={handleSwitch}
+                  onDuplicate={handleDuplicate}
+                  onDelete={handleDelete}
+                  duplicateDisabled={activeCount >= MAX_ACTIVE_SESSIONS}
+                  busy={busyId === c.id}
                 />
               ))}
-              <UploadCard onUpload={handleUpload} />
+              {activeCount >= MAX_ACTIVE_SESSIONS ? (
+                <div className="rc-sessions__limit-card">
+                  <div className="rc-sessions__limit-title">在用简历已达 {MAX_ACTIVE_SESSIONS} 份上限</div>
+                  <div className="rc-sessions__limit-blurb">
+                    想试新赛道?先删除或归档一份(归档不占额),再上传或复制。
+                  </div>
+                </div>
+              ) : (
+                <UploadCard onUpload={handleUpload} />
+              )}
             </div>
           )}
 

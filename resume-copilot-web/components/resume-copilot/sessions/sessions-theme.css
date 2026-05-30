@@ -376,6 +376,82 @@
   min-width: 32px;
 }
 
+/* ⋯ 弹出菜单 (复制 / 删除) */
+.rc-sessions__card-more-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rc-sessions__card-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  min-width: 132px;
+  background: var(--ivory, #fff);
+  border-radius: 10px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14), 0 0 0 1px var(--border-warm);
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: rc-fade-in 0.12s ease-out;
+}
+
+.rc-sessions__card-menu-item {
+  text-align: left;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.rc-sessions__card-menu-item:hover:not(:disabled) {
+  background: var(--terracotta-wash);
+}
+
+.rc-sessions__card-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rc-sessions__card-menu-item--danger {
+  color: #b3261e;
+}
+
+.rc-sessions__card-menu-item--danger:hover:not(:disabled) {
+  background: #fbe9e7;
+}
+
+/* 达上限时替代上传卡的提示卡 */
+.rc-sessions__limit-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-warm);
+  background: var(--parchment, #f5f4ed);
+  min-height: 160px;
+}
+
+.rc-sessions__limit-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rc-sessions__limit-blurb {
+  font-size: 12.5px;
+  color: var(--olive, #5e5d59);
+  line-height: 1.5;
+}
+
 /* ── Track chip (re-used in cards + topbar) ──────────────────────────────── */
 
 .rc-sessions__track-chip {

@@ -299,6 +299,113 @@
   cursor: not-allowed;
 }
 
+/* ── Phase G G2-B: 学生阶段选择器 ─────────────────────────────────────────── */
+
+.rc-confirm__stage-block {
+  margin-top: 22px;
+}
+
+.rc-confirm__stage-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.rc-confirm__stage-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.rc-confirm__stage-hint {
+  font-size: 12.5px;
+  color: var(--stone);
+}
+
+.rc-confirm__grad-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.rc-confirm__grad-label {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.rc-confirm__grad-input {
+  padding: 6px 10px;
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-md, 8px);
+  background: var(--ivory);
+  color: var(--ink);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.rc-confirm__grad-input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+}
+
+.rc-confirm__grad-warn {
+  font-size: 12px;
+  color: var(--terracotta-strong);
+}
+
+.rc-confirm__stage-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rc-confirm__stage-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 0;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  transition: all 0.15s;
+  font-family: inherit;
+  text-align: left;
+}
+
+.rc-confirm__stage-opt:hover:not(.is-active):not(:disabled) {
+  background: var(--ivory);
+}
+
+.rc-confirm__stage-opt.is-active {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(201, 100, 66, 0.22);
+}
+
+.rc-confirm__stage-opt:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rc-confirm__stage-opt-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rc-confirm__stage-opt-sub {
+  font-size: 11.5px;
+  opacity: 0.8;
+}
+
 /* ── CTAs ────────────────────────────────────────────────────────────────── */
 
 .rc-confirm__actions {
