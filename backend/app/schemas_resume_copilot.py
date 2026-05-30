@@ -70,6 +70,14 @@ class ResumePreferencePayload(BaseModel):
     social_ok: bool = False
     preference_notes: str = ''
     all_skipped: bool = False
+    # Phase G G2-B (2026-05-29) — 学生求职阶段, 驱动实习/全职/both 主推模式。
+    # 值域: in_school / fresh_grad / graduated / unknown (见 job_mode.py)。
+    # 存偏好不入表; 由简历毕业时间智能预填, 确认页学生可改。
+    job_stage: str = ''
+    # Phase G (2026-05-29) — 学生确认的预计毕业时间 (如 '2027-06')。确认页让学生
+    # 校正简历解析出的毕业时间; 有准确毕业时间后阶段判定更可靠 (优先级低于显式
+    # job_stage, 高于简历 education)。
+    graduation_date: str = ''
 
 
 class ResumeParsedProfileOut(BaseModel):
@@ -93,6 +101,20 @@ class ResumePreferenceIn(BaseModel):
 class ResumePreferenceOut(BaseModel):
     session_id: int
     preferences: ResumePreferencePayload
+
+
+class ResumeJobModeOut(BaseModel):
+    """Phase G G2-D — 求职模式判定结果, 驱动前端默认 tab + 解释 banner。"""
+    session_id: int
+    stage: str = ''            # in_school / fresh_grad / graduated / unknown
+    stage_label: str = ''      # 在读 / 应届 / 已毕业 / 未知
+    stage_inferred: bool = False  # True = 学生未显式设, 由简历毕业时间推得 (确认页提示可改)
+    primary_sub_cat: str = ''
+    mode: str = ''             # intern_first / fulltime_first / both
+    mode_label: str = ''       # 主推实习 / 主推全职 / 实习 + 全职并行
+    default_tab: str = ''      # intern / campus
+    advice_text: str = ''
+    advice_evidence: str = ''  # 知识库原话出处 (可空)
 
 
 class ResumeCopilotSessionCreatedOut(BaseModel):
@@ -125,6 +147,11 @@ class ResumeCopilotSessionOut(BaseModel):
     model_config = {'from_attributes': True}
 
 
+class ResumeSessionThumbSection(BaseModel):
+    label: str
+    bullets: int = 1
+
+
 class ResumeCopilotSessionListItem(BaseModel):
     id: int
     file_name: str
@@ -137,6 +164,14 @@ class ResumeCopilotSessionListItem(BaseModel):
     is_archived: bool = False
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    # 2026-05-29 (P2 卡片真实化): 列表卡片摘要字段, 让"我的简历会话"卡不再是空壳。
+    # 全部可选 + 默认空, 后端算挂了退回占位, 老客户端忽略即可。
+    track: str = ''                       # 已选赛道 (preference.preferred_tracks[0])
+    n_companies: int = 0                  # 推荐覆盖的公司数
+    n_jobs: int = 0                       # 推荐岗位数
+    top_companies: list[str] = []         # Top 推荐公司名 (≤4)
+    thumb_name: str = ''                  # 简历缩略图用的候选人名
+    thumb_sections: list[ResumeSessionThumbSection] = []  # 缩略图真实段落 (实习/教育/技能 + 条数)
 
     model_config = {'from_attributes': True}
 
@@ -258,6 +293,13 @@ class ResumeRecommendationPlatform(BaseModel):
     matched_track_label: str = ''
     top_jobs: list[ResumeRecommendationPlatformJobBrief] = []
     all_job_ids: list[str] = []
+    # Phase G G2-C (2026-05-29) — 公司兜底卡 (秋招前岗位稀时补头部目标公司)
+    is_fallback: bool = False        # True = ground_truth must_have 头部公司, 非来自 live 岗位
+    fallback_status: str = ''        # "本季暂未开放新增岗位" / "仅有 N 个实习岗" 等
+    hiring_season: str = ''          # KB hiring_season 招聘窗口提示
+    verbatim_hint: str = ''          # XHS 同辈情报原话 (可空)
+    institution_tier: str = ''       # 一线公募 / 头部券商研究所 等 (fallback 卡用)
+    sub_cat: str = ''                # 该 fallback 卡对应的目标 sub_cat
 
 
 class ResumeRecommendationPlatformsOut(BaseModel):

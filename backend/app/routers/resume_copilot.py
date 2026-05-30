@@ -42,6 +42,7 @@ from app.schemas_resume_copilot import (
     ResumeCopilotSessionOut,
     ResumeGenerateOut,
     ResumePreferenceIn,
+    ResumeJobModeOut,
     ResumePreferenceOut,
     ResumeProfilePayload,
     ResumeParsedProfileOut,
@@ -59,12 +60,55 @@ from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume
 from app.services.resume_copilot.pdf_export import FontsNotInstalledError, render_resume_pdf
 from app.services.resume_copilot.state import INFLIGHT_GUARD_SECONDS, RunStatus, SessionStatus
 from app.services.resume_copilot.workflow import run_resume_generate_workflow, run_resume_parse_workflow
+from app.config import RECOMMENDATION_V2_ENABLED
+
+import logging
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/api/resume-copilot', tags=['resume-copilot'])
 
 
 GUEST_SESSION_TTL = timedelta(hours=24)
 USER_SESSION_TTL = timedelta(days=7)
+
+
+def _load_profile_and_prefs(
+    db: Session, session_id: int
+) -> tuple[ResumeProfilePayload, ResumePreferencePayload | None]:
+    """重建 session 的 profile (confirmed 优先, 否则 parsed) + preferences。"""
+    confirmed = (
+        db.query(ResumeConfirmedProfile)
+        .filter(ResumeConfirmedProfile.session_id == session_id)
+        .first()
+    )
+    parsed = (
+        db.query(ResumeParsedProfile)
+        .filter(ResumeParsedProfile.session_id == session_id)
+        .first()
+    )
+    source = confirmed or parsed
+    profile = ResumeProfilePayload()
+    if source:
+        profile_json: Any = getattr(source, 'profile_json', '{}') or '{}'
+        profile = ResumeProfilePayload.model_validate(json.loads(str(profile_json)))
+    pref_row = (
+        db.query(ResumePreferenceProfile)
+        .filter(ResumePreferenceProfile.session_id == session_id)
+        .first()
+    )
+    preferences = None
+    if pref_row is not None:
+        pref_json: Any = getattr(pref_row, 'preferences_json', '{}') or '{}'
+        preferences = ResumePreferencePayload.model_validate(json.loads(str(pref_json)))
+    return profile, preferences
+
+
+def _platforms_preferred_sub_cats(db: Session, session_id: int) -> list[str]:
+    """重建 profile + preferences → v2 目标 sub_cat 列表 (给平台栏公司兜底用)。"""
+    profile, preferences = _load_profile_and_prefs(db, session_id)
+    from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+    return _v2_extract_preferred_sub_cats(profile, preferences)
 
 
 def _assert_not_demo(session: ResumeCopilotSession) -> None:
@@ -148,7 +192,12 @@ def list_resume_copilot_sessions(
         return []
     rows = (
         db.query(ResumeCopilotSession)
-        .options(joinedload(ResumeCopilotSession.recommendation_run))
+        .options(
+            joinedload(ResumeCopilotSession.recommendation_run),
+            joinedload(ResumeCopilotSession.confirmed_profile),
+            joinedload(ResumeCopilotSession.parsed_profile),
+            joinedload(ResumeCopilotSession.preference_profile),
+        )
         .filter(ResumeCopilotSession.user_key == x_resume_user_key)
         .order_by(ResumeCopilotSession.updated_at.desc())
         .limit(20)
@@ -164,9 +213,73 @@ def list_resume_copilot_sessions(
             is_archived=bool(getattr(r, 'is_archived', False) or False),
             created_at=getattr(r, 'created_at', None),
             updated_at=getattr(r, 'updated_at', None),
+            **_session_card_summary(r),
         )
         for r in rows
     ]
+
+
+def _session_card_summary(r: ResumeCopilotSession) -> dict[str, Any]:
+    """会话列表卡片摘要 (赛道 / 公司数 / 岗位数 / Top公司 / 缩略图段落)。
+
+    全程 try/except 兜底 — 任何一段解析失败都退回默认空值, 绝不让列表 500。
+    数据全来自已 joinedload 的关系, 不额外打 DB。
+    """
+    out: dict[str, Any] = {
+        'track': '', 'n_companies': 0, 'n_jobs': 0,
+        'top_companies': [], 'thumb_name': '', 'thumb_sections': [],
+    }
+    # 已选赛道
+    try:
+        pp = getattr(r, 'preference_profile', None)
+        if pp and getattr(pp, 'preferences_json', None):
+            tracks = (json.loads(pp.preferences_json) or {}).get('preferred_tracks') or []
+            if tracks:
+                out['track'] = str(tracks[0])
+    except Exception:
+        pass
+    # 简历缩略图 (确认版优先于解析版)
+    try:
+        prof_row = getattr(r, 'confirmed_profile', None) or getattr(r, 'parsed_profile', None)
+        if prof_row and getattr(prof_row, 'profile_json', None):
+            prof = json.loads(prof_row.profile_json) or {}
+            bi = prof.get('basic_info') or {}
+            out['thumb_name'] = str(bi.get('name') or bi.get('full_name') or '')
+            secs: list[dict[str, Any]] = []
+            interns = prof.get('internships') or []
+            if interns:
+                nb = sum(len(i.get('bullets') or []) for i in interns) or len(interns)
+                secs.append({'label': '实习经历', 'bullets': max(1, min(nb, 5))})
+            edu = prof.get('education') or []
+            if edu:
+                secs.append({'label': '教育背景', 'bullets': max(1, min(len(edu), 3))})
+            skills = prof.get('skills') or {}
+            n_skill = (
+                len((skills.get('technical') or []) + (skills.get('tools') or []))
+                if isinstance(skills, dict) else 0
+            )
+            if n_skill:
+                secs.append({'label': '技能', 'bullets': max(1, min(n_skill // 3 or 1, 3))})
+            out['thumb_sections'] = secs
+    except Exception:
+        pass
+    # 推荐统计 (公司数 / 岗位数 / Top公司)
+    try:
+        rr = getattr(r, 'recommendation_run', None)
+        raw = getattr(rr, 'recommendations_json', None) if rr else None
+        items = json.loads(raw) if raw else []
+        if isinstance(items, list) and items:
+            out['n_jobs'] = len(items)
+            companies: list[str] = []
+            for it in items:
+                c = str((it or {}).get('company') or '').strip()
+                if c and c not in companies:
+                    companies.append(c)
+            out['n_companies'] = len(companies)
+            out['top_companies'] = companies[:4]
+    except Exception:
+        pass
+    return out
 
 
 @router.post('/sessions', response_model=ResumeCopilotSessionCreatedOut, status_code=status.HTTP_202_ACCEPTED)
@@ -252,6 +365,98 @@ def delete_resume_copilot_session(
     _assert_not_demo(session)
     db.delete(session)
     db.commit()
+
+
+# 每账号"在使用中"(非归档)简历上限。归档的不算占额 — 想试新赛道归档一份即可腾位。
+MAX_ACTIVE_SESSIONS = 3
+
+
+def _active_session_count(db: Session, user_key: str) -> int:
+    return (
+        db.query(ResumeCopilotSession)
+        .filter(
+            ResumeCopilotSession.user_key == user_key,
+            ResumeCopilotSession.is_archived.is_(False),
+        )
+        .count()
+    )
+
+
+@router.post(
+    '/sessions/{session_id}/duplicate',
+    response_model=ResumeCopilotSessionListItem,
+    status_code=status.HTTP_201_CREATED,
+)
+def duplicate_resume_copilot_session(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """复制一份会话: 克隆 解析简历 / 确认简历 / 偏好 / 推荐快照 到新会话(名字加 '· 副本')。
+
+    记忆(account_memory)目前是账号级共享, 不随复制搬;会话级记忆改造后再让复制
+    一并搬该会话的记忆行。受 MAX_ACTIVE_SESSIONS 在用上限约束。
+    """
+    src = _get_session_or_404(db, session_id)
+    _assert_session_owner(src, x_resume_user_key)
+    key = (x_resume_user_key or '').strip()
+    if not key:
+        raise HTTPException(status_code=400, detail='缺少用户标识, 无法复制')
+    if _active_session_count(db, key) >= MAX_ACTIVE_SESSIONS:
+        raise HTTPException(
+            status_code=409,
+            detail=f'在使用中的简历已达上限 {MAX_ACTIVE_SESSIONS} 份, 请先删除或归档一份再复制',
+        )
+
+    base_name = (
+        str(getattr(src, 'name', '') or getattr(src, 'file_name', '') or f'会话 #{session_id}').strip()
+    )
+    dup = ResumeCopilotSession(
+        file_name=str(getattr(src, 'file_name', '') or ''),
+        name=f'{base_name} · 副本',
+        user_key=key,
+        status=str(getattr(src, 'status', 'uploaded') or 'uploaded'),
+        extracted_text=str(getattr(src, 'extracted_text', '') or ''),
+        recommendation_status=str(getattr(src, 'recommendation_status', 'pending') or 'pending'),
+        is_guest=int(getattr(src, 'is_guest', 0) or 0),
+        rejected_job_ids_json=str(getattr(src, 'rejected_job_ids_json', '[]') or '[]'),
+        is_archived=False,
+    )
+    db.add(dup)
+    db.flush()  # 拿到 dup.id
+
+    if src.parsed_profile is not None:
+        db.add(ResumeParsedProfile(session_id=dup.id, profile_json=src.parsed_profile.profile_json))
+    if src.confirmed_profile is not None:
+        db.add(ResumeConfirmedProfile(session_id=dup.id, profile_json=src.confirmed_profile.profile_json))
+    if src.preference_profile is not None:
+        db.add(ResumePreferenceProfile(
+            session_id=dup.id, preferences_json=src.preference_profile.preferences_json,
+        ))
+    if src.recommendation_run is not None:
+        rr = src.recommendation_run
+        db.add(ResumeRecommendationRun(
+            session_id=dup.id,
+            recommendations_json=getattr(rr, 'recommendations_json', '[]'),
+            agent_trace_json=getattr(rr, 'agent_trace_json', '[]'),
+            status=getattr(rr, 'status', ''),
+            used_ai=getattr(rr, 'used_ai', 0),
+            fallback_reason=getattr(rr, 'fallback_reason', ''),
+            error_message=getattr(rr, 'error_message', ''),
+        ))
+    db.commit()
+    db.refresh(dup)
+    return ResumeCopilotSessionListItem(
+        id=int(dup.id),
+        file_name=str(dup.file_name or ''),
+        name=str(dup.name or ''),
+        status=str(dup.status or ''),
+        has_recommendations=dup.recommendation_run is not None,
+        is_archived=False,
+        created_at=dup.created_at,
+        updated_at=dup.updated_at,
+        **_session_card_summary(dup),
+    )
 
 
 @router.get('/sessions/{session_id}/parsed-profile', response_model=ResumeParsedProfileOut)
@@ -415,6 +620,20 @@ def get_resume_copilot_preferences(
     preferences_json: Any = getattr(preference_profile, 'preferences_json', '{}') or '{}'
     preferences = ResumePreferencePayload.model_validate(json.loads(str(preferences_json)))
     preferences.all_skipped = bool(getattr(preference_profile, 'all_skipped', 0))
+    # Phase G G2-B — 学生没显式设阶段时, 从简历毕业时间智能预填 (不落库, 确认页选择器拿来当默认选中)
+    if not (preferences.job_stage or '').strip():
+        try:
+            profile, _ = _load_profile_and_prefs(db, session_id)
+            from app.services.phase_g.recommendation_v2.job_mode import (
+                STAGE_UNKNOWN,
+                infer_stage_from_education,
+            )
+            edu = [e.model_dump() for e in (profile.education or [])]
+            guess = infer_stage_from_education(edu)
+            if guess != STAGE_UNKNOWN:
+                preferences.job_stage = guess
+        except Exception:
+            log.exception('job_stage prefill failed for session %s', session_id)
     return ResumePreferenceOut(session_id=session_id, preferences=preferences)
 
 
@@ -595,7 +814,10 @@ def get_resume_copilot_recommendation_platforms(
       - top_jobs (top 3) + all_job_ids (全量, 给 FE expand 时反查 items)
       - priority_letter / tier_label / track_match_kind (best of jobs)
     """
-    from app.services.resume_copilot.platform_aggregator import aggregate_by_company
+    from app.services.resume_copilot.platform_aggregator import (
+        aggregate_by_company,
+        merge_fallback_companies,
+    )
     session = _get_session_or_404(db, session_id)
     _assert_session_owner(session, x_resume_user_key)
     recommendation_run = db.query(ResumeRecommendationRun).filter(
@@ -610,6 +832,17 @@ def get_resume_copilot_recommendation_platforms(
         for it in json.loads(str(recommendations_json))
     ]
     platforms = aggregate_by_company(items, db=db)
+
+    # Phase G G2-C (2026-05-29): v2 开启时, 秋招前岗位稀, 把目标赛道的 must_have
+    # 头部公司补进"平台"栏 (live 卡没覆盖到的), 让公司推荐这栏在岗位少时也丰满。
+    if RECOMMENDATION_V2_ENABLED:
+        try:
+            preferred_sub_cats = _platforms_preferred_sub_cats(db, session_id)
+            if preferred_sub_cats:
+                platforms = merge_fallback_companies(platforms, preferred_sub_cats)
+        except Exception:
+            log.exception('merge_fallback_companies failed for session %s', session_id)
+
     return ResumeRecommendationPlatformsOut(
         session_id=session_id,
         status=str(getattr(recommendation_run, 'status', '') or ''),
@@ -617,6 +850,68 @@ def get_resume_copilot_recommendation_platforms(
         n_total_jobs=len(items),
         used_ai=bool(getattr(recommendation_run, 'used_ai', 0)),
         fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
+    )
+
+
+@router.get('/sessions/{session_id}/job-mode', response_model=ResumeJobModeOut)
+def get_resume_copilot_job_mode(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner。
+
+    时点(学生阶段) × 主目标赛道门槛 × 经历匹配 → 模式。阶段优先用偏好里显式设的,
+    否则从简历毕业时间推 (stage_inferred=True 提示前端这是猜的、可改)。
+    """
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    from app.services.phase_g.recommendation_v2.job_mode import (
+        STAGE_UNKNOWN,
+        effective_job_stage,
+        normalize_stage,
+        resolve_job_mode,
+        stage_label,
+    )
+    from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+
+    profile, preferences = _load_profile_and_prefs(db, session_id)
+    stage = effective_job_stage(preferences, profile)
+    explicit = bool(preferences and normalize_stage(getattr(preferences, 'job_stage', '') or '') != STAGE_UNKNOWN)
+
+    preferred = _v2_extract_preferred_sub_cats(profile, preferences)
+    primary = preferred[0] if preferred else ''
+
+    # 经历匹配: 从已生成的推荐 items 里取主目标赛道的 track_match_kind, 取不到默认 transferable
+    match_kind = 'transferable'
+    run = db.query(ResumeRecommendationRun).filter(
+        ResumeRecommendationRun.session_id == session_id
+    ).first()
+    if run and getattr(run, 'recommendations_json', None):
+        try:
+            raw_items = json.loads(str(run.recommendations_json))
+            top_for_primary = next(
+                (it for it in raw_items if it.get('matched_track_label') == primary), None
+            )
+            chosen = top_for_primary or (raw_items[0] if raw_items else None)
+            if chosen and chosen.get('track_match_kind'):
+                match_kind = str(chosen['track_match_kind'])
+        except Exception:
+            pass
+
+    jm = resolve_job_mode(stage, primary or '该赛道', match_kind)
+    return ResumeJobModeOut(
+        session_id=session_id,
+        stage=jm.stage,
+        stage_label=stage_label(jm.stage),
+        stage_inferred=not explicit,
+        primary_sub_cat=primary,
+        mode=jm.mode,
+        mode_label=jm.mode_label,
+        default_tab=jm.default_tab,
+        advice_text=jm.advice_text,
+        advice_evidence=jm.advice_evidence,
     )
 
 

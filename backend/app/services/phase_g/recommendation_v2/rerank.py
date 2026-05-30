@@ -110,7 +110,10 @@ def rerank_one(
             "reasoning": "(知识库未覆盖, 默认中性分)",
             "kb_available": False,
         }
-    client = build_pro_client()
+    # 交互推荐场景: medium reasoning (通常 <30s, 不撞默认 30s 超时) + max_retries=0
+    # (单次失败立刻回落, 不被 SDK 默认重试 2 次拖到 ~90s)。质量上 rerank 是"打分排序",
+    # medium 与 high 差距小, 但延迟差一个量级。
+    client = build_pro_client(max_retries=0)
     user_msg = _build_rerank_user_message(student_profile, job, kb)
     resp = client.chat.completions.create(
         model=pro_model_name(),
@@ -118,7 +121,7 @@ def rerank_one(
             {"role": "system", "content": RERANK_SYSTEM_PROMPT},
             {"role": "user", "content": user_msg},
         ],
-        extra_body={"reasoning_effort": "high"},
+        extra_body={"reasoning_effort": "medium"},
         response_format={"type": "json_object"},
         temperature=0.2,
     )
@@ -153,17 +156,33 @@ def rerank_top_n(
         [{job, base_score, llm_score, llm_reasoning, final_score, kb_available, data_confidence}]
         按 final_score desc 排序。
     """
+    # top-n 的 LLM rerank 并发跑 (各自开 SessionLocal + 自建 client, 线程安全),
+    # 把原来 20 个串行 (最坏 20×90s) 压成 ~1-2 批。非 top-n 不调 LLM。
+    def _rerank_safe(job: Job) -> dict[str, Any]:
+        try:
+            return rerank_one(student_profile, job)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("rerank_one failed for job %s: %s", job.job_id, exc)
+            return {
+                "score": 50, "reasoning": f"(rerank 失败: {str(exc)[:40]})",
+                "kb_available": False, "data_confidence": None,
+            }
+
+    top_indices = [i for i in range(len(ranked_with_score)) if i < n]
+    llm_by_index: dict[int, dict[str, Any]] = {}
+    if top_indices:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        with ThreadPoolExecutor(max_workers=min(8, len(top_indices))) as ex:
+            fut_to_i = {
+                ex.submit(_rerank_safe, ranked_with_score[i][0]): i for i in top_indices
+            }
+            for fut in as_completed(fut_to_i):
+                llm_by_index[fut_to_i[fut]] = fut.result()
+
     out: list[dict[str, Any]] = []
     for i, (job, base) in enumerate(ranked_with_score):
         if i < n:
-            try:
-                llm = rerank_one(student_profile, job)
-            except Exception as exc:  # noqa: BLE001
-                log.warning("rerank_one failed for job %s: %s", job.job_id, exc)
-                llm = {
-                    "score": 50, "reasoning": f"(rerank 失败: {str(exc)[:40]})",
-                    "kb_available": False, "data_confidence": None,
-                }
+            llm = llm_by_index[i]
             final = 0.7 * (llm["score"] / 100) + 0.3 * base
         else:
             llm = {

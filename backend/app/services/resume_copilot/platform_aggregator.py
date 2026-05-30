@@ -8,6 +8,7 @@ Why: top-N items 里同公司岗位经常重复 5-7 次(实测 P1 林思远招�
 """
 from __future__ import annotations
 
+import re
 from typing import Iterable
 
 from sqlalchemy.orm import Session
@@ -144,3 +145,72 @@ def aggregate_by_company(
     # 上一步是 ascending 全排; 我们要 score desc → n_jobs desc → company asc
     platforms.sort(key=lambda p: (-p.platform_score, -p.n_jobs, p.company))
     return platforms
+
+
+def _norm_company(s: str) -> str:
+    return re.sub(r"\s+", "", (s or "")).strip()
+
+
+def _is_covered(name: str, existing_norms: set[str]) -> bool:
+    """fallback 公司是否已被某张 live 卡覆盖 (互为子串即算同一家, 处理 易方达基金 vs 易方达基金管理有限公司)。"""
+    n = _norm_company(name)
+    if not n:
+        return True
+    for e in existing_norms:
+        if e and (n in e or e in n):
+            return True
+    return False
+
+
+def merge_fallback_companies(
+    live_platforms: list[ResumeRecommendationPlatform],
+    preferred_sub_cats: list[str],
+    *,
+    max_per_sub_cat: int = 5,
+) -> list[ResumeRecommendationPlatform]:
+    """把目标 sub_cat 的 must_have 头部公司补进平台列表 (秋招前岗位稀时)。
+
+    只补 live_platforms 没覆盖到的公司。fallback 卡 is_fallback=True, 带
+    institution_tier / fallback_status / hiring_season / verbatim_hint。
+    返回: live 卡在前 (保持原排序), fallback 卡在后。
+    """
+    from app.services.phase_g.company_fallback import get_fallback_companies
+
+    existing = {_norm_company(p.company) for p in live_platforms}
+    fallback_cards: list[ResumeRecommendationPlatform] = []
+    seen: set[str] = set()
+    for sub_cat in preferred_sub_cats or []:
+        try:
+            companies = get_fallback_companies(
+                sub_cat=sub_cat, max_companies=max_per_sub_cat, must_have_only=True
+            )
+        except Exception:
+            continue
+        for c in companies:
+            name = (c.get("name") or "").strip()
+            norm = _norm_company(name)
+            if not norm or norm in seen or _is_covered(name, existing):
+                continue
+            seen.add(norm)
+            # get_fallback_companies 的 verbatim_hint 是 {quote, source_url} dict (或 None);
+            # ResumeRecommendationPlatform.verbatim_hint 是 str — 取 quote 文本。
+            vh_raw = c.get("verbatim_hint")
+            verbatim_text = vh_raw.get("quote", "") if isinstance(vh_raw, dict) else (vh_raw or "")
+            fallback_cards.append(
+                ResumeRecommendationPlatform(
+                    company=name,
+                    company_priority_tier=c.get("tier", "") or "",
+                    institution_tier=c.get("tier", "") or "",
+                    is_fallback=True,
+                    fallback_status=c.get("status", "") or "",
+                    hiring_season=c.get("season", "") or "",
+                    verbatim_hint=verbatim_text,
+                    sub_cat=sub_cat,
+                    matched_track_label=sub_cat,
+                    n_jobs=int(c.get("active_jobs", 0) or 0),
+                    n_internship=int(c.get("active_jobs", 0) or 0)
+                    if "实习" in (c.get("status", "") or "")
+                    else 0,
+                )
+            )
+    return list(live_platforms) + fallback_cards

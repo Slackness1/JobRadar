@@ -115,7 +115,7 @@ def generate_narrative(
             "anchors_used": [],
             "kb_available": False,
         }
-    client = build_pro_client()
+    client = build_pro_client(max_retries=0)  # 交互场景: 单次失败快速回落, 不被默认重试拖长
     user_msg = _build_user_msg(student_profile, job, kb, llm_rerank)
     resp = client.chat.completions.create(
         model=pro_model_name(),

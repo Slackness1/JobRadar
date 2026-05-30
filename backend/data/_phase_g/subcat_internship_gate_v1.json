@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "purpose": "33 sub_cat 求职门槛标签 — 驱动求职模式判定 (实习/全职/both) + 补短板建议措辞。gate=门槛强度(强/中/弱); gate_type=门槛类型(实习型=缺口建议补实习; 作品型=缺口建议做可量化项目/竞赛,推岗逻辑仍按时点不变)。",
+    "source": "knowledge_subcategories.payload_json 的 hard_requirements + hiring_season + pitfalls 原话, 非人工拍脑袋",
+    "version": "v1-draft-2026-05-29",
+    "review_status": "PENDING_USER_REVIEW",
+    "changelog": "2026-05-29 用户确认: 公募基金中后台/自营FOF/Agent工程师 中→弱; 新增 gate_type, 作品型先标 量化因子/量化高频/AI量化/Agent 4 个"
+  },
+  "gates": [
+    {"sub_cat": "公募权益研究员", "strategy": "基本面权益", "gate": "强", "gate_type": "实习型", "evidence": "暑期实习重要性大于秋招,需提前 6-12 个月投递; 秋招留用比例已在暑期决定,秋招更多是兜底"},
+    {"sub_cat": "公募指数研究员", "strategy": "基本面权益", "gate": "强", "gate_type": "实习型", "evidence": "易方达暑期实习是核心入口; 9-11 月秋招以兜底为主,留用基本在暑期决定"},
+    {"sub_cat": "行业研究员·消费", "strategy": "基本面权益", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段消费行研实习; 留用名额已在暑期决定,秋招以兜底为主"},
+    {"sub_cat": "行业研究员·TMT-医药-周期", "strategy": "基本面权益", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段二级买方或卖方行研实习; 9-11 月秋招正式岗集中放出"},
+    {"sub_cat": "公募基金中后台", "strategy": "基本面权益", "gate": "弱", "gate_type": "实习型", "evidence": "秋招对对口实习要求高但产品/风控门槛低于投研,投递热度反超投研; 应届可直接秋招"},
+
+    {"sub_cat": "买方 Quant", "strategy": "卖方研究", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段头部券商自营/公募量化部/外资对冲基金量化组实习 + 顶级背景"},
+    {"sub_cat": "卖方研究员·TMT", "strategy": "卖方研究", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段 TMT 行研实习; 10-12 月秋招正式岗 + 留用,实习转正窗口集中"},
+    {"sub_cat": "投行 IBD", "strategy": "卖方研究", "gate": "强", "gate_type": "实习型", "evidence": "中信、华泰 IBD 简历池每年挂海量,无实习直接挂; Spring Week/summer intern 是黄金跳板"},
+    {"sub_cat": "卖方研究员·宏观策略", "strategy": "卖方研究", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段券商宏观/策略组实习; 9-12 月秋招正式岗 + 暑期留用 + 春招补招"},
+    {"sub_cat": "卖方研究员·消费医药周期", "strategy": "卖方研究", "gate": "中", "gate_type": "实习型", "evidence": "实习期至少 3 个月; 9-10 月秋招网申主流,暑期实习同步开放"},
+    {"sub_cat": "机构销售·销售支持", "strategy": "卖方研究", "gate": "弱", "gate_type": "实习型", "evidence": "秋招券商/公募机构销售 HC 较投研充裕; 渠道/机构销售 HC 还是公募里面很充足的"},
+
+    {"sub_cat": "信用研究员", "strategy": "固定收益", "gate": "中", "gate_type": "实习型", "evidence": "需有买方或卖方固收信用相关实习; 暑期留用占比大,但秋招仍有很多机会"},
+    {"sub_cat": "债券承做DCM·ABS/REITs", "strategy": "固定收益", "gate": "强", "gate_type": "实习型", "evidence": "需有头部券商投行 DCM/ABS 承做实习 ≥ 2 段"},
+    {"sub_cat": "利率宏观策略", "strategy": "固定收益", "gate": "强", "gate_type": "实习型", "evidence": "至少 1-2 段卖方宏观固收研究或买方固收实习,头部岗位倾向 3 段以上"},
+    {"sub_cat": "固收+多资产", "strategy": "固定收益", "gate": "强", "gate_type": "实习型", "evidence": "多数市场化机构暑期确定名额后秋招不开放,固收+岗位务必抓暑期实习留用窗口"},
+    {"sub_cat": "固收交易员", "strategy": "固定收益", "gate": "强", "gate_type": "实习型", "evidence": "至少一份固收实习,不然简历被刷概率很大"},
+
+    {"sub_cat": "自营FOF", "strategy": "多资产_FOF_衍生品", "gate": "弱", "gate_type": "实习型", "evidence": "秋招关注券商/公募多资产 FOF 条线; 缺点是稳定性低、hc 随机,应届可直接秋招"},
+    {"sub_cat": "财富管理FOF", "strategy": "多资产_FOF_衍生品", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段 FOF 研究/基金投顾/私行投顾/资产配置实习,纯权益/纯固收实习不够"},
+    {"sub_cat": "资管FOF", "strategy": "多资产_FOF_衍生品", "gate": "强", "gate_type": "实习型", "evidence": "暑期实习是关键入口,中金/易方达暑期表现好可直接 return offer 或秋招免笔试"},
+    {"sub_cat": "结构化产品衍生品", "strategy": "多资产_FOF_衍生品", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段衍生品/场外/做市/PWM 实习; 9-11 月秋招主要靠暑期留用"},
+    {"sub_cat": "基金产品运营·中后台", "strategy": "多资产_FOF_衍生品", "gate": "弱", "gate_type": "实习型", "evidence": "秋招主战场集中放出产品运营条线 HC,与销售/渠道一同发布"},
+
+    {"sub_cat": "PE投后VC行研", "strategy": "相关补充", "gate": "强", "gate_type": "实习型", "evidence": "硕士在读且能保证 6 个月以上连续坐班实习; 已有 1 段 PE/VC/FA/卖方/咨询实习"},
+
+    {"sub_cat": "量化研究员·中频", "strategy": "量化", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段头部量化私募或公募量化部实习; 头部私募实习转正与外部社招同步"},
+    {"sub_cat": "量化开发QD", "strategy": "量化", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段头部量化私募/券商金融科技/大厂后端实习; 7 月开提前批"},
+    {"sub_cat": "AI 量化工程师", "strategy": "量化", "gate": "中", "gate_type": "作品型", "evidence": "AI+alpha 技术门槛为主,看收益预测/因子挖掘/回测验证项目; 招满即止建议尽早锁席位"},
+    {"sub_cat": "量化因子工程师", "strategy": "量化", "gate": "中", "gate_type": "作品型", "evidence": "做过因子挖掘项目(Alpha101 复现/研报复现),简历能写出 IC/夏普/年化,项目可替代实习"},
+    {"sub_cat": "量化研究员·高频", "strategy": "量化", "gate": "中", "gate_type": "作品型", "evidence": "数理硬核 + 国际竞赛获奖(ACM/Kaggle)是显性加分 + C++ 低延迟项目,竞赛/作品重于实习留用"},
+    {"sub_cat": "金融科技·量化平台", "strategy": "量化", "gate": "弱", "gate_type": "实习型", "evidence": "秋招覆盖全职,头部券商金融科技岗位稳定开放"},
+
+    {"sub_cat": "AI算法业务", "strategy": "AI 应用_PM_开发", "gate": "强", "gate_type": "实习型", "evidence": "实习考核优秀直接解锁 2027 届校招终面; 秋招与实习留用、校招终面强相关"},
+    {"sub_cat": "LLM算法post-train", "strategy": "AI 应用_PM_开发", "gate": "强", "gate_type": "实习型", "evidence": "至少 1 段大厂或独角兽 post-train 实习 + 顶会论文硬门槛"},
+    {"sub_cat": "多模态推理优化", "strategy": "AI 应用_PM_开发", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段大厂/AI 初创多模态算法实习,有量化指标(QPS/首 token 延迟/加速比)"},
+    {"sub_cat": "AI PM", "strategy": "AI 应用_PM_开发", "gate": "中", "gate_type": "实习型", "evidence": "至少 1 段大厂或头部 AI 初创的 PM/策略实习; 互联网秋招校招 JD 集中投放"},
+    {"sub_cat": "Agent工程师", "strategy": "AI 应用_PM_开发", "gate": "弱", "gate_type": "作品型", "evidence": "至少 1 个亲手做的 AI Agent 项目 + 可投屏演示的 demo 链接,项目门槛重于实习"}
+  ]
+}

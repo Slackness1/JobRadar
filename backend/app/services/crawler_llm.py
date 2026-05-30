@@ -45,12 +45,22 @@ def build_flash_client() -> OpenAI:
     )
 
 
-def build_pro_client() -> OpenAI:
-    return OpenAI(
-        base_url=CRAWLER_LLM_BASE_URL,
-        api_key=CRAWLER_LLM_API_KEY,
-        timeout=CRAWLER_LLM_TIMEOUT_SECONDS,
-    )
+def build_pro_client(
+    *, max_retries: int | None = None, timeout: float | None = None,
+) -> OpenAI:
+    """Pro client。
+
+    max_retries / timeout 可覆盖默认 (交互场景如推荐 rerank/narrative 传
+    max_retries=0 快速失败, 避免单个慢/超时调用被 SDK 默认重试 2 次拖到 ~90s)。
+    """
+    kwargs: dict[str, Any] = {
+        "base_url": CRAWLER_LLM_BASE_URL,
+        "api_key": CRAWLER_LLM_API_KEY,
+        "timeout": CRAWLER_LLM_TIMEOUT_SECONDS if timeout is None else timeout,
+    }
+    if max_retries is not None:
+        kwargs["max_retries"] = max_retries
+    return OpenAI(**kwargs)
 
 
 def flash_model_name() -> str:

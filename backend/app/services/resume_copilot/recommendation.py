@@ -927,23 +927,54 @@ def _v2_extract_preferred_sub_cats(
 ) -> list[str]:
     """从 profile/preferences 拿学生偏好 sub_cat 列表 (v2)。
 
-    profile.inferred_roles / preferences.tracks 都是 v1 canonical_track,
-    需要先映射到 v2 sub_category。简版规则: 用 preferences.tracks 字符串
-    跟 SUBCAT_TO_STRATEGY 做关键词 substring 匹配。这是最朴素的接线; 真正
-    更精确的 mapping 由 ResumePreferencePayload 新加 preferred_sub_cats 字段
-    (T19+ frontend 配套改) 提供。
+    优先级 (2026-05-29 重写, 修迁移赛道失效 + 子串映射有损):
+      1. 学生显式选的赛道 (preferences.preferred_tracks) → 走显式映射表
+         CANONICAL_TRACK_TO_SUBCATS。**选择优先于简历** —— 学生简历是卖方固收
+         但选了买方固收, 就按买方固收推, 不被简历盖过。覆盖缺口赛道 (监管/咨询/
+         大宗等) 映射为空 → 返 [] → 走通用召回, 而不是退回简历。
+      2. 没显式选择: 简历 inferred_tracks → canonicalize → 映射表。
+      3. 都落空: 老子串启发 (preferred_roles + inferred_roles 文本), 兼容兜底。
     """
+    from app.services.phase_g.track_subcat_map import subcats_for_tracks
+
+    # 1) 显式选择优先 (选了就用, 即便映射为空也尊重选择 → 不退回简历)
+    explicit = [
+        canonicalize_track(str(t))
+        for t in (getattr(preferences, "preferred_tracks", None) or [] if preferences else [])
+        if t and canonicalize_track(str(t))
+    ]
+    if explicit:
+        return subcats_for_tracks(explicit)
+
+    # 2) 简历推断赛道 → canonical → 映射表
+    inferred = [
+        canonicalize_track(str(t))
+        for t in (getattr(profile, "inferred_tracks", None) or [])
+        if t and canonicalize_track(str(t))
+    ]
+    mapped = subcats_for_tracks(inferred)
+    if mapped:
+        return mapped
+
+    # 3) 老子串启发兜底 (roles 文本里捞关键字)
+    return _legacy_substring_subcats(profile, preferences)
+
+
+def _legacy_substring_subcats(
+    profile: ResumeProfilePayload, preferences: ResumePreferencePayload | None,
+) -> list[str]:
+    """老的子串启发匹配 — 仅作映射表落空时的兜底 (已知有损, 见 track_subcat_map.py)。"""
     out: list[str] = []
     from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
     all_sub_cats = list(SUBCAT_TO_STRATEGY.keys())
     raw_signals: list[str] = []
     if preferences:
-        for t in getattr(preferences, "tracks", None) or []:
-            raw_signals.append(str(t))
-        for r in getattr(preferences, "roles", None) or []:
+        for r in getattr(preferences, "preferred_roles", None) or []:
             raw_signals.append(str(r))
     for r in getattr(profile, "inferred_roles", None) or []:
         raw_signals.append(str(r))
+    for t in getattr(profile, "inferred_tracks", None) or []:
+        raw_signals.append(str(t))
     if not raw_signals:
         return out
     haystack = " ".join(raw_signals).lower()
@@ -951,12 +982,10 @@ def _v2_extract_preferred_sub_cats(
         if sc.lower() in haystack:
             out.append(sc)
             continue
-        # 粗 fuzzy: sub_cat 关键字段命中 (量化 / 公募 / 卖方 / AI 等)
         for token in sc.replace("·", " ").replace("+", " ").split():
             if len(token) >= 2 and token in haystack:
                 out.append(sc)
                 break
-    # 去重保序
     seen: set[str] = set()
     dedup: list[str] = []
     for sc in out:
@@ -1049,22 +1078,37 @@ def _recommend_v2_dispatcher(
     # Step 2: 3 维评分
     ranked = rank_jobs(student_p, candidates)
 
-    # Step 3: top-N LLM rerank (含异常 swallow, 单条挂掉不破坏 batch)
-    reranked = rerank_top_n(profile_dict, ranked, n=min(20, len(ranked)))
+    # Step 3: top-N LLM rerank (并发, n 收敛 20→10 减少 LLM 调用)
+    reranked = rerank_top_n(profile_dict, ranked, n=min(10, len(ranked)))
+    selected = reranked[: max(effective_top_n, 10)]
 
-    # Step 4: narrative — top-10 跑 4 anchor
+    # Step 4: narrative — top-6 并发跑 4 anchor (原 top-10 串行, 现并发 + 收敛)
+    NARRATIVE_TOP = 6
+    _empty_narr = {"narrative": "", "anchors_used": [], "kb_available": False}
+    narr_by_index: dict[int, dict[str, Any]] = {}
+    narr_targets = [i for i in range(len(selected)) if i < NARRATIVE_TOP]
+    if narr_targets:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _narr_safe(idx: int) -> dict[str, Any]:
+            try:
+                return generate_narrative(
+                    profile_dict, selected[idx]["job"], llm_rerank=selected[idx]
+                )
+            except Exception:  # noqa: BLE001
+                return dict(_empty_narr)
+
+        with ThreadPoolExecutor(max_workers=min(6, len(narr_targets))) as _ex:
+            _futs = {_ex.submit(_narr_safe, i): i for i in narr_targets}
+            for _f in as_completed(_futs):
+                narr_by_index[_futs[_f]] = _f.result()
+
     items: list[ResumeRecommendationItem] = []
-    for i, r in enumerate(reranked[: max(effective_top_n, 10)]):
+    for i, r in enumerate(selected):
         job: Job = r["job"]
         # final_score 0-1 → int 0-100 (跟 v1 final_score 量纲对齐)
         final_int = int(round(r["final_score"] * 100))
-        if i < 10:
-            try:
-                narr = generate_narrative(profile_dict, job, llm_rerank=r)
-            except Exception:  # noqa: BLE001
-                narr = {"narrative": "", "anchors_used": [], "kb_available": False}
-        else:
-            narr = {"narrative": "", "anchors_used": [], "kb_available": False}
+        narr = narr_by_index.get(i, _empty_narr)
 
         why = [narr["narrative"]] if narr.get("narrative") else []
         strengths = []
