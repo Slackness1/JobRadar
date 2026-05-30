@@ -35,6 +35,10 @@ _DETAIL_URL = f"{_BASE}/showZwxx"
 _UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
 _SOURCE = "thu_career_anony"
 _INDUSTRY_FINANCE = "10"
+# 清华就业网不会自动下线过期岗(翻到 126 页还能见 2025-07 的老贴),且匿名态无
+# 单岗"是否在招"信号、detail_url 是恒 200 的清华页 — 所以用「更新时间」做新鲜度
+# 闸门:超过 _STALE_DAYS 的不入库 (campus 招聘超 5 个月基本是上一轮、已结束)。
+_STALE_DAYS = 150
 
 # 标题分隔符 "职位名————公司名" 用 4 个 em-dash (8 字符),也可能用 6 个或一长串
 _TITLE_SEP_RE = re.compile(r"[—–-]{4,}")
@@ -202,6 +206,8 @@ def crawl_thu_career_finance(
     listings = _fetch_listing(max_pages=max_pages)
     new_count = 0
     fetched = 0
+    skipped_stale = 0
+    stale_cutoff = datetime.utcnow().timestamp() - _STALE_DAYS * 86400
     per_company: Dict[str, int] = {}
 
     with company_crawl_log(
@@ -214,8 +220,13 @@ def crawl_thu_career_finance(
                 continue
             if not det:
                 continue
-            fetched += 1
             mapped = _map(zpxxid, raw_title, det)
+            # 新鲜度闸门:更新时间超过 _STALE_DAYS 的老贴不入库 (清华不自动下线)
+            pub = mapped.get("publish_date")
+            if pub is not None and pub.timestamp() < stale_cutoff:
+                skipped_stale += 1
+                continue
+            fetched += 1
             jid = mapped["job_id"]
             existing = existing_jobs.get(jid)
             if existing is None:
@@ -235,6 +246,8 @@ def crawl_thu_career_finance(
 
         log.fetched_count = fetched
         log.new_count = new_count
+        if skipped_stale:
+            print(f"[thu_career] skipped {skipped_stale} stale (>{_STALE_DAYS}d) postings")
 
     return new_count, fetched, per_company
 
