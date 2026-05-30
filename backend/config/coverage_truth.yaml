@@ -232,6 +232,7 @@ tracks:
       - funds_zhiye_beisen_cms
       - funds_wintalent_sc
       - funds_phfund_api
+      - thu_career_anony   # 清华就业网金融业匿名公开列表 — 含中邮基金等中型公募
     mode: enumerate
     t1_companies:
       - name: 易方达基金
@@ -290,6 +291,7 @@ tracks:
       - hedge_funds_greenhouse
       - hedge_funds_eightfold
       - hedge_funds_citadel_wp
+      - thu_career_anony   # 清华就业网 — Cayuga / 源乐晟 / 夸克资产 等私募 aggregator
     mode: enumerate
     t1_companies:
       # === 量化私募 top 12 ===
@@ -419,7 +421,7 @@ tracks:
   - id: pe_vc
     name: PE / VC (top 头部)
     canonical_tracks: [一级股权·PE/VC]
-    source_match: [pe_vc_official]
+    source_match: [pe_vc_official, thu_career_anony]   # thu_career: 高瓴/中创鸿星/弘毅启元 等无 ATS 的 PE/VC aggregator
     mode: enumerate
     t1_companies:
       # 公开有 API 的（已 active 或将 active）

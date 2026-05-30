@@ -211,6 +211,17 @@ def _daily_tier_crawl_job():
             _tb.print_exc()
             print(f"[TIER CRAWL ERROR][consumer_foreign_workday] {exc}")
 
+        # Phase 14 — 清华就业网匿名公开金融岗 (高瓴/信银理财/Cayuga/源乐晟 等无 ATS 的)
+        try:
+            from app.services.thu_career_crawler import crawl_thu_career_finance
+            existing = {j.job_id: j for j in db.query(Job).all() if j.job_id}
+            new_count, _, _ = crawl_thu_career_finance(db, existing_jobs=existing, parent_log_id=parent_id)
+            total_new += int(new_count or 0)
+        except Exception as exc:
+            errors.append(f"thu_career: {exc}")
+            _tb.print_exc()
+            print(f"[TIER CRAWL ERROR][thu_career] {exc}")
+
         # Finalize parent
         parent.finished_at = datetime.utcnow()
         parent.status = "failed" if errors else "success"
