@@ -64,6 +64,9 @@ export interface ChatEmptyProps {
   cards?: ChatEmptyCard[];
   /** 学生点卡 → 发到 chat. */
   onQuickPick: (prompt: string) => void;
+  /** Fix-2a #4 (2026-05-27): "针对一家公司定制" 卡走 Coach 入口而非 chat
+   *  prompt — 不传时 fallback 到 onQuickPick (老行为). */
+  onEnterCoach?: () => void;
   /** 是否可发问 (canChat). false 时卡按钮 disabled — 例如 demo 或 feedback 还在跑. */
   disabled?: boolean;
 }
@@ -84,6 +87,7 @@ export function ChatEmpty({
   companyCount,
   cards = DEFAULT_CARDS,
   onQuickPick,
+  onEnterCoach,
   disabled = false,
 }: ChatEmptyProps) {
   const greeting = greetingByHour();
@@ -126,7 +130,14 @@ export function ChatEmpty({
             key={c.key}
             type="button"
             className="workspace-hifi__chat-empty-v2-card"
-            onClick={() => onQuickPick(c.prompt || c.title)}
+            onClick={() => {
+              // Fix-2a #4: "customize-company" 卡走 Coach 入口而非 chat
+              if (c.key === 'customize-company' && onEnterCoach) {
+                onEnterCoach();
+                return;
+              }
+              onQuickPick(c.prompt || c.title);
+            }}
             disabled={disabled}
           >
             <div className="workspace-hifi__chat-empty-v2-card-head">

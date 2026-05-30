@@ -22,16 +22,23 @@ import {
 import { EMPTY_PREFERENCES, type ResumePreferencePayload } from '../types';
 
 // Keep in sync with backend CANONICAL_FINANCE_TRACKS in
-// backend/app/services/taxonomy/canonical.py
-// 2026-05-21: label 直接把"通俗名"加上, 让学生看 chip 名一眼能识别
-// (e.g. 看到"一级市场"不知道是 IBD; 看到"一级市场 · 投行/PE/VC"立刻懂)。
-// `key` 仍然是 canonical 名跟 BE 对齐, 别动。
+// backend/app/services/taxonomy/canonical.py.
+// 2026-05-26 (cc4636a / Fix-1): 升级到 v2 13 canonical — 原 10 个里有 3 个
+// 过宽,被拆为各 2;咨询 2 个合并重组。`key` 必须严格匹配 BE canonical 名
+// (字符级,含中文标点),否则 SAIF 重罚逻辑命中不到 → 推荐里出现互联网算法 /
+// 外企营销混入。改前必须读 backend/app/services/taxonomy/tracks.yaml。
 export const TRACKS: Array<{ key: string; label: string; blurb: string; icon: string }> = [
   {
-    key: '二级买方·基本面',
-    label: '二级买方·基本面 · 公募/私募',
+    key: '公募/资管·投研',
+    label: '公募/资管·投研 · long-only 基本面',
     icon: '📊',
-    blurb: '公募 / 私募 / 资管 / 银行理财子 — 头部流量, 2025 MF 45% 去这',
+    blurb: '公募基金 / 保险资管 / 券商资管 / 银行理财子 — SAIF placement 最大头',
+  },
+  {
+    key: '私募·基本面',
+    label: '私募·基本面 · 长短仓',
+    icon: '🎯',
+    blurb: '阳光私募 / 对冲基金 — 高毅 / 景林 / 重阳 / 淡水泉',
   },
   {
     key: '量化',
@@ -40,52 +47,64 @@ export const TRACKS: Array<{ key: string; label: string; blurb: string; icon: st
     blurb: '量化私募 / 对冲基金 — 九坤 / 乾象 / 锐天 / Point72',
   },
   {
-    key: '一级市场',
-    label: '一级市场 · 投行/PE/VC',
-    icon: '💼',
-    blurb: '投行 IBD / PE / VC / FA — 中金 / 高瓴 / 凯雷 / 弘毅',
+    key: '卖方研究',
+    label: '卖方研究 · 券商行研',
+    icon: '🔬',
+    blurb: '券商研究所行业研究员 — 中信 / 中金 / 中信建投 / 招商证券',
   },
   {
-    key: '卖方研究·S&T',
-    label: '卖方研究·S&T · 券商/销售交易',
-    icon: '🔬',
-    blurb: '券商研究所 + 销售交易 + FICC — 中信 / 中金 / 高盛 GBM',
+    key: 'S&T·FICC·衍生品',
+    label: 'S&T·FICC·衍生品 · 销售交易',
+    icon: '💱',
+    blurb: '销售交易 / 固收 / 衍生品 — 高盛 GBM / 大摩 / 中金 FICC',
+  },
+  {
+    key: '投行·并购·资本市场',
+    label: '投行·并购·资本市场 · IBD/M&A/ECM',
+    icon: '💼',
+    blurb: 'IBD / M&A / ECM / DCM — 中金 / 中信 / 高盛 / 摩根',
+  },
+  {
+    key: '一级股权·PE/VC',
+    label: '一级股权·PE/VC · 成长/buyout',
+    icon: '🏛️',
+    blurb: 'PE / VC / FA — 高瓴 / 凯雷 / KKR / 红杉 / 弘毅',
   },
   {
     key: '银行·总行核心',
     label: '银行·总行核心 · 管培/FMT',
     icon: '🏦',
-    blurb: '国有大行 / 股份制 / 外资行 — 总行管培 / FMT',
+    blurb: '国有大行 / 股份制 / 外资行总行 — 管培 / FMT / 风险条线',
   },
   {
     key: '监管·体制内',
-    label: '监管·体制内 · 央行/证监/国央企',
-    icon: '🏛️',
-    blurb: '央行 / 证监会 / 交易所 / 国央企 / 公务员',
+    label: '监管·体制内 · 央行/证监',
+    icon: '⚖️',
+    blurb: '央行 / 证监会 / 交易所 / 国央企财金 / 公务员',
   },
   {
     key: '金融科技',
     label: '金融科技 · 蚂蚁/微众',
     icon: '⚙️',
-    blurb: 'FinTech 数据 / 算法 — 蚂蚁 / 微众 / 度小满',
+    blurb: 'FinTech 数据 / 算法 / 风控 — 蚂蚁 / 微众 / 度小满 / 京东数科',
   },
   {
-    key: '管理咨询·MBB',
-    label: '管理咨询·MBB · 四大',
+    key: '咨询·MBB+Tier2',
+    label: '咨询·MBB+Tier2 · 战略咨询',
     icon: '🧠',
-    blurb: 'McKinsey / BCG / Bain / 四大 FDD',
+    blurb: 'McKinsey / BCG / Bain / Roland Berger / Oliver Wyman / 四大 FDD',
   },
   {
-    key: '战略咨询',
-    label: '战略咨询 · 公司战略',
-    icon: '🎯',
-    blurb: '公司战略 / 通用咨询 — 非金融行业聚焦的 strategy 岗',
+    key: '企业战略·管培·实业金融',
+    label: '企业战略·管培·实业金融',
+    icon: '🎓',
+    blurb: '公司战略 / 管培生 / 实业产投 / 央国企财金 — 非金融行业的金融岗',
   },
   {
     key: '大宗·能源',
     label: '大宗·能源 · 商品/期货',
     icon: '🛢️',
-    blurb: '大宗商品 / 能源 — LDC / Cargill / 托克 / 中石油国际',
+    blurb: '大宗商品 / 能源 trading — LDC / Cargill / 托克 / 中石油国际',
   },
 ];
 
@@ -151,7 +170,7 @@ export function TrackPickerModal({
           </button>
         </header>
         <p className="workspace-hifi__track-picker-sub">
-          10 个 SAIF MF 主流赛道。选了赛道后系统会重新生成推荐 + coach 按此赛道反问。
+          13 个 SAIF MF 主流赛道。选了赛道后系统会重新生成推荐 + coach 按此赛道反问。
         </p>
         <div className="workspace-hifi__track-picker-grid">
           {TRACKS.map((t) => (

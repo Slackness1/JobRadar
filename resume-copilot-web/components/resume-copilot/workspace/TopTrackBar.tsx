@@ -39,6 +39,10 @@ export interface TopTrackBarProps {
   onExport?: () => void;
   isExporting?: boolean;
   canExport?: boolean;
+  // ── Fix-1 (2026-05-26): Coach 模式徽章 ────────────────────────────────────
+  /** 非 null 时顶栏中部显 terracotta 胶囊 "🎯 Coach 模式 · 公司名"。
+   *  对齐设计 `hifi-ws-app.jsx::HFWSTopBar` 第 129-150 行 — P1 漏画了。 */
+  coachCompany?: string | null;
 }
 
 function countCompanies(recs: ResumeRecommendationResult | null | undefined): number {
@@ -77,6 +81,7 @@ export function TopTrackBar({
   onExport,
   isExporting,
   canExport,
+  coachCompany,
 }: TopTrackBarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const displayTrack = trackName ?? '尚未选定赛道';
@@ -119,7 +124,24 @@ export function TopTrackBar({
         />
       </button>
 
-      {/* P0a: Coach 模式徽章预留占位 — P0b 接 (coachId 非空时渲染),P0a 不画。 */}
+      {/* Fix-1 (2026-05-26): Coach 模式徽章 — 对齐设计 hifi-ws-app.jsx:129-150 */}
+      {coachCompany ? (
+        <span
+          className="workspace-hifi__top-bar-coach-badge"
+          aria-label={`当前 Coach 模式 · ${coachCompany}`}
+        >
+          <span className="workspace-hifi__top-bar-coach-badge-icon" aria-hidden>
+            {I.target(14)}
+          </span>
+          <span className="workspace-hifi__top-bar-coach-badge-label">Coach 模式</span>
+          <span className="workspace-hifi__top-bar-coach-badge-sep" aria-hidden>
+            ·
+          </span>
+          <span className="workspace-hifi__top-bar-coach-badge-company">
+            {coachCompany}
+          </span>
+        </span>
+      ) : null}
 
       <div className="workspace-hifi__top-bar-actions">
         {/* Right: track chip → TrackPickerModal */}
