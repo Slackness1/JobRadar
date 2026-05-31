@@ -54,17 +54,15 @@ def _top_sub_cat_with_tier() -> str | None:
 
 def test_tier_fit_endpoint_shape(monkeypatch):
     """端点返回正确 shape，ladder 有三档，fit 里 match_band 合法。"""
-    # Monkeypatch deepseek_json_fn 让 build_tier_fit 不调真实 LLM
-    import app.routers.resume_copilot as rc_router
-    import app.services.phase_g.tier_fit.tier_fit as tier_fit_mod
-
-    monkeypatch.setattr(tier_fit_mod, "deepseek_json_fn", _fake_llm_fn, raising=False)
+    # Patch 端点模块里的 deepseek_json_fn（端点在 router 里 import 并传给 build_tier_fit）
+    monkeypatch.setattr("app.routers.resume_copilot.deepseek_json_fn", _fake_llm_fn)
 
     sub_cat = _top_sub_cat_with_tier()
     if not sub_cat:
         pytest.skip("dev DB 无 institution_tier 数据，跳过")
 
     client = TestClient(app)
+    # session 1 是 demo session（user_key='__demo__'），owner 守卫直接放行，无需带 header
     r = client.get(
         f"/api/resume-copilot/sessions/1/tier-fit",
         params={"sub_cat": sub_cat, "refresh": 1},  # refresh=1 跳过缓存
@@ -84,8 +82,7 @@ def test_tier_fit_endpoint_shape(monkeypatch):
 
 def test_tier_fit_endpoint_no_sub_cat_returns_graceful(monkeypatch):
     """session 无 profile 时，不传 sub_cat 应返回 fit=None 而非 500。"""
-    import app.services.phase_g.tier_fit.tier_fit as tier_fit_mod
-    monkeypatch.setattr(tier_fit_mod, "deepseek_json_fn", _fake_llm_fn, raising=False)
+    monkeypatch.setattr("app.routers.resume_copilot.deepseek_json_fn", _fake_llm_fn)
 
     client = TestClient(app)
     # session 1 是 demo session，profile 可能有也可能无 preferred sub_cat
@@ -99,6 +96,7 @@ def test_tier_fit_with_fake_llm_injected(monkeypatch):
     """通过 build_tier_fit 直接注入 fake llm_fn，验证组装逻辑不依赖真实 LLM。"""
     from app.database import SessionLocal
     from app.services.phase_g.tier_fit.tier_fit import build_tier_fit
+    from app.routers.resume_copilot import _load_profile_and_prefs
 
     sub_cat = _top_sub_cat_with_tier()
     if not sub_cat:
@@ -106,8 +104,11 @@ def test_tier_fit_with_fake_llm_injected(monkeypatch):
 
     db = SessionLocal()
     try:
+        profile, prefs = _load_profile_and_prefs(db, 1)
         result = build_tier_fit(
             db, 1, sub_cat,
+            profile=profile,
+            prefs=prefs,
             llm_fn=_fake_llm_fn,
             use_cache=False,  # 不走缓存，每次新跑
         )

@@ -226,11 +226,14 @@ def build_tier_fit(
     session_id: int,
     sub_cat: str,
     *,
+    profile: object,
+    prefs: object,
     llm_fn: Callable[[str], dict],
     use_cache: bool = True,
 ) -> dict:
     """完整档次定位组装：ladder + profile + knowledge → LLM judge。
 
+    profile 和 prefs 由调用方（router 层）传入，service 层不再反向 import router。
     返回 {"session_id", "sub_cat", "ladder", "fit"}。
     """
     if use_cache:
@@ -244,10 +247,6 @@ def build_tier_fit(
     ladder = build_tier_ladder(db, sub_cat)
     band_lookup = _make_band_lookup(db)
 
-    # Load profile via router helper (lives in routers, not services — import lazily)
-    from app.routers.resume_copilot import _load_profile_and_prefs
-    profile, prefs = _load_profile_and_prefs(db, session_id)
-
     bg = extract_student_bg(
         _profile_to_dict(profile),
         prefs.model_dump() if prefs else {},
@@ -255,7 +254,29 @@ def build_tier_fit(
     )
 
     knowledge = gather_tier_knowledge(db, sub_cat, ladder)
-    fit = judge_tier_fit(bg, sub_cat, ladder, knowledge, llm_fn=llm_fn)
+
+    # 单档赛道短路：无需 LLM，直接三档全指向同一档
+    if len(ladder) <= 1:
+        band = ladder[0]["band"] if ladder else "腰部"
+        data_confidence = "strong" if (knowledge.get("gate_evidence") or knowledge.get("must_have")) else "thin"
+        fit: dict = {
+            "floor_band": band,
+            "match_band": band,
+            "stretch_band": band,
+            "single_band": True,
+            "reasons": [
+                {
+                    "text": f"该赛道在库里的平台集中在「{band}」档，暂无分层",
+                    "evidence": "",
+                    "evidence_source": "gate",
+                }
+            ],
+            "upgrade_hint": "",
+            "data_confidence": data_confidence,
+        }
+    else:
+        fit = judge_tier_fit(bg, sub_cat, ladder, knowledge, llm_fn=llm_fn)
+        fit["single_band"] = False
 
     result = {
         "session_id": session_id,
