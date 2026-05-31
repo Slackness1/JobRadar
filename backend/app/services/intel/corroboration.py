@@ -9,4 +9,5 @@ def independent_cross(siblings: list[dict]) -> str:
     authors = {(s.get("author") or "").strip() for s in siblings if (s.get("author") or "").strip()}
     if len(platforms) >= 2 and len(authors) >= 2:
         return "verified"
+    # TODO: 第三档 'conflicting'（对立说法检测）前端/类型已预留渲染分支，待接分歧检测后在此返回。
     return "single"

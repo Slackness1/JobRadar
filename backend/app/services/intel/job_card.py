@@ -8,6 +8,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+from pathlib import Path
 from typing import Callable, Optional
 
 from sqlalchemy.orm import Session
@@ -20,7 +21,8 @@ from app.services.intel.dimension_extract import extract_dimensions, _EMPTY
 from app.services.intel.badge import synth_badge
 from app.services.intel.corroboration import independent_cross
 
-_CACHE_DIR = os.path.join("data", "_intel_cache", "job_cards")
+# 绝对化路径（对齐 enrichment.py 的 parents[3]=backend/），不依赖运行时 CWD。
+_CACHE_DIR = str(Path(__file__).resolve().parents[3] / "data" / "_intel_cache" / "job_cards")
 
 
 def _cache_path(job_id: int) -> str:
