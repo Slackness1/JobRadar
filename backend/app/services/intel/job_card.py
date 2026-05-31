@@ -24,7 +24,6 @@ _CACHE_DIR = os.path.join("data", "_intel_cache", "job_cards")
 
 
 def _cache_path(job_id: int) -> str:
-    os.makedirs(_CACHE_DIR, exist_ok=True)
     return os.path.join(_CACHE_DIR, f"{job_id}.json")
 
 
@@ -131,7 +130,7 @@ def build_job_card(
     if llm_fn is None:
         dims = copy.deepcopy(_EMPTY)
     else:
-        dims = extract_dimensions(insights, llm_fn=llm_fn)
+        dims = extract_dimensions(insights, llm_fn=llm_fn, company=job.company or "")
 
     # ---- 每维度组装：可信度层 + 引文摘要 ----
     intel: dict = {}
@@ -170,6 +169,7 @@ def build_job_card(
     }
 
     if use_cache:
+        os.makedirs(_CACHE_DIR, exist_ok=True)
         with open(_cache_path(job_id), "w", encoding="utf-8") as f:
             json.dump(card, f, ensure_ascii=False)
 

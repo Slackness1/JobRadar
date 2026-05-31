@@ -23,3 +23,22 @@ def test_build_prompt_includes_insight_ids():
     insights = [{"insight_id": "zh_a_i0", "content": "x", "source_quote": "q", "confidence": "high"}]
     p = build_prompt("华泰证券", insights)
     assert "zh_a_i0" in p and "门槛" in p
+
+
+def test_company_flows_into_prompt_via_extract(monkeypatch):
+    captured = {}
+
+    def spy_llm(prompt):
+        captured["p"] = prompt
+        return {
+            "threshold": {"hard": [], "soft": [], "support_ids": []},
+            "compensation": {"summary": None, "support_ids": []},
+            "outlook": {"summary": None, "support_ids": []},
+        }
+
+    extract_dimensions(
+        [{"insight_id": "zh_a_i0", "content": "x", "confidence": "high"}],
+        llm_fn=spy_llm,
+        company="华泰证券",
+    )
+    assert "华泰证券" in captured["p"]

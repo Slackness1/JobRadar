@@ -13,22 +13,21 @@ def _fake_llm(prompt: str) -> dict:
 
 
 def _a_finance_job_id() -> int:
-    c = sqlite3.connect("data/jobradar.db").cursor()
-    r = c.execute(
-        "SELECT id FROM jobs WHERE sub_category IS NOT NULL AND company LIKE '%证券%' LIMIT 1"
-    ).fetchone()
+    with sqlite3.connect("data/jobradar.db") as conn:
+        r = conn.execute(
+            "SELECT id FROM jobs WHERE sub_category IS NOT NULL AND company LIKE '%证券%' LIMIT 1"
+        ).fetchone()
     assert r, "DB 中找不到证券公司岗位，请检查 data/jobradar.db"
     return r[0]
 
 
 def _a_cold_job_id() -> int:
-    """取一个有 sub_category 但大概率没有 UGC 的冷门岗（使用高偏移量）"""
-    c = sqlite3.connect("data/jobradar.db").cursor()
-    # total=2564，offset=2500 肯定存在且冷门
-    r = c.execute(
-        "SELECT id FROM jobs WHERE sub_category IS NOT NULL LIMIT 1 OFFSET 2500"
-    ).fetchone()
-    assert r, "DB 偏移量超出范围，请调小 OFFSET"
+    """取有 sub_category 的最大 id 岗位（大概率是冷门岗，且一定存在）"""
+    with sqlite3.connect("data/jobradar.db") as conn:
+        r = conn.execute(
+            "SELECT id FROM jobs WHERE sub_category IS NOT NULL ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    assert r, "DB 中找不到带 sub_category 的岗位，请检查 data/jobradar.db"
     return r[0]
 
 
