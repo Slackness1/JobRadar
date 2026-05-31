@@ -763,6 +763,8 @@ class XhsInsight(Base):
     confidence = Column(Text, default="med", index=True)
     corroboration_json = Column(Text, default="[]")
     embedding = Column(LargeBinary, nullable=True)
+    source_score = Column(Float, nullable=True)
+    source_platform = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
