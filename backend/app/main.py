@@ -253,6 +253,7 @@ app.include_router(system_health.router)
 app.include_router(podcast_rag.router)
 app.include_router(student_kb.router)
 app.include_router(intel_enrichment.router)
+app.include_router(intel_enrichment.job_intel_router)
 app.include_router(recommend_v2.router)
 
 from app.routers import auth as _auth_router  # noqa: E402

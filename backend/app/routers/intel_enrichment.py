@@ -134,3 +134,21 @@ def demo_page(
 ):
     card = enrichment.enrich(db, company=company, role=role, k=20, use_cache=(refresh == 0))
     return HTMLResponse(_render_card_html(card))
+
+
+# ---------------------------------------------------------------------------
+# Job-intel card  GET /api/job-intel/card?job_id=&refresh=
+# ---------------------------------------------------------------------------
+from app.services.intel.job_card import build_job_card  # noqa: E402
+
+job_intel_router = APIRouter(prefix="/api/job-intel", tags=["job-intel"])
+
+
+@job_intel_router.get("/card")
+def job_intel_card(
+    job_id: int,
+    refresh: int = 0,
+    db: Session = Depends(get_db),
+) -> dict:
+    # demo 阶段 llm_fn=None → 定位照出、情报段为空骨架；接强模型后传入 llm_fn
+    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=None)
