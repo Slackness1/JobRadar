@@ -27,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { I } from '@/components/hifi/hifi-primitives';
 import { IntelTabs, type IntelTabDef, type IntelTabId } from './IntelTabs';
 import { IntelQuote, type IntelQuoteData } from './IntelQuote';
+import { getJobIntelCard, type JobIntelCard } from '@/components/resume-copilot/api';
 
 // ─── backend response types (mirror RecommendCardIntelSection) ───────────────
 
@@ -111,6 +112,8 @@ export interface IntelDrawerProps {
   priority?: string | null;
   /** xhs 洞察数 — 用于 header sub-line. 不传就 fallback 用 n_insights_used. */
   xhsCount?: number | null;
+  /** 岗位 ID — 传入时拉取岗位情报卡(定位+三维). 不传则只渲染公司卡. */
+  jobId?: number | null;
   /** 用户点关闭(右上角 ✕). */
   onClose: () => void;
   /** 用户点 "用这些做 Coach 定制" — P1 接 Coach mode;P0b 只 placeholder 日志. */
@@ -121,6 +124,7 @@ export function IntelDrawer({
   companyName,
   priority,
   xhsCount,
+  jobId,
   onClose,
   onMock,
 }: IntelDrawerProps) {
@@ -133,6 +137,17 @@ export function IntelDrawer({
   const [loading, setLoading] = useState<boolean>(true);
   const [failed, setFailed] = useState<boolean>(false);
   const [conflictExpanded, setConflictExpanded] = useState<boolean>(false);
+
+  // ── Job intel card state ─────────────────────────────────────────────────────
+  const [jobCard, setJobCard] = useState<JobIntelCard | null>(null);
+  const [jobCardLoading, setJobCardLoading] = useState<boolean>(Boolean(jobId));
+  const [activeJobId, setActiveJobId] = useState<number | null | undefined>(jobId);
+
+  if (jobId !== activeJobId) {
+    setActiveJobId(jobId);
+    setJobCard(null);
+    setJobCardLoading(Boolean(jobId));
+  }
 
   if (companyName !== activeCompany) {
     setActiveCompany(companyName);
@@ -166,6 +181,26 @@ export function IntelDrawer({
       });
     return () => controller.abort();
   }, [activeCompany]);
+
+  // Fetch job intel card when activeJobId changes (only when a real jobId is set).
+  // Loading is pre-set to true in the render-time adjust block above.
+  useEffect(() => {
+    if (!activeJobId) return;
+    const controller = new AbortController();
+    getJobIntelCard(activeJobId)
+      .then((d) => {
+        if (controller.signal.aborted) return;
+        setJobCard(d);
+        setJobCardLoading(false);
+      })
+      .catch((e) => {
+        if (controller.signal.aborted) return;
+        void e;
+        setJobCard(null);
+        setJobCardLoading(false);
+      });
+    return () => controller.abort();
+  }, [activeJobId]);
 
   const tone = toneFromPriority(priority);
   const initial = companyInitial(companyName);
@@ -331,6 +366,121 @@ export function IntelDrawer({
             )}
           </div>
         ) : null}
+
+        {/* ── 岗位情报卡:定位 + 三维 ─────────────────────────────────────── */}
+        {activeJobId && (
+          <div className="workspace-hifi__intel-job-card">
+            {jobCardLoading ? (
+              <div className="workspace-hifi__intel-loading">
+                <span className="workspace-hifi__intel-loading-dot" aria-hidden />
+                <span>加载岗位情报…</span>
+              </div>
+            ) : jobCard ? (
+              <>
+                {/* 定位段 */}
+                <div className="workspace-hifi__intel-positioning">
+                  <div className="workspace-hifi__intel-positioning-row">
+                    {jobCard.positioning.sub_category && (
+                      <span className="workspace-hifi__intel-pos-chip">
+                        {jobCard.positioning.sub_category}
+                      </span>
+                    )}
+                    <span className="workspace-hifi__intel-pos-chip">
+                      {jobCard.positioning.tier_label || '—'}
+                    </span>
+                    {jobCard.positioning.track_line && (
+                      <span className="workspace-hifi__intel-pos-chip">
+                        {jobCard.positioning.track_line}
+                      </span>
+                    )}
+                  </div>
+                  {jobCard.positioning.one_liner && (
+                    <div className="workspace-hifi__intel-pos-one-liner">
+                      {jobCard.positioning.one_liner}
+                    </div>
+                  )}
+                </div>
+
+                {/* 三维块 */}
+                {(['threshold', 'compensation', 'outlook'] as const).map((dimKey) => {
+                  const dimLabels: Record<string, string> = {
+                    threshold: '门槛',
+                    compensation: '薪酬待遇',
+                    outlook: '前景·体验',
+                  };
+                  const d = jobCard.intel[dimKey];
+                  const stars = '★'.repeat(d.badge) + '☆'.repeat(3 - d.badge);
+                  return (
+                    <div key={dimKey} className="workspace-hifi__intel-dim-block">
+                      <div className="workspace-hifi__intel-dim-header">
+                        <span className="workspace-hifi__intel-dim-title">
+                          {dimLabels[dimKey]}
+                        </span>
+                        <span className="workspace-hifi__intel-dim-stars" aria-label={`${d.badge} 星`}>
+                          {stars}
+                        </span>
+                        {d.cross === 'verified' && d.n > 0 && (
+                          <span className="workspace-hifi__intel-dim-cross workspace-hifi__intel-dim-cross--verified">
+                            ✓ {d.n} 源印证(不同人)
+                          </span>
+                        )}
+                        {d.cross === 'conflicting' && (
+                          <span className="workspace-hifi__intel-dim-cross workspace-hifi__intel-dim-cross--conflict">
+                            ⚠ 有分歧
+                          </span>
+                        )}
+                      </div>
+                      <div className="workspace-hifi__intel-dim-body">
+                        {dimKey === 'threshold' ? (
+                          <>
+                            {d.hard && d.hard.length > 0 && (
+                              <div className="workspace-hifi__intel-dim-threshold-row">
+                                <span className="workspace-hifi__intel-dim-threshold-label">硬：</span>
+                                <span>{d.hard.join(' · ')}</span>
+                              </div>
+                            )}
+                            {d.soft && d.soft.length > 0 && (
+                              <div className="workspace-hifi__intel-dim-threshold-row">
+                                <span className="workspace-hifi__intel-dim-threshold-label">软：</span>
+                                <span>{d.soft.join(' · ')}</span>
+                              </div>
+                            )}
+                            {(!d.hard || d.hard.length === 0) && (!d.soft || d.soft.length === 0) && (
+                              <div className="workspace-hifi__intel-dim-empty">暂无足够 UGC 情报</div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="workspace-hifi__intel-dim-summary">
+                            {d.summary || '暂无足够 UGC 情报'}
+                          </div>
+                        )}
+                        {d.quotes.length > 0 && (
+                          <div className="workspace-hifi__intel-dim-quotes">
+                            {d.quotes.map((q, qi) => (
+                              <blockquote
+                                key={`${dimKey}-q-${qi}`}
+                                className="workspace-hifi__intel-dim-quote"
+                              >
+                                「{q.text}」—{q.source}
+                              </blockquote>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* 来源溯源 */}
+                <div className="workspace-hifi__intel-provenance">
+                  {jobCard.provenance.n_insights} 条 UGC ·{' '}
+                  {jobCard.provenance.sources.join('+')} · 学生参考非官方
+                </div>
+                <div className="workspace-hifi__intel-job-card-divider" />
+              </>
+            ) : null}
+          </div>
+        )}
 
         {loading && (
           <div className="workspace-hifi__intel-loading">

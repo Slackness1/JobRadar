@@ -879,3 +879,40 @@ export function postPlanFinalize(
     expected_version: body.expected_version,
   });
 }
+
+// ── Job intel card (GET /api/job-intel/card?job_id=<int>) ────────────────────
+
+export interface JobIntelDim {
+  /** threshold 维独有 */
+  hard?: string[];
+  soft?: string[];
+  /** compensation / outlook 维有 */
+  summary?: string | null;
+  badge: 1 | 2 | 3;
+  cross: 'verified' | 'single' | 'conflicting';
+  n: number;
+  quotes: { text: string; source: string; author: string }[];
+}
+
+export interface JobIntelCard {
+  job_id: number;
+  company: string;
+  role_title: string;
+  positioning: {
+    sub_category: string | null;
+    tier: string | null;
+    tier_label: string;
+    track_line: string;
+    one_liner: string;
+  };
+  intel: Record<'threshold' | 'compensation' | 'outlook', JobIntelDim>;
+  provenance: {
+    label: string;
+    n_insights: number;
+    sources: string[];
+  };
+}
+
+export async function getJobIntelCard(jobId: number): Promise<JobIntelCard> {
+  return requestJson<JobIntelCard>(`/api/job-intel/card?job_id=${jobId}`);
+}

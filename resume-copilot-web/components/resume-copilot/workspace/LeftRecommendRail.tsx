@@ -57,7 +57,7 @@ export interface LeftRecommendRailProps {
   /** P0b — 学生点小红书 badge 或卡内 "同辈情报" 按钮触发. 父切右栏到 IntelDrawer。 */
   onOpenIntel?: (
     company: string,
-    ctx?: { priority?: string | null; xhsCount?: number | null },
+    ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null },
   ) => void;
 }
 

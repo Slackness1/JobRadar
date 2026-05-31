@@ -250,7 +250,6 @@ export function HFHero() {
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
-          setPendingDestination(null);
         }}
         onSuccess={onLoginSuccess}
       />

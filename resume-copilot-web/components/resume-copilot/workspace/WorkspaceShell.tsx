@@ -227,6 +227,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
   const [intelOpenContext, setIntelOpenContext] = useState<{
     priority?: string | null;
     xhsCount?: number | null;
+    jobId?: number | null;
   }>({});
 
   // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
@@ -261,7 +262,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
   }, []);
 
   const handleOpenIntel = useCallback(
-    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null }) => {
+    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null }) => {
       setIntelOpenCompany(company);
       setIntelOpenContext(ctx ?? {});
     },
@@ -427,6 +428,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
                 companyName={intelOpenCompany}
                 priority={intelOpenContext.priority}
                 xhsCount={intelOpenContext.xhsCount}
+                jobId={intelOpenContext.jobId}
                 onClose={handleCloseIntel}
                 onMock={handleIntelMock}
               />

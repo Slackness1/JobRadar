@@ -34,7 +34,7 @@ export interface RecommendCardProps {
   /** P0b — 学生点 "同辈情报" 跳到右栏 IntelDrawer (替换 inline RecommendCardIntelSection). */
   onOpenIntel?: (
     company: string,
-    ctx?: { priority?: string | null; xhsCount?: number | null },
+    ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null },
   ) => void;
 }
 
@@ -268,9 +268,11 @@ export function RecommendCard({
               className="workspace-hifi__intel-cta-row"
               onClick={(e) => {
                 e.stopPropagation();
+                const numericJobId = Number(item.job_id);
                 onOpenIntel(item.company, {
                   priority: tone || null,
                   xhsCount: null,
+                  jobId: Number.isFinite(numericJobId) ? numericJobId : null,
                 });
               }}
             >
