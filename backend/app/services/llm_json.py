@@ -11,7 +11,9 @@ log = logging.getLogger(__name__)
 def _client():
     from app.services.crawler_llm import build_pro_client
 
-    return build_pro_client()
+    # 放宽超时：grounded 判定走 reasoning_effort=medium，Pro 偶尔 >30s（默认会超时回退兜底）。
+    # 这些调用结果按公司/赛道缓存、非延迟敏感，给 90s 头寸减少首调超时退化。
+    return build_pro_client(timeout=90)
 
 
 def deepseek_json_fn(prompt: str, *, reasoning_effort: str = "medium") -> dict:
