@@ -150,5 +150,6 @@ def job_intel_card(
     refresh: int = 0,
     db: Session = Depends(get_db),
 ) -> dict:
-    # demo 阶段 llm_fn=None → 定位照出、情报段为空骨架；接强模型后传入 llm_fn
-    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=None)
+    from app.services.llm_json import deepseek_json_fn
+
+    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=deepseek_json_fn)

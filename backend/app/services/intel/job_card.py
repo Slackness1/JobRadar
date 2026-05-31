@@ -1,11 +1,15 @@
 """岗位情报卡组装器：job_id → 定位 + 3 维情报（带三维可信度徽章）+ provenance。
 
 复用 xhs/retrieve.search 取该公司 UGC；维度抽取走 dimension_extract（LLM 可注入）。
-磁盘缓存，测试时传 use_cache=False 不写盘。
+磁盘缓存两层：
+  - job_cards/   按 job_id 缓存整张卡（不变）
+  - company_dims/ 按公司名 hash 缓存 LLM 抽取结果（同公司多 job 只跑一次 LLM）
+测试时传 use_cache=False 不写盘。
 """
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -23,10 +27,48 @@ from app.services.intel.corroboration import independent_cross
 
 # 绝对化路径（对齐 enrichment.py 的 parents[3]=backend/），不依赖运行时 CWD。
 _CACHE_DIR = str(Path(__file__).resolve().parents[3] / "data" / "_intel_cache" / "job_cards")
+_COMPANY_CACHE_DIR = str(Path(__file__).resolve().parents[3] / "data" / "_intel_cache" / "company_dims")
 
 
 def _cache_path(job_id: int) -> str:
     return os.path.join(_CACHE_DIR, f"{job_id}.json")
+
+
+def _company_cache_path(company: str) -> str:
+    key = hashlib.md5(company.encode()).hexdigest()
+    return os.path.join(_COMPANY_CACHE_DIR, f"{key}.json")
+
+
+def _company_dims(
+    company: str,
+    insights: list,
+    *,
+    llm_fn: Optional[Callable[[str], dict]],
+    use_cache: bool,
+) -> dict:
+    """按公司名缓存 LLM 维度抽取结果，同公司多 job 只跑一次 LLM。
+
+    - 命中公司缓存 → 直接返回（不调 llm_fn）
+    - llm_fn 为 None → 返回空骨架（不写缓存）
+    - llm_fn 非 None → extract_dimensions 并写公司缓存
+    """
+    cache_path = _company_cache_path(company)
+
+    if use_cache and os.path.exists(cache_path):
+        with open(cache_path, encoding="utf-8") as f:
+            return json.load(f)
+
+    if llm_fn is None:
+        return copy.deepcopy(_EMPTY)
+
+    dims = extract_dimensions(insights, llm_fn=llm_fn, company=company)
+
+    if use_cache:
+        os.makedirs(_COMPANY_CACHE_DIR, exist_ok=True)
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(dims, f, ensure_ascii=False)
+
+    return dims
 
 
 def _tier_from_insights(dim_ids: list, by_id: dict) -> dict:
@@ -128,11 +170,13 @@ def build_job_card(
 
     by_id = {i["insight_id"]: i for i in insights}
 
-    # ---- LLM 维度抽取（可注入 fake）----
-    if llm_fn is None:
-        dims = copy.deepcopy(_EMPTY)
-    else:
-        dims = extract_dimensions(insights, llm_fn=llm_fn, company=job.company or "")
+    # ---- LLM 维度抽取（按公司缓存，可注入 fake）----
+    dims = _company_dims(
+        job.company or "",
+        insights,
+        llm_fn=llm_fn,
+        use_cache=use_cache,
+    )
 
     # ---- 每维度组装：可信度层 + 引文摘要 ----
     intel: dict = {}
