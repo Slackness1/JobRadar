@@ -916,3 +916,43 @@ export interface JobIntelCard {
 export async function getJobIntelCard(jobId: number): Promise<JobIntelCard> {
   return requestJson<JobIntelCard>(`/api/job-intel/card?job_id=${jobId}`);
 }
+
+// ── Tier-fit ladder (GET /api/resume-copilot/sessions/{id}/tier-fit) ─────────
+
+export interface TierLadderBand {
+  band: '头部' | '次头部' | '腰部';
+  rank: number;
+  native_labels: string[];
+  companies: string[];
+  n_jobs: number;
+}
+
+export interface TierFitReason {
+  text: string;
+  evidence: string;
+  evidence_source: string;
+}
+
+export interface TierFitData {
+  floor_band: string;
+  match_band: string;
+  stretch_band: string;
+  single_band: boolean;
+  reasons: TierFitReason[];
+  upgrade_hint: string;
+  data_confidence: 'strong' | 'thin';
+}
+
+export interface TierFit {
+  session_id: number;
+  sub_cat: string | null;
+  ladder: TierLadderBand[];
+  fit: TierFitData | null;
+}
+
+export function getTierFit(sessionId: number, subCat?: string): Promise<TierFit> {
+  const q = subCat ? `?sub_cat=${encodeURIComponent(subCat)}` : '';
+  return requestJson<TierFit>(
+    `/api/resume-copilot/sessions/${sessionId}/tier-fit${q}`,
+  );
+}

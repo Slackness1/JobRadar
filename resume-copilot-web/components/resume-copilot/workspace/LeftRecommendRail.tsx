@@ -30,12 +30,15 @@ import type {
 import {
   getResumeCopilotJobMode,
   getResumeCopilotPlatforms,
+  getTierFit,
   postRejectRecommendation,
   type RecommendRejectReason,
+  type TierFit,
 } from '../api';
 import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
 import { PlatformCard } from './recommend/PlatformCard';
 import { RecommendCard } from './recommend/RecommendCard';
+import { TierLadderStrip } from './recommend/TierLadderStrip';
 import { useFlipAnimation } from './recommend/use-flip-animation';
 
 const LAST_SEEN_KEY_PREFIX = 'jobradar.workspace.lastSeenRejectedCount.';
@@ -101,6 +104,11 @@ export function LeftRecommendRail({
   const [jobMode, setJobMode] = useState<ResumeJobMode | null>(null);
   const jobModeFetchingRef = useRef(false);
   const [modeBannerDismissed, setModeBannerDismissed] = useState<boolean>(false);
+  // Phase G — 档次阶梯条
+  const [tierFit, setTierFit] = useState<TierFit | null>(null);
+  const tierFitFetchingRef = useRef(false);
+  // track the sub_cat for which tierFit was last fetched (state so it's ok to reset during render)
+  const [tierFitSubCat, setTierFitSubCat] = useState<string | null>(null);
 
   // "Adjusting state when props change" idiom (React 19): track previous
   // recommendations via a setState rather than a ref (react-compiler bans ref
@@ -118,6 +126,8 @@ export function LeftRecommendRail({
     setExpandedCompany(null);
     setJobMode(null);
     setModeBannerDismissed(false);
+    setTierFit(null);
+    setTierFitSubCat(null);
   }
 
   const flip = useFlipAnimation<string>();
@@ -173,6 +183,33 @@ export function LeftRecommendRail({
       .catch(() => setJobMode(null))
       .finally(() => { jobModeFetchingRef.current = false; });
   }, [sid, jobMode, recommendations]);
+
+  // Phase G — 拉档次阶梯条 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
+  useEffect(() => {
+    if (!sid) return;
+    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
+    if (!recReady) return;
+    // 等 jobMode 落下来再拿 primary_sub_cat(若已 null 则用 undefined — 后端给默认值)
+    const subCat = jobMode?.primary_sub_cat || undefined;
+    const subCatKey = subCat ?? null;
+    // 避免对同 sub_cat 重复拉
+    if (tierFitFetchingRef.current) return;
+    if (tierFitSubCat === subCatKey && tierFit !== null) return;
+    tierFitFetchingRef.current = true;
+    const controller = new AbortController();
+    getTierFit(sid, subCat)
+      .then((r) => {
+        if (!controller.signal.aborted) {
+          setTierFit(r);
+          setTierFitSubCat(subCatKey);
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setTierFit(null);
+      })
+      .finally(() => { tierFitFetchingRef.current = false; });
+    return () => { controller.abort(); };
+  }, [sid, recommendations, jobMode, tierFit, tierFitSubCat]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -398,6 +435,8 @@ export function LeftRecommendRail({
         {/* ── Platform view ─────────────────────────────────────────────── */}
         {sessionReady && viewMode === 'platform' && (
           <div className="workspace-hifi__rec-list" role="list">
+            {/* 档次阶梯条 — 平台 tab 顶部 */}
+            {tierFit && <TierLadderStrip data={tierFit} />}
             {platforms === null && (
               <div className="workspace-hifi__rec-empty">
                 <CoachThinkingIndicator

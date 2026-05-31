@@ -6301,3 +6301,163 @@
   flex-shrink: 0;
   margin: 0 22px 14px;
 }
+
+/* ── Phase G — 档次阶梯条 (TierLadderStrip) ─────────────────────────────── */
+
+.workspace-hifi__tier-strip {
+  margin: 0 2px 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-warm);
+  border-left: 3px solid var(--terracotta-ring);
+  border-radius: var(--r-md, 8px);
+  background: var(--ivory);
+}
+
+.workspace-hifi__tier-strip-single-notice {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__tier-strip-thin-notice {
+  font-size: 11px;
+  color: var(--stone);
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.workspace-hifi__tier-bands {
+  display: flex;
+  gap: 6px;
+}
+
+.workspace-hifi__tier-band {
+  flex: 1;
+  padding: 7px 9px;
+  border: 1px solid var(--border-cream, #e8e4dc);
+  border-radius: 6px;
+  background: var(--parchment);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: box-shadow 0.15s;
+}
+
+.workspace-hifi__tier-band.is-match {
+  border-color: var(--terracotta-ring);
+  background: var(--terracotta-wash, rgba(201, 100, 66, 0.06));
+  box-shadow: 0 0 0 1px var(--terracotta-ring);
+}
+
+.workspace-hifi__tier-band-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__tier-band-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-hifi__tier-band-role {
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 5px;
+  line-height: 1.3;
+}
+
+.workspace-hifi__tier-band-role--匹配 {
+  background: var(--terracotta);
+  color: #fff;
+}
+
+.workspace-hifi__tier-band-role--冲刺 {
+  background: var(--olive, #6b7455);
+  color: #fff;
+}
+
+.workspace-hifi__tier-band-role--稳 {
+  background: var(--stone, #8b8680);
+  color: #fff;
+}
+
+.workspace-hifi__tier-band-count {
+  font-size: 10.5px;
+  color: var(--stone);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.workspace-hifi__tier-band-sublabel {
+  font-size: 10.5px;
+  color: var(--stone);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__tier-band-companies {
+  font-size: 11px;
+  color: var(--ink-soft, #4a4540);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__tier-reasons {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.workspace-hifi__tier-reason {
+  font-size: 11.5px;
+}
+
+.workspace-hifi__tier-reason-summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+  list-style: none;
+  padding: 2px 0;
+  user-select: none;
+}
+
+.workspace-hifi__tier-reason-summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-hifi__tier-reason-summary::before {
+  content: '▸ ';
+  color: var(--terracotta-ring);
+  font-size: 10px;
+}
+
+details[open] .workspace-hifi__tier-reason-summary::before {
+  content: '▾ ';
+}
+
+.workspace-hifi__tier-reason-evidence {
+  margin-top: 3px;
+  padding: 5px 9px;
+  background: var(--parchment);
+  border-left: 2px solid var(--border-warm);
+  font-size: 11px;
+  color: var(--stone);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.workspace-hifi__tier-upgrade-hint {
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: var(--olive, #6b7455);
+  line-height: 1.4;
+}
