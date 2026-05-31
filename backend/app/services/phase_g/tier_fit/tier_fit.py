@@ -1,8 +1,16 @@
 """档次定位：LLM grounded 判定（稳/匹配/冲刺三档 + 理由挂出处）。
 llm_fn(prompt)->dict 可注入（测试 fake；生产传 llm_json.deepseek_json_fn）。失败走规则兜底。
-（gather_tier_knowledge + build_tier_fit 在下一个 task 追加，这里先放判定 + prompt。）"""
+gather_tier_knowledge + build_tier_fit 组装完整定位结果。"""
 from __future__ import annotations
+import json
+import logging
+from pathlib import Path
 from typing import Callable
+
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+log = logging.getLogger(__name__)
 
 _VALID_SRC = {"gate", "gt_must_have", "intel_ugc"}
 
@@ -65,3 +73,198 @@ def judge_tier_fit(bg: dict, sub_cat: str, ladder: list[dict], knowledge: dict,
     out.setdefault("upgrade_hint", "")
     out["data_confidence"] = "strong" if (knowledge.get("gate_evidence") or knowledge.get("must_have")) else "thin"
     return out
+
+
+# ---------------------------------------------------------------------------
+# Knowledge aggregation
+# ---------------------------------------------------------------------------
+
+def gather_tier_knowledge(db: Session, sub_cat: str, ladder: list[dict]) -> dict:
+    """聚合赛道 + 头部档公司的定位知识，绝不编造门槛。
+
+    - gate_evidence: 来自 job_mode.get_gate (赛道级 evidence 文本)
+    - must_have: GT 的 must_have 字段是布尔，无逐档门槛文本 → 恒空 {}
+    - intel_quotes: xhs 情报库里头部档公司 UGC（best-effort，失败给空列表）
+    """
+    from app.services.phase_g.recommendation_v2.job_mode import get_gate
+
+    gate, gate_type, gate_evidence = get_gate(sub_cat)
+
+    # must_have 在 GT 里是布尔 (True/False)，无真实逐公司/逐档门槛文本 → 不填
+    must_have: dict = {}
+
+    # 取头部档前 2 家公司做 UGC 检索
+    intel_quotes: list[dict] = []
+    try:
+        head_companies: list[str] = []
+        for b in ladder:
+            if b.get("band") == "头部":
+                head_companies = b.get("companies", [])[:2]
+                break
+
+        if head_companies:
+            from app.services.xhs import retrieve as xhs_retrieve
+            results = xhs_retrieve.search(
+                db, company=head_companies, limit=6
+            )
+            for item in results:
+                text_body = (item.get("source_quote") or item.get("content") or "")[:120]
+                if text_body:
+                    intel_quotes.append({
+                        "text": text_body,
+                        "evidence_source": "intel_ugc",
+                        "company": item.get("company_target", []),
+                    })
+    except Exception as exc:
+        log.debug("gather_tier_knowledge: intel_quotes failed (%s)", exc)
+
+    return {
+        "gate": gate,
+        "gate_type": gate_type,
+        "gate_evidence": gate_evidence,
+        "must_have": must_have,
+        "intel_quotes": intel_quotes,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Profile → dict adapter
+# ---------------------------------------------------------------------------
+
+def _profile_to_dict(profile: object) -> dict:
+    """把 ResumeProfilePayload (Pydantic) 转成 extract_student_bg 要吃的 dict。
+
+    education → [{"school": ...}]
+    internships (company/role) → experiences [{"company": ..., "title": ...}]
+    """
+    # education
+    edu_raw = getattr(profile, "education", None) or []
+    education: list[dict] = []
+    for e in edu_raw:
+        if isinstance(e, dict):
+            education.append(e)
+        else:
+            education.append({"school": getattr(e, "school", ""),
+                               "degree": getattr(e, "degree", ""),
+                               "major": getattr(e, "major", "")})
+
+    # internships → experiences
+    intern_raw = getattr(profile, "internships", None) or []
+    experiences: list[dict] = []
+    for i in intern_raw:
+        if isinstance(i, dict):
+            experiences.append({"company": i.get("company", ""),
+                                 "title": i.get("role", i.get("title", ""))})
+        else:
+            experiences.append({"company": getattr(i, "company", ""),
+                                 "title": getattr(i, "role", "")})
+
+    return {"education": education, "experiences": experiences}
+
+
+# ---------------------------------------------------------------------------
+# Band lookup helper (DB-backed)
+# ---------------------------------------------------------------------------
+
+def _make_band_lookup(db: Session) -> Callable[[str], str]:
+    """返回一个 company → band 的查询函数（走 jobs.institution_tier）。"""
+    from app.services.phase_g.tier_fit.tier_ladder import band_of
+
+    def _lookup(company: str) -> str:
+        try:
+            row = db.execute(
+                text("SELECT institution_tier FROM jobs "
+                     "WHERE company = :c AND institution_tier IS NOT NULL LIMIT 1"),
+                {"c": company},
+            ).fetchone()
+            if row and row[0]:
+                return band_of(row[0])
+        except Exception:
+            pass
+        return "腰部"
+
+    return _lookup
+
+
+# ---------------------------------------------------------------------------
+# Cache helpers
+# ---------------------------------------------------------------------------
+
+_CACHE_ROOT = Path(__file__).resolve().parents[4] / "data" / "_intel_cache" / "tier_fit"
+
+
+def _cache_path(session_id: int, sub_cat: str) -> Path:
+    safe = sub_cat.replace("/", "_").replace(" ", "_")
+    return _CACHE_ROOT / f"{session_id}_{safe}.json"
+
+
+def _read_cache(session_id: int, sub_cat: str) -> dict | None:
+    p = _cache_path(session_id, sub_cat)
+    try:
+        if p.exists():
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return None
+
+
+def _write_cache(session_id: int, sub_cat: str, data: dict) -> None:
+    _CACHE_ROOT.mkdir(parents=True, exist_ok=True)
+    p = _cache_path(session_id, sub_cat)
+    try:
+        p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as exc:
+        log.debug("tier_fit cache write failed: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Main assembler
+# ---------------------------------------------------------------------------
+
+def build_tier_fit(
+    db: Session,
+    session_id: int,
+    sub_cat: str,
+    *,
+    llm_fn: Callable[[str], dict],
+    use_cache: bool = True,
+) -> dict:
+    """完整档次定位组装：ladder + profile + knowledge → LLM judge。
+
+    返回 {"session_id", "sub_cat", "ladder", "fit"}。
+    """
+    if use_cache:
+        cached = _read_cache(session_id, sub_cat)
+        if cached:
+            return cached
+
+    from app.services.phase_g.tier_fit.tier_ladder import build_tier_ladder
+    from app.services.phase_g.tier_fit.student_background import extract_student_bg
+
+    ladder = build_tier_ladder(db, sub_cat)
+    band_lookup = _make_band_lookup(db)
+
+    # Load profile via router helper (lives in routers, not services — import lazily)
+    from app.routers.resume_copilot import _load_profile_and_prefs
+    profile, prefs = _load_profile_and_prefs(db, session_id)
+
+    bg = extract_student_bg(
+        _profile_to_dict(profile),
+        prefs.model_dump() if prefs else {},
+        band_lookup=band_lookup,
+    )
+
+    knowledge = gather_tier_knowledge(db, sub_cat, ladder)
+    fit = judge_tier_fit(bg, sub_cat, ladder, knowledge, llm_fn=llm_fn)
+
+    result = {
+        "session_id": session_id,
+        "sub_cat": sub_cat,
+        "ladder": ladder,
+        "fit": fit,
+    }
+
+    if use_cache:
+        _write_cache(session_id, sub_cat, result)
+
+    return result

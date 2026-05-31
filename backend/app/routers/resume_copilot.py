@@ -1893,6 +1893,37 @@ def patch_session_memory_entry(
     return MemoryEntryOut.model_validate(serialize_entry(row))
 
 
+@router.get('/sessions/{session_id}/tier-fit')
+def get_resume_copilot_tier_fit(
+    session_id: int,
+    sub_cat: str | None = None,
+    refresh: int = 0,
+    db: Session = Depends(get_db),
+) -> dict:
+    """返回学生对指定赛道的档次定位（稳/匹配/冲刺三档 + 理由）。
+
+    sub_cat 不传时自动从 session profile/preferences 推断第一个偏好赛道。
+    refresh=1 强制跳过磁盘缓存重跑 LLM。
+    """
+    from app.services.phase_g.tier_fit.tier_fit import build_tier_fit
+    from app.services.llm_json import deepseek_json_fn
+    from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+
+    if not sub_cat:
+        profile, prefs = _load_profile_and_prefs(db, session_id)
+        subs = _v2_extract_preferred_sub_cats(profile, prefs)
+        sub_cat = subs[0] if subs else None
+
+    if not sub_cat:
+        return {"session_id": session_id, "sub_cat": None, "ladder": [], "fit": None}
+
+    return build_tier_fit(
+        db, session_id, sub_cat,
+        llm_fn=deepseek_json_fn,
+        use_cache=(refresh == 0),
+    )
+
+
 @router.delete(
     '/sessions/{session_id}/memory/{entry_id}',
     status_code=status.HTTP_204_NO_CONTENT,
