@@ -38,6 +38,7 @@ backend/data/browser_sessions/
 backend/data/validation_reports/
 backend/data/_secrets/
 backend/data/intel_cache/
+backend/data/_intel_cache/
 backend/data/narrative_cache/
 devnull
 
