@@ -4,7 +4,7 @@ from __future__ import annotations
 import math, re
 
 PLATFORM_VALUE = {"xhs": 1.0, "zhihu": 0.85, "bilibili": 0.85, "podcast": 0.5}
-_MARKETING = re.compile(r"扫码|进群|我的课|训练营|资料领取|私信领|公总号|加我咨询|领取资料")
+_MARKETING = re.compile(r"扫码|进群|我的课|训练营|资料领取|私信领|公众号|加我咨询|领取资料")
 
 def platform_of(note_id: str) -> str:
     nid = note_id or ""
