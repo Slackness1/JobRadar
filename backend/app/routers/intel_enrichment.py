@@ -150,6 +150,8 @@ def job_intel_card(
     refresh: int = 0,
     db: Session = Depends(get_db),
 ) -> dict:
-    from app.services.llm_json import deepseek_json_fn
+    # 情报卡三维抽取 = 信息抽取类，用 Flash（实测快 ~7x、成本低 ~40x，质量足够）。
+    # 判断/挂出处类(tier-fit)仍走 Pro。
+    from app.services.llm_json import flash_json_fn
 
-    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=deepseek_json_fn)
+    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=flash_json_fn)
