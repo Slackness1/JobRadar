@@ -132,8 +132,20 @@ def _build_intel_block(dims: dict, n_insights: int) -> dict:
     comp = dims.get("compensation") or {}
     out = dims.get("outlook") or {}
 
-    hard = th.get("hard") or []
-    soft = th.get("soft") or []
+    # hard/soft 兼容两种抽取格式：str 列表(旧) 或 [{"point":...}] dict 列表(Flash 版)。
+    def _as_strs(items) -> list[str]:
+        result = []
+        for it in items or []:
+            if isinstance(it, str):
+                result.append(it)
+            elif isinstance(it, dict):
+                v = it.get("point") or it.get("text") or it.get("desc") or ""
+                if v:
+                    result.append(v)
+        return result
+
+    hard = _as_strs(th.get("hard"))
+    soft = _as_strs(th.get("soft"))
     requirements = hard + soft  # 合并为前端 requirements 标签云
 
     comp_summary = comp.get("summary") or None

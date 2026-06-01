@@ -1960,18 +1960,15 @@ def get_platforms_by_tier(
     if not sub_cat:
         return {"session_id": session_id, "sub_cat": None, "has_skeleton": False, "tiers": []}
 
-    # 尝试从 tier-fit 缓存读 match_band（use_cache=True，不触发 LLM）
+    # match_band 只用来高亮哪一档。**只读 tier-fit 磁盘缓存**，绝不现场触发 LLM —
+    # build_tier_fit 缓存未命中会跑 Pro reasoning(~112s)，会卡死骨架渲染(实测 9min)。
+    # 缓存没命中就先不高亮，骨架毫秒级照出；高亮由前端用它已有的 tier-fit 结果补。
+    from app.services.phase_g.tier_fit.tier_fit import _read_cache
     match_band: str | None = None
     try:
-        fit_result = build_tier_fit(
-            db, session_id, sub_cat,
-            profile=profile,
-            prefs=prefs,
-            llm_fn=deepseek_json_fn,
-            use_cache=True,
-        )
-        fit = fit_result.get("fit") or {}
-        match_band = fit.get("match_band")
+        cached = _read_cache(session_id, sub_cat)
+        if cached:
+            match_band = (cached.get("fit") or {}).get("match_band")
     except Exception:
         pass  # match_band 可空，不影响骨架展示
 
