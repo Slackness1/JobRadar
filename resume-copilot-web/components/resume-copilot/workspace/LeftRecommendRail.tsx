@@ -123,11 +123,18 @@ export function LeftRecommendRail({
   // recommendations via a setState rather than a ref (react-compiler bans ref
   // access during render). When upstream recommendations changes reference
   // (new generation / session switch), reset hidden + expanded + banner.
-  const [lastRecSeen, setLastRecSeen] = useState<ResumeRecommendationResult | null>(
-    recommendations,
-  );
-  if (recommendations !== lastRecSeen) {
-    setLastRecSeen(recommendations);
+  //
+  // ⚠️ 不能用对象引用 (recommendations !== prev) 当触发条件：父组件在生成中
+  // 每 1.6s 轮询一次 setRecommendations(新对象)，引用每轮都变，会导致下面
+  // setJobMode(null)/setPlatformSkeleton(null) 每轮触发 → 主推 banner + 梯队骨架
+  // 一闪一闪、骨架加载完又被抹回"继续思考"。改用内容签名：只有真正换了会话 /
+  // 换了一代推荐（条数 / 首个岗位变了）才 reset，内容相同的轮询不动 UI 状态。
+  const recSignature = recommendations
+    ? `${recommendations.session_id}:${recommendations.status}:${recommendations.items.length}:${recommendations.items[0]?.job_id ?? ''}`
+    : null;
+  const [lastRecSig, setLastRecSig] = useState<string | null>(recSignature);
+  if (recSignature !== lastRecSig) {
+    setLastRecSig(recSignature);
     setHiddenJobIds(new Set());
     setExpandedJobId(null);
     setBannerDismissed(false);
@@ -166,21 +173,29 @@ export function LeftRecommendRail({
   // Prefetch platform data as soon as session has recommendations.
   // (uses session?.id directly — sessionId alias is declared further below)
   const sid = session?.id;
+
+  // ⚠️ 这几个派生数据拉取 effect **绝不能依赖 recommendations / jobMode 对象本身**。
+  // 父组件在生成中每 1.6s 轮询一次就换一个新 recommendations 对象引用，若把它放进
+  // 依赖数组，effect 每轮都重跑、cleanup 每轮都 abort() 掉正在飞的请求；骨架请求被
+  // abort 后又被 skeletonFetchedSubCatRef 标记"已试过"不再重试 → 永远卡在
+  // "正在加载梯队骨架…"。改成只依赖稳定的 recReady(布尔) + primarySubCat(字符串)：
+  // 轮询不再触发重跑/abort，请求一次拉到底。
+  const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
+  const primarySubCat = jobMode?.primary_sub_cat || undefined;
+
   useEffect(() => {
     if (!sid || platforms !== null || platformFetchingRef.current) return;
-    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
     if (!recReady) return;
     platformFetchingRef.current = true;
     getResumeCopilotPlatforms(sid)
       .then((r) => setPlatforms(r.platforms ?? []))
       .catch(() => setPlatforms([]))
       .finally(() => { platformFetchingRef.current = false; });
-  }, [sid, platforms, recommendations]);
+  }, [sid, platforms, recReady]);
 
   // Phase G G2-D — 拉求职模式判定 (session ready 后一次)
   useEffect(() => {
     if (!sid || jobMode !== null || jobModeFetchingRef.current) return;
-    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
     if (!recReady) return;
     jobModeFetchingRef.current = true;
     getResumeCopilotJobMode(sid)
@@ -194,16 +209,15 @@ export function LeftRecommendRail({
       })
       .catch(() => setJobMode(null))
       .finally(() => { jobModeFetchingRef.current = false; });
-  }, [sid, jobMode, recommendations]);
+  }, [sid, jobMode, recReady]);
 
   // Phase G — 拉档次阶梯条 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
   // tierFit 移出依赖数组，仅靠 tierFitSubCat 判断是否已拉过，防止 catch 后无限重试
   useEffect(() => {
     if (!sid) return;
-    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
     if (!recReady) return;
     // 等 jobMode 落下来再拿 primary_sub_cat(若已 null 则用 undefined — 后端给默认值)
-    const subCat = jobMode?.primary_sub_cat || undefined;
+    const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
     // 已经拉过这个 sub_cat（无论成功/失败）就不再重试
     if (tierFitFetchingRef.current) return;
@@ -226,17 +240,16 @@ export function LeftRecommendRail({
       })
       .finally(() => { tierFitFetchingRef.current = false; });
     return () => { controller.abort(); };
-  }, [sid, recommendations, jobMode, tierFitSubCat]);
+  }, [sid, recReady, primarySubCat, tierFitSubCat]);
 
   // Phase G — 拉梯队骨架 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
   // skeletonFetchedSubCatRef 仅在 effect 内读写，防止 catch(null) 后无限重试。
   // recommendations reset 时 setPlatformSkeleton(null) + setJobMode(null) 已触发重拉。
   useEffect(() => {
     if (!sid) return;
-    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
     if (!recReady) return;
     if (skeletonFetchingRef.current) return;
-    const subCat = jobMode?.primary_sub_cat || undefined;
+    const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
     // 骨架已存在（成功）就不重拉；若 platformSkeleton 被 reset 为 null 则允许重拉
     if (platformSkeleton !== null) return;
@@ -255,7 +268,7 @@ export function LeftRecommendRail({
       })
       .finally(() => { skeletonFetchingRef.current = false; });
     return () => { controller.abort(); };
-  }, [sid, recommendations, jobMode, platformSkeleton]);
+  }, [sid, recReady, primarySubCat, platformSkeleton]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
