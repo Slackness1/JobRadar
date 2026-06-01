@@ -1907,7 +1907,9 @@ def get_resume_copilot_tier_fit(
     sub_cat 不传时自动从 session profile/preferences 推断第一个偏好赛道。
     refresh=1 强制跳过磁盘缓存重跑 LLM。
     """
-    from app.services.phase_g.tier_fit.tier_fit import build_tier_fit
+    import threading
+    from app.services.phase_g.tier_fit.tier_fit import build_tier_fit, _read_cache
+    from app.services.phase_g.tier_fit.tier_ladder import build_tier_ladder
     from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
 
     session = _get_session_or_404(db, session_id)
@@ -1922,13 +1924,33 @@ def get_resume_copilot_tier_fit(
     if not sub_cat:
         return {"session_id": session_id, "sub_cat": None, "ladder": [], "fit": None}
 
-    return build_tier_fit(
-        db, session_id, sub_cat,
-        profile=profile,
-        prefs=prefs,
-        llm_fn=deepseek_json_fn,
-        use_cache=(refresh == 0),
-    )
+    # 缓存命中(或 refresh)→ 正常返回。
+    if refresh != 0:
+        return build_tier_fit(
+            db, session_id, sub_cat, profile=profile, prefs=prefs,
+            llm_fn=deepseek_json_fn, use_cache=False,
+        )
+    cached = _read_cache(session_id, sub_cat)
+    if cached is not None:
+        return cached
+
+    # 缓存未命中：tier-fit 判定要跑 Pro reasoning(~112s)，**绝不同步阻塞前端**。
+    # 立即返回 pending(带 ladder 让前端先画梯队，fit=null 暂不高亮)，后台线程算好写缓存，
+    # 前端下次拉(或换赛道)即命中。
+    def _bg_compute():
+        from app.database import SessionLocal as _SL
+        _db = _SL()
+        try:
+            build_tier_fit(_db, session_id, sub_cat, profile=profile, prefs=prefs,
+                           llm_fn=deepseek_json_fn, use_cache=True)
+        except Exception:
+            pass
+        finally:
+            _db.close()
+    threading.Thread(target=_bg_compute, daemon=True).start()
+    ladder = build_tier_ladder(db, sub_cat)
+    return {"session_id": session_id, "sub_cat": sub_cat,
+            "ladder": ladder, "fit": None, "status": "computing"}
 
 
 @router.get('/sessions/{session_id}/platforms-by-tier')
