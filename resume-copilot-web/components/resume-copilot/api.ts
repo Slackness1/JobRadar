@@ -956,3 +956,47 @@ export function getTierFit(sessionId: number, subCat?: string): Promise<TierFit>
     `/api/resume-copilot/sessions/${sessionId}/tier-fit${q}`,
   );
 }
+
+// ── Platforms-by-tier skeleton (GET /api/resume-copilot/sessions/{id}/platforms-by-tier) ──
+
+export interface PlatformSkeletonJob {
+  id: number;
+  title: string;
+  detail_url?: string;
+}
+
+export interface PlatformSkeletonCompany {
+  name: string;
+  band: string;
+  has_live: boolean;
+  n_live: number;
+  n_insights: number;
+  match: '强匹配' | '可迁移' | '有差距' | string;
+  jobs: PlatformSkeletonJob[];
+  /** 往年招聘窗口文字 (骨架公司) */
+  hiring_window?: string;
+}
+
+export interface PlatformSkeletonTier {
+  tier: number;
+  band: string;
+  role: 'match' | 'stretch' | 'floor';
+  label: string;
+  companies: PlatformSkeletonCompany[];
+}
+
+export interface PlatformSkeleton {
+  sub_cat: string;
+  has_skeleton: boolean;
+  tiers: PlatformSkeletonTier[];
+}
+
+export function getPlatformsByTier(
+  sessionId: number,
+  subCat?: string,
+): Promise<PlatformSkeleton> {
+  const q = subCat ? `?sub_cat=${encodeURIComponent(subCat)}` : '';
+  return requestJson<PlatformSkeleton>(
+    `/api/resume-copilot/sessions/${sessionId}/platforms-by-tier${q}`,
+  );
+}

@@ -6461,3 +6461,627 @@ details[open] .workspace-hifi__tier-reason-summary::before {
   color: var(--olive, #6b7455);
   line-height: 1.4;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Phase G 梯队骨架视图 — PlatformTierGroup + TierCompanyCard
+ * (2026-06-01) scope .workspace-hifi, token from hifi-tokens.css
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/* ── 顶部 intro 条 ────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-intro-bar {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+  background: var(--ivory);
+  border-radius: var(--r-md);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 11.5px;
+  color: var(--olive);
+  line-height: 1.5;
+}
+
+.workspace-hifi__tier-intro-icon {
+  color: var(--terracotta);
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.workspace-hifi__tier-intro-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__tier-intro-live {
+  color: var(--terracotta);
+}
+
+.workspace-hifi__tier-intro-none {
+  color: var(--stone);
+}
+
+/* ── 底部 footer ──────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-footer {
+  text-align: center;
+  padding: 8px;
+  font-size: 11.5px;
+  color: var(--stone);
+  margin-top: 4px;
+}
+
+/* ── 无骨架退化提示 ───────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-no-skeleton-notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: var(--amber-bg);
+  border-radius: var(--r-md);
+  box-shadow: 0 0 0 1px #ecdfa4;
+  font-size: 11.5px;
+  color: var(--amber-fg);
+  line-height: 1.5;
+}
+
+.workspace-hifi__tier-no-skeleton-icon {
+  flex-shrink: 0;
+}
+
+/* ── 梯队分组容器 ────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 14px;
+}
+
+/* ── 梯队阶梯竖线 (spine) ────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group-spine {
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-warm);
+}
+
+.workspace-hifi__tier-group-spine.is-first {
+  top: 16px;
+}
+
+.workspace-hifi__tier-group-spine.is-last {
+  height: 18px;
+  bottom: auto;
+}
+
+/* ── 梯队节点圆圈 ────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group-node {
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.workspace-hifi__tier-group-node--match {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--library-rail), 0 0 0 4px var(--terracotta);
+}
+
+.workspace-hifi__tier-group-node--stretch {
+  background: var(--amber-bg);
+  color: var(--amber-fg);
+  box-shadow: 0 0 0 3px var(--library-rail), 0 0 0 4px #ecdfa4;
+}
+
+.workspace-hifi__tier-group-node--floor {
+  background: var(--warm-sand);
+  color: var(--stone);
+  box-shadow: 0 0 0 3px var(--library-rail), 0 0 0 4px var(--ring-warm);
+}
+
+/* ── 梯队 header ─────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+  padding: 4px 0;
+  border-radius: var(--r-md);
+}
+
+.workspace-hifi__tier-group-header--match {
+  padding: 6px 10px;
+  background: var(--terracotta-wash);
+  box-shadow: 0 0 0 1px #eccfb6;
+}
+
+.workspace-hifi__tier-group-header--stretch,
+.workspace-hifi__tier-group-header--floor {
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-hifi__tier-group-label {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.workspace-hifi__tier-group-band {
+  font-size: 12px;
+  color: var(--olive);
+}
+
+.workspace-hifi__tier-group-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--stone);
+  font-family: var(--font-mono);
+}
+
+.workspace-hifi__tier-group-count-live {
+  color: var(--terracotta);
+}
+
+/* ── role pill ───────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.workspace-hifi__tier-group-pill--match {
+  background: var(--terracotta);
+  color: #fff;
+}
+
+.workspace-hifi__tier-group-pill--stretch {
+  background: var(--amber-bg);
+  color: var(--amber-fg);
+  box-shadow: 0 0 0 1px #ecdfa4;
+}
+
+.workspace-hifi__tier-group-pill--floor {
+  background: var(--warm-sand);
+  color: var(--stone);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+.workspace-hifi__tier-group-pill-mark {
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* ── 梯队卡片列表区 ──────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-group-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── 公司卡片 (dual mode) ────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-card {
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  animation: workspace-rec-fade-in 240ms ease-out;
+}
+
+.workspace-hifi__tier-company-card.has-live {
+  background: var(--ivory);
+}
+
+.workspace-hifi__tier-company-card.no-live {
+  background: var(--parchment);
+}
+
+.workspace-hifi__tier-company-card.is-dimmed {
+  opacity: 0.82;
+}
+
+.workspace-hifi__tier-company-card.is-expanded {
+  border-color: var(--terracotta-ring);
+  box-shadow: 0 0 0 1px var(--terracotta-ring), var(--sh-whisper);
+  opacity: 1;
+}
+
+.workspace-hifi__tier-company-card:hover {
+  border-color: var(--ring-warm);
+}
+
+/* ── 卡片 header ─────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  min-width: 0;
+}
+
+.workspace-hifi__tier-company-header:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: -2px;
+}
+
+/* ── Logo bubble ─────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--terracotta-wash);
+  color: var(--terracotta);
+  box-shadow: 0 0 0 1px #eccfb6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ── Info block ──────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.workspace-hifi__tier-company-headline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.workspace-hifi__tier-company-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__tier-company-chevron-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  color: var(--stone);
+}
+
+.workspace-hifi__tier-company-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Live / no-live badge ────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.workspace-hifi__tier-live-badge--live {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(201, 100, 66, 0.1);
+}
+
+.workspace-hifi__tier-live-badge--none {
+  background: var(--ivory);
+  color: var(--stone);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-weight: 500;
+}
+
+.workspace-hifi__tier-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.workspace-hifi__tier-live-dot--none {
+  background: var(--ring-deep);
+}
+
+/* ── Insight badge ───────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-insight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--ivory);
+  color: var(--ink-soft);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: box-shadow 120ms ease, background 120ms ease, color 120ms ease;
+  margin-left: auto;
+}
+
+.workspace-hifi__tier-insight-badge:hover {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  box-shadow: 0 0 0 1px var(--terracotta);
+}
+
+/* ── 收起态 intro ────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-intro {
+  font-size: 12px;
+  color: var(--olive);
+  line-height: 1.5;
+}
+
+.workspace-hifi__tier-intro-mark {
+  color: var(--stone);
+}
+
+.workspace-hifi__tier-intro-mark.is-live {
+  color: var(--terracotta);
+}
+
+/* ── 展开区域 ────────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-expanded {
+  padding: 12px 12px 12px;
+  border-top: 1px dashed var(--border-warm);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* ── "为你定制" 叙事块 (hasLive) ────────────────────────────────────────── */
+
+.workspace-hifi__tier-customised-block {
+  padding: 11px 12px;
+  background: var(--terracotta-wash);
+  border-radius: var(--r-md);
+  border: 1px solid #eccfb6;
+}
+
+.workspace-hifi__tier-customised-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.workspace-hifi__tier-customised-icon {
+  color: var(--terracotta);
+  font-size: 14px;
+}
+
+.workspace-hifi__tier-customised-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--terracotta-strong);
+  letter-spacing: 0.04em;
+}
+
+.workspace-hifi__tier-customised-meta {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--olive);
+}
+
+.workspace-hifi__tier-customised-body {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* ── 在招岗位列表 ────────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workspace-hifi__tier-job-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  background: var(--ivory);
+  font-size: 12.5px;
+  line-height: 1.3;
+  transition: box-shadow 120ms ease, background 120ms ease;
+}
+
+.workspace-hifi__tier-job-row:hover {
+  background: var(--terracotta-wash);
+  box-shadow: 0 0 0 1px var(--terracotta-ring);
+}
+
+.workspace-hifi__tier-job-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-hifi__tier-job-arrow {
+  flex-shrink: 0;
+  color: var(--stone);
+  display: inline-flex;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.workspace-hifi__tier-job-row:hover .workspace-hifi__tier-job-arrow {
+  opacity: 1;
+  color: var(--terracotta);
+}
+
+/* ── 往年招聘窗口块 (no-live) ────────────────────────────────────────────── */
+
+.workspace-hifi__tier-window-block {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--warm-sand);
+  border-radius: var(--r-md);
+}
+
+.workspace-hifi__tier-window-icon {
+  color: var(--stone);
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.workspace-hifi__tier-window-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-hifi__tier-window-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__tier-window-text {
+  font-size: 12px;
+  color: var(--olive);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+/* ── 三维情报 mini (no-live) ─────────────────────────────────────────────── */
+
+.workspace-hifi__tier-intel-mini {
+  /* container for placeholder / count note */
+}
+
+.workspace-hifi__tier-intel-mini-note {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  padding: 8px 10px;
+  background: var(--ivory);
+  border-radius: var(--r-md);
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+.workspace-hifi__tier-intel-mini-count {
+  font-weight: 700;
+  color: var(--terracotta-strong);
+}
+
+.workspace-hifi__tier-intel-mini-empty {
+  font-size: 12px;
+  color: var(--stone);
+  line-height: 1.55;
+  padding: 9px 11px;
+  background: var(--warm-sand);
+  border-radius: var(--r-md);
+}
+
+/* ── 卡底 actions 行 ─────────────────────────────────────────────────────── */
+
+.workspace-hifi__tier-company-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__tier-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.workspace-hifi__tier-action-btn--primary {
+  background: var(--terracotta);
+  color: #fff;
+  border-color: var(--terracotta);
+}
+
+.workspace-hifi__tier-action-btn--primary:hover {
+  background: var(--terracotta-strong);
+  border-color: var(--terracotta-strong);
+}
+
+.workspace-hifi__tier-action-btn--ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--border-warm);
+}
+
+.workspace-hifi__tier-action-btn--ghost:hover {
+  background: var(--library-rail);
+  border-color: var(--ring-warm);
+}

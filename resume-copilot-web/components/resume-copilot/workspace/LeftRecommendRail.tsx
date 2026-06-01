@@ -30,13 +30,16 @@ import type {
 import {
   getResumeCopilotJobMode,
   getResumeCopilotPlatforms,
+  getPlatformsByTier,
   getTierFit,
   postRejectRecommendation,
+  type PlatformSkeleton,
   type RecommendRejectReason,
   type TierFit,
 } from '../api';
 import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
 import { PlatformCard } from './recommend/PlatformCard';
+import { PlatformTierGroup } from './recommend/PlatformTierGroup';
 import { RecommendCard } from './recommend/RecommendCard';
 import { TierLadderStrip } from './recommend/TierLadderStrip';
 import { useFlipAnimation } from './recommend/use-flip-animation';
@@ -98,8 +101,12 @@ export function LeftRecommendRail({
   // Platform view state (Phase 4)
   const [viewMode, setViewMode] = useState<'platform' | 'campus' | 'intern'>('platform');
   const [platforms, setPlatforms] = useState<ResumeRecommendationPlatform[] | null>(null);
-  const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
+  // Phase G tier skeleton — multi-card expand uses Set (not single string)
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(() => new Set());
   const platformFetchingRef = useRef(false);
+  // Phase G梯队骨架 state
+  const [platformSkeleton, setPlatformSkeleton] = useState<PlatformSkeleton | null>(null);
+  const skeletonFetchingRef = useRef(false);
   // Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner
   const [jobMode, setJobMode] = useState<ResumeJobMode | null>(null);
   const jobModeFetchingRef = useRef(false);
@@ -123,11 +130,12 @@ export function LeftRecommendRail({
     setExpandedJobId(null);
     setBannerDismissed(false);
     setPlatforms(null);
-    setExpandedCompany(null);
+    setExpandedCompanies(new Set());
     setJobMode(null);
     setModeBannerDismissed(false);
     setTierFit(null);
     setTierFitSubCat(null);
+    setPlatformSkeleton(null);
   }
 
   const flip = useFlipAnimation<string>();
@@ -211,6 +219,27 @@ export function LeftRecommendRail({
     return () => { controller.abort(); };
   }, [sid, recommendations, jobMode, tierFit, tierFitSubCat]);
 
+  // Phase G — 拉梯队骨架 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
+  useEffect(() => {
+    if (!sid) return;
+    const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
+    if (!recReady) return;
+    if (skeletonFetchingRef.current) return;
+    if (platformSkeleton !== null) return;
+    const subCat = jobMode?.primary_sub_cat || undefined;
+    skeletonFetchingRef.current = true;
+    const controller = new AbortController();
+    getPlatformsByTier(sid, subCat)
+      .then((r) => {
+        if (!controller.signal.aborted) setPlatformSkeleton(r);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setPlatformSkeleton(null);
+      })
+      .finally(() => { skeletonFetchingRef.current = false; });
+    return () => { controller.abort(); };
+  }, [sid, recommendations, jobMode, platformSkeleton]);
+
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
   // 已隐藏数对比。banner 字符串完全是 derived value — 不在 effect 里 setState。
@@ -245,6 +274,19 @@ export function LeftRecommendRail({
     },
     [],
   );
+
+  // Phase G 梯队骨架 — 多卡展开/收起 (Set, not mutual-exclusive)
+  const handleCompanyToggle = useCallback((companyName: string) => {
+    setExpandedCompanies((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyName)) {
+        next.delete(companyName);
+      } else {
+        next.add(companyName);
+      }
+      return next;
+    });
+  }, []);
 
   const sessionId = session?.id;
   const handleReject = useCallback(
@@ -284,7 +326,10 @@ export function LeftRecommendRail({
   const sessionReady = session?.has_recommendations === true;
   const isGeneratingRecommendations = session?.recommendation_status === 'running';
   const jobsCount = viewMode === 'campus' ? campusItems.length : internItems.length;
-  const totalCount = viewMode === 'platform' ? (platforms?.length ?? 0) : jobsCount;
+  const platformTotalCount = platformSkeleton?.has_skeleton
+    ? platformSkeleton.tiers.reduce((acc, t) => acc + t.companies.length, 0)
+    : (platforms?.length ?? 0);
+  const totalCount = viewMode === 'platform' ? platformTotalCount : jobsCount;
   const isUnderfilled = sessionReady && viewMode !== 'platform' && jobsCount > 0 && jobsCount < 5;
   const isEmpty = sessionReady && viewMode !== 'platform' && jobsCount === 0;
 
@@ -435,63 +480,119 @@ export function LeftRecommendRail({
         {/* ── Platform view ─────────────────────────────────────────────── */}
         {sessionReady && viewMode === 'platform' && (
           <div className="workspace-hifi__rec-list" role="list">
-            {/* 档次阶梯条 — 平台 tab 顶部 */}
+            {/* 档次阶梯条 — 平台 tab 顶部 (保留作"一句话定位+理由折叠") */}
             {tierFit && <TierLadderStrip data={tierFit} />}
-            {platforms === null && (
+
+            {/* ── 梯队骨架视图 (has_skeleton=true) ── */}
+            {platformSkeleton === null && (
               <div className="workspace-hifi__rec-empty">
                 <CoachThinkingIndicator
                   active
-                  label="正在聚合平台…"
+                  label="正在加载梯队骨架…"
                   orbSize={96}
                   minVisibleMs={0}
                 />
               </div>
             )}
-            {platforms !== null && platforms.filter((p) => !p.is_fallback).map((p, idx) => (
-              <div key={p.company} className="workspace-hifi__rec-list-item" role="listitem">
-                <PlatformCard
-                  platform={p}
-                  rank={idx + 1}
-                  isExpanded={expandedCompany === p.company}
-                  onToggle={() =>
-                    setExpandedCompany((prev) => (prev === p.company ? null : p.company))
-                  }
-                  sessionId={sid}
-                  onOpenIntel={onOpenIntel}
-                />
-              </div>
-            ))}
-            {platforms !== null && platforms.some((p) => p.is_fallback) && (
-              <div className="workspace-hifi__rec-fallback-divider" role="presentation">
-                <span className="workspace-hifi__rec-fallback-divider-label">
-                  你的目标公司 · 本季暂未开新岗，按招聘窗口提前准备
-                </span>
-              </div>
-            )}
-            {platforms !== null && platforms.filter((p) => p.is_fallback).map((p, idx) => {
-              const liveCount = platforms.filter((x) => !x.is_fallback).length;
-              return (
-                <div key={`fb-${p.company}`} className="workspace-hifi__rec-list-item" role="listitem">
-                  <PlatformCard
-                    platform={p}
-                    rank={liveCount + idx + 1}
-                    isExpanded={expandedCompany === p.company}
-                    onToggle={() =>
-                      setExpandedCompany((prev) => (prev === p.company ? null : p.company))
-                    }
-                    sessionId={sid}
-                    onOpenIntel={onOpenIntel}
-                  />
+
+            {platformSkeleton !== null && platformSkeleton.has_skeleton && platformSkeleton.tiers.length > 0 && (
+              <>
+                {/* 顶部 intro 条 */}
+                <div className="workspace-hifi__tier-intro-bar" role="note">
+                  <span className="workspace-hifi__tier-intro-icon" aria-hidden>
+                    {I.radar(15)}
+                  </span>
+                  <div className="workspace-hifi__tier-intro-text">
+                    <strong>{platformSkeleton.sub_cat}</strong> 平台格局 · 按梯队展示。
+                    <span className="workspace-hifi__tier-intro-live"> 在招</span>{' '}
+                    与 <span className="workspace-hifi__tier-intro-none">暂无对口岗</span> 的头部公司都在，匹配档已高亮。
+                  </div>
                 </div>
-              );
-            })}
-            {platforms !== null && platforms.length === 0 && (
-              <div className="workspace-hifi__rec-empty">
-                <span className="workspace-hifi__rec-empty-title">暂无平台数据</span>
-                <span className="workspace-hifi__rec-empty-hint">
-                  切到校招 / 实习 tab 查看原始推荐列表。
-                </span>
-              </div>
+
+                {/* 梯队分组 */}
+                {platformSkeleton.tiers.map((tier, idx) => (
+                  <PlatformTierGroup
+                    key={tier.tier}
+                    tier={tier}
+                    expandedCompanies={expandedCompanies}
+                    onToggle={handleCompanyToggle}
+                    onOpenIntel={onOpenIntel ? (company, ctx) =>
+                      onOpenIntel(company, { xhsCount: ctx?.n_insights ?? null })
+                      : undefined
+                    }
+                    isFirst={idx === 0}
+                    isLast={idx === platformSkeleton.tiers.length - 1}
+                  />
+                ))}
+
+                {/* 底部说明 */}
+                <div className="workspace-hifi__tier-footer" role="contentinfo">
+                  骨架来自 GT 公司库 · 在招标记每日刷新
+                </div>
+              </>
+            )}
+
+            {/* ── 无骨架退化: 扁平在招列表 (has_skeleton=false) ── */}
+            {platformSkeleton !== null && !platformSkeleton.has_skeleton && (
+              <>
+                <div className="workspace-hifi__tier-no-skeleton-notice" role="note">
+                  <span className="workspace-hifi__tier-no-skeleton-icon" aria-hidden>📋</span>
+                  <span>该赛道梯队数据整理中，先按在招平台展示。</span>
+                </div>
+                {/* 退化回原有 platforms 扁平列表 */}
+                {platforms === null && (
+                  <div className="workspace-hifi__rec-empty">
+                    <CoachThinkingIndicator
+                      active
+                      label="正在聚合平台…"
+                      orbSize={96}
+                      minVisibleMs={0}
+                    />
+                  </div>
+                )}
+                {platforms !== null && platforms.filter((p) => !p.is_fallback).map((p, idx) => (
+                  <div key={p.company} className="workspace-hifi__rec-list-item" role="listitem">
+                    <PlatformCard
+                      platform={p}
+                      rank={idx + 1}
+                      isExpanded={expandedCompanies.has(p.company)}
+                      onToggle={() => handleCompanyToggle(p.company)}
+                      sessionId={sid}
+                      onOpenIntel={onOpenIntel}
+                    />
+                  </div>
+                ))}
+                {platforms !== null && platforms.some((p) => p.is_fallback) && (
+                  <div className="workspace-hifi__rec-fallback-divider" role="presentation">
+                    <span className="workspace-hifi__rec-fallback-divider-label">
+                      你的目标公司 · 本季暂未开新岗，按招聘窗口提前准备
+                    </span>
+                  </div>
+                )}
+                {platforms !== null && platforms.filter((p) => p.is_fallback).map((p, idx) => {
+                  const liveCount = platforms.filter((x) => !x.is_fallback).length;
+                  return (
+                    <div key={`fb-${p.company}`} className="workspace-hifi__rec-list-item" role="listitem">
+                      <PlatformCard
+                        platform={p}
+                        rank={liveCount + idx + 1}
+                        isExpanded={expandedCompanies.has(p.company)}
+                        onToggle={() => handleCompanyToggle(p.company)}
+                        sessionId={sid}
+                        onOpenIntel={onOpenIntel}
+                      />
+                    </div>
+                  );
+                })}
+                {platforms !== null && platforms.length === 0 && (
+                  <div className="workspace-hifi__rec-empty">
+                    <span className="workspace-hifi__rec-empty-title">暂无平台数据</span>
+                    <span className="workspace-hifi__rec-empty-hint">
+                      切到校招 / 实习 tab 查看原始推荐列表。
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
