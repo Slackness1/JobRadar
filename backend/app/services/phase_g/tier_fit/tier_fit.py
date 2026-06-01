@@ -167,21 +167,12 @@ def _profile_to_dict(profile: object) -> dict:
 # ---------------------------------------------------------------------------
 
 def _make_band_lookup(db: Session) -> Callable[[str], str]:
-    """返回一个 company → band 的查询函数（走 jobs.institution_tier）。"""
-    from app.services.phase_g.tier_fit.tier_ladder import band_of
+    """返回一个 company → band 的查询函数。
+    使用 resolve_company_band：归一公司名 + GT 库 + 关键词兜底 + jobs 库。"""
+    from app.services.phase_g.tier_fit.tier_ladder import resolve_company_band
 
     def _lookup(company: str) -> str:
-        try:
-            row = db.execute(
-                text("SELECT institution_tier FROM jobs "
-                     "WHERE company = :c AND institution_tier IS NOT NULL LIMIT 1"),
-                {"c": company},
-            ).fetchone()
-            if row and row[0]:
-                return band_of(row[0])
-        except Exception:
-            pass
-        return "腰部"
+        return resolve_company_band(db, company)
 
     return _lookup
 
