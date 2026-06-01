@@ -23,10 +23,10 @@
 - **遗留**:档次归一表(63 种机构层级→三档)已导一份 `tier_rank_review` 到 sync 文件夹,**请过一眼有没有判错的档**,告诉我哪条挪哪档我改。全在 `phase_g_v2_taxonomy_fix` 分支,prod 未动。下一步可接 9 persona 批量验收 + 部署 dev VPS 人工过浏览器。
 
 ### 网站设计-devvpstmux · 🚀 生产上线 — 情报卡 + 档次定位 + phase_g_v2 全量推生产 + dev DB 整库迁移
-- **干了什么**:把 `phase_g_v2_taxonomy_fix` 分支(领先生产 Phase 8 线一段,干净快进 d616811→79949ca)合 main 推生产。关键发现:生产 DB 的 enrich/情报/知识层全是 0(代码上去也是空壳),于是把 dev DB(超集:36281 岗 + 池 873 + 情报 2083 + 知识 27)整库快照迁到生产(标准 dump+restore,生产原库已备份可回退)。
+- **干了什么**:把 `phase_g_v2_taxonomy_fix` 分支(干净快进 d616811→79949ca)合 main 推生产 + 重建前端。关键发现:生产 DB 的 enrich/情报/知识层全是 0(代码上去也是空壳),把 dev DB(超集:12.2 万岗 + 池 2536 + 情报 2083)整库迁到生产。⚠️ 第一次用 `.backup` 边写边拷的快照传过去**损坏**("malformed")、生产 502 —— **立即回滚原库恢复**;改用 `VACUUM INTO` 做原子快照 + 本地/生产双端 md5 + `PRAGMA integrity_check` 校验通过后才换库,**第二次成功**。
 - **用户体验变化**:生产站 jobcopilot.top 现在真有数据 + 两个新功能上线——岗位情报卡(定位+门槛/薪酬/前景三维+可信度徽章+真实 UGC 原话)、平台栏学生档次定位(稳/匹配/冲刺)。实测国金证券情报卡返回 16 条 UGC、tier-fit 正常出三档。
-- **测试**:标准冒烟全过(/ 200、/upload 200、/api/health 200、demo PATCH 403);新端点 /api/job-intel/card + /sessions/{id}/tier-fit 公网真跑 HTTP 200 带真实数据;启动无报错、migration 自动跑(source_score 列 + 2083 回填)。回退点:生产原库 `jobradar.db.bak-deploy-tierfit-20260601` + `pre-import-*`,代码可 revert 到 d616811。
-- **遗留**:生产现在用的是 dev 库快照(含 dev 的测试 session);若有真实用户数据需保留要另说。后续生产爬虫新岗仍需定期跑 enrich(未挂自动 hook)。
+- **测试**:标准冒烟全过(/ 200、/api/health 200、demo PATCH 403);新端点 /api/job-intel/card + /sessions/{id}/tier-fit 公网真跑 HTTP 200 带真实数据;启动无报错。**回退点**:生产原库 `jobradar.db.bak-deploy-tierfit-20260601` + `jobradar.db.rollback-good-*`,代码可 revert 到 d616811。
+- **教训 + 遗留**:跨机迁 SQLite 必须 `VACUUM INTO` + 完整性校验,**绝不**直接拷正在被写的库。生产现在用的是 dev 库快照(含 dev 测试 session);真实用户数据在备份里。生产爬虫新岗仍需定期跑 enrich(未挂自动 hook)。损坏文件 `jobradar.db.MALFORMED` 待清理。
 
 ### 网站设计-devvpstmux · 档次定位 — 6 个投研 persona 实测验收 + 修实习公司识别
 - **干了什么**:用 6 个投研 SAIF persona(公募研究/卖方TMT/投行/量化)真调强模型对照人工 gold 梯队验收。发现并修了一个后台识别问题——学生简历里"中信证券研究所·消费组""九坤投资·中频策略组"这种带部门后缀的写法,之前精确匹配岗位库失败、顶级实习被误判最低档;升级成"去后缀+查重点公司库+顶级机构关键词兜底"。
