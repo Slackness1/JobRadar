@@ -1931,6 +1931,55 @@ def get_resume_copilot_tier_fit(
     )
 
 
+@router.get('/sessions/{session_id}/platforms-by-tier')
+def get_platforms_by_tier(
+    session_id: int,
+    sub_cat: str | None = None,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> dict:
+    """返回指定赛道的梯队骨架：GT 重点公司按头部/次头部/腰部分档，
+    叠加"是否有在招对口岗 + 在招岗数 + 同辈情报条数"。
+
+    GT 公司即使暂无在招对口岗也会展示，确保骨架完整。
+    sub_cat 不传时自动从 session 推断第一个偏好赛道。
+    """
+    from app.services.phase_g.tier_fit.platform_skeleton import build_platform_skeleton
+    from app.services.phase_g.tier_fit.tier_fit import build_tier_fit
+    from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    profile, prefs = _load_profile_and_prefs(db, session_id)
+
+    if not sub_cat:
+        subs = _v2_extract_preferred_sub_cats(profile, prefs)
+        sub_cat = subs[0] if subs else None
+
+    if not sub_cat:
+        return {"session_id": session_id, "sub_cat": None, "has_skeleton": False, "tiers": []}
+
+    # 尝试从 tier-fit 缓存读 match_band（use_cache=True，不触发 LLM）
+    match_band: str | None = None
+    try:
+        fit_result = build_tier_fit(
+            db, session_id, sub_cat,
+            profile=profile,
+            prefs=prefs,
+            llm_fn=deepseek_json_fn,
+            use_cache=True,
+        )
+        fit = fit_result.get("fit") or {}
+        match_band = fit.get("match_band")
+    except Exception:
+        pass  # match_band 可空，不影响骨架展示
+
+    skeleton = build_platform_skeleton(db, sub_cat, match_band=match_band)
+    skeleton["session_id"] = session_id
+    return skeleton
+
+
 @router.delete(
     '/sessions/{session_id}/memory/{entry_id}',
     status_code=status.HTTP_204_NO_CONTENT,
