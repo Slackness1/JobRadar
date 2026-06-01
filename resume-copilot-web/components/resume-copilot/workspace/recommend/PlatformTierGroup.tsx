@@ -15,7 +15,7 @@
  */
 
 import { I } from '@/components/hifi/hifi-primitives';
-import type { PlatformSkeletonCompany, PlatformSkeletonTier } from '../../api';
+import type { PlatformSkeletonCompany, PlatformSkeletonIntel, PlatformSkeletonTier } from '../../api';
 
 // ── role meta ────────────────────────────────────────────────────────────────
 
@@ -59,6 +59,73 @@ function matchSuffix(kind: string): string {
   if (kind === '强匹配') return 'strong';
   if (kind === '可迁移') return 'transfer';
   return 'gap';
+}
+
+// ── IntelMini — 三维情报展示 (对齐设计稿 HFIntelMini) ───────────────────────
+
+interface IntelMiniRowProps {
+  label: string;
+  empty?: boolean;
+  children: React.ReactNode;
+}
+
+function IntelMiniRow({ label, empty, children }: IntelMiniRowProps) {
+  return (
+    <div
+      className={[
+        'workspace-hifi__intel-mini-row',
+        empty ? 'workspace-hifi__intel-mini-row--empty' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <span className={`workspace-hifi__intel-mini-label${empty ? ' workspace-hifi__intel-mini-label--empty' : ''}`}>
+        {label}
+      </span>
+      <div className="workspace-hifi__intel-mini-content">{children}</div>
+    </div>
+  );
+}
+
+function IntelMini({ intel, nInsights }: { intel: PlatformSkeletonIntel; nInsights: number }) {
+  const compEmpty = intel.comp_empty;
+  const requirements = intel.threshold?.requirements ?? [];
+  const prospectsText = intel.outlook?.summary ?? null;
+  const compSummary = intel.compensation?.summary ?? null;
+
+  return (
+    <div className="workspace-hifi__intel-mini">
+      {/* 门槛 */}
+      {requirements.length > 0 && (
+        <IntelMiniRow label="门槛">
+          <div className="workspace-hifi__intel-mini-tags">
+            {requirements.map((r) => (
+              <span key={r} className="workspace-hifi__intel-mini-tag">{r}</span>
+            ))}
+          </div>
+        </IntelMiniRow>
+      )}
+
+      {/* 前景 */}
+      {prospectsText && (
+        <IntelMiniRow label="前景">
+          <span className="workspace-hifi__intel-mini-quote">&ldquo;{prospectsText}&rdquo;</span>
+        </IntelMiniRow>
+      )}
+
+      {/* 待遇 — 诚实留白沉底 */}
+      {compEmpty ? (
+        <IntelMiniRow label="待遇" empty>
+          同龄人讨论中暂未提及
+          <span className="workspace-hifi__intel-mini-empty-sub">
+            {intel.comp_empty_note || `${nInsights} 条情报集中在门槛 / 前景`} · 不编造数字
+          </span>
+        </IntelMiniRow>
+      ) : (
+        <IntelMiniRow label="待遇">{compSummary}</IntelMiniRow>
+      )}
+    </div>
+  );
 }
 
 // ── Company card (dual mode) ─────────────────────────────────────────────────
@@ -273,21 +340,14 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: Compan
                 </div>
               </div>
 
-              {/* Intel mini (3-dim placeholder) */}
-              <div className="workspace-hifi__tier-intel-mini">
-                {hasIntel ? (
-                  <div className="workspace-hifi__tier-intel-mini-note">
-                    <span className="workspace-hifi__tier-intel-mini-count">
-                      {company.n_insights} 条同辈情报
-                    </span>
-                    {' '}— 包含门槛 / 前景等维度，点&ldquo;看情报&rdquo;查看详情。
-                  </div>
-                ) : (
-                  <div className="workspace-hifi__tier-intel-mini-empty">
-                    暂无同辈情报 — 这家是按赛道梯队补全的骨架公司，等到有同学讨论会自动汇入。
-                  </div>
-                )}
-              </div>
+              {/* Intel mini (三维情报) */}
+              {company.intel != null ? (
+                <IntelMini intel={company.intel} nInsights={company.n_insights} />
+              ) : (
+                <div className="workspace-hifi__tier-intel-mini-empty">
+                  暂无同辈情报 — 这家是按赛道梯队补全的骨架公司，等到有同学讨论会自动汇入。
+                </div>
+              )}
 
               {/* Actions */}
               <div className="workspace-hifi__tier-company-actions">

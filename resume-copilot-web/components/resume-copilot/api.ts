@@ -965,6 +965,14 @@ export interface PlatformSkeletonJob {
   detail_url?: string;
 }
 
+export interface PlatformSkeletonIntel {
+  threshold: { hard: string[]; soft: string[]; requirements: string[] };
+  compensation: { summary: string | null };
+  comp_empty: boolean;
+  comp_empty_note: string;
+  outlook: { summary: string | null };
+}
+
 export interface PlatformSkeletonCompany {
   name: string;
   band: string;
@@ -974,7 +982,9 @@ export interface PlatformSkeletonCompany {
   match: '强匹配' | '可迁移' | '有差距' | string;
   jobs: PlatformSkeletonJob[];
   /** 往年招聘窗口文字 (骨架公司) */
-  hiring_window?: string;
+  hiring_window?: string | null;
+  /** 三维情报 (缓存命中时有值；null 表示未预热，显占位) */
+  intel?: PlatformSkeletonIntel | null;
 }
 
 export interface PlatformSkeletonTier {

@@ -1,10 +1,11 @@
 """梯队骨架构建器：给一个赛道，返回 GT 重点公司按头部/次头部/腰部分档，
-每家叠加"是否有在招对口岗 + 在招岗数 + 同辈情报条数"。
+每家叠加"是否有在招对口岗 + 在招岗数 + 同辈情报条数 + 三维情报（读缓存，不触发 LLM）"。
 
 GT 骨架公司即使没有在招对口岗也要展示，确保前端梯队视图骨架完整。
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from functools import lru_cache
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 _GT_DATA_PATH = (
     Path(__file__).resolve().parents[4] / "data" / "ground_truth_companies_v1.json"
+)
+_COMPANY_CACHE_DIR = (
+    Path(__file__).resolve().parents[4] / "data" / "_intel_cache" / "company_dims"
 )
 
 _BAND_TIER_NUM = {"头部": 1, "次头部": 2, "腰部": 3}
@@ -91,6 +95,62 @@ def _fetch_n_insights(db: Session, company_name: str) -> int:
         return 0
 
 
+def _read_company_intel_cache(company_name: str) -> dict | None:
+    """从磁盘读取公司级三维情报缓存（只读，不触发 LLM）。
+
+    缓存由 job_card._company_dims 写入，key = md5(company_name)。
+    命中 → 返回三维结构；未命中 → 返回 None（前端显占位）。
+    """
+    try:
+        key = hashlib.md5(company_name.encode()).hexdigest()
+        cache_path = _COMPANY_CACHE_DIR / f"{key}.json"
+        if cache_path.exists():
+            return json.loads(cache_path.read_text(encoding="utf-8"))
+    except Exception:
+        logger.debug("Failed to read company intel cache for %s", company_name)
+    return None
+
+
+def _build_intel_block(dims: dict, n_insights: int) -> dict:
+    """把 company_dims 缓存结构转为前端 HFIntelMini 需要的格式。
+
+    输入维度结构（来自 dimension_extract._EMPTY 兼容格式）：
+      threshold: {hard:[], soft:[], support_ids:[]}
+      compensation: {summary:str|None, support_ids:[]}
+      outlook: {summary:str|None, support_ids:[]}
+
+    输出：
+      {
+        threshold: {hard:[], soft:[]},
+        compensation: {summary:str|None},
+        comp_empty: bool,
+        comp_empty_note: str,
+        outlook: {summary:str|None},
+      }
+    """
+    th = dims.get("threshold") or {}
+    comp = dims.get("compensation") or {}
+    out = dims.get("outlook") or {}
+
+    hard = th.get("hard") or []
+    soft = th.get("soft") or []
+    requirements = hard + soft  # 合并为前端 requirements 标签云
+
+    comp_summary = comp.get("summary") or None
+    out_summary = out.get("summary") or None
+
+    comp_empty = not comp_summary
+    comp_empty_note = f"{n_insights} 条情报集中在门槛 / 前景" if n_insights > 0 else "暂未收录薪酬数据"
+
+    return {
+        "threshold": {"hard": hard, "soft": soft, "requirements": requirements},
+        "compensation": {"summary": comp_summary},
+        "comp_empty": comp_empty,
+        "comp_empty_note": comp_empty_note,
+        "outlook": {"summary": out_summary},
+    }
+
+
 def build_platform_skeleton(
     db: Session,
     sub_cat: str,
@@ -151,7 +211,7 @@ def build_platform_skeleton(
         # 归入对应梯队
         band_groups[band].append({"_gt_idx": gt_idx, "name": name, "band": band})
 
-    # 2. 对每家公司叠加在招信息 + 情报数
+    # 2. 对每家公司叠加在招信息 + 情报数 + 三维情报（只读缓存，不触发 LLM）
     for band in _BAND_ORDER:
         for co in band_groups[band]:
             jobs = _fetch_live_jobs(db, co["name"], sub_cat)
@@ -161,6 +221,11 @@ def build_platform_skeleton(
             co["jobs"] = jobs
             co["n_insights"] = n_insights
             co["match"] = "强匹配" if jobs else "可迁移"
+            # 三维情报：读磁盘缓存，未命中给 null（前端显占位，不阻塞 API）
+            dims = _read_company_intel_cache(co["name"])
+            co["intel"] = _build_intel_block(dims, n_insights) if dims is not None else None
+            # 招聘窗口：GT json 暂无此字段，给 null（前端有 fallback 文案）
+            co["hiring_window"] = None
 
     # 3. 梯队内排序：有在招岗 → n_insights 降序 → GT 原顺序（_gt_idx）
     for band in _BAND_ORDER:

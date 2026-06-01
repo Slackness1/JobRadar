@@ -107,6 +107,8 @@ export function LeftRecommendRail({
   // Phase G梯队骨架 state
   const [platformSkeleton, setPlatformSkeleton] = useState<PlatformSkeleton | null>(null);
   const skeletonFetchingRef = useRef(false);
+  // 已拉过骨架的 sub_cat（undefined=未初始化, null=无 sub_cat, string=已拉过的赛道）
+  const skeletonFetchedSubCatRef = useRef<string | null | undefined>(undefined);
   // Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner
   const [jobMode, setJobMode] = useState<ResumeJobMode | null>(null);
   const jobModeFetchingRef = useRef(false);
@@ -137,6 +139,8 @@ export function LeftRecommendRail({
     setTierFitSubCat(null);
     setPlatformSkeleton(null);
   }
+  // recommendations 变化时通过 setPlatformSkeleton(null) 已触发重拉，
+  // skeletonFetchedSubCatRef 的 reset 在 skeleton useEffect 内部处理（仅在 effect 里写 ref）
 
   const flip = useFlipAnimation<string>();
 
@@ -193,6 +197,7 @@ export function LeftRecommendRail({
   }, [sid, jobMode, recommendations]);
 
   // Phase G — 拉档次阶梯条 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
+  // tierFit 移出依赖数组，仅靠 tierFitSubCat 判断是否已拉过，防止 catch 后无限重试
   useEffect(() => {
     if (!sid) return;
     const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
@@ -200,9 +205,9 @@ export function LeftRecommendRail({
     // 等 jobMode 落下来再拿 primary_sub_cat(若已 null 则用 undefined — 后端给默认值)
     const subCat = jobMode?.primary_sub_cat || undefined;
     const subCatKey = subCat ?? null;
-    // 避免对同 sub_cat 重复拉
+    // 已经拉过这个 sub_cat（无论成功/失败）就不再重试
     if (tierFitFetchingRef.current) return;
-    if (tierFitSubCat === subCatKey && tierFit !== null) return;
+    if (tierFitSubCat === subCatKey) return;
     tierFitFetchingRef.current = true;
     const controller = new AbortController();
     getTierFit(sid, subCat)
@@ -213,27 +218,39 @@ export function LeftRecommendRail({
         }
       })
       .catch(() => {
-        if (!controller.signal.aborted) setTierFit(null);
+        if (!controller.signal.aborted) {
+          // 标记"这个赛道试过了"，防止无限重试
+          setTierFitSubCat(subCatKey);
+          setTierFit(null);
+        }
       })
       .finally(() => { tierFitFetchingRef.current = false; });
     return () => { controller.abort(); };
-  }, [sid, recommendations, jobMode, tierFit, tierFitSubCat]);
+  }, [sid, recommendations, jobMode, tierFitSubCat]);
 
   // Phase G — 拉梯队骨架 (依赖 jobMode.primary_sub_cat; sub_cat 变化时重拉)
+  // skeletonFetchedSubCatRef 仅在 effect 内读写，防止 catch(null) 后无限重试。
+  // recommendations reset 时 setPlatformSkeleton(null) + setJobMode(null) 已触发重拉。
   useEffect(() => {
     if (!sid) return;
     const recReady = recommendations !== null && (recommendations.items?.length ?? 0) > 0;
     if (!recReady) return;
     if (skeletonFetchingRef.current) return;
-    if (platformSkeleton !== null) return;
     const subCat = jobMode?.primary_sub_cat || undefined;
+    const subCatKey = subCat ?? null;
+    // 骨架已存在（成功）就不重拉；若 platformSkeleton 被 reset 为 null 则允许重拉
+    if (platformSkeleton !== null) return;
+    // 失败后不重试同一 sub_cat（防止 catch→null→catch→null 无限循环）
+    if (skeletonFetchedSubCatRef.current === subCatKey) return;
     skeletonFetchingRef.current = true;
+    skeletonFetchedSubCatRef.current = subCatKey;
     const controller = new AbortController();
     getPlatformsByTier(sid, subCat)
       .then((r) => {
         if (!controller.signal.aborted) setPlatformSkeleton(r);
       })
       .catch(() => {
+        // skeletonFetchedSubCatRef 已标记此 sub_cat，失败后不再重试
         if (!controller.signal.aborted) setPlatformSkeleton(null);
       })
       .finally(() => { skeletonFetchingRef.current = false; });
@@ -355,7 +372,7 @@ export function LeftRecommendRail({
               className={`workspace-hifi__rec-tab${viewMode === 'platform' ? ' is-active' : ''}`}
               onClick={() => setViewMode('platform')}
             >
-              平台 <span className="workspace-hifi__rec-tab-count">{platforms?.length ?? 0}</span>
+              平台 <span className="workspace-hifi__rec-tab-count">{platformTotalCount}</span>
             </button>
             <button
               type="button"

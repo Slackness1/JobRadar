@@ -7040,6 +7040,82 @@ details[open] .workspace-hifi__tier-reason-summary::before {
   border-radius: var(--r-md);
 }
 
+/* ── IntelMini 三维块 (对齐设计稿 HFIntelMini) ────────────────────────────── */
+
+.workspace-hifi__intel-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.workspace-hifi__intel-mini-row {
+  display: flex;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--r-md);
+  background: var(--ivory);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  margin-bottom: 7px;
+  align-items: flex-start;
+}
+
+.workspace-hifi__intel-mini-row--empty {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dashed var(--ring-warm, #d6c8b0);
+}
+
+.workspace-hifi__intel-mini-label {
+  flex-shrink: 0;
+  width: 32px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--terracotta);
+  padding-top: 1px;
+}
+
+.workspace-hifi__intel-mini-label--empty {
+  color: var(--stone);
+}
+
+.workspace-hifi__intel-mini-content {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-mini-row--empty .workspace-hifi__intel-mini-content {
+  color: var(--stone);
+}
+
+.workspace-hifi__intel-mini-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.workspace-hifi__intel-mini-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--warm-sand);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__intel-mini-quote {
+  font-style: italic;
+  color: var(--ink);
+}
+
+.workspace-hifi__intel-mini-empty-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--stone);
+}
+
 /* ── 卡底 actions 行 ─────────────────────────────────────────────────────── */
 
 .workspace-hifi__tier-company-actions {
