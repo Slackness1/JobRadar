@@ -244,6 +244,12 @@ def run_resume_generate_workflow(
     from app.services.resume_copilot.chat import initialize_chat
 
     db = session_factory()
+    # 渐进式进度回调(_node/_write_partial)会在生成途中多次 db.commit() 落库给前端轮询。
+    # 默认 expire_on_commit=True 时,每次 commit 会 expire 掉 v2 dispatcher 正在用的 Job
+    # 对象;narrative 并发线程随后访问被 expire 的 Job → 跨线程 lazy-reload →
+    # ObjectDeletedError → 整个 v2 崩 → 静默回落 v1(真实简历推出跑偏的科技/运营岗)。
+    # 关掉 expire_on_commit:commit 只落库、不 expire 已加载对象,线程安全且推荐不退化。
+    db.expire_on_commit = False
     session = db.query(ResumeCopilotSession).filter(ResumeCopilotSession.id == session_id).first()
     if not session:
         db.close()
