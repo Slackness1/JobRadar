@@ -371,8 +371,10 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: Compan
                 <button
                   type="button"
                   className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--ghost"
+                  disabled
+                  title="开岗提醒功能开发中"
                 >
-                  🔔 开岗提醒我
+                  🔔 开岗提醒(开发中)
                 </button>
               </div>
             </>

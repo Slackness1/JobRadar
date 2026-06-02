@@ -286,7 +286,7 @@ export function IntelDrawer({
             <span className="workspace-hifi__intel-drawer-suffix">· 同辈情报</span>
           </div>
           <div className="workspace-hifi__intel-drawer-subtitle">
-            {loading ? '正在召唤同辈情报…' :
+            {loading ? '正在汇总同辈情报…' :
               displayXhsCount > 0
                 ? `${displayXhsCount} 条洞察 · 来源 ${(card?.sources || []).join('+') || '小红书'}`
                 : '暂无同辈洞察'}
@@ -485,7 +485,7 @@ export function IntelDrawer({
         {loading && (
           <div className="workspace-hifi__intel-loading">
             <span className="workspace-hifi__intel-loading-dot" aria-hidden />
-            <span>正在召唤同辈情报…</span>
+            <span>首次查看这家公司，正在从小红书等社区汇总同辈情报…看完即缓存，下次秒开。</span>
           </div>
         )}
 
