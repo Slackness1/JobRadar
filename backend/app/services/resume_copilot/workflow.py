@@ -22,6 +22,8 @@ from app.services.resume_copilot.agent.budget import AgentBudget
 from app.services.resume_copilot.agent.core import ReActAgent
 from app.services.resume_copilot.agent.tools import build_tools
 from app.services.resume_copilot.recommendation import ResumeRecommendationProvider, recommend_jobs_for_profile
+from app.config import RECOMMENDATION_V2_ENABLED
+from app.services.phase_g.recommendation_v2.progress import RecommendProgress
 
 RESUME_RECOMMENDATION_LIMIT = 100
 
@@ -302,9 +304,7 @@ def run_resume_generate_workflow(
             )
             preferences.all_skipped = bool(preference_profile.all_skipped)
 
-        # ── Step 1: Rule scoring ──────────────────────────────────────────
-        _append_agent_trace(db, session_id, agent_trace, 'Agent',
-                            '规则引擎召回中，正在计算基础匹配分…', 'running')
+        # ── Step 1: Rule scoring + 渐进式进度回调 ─────────────────────────
         # BE-3 (D-2/D-3): exclude jobs the user has ✗-rejected this session
         rejected_job_ids: list[str] = []
         raw_rejected = getattr(session, 'rejected_job_ids_json', None)
@@ -315,9 +315,43 @@ def run_resume_generate_workflow(
                     rejected_job_ids = [str(j) for j in parsed if str(j).strip()]
             except json.JSONDecodeError:
                 rejected_job_ids = []
-        # 2026-05-20: bump per-stream top_n to 30 so the React agent has
-        # enough candidates to choose ~10 from, and so the post-finalize
-        # `_balance_two_streams` topup has room to pad each stream to ~10.
+
+        # 稳定的 step_index：每个阶段一行，逐 tick 原地更新(不为每个 tick 新开一行)。
+        _RECALL_STEP, _RANK_STEP, _RERANK_STEP, _NARR_STEP = 1, 2, 3, 4
+
+        def _node(step_index: int, msg: str, status: str = 'completed',
+                  summary: str = '') -> None:
+            _append_agent_trace(
+                db, session_id, agent_trace, 'Agent', msg, status,
+                tool='finalize' if status == 'completed' else '',
+                step_index=step_index, result_summary=summary,
+            )
+
+        def _write_partial(items) -> None:
+            run = db.query(ResumeRecommendationRun).filter(
+                ResumeRecommendationRun.session_id == session_id
+            ).first()
+            if run:
+                run.recommendations_json = json.dumps(
+                    [it.model_dump() for it in items[:15]]
+                )
+                run.updated_at = datetime.utcnow()
+                session.recommendation_status = RunStatus.RUNNING.value
+                db.commit()
+
+        progress = RecommendProgress(
+            on_recall=lambda n: _node(_RECALL_STEP, f'召回岗位池 · 命中 {n} 个对口岗'),
+            on_ranked=lambda items: (_write_partial(items),
+                                     _node(_RANK_STEP, '三维匹配打分（赛道/梯队/经历）')),
+            on_rerank_one=lambda d, t, reason: _node(
+                _RERANK_STEP, f'强模型精排 {d}/{t}',
+                'running' if d < t else 'completed', reason),
+            on_narrative_one=lambda d, t: _node(
+                _NARR_STEP, f'生成推荐理由 {d}/{t}',
+                'running' if d < t else 'completed'),
+        )
+
+        # 2026-05-20: top_n=30 给两流平衡留余量。
         candidates, used_ai, fallback_reason = recommend_jobs_for_profile(
             db, profile, preferences,
             limit=RESUME_RECOMMENDATION_LIMIT,
@@ -325,17 +359,14 @@ def run_resume_generate_workflow(
             ai_top_n=0,
             rejected_job_ids=rejected_job_ids,
             top_n=30,
+            progress=progress,
         )
-        _append_agent_trace(db, session_id, agent_trace, 'Agent',
-                            f'规则初筛完成，召回 {len(candidates)} 个候选岗位。', 'completed')
 
-        # Dual-track: persist preliminary results immediately
-        recommendation_run.recommendations_json = json.dumps(
-            [item.model_dump() for item in candidates[:15]]
-        )
-        recommendation_run.updated_at = datetime.utcnow()
-        session.recommendation_status = RunStatus.RUNNING.value
-        db.commit()
+        # 兜底：v2 OFF(progress 不触发) 或召回为空时，至少落一条召回节点 + 部分结果，
+        # 保证前端有东西可铺、轮询能看到进度。
+        if not agent_trace:
+            _node(_RECALL_STEP, f'规则初筛完成，召回 {len(candidates)} 个候选岗位。')
+        _write_partial(candidates)
 
         # ── Step 2: Direction analysis ────────────────────────────────────
         direction_results = generate_direction_analysis(
@@ -353,25 +384,27 @@ def run_resume_generate_workflow(
         direction_run.updated_at = datetime.utcnow()
         db.commit()
 
-        # ── Step 3: ReAct agent ───────────────────────────────────────────
-        def agent_trace_recorder(**kwargs: object) -> None:
-            _append_agent_trace(db, session_id, agent_trace, **kwargs)
+        # ── Step 3: 选集（v2 开启砍 ReAct）────────────────────────────────
+        if RECOMMENDATION_V2_ENABLED:
+            # v2 dispatcher 已逐岗位精排 + 4-anchor 理由；ReAct 实测零质量增益
+            # (+917s/8 人)，跳过，直接两流平衡 v2 候选。
+            recommendations = _balance_two_streams(candidates, candidates, per_stream=10)
+        else:
+            def agent_trace_recorder(**kwargs: object) -> None:
+                _append_agent_trace(db, session_id, agent_trace, **kwargs)
 
-        react_agent = ReActAgent(
-            tools=build_tools(db, profile, preferences, candidates),
-            budget=AgentBudget(),
-        )
-        recommendations = react_agent.run(
-            profile=profile,
-            preferences=preferences,
-            candidates=candidates,
-            trace_recorder=agent_trace_recorder,
-            direction_results=direction_results,
-        )
-        # 2026-05-20: ensure each tab (校招 / 实习) has ~10 items. The React
-        # agent's finalize typically returns ~10 mixed; pad each stream from
-        # the upstream candidate pool so the UI's two tabs don't starve.
-        recommendations = _balance_two_streams(recommendations, candidates, per_stream=10)
+            react_agent = ReActAgent(
+                tools=build_tools(db, profile, preferences, candidates),
+                budget=AgentBudget(),
+            )
+            recommendations = react_agent.run(
+                profile=profile,
+                preferences=preferences,
+                candidates=candidates,
+                trace_recorder=agent_trace_recorder,
+                direction_results=direction_results,
+            )
+            recommendations = _balance_two_streams(recommendations, candidates, per_stream=10)
         recommendation_run = db.query(ResumeRecommendationRun).filter(
             ResumeRecommendationRun.session_id == session_id
         ).first()
