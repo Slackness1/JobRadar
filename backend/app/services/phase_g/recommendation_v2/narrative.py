@@ -115,7 +115,8 @@ def generate_narrative(
             "anchors_used": [],
             "kb_available": False,
         }
-    client = build_pro_client(max_retries=0)  # 交互场景: 单次失败快速回落, 不被默认重试拖长
+    # 同 rerank: 默认 30s 对 Pro medium 太紧会超时丢理由,放宽 75s + 重试 1 次(并发跑)。
+    client = build_pro_client(max_retries=1, timeout=75)
     user_msg = _build_user_msg(student_profile, job, kb, llm_rerank)
     resp = client.chat.completions.create(
         model=pro_model_name(),

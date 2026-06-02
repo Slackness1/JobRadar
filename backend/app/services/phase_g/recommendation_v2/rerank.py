@@ -110,10 +110,10 @@ def rerank_one(
             "reasoning": "(知识库未覆盖, 默认中性分)",
             "kb_available": False,
         }
-    # 交互推荐场景: medium reasoning (通常 <30s, 不撞默认 30s 超时) + max_retries=0
-    # (单次失败立刻回落, 不被 SDK 默认重试 2 次拖到 ~90s)。质量上 rerank 是"打分排序",
-    # medium 与 high 差距小, 但延迟差一个量级。
-    client = build_pro_client(max_retries=0)
+    # Pro medium reasoning 实测常 30-60s,默认 30s 超时太紧 → 一半精排超时失败、岗位
+    # 拿不到真打分(2026-06-02 实测 10 个里约 5 个 timed out)。放宽到 75s + 重试 1 次,
+    # 并发跑所以墙钟仍 ~75-90s,但 10 个岗位都能拿到真精排,不再又少又空。
+    client = build_pro_client(max_retries=1, timeout=75)
     user_msg = _build_rerank_user_message(student_profile, job, kb)
     resp = client.chat.completions.create(
         model=pro_model_name(),
