@@ -35,7 +35,7 @@ import {
 import { useRewriteState } from './RewriteContext';
 import { ResumePreview, type ActiveRewrite } from './resume/ResumePreview';
 import type { FabricationWarningAction } from './resume/FabricationWarning';
-import { CoachThinkingIndicator } from './chat/CoachThinkingIndicator';
+import { CoachThinkingIndicator, PARSE_PHASE_LABELS } from './chat/CoachThinkingIndicator';
 
 export interface RightResumePaneProps {
   session: ResumeCopilotSession | null;
@@ -421,9 +421,10 @@ export function RightResumePane({
               active={!ready}
               phase="parsing"
               minVisibleMs={800}
+              cyclingLabels={PARSE_PHASE_LABELS}
             />
             <span className="workspace-hifi__placeholder-hint">
-              首次上传通常 20-40 秒;parse 完成后这里会自动出现可改写的简历预览。
+              正在逐条精读你的简历;解析完成后这里会自动出现可改写的简历预览。
             </span>
           </div>
         )}

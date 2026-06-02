@@ -25,6 +25,15 @@ export type CoachThinkingPhase =
   | 'finalizing'    // draft 生成
   | 'archiving';    // 入档
 
+/** 解析阶段的循环提示词 — 让"深读简历"的等待有过程感(后端是一次 LLM 调用,
+ *  这些是前端循环展示的概念阶段)。模块级常量,身份稳定,作 cyclingLabels 传入。 */
+export const PARSE_PHASE_LABELS = [
+  '正在逐条精读你的简历…',
+  '识别教育与实习经历…',
+  '抽取技能与工具栈…',
+  '推断目标赛道与岗位画像…',
+];
+
 export interface CoachThinkingIndicatorProps {
   active: boolean;
   /** 只用来决定 active=false 之后多久 hide, 不再影响视觉。 */
@@ -36,6 +45,9 @@ export interface CoachThinkingIndicatorProps {
   orbSize?: number;
   /** 自定义标题, 默认 "AI coach 正在思考"。 */
   label?: string;
+  /** 循环展示的阶段提示词(每 ~2.2s 切换)。传了就覆盖 label,做"看得见的思考"。
+   *  注意: 传模块级常量数组(身份稳定),别在 render 里现造,否则计时器每帧重置。 */
+  cyclingLabels?: string[];
 }
 
 function formatElapsed(seconds: number): string {
@@ -53,10 +65,12 @@ export function CoachThinkingIndicator({
   minVisibleMs = 2500,
   orbSize = 132,
   label = 'AI coach 正在思考',
+  cyclingLabels,
 }: CoachThinkingIndicatorProps) {
   const [shown, setShown] = useState(active);
   const startedAtRef = useRef<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [labelIdx, setLabelIdx] = useState(0);
 
   useEffect(() => {
     if (active) {
@@ -81,7 +95,20 @@ export function CoachThinkingIndicator({
     return () => window.clearInterval(interval);
   }, [shown]);
 
+  useEffect(() => {
+    if (!shown || !cyclingLabels || cyclingLabels.length < 2) return;
+    const id = window.setInterval(() => {
+      setLabelIdx((i) => (i + 1) % cyclingLabels.length);
+    }, 2200);
+    return () => window.clearInterval(id);
+  }, [shown, cyclingLabels]);
+
   if (!shown) return null;
+
+  const displayLabel =
+    cyclingLabels && cyclingLabels.length > 0
+      ? cyclingLabels[labelIdx % cyclingLabels.length]
+      : label;
 
   return (
     <div
@@ -113,7 +140,7 @@ export function CoachThinkingIndicator({
           fontWeight: 500,
         }}
       >
-        {label}
+        {displayLabel}
       </div>
       <div
         aria-label={`已思考 ${formatElapsed(elapsed)}`}

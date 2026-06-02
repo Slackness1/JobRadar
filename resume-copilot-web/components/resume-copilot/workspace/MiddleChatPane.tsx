@@ -38,7 +38,7 @@ import {
   type RewriteV0V2Out,
 } from '../api';
 import { RewriteThinkingBubble } from './chat/RewriteThinkingBubble';
-import { CoachThinkingIndicator, type CoachThinkingPhase } from './chat/CoachThinkingIndicator';
+import { CoachThinkingIndicator, PARSE_PHASE_LABELS, type CoachThinkingPhase } from './chat/CoachThinkingIndicator';
 import { AIOrb } from '@/components/interview/primitives';
 import { ChatMessageBubble } from './chat/ChatMessageBubble';
 import {
@@ -527,9 +527,10 @@ export function MiddleChatPane({
                 active={!feedbackReady}
                 phase="parsing"
                 minVisibleMs={2500}
+                cyclingLabels={PARSE_PHASE_LABELS}
               />
               <span style={{ marginTop: 8, fontSize: 12, color: 'var(--olive)' }}>
-                简历正在分析中,稍候即可开聊。首次上传约 20-40 秒。
+                简历正在深度分析中,稍候即可开聊。
               </span>
             </div>
           )}
