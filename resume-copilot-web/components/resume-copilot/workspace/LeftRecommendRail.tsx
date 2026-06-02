@@ -43,6 +43,7 @@ import { PlatformTierGroup } from './recommend/PlatformTierGroup';
 import { RecommendCard } from './recommend/RecommendCard';
 import { TierLadderStrip } from './recommend/TierLadderStrip';
 import { useFlipAnimation } from './recommend/use-flip-animation';
+import { WorkspaceThinkingTimeline } from './WorkspaceThinkingTimeline';
 
 const LAST_SEEN_KEY_PREFIX = 'jobradar.workspace.lastSeenRejectedCount.';
 const TOAST_AUTO_DISMISS_MS = 2600;
@@ -474,7 +475,40 @@ export function LeftRecommendRail({
           </div>
         )}
 
-        {!sessionReady && isGeneratingRecommendations && (
+        {/* PROG-T5: 看得见的思考 — 时间线(组件自带空/进行中/完成收一行三态) */}
+        <WorkspaceThinkingTimeline
+          trace={recommendations?.agent_trace ?? []}
+          running={isGeneratingRecommendations}
+        />
+
+        {/* PROG-T5: 生成中且已到第一批部分结果 — 先铺轻量列表(不走 platform/骨架机制) */}
+        {!sessionReady && recReady && (
+          <div className="workspace-hifi__rec-list" role="list">
+            {(recommendations?.items ?? []).map((item, idx) => {
+              const jobId = String(item.job_id);
+              return (
+                <div
+                  key={jobId}
+                  className="workspace-hifi__rec-list-item"
+                  role="listitem"
+                >
+                  <RecommendCard
+                    item={item}
+                    rank={idx + 1}
+                    isExpanded={expandedJobId === jobId}
+                    onToggle={() => handleToggle(jobId)}
+                    onReject={(reason, note) => handleReject(jobId, reason, note)}
+                    onCustomiseForJob={onCustomiseForJob}
+                    sessionId={sid}
+                    onOpenIntel={onOpenIntel}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {!sessionReady && isGeneratingRecommendations && !recReady && (
           <div className="workspace-hifi__rec-empty">
             <CoachThinkingIndicator
               active
