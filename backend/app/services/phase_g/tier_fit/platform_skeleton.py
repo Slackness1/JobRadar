@@ -63,14 +63,15 @@ def _default_role(band: str, match_band: str | None) -> str:
 
 def _fetch_live_jobs(db: Session, company_name: str, sub_cat: str) -> list[dict]:
     """查 jobs 表中该赛道的在招对口岗，匹配公司名（精确 or LIKE 归一名），
-    返回前 5 条 {id, title, detail_url}。"""
+    返回前 5 条 {id, title, detail_url, location}。location 用于区分同名岗
+    （如鹏华 4 个"助理研究员"分别在深圳/北京）。"""
     norm = _norm_company(company_name)
     if not norm:
         return []
     try:
         rows = db.execute(
             text(
-                "SELECT id, job_title, detail_url FROM jobs "
+                "SELECT id, job_title, detail_url, location FROM jobs "
                 "WHERE sub_category = :sc "
                 "AND quality_label IN ('good', 'internship_only') "
                 "AND (company = :exact OR company LIKE :like) "
@@ -78,7 +79,10 @@ def _fetch_live_jobs(db: Session, company_name: str, sub_cat: str) -> list[dict]
             ),
             {"sc": sub_cat, "exact": norm, "like": f"%{norm}%"},
         ).fetchall()
-        return [{"id": r[0], "title": r[1], "detail_url": r[2]} for r in rows]
+        return [
+            {"id": r[0], "title": r[1], "detail_url": r[2], "location": r[3] or ""}
+            for r in rows
+        ]
     except Exception:
         logger.exception("Failed to fetch live jobs for %s / %s", company_name, sub_cat)
         return []

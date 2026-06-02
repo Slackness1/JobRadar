@@ -963,6 +963,7 @@ export interface PlatformSkeletonJob {
   id: number;
   title: string;
   detail_url?: string;
+  location?: string;
 }
 
 export interface PlatformSkeletonIntel {

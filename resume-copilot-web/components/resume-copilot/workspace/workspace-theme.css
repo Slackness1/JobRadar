@@ -6961,6 +6961,16 @@ details[open] .workspace-hifi__tier-reason-summary::before {
   white-space: nowrap;
 }
 
+.workspace-hifi__tier-job-loc {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--stone);
+  background: var(--border-warm);
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
 .workspace-hifi__tier-job-arrow {
   flex-shrink: 0;
   color: var(--stone);
