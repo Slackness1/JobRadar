@@ -61,26 +61,37 @@ def _default_role(band: str, match_band: str | None) -> str:
     return default_map.get(band, "floor")
 
 
-def _fetch_live_jobs(db: Session, company_name: str, sub_cat: str) -> list[dict]:
+def _fetch_live_jobs(
+    db: Session, company_name: str, sub_cat: str, *, prefer_internship: bool = False
+) -> list[dict]:
     """查 jobs 表中该赛道的在招对口岗，匹配公司名（精确 or LIKE 归一名），
-    返回前 5 条 {id, title, detail_url, location}。location 用于区分同名岗
-    （如鹏华 4 个"助理研究员"分别在深圳/北京）。"""
+    返回前 5 条 {id, title, detail_url, location, is_internship}。
+
+    - is_internship: 让前端标 实/校（之前写死"校"，把实习也错标成校招）。
+    - prefer_internship=True（学生主推实习/暑期）: 实习岗排前、优先填满那 5 条，
+      否则校招多的公司会把实习岗挤出 LIMIT 5，主推实习的学生反而看不到实习。
+    - location: 区分同名岗（如鹏华 4 个"助理研究员"分别在深圳/北京）。"""
     norm = _norm_company(company_name)
     if not norm:
         return []
+    # 实习优先时 internship_only 排前；否则校招(good)排前。SQLite 布尔即 1/0。
+    order = "DESC" if prefer_internship else "ASC"
     try:
         rows = db.execute(
             text(
-                "SELECT id, job_title, detail_url, location FROM jobs "
+                "SELECT id, job_title, detail_url, location, quality_label FROM jobs "
                 "WHERE sub_category = :sc "
                 "AND quality_label IN ('good', 'internship_only') "
                 "AND (company = :exact OR company LIKE :like) "
-                "LIMIT 5"
+                f"ORDER BY (quality_label = 'internship_only') {order} LIMIT 5"
             ),
             {"sc": sub_cat, "exact": norm, "like": f"%{norm}%"},
         ).fetchall()
         return [
-            {"id": r[0], "title": r[1], "detail_url": r[2], "location": r[3] or ""}
+            {
+                "id": r[0], "title": r[1], "detail_url": r[2], "location": r[3] or "",
+                "is_internship": (r[4] == "internship_only"),
+            }
             for r in rows
         ]
     except Exception:
@@ -172,6 +183,7 @@ def build_platform_skeleton(
     sub_cat: str,
     *,
     match_band: str | None = None,
+    prefer_internship: bool = False,
 ) -> dict:
     """给定赛道，返回 GT 公司按梯队分档的骨架结构。
 
@@ -230,7 +242,7 @@ def build_platform_skeleton(
     # 2. 对每家公司叠加在招信息 + 情报数 + 三维情报（只读缓存，不触发 LLM）
     for band in _BAND_ORDER:
         for co in band_groups[band]:
-            jobs = _fetch_live_jobs(db, co["name"], sub_cat)
+            jobs = _fetch_live_jobs(db, co["name"], sub_cat, prefer_internship=prefer_internship)
             n_insights = _fetch_n_insights(db, co["name"])
             co["has_live"] = bool(jobs)
             co["n_live"] = len(jobs)

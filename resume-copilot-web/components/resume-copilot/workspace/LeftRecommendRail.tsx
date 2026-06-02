@@ -48,6 +48,11 @@ import { WorkspaceThinkingTimeline } from './WorkspaceThinkingTimeline';
 const LAST_SEEN_KEY_PREFIX = 'jobradar.workspace.lastSeenRejectedCount.';
 const TOAST_AUTO_DISMISS_MS = 2600;
 
+const platformsCache = new Map<number, ResumeRecommendationPlatform[]>();
+const jobModeCache = new Map<number, ResumeJobMode>();
+const tierFitCache = new Map<string, TierFit | null>();
+const platformSkeletonCache = new Map<string, PlatformSkeleton>();
+
 export interface LeftRecommendRailProps {
   session: ResumeCopilotSession | null;
   recommendations: ResumeRecommendationResult | null;
@@ -187,9 +192,17 @@ export function LeftRecommendRail({
   useEffect(() => {
     if (!sid || platforms !== null || platformFetchingRef.current) return;
     if (!recReady) return;
+    if (platformsCache.has(sid)) {
+      queueMicrotask(() => setPlatforms(platformsCache.get(sid) ?? []));
+      return;
+    }
     platformFetchingRef.current = true;
     getResumeCopilotPlatforms(sid)
-      .then((r) => setPlatforms(r.platforms ?? []))
+      .then((r) => {
+        const next = r.platforms ?? [];
+        platformsCache.set(sid, next);
+        setPlatforms(next);
+      })
       .catch(() => setPlatforms([]))
       .finally(() => { platformFetchingRef.current = false; });
   }, [sid, platforms, recReady]);
@@ -198,9 +211,21 @@ export function LeftRecommendRail({
   useEffect(() => {
     if (!sid || jobMode !== null || jobModeFetchingRef.current) return;
     if (!recReady) return;
+    const cached = jobModeCache.get(sid);
+    if (cached) {
+      queueMicrotask(() => {
+        setJobMode(cached);
+        const dt = cached.default_tab;
+        if (dt === 'platform' || dt === 'campus' || dt === 'intern') {
+          setViewMode(dt);
+        }
+      });
+      return;
+    }
     jobModeFetchingRef.current = true;
     getResumeCopilotJobMode(sid)
       .then((m) => {
+        jobModeCache.set(sid, m);
         setJobMode(m);
         // 落一次默认 tab (此分支仅在 jobMode===null 时触发, 即首次; 之后学生手动切不覆盖)
         const dt = m.default_tab;
@@ -220,6 +245,14 @@ export function LeftRecommendRail({
     // 等 jobMode 落下来再拿 primary_sub_cat(若已 null 则用 undefined — 后端给默认值)
     const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
+    const cacheKey = `${sid}:${subCatKey ?? ''}`;
+    if (tierFitCache.has(cacheKey)) {
+      queueMicrotask(() => {
+        setTierFit(tierFitCache.get(cacheKey) ?? null);
+        setTierFitSubCat(subCatKey);
+      });
+      return;
+    }
     // 已经拉过这个 sub_cat（无论成功/失败）就不再重试
     if (tierFitFetchingRef.current) return;
     if (tierFitSubCat === subCatKey) return;
@@ -228,6 +261,7 @@ export function LeftRecommendRail({
     getTierFit(sid, subCat)
       .then((r) => {
         if (!controller.signal.aborted) {
+          tierFitCache.set(cacheKey, r);
           setTierFit(r);
           setTierFitSubCat(subCatKey);
         }
@@ -235,6 +269,7 @@ export function LeftRecommendRail({
       .catch(() => {
         if (!controller.signal.aborted) {
           // 标记"这个赛道试过了"，防止无限重试
+          tierFitCache.set(cacheKey, null);
           setTierFitSubCat(subCatKey);
           setTierFit(null);
         }
@@ -252,20 +287,29 @@ export function LeftRecommendRail({
     if (skeletonFetchingRef.current) return;
     const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
-    // guard key 带上 sid：切到另一份简历(尤其同 sub_cat 的投研 persona)时,
-    // 仅按 subCatKey 判会误命中"已试过"→ 永不重拉 → 骨架一直空转。带 sid 后
-    // 换会话必然 key 不同 → 正常重拉。
-    const guardKey = `${sid}:${subCatKey ?? ''}`;
+    // 主推实习的学生(default_tab==='intern')→ 骨架在招岗实习优先,不被校招挤出 LIMIT 5。
+    const skMode = jobMode?.default_tab === 'intern' ? 'intern' : undefined;
+    // guard key 带上 sid + mode：切到另一份简历(尤其同 sub_cat 的投研 persona)/换求职
+    // 模式时,仅按 subCatKey 判会误命中"已试过"→ 永不重拉 → 骨架一直空转。
+    const guardKey = `${sid}:${subCatKey ?? ''}:${skMode ?? ''}`;
+    const cached = platformSkeletonCache.get(guardKey);
+    if (cached) {
+      queueMicrotask(() => setPlatformSkeleton(cached));
+      return;
+    }
     // 骨架已存在（成功）就不重拉；若 platformSkeleton 被 reset 为 null 则允许重拉
     if (platformSkeleton !== null) return;
-    // 失败后不重试同一 (会话,sub_cat)（防止 catch→null→catch→null 无限循环）
+    // 失败后不重试同一 (会话,sub_cat,mode)（防止 catch→null→catch→null 无限循环）
     if (skeletonFetchedSubCatRef.current === guardKey) return;
     skeletonFetchingRef.current = true;
     skeletonFetchedSubCatRef.current = guardKey;
     const controller = new AbortController();
-    getPlatformsByTier(sid, subCat)
+    getPlatformsByTier(sid, subCat, skMode)
       .then((r) => {
-        if (!controller.signal.aborted) setPlatformSkeleton(r);
+        if (!controller.signal.aborted) {
+          platformSkeletonCache.set(guardKey, r);
+          setPlatformSkeleton(r);
+        }
       })
       .catch(() => {
         // skeletonFetchedSubCatRef 已标记此 sub_cat，失败后不再重试
@@ -273,7 +317,7 @@ export function LeftRecommendRail({
       })
       .finally(() => { skeletonFetchingRef.current = false; });
     return () => { controller.abort(); };
-  }, [sid, recReady, primarySubCat, platformSkeleton]);
+  }, [sid, recReady, primarySubCat, platformSkeleton, jobMode?.default_tab]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -358,8 +402,9 @@ export function LeftRecommendRail({
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  const sessionReady = session?.has_recommendations === true;
+  const sessionReady = session?.has_recommendations === true && recReady;
   const isGeneratingRecommendations = session?.recommendation_status === 'running';
+  const hasEmptyRecommendationSnapshot = recommendations !== null && !recReady && !isGeneratingRecommendations;
   const jobsCount = viewMode === 'campus' ? campusItems.length : internItems.length;
   const platformTotalCount = platformSkeleton?.has_skeleton
     ? platformSkeleton.tiers.reduce((acc, t) => acc + t.companies.length, 0)
@@ -526,7 +571,16 @@ export function LeftRecommendRail({
           </div>
         )}
 
-        {!sessionReady && !isGeneratingRecommendations && (
+        {!sessionReady && hasEmptyRecommendationSnapshot && (
+          <div className="workspace-hifi__rec-empty">
+            <span className="workspace-hifi__rec-empty-title">暂无可展示推荐</span>
+            <span className="workspace-hifi__rec-empty-hint">
+              这份简历上一次推荐没有留下可展示岗位；这不是后台仍在思考。
+            </span>
+          </div>
+        )}
+
+        {!sessionReady && !isGeneratingRecommendations && !hasEmptyRecommendationSnapshot && (
           <div className="workspace-hifi__rec-empty">
             <span className="workspace-hifi__rec-empty-title">等待生成推荐</span>
             <span className="workspace-hifi__rec-empty-hint">

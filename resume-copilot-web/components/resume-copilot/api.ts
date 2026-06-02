@@ -964,6 +964,7 @@ export interface PlatformSkeletonJob {
   title: string;
   detail_url?: string;
   location?: string;
+  is_internship?: boolean;
 }
 
 export interface PlatformSkeletonIntel {
@@ -1005,8 +1006,12 @@ export interface PlatformSkeleton {
 export function getPlatformsByTier(
   sessionId: number,
   subCat?: string,
+  mode?: string,
 ): Promise<PlatformSkeleton> {
-  const q = subCat ? `?sub_cat=${encodeURIComponent(subCat)}` : '';
+  const params = new URLSearchParams();
+  if (subCat) params.set('sub_cat', subCat);
+  if (mode) params.set('mode', mode);
+  const q = params.toString() ? `?${params.toString()}` : '';
   return requestJson<PlatformSkeleton>(
     `/api/resume-copilot/sessions/${sessionId}/platforms-by-tier${q}`,
   );

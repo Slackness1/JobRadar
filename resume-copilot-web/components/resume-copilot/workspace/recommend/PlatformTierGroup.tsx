@@ -280,7 +280,11 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: Compan
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <span className="workspace-hifi__platform-job-type">{/* campus label */}校</span>
+                      <span
+                        className={`workspace-hifi__platform-job-type${job.is_internship ? ' is-intern' : ''}`}
+                      >
+                        {job.is_internship ? '实' : '校'}
+                      </span>
                       <span className="workspace-hifi__tier-job-title">{job.title}</span>
                       {job.location && job.location !== '未知' && (
                         <span className="workspace-hifi__tier-job-loc">{job.location}</span>
