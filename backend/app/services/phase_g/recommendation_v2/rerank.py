@@ -144,6 +144,7 @@ def rerank_top_n(
     ranked_with_score: list[tuple[Job, float]],
     *,
     n: int = 20,
+    on_one=None,
 ) -> list[dict[str, Any]]:
     """对 base 排序的 top-n 做 LLM rerank, 重组 final_score = 0.7*llm/100 + 0.3*base。
 
@@ -176,8 +177,13 @@ def rerank_top_n(
             fut_to_i = {
                 ex.submit(_rerank_safe, ranked_with_score[i][0]): i for i in top_indices
             }
+            _done = 0
             for fut in as_completed(fut_to_i):
-                llm_by_index[fut_to_i[fut]] = fut.result()
+                res = fut.result()
+                llm_by_index[fut_to_i[fut]] = res
+                _done += 1
+                if on_one is not None:
+                    on_one(_done, len(fut_to_i), str(res.get("reasoning") or "")[:80])
 
     out: list[dict[str, Any]] = []
     for i, (job, base) in enumerate(ranked_with_score):

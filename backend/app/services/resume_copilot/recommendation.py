@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.config import RECOMMENDATION_V2_ENABLED
 from app.models import Job
+from app.services.phase_g.recommendation_v2.progress import RecommendProgress
 from app.schemas_resume_copilot import (
     ResumePreferencePayload,
     ResumeProfilePayload,
@@ -1016,6 +1017,63 @@ def _v2_priority_letter(final_score: float) -> str:
     return "D"
 
 
+def _v2_items_from_ranked(
+    ranked: list[dict[str, Any]],
+    preferred_sub_cats: list[str],
+    narr_by_index: dict[int, dict[str, Any]] | None = None,
+) -> list[ResumeRecommendationItem]:
+    """把 reranked/prelim dict 列表转成 ResumeRecommendationItem(供占位结果与最终结果共用)。
+    每个 dict 需含 job/final_score(0-1)/base_score(0-1)，可选 llm_reasoning/data_confidence/kb_available。
+    narr_by_index=None → 规则占位模式(理由留空)。"""
+    narr_by_index = narr_by_index or {}
+    _empty = {"narrative": "", "anchors_used": [], "kb_available": False}
+    items: list[ResumeRecommendationItem] = []
+    for i, r in enumerate(ranked):
+        job: Job = r["job"]
+        final_int = int(round(r["final_score"] * 100))
+        narr = narr_by_index.get(i, _empty)
+        why = [narr["narrative"]] if narr.get("narrative") else []
+        strengths = [r["llm_reasoning"]] if r.get("llm_reasoning") else []
+        risks = []
+        if narr.get("kb_available") is False and final_int < 50:
+            risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
+        items.append(
+            ResumeRecommendationItem(
+                job_id=str(job.job_id),
+                company=str(job.company or ""),
+                job_title=str(job.job_title or ""),
+                location=str(job.location or ""),
+                detail_url=str(job.detail_url or ""),
+                objective_score=0,
+                preference_score=0,
+                base_job_score=int(round(r["base_score"] * 100)),
+                company_priority_score=0,
+                base_match_score=int(round(r["base_score"] * 100)),
+                enhanced_score=int(round(r["base_score"] * 100)),
+                final_score=final_int,
+                matched_track_key=str(job.sub_category or "").lower(),
+                matched_track_label=str(job.sub_category or ""),
+                matched_role_family=str(job.institution_tier or ""),
+                company_priority_tier=str(r.get("data_confidence") or ""),
+                company_priority_label="",
+                topic_key=str(job.sub_category_secondary or job.sub_category or ""),
+                used_ai=bool(r.get("kb_available")),
+                why_recommended=why,
+                strengths=strengths,
+                risks=risks,
+                target_direction=preferred_sub_cats[0] if preferred_sub_cats else "",
+                tier_label=_v2_tier_label_from_score(r["final_score"], narr.get("anchors_used")),
+                priority_letter=_v2_priority_letter(r["final_score"]),
+                track_match_kind="hit" if job.sub_category in preferred_sub_cats else (
+                    "transferable" if job.sub_category_secondary in preferred_sub_cats else "no_pref"
+                ),
+                is_internship=(job.quality_label == "internship_only"),
+                industry_tags=[],
+            )
+        )
+    return items
+
+
 def _recommend_v2_dispatcher(
     db: Session,
     *,
@@ -1025,6 +1083,7 @@ def _recommend_v2_dispatcher(
     limit: int | None,
     min_score: int | None,
     top_n: int | None,
+    progress: "RecommendProgress | None" = None,
 ) -> tuple[list[ResumeRecommendationItem], bool, str]:
     """Phase G v2 推荐流水线 — 输出兼容 v1 的 tuple。
 
@@ -1043,6 +1102,7 @@ def _recommend_v2_dispatcher(
     from app.services.phase_g.recommendation_v2.rerank import rerank_top_n
     from app.services.phase_g.recommendation_v2.scoring import StudentProfile, rank_jobs
 
+    prog = progress or RecommendProgress()
     effective_top_n = RECOMMEND_TOP_N if top_n is None else int(top_n)
     rejected_set = {str(j).strip() for j in (rejected_job_ids or []) if str(j).strip()}
     preferred_sub_cats = _v2_extract_preferred_sub_cats(profile, preferences)
@@ -1072,14 +1132,26 @@ def _recommend_v2_dispatcher(
     )
     if rejected_set:
         candidates = [j for j in candidates if str(j.job_id) not in rejected_set]
+    prog.on_recall(len(candidates))
     if not candidates:
         return [], False, "v2_no_candidates"
 
     # Step 2: 3 维评分
     ranked = rank_jobs(student_p, candidates)
 
+    # 渐进式：精排前先把规则排序 top-N 作占位结果回吐(前端秒级铺列表)。
+    _prelim_src = [
+        {"job": job, "base_score": base, "final_score": base,
+         "llm_reasoning": "", "kb_available": False, "data_confidence": None}
+        for job, base in ranked[: max(effective_top_n, 10)]
+    ]
+    prog.on_ranked(_v2_items_from_ranked(_prelim_src, preferred_sub_cats))
+
     # Step 3: top-N LLM rerank (并发, n 收敛 20→10 减少 LLM 调用)
-    reranked = rerank_top_n(profile_dict, ranked, n=min(10, len(ranked)))
+    reranked = rerank_top_n(
+        profile_dict, ranked, n=min(10, len(ranked)),
+        on_one=lambda done, total, reason: prog.on_rerank_one(done, total, reason),
+    )
     selected = reranked[: max(effective_top_n, 10)]
 
     # Step 4: narrative — top-6 并发跑 4 anchor (原 top-10 串行, 现并发 + 收敛)
@@ -1102,58 +1174,11 @@ def _recommend_v2_dispatcher(
             _futs = {_ex.submit(_narr_safe, i): i for i in narr_targets}
             for _f in as_completed(_futs):
                 narr_by_index[_futs[_f]] = _f.result()
+                prog.on_narrative_one(len(narr_by_index), len(narr_targets))
 
-    items: list[ResumeRecommendationItem] = []
-    for i, r in enumerate(selected):
-        job: Job = r["job"]
-        # final_score 0-1 → int 0-100 (跟 v1 final_score 量纲对齐)
-        final_int = int(round(r["final_score"] * 100))
-        narr = narr_by_index.get(i, _empty_narr)
+    items = _v2_items_from_ranked(selected, preferred_sub_cats, narr_by_index)
 
-        why = [narr["narrative"]] if narr.get("narrative") else []
-        strengths = []
-        risks = []
-        if r.get("llm_reasoning"):
-            strengths = [r["llm_reasoning"]]
-        if narr.get("kb_available") is False and final_int < 50:
-            risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
-
-        items.append(
-            ResumeRecommendationItem(
-                job_id=str(job.job_id),
-                company=str(job.company or ""),
-                job_title=str(job.job_title or ""),
-                location=str(job.location or ""),
-                detail_url=str(job.detail_url or ""),
-                objective_score=0,  # v2 不细分,统一在 final_score 体现
-                preference_score=0,
-                base_job_score=int(round(r["base_score"] * 100)),
-                company_priority_score=0,
-                base_match_score=int(round(r["base_score"] * 100)),
-                enhanced_score=int(round(r["base_score"] * 100)),
-                final_score=final_int,
-                matched_track_key=str(job.sub_category or "").lower(),
-                matched_track_label=str(job.sub_category or ""),
-                matched_role_family=str(job.institution_tier or ""),
-                company_priority_tier=str(r.get("data_confidence") or ""),
-                company_priority_label="",
-                topic_key=str(job.sub_category_secondary or job.sub_category or ""),
-                used_ai=bool(r.get("kb_available")),
-                why_recommended=why,
-                strengths=strengths,
-                risks=risks,
-                target_direction=preferred_sub_cats[0] if preferred_sub_cats else "",
-                tier_label=_v2_tier_label_from_score(r["final_score"], narr.get("anchors_used")),
-                priority_letter=_v2_priority_letter(r["final_score"]),
-                track_match_kind="hit" if job.sub_category in preferred_sub_cats else (
-                    "transferable" if job.sub_category_secondary in preferred_sub_cats else "no_pref"
-                ),
-                is_internship=(job.quality_label == "internship_only"),
-                industry_tags=[],
-            )
-        )
-
-    # v1 有 min_score floor, v2 也保留同样的语义 — 分 < min_score 滤掉
+    # v1 有 min_score floor, v2 也保留同样语义 — 分 < min_score 滤掉
     effective_min = RECOMMEND_MIN_SCORE if min_score is None else int(min_score)
     items = [it for it in items if it.final_score >= effective_min]
     items = items[:effective_top_n]
@@ -1170,6 +1195,7 @@ def recommend_jobs_for_profile(
     rejected_job_ids: list[str] | None = None,
     min_score: int | None = None,
     top_n: int | None = None,
+    progress: "RecommendProgress | None" = None,
 ) -> tuple[list[ResumeRecommendationItem], bool, str]:
     """
     BE-3 of main-workspace-redesign-2026-05-20 (D-6):
@@ -1205,6 +1231,7 @@ def recommend_jobs_for_profile(
                 limit=limit,
                 min_score=min_score,
                 top_n=top_n,
+                progress=progress,
             )
         except Exception as exc:  # noqa: BLE001 — v2 fail 永远 fallback v1, 不破坏推荐
             import logging as _lg
