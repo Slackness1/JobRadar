@@ -1012,6 +1012,25 @@ export function PublicResumeCopilot() {
     });
   }, [refreshHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 会话切换：SessionMenu 用 router.push('?sessionId=N') 软导航,URL 变了但
+  // sessionId state 之前不会跟着变 → 点别的简历"点不动"。这里同步 URL → state,
+  // 并清掉上一份会话的派生态(profile/推荐/反馈/聊天),避免串档。
+  useEffect(() => {
+    const urlSid = Number(searchParams.get('sessionId') ?? 0) || null;
+    if (urlSid !== null && urlSid !== sessionIdRef.current) {
+      sessionIdRef.current = urlSid;
+      setProfile(null);
+      setRecommendations(null);
+      setFeedback(null);
+      setChatMessages([]);
+      setDirectionResults([]);
+      setActiveDirection(null);
+      setPollStartedAt(null);
+      setPollGaveUp(false);
+      setSessionId(urlSid);
+    }
+  }, [searchParams]);
+
   const loadSession = useCallback(async (id: number) => {
     const nextSession = await getResumeCopilotSession(id);
     setSession(nextSession);

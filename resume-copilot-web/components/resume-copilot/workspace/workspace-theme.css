@@ -2006,7 +2006,27 @@
 }
 
 .workspace-hifi__chat-msg-text {
-  white-space: pre-wrap;
+  /* 内容现走 MarkdownLite 渲染成 <p>/<ul>/<ol>,不再需要 pre-wrap 撑换行 */
+  white-space: normal;
+}
+.workspace-hifi__md-p {
+  margin: 0 0 8px 0;
+}
+.workspace-hifi__md-p:last-child {
+  margin-bottom: 0;
+}
+.workspace-hifi__md-list {
+  margin: 0 0 8px 0;
+  padding-left: 18px;
+}
+.workspace-hifi__md-list:last-child {
+  margin-bottom: 0;
+}
+.workspace-hifi__md-list li {
+  margin: 2px 0;
+}
+.workspace-hifi__chat-msg-text strong {
+  font-weight: 600;
 }
 
 .workspace-hifi__chat-msg-options {

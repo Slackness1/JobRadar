@@ -252,12 +252,16 @@ export function LeftRecommendRail({
     if (skeletonFetchingRef.current) return;
     const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
+    // guard key 带上 sid：切到另一份简历(尤其同 sub_cat 的投研 persona)时,
+    // 仅按 subCatKey 判会误命中"已试过"→ 永不重拉 → 骨架一直空转。带 sid 后
+    // 换会话必然 key 不同 → 正常重拉。
+    const guardKey = `${sid}:${subCatKey ?? ''}`;
     // 骨架已存在（成功）就不重拉；若 platformSkeleton 被 reset 为 null 则允许重拉
     if (platformSkeleton !== null) return;
-    // 失败后不重试同一 sub_cat（防止 catch→null→catch→null 无限循环）
-    if (skeletonFetchedSubCatRef.current === subCatKey) return;
+    // 失败后不重试同一 (会话,sub_cat)（防止 catch→null→catch→null 无限循环）
+    if (skeletonFetchedSubCatRef.current === guardKey) return;
     skeletonFetchingRef.current = true;
-    skeletonFetchedSubCatRef.current = subCatKey;
+    skeletonFetchedSubCatRef.current = guardKey;
     const controller = new AbortController();
     getPlatformsByTier(sid, subCat)
       .then((r) => {

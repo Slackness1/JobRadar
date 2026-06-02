@@ -22,6 +22,7 @@
  */
 
 import type { CopilotMessage } from '../../types';
+import { MarkdownLite } from './MarkdownLite';
 
 export interface ChatMessageBubbleProps {
   message: CopilotMessage;
@@ -54,7 +55,9 @@ export function ChatMessageBubble({
           isSystem ? ' is-system' : ''
         }`}
       >
-        <div className="workspace-hifi__chat-msg-text">{message.content}</div>
+        <div className="workspace-hifi__chat-msg-text">
+          <MarkdownLite text={message.content} />
+        </div>
         {options.length > 0 && (
           <div className="workspace-hifi__chat-msg-options">
             {options.map((opt) => {
