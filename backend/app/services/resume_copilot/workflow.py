@@ -345,13 +345,21 @@ def run_resume_generate_workflow(
                 session.recommendation_status = RunStatus.RUNNING.value
                 db.commit()
 
+        def _clean_reason(reason: str) -> str:
+            # 精排单条失败(超时/异常)的占位文案不该当"思考过程"露给学生
+            # ("(rerank 失败: Request timed out.)")—— 只展示真实推理,失败的留空。
+            r = str(reason or '')
+            if ('失败' in r) or ('timed out' in r.lower()) or ('timeout' in r.lower()):
+                return ''
+            return r
+
         progress = RecommendProgress(
             on_recall=lambda n: _node(_RECALL_STEP, f'召回岗位池 · 命中 {n} 个对口岗'),
             on_ranked=lambda items: (_write_partial(items),
                                      _node(_RANK_STEP, '三维匹配打分（赛道/梯队/经历）')),
             on_rerank_one=lambda d, t, reason: _node(
                 _RERANK_STEP, f'强模型精排 {d}/{t}',
-                'running' if d < t else 'completed', reason),
+                'running' if d < t else 'completed', _clean_reason(reason)),
             on_narrative_one=lambda d, t: _node(
                 _NARR_STEP, f'生成推荐理由 {d}/{t}',
                 'running' if d < t else 'completed'),

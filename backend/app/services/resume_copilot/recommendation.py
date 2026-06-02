@@ -1033,7 +1033,10 @@ def _v2_items_from_ranked(
         final_int = int(round(r["final_score"] * 100))
         narr = narr_by_index.get(i, _empty)
         why = [narr["narrative"]] if narr.get("narrative") else []
-        strengths = [r["llm_reasoning"]] if r.get("llm_reasoning") else []
+        # 精排单条失败(超时/异常)的占位文案不该当"优势"展示在卡片上
+        _reason = str(r.get("llm_reasoning") or "")
+        _reason_failed = ("失败" in _reason) or ("timed out" in _reason.lower()) or ("timeout" in _reason.lower())
+        strengths = [_reason] if _reason and not _reason_failed else []
         risks = []
         if narr.get("kb_available") is False and final_int < 50:
             risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
@@ -1112,14 +1115,41 @@ def _recommend_v2_dispatcher(
         if str(l).strip()
     ]
 
-    # 学生 profile dict (给 rerank / narrative 用)
+    # 学生 profile dict (给 rerank / narrative 用)。
+    # 历史 bug: 这里取的是 profile.experiences —— ResumeProfilePayload 根本没这个字段
+    # (真字段是 education/internships/projects),导致 background 永远空,强模型只看到
+    # preferred_sub_cats → 反馈里说"学生只提供兴趣方向、未提供教育/实习"。改成从真字段组。
+    def _g(obj: Any, *keys: str) -> str:
+        return " ".join(str(getattr(obj, k, "") or "") for k in keys).strip()
+
+    _edu = "; ".join(
+        _g(e, "school", "degree", "major") for e in (getattr(profile, "education", None) or [])[:2]
+    )
+    _intern = "; ".join(
+        _g(i, "company", "role") for i in (getattr(profile, "internships", None) or [])[:4]
+    )
+    _proj = "; ".join(
+        str(getattr(p, "name", "") or "") for p in (getattr(profile, "projects", None) or [])[:3]
+    )
+    _sk = getattr(profile, "skills", None)
+    _skills = ", ".join(
+        list(getattr(_sk, "technical", None) or []) + list(getattr(_sk, "tools", None) or [])
+    )[:240] if _sk else ""
+    _summary = str(getattr(profile, "candidate_summary", "") or "")
+    _bg = " | ".join(
+        p for p in (
+            f"教育: {_edu}" if _edu else "",
+            f"实习: {_intern}" if _intern else "",
+            f"项目: {_proj}" if _proj else "",
+            f"技能: {_skills}" if _skills else "",
+            f"自述: {_summary}" if _summary else "",
+        ) if p
+    )
+    _name = str(getattr(getattr(profile, "basic_info", None), "name", "") or "")
     profile_dict: dict[str, Any] = {
-        "name": getattr(profile, "name", "") or "",
-        "background": "; ".join(
-            f"{e.get('company', '')} {e.get('title', '')}"
-            for e in (getattr(profile, "experiences", None) or [])[:3]
-        ),
-        "hidden_highlights": list(getattr(profile, "hidden_highlights", None) or [])[:6],
+        "name": _name,
+        "background": _bg,
+        "hidden_highlights": list(getattr(profile, "inferred_roles", None) or [])[:6],
         "preferred_sub_cats": preferred_sub_cats,
     }
 
