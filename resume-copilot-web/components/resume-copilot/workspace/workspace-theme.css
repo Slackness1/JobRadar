@@ -7161,3 +7161,46 @@ details[open] .workspace-hifi__tier-reason-summary::before {
   background: var(--library-rail);
   border-color: var(--ring-warm);
 }
+
+/* ── Thinking timeline (PROG-T4: 渐进式"看得见的思考") ──────────────────── */
+.workspace-hifi__think {
+  border: 1px solid var(--border-warm);
+  border-radius: 14px;
+  background: var(--ivory);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.workspace-hifi__think-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--stone);
+  margin-bottom: 6px;
+}
+.workspace-hifi__think-toggle {
+  background: none;
+  border: none;
+  color: var(--stone);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+.workspace-hifi__think-list { list-style: none; margin: 0; padding: 0; }
+.workspace-hifi__think-list li { display: flex; gap: 8px; padding: 4px 0; }
+.workspace-hifi__think-mark { color: var(--terracotta); width: 1ch; flex-shrink: 0; }
+.workspace-hifi__think-list li[data-status='running'] .workspace-hifi__think-mark {
+  opacity: 0.6;
+}
+.workspace-hifi__think-msg { font-size: 13px; color: var(--ink); }
+.workspace-hifi__think-reason { font-size: 12px; color: var(--stone); margin-top: 2px; }
+.workspace-hifi__think-collapsed {
+  font-size: 12px;
+  color: var(--stone);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 8px;
+  text-align: left;
+}
