@@ -1234,9 +1234,12 @@ def recommend_jobs_for_profile(
                 progress=progress,
             )
         except Exception as exc:  # noqa: BLE001 — v2 fail 永远 fallback v1, 不破坏推荐
+            # 大声报警 + 带 traceback: v2 静默回落 v1 会让真实简历推出跑偏岗(v1 按
+            # 关键词把科技/运营岗误标强匹配),这种崩必须在日志里一眼可见,不能再藏。
             import logging as _lg
-            _lg.getLogger(__name__).warning(
-                "recommend_v2 failed, fallback to v1: %s", exc
+            _lg.getLogger(__name__).error(
+                "recommend_v2 CRASHED, falling back to v1 (推荐质量会退化): %s",
+                exc, exc_info=True,
             )
             # 继续走下面 v1 路径
 

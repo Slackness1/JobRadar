@@ -199,3 +199,23 @@ def test_rank_jobs_sorts_desc():
 def test_rank_jobs_empty_list():
     p = StudentProfile()
     assert rank_jobs(p, []) == []
+
+
+def test_freshness_handles_tz_aware_scraped_at():
+    """tz-aware scraped_at 不能让打分崩 (历史 bug: 整个 v2 崩→静默回落 v1→推荐跑偏)。"""
+    from datetime import timezone
+
+    job = Job(
+        job_id="tz", company="X", sub_category="公募权益研究员",
+        quality_label="good", sub_cat_confidence=0.8,
+        scraped_at=datetime.now(timezone.utc),  # tz-aware
+    )
+    score = freshness_quality_score(job)  # 不应抛 TypeError
+    assert 0.0 <= score <= 1.0
+
+    profile = StudentProfile(
+        preferred_sub_cats=["公募权益研究员"], preferred_industries=[], preferred_tiers=[],
+    )
+    # rank_jobs 跑全程不崩 (含 tz-aware 岗位)
+    ranked = rank_jobs(profile, [job])
+    assert len(ranked) == 1

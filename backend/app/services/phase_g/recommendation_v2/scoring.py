@@ -72,7 +72,13 @@ def freshness_quality_score(job: Job) -> float:
     conf = sub_cat_confidence or 0.5
     total = 0.5*fresh + 0.3*qbonus + 0.2*conf
     """
-    days = (datetime.utcnow() - job.scraped_at).days if job.scraped_at else 30
+    # SQLite 存 naive UTC,但个别源(增量入库/情报 ingest)写了 tz-aware 时间戳,
+    # 直接和 naive utcnow() 相减会 TypeError → 整个 v2 打分崩 → 静默回落 v1
+    # (= 真实简历推出来一堆跑偏的科技/运营岗)。这里把 scraped_at 归一成 naive。
+    scraped = job.scraped_at
+    if scraped is not None and scraped.tzinfo is not None:
+        scraped = scraped.replace(tzinfo=None)
+    days = (datetime.utcnow() - scraped).days if scraped else 30
     fresh = max(0.0, 1.0 - days / 30.0)
     qbonus = {"good": 1.0, "internship_only": 0.6}.get(job.quality_label or "", 0.0)
     conf = float(job.sub_cat_confidence or 0.5)
