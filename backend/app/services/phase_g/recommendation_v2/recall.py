@@ -18,6 +18,10 @@ from sqlalchemy.orm import Session
 from app.models import Job
 
 
+# 地点无关/全国类岗位：学生选了城市也应保留(可异地/远程/全国招)
+_LOCATION_AGNOSTIC_KW = ("全国", "不限", "多地", "远程", "在家", "弹性办公", "anywhere", "remote")
+
+
 def recall_candidates(
     db: Session,
     preferred_sub_cats: Sequence[str] = (),
@@ -25,6 +29,7 @@ def recall_candidates(
     limit: int = 200,
     quality_labels: tuple[str, ...] = ("good", "internship_only"),
     freshness_days: int = 30,
+    preferred_locations: Sequence[str] = (),
 ) -> list[Job]:
     """从 jobs 表拉 v2 推荐候选池。
 
@@ -54,6 +59,18 @@ def recall_candidates(
                 Job.sub_category_secondary.in_(sub_list),
             )
         )
+
+    # 地点过滤：学生选了城市(如北京/上海)就只召回 命中城市 OR 地点无关(全国/远程/未知)
+    # 的岗,踢掉明显异地(深圳/福州/日本)。location 字段脏(可能 "上海,深圳"/"上海·浦东"),
+    # 用 LIKE 子串匹配。空 preferred_locations 不过滤。
+    locs = [str(c).strip() for c in (preferred_locations or []) if str(c).strip()]
+    if locs:
+        loc_conds = [Job.location.is_(None), Job.location == ""]
+        for kw in _LOCATION_AGNOSTIC_KW:
+            loc_conds.append(Job.location.like(f"%{kw}%"))
+        for city in locs:
+            loc_conds.append(Job.location.like(f"%{city}%"))
+        conds.append(or_(*loc_conds))
 
     query = db.query(Job).filter(and_(*conds))
 

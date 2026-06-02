@@ -1106,6 +1106,11 @@ def _recommend_v2_dispatcher(
     effective_top_n = RECOMMEND_TOP_N if top_n is None else int(top_n)
     rejected_set = {str(j).strip() for j in (rejected_job_ids or []) if str(j).strip()}
     preferred_sub_cats = _v2_extract_preferred_sub_cats(profile, preferences)
+    preferred_locations = [
+        str(l).strip()
+        for l in (getattr(preferences, "preferred_locations", None) or [] if preferences else [])
+        if str(l).strip()
+    ]
 
     # 学生 profile dict (给 rerank / narrative 用)
     profile_dict: dict[str, Any] = {
@@ -1124,11 +1129,12 @@ def _recommend_v2_dispatcher(
         preferred_tiers=[],
     )
 
-    # Step 1: SQL recall
+    # Step 1: SQL recall (含地点过滤 — 学生选了城市就不召回明显异地岗)
     candidates = recall_candidates(
         db,
         preferred_sub_cats=preferred_sub_cats,
         limit=200,
+        preferred_locations=preferred_locations,
     )
     if rejected_set:
         candidates = [j for j in candidates if str(j.job_id) not in rejected_set]

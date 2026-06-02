@@ -82,9 +82,9 @@ def test_rerank_one_with_kb_calls_llm(mock_kb, mock_client_fn):
     assert "卖方" in out["reasoning"]
     assert out["kb_available"] is True
     assert out["data_confidence"] == "medium"
-    # 验证调用了 Pro client + reasoning_effort=high
+    # 验证调用了 Pro client + reasoning_effort=medium (H2 2026-06-02 由 high 切 medium 提速)
     call = mock_client.chat.completions.create.call_args
-    assert call.kwargs["extra_body"] == {"reasoning_effort": "high"}
+    assert call.kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert call.kwargs["temperature"] == 0.2
 
 
