@@ -112,7 +112,6 @@ export function LeftRecommendRail({
   const platformFetchingRef = useRef(false);
   // Phase G梯队骨架 state
   const [platformSkeleton, setPlatformSkeleton] = useState<PlatformSkeleton | null>(null);
-  const skeletonFetchingRef = useRef(false);
   // 已拉过骨架的 sub_cat（undefined=未初始化, null=无 sub_cat, string=已拉过的赛道）
   const skeletonFetchedSubCatRef = useRef<string | null | undefined>(undefined);
   // Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner
@@ -215,10 +214,6 @@ export function LeftRecommendRail({
     if (cached) {
       queueMicrotask(() => {
         setJobMode(cached);
-        const dt = cached.default_tab;
-        if (dt === 'platform' || dt === 'campus' || dt === 'intern') {
-          setViewMode(dt);
-        }
       });
       return;
     }
@@ -227,11 +222,6 @@ export function LeftRecommendRail({
       .then((m) => {
         jobModeCache.set(sid, m);
         setJobMode(m);
-        // 落一次默认 tab (此分支仅在 jobMode===null 时触发, 即首次; 之后学生手动切不覆盖)
-        const dt = m.default_tab;
-        if (dt === 'platform' || dt === 'campus' || dt === 'intern') {
-          setViewMode(dt);
-        }
       })
       .catch(() => setJobMode(null))
       .finally(() => { jobModeFetchingRef.current = false; });
@@ -282,42 +272,38 @@ export function LeftRecommendRail({
   // skeletonFetchedSubCatRef 仅在 effect 内读写，防止 catch(null) 后无限重试。
   // recommendations reset 时 setPlatformSkeleton(null) + setJobMode(null) 已触发重拉。
   useEffect(() => {
-    if (!sid) return;
-    if (!recReady) return;
-    if (skeletonFetchingRef.current) return;
+    if (!sid || !recReady) return;
     const subCat = primarySubCat;
     const subCatKey = subCat ?? null;
     // 主推实习的学生(default_tab==='intern')→ 骨架在招岗实习优先,不被校招挤出 LIMIT 5。
     const skMode = jobMode?.default_tab === 'intern' ? 'intern' : undefined;
-    // guard key 带上 sid + mode：切到另一份简历(尤其同 sub_cat 的投研 persona)/换求职
-    // 模式时,仅按 subCatKey 判会误命中"已试过"→ 永不重拉 → 骨架一直空转。
+    // guard key 带 sid + mode：换简历/换模式 key 必变 → 正常重拉。
     const guardKey = `${sid}:${subCatKey ?? ''}:${skMode ?? ''}`;
     const cached = platformSkeletonCache.get(guardKey);
     if (cached) {
+      skeletonFetchedSubCatRef.current = guardKey;
       queueMicrotask(() => setPlatformSkeleton(cached));
       return;
     }
-    // 骨架已存在（成功）就不重拉；若 platformSkeleton 被 reset 为 null 则允许重拉
-    if (platformSkeleton !== null) return;
-    // 失败后不重试同一 (会话,sub_cat,mode)（防止 catch→null→catch→null 无限循环）
+    // 本 (会话,赛道,模式) 已发起过就不重复发(在飞的 .then 会自己落)。
     if (skeletonFetchedSubCatRef.current === guardKey) return;
-    skeletonFetchingRef.current = true;
     skeletonFetchedSubCatRef.current = guardKey;
-    const controller = new AbortController();
+    // ⚠️ 不要用 AbortController：deps churn(jobMode 落地翻 primarySubCat/default_tab)
+    // 会让 effect 重跑,cleanup 一 abort 就把已 200 的请求丢掉 → platformSkeleton 永远
+    // 是 null → 永久"正在加载梯队骨架"。这里不 abort,让请求落地;靠 guardKey 去重 +
+    // 落地时校验 key 仍匹配,避免切换被旧结果覆盖。
     getPlatformsByTier(sid, subCat, skMode)
       .then((r) => {
-        if (!controller.signal.aborted) {
-          platformSkeletonCache.set(guardKey, r);
-          setPlatformSkeleton(r);
-        }
+        platformSkeletonCache.set(guardKey, r);
+        if (skeletonFetchedSubCatRef.current === guardKey) setPlatformSkeleton(r);
       })
       .catch(() => {
-        // skeletonFetchedSubCatRef 已标记此 sub_cat，失败后不再重试
-        if (!controller.signal.aborted) setPlatformSkeleton(null);
-      })
-      .finally(() => { skeletonFetchingRef.current = false; });
-    return () => { controller.abort(); };
-  }, [sid, recReady, primarySubCat, platformSkeleton, jobMode?.default_tab]);
+        // 失败兜底成"无骨架"(渲染走扁平在招列表),绝不让它停在永久转圈。
+        if (skeletonFetchedSubCatRef.current === guardKey) {
+          setPlatformSkeleton({ sub_cat: subCat ?? '', has_skeleton: false, tiers: [] } as PlatformSkeleton);
+        }
+      });
+  }, [sid, recReady, primarySubCat, jobMode?.default_tab]);
 
   // ── D-3 banner: first-time-after-reject 提示 (pure-derived) ───────────────
   // session.rejected_job_ids_json 没暴露给前端;改用 localStorage 跟本会话
@@ -402,7 +388,10 @@ export function LeftRecommendRail({
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  const sessionReady = session?.has_recommendations === true && recReady;
+  // 推荐是否"可展示"只看 items 快照。`session.has_recommendations` 是后端
+  // 会话级摘要,生成中第一批规则结果已落库时可能仍为 false；如果这里继续绑它,
+  // 首次上传会只看到轻量列表/等待态,平台梯队骨架不进入渲染。
+  const sessionReady = recReady;
   const isGeneratingRecommendations = session?.recommendation_status === 'running';
   const hasEmptyRecommendationSnapshot = recommendations !== null && !recReady && !isGeneratingRecommendations;
   const jobsCount = viewMode === 'campus' ? campusItems.length : internItems.length;
