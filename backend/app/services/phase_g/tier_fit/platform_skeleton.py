@@ -178,8 +178,14 @@ def _build_intel_block(dims: dict, n_insights: int) -> dict:
     }
 
 
+@lru_cache(maxsize=128)
 def gt_companies_for_sub_cat(sub_cat: str) -> set[str]:
-    """返回某 sub_cat 的 GT 公司名集合（归一化后），用于「梯队内/外」判定。"""
+    """返回某 sub_cat 的 GT 公司名集合（归一化后），用于「梯队内/外」判定。
+
+    lru_cache：底层 _load_gt 已缓存，这里再缓每个 sub_cat 的集合，避免推荐时
+    每个候选岗都重建一遍 set（一批 ≤20 岗常共享同一 sub_cat）。返回的集合仅供
+    成员判定，调用方不可改它（改了会污染缓存）。
+    """
     gt = _load_gt().get("ground_truth", {})
     entries = gt.get(sub_cat, [])
     return {_norm_company(e["name"]) for e in entries if e.get("name")}
