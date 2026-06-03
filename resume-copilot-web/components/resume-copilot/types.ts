@@ -362,6 +362,45 @@ export interface ResumeRecommendationPlatformsOut {
   fallback_reason: string;
 }
 
+// ── Recommend-chat / working-query / deepen (Phase G Task 8) ─────────────────
+
+export interface WorkingQuery {
+  seed_sub_cats: string[];
+  sub_cats: string[];
+  companies: string[];
+  locations: string[];
+  exclude: string[];
+  sort: string;
+  only: boolean;
+  note: string;
+}
+
+export interface RecommendTrace {
+  intent: string;
+  query_delta: Record<string, unknown>;
+  remember_note: string;
+}
+
+/** Feed item returned by recommend-chat / working-query / deepen endpoints.
+ *  Extends the base recommendation item; overrides `enhanced_score` and
+ *  `used_ai` to be optional (rule-scored items omit / mirror base). */
+export interface RecommendFeedItem extends Omit<ResumeRecommendationItem, 'enhanced_score' | 'used_ai'> {
+  enhanced_score?: number | null;
+  used_ai?: boolean;
+  base_score?: number;
+  /** ≤4 evidence anchors surfaced after deepen. Each tuple: [label, text]. */
+  anchors?: [string, string][];
+}
+
+export interface RecommendTurnResponse {
+  intent: string;
+  reply: string;
+  feed: RecommendFeedItem[] | null;
+  working_query: WorkingQuery;
+  trace: RecommendTrace;
+  remembered: { dimension: string; value: string } | null;
+}
+
 export const EMPTY_PREFERENCES: ResumePreferencePayload = {
   preferred_tracks: [],
   preferred_locations: [],

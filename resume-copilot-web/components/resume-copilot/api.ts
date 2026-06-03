@@ -2,6 +2,8 @@ import type {
   ApplyRewriteOut,
   CopilotMessage,
   DirectionTierResult,
+  RecommendFeedItem,
+  RecommendTurnResponse,
   ResumeConfirmedProfileOut,
   ResumeCopilotSession,
   ResumeCopilotSessionCreatedOut,
@@ -15,6 +17,7 @@ import type {
   ResumeRecommendationPlatformsOut,
   ResumeRecommendationResult,
   SubCatSuggestionsResponse,
+  WorkingQuery,
 } from './types';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -1029,5 +1032,59 @@ export function getPlatformsByTier(
   const q = params.toString() ? `?${params.toString()}` : '';
   return requestJson<PlatformSkeleton>(
     `/api/resume-copilot/sessions/${sessionId}/platforms-by-tier${q}`,
+  );
+}
+
+// ── Recommend-chat / working-query / deepen (Phase G Task 8) ─────────────────
+
+export async function postRecommendChat(
+  sessionId: number,
+  message: string,
+): Promise<RecommendTurnResponse> {
+  return requestJson<RecommendTurnResponse>(
+    `/api/resume-copilot/sessions/${sessionId}/recommend-chat`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    },
+  );
+}
+
+export async function getWorkingQuery(
+  sessionId: number,
+): Promise<{ working_query: WorkingQuery | null }> {
+  return requestJson<{ working_query: WorkingQuery | null }>(
+    `/api/resume-copilot/sessions/${sessionId}/working-query`,
+  );
+}
+
+export async function updateWorkingQuery(
+  sessionId: number,
+  op: {
+    remove_sub_cat?: string;
+    clear_only?: boolean;
+    sort?: string;
+    reseed?: boolean;
+  },
+): Promise<{ working_query: WorkingQuery; feed: RecommendFeedItem[] }> {
+  return requestJson<{ working_query: WorkingQuery; feed: RecommendFeedItem[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/working-query/update`,
+    {
+      method: 'POST',
+      body: JSON.stringify(op),
+    },
+  );
+}
+
+export async function postRecommendDeepen(
+  sessionId: number,
+  jobIds: string[],
+): Promise<{ items: RecommendFeedItem[] }> {
+  return requestJson<{ items: RecommendFeedItem[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/recommend-deepen`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ job_ids: jobIds }),
+    },
   );
 }
