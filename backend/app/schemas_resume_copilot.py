@@ -78,6 +78,10 @@ class ResumePreferencePayload(BaseModel):
     # 校正简历解析出的毕业时间; 有准确毕业时间后阶段判定更可靠 (优先级低于显式
     # job_stage, 高于简历 education)。
     graduation_date: str = ''
+    # Phase G (2026-06-03) — 学生在确认页把粗赛道细化到的细分方向集合(软信号)。
+    # 空 = 不细化, 整赛道等权(= 现状); 非空 = 命中的加权、赛道内未勾的降权。
+    # 永不影响召回(不藏岗), 只改排序。来源: 确认页两级勾选, LLM 预勾最像的 1-3 个。
+    confirmed_sub_cats: list[str] = []
 
 
 class ResumeParsedProfileOut(BaseModel):
