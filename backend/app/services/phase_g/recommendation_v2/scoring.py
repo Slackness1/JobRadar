@@ -32,6 +32,7 @@ def sub_cat_match_score(profile: StudentProfile, job: Job) -> float:
     - confirmed 为空 → primary 命中 preferred 1.0 / secondary 0.6 / miss 0.0(现状)。
     - confirmed 非空 → primary ∈ confirmed 1.0 / primary ∈ preferred 但未勾 0.5(降权不归零)
       / secondary ∈ confirmed 0.6 / 其余 0.0。
+      注: 已确认后, secondary 只认 confirmed; secondary ∈ preferred 但未勾 → 0.0(故意不给次要信号续命)。
     """
     if not profile.preferred_sub_cats:
         return 0.5
