@@ -53,7 +53,11 @@ from app.schemas_resume_copilot import (
     RewriteOption,
     RewriteV0V2In,
     RewriteV0V2Out,
+    ScoreReportOut,
+    ScoreRequestIn,
 )
+from app.services.resume_copilot import scoring as _scoring_mod
+from app.services.resume_copilot.scoring import derive_target_track, score_resume
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
 from app.services.resume_copilot.pdf_export import FontsNotInstalledError, render_resume_pdf
@@ -398,6 +402,63 @@ def export_resume_pdf(
         content=pdf_bytes,
         media_type='application/pdf',
         headers={'Content-Disposition': content_disposition},
+    )
+
+
+@router.post('/sessions/{session_id}/score', response_model=ScoreReportOut)
+def score_resume_session(
+    session_id: int,
+    body: ScoreRequestIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """多维度诚实打分 (B1)。只读,不写库 — demo 简历也可打分。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    confirmed = (
+        db.query(ResumeConfirmedProfile)
+        .filter(ResumeConfirmedProfile.session_id == session_id)
+        .first()
+    )
+    parsed = (
+        db.query(ResumeParsedProfile)
+        .filter(ResumeParsedProfile.session_id == session_id)
+        .first()
+    )
+    source = confirmed or parsed
+    if not source:
+        raise HTTPException(status_code=404, detail='No resume profile available to score')
+
+    profile = ResumeProfilePayload.model_validate(json.loads(str(source.profile_json or '{}')))
+
+    preferences = None
+    pref_row = (
+        db.query(ResumePreferenceProfile)
+        .filter(ResumePreferenceProfile.session_id == session_id)
+        .first()
+    )
+    if pref_row is not None:
+        preferences = ResumePreferencePayload.model_validate(
+            json.loads(str(getattr(pref_row, 'preferences_json', '{}') or '{}'))
+        )
+        preferences.all_skipped = bool(getattr(pref_row, 'all_skipped', 0))
+
+    target = (body.target_track or '').strip() or derive_target_track(profile, preferences)
+
+    # 模块级 provider 钩子,测试可 monkeypatch _scoring_mod.OpenAICompatibleResumeScorer。
+    provider = _scoring_mod.OpenAICompatibleResumeScorer()
+    report = score_resume(db, profile, target, preferences=preferences, provider=provider)
+
+    return ScoreReportOut(
+        session_id=session_id,
+        target_track=report.target_track,
+        overall_current=report.overall_current,
+        overall_potential_low=report.overall_potential_low,
+        overall_potential_high=report.overall_potential_high,
+        dimensions=report.dimensions,
+        section_gaps=report.section_gaps,
+        used_ai=report.used_ai,
     )
 
 
