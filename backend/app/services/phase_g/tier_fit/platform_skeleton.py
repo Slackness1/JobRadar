@@ -178,6 +178,13 @@ def _build_intel_block(dims: dict, n_insights: int) -> dict:
     }
 
 
+def gt_companies_for_sub_cat(sub_cat: str) -> set[str]:
+    """返回某 sub_cat 的 GT 公司名集合（归一化后），用于「梯队内/外」判定。"""
+    gt = _load_gt().get("ground_truth", {})
+    entries = gt.get(sub_cat, [])
+    return {_norm_company(e["name"]) for e in entries if e.get("name")}
+
+
 def build_platform_skeleton(
     db: Session,
     sub_cat: str,
