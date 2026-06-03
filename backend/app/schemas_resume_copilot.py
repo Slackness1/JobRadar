@@ -569,3 +569,35 @@ class RecommendRejectOut(BaseModel):
     ok: bool = True
     memory_entry_id: int | None = None
     rejected_count: int = 0
+
+
+# ===== 简历多维度打分 (B1) =====
+
+
+class DimensionScore(BaseModel):
+    key: str                       # logic|star|readability|completeness|expression|quantification|track_fit|defensibility
+    name: str                      # 中文显示名
+    score: int                     # 0-100 现状分
+    ceiling: int                   # 0-100 «补齐真实证据后可达» 上限(>= score)
+    reason: str = ''               # 一句话诊断
+
+
+class SectionGap(BaseModel):
+    section: str                   # 经历定位,如 "internships.0" / "projects.1"
+    label: str = ''                # 该段显示名(公司/项目名),给前端列表用
+    gaps: list[str] = []           # 该段的主要缺口(短句)
+
+
+class ScoreReportOut(BaseModel):
+    session_id: int
+    target_track: str              # canonical 赛道(打分所对齐的目标)
+    overall_current: int           # 现状总分 0-100
+    overall_potential_low: int     # 潜力区间下界
+    overall_potential_high: int    # 潜力区间上界
+    dimensions: list[DimensionScore] = []
+    section_gaps: list[SectionGap] = []
+    used_ai: bool = False
+
+
+class ScoreRequestIn(BaseModel):
+    target_track: str = ''         # 空 = 后端自动推导
