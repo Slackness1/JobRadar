@@ -1025,6 +1025,9 @@ def _v2_items_from_ranked(
     """把 reranked/prelim dict 列表转成 ResumeRecommendationItem(供占位结果与最终结果共用)。
     每个 dict 需含 job/final_score(0-1)/base_score(0-1)，可选 llm_reasoning/data_confidence/kb_available。
     narr_by_index=None → 规则占位模式(理由留空)。"""
+    from app.services.phase_g.tier_fit.platform_skeleton import gt_companies_for_sub_cat
+    from app.services.phase_g.tier_fit.tier_ladder import _norm_company
+
     narr_by_index = narr_by_index or {}
     _empty = {"narrative": "", "anchors_used": [], "kb_available": False}
     items: list[ResumeRecommendationItem] = []
@@ -1040,6 +1043,8 @@ def _v2_items_from_ranked(
         risks = []
         if narr.get("kb_available") is False and final_int < 50:
             risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
+        _sc = job.sub_category or ""
+        _in_sk = bool(_sc) and _norm_company(job.company or "") in gt_companies_for_sub_cat(_sc)
         items.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id),
@@ -1072,6 +1077,7 @@ def _v2_items_from_ranked(
                 ),
                 is_internship=(job.quality_label == "internship_only"),
                 industry_tags=[],
+                in_skeleton=_in_sk,
             )
         )
     return items

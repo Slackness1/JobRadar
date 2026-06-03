@@ -233,6 +233,8 @@ class ResumeRecommendationItem(BaseModel):
     # 2026-05-25 Phase 6-mvp: 行业子方向 chip (TMT/消费/医药/...) — 0-2 个,
     # keyword-based 推断,纯展示用,不入排序。
     industry_tags: list[str] = []
+    # 2026-06-03 Task 11: 岗位所属公司是否在该 sub_cat 的 GT 骨架公司集合内。
+    in_skeleton: bool = False
 
 
 class ResumeRecommendationResultOut(BaseModel):
