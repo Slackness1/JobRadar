@@ -26,9 +26,14 @@ _PROMPT = """你是金融招聘顾问。下面是一个学生的简历摘要, �
 
 
 def _build_client():
-    """复用项目里 Pro/Flash client 工厂; 预勾用便宜模型即可。"""
-    from app.services.crawler_llm import build_pro_client
-    return build_pro_client(max_retries=1, timeout=30)
+    """复用项目 Flash client 工厂; 预勾是简单分类, 用便宜的 flash 档即可。"""
+    from app.services.crawler_llm import build_flash_client
+    return build_flash_client()
+
+
+def _model_name() -> str:
+    from app.services.crawler_llm import flash_model_name
+    return flash_model_name()
 
 
 def suggest_sub_cats(resume_summary: str, candidate_sub_cats: list[str], *, client=None) -> list[str]:
@@ -39,7 +44,7 @@ def suggest_sub_cats(resume_summary: str, candidate_sub_cats: list[str], *, clie
     cli = client if client is not None else _build_client()
     try:
         resp = cli.chat.completions.create(
-            model="deepseek-chat",
+            model=_model_name(),
             messages=[{"role": "user", "content": _PROMPT.format(
                 resume=(resume_summary or "")[:1500],
                 cands="\n".join(f"- {c}" for c in cands),
