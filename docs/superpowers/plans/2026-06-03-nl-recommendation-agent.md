@@ -4,7 +4,12 @@
 
 **Goal:** 让学生在工作台用自然语言指令实时从岗位库召回/重排岗位（流动 feed），改的是会话级「工作查询」而非确认赛道，平时偏好沉淀进统一记忆，深度精排按需才跑。
 
-**Architecture:** 每轮对话 = 1 次 flash LLM 出结构化 JSON（intent + query_delta + remember + reply）→ 纯函数 `apply_delta` 并进 WorkingQuery → `search_candidates`（复用 `recall_candidates`+`rank_jobs`+`_v2_items_from_ranked`，纯规则、秒级）出 feed。三层偏好：L1 工作查询（`working_query_json` 列）/ L2 锁定→confirmed preferences / L3 平时偏好→`account_memory` `preference` 行（经 `dispatcher.write_memory`）。深挖才跑 Pro 精排。前端 = 独立三栏「推荐工作台」（会话侧栏 / NL 对话栏 / 流动 feed 栏）。
+**Architecture:** 每轮对话 = 1 次 flash LLM 出结构化 JSON（intent + query_delta + remember + reply）→ 纯函数 `apply_delta` 并进 WorkingQuery → `search_candidates`（复用 `recall_candidates`+`rank_jobs`+`_v2_items_from_ranked`，纯规则、秒级）出 feed。三层偏好：L1 工作查询（`working_query_json` 列）/ L2 锁定→confirmed preferences / L3 平时偏好→`account_memory` `preference` 行（经 `dispatcher.write_memory`）。深挖才跑 Pro 精排。
+
+**前端 = 独立三栏「推荐工作台」: 梯队骨架(左·主) | NL 对话(中) | 流动 feed(右)**，会话切换收进顶栏下拉。
+- **梯队骨架(子项②, 已建好, 本计划只复用不重做)**: 左侧主干，**confirmed 赛道驱动**(稳定)。复用现有 `GET /sessions/{id}/platforms-by-tier`(毫秒级读缓存、不触发 LLM) + `PlatformTierGroup`/`PlatformCard`/`TierLadderStrip`(现挂在 `LeftRecommendRail`)。公司按头部/次头部/腰部分档、岗位嵌公司下。
+- **流动 feed(子项①, 本计划主体)**: 右侧，**工作查询(L1)驱动**(流动)，NL 对话每轮快路重排。
+- **分开互补 + 点击联动**: 骨架与 feed 是两套结构、各自驱动；点 feed 里某岗 → 高亮骨架里对应公司。NL 对话**只动 feed、不动骨架**；唯有「锁定为主方向」把工作查询落成 confirmed → 骨架据此重塑(refetch)。
 
 **Tech Stack:** FastAPI + Pydantic v2 + SQLAlchemy(SQLite, Alembic) + pytest；DeepSeek flash（意图解析）；Next.js 16 + React 19。
 
@@ -48,14 +53,16 @@
 **前端（改）:**
 - `resume-copilot-web/components/resume-copilot/types.ts` + `api.ts` — 类型 + 4 个调用（chat / working-query / working-query-update / deepen）。
 
-**前端（新建 — 按 hi-fi 设计稿像素级还原独立三栏「推荐工作台」）:**
+**前端（新建 — 独立三栏「推荐工作台」, NL 部分按 hi-fi 设计稿像素级还原）:**
 - `resume-copilot-web/app/recommend/page.tsx` — 新路由（独立全屏页）。
 - `.../workspace/recommend-agent/` 新组件目录：
-  - `RecommendWorkspaceShell.tsx`（三栏 grid + 顶层状态机）/ `RecommendTopBar.tsx` / `RecommendSidebar.tsx`（会话列表 + 隐藏改写卡）
+  - `RecommendWorkspaceShell.tsx`（三栏 grid: 骨架|对话|feed + 顶层状态机）/ `RecommendTopBar.tsx`（含会话切换下拉 + 隐藏改写入口标识）
+  - `RecommendSkeletonPane.tsx`（左·主：**复用** `getPlatformSkeleton` API + `PlatformTierGroup`/`PlatformCard`，按 confirmed 赛道；接 `highlightCompany` 联动）
   - `RecommendChatPane.tsx` + `chat/{Turn,ThinkingCard,TraceCard,MemoryToast,Composer}.tsx`
   - `RecommendFeedPane.tsx` + `feed/{WorkingQueryReadout,JobCard,ScorePill,QueryChip}.tsx`
   - `LockModal.tsx` / `recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
-- 设计源：`.design-ref/nl-recommendation/{nlrec-app,nlrec-chat,nlrec-feed,nlrec-data}.jsx`。company-intel 卡复用既有 `workspace/intel/`。
+- **复用（不重做）**: 骨架 `workspace/recommend/{PlatformCard,PlatformTierGroup,TierLadderStrip}.tsx` + `GET platforms-by-tier`；company-intel 卡 `workspace/intel/`。
+- NL 部分设计源：`.design-ref/nl-recommendation/{nlrec-app,nlrec-chat,nlrec-feed,nlrec-data}.jsx`（设计稿只画了 NL 对话+feed 两栏；骨架那栏沿用现有骨架视觉）。
 
 **测试（新建）:**
 - `backend/tests/resume_copilot/test_working_query.py`
@@ -1135,40 +1142,44 @@ EOF
 
 > **前端 4 个任务（9–12）= 按 hi-fi 设计稿像素级还原一个独立三栏「推荐工作台」。** 源在 `resume-copilot-web/.design-ref/nl-recommendation/`（`nlrec-app/chat/feed.jsx` + `NL-recommendation-workspace.html`）。实现者**逐文件读设计稿 → 移植成 TSX**，用 repo 现有 `.hf` 体系（`components/hifi/hifi-tokens.css` 的 token + `app/globals.css` 的 `.border-beam`），缺的 token/class 才在 `workspace/recommend-agent/recommend-agent.css` 里补（按 CLAUDE.md「三套设计系统严格隔离」，scope 到 `.hf` 或 `[data-theme="recommend"]`）。不照搬设计稿的脚本化假数据（`nlrec-data.jsx` 只看 UI 契约），数据全走 Task 8 的真实 API。每个任务以 `npm run lint`(0 error) + `npm run build` 收尾。
 
-### Task 9: 独立「推荐工作台」页面 — 路由 + 三栏 Shell + 顶栏 + 会话侧栏（隐藏改写入口）
+### Task 9: 独立「推荐工作台」页面 — 路由 + 三栏 Shell + 顶栏 + 梯队骨架栏（左·主，复用）
 
 **Files:**
 - Create: `resume-copilot-web/app/recommend/page.tsx`（新路由，独立全屏页）
-- Create: `resume-copilot-web/components/resume-copilot/workspace/recommend-agent/RecommendWorkspaceShell.tsx`（三栏 grid + 顶层状态机：msgs / workingQuery / feed / thinking / lockOpen）
-- Create: `.../recommend-agent/RecommendTopBar.tsx`、`.../recommend-agent/RecommendSidebar.tsx`
+- Create: `resume-copilot-web/components/resume-copilot/workspace/recommend-agent/RecommendWorkspaceShell.tsx`（三栏 grid + 顶层状态机：msgs / workingQuery / feed / skeleton / highlightCompany / thinking / lockOpen）
+- Create: `.../recommend-agent/RecommendTopBar.tsx`、`.../recommend-agent/RecommendSkeletonPane.tsx`
 - Create: `.../recommend-agent/recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
 
-**设计稿对应:** `nlrec-app.jsx` 的 `TopBar` / `Sidebar` / `App`（三栏 grid `208px minmax(340px,1fr) minmax(372px,440px)`）。
+**布局:** 三栏 grid `minmax(300px,360px) minmax(340px,1fr) minmax(372px,440px)` = 梯队骨架(左·主) | NL 对话(中) | 流动 feed(右)。会话切换收进顶栏下拉(不占独立侧栏)。骨架栏视觉沿用现有骨架组件;NL 两栏照设计稿 `nlrec-app.jsx`。
 
-- [ ] **Step 1: 看清 repo 既有约定**
+- [ ] **Step 1: 看清 repo 既有约定 + 骨架复用点**
 
-Run: `cd resume-copilot-web && grep -rn "sessionId\|getDemoSession\|guest\|user-key\|X-Resume-User-Key" app/resume-copilot/page.tsx components/resume-copilot/workspace/WorkspaceShell.tsx | head -20`
-确认现有 workspace 怎么拿 sessionId（demo / guest / 登录）+ user-key 头怎么注入；新页照同一套解析（不另造 session 机制）。
+Run: `cd resume-copilot-web && grep -rn "sessionId\|getDemoSession\|guest\|X-Resume-User-Key" app/resume-copilot/page.tsx components/resume-copilot/workspace/WorkspaceShell.tsx | head -15`
+Run: `cd resume-copilot-web && grep -n "getPlatformSkeleton\|PlatformSkeleton\|platforms-by-tier\|PlatformTierGroup" components/resume-copilot/api.ts components/resume-copilot/workspace/LeftRecommendRail.tsx`
+确认：① 新页怎么拿 sessionId + user-key 头（照现有，不另造）；② 拉骨架的 API 函数名(`getPlatformSkeleton`?)、`PlatformSkeleton` 类型、`PlatformTierGroup` 渲染入参（照 `LeftRecommendRail` 里既有用法复用）。
 
-- [ ] **Step 2: 建 Shell + 顶栏 + 侧栏（移植设计稿）**
+- [ ] **Step 2: 建 Shell + 顶栏**
 
-- `RecommendTopBar`：JobRadar logo · 「推荐工作台」· `NL 推荐 agent` pill · 右侧「简历编辑器」ghost 按钮（链到现有 `/resume-copilot`，子项④ 拆分前的过渡入口）· 用户头像。照 `nlrec-app.jsx` TopBar。
-- `RecommendSidebar`：「新会话」主按钮 + 会话列表（先用现有 sessions API 或占位静态，按 Step 1 决定）+ **底部虚线卡「简历改写入口 · 已隐藏（组件不删 → 子项④ 物理拆分）」**（设计稿明文的「只加不删」隐藏入口）。
-- `RecommendWorkspaceShell`：三栏 grid，持有 `useState`：`msgs`/`workingQuery`/`feed`/`thinking`/`lockOpen`/`deepening`。中栏右栏先放占位，Task 10/11 填。初始 `workingQuery` 由 `getWorkingQuery(sessionId)` 拉；为空则后端 seed（向后兼容）。
+- `RecommendTopBar`：JobRadar logo · 「推荐工作台」· `NL 推荐 agent` pill · **会话切换下拉**（「新会话」+ 会话列表，用现有 sessions API 或占位）· 右侧「简历编辑器」ghost 按钮（链到现有 `/resume-copilot`，子项④ 拆分前过渡入口，即设计稿「改写入口已隐藏、组件不删」）· 用户头像。照 `nlrec-app.jsx` TopBar，会话列表从设计稿 Sidebar 收进下拉。
+- `RecommendWorkspaceShell`：三栏 grid，持 `useState`：`msgs`/`workingQuery`/`feed`/`skeleton`/`highlightCompany`/`thinking`/`lockOpen`/`deepening`。中/右栏先占位（Task 10/11 填）。初始 `workingQuery` 由 `getWorkingQuery(sessionId)` 拉，为空后端 seed（向后兼容）。
 
-- [ ] **Step 3: 挂路由 + lint + build**
+- [ ] **Step 3: 梯队骨架栏（左·主，复用现有组件）**
+
+`RecommendSkeletonPane`：
+- 拉骨架：用 Step 1 确认的 `getPlatformSkeleton(sessionId)`（按 **confirmed** 赛道，不传 sub_cat 让后端自动取第一个偏好；毫秒级读缓存）。
+- 渲染：复用 `workspace/recommend/PlatformTierGroup`（头部/次头部/腰部分档、`PlatformCard` 公司卡、岗位嵌公司下），与现有 `LeftRecommendRail` 骨架部分同款。
+- 接 `highlightCompany?: string` prop：等于某公司名时该 `PlatformCard` 高亮（陶土描边）+ `scrollIntoView`（feed→骨架点击联动的落点，Task 11 触发）。
+- 暴露 `refetch()`（锁定后骨架重塑用，Task 12 调）。
+
+- [ ] **Step 4: 挂路由 + lint + build + Commit**
 
 `app/recommend/page.tsx` 渲染 `<RecommendWorkspaceShell sessionId={...} />`。
-Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15`
-Expected: lint 0 error；build 成功；`/recommend` 在 build 输出里。
-
-- [ ] **Step 4: Commit**
-
+Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15` → 0 error / 成功 / `/recommend` 在输出里。
 ```bash
 cd /home/chuanbo/projects/JobRadar
 git add resume-copilot-web/app/recommend/ resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
 git commit -m "$(cat <<'EOF'
-feat(reco): 独立推荐工作台页面骨架(三栏 Shell + 顶栏 + 会话侧栏 + 隐藏改写入口)
+feat(reco): 推荐工作台骨架(三栏 Shell + 顶栏会话下拉 + 梯队骨架栏复用 platforms-by-tier)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 EOF
@@ -1245,9 +1256,10 @@ EOF
 - 深挖：点击 → 该卡进 `deepening` 态（按钮转「精排中…」spinner）→ `await postRecommendDeepen(sessionId,[jobId])` → 用返回 item 替换该卡（补 `enhanced_score` + `anchors`）→ 卡内展开「慢路 · 4-anchor 理由」段（`anchors.map(([k,v])=> 标签+文本)`）+「Pro 精排 ✓」pill。
 - 讲讲这家：点击 → 经 Shell 在中栏 push 一条用户 turn「讲讲{公司}」+ 拉公司情报卡（复用现有 intel 组件/接口；无结构化情报则降级文案，不静默）。
 
-- [ ] **Step 4: 空态**
+- [ ] **Step 4: 空态 + 点击联动骨架**
 
-`feed.length===0` → 设计稿文案「这方向库里暂无在招 · 要不要看相邻方向，或放宽地点？绝不静默空白」。
+- 空态：`feed.length===0` → 设计稿文案「这方向库里暂无在招 · 要不要看相邻方向，或放宽地点？绝不静默空白」。
+- 点击联动：JobCard 点公司名/卡片 → 经 Shell 的 `setHighlightCompany(job.company)` → 左侧骨架栏高亮+滚动到该公司（Task 9 `RecommendSkeletonPane` 的 `highlightCompany` prop）。这是「骨架与 feed 分开互补、点击联动」的落点。in_skeleton=false 的岗（梯队外）点击则提示「不在当前梯队骨架内」，不强行高亮。
 
 - [ ] **Step 5: lint + build + Commit**
 
@@ -1279,8 +1291,10 @@ EOF
 
 - [ ] **Step 2: confirm 落库（L2 唯一入口）**
 
-确认 → 调现有 `putResumeCopilotPreferences(sessionId, { ...现有 preferred_tracks, confirmed_sub_cats: [...seed_sub_cats, ...sub_cats] })`（**唯一**落 confirmed 的地方；用合并集）→ 成功后 feed 头部按钮变绿 pill「✓ 已锁定为主方向」+ 中栏 push「已锁定 ✓ 梯队骨架会据此重塑」+ MemoryToast「L2 → PUT /preferences · confirmed 赛道已更新」。
-> 注意：调 `putResumeCopilotPreferences` 前先 grep 它现有签名，把现有字段原样带上、只追加 `confirmed_sub_cats`（别把别的 preference 字段冲掉）。
+确认 → 调现有 `putResumeCopilotPreferences(sessionId, { ...现有 preferred_tracks, confirmed_sub_cats: [...seed_sub_cats, ...sub_cats] })`（**唯一**落 confirmed 的地方；用合并集）→ 成功后：
+- feed 头部按钮变绿 pill「✓ 已锁定为主方向」+ 中栏 push「已锁定 ✓ 梯队骨架会据此重塑」+ MemoryToast「L2 → PUT /preferences · confirmed 赛道已更新」；
+- **调左侧骨架栏 `refetch()`**（Task 9 暴露）→ 骨架按新 confirmed 重塑（这是 NL 工作台里唯一会动骨架的动作，兑现「锁定才重塑骨架」）。
+> 注意：调 `putResumeCopilotPreferences` 前先 grep 它现有签名，把现有字段原样带上、只追加 `confirmed_sub_cats`（别把别的 preference 字段冲掉）。骨架 refetch 通过 Shell 持有 `RecommendSkeletonPane` 的 ref 或提一个 `skeletonReloadKey` state 触发。
 
 - [ ] **Step 3: lint + build + Commit**
 
@@ -1373,14 +1387,14 @@ c.execute(\"DELETE FROM account_memory WHERE user_key='__test__'\"); conn.commit
 
 ## Self-Review（对照 spec）
 
-- **决策 1 分开互补**: 本子项只产流动 feed(右栏)，骨架是子项②，feed 经 Task 11 渲染、Task 12 锁定联动 ✓
+- **决策 1 分开互补 + 骨架为主**: 工作台三栏=梯队骨架(左·主, 复用子项② `platforms-by-tier`+`PlatformTierGroup`, confirmed 驱动)|NL 对话(中)|流动 feed(右, 工作查询驱动)。骨架 Task 9 复用渲染、Task 11 Step4 feed→骨架点击联动、Task 12 锁定后 refetch 重塑。**骨架不是被漏写, 是子项②已建好, 本计划只复用不重做** ✓
 - **决策 2 临时工作查询不动 confirmed**: Task 1/3/6（L1，seed/add 分离）+ Task 13 Step 2（铁律核验）✓
 - **决策 3 快慢分离**: Task 4/6 快路无 LLM rerank（含 working-query/update 重排）；Task 7 `recommend-deepen` 才慢路；Task 13 Step 3 核验 ✓
 - **决策 4 只加不删**: Task 7（改写端点不动）+ Task 9 Step 2（侧栏隐藏改写入口、组件不删）✓
 - **决策 5 结构化 JSON 非 function-calling**: Task 5（`response_format: json_object`）✓
 - **决策 6 三层持久化**: L1=Task 2 列/Task 6；L2=Task 12 锁定→preferences；L3=Task 6 `_write_preference_memory`→`write_memory` ✓
 - **Unit A WorkingQuery**: Task 1/3 ✓ ; **Unit B search_candidates**: Task 4 ✓ ; **Unit C agent loop**: Task 5/6 ✓ ; **Unit D 快慢**: Task 4/7 ✓ ; **Unit E 锁定**: Task 12 ✓
-- **设计稿覆盖**: 顶栏+会话侧栏+隐藏改写卡=Task 9；对话栏 Turn/border-beam ThinkingCard/可展开 TraceCard/MemoryToast/Composer=Task 10；feed 工作查询 readout(seed/add/excl/only+sort)/JobCard Base+Enhanced/4-anchor 深挖/讲讲这家/空态=Task 11；LockModal=Task 12 ✓
+- **设计稿覆盖**: 顶栏(会话下拉+隐藏改写入口)+梯队骨架栏(复用)=Task 9；对话栏 Turn/border-beam ThinkingCard/可展开 TraceCard/MemoryToast/Composer=Task 10；feed 工作查询 readout(seed/add/excl/only+sort)/JobCard Base+Enhanced/4-anchor 深挖/讲讲这家/空态/点击联动骨架=Task 11；LockModal+骨架 refetch=Task 12 ✓
 - **错误处理**: 空结果(Task 4 不藏岗/Task 7 deepen 回落/Task 11 空态文案)、意图不清/LLM 失败(Task 5 兜底 chitchat + Task 10 catch 降级 turn)、L3 写失败不崩(Task 6 try/except) ✓
 - **向后兼容**: `working_query_json` 缺失退回 confirmed(Task 6 `_load_query` 默认空 WorkingQuery) ✓
 - **类型一致**: `WorkingQuery(含 seed_sub_cats/effective_sub_cats)`/`apply_delta`/`seed_working_query`/`search_candidates`/`parse_intent`/`run_recommend_turn(回 trace/remembered)`/`_write_preference_memory`/`deepen_jobs(回 enhanced_score/anchors)` 全程同名；前端 `WorkingQuery`/`RecommendTrace`/`RecommendFeedItem`/`RecommendTurnResponse`/`postRecommendChat`/`getWorkingQuery`/`updateWorkingQuery`/`postRecommendDeepen` 一致 ✓
