@@ -191,6 +191,30 @@
         ],
         "must_have": false,
         "notes": "银行系公募,行业首席强"
+      },
+      {
+        "name": "景顺长城",
+        "tier": "一线公募",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "天弘基金",
+        "tier": "一线公募",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "睿远基金",
+        "tier": "二线公募",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "泓德基金",
+        "tier": "二线公募",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
       }
     ],
     "行业研究员·消费": [
@@ -2089,6 +2113,60 @@
         ],
         "must_have": false,
         "notes": "中型卖方"
+      },
+      {
+        "name": "浙商证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "国盛证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "银河证券",
+        "tier": "头部券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "财通证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "东方证券",
+        "tier": "头部券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "长江证券",
+        "tier": "头部券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "民生证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "方正证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "德邦证券",
+        "tier": "中型券商研究所",
+        "must_have": false,
+        "source": "chatgpt_扩充_2026-06-03"
       }
     ],
     "卖方研究员·宏观策略": [
