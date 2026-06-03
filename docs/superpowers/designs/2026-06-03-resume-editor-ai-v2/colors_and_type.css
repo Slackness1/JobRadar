@@ -1,0 +1,257 @@
+/* ==========================================================================
+   JobRadar Design System — tokens (Claude terracotta default)
+   ========================================================================== */
+
+/* Fonts are loaded via Google Fonts in each HTML (see ui_kits/(product)/index.html):
+     Fraunces (latin serif)  +  Noto Serif SC (zh serif)
+     Inter    (latin sans)   +  Noto Sans SC  (zh sans)
+   Both stacks are composed in CSS below so Latin glyphs render in Fraunces/Inter
+   and CJK glyphs fall through to the Noto SC variants. */
+
+:root {
+  /* ---------- Surface / neutral (warm-only) ---------- */
+  --parchment:        #f5f4ed;   /* page canvas */
+  --ivory:            #faf9f5;   /* card surface */
+  --library-rail:     #f0eee6;   /* sidebar, chat input fill */
+  --warm-sand:        #e8e6dc;   /* warm button bg / border-strong */
+  --ring-warm:        #d1cfc5;
+  --ring-deep:        #c2c0b6;
+  --dark-surface:     #30302e;   /* dark containers */
+  --deep-dark:        #141413;   /* dark page bg + primary text */
+
+  /* ---------- Text ---------- */
+  --ink:              #141413;
+  --ink-soft:         #3d3d3a;
+  --charcoal-warm:    #4d4c48;
+  --muted:            #5e5d59;
+  --stone:            #87867f;
+  --warm-silver:      #b0aea5;
+
+  /* ---------- Brand ---------- */
+  --primary:          #c96442;   /* terracotta */
+  --primary-strong:   #a84f34;
+  --primary-ring:     rgba(201, 100, 66, 0.28);
+  --coral:            #d97757;   /* lighter accent (rarely used) */
+
+  /* ---------- Borders ---------- */
+  --border:           #e8e6dc;
+  --border-cream:     #f0eee6;
+  --border-strong:    #d1cfc5;
+  --border-dark:      #30302e;
+
+  /* ---------- Semantic ---------- */
+  --emerald:          #4ade80;   /* agent ✓ */
+  --spinner:          #7c9ef7;   /* agent spinner cool-blue (the one cool moment) */
+  --focus-blue:       #3898ec;   /* input focus only */
+  --crimson:          #b53333;   /* errors */
+  --amber-bg:         #f6f0d9;
+  --amber-fg:         #a16207;
+
+  /* Compatibility aliases for code that still imports the old names */
+  --background:       var(--parchment);
+  --paper:            var(--ivory);
+  --soft:             var(--parchment);
+  --soft-blue:        var(--library-rail);
+  --accent:           var(--primary);
+  --accent-soft:      var(--library-rail);
+  --warning-soft:     var(--amber-bg);
+  --ring:             var(--primary-ring);
+
+  /* ---------- Type families ---------- */
+  --font-serif:       'Fraunces', 'Noto Serif SC', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+  --font-sans:        'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:        'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, Menlo, monospace;
+
+  /* ---------- Spacing scale (8-px base, 4-px micro) ---------- */
+  --space-0-5: 2px;
+  --space-1:   4px;
+  --space-1-5: 6px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+
+  /* ---------- Radii ---------- */
+  --radius-full: 999px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   18px;
+  --radius-2xl:  22px;
+  --radius-3xl:  28px;
+
+  /* ---------- Shadow system (ring-first, warm-tinted) ---------- */
+  --shadow-whisper: 0 4px 18px rgba(15, 23, 42, 0.06);
+  --shadow-feature: 0 10px 30px rgba(15, 23, 42, 0.04);
+  --shadow-hero:    0 18px 50px rgba(15, 23, 42, 0.05);
+  --shadow-paper:   0 0 0 1px #e8e6dc, 0 18px 52px rgba(0, 0, 0, 0.08);
+  --shadow-ring:    0 0 0 1px #d1cfc5;
+  --shadow-press-inset: inset 0 0 0 1px rgba(0, 0, 0, 0.10);
+}
+
+/* ==========================================================================
+   Semantic element defaults
+   ========================================================================== */
+
+html, body {
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display / hero — serif, weight 500, VERY tight */
+.ds-hero,
+h1.ds-hero {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(3rem, 6vw, 5.5rem);   /* 48–88px */
+  line-height: 0.94;
+  letter-spacing: -0.06em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Section heading (52px) */
+.ds-h1 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 3.25rem;         /* 52px */
+  line-height: 1.10;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Page title (30–36px) */
+.ds-h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 2rem;            /* 32px */
+  line-height: 1.20;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Card title (22–25px) */
+.ds-h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.56rem;         /* 25px */
+  line-height: 1.20;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Feature / small card title (18–20px) */
+.ds-h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.125rem;        /* 18px */
+  line-height: 1.30;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Body large — intro paragraphs */
+.ds-body-lg {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 1.125rem;        /* 18px */
+  line-height: 1.60;
+  color: var(--muted);
+}
+
+/* Body — default paragraph */
+.ds-body,
+p {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.9375rem;       /* 15px */
+  line-height: 1.60;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Body small — agent rows, meta */
+.ds-body-sm {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.8125rem;       /* 13px */
+  line-height: 1.375;
+  color: var(--muted);
+}
+
+/* Caption — dates, metadata */
+.ds-caption {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.75rem;         /* 12px */
+  line-height: 1.375;
+  color: var(--stone);
+}
+
+/* Overline — uppercase eyebrow */
+.ds-overline {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.6875rem;       /* 11px */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* Code / spinner numerics */
+.ds-mono,
+code, kbd, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;       /* 15px */
+  letter-spacing: -0.32px;
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@property --border-beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.ds-border-beam {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  z-index: 2;
+  background: conic-gradient(
+    from var(--border-beam-angle),
+    transparent 0deg,
+    var(--primary) 40deg,
+    #a78bfa 70deg,
+    transparent 120deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: border-beam-rotate 2.4s linear infinite;
+}
+
+@keyframes border-beam-rotate {
+  to { --border-beam-angle: 360deg; }
+}
