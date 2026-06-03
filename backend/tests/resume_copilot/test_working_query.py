@@ -1,4 +1,4 @@
-from app.services.resume_copilot.working_query import WorkingQuery, apply_delta
+from app.services.resume_copilot.working_query import WorkingQuery, apply_delta, seed_working_query
 
 
 def test_default_query_empty():
@@ -45,3 +45,23 @@ def test_apply_delta_is_pure_does_not_mutate_input():
     q = WorkingQuery(sub_cats=["x"])
     apply_delta(q, {"add_sub_cats": ["y"]})
     assert q.sub_cats == ["x"]  # 原对象不变
+
+
+def test_seed_from_confirmed_only():
+    q = seed_working_query(confirmed_sub_cats=["公募权益研究员"], preference_rows=[])
+    assert q.seed_sub_cats == ["公募权益研究员"]   # confirmed → seed (不可删 chip)
+    assert q.sub_cats == []                        # add 集初始为空
+    assert q.companies == [] and q.locations == [] and q.exclude == []
+
+
+def test_seed_merges_preference_memory():
+    rows = [
+        {"dimension": "company_type", "value": "外资行"},
+        {"dimension": "city", "value": "上海"},
+        {"dimension": "company_type", "value": "非国企"},   # 含「非/不」→ 排除
+    ]
+    q = seed_working_query(confirmed_sub_cats=["固收+多资产"], preference_rows=rows)
+    assert q.seed_sub_cats == ["固收+多资产"]
+    assert "外资行" in q.companies
+    assert "上海" in q.locations
+    assert any("国企" in e for e in q.exclude)  # 否定偏好 → exclude

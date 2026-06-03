@@ -53,3 +53,40 @@ def apply_delta(query: WorkingQuery, delta: dict) -> WorkingQuery:
         only=new_only,
         note=query.note,
     )
+
+
+_NEG_TOKENS = ("不", "非", "排除", "no ", "not ")
+
+
+def seed_working_query(*, confirmed_sub_cats: list[str], preference_rows: list[dict]) -> WorkingQuery:
+    """L3→L1: 工作查询初值 = confirmed 赛道 + 活跃 preference 记忆种子。
+
+    preference_rows: [{"dimension": city|industry|role|comp|company_type|stage, "value": str}, ...]
+    维度映射: city→locations; company_type/industry/comp→companies(或 exclude, 若 value 含否定词)。
+    """
+    companies: list[str] = []
+    locations: list[str] = []
+    exclude: list[str] = []
+    for row in (preference_rows or []):
+        dim = str(row.get("dimension") or "")
+        val = str(row.get("value") or "").strip()
+        if not val:
+            continue
+        is_neg = any(t in val for t in _NEG_TOKENS)
+        target = exclude if is_neg else (
+            locations if dim == "city" else companies
+        )
+        # 排除时去掉否定词留主体, 方便后续子串匹配公司/类型
+        cleaned = val
+        for t in _NEG_TOKENS:
+            cleaned = cleaned.replace(t, "")
+        cleaned = cleaned.strip()
+        if cleaned and cleaned not in target:
+            target.append(cleaned)
+    return WorkingQuery(
+        seed_sub_cats=list(confirmed_sub_cats or []),  # confirmed → 不可删 seed chip
+        sub_cats=[],                                    # NL add 集, 对话中再长
+        companies=companies,
+        locations=locations,
+        exclude=exclude,
+    )
