@@ -585,7 +585,8 @@ class DimensionScore(BaseModel):
 class SectionGap(BaseModel):
     section: str                   # 经历定位,如 "internships.0" / "projects.1"
     label: str = ''                # 该段显示名(公司/项目名),给前端列表用
-    gaps: list[str] = []           # 该段的主要缺口(短句)
+    gaps: list[str] = []           # 该段的主要缺口(短 tag)
+    detail: str = ''               # 该段缺口的一段说明 prose
 
 
 class ScoreReportOut(BaseModel):
@@ -594,6 +595,7 @@ class ScoreReportOut(BaseModel):
     overall_current: int           # 现状总分 0-100
     overall_potential_low: int     # 潜力区间下界
     overall_potential_high: int    # 潜力区间上界
+    summary: str = ''              # 整体诊断 prose
     dimensions: list[DimensionScore] = []
     section_gaps: list[SectionGap] = []
     used_ai: bool = False

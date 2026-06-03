@@ -106,9 +106,11 @@ class _FakeScorer:
                 {'key': 'track_fit', 'score': 78, 'ceiling': 85, 'reason': ''},
                 {'key': 'defensibility', 'score': 60, 'ceiling': 78, 'reason': ''},
             ],
+            'summary': '整体中上,短板在 STAR 与成果量化',
             'section_gaps': [
                 {'section': 'internships.0', 'label': '九坤投资',
-                 'gaps': ['STAR 缺 Result', '成果无量化锚点']},
+                 'gaps': ['STAR 缺 Result', '成果无量化锚点'],
+                 'detail': '协助搭建因子回测框架缺最终结果'},
             ],
         }
 
@@ -132,6 +134,8 @@ def test_score_resume_computes_overall_and_potential(db_session):
     assert report.overall_potential_high == 86
     assert len(report.dimensions) == 8
     assert report.section_gaps[0].gaps == ['STAR 缺 Result', '成果无量化锚点']
+    assert report.section_gaps[0].detail == '协助搭建因子回测框架缺最终结果'
+    assert report.summary == '整体中上,短板在 STAR 与成果量化'
     assert report.used_ai is True
 
 

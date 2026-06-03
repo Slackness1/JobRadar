@@ -38,13 +38,16 @@ _SCORE_SYSTEM_PROMPT = """\
 3. **ceiling = 补齐真实证据后可达的上限**:假设学生«如实»补上缺失的背景/结果/
    数字 (而不是编造) 后,这一维能到多少。不要假设靠编造冲到 90+。
 4. 每维给 score(现状) + ceiling(>=score) + 一句话 reason(指出缺口,不给改写)。
-5. section_gaps:逐段经历列主要缺口短句 (section 用 "internships.0" / "projects.1"
-   这种定位),给学生«去深度优化哪段»当线索。
+5. section_gaps:逐段经历列主要缺口 (section 用 "internships.0" / "projects.1"
+   这种定位),给学生«去深度优化哪段»当线索。每段给 gaps(短 tag 列表) +
+   detail(一段中文说明,讲清这段缺什么、为什么拖分,不给改写句)。
+6. summary:一段整体诊断 prose(2-4 句),点出整体质量 + 主要短板 + 优先补哪几段。
 
 严格输出 JSON:
 {
+  "summary": "整体诊断 prose",
   "dimensions": [{"key": "...", "score": 0-100, "ceiling": 0-100, "reason": "..."}],
-  "section_gaps": [{"section": "internships.0", "label": "公司名", "gaps": ["...", "..."]}]
+  "section_gaps": [{"section": "internships.0", "label": "公司名", "gaps": ["短tag"], "detail": "一段说明"}]
 }
 dimensions 必须覆盖全部 8 个 key。"""
 
@@ -103,6 +106,7 @@ class ScoreReport:
     overall_current: int
     overall_potential_low: int
     overall_potential_high: int
+    summary: str = ''
     dimensions: list[DimensionScore] = field(default_factory=list)
     section_gaps: list[SectionGap] = field(default_factory=list)
     used_ai: bool = False
@@ -168,6 +172,7 @@ def score_resume(
             section=str(g.get('section', '') or ''),
             label=str(g.get('label', '') or ''),
             gaps=[str(x) for x in (g.get('gaps') or []) if str(x).strip()],
+            detail=str(g.get('detail', '') or ''),
         )
         for g in (raw.get('section_gaps') or [])
         if str(g.get('section', '') or '').strip()
@@ -178,6 +183,7 @@ def score_resume(
         overall_current=overall_current,
         overall_potential_low=low,
         overall_potential_high=high,
+        summary=str(raw.get('summary', '') or ''),
         dimensions=dims,
         section_gaps=section_gaps,
         used_ai=True,

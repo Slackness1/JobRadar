@@ -456,6 +456,7 @@ def score_resume_session(
         overall_current=report.overall_current,
         overall_potential_low=report.overall_potential_low,
         overall_potential_high=report.overall_potential_high,
+        summary=report.summary,
         dimensions=report.dimensions,
         section_gaps=report.section_gaps,
         used_ai=report.used_ai,
