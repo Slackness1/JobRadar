@@ -11,6 +11,14 @@ def _job(primary, secondary=None):
 PREFERRED = ["公募权益研究员", "固收+多资产", "资管FOF"]
 
 
+def test_no_preferred_is_neutral_half():
+    # 无 preferred(学生没选赛道)→ neutral 0.5, 不因 confirmed 改变(现状, 软信号不接管)
+    assert sub_cat_match_score(StudentProfile(), _job("公募权益研究员")) == 0.5
+    assert sub_cat_match_score(
+        StudentProfile(confirmed_sub_cats=["公募权益研究员"]), _job("固收+多资产")
+    ) == 0.5
+
+
 def test_no_confirmed_falls_back_to_preferred_behaviour():
     p = StudentProfile(preferred_sub_cats=PREFERRED)
     assert sub_cat_match_score(p, _job("公募权益研究员")) == 1.0
