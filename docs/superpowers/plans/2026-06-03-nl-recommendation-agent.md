@@ -9,7 +9,8 @@
 **前端 = 独立三栏「推荐工作台」: 梯队骨架(左·主) | NL 对话(中) | 流动 feed(右)**，会话切换收进顶栏下拉。
 - **梯队骨架(子项②, 已建好, 本计划只复用不重做)**: 左侧主干，**confirmed 赛道驱动**(稳定)。复用现有 `GET /sessions/{id}/platforms-by-tier`(毫秒级读缓存、不触发 LLM) + `PlatformTierGroup`/`PlatformCard`/`TierLadderStrip`(现挂在 `LeftRecommendRail`)。公司按头部/次头部/腰部分档、岗位嵌公司下。
 - **流动 feed(子项①, 本计划主体)**: 右侧，**工作查询(L1)驱动**(流动)，NL 对话每轮快路重排。
-- **分开互补 + 点击联动**: 骨架与 feed 是两套结构、各自驱动；点 feed 里某岗 → 高亮骨架里对应公司。NL 对话**只动 feed、不动骨架**；唯有「锁定为主方向」把工作查询落成 confirmed → 骨架据此重塑(refetch)。
+- **分开互补 + 点击联动**: 骨架与 feed 是两套结构、各自驱动；点 feed 里某岗 → 高亮骨架里对应公司。NL 对话**只动 feed、永不改 confirmed/骨架**。
+- **切换主赛道 = 复用现有「赛道选择/确认」模块（不做 NL 锁定）**: confirmed 赛道只由现有 `TopTrackBar`(顶栏当前赛道 chip + 「切换赛道」入口) + `TrackPickerModal`(10 个 SAIF 赛道卡 → `PUT /preferences`) + `WorkspaceConfirmGuide` 改。学生想换方向 → 点顶栏「切换赛道」→ 走这套已有显式流程 → confirmed 变 → 骨架 refetch 重塑 + feed 按新 confirmed 重新 seed。**本计划不建任何 NL「锁定为主方向」入口。**
 
 **Tech Stack:** FastAPI + Pydantic v2 + SQLAlchemy(SQLite, Alembic) + pytest；DeepSeek flash（意图解析）；Next.js 16 + React 19。
 
@@ -24,10 +25,11 @@
 - WorkingQuery 区分 **seed_sub_cats**（confirmed 派生、深色不可删）与 **sub_cats**（NL 加的、陶土色可删 ×）→ Task 1/3/4。
 - 一轮响应除 `feed/working_query/reply` 外，回 **trace**（`intent`+`query_delta` 回显+remember 备注，给可展开 TraceCard）与 **remembered**（写了哪条 L3，给 MemoryToast）→ Task 6。
 - feed item 每条带规则 **base_score** + `used_ai=false`；深挖回 **enhanced_score** + **anchors**（4 段 `[label, text]`）→ Task 4/7。
-- 工作查询的「删 add chip / 清 only / 改 sort」是显式交互 → Task 7 加 `POST working-query/update`（结构化操作 + 重排，仍走快路）。
+- 工作查询的「删 add chip / 清 only / 改 sort / 切赛道后 reseed」是显式交互 → Task 7 加 `POST working-query/update`（结构化操作 + 重排，仍走快路）。
+- **改主赛道不做 NL 锁定**：复用现有 `TopTrackBar`+`TrackPickerModal` 显式切换模块（Task 12），切换后骨架 refetch + feed reseed。NL 对话只动 L1 feed、永不写 confirmed。
 
 **铁律（贯穿全程）:**
-- 平时对话**绝不写 confirmed preferences**（L2）；只有显式「锁定」才写。
+- NL 对话**绝不写 confirmed preferences**（L2）。改 confirmed 只走现有「赛道选择/确认」模块（`TopTrackBar`+`TrackPickerModal`，显式切换）；本计划无 NL 锁定入口。
 - L3 偏好**绝不直插 `account_memory`**；只经 `dispatcher.write_memory`。
 - `search_candidates` **不藏岗**：exclude 仅学生显式要求才排；companies 偏好是置顶非过滤（除非 `only=true`）。
 - 对话每轮**只走规则快路，绝不跑 Pro 精排**；Pro 只在 `/recommend-deepen`。
@@ -60,8 +62,9 @@
   - `RecommendSkeletonPane.tsx`（左·主：**复用** `getPlatformSkeleton` API + `PlatformTierGroup`/`PlatformCard`，按 confirmed 赛道；接 `highlightCompany` 联动）
   - `RecommendChatPane.tsx` + `chat/{Turn,ThinkingCard,TraceCard,MemoryToast,Composer}.tsx`
   - `RecommendFeedPane.tsx` + `feed/{WorkingQueryReadout,JobCard,ScorePill,QueryChip}.tsx`
-  - `LockModal.tsx` / `recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
-- **复用（不重做）**: 骨架 `workspace/recommend/{PlatformCard,PlatformTierGroup,TierLadderStrip}.tsx` + `GET platforms-by-tier`；company-intel 卡 `workspace/intel/`。
+  - `recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
+- **复用（不重做）**: 骨架 `workspace/recommend/{PlatformCard,PlatformTierGroup,TierLadderStrip}.tsx` + `GET platforms-by-tier`；**赛道切换/确认 `workspace/{TopTrackBar,TrackPickerModal,WorkspaceConfirmGuide}.tsx`**（顶栏接入，作唯一改 confirmed 入口）；company-intel 卡 `workspace/intel/`。
+- **不做**: 任何 NL「锁定为主方向」`LockModal`（已删除该任务）。
 - NL 部分设计源：`.design-ref/nl-recommendation/{nlrec-app,nlrec-chat,nlrec-feed,nlrec-data}.jsx`（设计稿只画了 NL 对话+feed 两栏；骨架那栏沿用现有骨架视觉）。
 
 **测试（新建）:**
@@ -617,7 +620,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-_VALID_INTENT = {"refine", "company_focus", "intel", "lock", "chitchat"}
+_VALID_INTENT = {"refine", "company_focus", "intel", "chitchat"}
 _VALID_DIM = {"city", "industry", "role", "comp", "company_type", "stage"}
 
 _PROMPT = """你是金融求职推荐助手的意图解析器。学生在用自然语言调整他的岗位推荐。
@@ -626,14 +629,14 @@ _PROMPT = """你是金融求职推荐助手的意图解析器。学生在用自�
 
 输出 JSON(只输出 JSON):
 {{
-  "intent": "refine|company_focus|intel|lock|chitchat",
+  "intent": "refine|company_focus|intel|chitchat",
   "query_delta": {{"add_sub_cats":[],"add_companies":[],"add_locations":[],"exclude":[],"sort":"match|fresh|pay 或省略","only":false}},
   "remember": {{"dimension":"city|industry|role|comp|company_type|stage","value":"..."}} 或 null,
   "reply": "一句话说明这轮做了什么"
 }}
 规则:
 - 只有学生表达**稳定/泛化**偏好(如"我一直/从不/必须…")才填 remember; 一次性"今天看看X"不填。
-- intent=lock 仅当学生明确要"锁定/就按这个/设为主方向"。
+- 学生若说要"换/锁定主赛道""设为主方向" → intent=chitchat, reply 引导他用界面「切换赛道」入口(NL 不改主赛道)。
 - 不确定就 intent=chitchat, query_delta 留空。"""
 
 _FALLBACK = {"intent": "chitchat", "query_delta": {}, "remember": None, "reply": "没太听懂,换个说法?"}
@@ -780,14 +783,55 @@ from app.services.resume_copilot.recommend_search import search_candidates
 logger = logging.getLogger(__name__)
 
 
-def _load_query(session) -> WorkingQuery:
+def _load_query(db, session) -> WorkingQuery:
+    """读已存工作查询; 为空则按 confirmed + L3 记忆 seed(L3→L1, 让 feed 一开就有内容)。"""
     raw = getattr(session, "working_query_json", None)
     if raw:
         try:
             return WorkingQuery(**json.loads(raw))
         except Exception:
             pass
-    return WorkingQuery()
+    return seed_query_for_session(db, session)
+
+
+def seed_query_for_session(db, session) -> WorkingQuery:
+    """汇集 session 的 confirmed 赛道 + 活跃 preference 记忆 → seed_working_query。
+
+    confirmed: 复用 `_v2_extract_preferred_sub_cats(profile, prefs)`(推荐链路既有取法)。
+    preference 记忆: 查 account_memory category='preference' 的活跃行 → [{dimension,value},...]。
+    任何一步失败都回落空 WorkingQuery(向后兼容、不崩)。"""
+    from app.services.resume_copilot.working_query import seed_working_query
+    confirmed, rows = [], []
+    try:
+        from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+        from app.routers.resume_copilot import _load_profile_and_prefs  # 既有 helper
+        profile, prefs = _load_profile_and_prefs(db, session.id)
+        confirmed = _v2_extract_preferred_sub_cats(profile, prefs) or []
+    except Exception:
+        logger.warning("seed: load confirmed failed", exc_info=True)
+    try:
+        rows = _active_preference_rows(db, getattr(session, "user_key", None))
+    except Exception:
+        logger.warning("seed: load preference rows failed", exc_info=True)
+    return seed_working_query(confirmed_sub_cats=confirmed, preference_rows=rows)
+
+
+def _active_preference_rows(db, user_key) -> list[dict]:
+    """account_memory 里该用户活跃 preference 行 → [{dimension,value}]。读 payload_json。"""
+    if not user_key:
+        return []
+    from sqlalchemy import text
+    out = []
+    sql = ("SELECT payload_json FROM account_memory WHERE user_key=:u AND category='preference' "
+           "AND COALESCE(is_archived,0)=0")
+    for (pj,) in db.execute(text(sql), {"u": user_key}).fetchall():
+        try:
+            p = json.loads(pj) if pj else {}
+            if p.get("dimension") and p.get("value"):
+                out.append({"dimension": p["dimension"], "value": p["value"]})
+        except Exception:
+            continue
+    return out
 
 
 def _write_preference_memory(*, db, user_key, dimension, value, session_id):
@@ -803,7 +847,7 @@ def _write_preference_memory(*, db, user_key, dimension, value, session_id):
 
 
 def run_recommend_turn(*, db, session, message: str, client=None) -> dict:
-    q = _load_query(session)
+    q = _load_query(db, session)
     parsed = parse_intent(message, current_query=q.model_dump(), client=client)
     intent = parsed["intent"]
     feed = None
@@ -890,6 +934,7 @@ class WorkingQueryUpdateIn(_BaseModel):
     remove_sub_cat: str | None = None   # 删一个 add chip (× 移除)
     clear_only: bool = False            # 清 only 收窄
     sort: str | None = None             # 改排序 (match/fresh/pay)
+    reseed: bool = False                # 切换赛道后重置: 按新 confirmed + L3 记忆重 seed
 ```
 
 在路由区加（用真实 session helper 名）:
@@ -908,13 +953,20 @@ def recommend_chat(session_id: int, payload: RecommendChatIn,
 
 @router.get("/sessions/{session_id}/working-query")
 def get_working_query(session_id: int, db: Session = Depends(get_db)):
+    """读当前工作查询; 为空则按 confirmed + L3 记忆 seed 并落库(让 feed 一开就有内容)。"""
     import json as _json
+    from app.services.resume_copilot.recommend_chat import seed_query_for_session
     session = _get_session_or_404(db, session_id)
     raw = getattr(session, "working_query_json", None)
-    try:
-        return {"working_query": _json.loads(raw) if raw else None}
-    except Exception:
-        return {"working_query": None}
+    if raw:
+        try:
+            return {"working_query": _json.loads(raw)}
+        except Exception:
+            pass
+    q = seed_query_for_session(db, session)
+    session.working_query_json = _json.dumps(q.model_dump(), ensure_ascii=False)
+    db.commit()
+    return {"working_query": q.model_dump()}
 
 
 @router.post("/sessions/{session_id}/recommend-deepen")
@@ -927,11 +979,17 @@ def recommend_deepen(session_id: int, payload: RecommendDeepenIn, db: Session = 
 
 @router.post("/sessions/{session_id}/working-query/update")
 def update_working_query(session_id: int, payload: WorkingQueryUpdateIn, db: Session = Depends(get_db)):
-    """结构化操作工作查询(删 add chip / 清 only / 改 sort) + 重排, 仍走快路, 不调 LLM。"""
+    """结构化操作工作查询(删 add chip / 清 only / 改 sort / 切赛道后 reseed) + 重排, 仍走快路, 不调 LLM。"""
     import json as _json
     from app.services.resume_copilot.working_query import WorkingQuery
     from app.services.resume_copilot.recommend_search import search_candidates
+    from app.services.resume_copilot.recommend_chat import seed_query_for_session
     session = _get_session_or_404(db, session_id)
+    if payload.reseed:  # 切换赛道后: 丢掉旧工作查询, 按新 confirmed + L3 记忆重 seed
+        q = seed_query_for_session(db, session)
+        session.working_query_json = _json.dumps(q.model_dump(), ensure_ascii=False)
+        db.commit()
+        return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
     raw = getattr(session, "working_query_json", None)
     q = WorkingQuery(**_json.loads(raw)) if raw else WorkingQuery()
     if payload.remove_sub_cat:
@@ -1240,7 +1298,7 @@ EOF
 
 - [ ] **Step 1: 工作查询 readout**
 
-头部：「流动 feed · 按工作查询 · {feed.length} 个在招」+ 右侧「锁定为主方向 →」按钮（Task 12 接弹层）。下面 chip 行：
+头部：「流动 feed · 按工作查询 · {feed.length} 个在招」（**不再有「锁定为主方向」按钮** —— 改主赛道走顶栏「切换赛道」，见 Task 12）。下面 chip 行：
 - `seed_sub_cats` → 深色 `QueryChip kind=seed`（不可删）；
 - `sub_cats` → 陶土色 `QueryChip kind=add` 带 ×（点 × → `updateWorkingQuery(sessionId,{remove_sub_cat})` → `setFeed`/`setWorkingQuery`）；
 - `exclude` → 虚线 `kind=excl`；
@@ -1277,33 +1335,40 @@ EOF
 
 ---
 
-### Task 12: 锁定弹层 + 「锁定为主方向」（L2 唯一 confirmed 入口）
+### Task 12: 搬入现有「赛道选择/确认」模块作显式切换入口（替代 NL 锁定）
 
 **Files:**
-- Create: `.../recommend-agent/LockModal.tsx`
-- Modify: `.../recommend-agent/RecommendFeedPane.tsx`（头部按钮接弹层）+ `RecommendWorkspaceShell.tsx`（`lockOpen` 状态 + confirm 落库）
+- Modify: `.../recommend-agent/RecommendTopBar.tsx`（接现有 `TopTrackBar` 的当前赛道 chip + 「切换赛道」入口）
+- Modify: `.../recommend-agent/RecommendWorkspaceShell.tsx`（挂 `TrackPickerModal` + 切换成功后联动 refetch）
+- **复用（不改其内部）**: `workspace/TopTrackBar.tsx`、`workspace/TrackPickerModal.tsx`、`workspace/WorkspaceConfirmGuide.tsx`
 
-**设计稿对应:** `nlrec-app.jsx` 的 `LockModal` + `confirmLock`。
+**目标:** confirmed 主赛道只由这套已有显式模块改；NL 对话永不碰 confirmed。无任何新锁定 UI。
 
-- [ ] **Step 1: LockModal**
+- [ ] **Step 1: 看清现有模块入参**
 
-照设计稿：标题「锁定为主方向？」+ 说明「把当前工作查询提交成 confirmed 赛道 — WorkingQuery 唯一会落 confirmed 的入口」+ 「将写入 confirmed」chip 区（展示 `effective_sub_cats`= seed+add）+「梯队骨架（子项②）据此重塑 · 走 PUT /preferences」脚注 +「再想想 / 锁定为主方向」两按钮。
+Run: `cd resume-copilot-web && grep -n "interface TrackPickerModalProps\|interface TopTrackBarProps\|onChangeTrack\|onConfirm\|onClose\|sessionId\|confirmed_sub_cats" components/resume-copilot/workspace/TrackPickerModal.tsx components/resume-copilot/workspace/TopTrackBar.tsx`
+确认 `TopTrackBar`(当前赛道 chip + `onChangeTrack`) 与 `TrackPickerModal`(props: `sessionId`/`onClose`/成功回调) 的真实签名 + 内部已调 `putResumeCopilotPreferences` 落 confirmed（不用自己再写一遍）。若两级 sub_cat 确认勾选也在这套流程里（SUBCAT-T6），一并带入。
 
-- [ ] **Step 2: confirm 落库（L2 唯一入口）**
+- [ ] **Step 2: 顶栏接入「当前赛道 + 切换」**
 
-确认 → 调现有 `putResumeCopilotPreferences(sessionId, { ...现有 preferred_tracks, confirmed_sub_cats: [...seed_sub_cats, ...sub_cats] })`（**唯一**落 confirmed 的地方；用合并集）→ 成功后：
-- feed 头部按钮变绿 pill「✓ 已锁定为主方向」+ 中栏 push「已锁定 ✓ 梯队骨架会据此重塑」+ MemoryToast「L2 → PUT /preferences · confirmed 赛道已更新」；
-- **调左侧骨架栏 `refetch()`**（Task 9 暴露）→ 骨架按新 confirmed 重塑（这是 NL 工作台里唯一会动骨架的动作，兑现「锁定才重塑骨架」）。
-> 注意：调 `putResumeCopilotPreferences` 前先 grep 它现有签名，把现有字段原样带上、只追加 `confirmed_sub_cats`（别把别的 preference 字段冲掉）。骨架 refetch 通过 Shell 持有 `RecommendSkeletonPane` 的 ref 或提一个 `skeletonReloadKey` state 触发。
+`RecommendTopBar` 用现有 `TopTrackBar`（或其「赛道 chip + 切换」片段）显示当前 confirmed 赛道；点 chip / 「切换赛道」→ 打开 `TrackPickerModal`。这就是设计稿里那个「简历编辑器」位置之外的显式切换入口（替代被删掉的「锁定为主方向」）。
 
-- [ ] **Step 3: lint + build + Commit**
+- [ ] **Step 3: 切换成功 → 骨架 + feed 联动**
+
+`TrackPickerModal` 确认（它内部已 `PUT /preferences` 落新 confirmed）→ 成功回调里：
+- 调左侧骨架栏 `refetch()`（Task 9 暴露）→ 骨架按新 confirmed 重塑；
+- 调 `updateWorkingQuery(sessionId, { reseed: true })`（Task 7）→ 工作查询按新 confirmed + L3 记忆重 seed → 用返回 `feed` 刷右栏；
+- 中栏 push 一条系统 turn「已切换主赛道 → 梯队骨架与推荐已同步更新」。
+> 骨架 refetch 通过 Shell 持有 `RecommendSkeletonPane` 的 ref 或 `skeletonReloadKey` state 触发。`TrackPickerModal` 若没有成功回调 prop，加一个 optional `onSwitched?: () => void`（只加不破坏现有 caller）。
+
+- [ ] **Step 4: lint + build + Commit**
 
 Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15` → 0 error / 成功。
 ```bash
 cd /home/chuanbo/projects/JobRadar
-git add resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
+git add resume-copilot-web/components/resume-copilot/workspace/
 git commit -m "$(cat <<'EOF'
-feat(reco): 锁定弹层 + 锁定为主方向(L2 唯一 confirmed 入口, 走 PUT /preferences)
+feat(reco): 推荐工作台接现有赛道切换/确认模块(替代 NL 锁定; 切换后骨架+feed 联动)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 EOF
@@ -1370,7 +1435,7 @@ Expected: 全绿（除已知 2 个 GT schema 预存失败）。
 
 Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15`
 Expected: lint 0 error；build 成功；`/recommend` 出现在路由清单。
-UI 冒烟（dev server 起一次，非 sudo）：`npm run dev`（:3001）→ 打开 `/recommend` → 走一遍设计稿演示路径「多来点固收 → 一直不考虑国企 → 只看头部券商资管按薪资 → 讲讲某家 → 任意卡片深挖 → 锁定为主方向」，肉眼核对：意图解析 trace 可展开、排除后弹 L3 记忆提示、深挖出 Enhanced 分 + 4-anchor、锁定弹层走通。
+UI 冒烟（dev server 起一次，非 sudo）：`npm run dev`（:3001）→ 打开 `/recommend` → 走一遍演示路径「多来点固收 → 一直不考虑国企 → 只看头部券商资管按薪资 → 讲讲某家 → 任意卡片深挖 → 点 feed 岗位看左栏骨架高亮 → 顶栏『切换赛道』换个方向看骨架+feed 同步刷新」，肉眼核对：三栏(骨架|对话|feed)布局、意图解析 trace 可展开、排除后弹 L3 记忆提示、深挖出 Enhanced 分 + 4-anchor、切换赛道后骨架重塑 + feed reseed。
 
 - [ ] **Step 6: 清理测试残留**
 
@@ -1392,9 +1457,9 @@ c.execute(\"DELETE FROM account_memory WHERE user_key='__test__'\"); conn.commit
 - **决策 3 快慢分离**: Task 4/6 快路无 LLM rerank（含 working-query/update 重排）；Task 7 `recommend-deepen` 才慢路；Task 13 Step 3 核验 ✓
 - **决策 4 只加不删**: Task 7（改写端点不动）+ Task 9 Step 2（侧栏隐藏改写入口、组件不删）✓
 - **决策 5 结构化 JSON 非 function-calling**: Task 5（`response_format: json_object`）✓
-- **决策 6 三层持久化**: L1=Task 2 列/Task 6；L2=Task 12 锁定→preferences；L3=Task 6 `_write_preference_memory`→`write_memory` ✓
-- **Unit A WorkingQuery**: Task 1/3 ✓ ; **Unit B search_candidates**: Task 4 ✓ ; **Unit C agent loop**: Task 5/6 ✓ ; **Unit D 快慢**: Task 4/7 ✓ ; **Unit E 锁定**: Task 12 ✓
-- **设计稿覆盖**: 顶栏(会话下拉+隐藏改写入口)+梯队骨架栏(复用)=Task 9；对话栏 Turn/border-beam ThinkingCard/可展开 TraceCard/MemoryToast/Composer=Task 10；feed 工作查询 readout(seed/add/excl/only+sort)/JobCard Base+Enhanced/4-anchor 深挖/讲讲这家/空态/点击联动骨架=Task 11；LockModal+骨架 refetch=Task 12 ✓
+- **决策 6 三层持久化**: L1=Task 2 列/Task 6/7(seed-on-empty)；L2=**现有赛道切换模块**(Task 12)→`PUT /preferences`，NL 不碰；L3=Task 6 `_write_preference_memory`→`write_memory` ✓
+- **Unit A WorkingQuery**: Task 1/3 ✓ ; **Unit B search_candidates**: Task 4 ✓ ; **Unit C agent loop**: Task 5/6 ✓ ; **Unit D 快慢**: Task 4/7 ✓ ; **Unit E 改主赛道(复用现有赛道切换/确认模块, 非 NL 锁定)**: Task 12 ✓
+- **设计稿覆盖**: 顶栏(会话下拉+当前赛道chip+切换入口+隐藏改写入口)+梯队骨架栏(复用)=Task 9；对话栏 Turn/border-beam ThinkingCard/可展开 TraceCard/MemoryToast/Composer=Task 10；feed 工作查询 readout(seed/add/excl/only+sort)/JobCard Base+Enhanced/4-anchor 深挖/讲讲这家/空态/点击联动骨架=Task 11；现有赛道切换模块接入+切换后骨架refetch+feed reseed=Task 12（**NL 锁定弹层已删**）✓
 - **错误处理**: 空结果(Task 4 不藏岗/Task 7 deepen 回落/Task 11 空态文案)、意图不清/LLM 失败(Task 5 兜底 chitchat + Task 10 catch 降级 turn)、L3 写失败不崩(Task 6 try/except) ✓
 - **向后兼容**: `working_query_json` 缺失退回 confirmed(Task 6 `_load_query` 默认空 WorkingQuery) ✓
 - **类型一致**: `WorkingQuery(含 seed_sub_cats/effective_sub_cats)`/`apply_delta`/`seed_working_query`/`search_candidates`/`parse_intent`/`run_recommend_turn(回 trace/remembered)`/`_write_preference_memory`/`deepen_jobs(回 enhanced_score/anchors)` 全程同名；前端 `WorkingQuery`/`RecommendTrace`/`RecommendFeedItem`/`RecommendTurnResponse`/`postRecommendChat`/`getWorkingQuery`/`updateWorkingQuery`/`postRecommendDeepen` 一致 ✓
