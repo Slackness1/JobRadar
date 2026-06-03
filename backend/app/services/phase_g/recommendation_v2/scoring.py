@@ -22,17 +22,35 @@ class StudentProfile:
     preferred_sub_cats: list[str] = field(default_factory=list)
     preferred_industries: list[str] = field(default_factory=list)
     preferred_tiers: list[str] = field(default_factory=list)
+    # 学生在确认页确认的细分方向(软信号)。空 = 不细化, 行为同现状。
+    confirmed_sub_cats: list[str] = field(default_factory=list)
 
 
 def sub_cat_match_score(profile: StudentProfile, job: Job) -> float:
-    """Primary 命中 1.0, secondary 0.6, 都不命中 0.0; 无偏好 0.5 neutral."""
+    """软信号版:
+    - 无 preferred → 0.5 neutral。
+    - confirmed 为空 → primary 命中 preferred 1.0 / secondary 0.6 / miss 0.0(现状)。
+    - confirmed 非空 → primary ∈ confirmed 1.0 / primary ∈ preferred 但未勾 0.5(降权不归零)
+      / secondary ∈ confirmed 0.6 / 其余 0.0。
+    """
     if not profile.preferred_sub_cats:
         return 0.5
     pref = set(profile.preferred_sub_cats)
-    if job.sub_category and job.sub_category in pref:
+    conf = set(profile.confirmed_sub_cats or [])
+    primary = job.sub_category
+    secondary = job.sub_category_secondary
+    if not conf:
+        if primary and primary in pref:
+            return 1.0
+        if secondary and secondary in pref:
+            return 0.6
+        return 0.0
+    if primary and primary in conf:
         return 1.0
-    if job.sub_category_secondary and job.sub_category_secondary in pref:
+    if secondary and secondary in conf:
         return 0.6
+    if primary and primary in pref:
+        return 0.5
     return 0.0
 
 
