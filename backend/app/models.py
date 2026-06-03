@@ -102,6 +102,7 @@ class ResumeCopilotSession(Base):
     # active / archived can be split into filter tabs without DELETE'ing rows.
     # Defaults to False; default index keeps GET /sessions filter cheap.
     is_archived = Column(Boolean, default=False, nullable=False, server_default='0', index=True)
+    working_query_json = Column(Text, nullable=True)  # L1 NL 推荐工作查询(JSON), 空=按 confirmed
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
