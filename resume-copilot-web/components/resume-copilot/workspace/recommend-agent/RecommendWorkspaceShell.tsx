@@ -20,17 +20,36 @@ import { useRouter } from 'next/navigation';
 import {
   getWorkingQuery,
   listResumeCopilotSessions,
+  postRecommendChat,
 } from '../../api';
 import type {
-  CopilotMessage,
   RecommendFeedItem,
   ResumeCopilotSessionListItem,
   WorkingQuery,
 } from '../../types';
 import { RecommendTopBar } from './RecommendTopBar';
 import { RecommendSkeletonPane } from './RecommendSkeletonPane';
+import {
+  RecommendChatPane,
+  type RecommendChatMessage,
+} from './RecommendChatPane';
 
 import './recommend-agent.css';
+
+// 进场 agent 招呼语 —— 先按确认赛道 + 平时偏好给第一版,再让学生说人话调.
+const SEED_GREETING: RecommendChatMessage = {
+  id: 'seed-greeting',
+  kind: 'turn',
+  who: 'ai',
+  text: '先按你的确认赛道 + 平时偏好排了第一版列表。想换方向、锁某家、或排除什么，直接说就行。',
+};
+
+// msgs 消息 id 自增计数器(模块级,纯展示用,不入业务态).
+let msgSeq = 0;
+function nextMsgId(prefix: string): string {
+  msgSeq += 1;
+  return `${prefix}-${msgSeq}`;
+}
 
 export interface RecommendWorkspaceShellProps {
   sessionId: number;
@@ -43,11 +62,11 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
   const [sessions, setSessions] = useState<ResumeCopilotSessionListItem[]>([]);
 
   // ── 共享态(子项③④ 接管) ────────────────────────────────────────────────
-  const [msgs] = useState<CopilotMessage[]>([]);
+  const [msgs, setMsgs] = useState<RecommendChatMessage[]>([SEED_GREETING]);
   const [workingQuery, setWorkingQuery] = useState<WorkingQuery | null>(null);
-  const [feed] = useState<RecommendFeedItem[]>([]);
+  const [feed, setFeed] = useState<RecommendFeedItem[]>([]);
   const [highlightCompany, setHighlightCompany] = useState<string | null>(null);
-  const [thinking] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const [deepening] = useState<string | null>(null);
   // 切换赛道后(子项④)自增 → RecommendSkeletonPane refetch
   const [skeletonReloadKey, setSkeletonReloadKey] = useState(0);
@@ -94,18 +113,65 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
     router.push('/resume-copilot');
   }, [router]);
 
-  // 占位:供子项③④ 接管 —— 切换赛道后 refetch 骨架 / feed 卡点联高亮.
-  // 此处仅暴露,UI 未接入;void 防 lint no-unused,子项③④ 会真正调用.
+  // ── NL 对话发送(中栏 → 快路重排) ────────────────────────────────────────
+  // 学生说人话 → 追加 user 气泡 → thinking(border-beam) → 调 recommend-chat:
+  // agent 回复 + 意图解析 trace + (命中时) L3 记忆提示, feed / working query 同步更新.
+  // 所有 setState 都在 async 回调内(await 之后), react-compiler 安全.
+  const handleSend = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      setMsgs((cur) => [
+        ...cur,
+        { id: nextMsgId('me'), kind: 'turn', who: 'me', text: trimmed },
+      ]);
+      setThinking(true);
+
+      try {
+        const resp = await postRecommendChat(sessionId, trimmed);
+
+        const appended: RecommendChatMessage[] = [
+          { id: nextMsgId('ai'), kind: 'turn', who: 'ai', text: resp.reply },
+          { id: nextMsgId('trace'), kind: 'trace', trace: resp.trace },
+        ];
+        if (resp.remembered) {
+          appended.push({
+            id: nextMsgId('memory'),
+            kind: 'memory',
+            text: `记忆 → L3 preference · 后台落库（${resp.remembered.dimension}=${resp.remembered.value}）`,
+          });
+        }
+        setMsgs((cur) => [...cur, ...appended]);
+
+        if (resp.feed !== null) setFeed(resp.feed);
+        setWorkingQuery(resp.working_query);
+      } catch {
+        setMsgs((cur) => [
+          ...cur,
+          {
+            id: nextMsgId('ai'),
+            kind: 'turn',
+            who: 'ai',
+            text: '没太听懂，换个说法？feed 没动。',
+          },
+        ]);
+      } finally {
+        setThinking(false);
+      }
+    },
+    [sessionId],
+  );
+
+  // 占位:供子项④ 接管 —— 切换赛道后 refetch 骨架 / feed 卡点联高亮.
+  // 此处仅暴露,UI 未全接入;void 防 lint no-unused,子项④ 会真正调用.
   const refetchSkeleton = useCallback(() => {
     setSkeletonReloadKey((k) => k + 1);
   }, []);
-  // 占位态供子项③④ 接管(NL 对话 / feed 列). void 防 lint no-unused.
   void refetchSkeleton;
   void setHighlightCompany;
   void workingQuery;
-  void msgs;
   void feed;
-  void thinking;
   void deepening;
 
   return (
@@ -127,14 +193,9 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
           />
         </div>
 
-        {/* 中 — NL 对话(子项③ 填充) */}
+        {/* 中 — NL 对话 */}
         <div className="recommend-col recommend-col--chat">
-          <div className="recommend-col__placeholder">
-            <div className="recommend-col__placeholder-title">NL 推荐对话</div>
-            <div className="recommend-col__placeholder-sub">
-              说人话换方向 · 秒级重排，不动确认赛道。对话面板将在下一步接入。
-            </div>
-          </div>
+          <RecommendChatPane msgs={msgs} thinking={thinking} onSend={handleSend} />
         </div>
 
         {/* 右 — 流动 feed(子项④ 填充) */}
