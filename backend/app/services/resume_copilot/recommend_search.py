@@ -5,11 +5,25 @@
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from app.services.resume_copilot.working_query import WorkingQuery
+
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _fresh_key(job: Any) -> datetime:
+    """sort=='fresh' 排序键。scraped_at 在库里 naive/aware 混存(SQLite 存 naive UTC,
+    部分行带 tz) → 统一归一到 aware UTC, 缺失退回 epoch, 避免 naive/aware 比较崩。"""
+    ts = getattr(job, "scraped_at", None)
+    if not isinstance(ts, datetime):
+        return _EPOCH
+    if ts.tzinfo is None:
+        return ts.replace(tzinfo=timezone.utc)
+    return ts
 
 
 def _company_text(it: Any) -> str:
@@ -73,11 +87,7 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
     )
     ranked = _scoring.rank_jobs(profile, jobs)  # [(job, score 0-1), ...]
     if query.sort == "fresh":
-        ranked = sorted(
-            ranked,
-            key=lambda t: getattr(t[0], "scraped_at", None) or 0,
-            reverse=True,
-        )
+        ranked = sorted(ranked, key=lambda t: _fresh_key(t[0]), reverse=True)
     # sort=='pay' 暂无可靠薪资字段 → 退回 match 序
 
     # _v2_items_from_ranked 期望 list[dict]: 每条含 job / final_score / base_score (0-1)。

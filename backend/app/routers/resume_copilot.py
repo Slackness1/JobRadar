@@ -161,19 +161,67 @@ def _get_session_eager(db: Session, session_id: int) -> ResumeCopilotSession | N
     )
 
 
+def _json_list_or_empty(raw: Any) -> list[Any]:
+    """Parse a JSON list field defensively for read-side availability checks."""
+    try:
+        parsed = json.loads(str(raw or '[]'))
+    except (TypeError, json.JSONDecodeError):
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
+def _recommendation_run_has_visible_items(run: ResumeRecommendationRun | None) -> bool:
+    """A recommendation run is usable only when it has completed, visible items.
+
+    Existence of the row is not enough: generate creates the row before work
+    starts, and failed/stale runs may leave ``recommendations_json=[]``. Treating
+    those as ready makes the frontend enter the platform skeleton view even
+    though there is nothing to hydrate it with.
+    """
+    if run is None:
+        return False
+    if str(getattr(run, 'status', '') or '') != RunStatus.COMPLETED.value:
+        return False
+    return len(_json_list_or_empty(getattr(run, 'recommendations_json', '[]'))) > 0
+
+
+def _recommendation_run_is_stale(run: ResumeRecommendationRun | None) -> bool:
+    if run is None or str(getattr(run, 'status', '') or '') != RunStatus.RUNNING.value:
+        return False
+    last_heartbeat = getattr(run, 'updated_at', None) or getattr(run, 'created_at', None)
+    if last_heartbeat is None:
+        return False
+    return datetime.utcnow() - last_heartbeat >= timedelta(seconds=INFLIGHT_GUARD_SECONDS)
+
+
 def _build_session_out(session: ResumeCopilotSession) -> ResumeCopilotSessionOut:
+    recommendation_run = getattr(session, 'recommendation_run', None)
+    recommendation_is_stale = _recommendation_run_is_stale(recommendation_run)
+    recommendation_status = str(getattr(session, 'recommendation_status', '') or '')
+    feedback_status = str(getattr(session, 'feedback_status', '') or '')
+    session_status = str(getattr(session, 'status', '') or '')
+    if recommendation_is_stale:
+        recommendation_status = RunStatus.FAILED.value
+        if feedback_status == RunStatus.RUNNING.value:
+            feedback_status = RunStatus.FAILED.value
+        if session_status == SessionStatus.GENERATING_RECOMMENDATIONS.value:
+            session_status = (
+                SessionStatus.COMPLETED.value
+                if session.confirmed_profile is not None or session.parsed_profile is not None
+                else SessionStatus.FAILED.value
+            )
     return ResumeCopilotSessionOut(
         id=int(getattr(session, 'id')),
         file_name=str(getattr(session, 'file_name', '') or ''),
         name=str(getattr(session, 'name', '') or ''),
-        status=str(getattr(session, 'status', '') or ''),
+        status=session_status,
         error_message=str(getattr(session, 'error_message', '') or ''),
-        recommendation_status=str(getattr(session, 'recommendation_status', '') or ''),
-        feedback_status=str(getattr(session, 'feedback_status', '') or ''),
+        recommendation_status=recommendation_status,
+        feedback_status=feedback_status,
         has_parsed_profile=session.parsed_profile is not None,
         has_confirmed_profile=session.confirmed_profile is not None,
         has_preferences=session.preference_profile is not None,
-        has_recommendations=session.recommendation_run is not None,
+        has_recommendations=_recommendation_run_has_visible_items(recommendation_run),
         has_feedback=session.feedback_run is not None,
         has_direction_analysis=session.direction_analysis_run is not None,
         plan_status=str(getattr(session, 'plan_status', '') or 'idle'),
@@ -210,7 +258,7 @@ def list_resume_copilot_sessions(
             file_name=str(getattr(r, 'file_name', '') or ''),
             name=str(getattr(r, 'name', '') or ''),
             status=str(getattr(r, 'status', '') or ''),
-            has_recommendations=r.recommendation_run is not None,
+            has_recommendations=_recommendation_run_has_visible_items(r.recommendation_run),
             is_archived=bool(getattr(r, 'is_archived', False) or False),
             created_at=getattr(r, 'created_at', None),
             updated_at=getattr(r, 'updated_at', None),
@@ -452,7 +500,7 @@ def duplicate_resume_copilot_session(
         file_name=str(dup.file_name or ''),
         name=str(dup.name or ''),
         status=str(dup.status or ''),
-        has_recommendations=dup.recommendation_run is not None,
+        has_recommendations=_recommendation_run_has_visible_items(dup.recommendation_run),
         is_archived=False,
         created_at=dup.created_at,
         updated_at=dup.updated_at,
@@ -1957,6 +2005,7 @@ def get_resume_copilot_tier_fit(
 def get_platforms_by_tier(
     session_id: int,
     sub_cat: str | None = None,
+    mode: str | None = None,
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ) -> dict:
@@ -1994,7 +2043,10 @@ def get_platforms_by_tier(
     except Exception:
         pass  # match_band 可空，不影响骨架展示
 
-    skeleton = build_platform_skeleton(db, sub_cat, match_band=match_band)
+    # mode='intern' (学生主推实习/暑期) → 骨架在招岗实习优先,不被校招挤出 LIMIT 5。
+    skeleton = build_platform_skeleton(
+        db, sub_cat, match_band=match_band, prefer_internship=(mode == 'intern'),
+    )
     skeleton["session_id"] = session_id
     return skeleton
 
@@ -2069,3 +2121,109 @@ def sub_cat_suggestions(
         log.warning("sub_cat_suggestions: failed to extract profile summary", exc_info=True)
 
     return {"options": build_sub_cat_options(summary, payload.tracks)}
+
+
+# ---------------------------------------------------------------------------
+# NL 推荐 agent 端点 (2026-06-04) — recommend-chat / working-query / deepen
+#   快路(chat/working-query/update): 纯规则 + flash 意图解析, 绝不调 Pro。
+#   慢路(deepen): 唯一允许跑 Pro 精排 + 4-anchor 理由的端点。
+# ---------------------------------------------------------------------------
+
+
+class RecommendChatIn(_BaseModel):
+    message: str = ''
+
+
+class RecommendDeepenIn(_BaseModel):
+    job_ids: list[str] = []
+
+
+class WorkingQueryUpdateIn(_BaseModel):
+    remove_sub_cat: str | None = None
+    clear_only: bool = False
+    sort: str | None = None
+    reseed: bool = False
+
+
+@router.post('/sessions/{session_id}/recommend-chat')
+def recommend_chat(
+    session_id: int,
+    payload: RecommendChatIn,
+    db: Session = Depends(get_db),
+):
+    """NL 推荐 agent 一轮: 自然语言 → 工作查询重排 → 流动 feed (快路, 不调 Pro)。"""
+    from app.services.resume_copilot.recommend_chat import run_recommend_turn
+
+    session = _get_session_or_404(db, session_id)
+    _assert_not_demo(session)  # 写 working_query_json → 是写操作
+    out = run_recommend_turn(db=db, session=session, message=payload.message)
+    db.commit()
+    return out
+
+
+@router.get('/sessions/{session_id}/working-query')
+def get_working_query(
+    session_id: int,
+    db: Session = Depends(get_db),
+):
+    """读当前工作查询; 为空则按 confirmed + L3 记忆 seed 并落库 (seed 即写, 守 demo)。"""
+    from app.services.resume_copilot.recommend_chat import seed_query_for_session
+
+    session = _get_session_or_404(db, session_id)
+    raw = getattr(session, 'working_query_json', None)
+    if raw:
+        try:
+            return {"working_query": json.loads(raw)}
+        except Exception:
+            pass
+    # 落库 seed → 写操作, demo 只读时只返不落库。
+    q = seed_query_for_session(db, session)
+    if str(getattr(session, 'user_key', '') or '') != '__demo__':
+        session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
+        db.commit()
+    return {"working_query": q.model_dump()}
+
+
+@router.post('/sessions/{session_id}/recommend-deepen')
+def recommend_deepen(
+    session_id: int,
+    payload: RecommendDeepenIn,
+    db: Session = Depends(get_db),
+):
+    """慢路: 对指定岗位跑 Pro 精排 + 4-anchor 理由 (复用 recommendation_v2 慢路)。"""
+    from app.services.resume_copilot.recommend_deepen import deepen_jobs
+
+    session = _get_session_or_404(db, session_id)
+    return {"items": deepen_jobs(db, session, payload.job_ids)}
+
+
+@router.post('/sessions/{session_id}/working-query/update')
+def update_working_query(
+    session_id: int,
+    payload: WorkingQueryUpdateIn,
+    db: Session = Depends(get_db),
+):
+    """结构化操作工作查询(删 add chip / 清 only / 改 sort / 切赛道 reseed) + 重排 (快路, 不调 LLM)。"""
+    from app.services.resume_copilot.recommend_chat import seed_query_for_session
+    from app.services.resume_copilot.recommend_search import search_candidates
+    from app.services.resume_copilot.working_query import WorkingQuery
+
+    session = _get_session_or_404(db, session_id)
+    _assert_not_demo(session)  # 落库 working_query_json → 是写操作
+    if payload.reseed:
+        q = seed_query_for_session(db, session)
+        session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
+        db.commit()
+        return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
+    raw = getattr(session, 'working_query_json', None)
+    q = WorkingQuery(**json.loads(raw)) if raw else WorkingQuery()
+    if payload.remove_sub_cat:
+        # 只删 add 集 (sub_cats), 永不动 seed_sub_cats (confirmed 派生)。
+        q = q.model_copy(update={"sub_cats": [s for s in q.sub_cats if s != payload.remove_sub_cat]})
+    if payload.clear_only:
+        q = q.model_copy(update={"only": False})
+    if payload.sort in ("match", "fresh", "pay"):
+        q = q.model_copy(update={"sort": payload.sort})
+    session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
+    db.commit()
+    return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
