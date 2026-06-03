@@ -29,6 +29,7 @@ import type {
 } from '../../types';
 import { RecommendTopBar } from './RecommendTopBar';
 import { RecommendSkeletonPane } from './RecommendSkeletonPane';
+import { RecommendFeedPane } from './RecommendFeedPane';
 import {
   RecommendChatPane,
   type RecommendChatMessage,
@@ -67,7 +68,6 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
   const [feed, setFeed] = useState<RecommendFeedItem[]>([]);
   const [highlightCompany, setHighlightCompany] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
-  const [deepening] = useState<string | null>(null);
   // 切换赛道后(子项④)自增 → RecommendSkeletonPane refetch
   const [skeletonReloadKey, setSkeletonReloadKey] = useState(0);
 
@@ -163,16 +163,21 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
     [sessionId],
   );
 
-  // 占位:供子项④ 接管 —— 切换赛道后 refetch 骨架 / feed 卡点联高亮.
-  // 此处仅暴露,UI 未全接入;void 防 lint no-unused,子项④ 会真正调用.
+  // 占位:供子项⑤(切换赛道)接管 —— 切赛道后 refetch 骨架.
+  // 此处仅暴露,void 防 lint no-unused,子项⑤ 会真正调用.
   const refetchSkeleton = useCallback(() => {
     setSkeletonReloadKey((k) => k + 1);
   }, []);
   void refetchSkeleton;
-  void setHighlightCompany;
-  void workingQuery;
-  void feed;
-  void deepening;
+
+  // 右栏「讲讲这家」→ 把「讲讲{公司}」当普通消息送中栏对话(intent=intel
+  // 由后端识别);复用 handleSend,不另开 intel 取数链路.
+  const handleIntel = useCallback(
+    (company: string) => {
+      void handleSend(`讲讲${company}`);
+    },
+    [handleSend],
+  );
 
   return (
     <div data-theme="recommend" className="hf">
@@ -198,14 +203,17 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
           <RecommendChatPane msgs={msgs} thinking={thinking} onSend={handleSend} />
         </div>
 
-        {/* 右 — 流动 feed(子项④ 填充) */}
+        {/* 右 — 流动 feed */}
         <div className="recommend-col recommend-col--feed">
-          <div className="recommend-col__placeholder">
-            <div className="recommend-col__placeholder-title">流动推荐 feed</div>
-            <div className="recommend-col__placeholder-sub">
-              按当前工作查询排出的岗位列表将在这里展示，点击可联动左侧梯队骨架。
-            </div>
-          </div>
+          <RecommendFeedPane
+            sessionId={sessionId}
+            workingQuery={workingQuery}
+            feed={feed}
+            setFeed={setFeed}
+            setWorkingQuery={setWorkingQuery}
+            onHighlightCompany={setHighlightCompany}
+            onIntel={handleIntel}
+          />
         </div>
       </div>
     </div>

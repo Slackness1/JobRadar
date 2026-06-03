@@ -643,3 +643,376 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* ══ 流动 feed 栏(右栏 · 子项④) ═════════════════════════════════════════ */
+
+[data-theme='recommend'] .recommend-feed {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--parchment);
+  border-left: 1px solid var(--border-warm);
+}
+
+/* ── 头部 + 工作查询 readout ─────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__head {
+  flex: none;
+  padding: 14px 18px;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border-warm);
+}
+
+[data-theme='recommend'] .recommend-feed__head-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+[data-theme='recommend'] .recommend-feed__head-title {
+  font: 600 14px var(--font-sans);
+  color: var(--ink);
+}
+
+[data-theme='recommend'] .recommend-feed__head-sub {
+  font: 400 12px var(--font-sans);
+  color: var(--stone);
+}
+
+[data-theme='recommend'] .recommend-feed__chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+[data-theme='recommend'] .recommend-feed__chips-overline {
+  font: 600 10px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stone);
+  margin-right: 2px;
+}
+
+/* ── 工作查询 chip ───────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+}
+
+[data-theme='recommend'] .recommend-feed__chip--seed {
+  font: 600 12px var(--font-sans);
+  background: var(--dark-surface);
+  color: var(--ivory);
+}
+
+[data-theme='recommend'] .recommend-feed__chip--add {
+  font: 600 12px var(--font-sans);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  box-shadow: 0 0 0 1px #eccfb6;
+  padding: 0 6px 0 11px;
+  gap: 4px;
+}
+
+[data-theme='recommend'] .recommend-feed__chip--excl {
+  font: 500 12px var(--font-sans);
+  background: transparent;
+  color: var(--stone);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  border: 1px dashed transparent;
+}
+
+[data-theme='recommend'] .recommend-feed__chip-x-static {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+[data-theme='recommend'] .recommend-feed__chip-x {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: var(--terracotta-strong);
+  opacity: 0.6;
+  font-size: 13px;
+  line-height: 1;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+[data-theme='recommend'] .recommend-feed__chip-x:hover {
+  opacity: 1;
+}
+
+[data-theme='recommend'] .recommend-feed__only-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font: 600 11px var(--font-mono);
+  background: var(--deep-dark);
+  color: var(--ivory);
+  border: 0;
+  cursor: pointer;
+}
+
+[data-theme='recommend'] .recommend-feed__only-x {
+  opacity: 0.55;
+  font-size: 13px;
+}
+
+[data-theme='recommend'] .recommend-feed__sort {
+  margin-left: auto;
+  font: 500 11px var(--font-mono);
+  color: var(--stone);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+[data-theme='recommend'] .recommend-feed__sort:hover {
+  color: var(--ink);
+}
+
+/* ── 卡片列表 ────────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__list {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+[data-theme='recommend'] .recommend-feed__card {
+  background: var(--ivory);
+  border-radius: 14px;
+  padding: 13px 15px;
+  box-shadow: var(--sh-ring);
+}
+
+[data-theme='recommend'] .recommend-feed__card--deep {
+  box-shadow: 0 0 0 1px var(--terracotta-ring), 0 6px 20px rgba(201, 100, 66, 0.08);
+}
+
+[data-theme='recommend'] .recommend-feed__card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+[data-theme='recommend'] .recommend-feed__rank {
+  font: 600 12px var(--font-mono);
+  color: var(--warm-silver);
+  min-width: 20px;
+}
+
+[data-theme='recommend'] .recommend-feed__card-headmain {
+  flex: 1;
+  min-width: 0;
+}
+
+[data-theme='recommend'] .recommend-feed__job-title {
+  font: 600 14px var(--font-sans);
+  color: var(--ink);
+  line-height: 1.3;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+[data-theme='recommend'] .recommend-feed__job-title:hover {
+  color: var(--terracotta-strong);
+}
+
+[data-theme='recommend'] .recommend-feed__job-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font: 400 12px var(--font-sans);
+  color: var(--stone);
+  margin-top: 3px;
+}
+
+[data-theme='recommend'] .recommend-feed__skel-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font: 600 10.5px var(--font-sans);
+}
+
+[data-theme='recommend'] .recommend-feed__skel-badge--in {
+  background: var(--warm-sand);
+  color: var(--charcoal);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+[data-theme='recommend'] .recommend-feed__skel-badge--out {
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  box-shadow: 0 0 0 1px #eccfb6;
+}
+
+/* ── 分数胶囊 ────────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__pills {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+[data-theme='recommend'] .recommend-feed__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font: 600 12px var(--font-mono);
+}
+
+[data-theme='recommend'] .recommend-feed__pill-label {
+  font: 600 10px var(--font-sans);
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+[data-theme='recommend'] .recommend-feed__pill--base {
+  background: var(--warm-sand);
+  color: var(--charcoal);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+[data-theme='recommend'] .recommend-feed__pill--enh {
+  background: var(--terracotta);
+  color: var(--ivory);
+  box-shadow: 0 0 0 1px var(--terracotta);
+}
+
+[data-theme='recommend'] .recommend-feed__pill--pending {
+  font-weight: 500;
+  color: var(--stone);
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--border-strong);
+  border: 1px dashed transparent;
+}
+
+/* ── 未深挖说明 / 慢路 anchor ─────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__subtext {
+  font: 400 12px var(--font-sans);
+  color: var(--stone);
+  line-height: 1.5;
+  margin-top: 9px;
+}
+
+[data-theme='recommend'] .recommend-feed__mono {
+  font: 400 11.5px var(--font-mono);
+  color: var(--stone);
+}
+
+[data-theme='recommend'] .recommend-feed__anchors {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px dashed var(--border-warm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+[data-theme='recommend'] .recommend-feed__anchors-title {
+  color: var(--terracotta-strong);
+}
+
+[data-theme='recommend'] .recommend-feed__anchor {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+[data-theme='recommend'] .recommend-feed__anchor-k {
+  flex: none;
+  min-width: 58px;
+  text-align: center;
+  font: 600 10.5px var(--font-sans);
+  color: var(--charcoal);
+  background: var(--library-rail);
+  border-radius: 6px;
+  padding: 4px 6px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+}
+
+[data-theme='recommend'] .recommend-feed__anchor-v {
+  font: 400 12px var(--font-sans);
+  color: var(--ink-soft);
+  line-height: 1.55;
+  flex: 1;
+}
+
+[data-theme='recommend'] .recommend-feed__skel-hint {
+  margin-top: 9px;
+  font: 500 11.5px var(--font-sans);
+  color: var(--stone);
+}
+
+/* ── 卡片动作按钮 ────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+[data-theme='recommend'] .recommend-feed__act {
+  flex: 1;
+}
+
+[data-theme='recommend'] .recommend-feed__act--wide {
+  flex: 1.3;
+}
+
+[data-theme='recommend'] .recommend-feed__spin {
+  border-top-color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top-width: 2px;
+  margin-right: 5px;
+}
+
+/* ── 空态 ────────────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--stone);
+}
+
+[data-theme='recommend'] .recommend-feed__empty-title {
+  font: 600 14px var(--font-sans);
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+[data-theme='recommend'] .recommend-feed__empty-sub {
+  font: 400 12.5px var(--font-sans);
+  line-height: 1.6;
+}
