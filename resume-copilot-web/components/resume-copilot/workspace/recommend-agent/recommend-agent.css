@@ -1,0 +1,353 @@
+/*
+ * recommend-agent.css — 「推荐工作台」(NL 推荐 agent) 独立页面专属样式.
+ *
+ * Phase G 子项① — 三栏 Shell. 所有新 token / class 都 scope 到
+ * `[data-theme="recommend"]`,绝不外泄全局,与 workspace / interview 两套设计系统隔离.
+ * 复用的颜色 token 来自 `.hf` (hifi-tokens.css);梯队骨架栏内部沿用
+ * `.workspace-hifi__*` 系列(workspace-theme.css),由 RecommendSkeletonPane 自行
+ * 包一层 `.workspace-hifi` 容器接入.
+ */
+
+[data-theme='recommend'] {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--parchment);
+  color: var(--ink);
+}
+
+/* ── TopBar ─────────────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-topbar {
+  height: 54px;
+  flex: none;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border-warm);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+}
+
+[data-theme='recommend'] .recommend-topbar__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+[data-theme='recommend'] .recommend-topbar__logo-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--deep-dark);
+  position: relative;
+  flex: none;
+}
+
+[data-theme='recommend'] .recommend-topbar__logo-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  top: 8px;
+  left: 8px;
+  box-shadow: 0 0 0 3px rgba(201, 100, 66, 0.22);
+}
+
+[data-theme='recommend'] .recommend-topbar__brand {
+  font: 500 17px var(--font-serif);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+[data-theme='recommend'] .recommend-topbar__sep {
+  color: var(--warm-silver);
+}
+
+[data-theme='recommend'] .recommend-topbar__title {
+  font: 500 14px var(--font-sans);
+  color: var(--muted);
+}
+
+[data-theme='recommend'] .recommend-topbar__spacer {
+  margin-left: auto;
+}
+
+[data-theme='recommend'] .recommend-topbar__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--warm-sand);
+  color: var(--charcoal);
+  display: grid;
+  place-items: center;
+  font: 600 13px var(--font-sans);
+  box-shadow: 0 0 0 1px var(--ring-warm);
+  flex: none;
+}
+
+/* ── Session dropdown ───────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-session {
+  position: relative;
+}
+
+[data-theme='recommend'] .recommend-session__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font: 500 13px var(--font-sans);
+  color: var(--ink-soft);
+  background: var(--ivory);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  cursor: pointer;
+  max-width: 220px;
+}
+
+[data-theme='recommend'] .recommend-session__trigger:hover {
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+[data-theme='recommend'] .recommend-session__trigger-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='recommend'] .recommend-session__chevron {
+  flex: none;
+  color: var(--stone);
+  transition: transform 0.15s;
+}
+
+[data-theme='recommend']
+  .recommend-session__trigger[aria-expanded='true']
+  .recommend-session__chevron {
+  transform: rotate(180deg);
+}
+
+[data-theme='recommend'] .recommend-session__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  min-width: 248px;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 8px;
+  background: var(--ivory);
+  border-radius: 14px;
+  box-shadow: var(--sh-paper);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-theme='recommend'] .recommend-session__new {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font: 600 13px var(--font-sans);
+  color: var(--ivory);
+  background: var(--terracotta);
+  box-shadow: 0 0 0 1px var(--terracotta);
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+[data-theme='recommend'] .recommend-session__new:hover {
+  background: var(--terracotta-strong);
+}
+
+[data-theme='recommend'] .recommend-session__overline {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stone);
+  padding: 4px 6px 2px;
+}
+
+[data-theme='recommend'] .recommend-session__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 10px;
+  padding: 9px 11px;
+  cursor: pointer;
+  background: transparent;
+  box-shadow: 0 0 0 1px transparent;
+}
+
+[data-theme='recommend'] .recommend-session__item:hover {
+  background: var(--parchment);
+}
+
+[data-theme='recommend'] .recommend-session__item.is-active {
+  background: var(--parchment);
+  box-shadow: 0 0 0 1px var(--terracotta);
+}
+
+[data-theme='recommend'] .recommend-session__item-name {
+  font: 600 13px var(--font-sans);
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='recommend'] .recommend-session__item-meta {
+  font: 400 11px var(--font-sans);
+  color: var(--stone);
+  margin-top: 3px;
+}
+
+[data-theme='recommend'] .recommend-session__empty {
+  padding: 12px 11px;
+  font: 400 12px var(--font-sans);
+  color: var(--stone);
+}
+
+/* ── 三栏 grid ──────────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns:
+    minmax(300px, 360px)
+    minmax(340px, 1fr)
+    minmax(372px, 440px);
+  min-height: 0;
+}
+
+[data-theme='recommend'] .recommend-col {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme='recommend'] .recommend-col--skeleton {
+  background: var(--ivory);
+  border-right: 1px solid var(--border-warm);
+}
+
+[data-theme='recommend'] .recommend-col--chat {
+  background: var(--parchment);
+  border-right: 1px solid var(--border-warm);
+}
+
+[data-theme='recommend'] .recommend-col--feed {
+  background: var(--ivory);
+}
+
+/* 占位列(中 / 右栏在子项③④ 填充) */
+[data-theme='recommend'] .recommend-col__placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px;
+  text-align: center;
+}
+
+[data-theme='recommend'] .recommend-col__placeholder-title {
+  font: 500 15px var(--font-serif);
+  color: var(--ink-soft);
+}
+
+[data-theme='recommend'] .recommend-col__placeholder-sub {
+  font: 400 12.5px var(--font-sans);
+  color: var(--stone);
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+/* ── 梯队骨架栏 (左·主) ─────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-skeleton {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+[data-theme='recommend'] .recommend-skeleton__head {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border-warm);
+  background: var(--ivory);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+[data-theme='recommend'] .recommend-skeleton__head-title {
+  font: 600 14px var(--font-sans);
+  color: var(--ink);
+}
+
+[data-theme='recommend'] .recommend-skeleton__head-sub {
+  font: 400 11.5px var(--font-sans);
+  color: var(--stone);
+  margin-top: 2px;
+}
+
+[data-theme='recommend'] .recommend-skeleton__body {
+  padding: 16px 14px 28px;
+}
+
+[data-theme='recommend'] .recommend-skeleton__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+[data-theme='recommend'] .recommend-skeleton__state-title {
+  font: 500 14px var(--font-serif);
+  color: var(--ink-soft);
+}
+
+[data-theme='recommend'] .recommend-skeleton__state-sub {
+  font: 400 12px var(--font-sans);
+  color: var(--stone);
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+[data-theme='recommend'] .recommend-skeleton__spin {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--terracotta);
+  border-radius: 999px;
+  animation: recommend-spin 0.8s linear infinite;
+}
+
+@keyframes recommend-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* feed→skeleton 点联高亮:命中公司卡描边 terracotta */
+[data-theme='recommend']
+  .recommend-skeleton
+  .workspace-hifi__tier-company-card.recommend-skeleton__card--highlight {
+  box-shadow: 0 0 0 2px var(--terracotta), var(--sh-lift);
+  border-radius: 14px;
+  transition: box-shadow 0.2s;
+}
