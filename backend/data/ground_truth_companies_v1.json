@@ -215,6 +215,22 @@
         "tier": "二线公募",
         "must_have": false,
         "source": "chatgpt_扩充_2026-06-03"
+      },
+      {
+        "name": "中欧基金",
+        "tier": "一线公募",
+        "must_have": false,
+        "source": [
+          "gt_gap_audit_2026-06-03"
+        ]
+      },
+      {
+        "name": "招商基金",
+        "tier": "一线公募",
+        "must_have": false,
+        "source": [
+          "gt_gap_audit_2026-06-03"
+        ]
       }
     ],
     "行业研究员·消费": [
