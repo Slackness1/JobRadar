@@ -88,6 +88,47 @@
   flex: none;
 }
 
+/* ── Track chip (切换主赛道入口 — 接 TrackPickerModal) ───────────────────── */
+
+[data-theme='recommend'] .recommend-topbar__track {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font: 500 13px var(--font-sans);
+  color: var(--ink-soft);
+  background: var(--ivory);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  cursor: pointer;
+  max-width: 280px;
+}
+
+[data-theme='recommend'] .recommend-topbar__track:hover {
+  box-shadow: 0 0 0 1px var(--ring-warm);
+}
+
+[data-theme='recommend'] .recommend-topbar__track-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  flex: none;
+}
+
+[data-theme='recommend'] .recommend-topbar__track-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='recommend'] .recommend-topbar__track-cta {
+  color: var(--terracotta);
+  font-weight: 500;
+  flex: none;
+}
+
 /* ── Session dropdown ───────────────────────────────────────────────────── */
 
 [data-theme='recommend'] .recommend-session {

@@ -9,7 +9,9 @@
  * 但 Shell 在此持有全部共享态(msgs / workingQuery / feed / highlightCompany /
  * thinking / deepening / skeletonReloadKey),供后续子项接管.
  *
- * 无 NL「锁定」功能(设计稿 lockOpen 不实现);切换赛道是子项④.
+ * 无 NL「锁定」功能(设计稿 lockOpen 不实现)。confirmed 主赛道只由顶栏「切换
+ * 赛道」chip → 既有 TrackPickerModal 改(内部 PUT /preferences);NL 对话永不碰
+ * confirmed。切换成功后联动:左骨架 refetch + 右 feed reseed + 中栏系统提示。
  *
  * react-compiler:所有 setState 都在 async 回调 / 事件内,组件 render 纯净.
  */
@@ -18,15 +20,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
+  getResumeCopilotPreferences,
   getWorkingQuery,
   listResumeCopilotSessions,
   postRecommendChat,
+  updateWorkingQuery,
 } from '../../api';
 import type {
   RecommendFeedItem,
   ResumeCopilotSessionListItem,
+  ResumePreferencePayload,
   WorkingQuery,
 } from '../../types';
+import { TrackPickerModal } from '../TrackPickerModal';
 import { RecommendTopBar } from './RecommendTopBar';
 import { RecommendSkeletonPane } from './RecommendSkeletonPane';
 import { RecommendFeedPane } from './RecommendFeedPane';
@@ -71,6 +77,12 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
   // 切换赛道后(子项④)自增 → RecommendSkeletonPane refetch
   const [skeletonReloadKey, setSkeletonReloadKey] = useState(0);
 
+  // ── 主赛道切换(显式入口 — confirmed 只由 TrackPickerModal 改) ─────────────
+  // prefs:整份偏好(给 modal merge,避免重置其它字段);currentTrack:顶栏 chip 显示。
+  const [prefs, setPrefs] = useState<ResumePreferencePayload | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const currentTrack = prefs?.preferred_tracks?.[0] ?? null;
+
   // 拉会话列表(顶栏下拉)
   useEffect(() => {
     let cancelled = false;
@@ -95,6 +107,21 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
       })
       .catch(() => {
         if (!cancelled) setWorkingQuery(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  // 进场拉确认偏好 — 顶栏 chip 显示当前主赛道 + 切换时 merge 其它字段
+  useEffect(() => {
+    let cancelled = false;
+    getResumeCopilotPreferences(sessionId)
+      .then((r) => {
+        if (!cancelled) setPrefs(r.preferences);
+      })
+      .catch(() => {
+        if (!cancelled) setPrefs(null);
       });
     return () => {
       cancelled = true;
@@ -163,12 +190,41 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
     [sessionId],
   );
 
-  // 占位:供子项⑤(切换赛道)接管 —— 切赛道后 refetch 骨架.
-  // 此处仅暴露,void 防 lint no-unused,子项⑤ 会真正调用.
-  const refetchSkeleton = useCallback(() => {
+  // ── 主赛道切换成功(TrackPickerModal 内部已 PUT /preferences 落库 confirmed) ──
+  // 三栏联动:左骨架按新 confirmed 重塑 / 右 feed 按新 confirmed reseed /
+  // 中栏 push 一条系统提示。所有 setState 都在 async 回调内,react-compiler 安全。
+  const handleTrackChanged = useCallback(async () => {
+    // 左:梯队骨架 refetch(Task 9 机制 — reloadKey 自增触发 refetch)
     setSkeletonReloadKey((k) => k + 1);
-  }, []);
-  void refetchSkeleton;
+
+    // 刷新顶栏 chip 的当前赛道(重读 confirmed 偏好)
+    getResumeCopilotPreferences(sessionId)
+      .then((r) => setPrefs(r.preferences))
+      .catch(() => {});
+
+    // 右:working query 按新 confirmed + L3 记忆 reseed → 用返回 feed 刷新右栏
+    try {
+      const { working_query, feed: reseeded } = await updateWorkingQuery(
+        sessionId,
+        { reseed: true },
+      );
+      setWorkingQuery(working_query);
+      setFeed(reseeded);
+    } catch {
+      // reseed 失败不阻断 — 骨架已 refetch,feed 保留旧态
+    }
+
+    // 中:push 一条系统提示
+    setMsgs((cur) => [
+      ...cur,
+      {
+        id: nextMsgId('ai'),
+        kind: 'turn',
+        who: 'ai',
+        text: '已切换主赛道 → 梯队骨架与推荐已同步更新。',
+      },
+    ]);
+  }, [sessionId]);
 
   // 右栏「讲讲这家」→ 把「讲讲{公司}」当普通消息送中栏对话(intent=intel
   // 由后端识别);复用 handleSend,不另开 intel 取数链路.
@@ -186,6 +242,8 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
         activeSessionId={sessionId}
         onSelectSession={handleSelectSession}
         onNewSession={handleNewSession}
+        currentTrack={currentTrack}
+        onChangeTrack={() => setPickerOpen(true)}
       />
 
       <div className="recommend-grid">
@@ -216,6 +274,17 @@ export function RecommendWorkspaceShell({ sessionId }: RecommendWorkspaceShellPr
           />
         </div>
       </div>
+
+      {/* 切换主赛道 — confirmed 主赛道唯一显式改动入口(内部 PUT /preferences)。
+          成功后 handleTrackChanged 联动左骨架 + 右 feed + 中栏系统提示。 */}
+      <TrackPickerModal
+        open={pickerOpen}
+        sessionId={sessionId}
+        currentTrack={currentTrack}
+        currentPreferences={prefs}
+        onChanged={handleTrackChanged}
+        onClose={() => setPickerOpen(false)}
+      />
     </div>
   );
 }

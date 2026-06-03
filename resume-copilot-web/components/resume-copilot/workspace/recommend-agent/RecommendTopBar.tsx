@@ -51,6 +51,11 @@ export interface RecommendTopBarProps {
   onSelectSession: (id: number) => void;
   /** 「新会话」动作 — 没有后端落地时跳简历上传入口 */
   onNewSession: () => void;
+  /** 当前确认主赛道名 — null = 尚未确认。展示在右侧切换 chip 上。 */
+  currentTrack?: string | null;
+  /** 点「切换赛道」chip → 父打开 TrackPickerModal(确认主赛道的唯一显式入口)。
+   *  optional:不传则不渲染 chip,不破坏既有 caller。 */
+  onChangeTrack?: () => void;
 }
 
 export function RecommendTopBar({
@@ -58,6 +63,8 @@ export function RecommendTopBar({
   activeSessionId,
   onSelectSession,
   onNewSession,
+  currentTrack,
+  onChangeTrack,
 }: RecommendTopBarProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -167,6 +174,23 @@ export function RecommendTopBar({
       </div>
 
       <span className="recommend-topbar__spacer" />
+
+      {/* 切换主赛道入口 — confirmed 主赛道的唯一显式改动口(接 TrackPickerModal,
+          内部 PUT /preferences 落库)。NL 对话永不碰 confirmed。 */}
+      {onChangeTrack ? (
+        <button
+          type="button"
+          className="recommend-topbar__track"
+          onClick={onChangeTrack}
+          title="切换主赛道(会重排梯队骨架与推荐)"
+        >
+          <span className="recommend-topbar__track-dot" aria-hidden />
+          <span className="recommend-topbar__track-name">
+            {currentTrack || '尚未确认主赛道'}
+          </span>
+          <span className="recommend-topbar__track-cta">切换赛道</span>
+        </button>
+      ) : null}
 
       {/* 简历改写入口 — 过渡期保留(只加不删),链接到现有简历工作台 */}
       <button
