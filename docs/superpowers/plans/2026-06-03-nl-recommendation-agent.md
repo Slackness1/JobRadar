@@ -4,11 +4,22 @@
 
 **Goal:** 让学生在工作台用自然语言指令实时从岗位库召回/重排岗位（流动 feed），改的是会话级「工作查询」而非确认赛道，平时偏好沉淀进统一记忆，深度精排按需才跑。
 
-**Architecture:** 每轮对话 = 1 次 flash LLM 出结构化 JSON（intent + query_delta + remember + reply）→ 纯函数 `apply_delta` 并进 WorkingQuery → `search_candidates`（复用 `recall_candidates`+`rank_jobs`+`_v2_items_from_ranked`，纯规则、秒级）出 feed。三层偏好：L1 工作查询（`working_query_json` 列）/ L2 锁定→confirmed preferences / L3 平时偏好→`account_memory` `preference` 行（经 `dispatcher.write_memory`）。深挖才跑 Pro 精排。
+**Architecture:** 每轮对话 = 1 次 flash LLM 出结构化 JSON（intent + query_delta + remember + reply）→ 纯函数 `apply_delta` 并进 WorkingQuery → `search_candidates`（复用 `recall_candidates`+`rank_jobs`+`_v2_items_from_ranked`，纯规则、秒级）出 feed。三层偏好：L1 工作查询（`working_query_json` 列）/ L2 锁定→confirmed preferences / L3 平时偏好→`account_memory` `preference` 行（经 `dispatcher.write_memory`）。深挖才跑 Pro 精排。前端 = 独立三栏「推荐工作台」（会话侧栏 / NL 对话栏 / 流动 feed 栏）。
 
 **Tech Stack:** FastAPI + Pydantic v2 + SQLAlchemy(SQLite, Alembic) + pytest；DeepSeek flash（意图解析）；Next.js 16 + React 19。
 
-**设计来源:** `docs/superpowers/specs/2026-06-03-nl-recommendation-agent-design.md`
+**设计来源:**
+- spec: `docs/superpowers/specs/2026-06-03-nl-recommendation-agent-design.md`
+- **hi-fi 设计稿（已定，前端按它像素级还原）**: `resume-copilot-web/.design-ref/nl-recommendation/`
+  - `NL-recommendation-workspace.html`（入口）→ `nlrec-app.jsx`（壳+侧栏+顶栏+锁定弹层+状态机）/ `nlrec-chat.jsx`（对话栏：Turn / border-beam ThinkingCard / 可展开 TraceCard / MemoryToast / IntelCard / Composer）/ `nlrec-feed.jsx`（feed 栏：工作查询 chip readout + JobCard Base/Enhanced 分 + 4-anchor 深挖 + 空态）/ `nlrec-data.jsx`（脚本化交互参考，仅看契约不照搬）
+  - `design-chat-transcript.md` — 设计意图原文
+  - 设计稿用 `.hf-*` 类 + `hifi-tokens.css`/`colors_and_type.css` 变量 + `.ds-border-beam`；与 repo 现有 `.hf` 体系（`resume-copilot-web/components/hifi/hifi-tokens.css`、`app/globals.css` 的 border-beam）同源，**移植时复用 repo 的，缺的 token/class 才补**。
+
+**设计稿带来的契约增量（已并入下面任务）:**
+- WorkingQuery 区分 **seed_sub_cats**（confirmed 派生、深色不可删）与 **sub_cats**（NL 加的、陶土色可删 ×）→ Task 1/3/4。
+- 一轮响应除 `feed/working_query/reply` 外，回 **trace**（`intent`+`query_delta` 回显+remember 备注，给可展开 TraceCard）与 **remembered**（写了哪条 L3，给 MemoryToast）→ Task 6。
+- feed item 每条带规则 **base_score** + `used_ai=false`；深挖回 **enhanced_score** + **anchors**（4 段 `[label, text]`）→ Task 4/7。
+- 工作查询的「删 add chip / 清 only / 改 sort」是显式交互 → Task 7 加 `POST working-query/update`（结构化操作 + 重排，仍走快路）。
 
 **铁律（贯穿全程）:**
 - 平时对话**绝不写 confirmed preferences**（L2）；只有显式「锁定」才写。
@@ -35,9 +46,16 @@
 - `backend/app/models.py`（或 models 包）— `ResumeCopilotSession` 加 `working_query_json` 列声明。
 
 **前端（改）:**
-- `resume-copilot-web/components/resume-copilot/types.ts` + `api.ts` — 类型 + 调用。
-- `resume-copilot-web/components/resume-copilot/workspace/MiddleChatPane.tsx`（及其容器）— 接推荐 agent、隐藏改写入口。
-- feed 渲染 + 「锁定为主方向」+「深挖」入口（复用 `LeftRecommendRail`/`RecommendCard`）。
+- `resume-copilot-web/components/resume-copilot/types.ts` + `api.ts` — 类型 + 4 个调用（chat / working-query / working-query-update / deepen）。
+
+**前端（新建 — 按 hi-fi 设计稿像素级还原独立三栏「推荐工作台」）:**
+- `resume-copilot-web/app/recommend/page.tsx` — 新路由（独立全屏页）。
+- `.../workspace/recommend-agent/` 新组件目录：
+  - `RecommendWorkspaceShell.tsx`（三栏 grid + 顶层状态机）/ `RecommendTopBar.tsx` / `RecommendSidebar.tsx`（会话列表 + 隐藏改写卡）
+  - `RecommendChatPane.tsx` + `chat/{Turn,ThinkingCard,TraceCard,MemoryToast,Composer}.tsx`
+  - `RecommendFeedPane.tsx` + `feed/{WorkingQueryReadout,JobCard,ScorePill,QueryChip}.tsx`
+  - `LockModal.tsx` / `recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
+- 设计源：`.design-ref/nl-recommendation/{nlrec-app,nlrec-chat,nlrec-feed,nlrec-data}.jsx`。company-intel 卡复用既有 `workspace/intel/`。
 
 **测试（新建）:**
 - `backend/tests/resume_copilot/test_working_query.py`
@@ -64,7 +82,7 @@ from app.services.resume_copilot.working_query import WorkingQuery, apply_delta
 
 def test_default_query_empty():
     q = WorkingQuery()
-    assert q.sub_cats == [] and q.companies == [] and q.exclude == []
+    assert q.sub_cats == [] and q.seed_sub_cats == [] and q.companies == [] and q.exclude == []
     assert q.sort == "match" and q.only is False
 
 
@@ -72,6 +90,19 @@ def test_apply_delta_adds_dedup():
     q = WorkingQuery(sub_cats=["公募权益研究员"])
     out = apply_delta(q, {"add_sub_cats": ["固收+多资产", "公募权益研究员"]})
     assert out.sub_cats == ["公募权益研究员", "固收+多资产"]  # 去重, 保序
+
+
+def test_apply_delta_does_not_touch_seed():
+    # seed_sub_cats = confirmed 派生, NL add 只进 sub_cats, 不污染 seed
+    q = WorkingQuery(seed_sub_cats=["公募权益研究员"])
+    out = apply_delta(q, {"add_sub_cats": ["固收+多资产"]})
+    assert out.seed_sub_cats == ["公募权益研究员"]
+    assert out.sub_cats == ["固收+多资产"]
+
+
+def test_effective_sub_cats_merges_seed_and_add_dedup():
+    q = WorkingQuery(seed_sub_cats=["公募权益研究员", "固收+多资产"], sub_cats=["固收+多资产", "FOF配置"])
+    assert q.effective_sub_cats() == ["公募权益研究员", "固收+多资产", "FOF配置"]  # seed 在前, 去重
 
 
 def test_apply_delta_companies_and_exclude():
@@ -118,13 +149,18 @@ _VALID_SORT = {"match", "fresh", "pay"}
 
 
 class WorkingQuery(BaseModel):
-    sub_cats: list[str] = Field(default_factory=list)
+    seed_sub_cats: list[str] = Field(default_factory=list)  # confirmed 派生, 不可删 (深色 chip)
+    sub_cats: list[str] = Field(default_factory=list)       # NL 加的, 可删 (陶土色 chip)
     companies: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
     exclude: list[str] = Field(default_factory=list)
     sort: str = "match"
     only: bool = False
     note: str = ""
+
+    def effective_sub_cats(self) -> list[str]:
+        """召回/打分用的合并 sub_cat 集 = seed + add, seed 在前, 去重保序。"""
+        return _merge_unique(list(self.seed_sub_cats), self.sub_cats)
 
 
 def _merge_unique(base: list[str], add) -> list[str]:
@@ -136,13 +172,17 @@ def _merge_unique(base: list[str], add) -> list[str]:
 
 
 def apply_delta(query: WorkingQuery, delta: dict) -> WorkingQuery:
-    """纯函数: 返回并入 delta 后的新 WorkingQuery, 不改入参。脏字段忽略不崩。"""
+    """纯函数: 返回并入 delta 后的新 WorkingQuery, 不改入参。脏字段忽略不崩。
+
+    add_sub_cats 只进 sub_cats(add 集); seed_sub_cats 不被对话改动(只 seed_working_query 设)。
+    """
     delta = delta or {}
     sort = delta.get("sort")
     new_sort = sort if isinstance(sort, str) and sort in _VALID_SORT else query.sort
     only = delta.get("only")
     new_only = bool(only) if isinstance(only, bool) else query.only
     return WorkingQuery(
+        seed_sub_cats=list(query.seed_sub_cats),
         sub_cats=_merge_unique(query.sub_cats, delta.get("add_sub_cats")),
         companies=_merge_unique(query.companies, delta.get("add_companies")),
         locations=_merge_unique(query.locations, delta.get("add_locations")),
@@ -156,7 +196,7 @@ def apply_delta(query: WorkingQuery, delta: dict) -> WorkingQuery:
 - [ ] **Step 4: 跑测试确认 PASS**
 
 Run: `cd backend && PYTHONPATH=. .venv/bin/pytest tests/resume_copilot/test_working_query.py -v`
-Expected: 6 passed。
+Expected: 8 passed。
 
 - [ ] **Step 5: Commit**
 
@@ -256,7 +296,8 @@ from app.services.resume_copilot.working_query import seed_working_query
 
 def test_seed_from_confirmed_only():
     q = seed_working_query(confirmed_sub_cats=["公募权益研究员"], preference_rows=[])
-    assert q.sub_cats == ["公募权益研究员"]
+    assert q.seed_sub_cats == ["公募权益研究员"]   # confirmed → seed (不可删 chip)
+    assert q.sub_cats == []                        # add 集初始为空
     assert q.companies == [] and q.locations == [] and q.exclude == []
 
 
@@ -268,7 +309,7 @@ def test_seed_merges_preference_memory():
         {"dimension": "company_type", "value": "非国企"},   # 含「非/不」→ 排除
     ]
     q = seed_working_query(confirmed_sub_cats=["固收+多资产"], preference_rows=rows)
-    assert q.sub_cats == ["固收+多资产"]
+    assert q.seed_sub_cats == ["固收+多资产"]
     assert "外资行" in q.companies
     assert "上海" in q.locations
     assert any("国企" in e for e in q.exclude)  # 否定偏好 → exclude
@@ -311,7 +352,8 @@ def seed_working_query(*, confirmed_sub_cats: list[str], preference_rows: list[d
         if cleaned and cleaned not in target:
             target.append(cleaned)
     return WorkingQuery(
-        sub_cats=list(confirmed_sub_cats or []),
+        seed_sub_cats=list(confirmed_sub_cats or []),  # confirmed → 不可删 seed chip
+        sub_cats=[],                                    # NL add 集, 对话中再长
         companies=companies,
         locations=locations,
         exclude=exclude,
@@ -427,28 +469,44 @@ def _apply_company_pref(feed: list[dict], companies: list[str], only: bool) -> l
     return preferred + rest  # 置顶, 保留其余(不藏岗)
 
 
+def _tag_rule_item(it: dict) -> dict:
+    """给规则 feed item 补设计稿要的字段: base_score(规则分) + used_ai=False。
+
+    item 已带某个规则分字段(score/rule_score/match_score, 以 grep 为准)。统一暴露成 base_score,
+    前端 JobCard 的 Base 分 pill 用它; Enhanced 分留空(深挖才补)。"""
+    base = it.get("base_score")
+    if base is None:
+        base = it.get("score") or it.get("rule_score") or it.get("match_score") or 0
+    it["base_score"] = round(float(base)) if isinstance(base, (int, float)) else base
+    it.setdefault("used_ai", False)
+    it.setdefault("enhanced_score", None)  # 深挖前为空 → 前端显 dashed pending pill
+    return it
+
+
 def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> list[dict]:
-    """WorkingQuery → ranked feed(item dict list)。纯规则。"""
+    """WorkingQuery → ranked feed(item dict list)。纯规则、秒级、不调 LLM。"""
     from app.services.phase_g.recommendation_v2 import recall as _recall, scoring as _scoring
     from app.services.resume_copilot.recommendation import _v2_items_from_ranked  # 复用 item 构造
 
+    eff = query.effective_sub_cats()  # seed + add 合并集
     jobs = _recall.recall_candidates(
-        db, query.sub_cats, limit=max(limit * 4, 80),
+        db, eff, limit=max(limit * 4, 80),
         preferred_locations=query.locations,
     )
     profile = _scoring.StudentProfile(
-        preferred_sub_cats=query.sub_cats, confirmed_sub_cats=query.sub_cats,
+        preferred_sub_cats=eff, confirmed_sub_cats=query.seed_sub_cats,
     )
     ranked = _scoring.rank_jobs(profile, jobs)
     if query.sort == "fresh":
         ranked = sorted(ranked, key=lambda t: getattr(t[0], "scraped_at", None) or 0, reverse=True)
     # sort=='pay' 暂无可靠薪资字段 → 退回 match 序(best-effort, 见 spec YAGNI)
     items = _v2_items_from_ranked(ranked[:limit * 2], profile, None)  # 按真实签名调参
+    items = [_tag_rule_item(it) for it in items]
     items = _apply_exclude(items, query.exclude)
     items = _apply_company_pref(items, query.companies, query.only)
     return items[:limit]
 ```
-> `_v2_items_from_ranked` 的真实入参以 Step 1 grep 为准（可能是 `(ranked, profile, preferences)` 或带 db）。若它返回 Pydantic 对象而非 dict，把 `_apply_*` 的 `it.get(...)` 改成 `getattr(...)`，并把测试的 `_it` 改成 `SimpleNamespace`。保持 `_apply_company_pref`/`_apply_exclude` 的纯函数语义与测试不变。
+> `_v2_items_from_ranked` 的真实入参以 Step 1 grep 为准（可能是 `(ranked, profile, preferences)` 或带 db）。若它返回 Pydantic 对象而非 dict，把 `_apply_*` / `_tag_rule_item` 的 `it.get(...)` 改成 `getattr(...)/setattr(...)`，并把测试的 `_it` 改成 `SimpleNamespace`。保持 `_apply_company_pref`/`_apply_exclude` 的纯函数语义与测试不变。`profile` 的 `preferred_sub_cats` 用合并集 `eff`、`confirmed_sub_cats` 用 `seed_sub_cats`（软信号只把 confirmed 派生的 seed 当「确认」，NL 临时加的 add 不算确认 — 与「对话不动 confirmed」铁律一致）。
 
 - [ ] **Step 5: 跑确认 PASS + 真库冒烟**
 
@@ -654,6 +712,9 @@ def test_refine_applies_delta_and_returns_feed(monkeypatch):
     assert out["working_query"]["sub_cats"] == ["固收+多资产"]
     assert out["feed"] == [{"company": "中信资管"}]
     assert written == []  # remember 为空 → 不写记忆
+    assert out["trace"]["intent"] == "refine"           # TraceCard 数据源
+    assert out["trace"]["query_delta"] == {"add_sub_cats": ["固收+多资产"]}
+    assert out["remembered"] is None                    # 没写 L3 → 不弹 MemoryToast
 
 
 def test_remember_triggers_l3_write(monkeypatch):
@@ -663,8 +724,9 @@ def test_remember_triggers_l3_write(monkeypatch):
     monkeypatch.setattr(rc, "search_candidates", lambda db, q, **k: [])
     written = []
     monkeypatch.setattr(rc, "_write_preference_memory", lambda **kw: written.append(kw))
-    rc.run_recommend_turn(db=None, session=_FakeSession(user_key="u1"), message="我一直不考虑国企")
+    out = rc.run_recommend_turn(db=None, session=_FakeSession(user_key="u1"), message="我一直不考虑国企")
     assert len(written) == 1 and written[0]["value"] == "非国企"
+    assert out["remembered"] == {"dimension": "company_type", "value": "非国企"}  # MemoryToast 数据源
 
 
 def test_chitchat_does_not_change_query(monkeypatch):
@@ -746,17 +808,33 @@ def run_recommend_turn(*, db, session, message: str, client=None) -> dict:
             logger.warning("persist working_query failed", exc_info=True)
         feed = search_candidates(db, q)
     rem = parsed.get("remember")
+    remembered = None
     if rem and getattr(session, "user_key", None):
         try:
             _write_preference_memory(db=db, user_key=session.user_key,
                 dimension=rem["dimension"], value=rem["value"],
                 session_id=getattr(session, "id", None))
+            remembered = {"dimension": rem["dimension"], "value": rem["value"]}
         except Exception:
             logger.warning("L3 preference write failed", exc_info=True)
+    trace = {
+        "intent": intent,
+        "query_delta": parsed.get("query_delta") or {},
+        "remember_note": _remember_note(rem, remembered),  # 人话备注, 给 TraceCard 第三行
+    }
     return {"intent": intent, "reply": parsed["reply"], "feed": feed,
-            "working_query": q.model_dump()}
+            "working_query": q.model_dump(), "trace": trace, "remembered": remembered}
+
+
+def _remember_note(rem, remembered) -> str:
+    """TraceCard 的 remember 行备注: 区分「升 L3 长期偏好」与「一次性不升」。"""
+    if remembered:
+        return f"{remembered['dimension']}={remembered['value']} · 稳定偏好, 已升 L3"
+    if rem:
+        return "识别到偏好但未写库(缺登录/写失败)"
+    return "一次性调整, 不升 L3"
 ```
-> 注: 测试用 monkeypatch 替换 `rc.parse_intent`/`rc.search_candidates`/`rc._write_preference_memory`，所以它们必须是模块级名字（如上）。`db=None` 在测试里安全因为这些都被 mock。
+> 注: 测试用 monkeypatch 替换 `rc.parse_intent`/`rc.search_candidates`/`rc._write_preference_memory`，所以它们必须是模块级名字（如上）。`db=None` 在测试里安全因为这些都被 mock。`trace`/`remembered` 是设计稿的 TraceCard / MemoryToast 数据源；`chitchat`/`intel`/`lock` 时 `feed=None`（feed 不重排），但 `trace` 仍回（TraceCard 照样显意图）。
 
 - [ ] **Step 4: 跑确认 PASS**
 
@@ -800,6 +878,11 @@ class RecommendChatIn(_BaseModel):
 
 class RecommendDeepenIn(_BaseModel):
     job_ids: list[str] = []
+
+class WorkingQueryUpdateIn(_BaseModel):
+    remove_sub_cat: str | None = None   # 删一个 add chip (× 移除)
+    clear_only: bool = False            # 清 only 收窄
+    sort: str | None = None             # 改排序 (match/fresh/pay)
 ```
 
 在路由区加（用真实 session helper 名）:
@@ -833,8 +916,28 @@ def recommend_deepen(session_id: int, payload: RecommendDeepenIn, db: Session = 
     from app.services.resume_copilot.recommend_deepen import deepen_jobs  # Step 3 新建薄封装
     session = _get_session_or_404(db, session_id)
     return {"items": deepen_jobs(db, session, payload.job_ids)}
+
+
+@router.post("/sessions/{session_id}/working-query/update")
+def update_working_query(session_id: int, payload: WorkingQueryUpdateIn, db: Session = Depends(get_db)):
+    """结构化操作工作查询(删 add chip / 清 only / 改 sort) + 重排, 仍走快路, 不调 LLM。"""
+    import json as _json
+    from app.services.resume_copilot.working_query import WorkingQuery
+    from app.services.resume_copilot.recommend_search import search_candidates
+    session = _get_session_or_404(db, session_id)
+    raw = getattr(session, "working_query_json", None)
+    q = WorkingQuery(**_json.loads(raw)) if raw else WorkingQuery()
+    if payload.remove_sub_cat:
+        q = q.model_copy(update={"sub_cats": [s for s in q.sub_cats if s != payload.remove_sub_cat]})
+    if payload.clear_only:
+        q = q.model_copy(update={"only": False})
+    if payload.sort in ("match", "fresh", "pay"):
+        q = q.model_copy(update={"sort": payload.sort})
+    session.working_query_json = _json.dumps(q.model_dump(), ensure_ascii=False)
+    db.commit()
+    return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
 ```
-若 `BackgroundTasks` 未 import，在文件顶部 `from fastapi import ... BackgroundTasks` 补上。
+若 `BackgroundTasks` 未 import，在文件顶部 `from fastapi import ... BackgroundTasks` 补上。`remove_sub_cat` 只能删 `sub_cats`（add 集），删不动 `seed_sub_cats`（confirmed 派生不可删，与设计稿深色 chip 一致）。
 
 - [ ] **Step 3: 新建 `recommend_deepen.py` 薄封装**
 
@@ -861,12 +964,50 @@ def deepen_jobs(db, session, job_ids: list[str]) -> list[dict]:
     # 复用现有 v2 Pro 精排: 见 recommendation._recommend_v2_dispatcher 里 rerank_top_n/generate_narrative 调法
     try:
         from app.services.resume_copilot.recommendation import _deepen_items  # 若已有则用
-        return _deepen_items(db, session, targets)
+        deepened = _deepen_items(db, session, targets)
     except Exception:
         logger.warning("deepen slow-path unavailable, returning rule items", exc_info=True)
-        return targets  # 回落: 至少返回规则 item, 不崩
+        deepened = targets  # 回落: 至少返回规则 item, 不崩
+    return [_shape_deepen_item(it) for it in deepened]
+
+
+def _shape_deepen_item(it: dict) -> dict:
+    """把慢路结果整成设计稿 JobCard 深挖态要的形状:
+    - enhanced_score: Pro 精排分(慢路给的 rerank score / final_score, 以实际字段为准)
+    - anchors: 4 段 [label, text] — 赛道契合 / 平台梯队 / 岗位画像 / 不确定点
+    - used_ai: True
+    narrative 4-anchor 已是 v2 既有产物(narrative.py 的 4 锚点); 这里只做字段对齐。"""
+    if not isinstance(it, dict):
+        return it
+    it["used_ai"] = True
+    if it.get("enhanced_score") is None:
+        it["enhanced_score"] = it.get("rerank_score") or it.get("final_score") or it.get("score")
+    if "anchors" not in it:
+        nar = it.get("narrative") or it.get("reasons") or {}
+        # narrative 既有结构 → [label,text] 列表; 形状以 narrative.py 实际产出为准
+        it["anchors"] = _narrative_to_anchors(nar)
+    return it
+
+
+def _narrative_to_anchors(nar) -> list[list[str]]:
+    """v2 narrative(4-anchor) → [[label,text],...]。dict/list/str 都兜底, 不崩。"""
+    labels = ["赛道契合", "平台梯队", "岗位画像", "不确定点"]
+    if isinstance(nar, dict):
+        keys = list(nar.keys())
+        if keys:
+            return [[str(k), str(nar[k])] for k in keys][:4]
+        return []
+    if isinstance(nar, list):
+        out = []
+        for i, v in enumerate(nar[:4]):
+            if isinstance(v, (list, tuple)) and len(v) == 2:
+                out.append([str(v[0]), str(v[1])])
+            else:
+                out.append([labels[i] if i < 4 else "理由", str(v)])
+        return out
+    return [["理由", str(nar)]] if nar else []
 ```
-> 实现者: 若 `recommendation.py` 没有可复用的 `_deepen_items`，按 `_recommend_v2_dispatcher` 里调 `rerank_top_n` + `generate_narrative` 的方式，在本文件内联一个最小慢路（top-N 精排 + 理由），失败回落 `targets`。**这是本子项唯一允许跑 Pro 的地方。**
+> 实现者: 若 `recommendation.py` 没有可复用的 `_deepen_items`，按 `_recommend_v2_dispatcher` 里调 `rerank_top_n` + `generate_narrative` 的方式，在本文件内联一个最小慢路（top-N 精排 + 4-anchor 理由），失败回落 `targets`。**这是本子项唯一允许跑 Pro 的地方。** `_narrative_to_anchors` 的真实形状以 `narrative.py` 既有 4-anchor 产出为准（grep `generate_narrative` 看返回结构）；保证最终每条带 `enhanced_score` + `anchors`（≤4 段 `[label,text]`）+ `used_ai=True`。
 
 - [ ] **Step 4: 套件 + 端点冒烟**
 
@@ -910,20 +1051,34 @@ EOF
 
 > 前端不走 TDD。验收 = `npm run lint`(0 error) + `npm run build` 过。
 
-- [ ] **Step 1: 加类型（types.ts）**
+- [ ] **Step 1: 加类型（types.ts）— 对齐设计稿 nlrec-feed/chat 渲染字段**
 
 ```typescript
 export interface WorkingQuery {
-  sub_cats: string[]; companies: string[]; locations: string[];
+  seed_sub_cats: string[];  // confirmed 派生 · 深色不可删 chip
+  sub_cats: string[];       // NL 加的 · 陶土色可删 chip
+  companies: string[]; locations: string[];
   exclude: string[]; sort: string; only: boolean; note: string;
+}
+// 一轮对话 trace（设计稿可展开 TraceCard 数据源）
+export interface RecommendTrace { intent: string; query_delta: Record<string, unknown>; remember_note: string; }
+// 深挖产物（设计稿 JobCard 深挖态：Enhanced 分 + 4-anchor）— item 上的可选增量字段
+export interface RecommendFeedItem extends ResumeRecommendationItem {
+  base_score?: number;
+  enhanced_score?: number | null;
+  used_ai?: boolean;
+  anchors?: [string, string][];   // [[label,text],...] ≤4
 }
 export interface RecommendTurnResponse {
   intent: string;
   reply: string;
-  feed: ResumeRecommendationItem[] | null;
+  feed: RecommendFeedItem[] | null;
   working_query: WorkingQuery;
+  trace: RecommendTrace;
+  remembered: { dimension: string; value: string } | null;  // 非空 → 弹 MemoryToast
 }
 ```
+> `RecommendFeedItem` 扩展现有 `ResumeRecommendationItem`（feed 卡仍复用既有公司/赛道/in_skeleton 字段），只加设计稿要的分数/anchor 字段。company-intel 卡复用已有 `IntelDrawer`/intel 类型（`workspace/intel/`），不新造。
 
 - [ ] **Step 2: 加 API（api.ts，复用现有 fetch helper / 注入 user-key 头）**
 
@@ -940,7 +1095,15 @@ export async function getWorkingQuery(sessionId: number): Promise<{ working_quer
   if (!res.ok) throw new Error(`working-query ${res.status}`);
   return res.json();
 }
-export async function postRecommendDeepen(sessionId: number, jobIds: string[]): Promise<{ items: ResumeRecommendationItem[] }> {
+// 删 add chip / 清 only / 改 sort → 重排（快路, 不调 LLM）
+export async function updateWorkingQuery(sessionId: number, op: { remove_sub_cat?: string; clear_only?: boolean; sort?: string }): Promise<{ working_query: WorkingQuery; feed: RecommendFeedItem[] }> {
+  const res = await fetch(`/api/resume-copilot/sessions/${sessionId}/working-query/update`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op),
+  });
+  if (!res.ok) throw new Error(`working-query/update ${res.status}`);
+  return res.json();
+}
+export async function postRecommendDeepen(sessionId: number, jobIds: string[]): Promise<{ items: RecommendFeedItem[] }> {
   const res = await fetch(`/api/resume-copilot/sessions/${sessionId}/recommend-deepen`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ job_ids: jobIds }),
   });
@@ -948,7 +1111,7 @@ export async function postRecommendDeepen(sessionId: number, jobIds: string[]): 
   return res.json();
 }
 ```
-> 若 api.ts 里 sibling fetcher 用 `requestJson` 包装注入 `X-Resume-User-Key`/`Authorization`，照它的风格改写这三个。
+> 若 api.ts 里 sibling fetcher 用 `requestJson` 包装注入 `X-Resume-User-Key`/`Authorization`，照它的风格改写这四个。
 
 - [ ] **Step 3: lint + build**
 
@@ -970,44 +1133,42 @@ EOF
 
 ---
 
-### Task 9: 中间栏接推荐 agent + feed 渲染 + 隐藏改写入口
+> **前端 4 个任务（9–12）= 按 hi-fi 设计稿像素级还原一个独立三栏「推荐工作台」。** 源在 `resume-copilot-web/.design-ref/nl-recommendation/`（`nlrec-app/chat/feed.jsx` + `NL-recommendation-workspace.html`）。实现者**逐文件读设计稿 → 移植成 TSX**，用 repo 现有 `.hf` 体系（`components/hifi/hifi-tokens.css` 的 token + `app/globals.css` 的 `.border-beam`），缺的 token/class 才在 `workspace/recommend-agent/recommend-agent.css` 里补（按 CLAUDE.md「三套设计系统严格隔离」，scope 到 `.hf` 或 `[data-theme="recommend"]`）。不照搬设计稿的脚本化假数据（`nlrec-data.jsx` 只看 UI 契约），数据全走 Task 8 的真实 API。每个任务以 `npm run lint`(0 error) + `npm run build` 收尾。
+
+### Task 9: 独立「推荐工作台」页面 — 路由 + 三栏 Shell + 顶栏 + 会话侧栏（隐藏改写入口）
 
 **Files:**
-- Modify: `resume-copilot-web/components/resume-copilot/workspace/MiddleChatPane.tsx`（及其父容器 `WorkspaceShell.tsx`）
-- Modify: feed 栏（`LeftRecommendRail.tsx` 读 `RecommendTurnResponse.feed`）
+- Create: `resume-copilot-web/app/recommend/page.tsx`（新路由，独立全屏页）
+- Create: `resume-copilot-web/components/resume-copilot/workspace/recommend-agent/RecommendWorkspaceShell.tsx`（三栏 grid + 顶层状态机：msgs / workingQuery / feed / thinking / lockOpen）
+- Create: `.../recommend-agent/RecommendTopBar.tsx`、`.../recommend-agent/RecommendSidebar.tsx`
+- Create: `.../recommend-agent/recommend-agent.css`（仅补 repo 缺的 token/class，scope 隔离）
 
-- [ ] **Step 1: 定位中间栏发消息处 + 改写入口**
+**设计稿对应:** `nlrec-app.jsx` 的 `TopBar` / `Sidebar` / `App`（三栏 grid `208px minmax(340px,1fr) minmax(372px,440px)`）。
 
-Run: `cd resume-copilot-web && grep -rn "sendChatMessage\|/chat\|rewrite\|改写\|plan" components/resume-copilot/workspace/MiddleChatPane.tsx components/resume-copilot/workspace/WorkspaceShell.tsx`
-确认中间栏现在调改写 `/chat` 的位置 + 改写相关 UI 入口（按钮/tab）。
+- [ ] **Step 1: 看清 repo 既有约定**
 
-- [ ] **Step 2: 中间栏发消息改走 `postRecommendChat`**
+Run: `cd resume-copilot-web && grep -rn "sessionId\|getDemoSession\|guest\|user-key\|X-Resume-User-Key" app/resume-copilot/page.tsx components/resume-copilot/workspace/WorkspaceShell.tsx | head -20`
+确认现有 workspace 怎么拿 sessionId（demo / guest / 登录）+ user-key 头怎么注入；新页照同一套解析（不另造 session 机制）。
 
-把中间栏 send 从改写 `/chat` 切到 `postRecommendChat(sessionId, message)`；拿到 `RecommendTurnResponse` →
-- 把 `reply` 作为 agent 回话渲染进对话流；
-- 若 `feed !== null` → 通过父容器把 feed 传给 `LeftRecommendRail`（提升 feed state 到 `WorkspaceShell` 或共享 store）。
-- react-compiler: 不在 effect body setState；在 `postRecommendChat(...).then(resp => { setMessages(...); if (resp.feed) setFeed(resp.feed); })` 回调里 set。
+- [ ] **Step 2: 建 Shell + 顶栏 + 侧栏（移植设计稿）**
 
-- [ ] **Step 3: 隐藏改写入口（不删组件）**
+- `RecommendTopBar`：JobRadar logo · 「推荐工作台」· `NL 推荐 agent` pill · 右侧「简历编辑器」ghost 按钮（链到现有 `/resume-copilot`，子项④ 拆分前的过渡入口）· 用户头像。照 `nlrec-app.jsx` TopBar。
+- `RecommendSidebar`：「新会话」主按钮 + 会话列表（先用现有 sessions API 或占位静态，按 Step 1 决定）+ **底部虚线卡「简历改写入口 · 已隐藏（组件不删 → 子项④ 物理拆分）」**（设计稿明文的「只加不删」隐藏入口）。
+- `RecommendWorkspaceShell`：三栏 grid，持有 `useState`：`msgs`/`workingQuery`/`feed`/`thinking`/`lockOpen`/`deepening`。中栏右栏先放占位，Task 10/11 填。初始 `workingQuery` 由 `getWorkingQuery(sessionId)` 拉；为空则后端 seed（向后兼容）。
 
-把中间栏/工具栏里"改写/plan"相关入口用条件隐藏（如常量 `RECOMMEND_ONLY = true` 控制），保留组件文件不动（④ 物理拆分另做）。
+- [ ] **Step 3: 挂路由 + lint + build**
 
-- [ ] **Step 4: feed 栏渲染来自对话的 feed**
-
-`LeftRecommendRail` 接受一个可选 `feedOverride: ResumeRecommendationItem[] | null`，非空时渲染它（取代轮询的 recommendations）；为空时维持原行为（向后兼容）。
-
-- [ ] **Step 5: lint + build**
-
+`app/recommend/page.tsx` 渲染 `<RecommendWorkspaceShell sessionId={...} />`。
 Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15`
-Expected: lint 0 error；build 成功。
+Expected: lint 0 error；build 成功；`/recommend` 在 build 输出里。
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 cd /home/chuanbo/projects/JobRadar
-git add resume-copilot-web/components/resume-copilot/workspace/
+git add resume-copilot-web/app/recommend/ resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
 git commit -m "$(cat <<'EOF'
-feat(reco): 中间栏接 NL 推荐 agent + feed 渲染 + 隐藏改写入口
+feat(reco): 独立推荐工作台页面骨架(三栏 Shell + 顶栏 + 会话侧栏 + 隐藏改写入口)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 EOF
@@ -1016,31 +1177,119 @@ EOF
 
 ---
 
-### Task 10: 「锁定为主方向」+「深挖」入口
+### Task 10: NL 对话栏（中栏）— 接 `postRecommendChat`，意图解析可视化
 
 **Files:**
-- Modify: feed 栏 / 工作查询展示组件（`LeftRecommendRail.tsx` 或新建小组件）
+- Create: `.../recommend-agent/RecommendChatPane.tsx`（栏头 + 消息流 + Composer）
+- Create: `.../recommend-agent/chat/{Turn,ThinkingCard,TraceCard,MemoryToast,Composer}.tsx`
 
-- [ ] **Step 1: 「锁定为主方向」按钮**
+**设计稿对应:** `nlrec-chat.jsx`（`Turn` / border-beam `ThinkingCard`「意图解析中 · flash」/ 可展开 `TraceCard`(intent·query_delta·remember_note) / `MemoryToast` / `Composer` 带快捷 chip）。company-intel 卡复用现有 `workspace/intel/` 组件，不在这里重造。
 
-feed 栏顶部加按钮，点击 → 用当前 `working_query.sub_cats` 调现有 `putResumeCopilotPreferences(sessionId, { preferred_tracks: ..., confirmed_sub_cats: working_query.sub_cats, ... })`（L2 唯一落 confirmed 入口）→ 成功后提示"已设为主方向,梯队骨架已更新"。
+- [ ] **Step 1: 栏头 + 消息流壳**
 
-- [ ] **Step 2: 「深挖」入口**
+栏头：Avatar + 「推荐 agent」+ 副标「说人话换方向 · 秒级重排，不动确认赛道」+ 右侧 `快路 · 规则排` 绿点 pill（`nowrap`，设计稿踩过换行坑）。消息流 = `msgs.map`，类型 `turn`(me/ai) / `trace` / `memory` / `intel`。
 
-feed 里每张卡（或批量）加"深挖"按钮 → 调 `postRecommendDeepen(sessionId, [jobId])` → 用返回的带 narrative item 替换该卡。loading 态用现有 border-beam/思考样式。
+- [ ] **Step 2: 发送接 `postRecommendChat`**
 
-- [ ] **Step 3: lint + build**
+Composer 发送 → push 用户 turn → `setThinking(true)`（渲染 border-beam `ThinkingCard`）→ `await postRecommendChat(sessionId, text)`：
+- push agent `reply` turn；
+- push `trace` 卡（来自 `resp.trace`，默认折叠，可展开看 `intent` / `query_delta` JSON / `remember_note`）；
+- 若 `resp.remembered` 非空 → push `MemoryToast`「记忆 → L3 preference · 后台落库（{dimension}={value}）」；
+- 若 `resp.feed !== null` → 经 Shell 的 `setFeed(resp.feed)` 把流动 feed 推给右栏（feed 状态提升在 Shell）；
+- 同步 `setWorkingQuery(resp.working_query)`。
+- react-compiler 合规：所有 setState 在 `await`/`.then` 之后的回调里，不在 effect body 顶层 setState。
+- 失败兜底：catch → push 一条降级 ai turn「没太听懂，换个说法？feed 没动」（绝不静默）。
 
-Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15`
-Expected: lint 0 error；build 成功。
+- [ ] **Step 3: Composer 快捷 chip**
 
-- [ ] **Step 4: Commit**
+输入框上方放 4 个示例 chip（多来点固收 / 一直不考虑国企 / 只看头部券商资管按薪资 / 讲讲某家），点击=把该文案当消息发出。placeholder 用设计稿那句。
 
+- [ ] **Step 4: lint + build + Commit**
+
+Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15` → 0 error / 成功。
 ```bash
 cd /home/chuanbo/projects/JobRadar
-git add resume-copilot-web/components/resume-copilot/
+git add resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
 git commit -m "$(cat <<'EOF'
-feat(reco): feed 栏「锁定为主方向」+「深挖」入口
+feat(reco): NL 对话栏 — postRecommendChat + 意图解析 trace + L3 记忆提示
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
+### Task 11: 流动 feed 栏（右栏）— 工作查询 readout + JobCard（Base/Enhanced + 4-anchor）
+
+**Files:**
+- Create: `.../recommend-agent/RecommendFeedPane.tsx`、`.../recommend-agent/feed/{WorkingQueryReadout,JobCard,ScorePill,QueryChip}.tsx`
+
+**设计稿对应:** `nlrec-feed.jsx`（`FeedPane` 头部工作查询 readout + `JobCard` Base/Enhanced `ScorePill` + 深挖 4-anchor + 空态）。
+
+- [ ] **Step 1: 工作查询 readout**
+
+头部：「流动 feed · 按工作查询 · {feed.length} 个在招」+ 右侧「锁定为主方向 →」按钮（Task 12 接弹层）。下面 chip 行：
+- `seed_sub_cats` → 深色 `QueryChip kind=seed`（不可删）；
+- `sub_cats` → 陶土色 `QueryChip kind=add` 带 ×（点 × → `updateWorkingQuery(sessionId,{remove_sub_cat})` → `setFeed`/`setWorkingQuery`）；
+- `exclude` → 虚线 `kind=excl`；
+- `only` → 深色 `only=…` pill，点击 → `updateWorkingQuery(sessionId,{clear_only:true})`；
+- 右端排序指示「排序：匹配/新鲜度/薪资 ▾」，点击切换 → `updateWorkingQuery(sessionId,{sort})`。
+
+- [ ] **Step 2: JobCard**
+
+每卡：`#rank` · 岗位名 · `公司 · 地点` · 新鲜度；`ScorePill base`（`item.base_score`，永远显）+ `ScorePill enhanced`（深挖前 dashed pending「—」，深挖后陶土实色 `item.enhanced_score`）；未深挖显「规则三维分（赛道匹配/新鲜度/平台梯队）· used_ai=false」；底部两按钮「🏢 讲讲这家」+「深挖（Pro 精排）→」。复用既有 in_skeleton 小标（梯队内/外）。
+
+- [ ] **Step 3: 深挖 + 讲讲这家**
+
+- 深挖：点击 → 该卡进 `deepening` 态（按钮转「精排中…」spinner）→ `await postRecommendDeepen(sessionId,[jobId])` → 用返回 item 替换该卡（补 `enhanced_score` + `anchors`）→ 卡内展开「慢路 · 4-anchor 理由」段（`anchors.map(([k,v])=> 标签+文本)`）+「Pro 精排 ✓」pill。
+- 讲讲这家：点击 → 经 Shell 在中栏 push 一条用户 turn「讲讲{公司}」+ 拉公司情报卡（复用现有 intel 组件/接口；无结构化情报则降级文案，不静默）。
+
+- [ ] **Step 4: 空态**
+
+`feed.length===0` → 设计稿文案「这方向库里暂无在招 · 要不要看相邻方向，或放宽地点？绝不静默空白」。
+
+- [ ] **Step 5: lint + build + Commit**
+
+Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15` → 0 error / 成功。
+```bash
+cd /home/chuanbo/projects/JobRadar
+git add resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
+git commit -m "$(cat <<'EOF'
+feat(reco): 流动 feed 栏 — 工作查询 readout + JobCard(Base/Enhanced) + 深挖 4-anchor
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
+### Task 12: 锁定弹层 + 「锁定为主方向」（L2 唯一 confirmed 入口）
+
+**Files:**
+- Create: `.../recommend-agent/LockModal.tsx`
+- Modify: `.../recommend-agent/RecommendFeedPane.tsx`（头部按钮接弹层）+ `RecommendWorkspaceShell.tsx`（`lockOpen` 状态 + confirm 落库）
+
+**设计稿对应:** `nlrec-app.jsx` 的 `LockModal` + `confirmLock`。
+
+- [ ] **Step 1: LockModal**
+
+照设计稿：标题「锁定为主方向？」+ 说明「把当前工作查询提交成 confirmed 赛道 — WorkingQuery 唯一会落 confirmed 的入口」+ 「将写入 confirmed」chip 区（展示 `effective_sub_cats`= seed+add）+「梯队骨架（子项②）据此重塑 · 走 PUT /preferences」脚注 +「再想想 / 锁定为主方向」两按钮。
+
+- [ ] **Step 2: confirm 落库（L2 唯一入口）**
+
+确认 → 调现有 `putResumeCopilotPreferences(sessionId, { ...现有 preferred_tracks, confirmed_sub_cats: [...seed_sub_cats, ...sub_cats] })`（**唯一**落 confirmed 的地方；用合并集）→ 成功后 feed 头部按钮变绿 pill「✓ 已锁定为主方向」+ 中栏 push「已锁定 ✓ 梯队骨架会据此重塑」+ MemoryToast「L2 → PUT /preferences · confirmed 赛道已更新」。
+> 注意：调 `putResumeCopilotPreferences` 前先 grep 它现有签名，把现有字段原样带上、只追加 `confirmed_sub_cats`（别把别的 preference 字段冲掉）。
+
+- [ ] **Step 3: lint + build + Commit**
+
+Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15` → 0 error / 成功。
+```bash
+cd /home/chuanbo/projects/JobRadar
+git add resume-copilot-web/components/resume-copilot/workspace/recommend-agent/
+git commit -m "$(cat <<'EOF'
+feat(reco): 锁定弹层 + 锁定为主方向(L2 唯一 confirmed 入口, 走 PUT /preferences)
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 EOF
@@ -1051,7 +1300,7 @@ EOF
 
 ## Unit 3 — 端到端验收
 
-### Task 11: 端到端验收（铁律核验）
+### Task 13: 端到端验收（铁律核验 + UI 冒烟）
 
 **Files:** 无（纯验证）
 
@@ -1103,10 +1352,11 @@ Expected: 无输出（快路零 Pro 调用；Pro 只在 `recommend_deepen.py`）
 Run: `cd backend && PYTHONPATH=. .venv/bin/pytest tests/resume_copilot/ tests/phase_g/ -q`
 Expected: 全绿（除已知 2 个 GT schema 预存失败）。
 
-- [ ] **Step 5: 前端最终 lint + build**
+- [ ] **Step 5: 前端最终 lint + build + UI 冒烟**
 
 Run: `cd resume-copilot-web && npm run lint && npm run build 2>&1 | tail -15`
-Expected: lint 0 error；build 成功。
+Expected: lint 0 error；build 成功；`/recommend` 出现在路由清单。
+UI 冒烟（dev server 起一次，非 sudo）：`npm run dev`（:3001）→ 打开 `/recommend` → 走一遍设计稿演示路径「多来点固收 → 一直不考虑国企 → 只看头部券商资管按薪资 → 讲讲某家 → 任意卡片深挖 → 锁定为主方向」，肉眼核对：意图解析 trace 可展开、排除后弹 L3 记忆提示、深挖出 Enhanced 分 + 4-anchor、锁定弹层走通。
 
 - [ ] **Step 6: 清理测试残留**
 
@@ -1123,15 +1373,16 @@ c.execute(\"DELETE FROM account_memory WHERE user_key='__test__'\"); conn.commit
 
 ## Self-Review（对照 spec）
 
-- **决策 1 分开互补**: 本子项只产 feed(对话流)，骨架是子项②，feed 经 Task 9 渲染、Task 10 锁定联动 ✓
-- **决策 2 临时工作查询不动 confirmed**: Task 1/3/6（L1）+ Task 11 Step 2（铁律核验）✓
-- **决策 3 快慢分离**: Task 4/6 快路无 LLM rerank；Task 7 `recommend-deepen` 才慢路；Task 11 Step 3 核验 ✓
-- **决策 4 只加不删**: Task 7（改写端点不动）+ Task 9 Step 3（前端隐藏非删）✓
+- **决策 1 分开互补**: 本子项只产流动 feed(右栏)，骨架是子项②，feed 经 Task 11 渲染、Task 12 锁定联动 ✓
+- **决策 2 临时工作查询不动 confirmed**: Task 1/3/6（L1，seed/add 分离）+ Task 13 Step 2（铁律核验）✓
+- **决策 3 快慢分离**: Task 4/6 快路无 LLM rerank（含 working-query/update 重排）；Task 7 `recommend-deepen` 才慢路；Task 13 Step 3 核验 ✓
+- **决策 4 只加不删**: Task 7（改写端点不动）+ Task 9 Step 2（侧栏隐藏改写入口、组件不删）✓
 - **决策 5 结构化 JSON 非 function-calling**: Task 5（`response_format: json_object`）✓
-- **决策 6 三层持久化**: L1=Task 2 列/Task 6；L2=Task 10 锁定→preferences；L3=Task 6 `_write_preference_memory`→`write_memory` ✓
-- **Unit A WorkingQuery**: Task 1/3 ✓ ; **Unit B search_candidates**: Task 4 ✓ ; **Unit C agent loop**: Task 5/6 ✓ ; **Unit D 快慢**: Task 4/7 ✓ ; **Unit E 锁定**: Task 10 ✓
-- **错误处理**: 空结果(Task 4 不藏岗/Task 7 deepen 回落)、意图不清/LLM 失败(Task 5 兜底 chitchat)、L3 写失败不崩(Task 6 try/except) ✓
+- **决策 6 三层持久化**: L1=Task 2 列/Task 6；L2=Task 12 锁定→preferences；L3=Task 6 `_write_preference_memory`→`write_memory` ✓
+- **Unit A WorkingQuery**: Task 1/3 ✓ ; **Unit B search_candidates**: Task 4 ✓ ; **Unit C agent loop**: Task 5/6 ✓ ; **Unit D 快慢**: Task 4/7 ✓ ; **Unit E 锁定**: Task 12 ✓
+- **设计稿覆盖**: 顶栏+会话侧栏+隐藏改写卡=Task 9；对话栏 Turn/border-beam ThinkingCard/可展开 TraceCard/MemoryToast/Composer=Task 10；feed 工作查询 readout(seed/add/excl/only+sort)/JobCard Base+Enhanced/4-anchor 深挖/讲讲这家/空态=Task 11；LockModal=Task 12 ✓
+- **错误处理**: 空结果(Task 4 不藏岗/Task 7 deepen 回落/Task 11 空态文案)、意图不清/LLM 失败(Task 5 兜底 chitchat + Task 10 catch 降级 turn)、L3 写失败不崩(Task 6 try/except) ✓
 - **向后兼容**: `working_query_json` 缺失退回 confirmed(Task 6 `_load_query` 默认空 WorkingQuery) ✓
-- **类型一致**: `WorkingQuery`/`apply_delta`/`seed_working_query`/`search_candidates`/`parse_intent`/`run_recommend_turn`/`_write_preference_memory`/`deepen_jobs` 全程同名；前端 `WorkingQuery`/`RecommendTurnResponse`/`postRecommendChat`/`getWorkingQuery`/`postRecommendDeepen` 一致 ✓
+- **类型一致**: `WorkingQuery(含 seed_sub_cats/effective_sub_cats)`/`apply_delta`/`seed_working_query`/`search_candidates`/`parse_intent`/`run_recommend_turn(回 trace/remembered)`/`_write_preference_memory`/`deepen_jobs(回 enhanced_score/anchors)` 全程同名；前端 `WorkingQuery`/`RecommendTrace`/`RecommendFeedItem`/`RecommendTurnResponse`/`postRecommendChat`/`getWorkingQuery`/`updateWorkingQuery`/`postRecommendDeepen` 一致 ✓
 - **YAGNI**: 子项②③④、自由文本映射修复、每轮 Pro、自动晋升 均不做 ✓
-- **铁律覆盖**: 不写 confirmed(决策2)、L3 不直插(Task 6 经 dispatcher)、不藏岗(Task 4)、快路无 Pro(Task 11 Step3)、`git add` 限定文件 — 各任务 commit 段已限定 ✓
+- **铁律覆盖**: 不写 confirmed(决策2)、L3 不直插(Task 6 经 dispatcher)、不藏岗(Task 4)、快路无 Pro(Task 13 Step3)、`git add` 限定文件 — 各任务 commit 段已限定 ✓
