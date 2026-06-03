@@ -233,9 +233,12 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
   }, [sessionId]);
 
   // ── Sub-cat suggestions: debounced fetch when selectedTrack changes ────
-  // react-compiler constraint: no synchronous setState in the effect body.
-  // All state mutations happen inside queueMicrotask or .then()/.catch().
+  // State mutations only happen inside .then()/.catch() callbacks (not
+  // synchronously in the effect body) and are guarded by an `ignored` flag
+  // so stale in-flight responses can't overwrite a newer track's state.
   useEffect(() => {
+    let ignored = false;
+
     // Clear previous pending timer on every re-run.
     if (subCatDebounceRef.current !== null) {
       clearTimeout(subCatDebounceRef.current);
@@ -244,21 +247,28 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
     if (!selectedTrack) {
       // Defer clears so they're not synchronous within the effect body.
       queueMicrotask(() => {
+        if (ignored) return;
         setSubCatOptions([]);
         setConfirmedSubCats([]);
         setSubCatLoading(false);
       });
-      return;
+      return () => {
+        ignored = true;
+      };
     }
     subCatDebounceRef.current = setTimeout(() => {
-      queueMicrotask(() => setSubCatLoading(true));
+      queueMicrotask(() => {
+        if (!ignored) setSubCatLoading(true);
+      });
       getSubCatSuggestions(sessionId, [selectedTrack])
         .then((resp) => {
+          if (ignored) return;
           setSubCatOptions(resp.options);
           setConfirmedSubCats(initialConfirmedFrom(resp.options));
           setSubCatLoading(false);
         })
         .catch(() => {
+          if (ignored) return;
           // 预勾失败不阻塞确认页, 留空让学生手动选
           setSubCatOptions([]);
           setConfirmedSubCats([]);
@@ -266,6 +276,7 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
         });
     }, 400);
     return () => {
+      ignored = true;
       if (subCatDebounceRef.current !== null) {
         clearTimeout(subCatDebounceRef.current);
         subCatDebounceRef.current = null;
@@ -355,7 +366,7 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
 
         {/* Header */}
         <div className="rc-confirm__header">
-          <div className="rc-confirm__file-icon" aria-hidden>
+          <div className="rc-confirm__file-icon" aria-hidden="true">
             {I.file(28)}
           </div>
           <h2 className="rc-confirm__title">AI 已解析你的简历</h2>

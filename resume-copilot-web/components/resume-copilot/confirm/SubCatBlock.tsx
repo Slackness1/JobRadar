@@ -39,7 +39,8 @@ export function SubCatBlock({
   if (!loading && options.length === 0) return null;
 
   const total = options.reduce((n, o) => n + o.sub_cats.length, 0);
-  const checked = confirmedSubCats.length;
+  const optionKeys = new Set(options.flatMap((o) => o.sub_cats.map((s) => s.key)));
+  const checked = confirmedSubCats.filter((k) => optionKeys.has(k)).length;
 
   return (
     <div className="rc-confirm__card rc-confirm__block">
@@ -54,7 +55,7 @@ export function SubCatBlock({
 
       {loading ? (
         <div className="rc-confirm__subcat-loading">
-          <span className="hf-spin" aria-hidden /> 分析中…
+          <span className="hf-spin" aria-hidden="true" /> 分析中…
         </div>
       ) : (
         <div className="rc-confirm__subcat-sections">
