@@ -60,3 +60,30 @@ def suggest_sub_cats(resume_summary: str, candidate_sub_cats: list[str], *, clie
     except Exception:
         logger.warning("suggest_sub_cats failed, fallback to all candidates", exc_info=True)
         return cands
+
+
+def build_sub_cat_options(resume_summary: str, tracks: list[str]) -> list[dict]:
+    """给一组赛道, 返回每个赛道的 sub_cat 候选 + 预勾标记。
+
+    预勾对所有赛道的 sub_cat 并集跑一次 LLM, 然后按赛道回填 suggested 标记。
+    返回: [{"track": str, "sub_cats": [{"key": str, "suggested": bool}, ...]}]
+    """
+    from app.services.phase_g.track_subcat_map import CANONICAL_TRACK_TO_SUBCATS
+
+    track_to_cands: dict[str, list[str]] = {}
+    union: list[str] = []
+    seen: set[str] = set()
+    for t in tracks or []:
+        cands = CANONICAL_TRACK_TO_SUBCATS.get((t or "").strip(), [])
+        track_to_cands[t] = cands
+        for c in cands:
+            if c not in seen:
+                seen.add(c); union.append(c)
+    suggested = set(suggest_sub_cats(resume_summary, union)) if union else set()
+    out: list[dict] = []
+    for t in tracks or []:
+        out.append({
+            "track": t,
+            "sub_cats": [{"key": c, "suggested": c in suggested} for c in track_to_cands.get(t, [])],
+        })
+    return out

@@ -2027,3 +2027,45 @@ def delete_session_memory_entry(
         row.last_verified_at = datetime.utcnow()
         db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class SubCatSuggestionsIn(_BaseModel):
+    tracks: list[str] = []
+
+
+@router.post('/sessions/{session_id}/sub-cat-suggestions')
+def sub_cat_suggestions(
+    session_id: int,
+    payload: SubCatSuggestionsIn,
+    db: Session = Depends(get_db),
+) -> dict:
+    """确认页两级勾选: 展开 tracks → sub_cats + LLM 预勾标记。只读, 不写 DB。"""
+    from app.services.resume_copilot.subcat_suggest import build_sub_cat_options
+
+    session = _get_session_or_404(db, session_id)
+
+    # Build resume summary: confirmed profile first, fall back to parsed.
+    summary = ""
+    try:
+        prof_row = getattr(session, 'confirmed_profile', None) or getattr(session, 'parsed_profile', None)
+        if prof_row is None:
+            # lazy-load via direct query if relationship not loaded
+            confirmed = (
+                db.query(ResumeConfirmedProfile)
+                .filter(ResumeConfirmedProfile.session_id == session_id)
+                .first()
+            )
+            parsed = (
+                db.query(ResumeParsedProfile)
+                .filter(ResumeParsedProfile.session_id == session_id)
+                .first()
+            )
+            prof_row = confirmed or parsed
+        if prof_row is not None:
+            profile_json: Any = getattr(prof_row, 'profile_json', '{}') or '{}'
+            prof = json.loads(str(profile_json))
+            summary = str(prof.get('candidate_summary', '') or '')
+    except Exception:
+        log.warning("sub_cat_suggestions: failed to extract profile summary", exc_info=True)
+
+    return {"options": build_sub_cat_options(summary, payload.tracks)}

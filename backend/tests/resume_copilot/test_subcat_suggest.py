@@ -46,3 +46,17 @@ def test_fallback_returns_all_candidates_on_error():
 
 def test_empty_candidates_returns_empty():
     assert suggest_sub_cats("xx", [], client=None) == []
+
+
+def test_subcat_options_expands_track(monkeypatch):
+    import app.services.resume_copilot.subcat_suggest as ss
+    monkeypatch.setattr(ss, "suggest_sub_cats", lambda r, c, **k: c[:1])
+    from app.services.phase_g.track_subcat_map import CANONICAL_TRACK_TO_SUBCATS
+    expected = CANONICAL_TRACK_TO_SUBCATS["公募/资管·投研"]
+    from app.services.resume_copilot.subcat_suggest import build_sub_cat_options
+    opts = build_sub_cat_options("权益简历", ["公募/资管·投研"])
+    assert opts[0]["track"] == "公募/资管·投研"
+    keys = [s["key"] for s in opts[0]["sub_cats"]]
+    assert keys == expected
+    suggested = [s["key"] for s in opts[0]["sub_cats"] if s["suggested"]]
+    assert suggested == expected[:1]
