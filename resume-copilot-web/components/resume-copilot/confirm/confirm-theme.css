@@ -406,6 +406,89 @@
   opacity: 0.8;
 }
 
+/* ── Sub-category block (Phase G Task 6) ─────────────────────────────────── */
+
+.rc-confirm__subcat-loading {
+  padding: 12px 0 4px;
+  font-size: 13px;
+  color: var(--olive);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rc-confirm__subcat-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rc-confirm__subcat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rc-confirm__subcat-track-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rc-confirm__subcat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rc-confirm__subcat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  box-shadow: 0 0 0 1px var(--border-warm);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  font-family: inherit;
+  background: transparent;
+  position: relative;
+}
+
+.rc-confirm__subcat-pill:hover:not(.is-on) {
+  background: var(--ivory);
+}
+
+.rc-confirm__subcat-pill.is-on {
+  background: var(--terracotta);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(201, 100, 66, 0.22);
+  font-weight: 600;
+}
+
+/* Visually hide the native checkbox — label acts as the whole pill */
+.rc-confirm__subcat-cb {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tiny AI-suggested dot badge (shown only when not checked yet) */
+.rc-confirm__subcat-ai-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  flex-shrink: 0;
+}
+
 /* ── CTAs ────────────────────────────────────────────────────────────────── */
 
 .rc-confirm__actions {

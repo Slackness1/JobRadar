@@ -14,6 +14,7 @@ import type {
   ResumeProfilePayload,
   ResumeRecommendationPlatformsOut,
   ResumeRecommendationResult,
+  SubCatSuggestionsResponse,
 } from './types';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -335,6 +336,20 @@ export function getResumeCopilotPlatforms(sessionId: number) {
 export function getResumeCopilotJobMode(sessionId: number) {
   return requestJson<ResumeJobMode>(
     `/api/resume-copilot/sessions/${sessionId}/job-mode`,
+  );
+}
+
+// Phase G Task 6 — 细分方向 LLM 预勾建议 (确认页两级勾选)
+export function getSubCatSuggestions(
+  sessionId: number,
+  tracks: string[],
+): Promise<SubCatSuggestionsResponse> {
+  return requestJson<SubCatSuggestionsResponse>(
+    `/api/resume-copilot/sessions/${sessionId}/sub-cat-suggestions`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ tracks }),
+    },
   );
 }
 

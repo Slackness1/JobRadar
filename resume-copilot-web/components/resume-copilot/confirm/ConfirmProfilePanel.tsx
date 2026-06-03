@@ -33,7 +33,7 @@
  * session (id 1) — `useEffect` short-circuits with an error banner.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { HFBtn, HFLogo, I } from '@/components/hifi/hifi-primitives';
@@ -41,6 +41,7 @@ import {
   DEMO_SESSION_ID,
   getResumeCopilotParsedProfile,
   getResumeCopilotPreferences,
+  getSubCatSuggestions,
   postResumeCopilotGenerate,
   putResumeCopilotConfirmedProfile,
   putResumeCopilotPreferences,
@@ -49,14 +50,21 @@ import {
   EMPTY_PREFERENCES,
   type ResumePreferencePayload,
   type ResumeProfilePayload,
+  type SubCatTrackOptions,
 } from '../types';
 import { TRACKS } from '../workspace/TrackPickerModal';
 
 import { ResumeSummaryCard } from './ResumeSummaryCard';
 import { TrackBlock } from './TrackBlock';
 import { CityBlock } from './CityBlock';
+import { SubCatBlock } from './SubCatBlock';
 
 import './confirm-theme.css';
+
+/** Derive initial confirmed keys from LLM suggestions (suggested === true). */
+function initialConfirmedFrom(opts: SubCatTrackOptions[]): string[] {
+  return opts.flatMap((o) => o.sub_cats.filter((s) => s.suggested).map((s) => s.key));
+}
 
 // Default city pre-selection when parser hasn't inferred anything specific.
 const DEFAULT_CITIES = ['北京', '上海'];
@@ -122,6 +130,14 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
   const [gradDate, setGradDate] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Phase G Task 6 — 细分方向两级勾选
+  const [subCatOptions, setSubCatOptions] = useState<SubCatTrackOptions[]>([]);
+  const [subCatLoading, setSubCatLoading] = useState(false);
+  // confirmedSubCats is the single source of truth; Task 7 reads this for the
+  // PUT /preferences payload (see handleConfirm below).
+  const [confirmedSubCats, setConfirmedSubCats] = useState<string[]>([]);
+  // Ref used for the debounce timer — stable across renders.
+  const subCatDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Canonical track-key set for validation against AI-inferred values.
   const validTrackKeys = useMemo(() => new Set(TRACKS.map((t) => t.key)), []);
@@ -216,10 +232,57 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
     };
   }, [sessionId]);
 
+  // ── Sub-cat suggestions: debounced fetch when selectedTrack changes ────
+  // react-compiler constraint: no synchronous setState in the effect body.
+  // All state mutations happen inside queueMicrotask or .then()/.catch().
+  useEffect(() => {
+    // Clear previous pending timer on every re-run.
+    if (subCatDebounceRef.current !== null) {
+      clearTimeout(subCatDebounceRef.current);
+      subCatDebounceRef.current = null;
+    }
+    if (!selectedTrack) {
+      // Defer clears so they're not synchronous within the effect body.
+      queueMicrotask(() => {
+        setSubCatOptions([]);
+        setConfirmedSubCats([]);
+        setSubCatLoading(false);
+      });
+      return;
+    }
+    subCatDebounceRef.current = setTimeout(() => {
+      queueMicrotask(() => setSubCatLoading(true));
+      getSubCatSuggestions(sessionId, [selectedTrack])
+        .then((resp) => {
+          setSubCatOptions(resp.options);
+          setConfirmedSubCats(initialConfirmedFrom(resp.options));
+          setSubCatLoading(false);
+        })
+        .catch(() => {
+          // 预勾失败不阻塞确认页, 留空让学生手动选
+          setSubCatOptions([]);
+          setConfirmedSubCats([]);
+          setSubCatLoading(false);
+        });
+    }, 400);
+    return () => {
+      if (subCatDebounceRef.current !== null) {
+        clearTimeout(subCatDebounceRef.current);
+        subCatDebounceRef.current = null;
+      }
+    };
+  }, [selectedTrack, sessionId]);
+
   // ── Toggle handlers ─────────────────────────────────────────────────────
   const toggleCity = useCallback((city: string) => {
     setSelectedCities((prev) =>
       prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city],
+    );
+  }, []);
+
+  const toggleSubCat = useCallback((key: string) => {
+    setConfirmedSubCats((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   }, []);
 
@@ -247,13 +310,14 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      // 1. Persist preferences (赛道 + 城市) so /generate downstream uses them.
+      // 1. Persist preferences (赛道 + 城市 + 细分方向) so /generate downstream uses them.
       await putResumeCopilotPreferences(sessionId, {
         ...fetchState.preferences,
         preferred_tracks: [selectedTrack],
         preferred_locations: selectedCities,
         job_stage: selectedStage,
         graduation_date: gradDate,
+        confirmed_sub_cats: confirmedSubCats,
         all_skipped: false,
       });
       // 2. Persist confirmed-profile — flips has_confirmed_profile=true and
@@ -270,7 +334,7 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
       setSubmitError(e instanceof Error ? e.message : String(e));
       setSubmitting(false);
     }
-  }, [fetchState, isDemo, router, sessionId, selectedCities, selectedTrack, selectedStage, gradDate]);
+  }, [fetchState, isDemo, router, sessionId, selectedCities, selectedTrack, selectedStage, gradDate, confirmedSubCats]);
 
   const handleBackToUpload = useCallback(() => {
     router.push('/upload');
@@ -319,6 +383,13 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
                 onChange={setSelectedTrack}
                 inferredKeys={inferredKeys}
                 disabled={submitting}
+              />
+              <SubCatBlock
+                options={subCatOptions}
+                confirmedSubCats={confirmedSubCats}
+                onToggle={toggleSubCat}
+                disabled={submitting}
+                loading={subCatLoading}
               />
               <CityBlock
                 selectedCities={selectedCities}

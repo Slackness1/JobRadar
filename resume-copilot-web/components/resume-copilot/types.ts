@@ -58,6 +58,24 @@ export interface ResumePreferencePayload {
   job_stage?: string;
   // Phase G — 学生确认的预计毕业时间 (YYYY-MM)。确认页校正后驱动阶段判定。
   graduation_date?: string;
+  // Phase G Task 6/7 — 学生在确认页勾选的细分方向 key 列表
+  confirmed_sub_cats?: string[];
+}
+
+// ── Sub-category suggestions (Phase G Task 6) ────────────────────────────────
+
+export interface SubCatOption {
+  key: string;
+  suggested: boolean;
+}
+
+export interface SubCatTrackOptions {
+  track: string;
+  sub_cats: SubCatOption[];
+}
+
+export interface SubCatSuggestionsResponse {
+  options: SubCatTrackOptions[];
 }
 
 export interface ResumeJobMode {
