@@ -4648,6 +4648,35 @@
   font-size: 10px;
 }
 
+/* Phase G v2: 梯队内 / 梯队外机会 chip */
+.workspace-hifi__rec-card-skeleton-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.2;
+  flex-shrink: 0;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* 梯队内 — quiet secondary tone (sky-blue muted), low visual weight */
+.workspace-hifi__rec-card-skeleton-chip--in {
+  background: #e8f4fd;
+  border-color: #b8d9f0;
+  color: #336699;
+}
+
+/* 梯队外 — muted amber/warm tone, slightly more prominent but not alarming */
+.workspace-hifi__rec-card-skeleton-chip--out {
+  background: var(--amber-bg);
+  border-color: #e5d3a1;
+  color: var(--amber-fg);
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
  * IntelDrawer (P0b, 2026-05-26)
  * 420px 右栏抽屉,替换 RightResumePane 显示同辈情报 4 tab。

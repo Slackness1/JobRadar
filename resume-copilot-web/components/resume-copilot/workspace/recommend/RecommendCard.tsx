@@ -211,6 +211,22 @@ export function RecommendCard({
               {tierLabel}
             </span>
           )}
+          {item.in_skeleton === true && (
+            <span
+              className="workspace-hifi__rec-card-skeleton-chip workspace-hifi__rec-card-skeleton-chip--in"
+              title="该公司在本赛道 GT 梯队骨架内"
+            >
+              梯队内
+            </span>
+          )}
+          {item.in_skeleton === false && (
+            <span
+              className="workspace-hifi__rec-card-skeleton-chip workspace-hifi__rec-card-skeleton-chip--out"
+              title="该公司不在本赛道 GT 梯队骨架内，属于骨架外机会"
+            >
+              梯队外机会
+            </span>
+          )}
           {(item.industry_tags ?? []).slice(0, 2).map((tag) => (
             <span key={tag} className="workspace-hifi__industry-chip">
               {tag}

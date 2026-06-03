@@ -210,6 +210,9 @@ export interface ResumeRecommendationItem {
    *  宏观策略 / 量化中频 / 制造 / 新能源 / IBD-股权 / IBD-并购 / 销售交易 / ...)。
    *  Keyword-based 推断,0-2 个,纯展示,不入排序。 */
   industry_tags?: string[];
+  /** Phase G v2: 公司是否在该岗 sub_cat 的 GT 梯队骨架内。
+   *  true = 梯队内;false = 梯队外机会;undefined = 旧数据无此字段。 */
+  in_skeleton?: boolean;
 }
 
 export interface ResumeAgentTraceItem {
