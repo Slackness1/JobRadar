@@ -205,6 +205,7 @@ def relevant_memory_for_bullet(
     k: int = 3,
     min_score: float = 0.10,
     active_job_id: str = '',
+    target_track: str = '',
 ) -> list[dict[str, Any]]:
     """Top-k ``experience`` / ``skill_claim`` rows matching the bullet.
 
@@ -239,6 +240,7 @@ def relevant_memory_for_bullet(
     )
 
     active_job_id_clean = (active_job_id or "").strip()
+    target_track_clean = (target_track or "").strip()
     scored: list[tuple[float, AccountMemory]] = []
     for row in rows:
         # Use summary + raw_excerpt + payload behavioral_hook for token pool
@@ -263,6 +265,10 @@ def relevant_memory_for_bullet(
         # same job by +0.5 — pushes per-job customisation evidence to the top.
         if active_job_id_clean and str(getattr(row, 'linked_job_id', '') or '') == active_job_id_clean:
             score += 0.5
+        # 赛道上下文 boost:记忆是账号级跨简历共享的,但召回时按当前简历目标
+        # 赛道排序 —— linked_track 命中目标赛道 +0.4,让对口经历浮上来。
+        if target_track_clean and str(getattr(row, 'linked_track', '') or '') == target_track_clean:
+            score += 0.4
         if score >= min_score:
             scored.append((score, row))
 
