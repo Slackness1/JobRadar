@@ -190,6 +190,39 @@ export function listResumeCopilotSessions() {
   return requestJson<ResumeCopilotSessionListItem[]>('/api/resume-copilot/sessions');
 }
 
+// ── 简历多维度打分 (B1) ─────────────────────────────────────────────────────
+export interface ScoreDimension {
+  key: string;
+  name: string;
+  score: number;
+  ceiling: number;
+  reason: string;
+}
+export interface ScoreSectionGap {
+  section: string;
+  label: string;
+  gaps: string[];
+  detail: string;
+}
+export interface ScoreReportData {
+  session_id: number;
+  target_track: string;
+  overall_current: number;
+  overall_potential_low: number;
+  overall_potential_high: number;
+  summary: string;
+  dimensions: ScoreDimension[];
+  section_gaps: ScoreSectionGap[];
+  used_ai: boolean;
+}
+
+export function scoreResume(sessionId: number, targetTrack = ''): Promise<ScoreReportData> {
+  return requestJson<ScoreReportData>(`/api/resume-copilot/sessions/${sessionId}/score`, {
+    method: 'POST',
+    body: JSON.stringify({ target_track: targetTrack }),
+  });
+}
+
 export async function downloadResumePdf(sessionId: number): Promise<void> {
   const userKey = getOrCreateUserKey();
   const headers: Record<string, string> = { 'X-Resume-User-Key': userKey };
