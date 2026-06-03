@@ -1153,10 +1153,17 @@ def _recommend_v2_dispatcher(
         "preferred_sub_cats": preferred_sub_cats,
     }
 
+    # 学生在确认页确认的细分方向(软信号)。只取落在 preferred(赛道全集)内的,
+    # 防脏数据/赛道外 sub_cat 干扰。空 → 软信号关闭, 行为同现状。
+    _confirmed = [
+        s for s in (getattr(preferences, "confirmed_sub_cats", None) or [] if preferences else [])
+        if s in set(preferred_sub_cats)
+    ]
     student_p = StudentProfile(
         preferred_sub_cats=preferred_sub_cats,
         preferred_industries=[],  # v1 profile 没有这字段, 暂留空
         preferred_tiers=[],
+        confirmed_sub_cats=_confirmed,
     )
 
     # Step 1: SQL recall (含地点过滤 — 学生选了城市就不召回明显异地岗)
