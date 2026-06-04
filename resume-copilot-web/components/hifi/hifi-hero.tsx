@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { DEMO_SESSION_ID, getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
+import { getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
 import { AuthModal } from './auth-modal';
 import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp } from './hifi-primitives';
 
@@ -194,14 +194,16 @@ export function HFHero() {
             >
               上传简历
             </HFBtn>
-            <HFBtn
-              variant="ghost"
-              size="lg"
-              icon={I.book(14)}
-              onClick={() => handleCTA(`/resume-copilot?sessionId=${DEMO_SESSION_ID}`)}
-            >
-              看示例推荐
-            </HFBtn>
+            {loggedIn ? (
+              <HFBtn
+                variant="ghost"
+                size="lg"
+                icon={I.book(14)}
+                onClick={() => router.push('/resume-copilot/sessions')}
+              >
+                我的简历
+              </HFBtn>
+            ) : null}
           </div>
 
           {/* Metric row */}
