@@ -171,11 +171,6 @@ git commit -m "feat(scoring-fe): 简历打分报告组件 — 8维雷达+现状/
 
 ---
 
-## 开放决策(执行 Phase B 前需你定)
+## 右栏三能力组织 — 已定 ✅ **C · composer chip 驱动**
 
-**右栏三能力怎么组织?** 线稿给了 3 个并排方案让你选(`wf-variations.jsx`):
-- **A 顶部 Tab 切换** — 强分隔,一次一能力
-- **B 流式串联(单 thread)** — 打分→优化在一条对话流里
-- **C composer chip 驱动** — 底部输入框上方 chip 切能力(**主框架 EditorFrame 当前用的就是这个**)
-
-我倾向 **C**(跟你主框架一致 + 跟岗位推荐侧 composer chip 逻辑统一)。你定一个我再拆 Phase B 细化 plan。
+(2026-06-03 用户拍板)底部输入框上方 chip 切能力(简历打分 / 深度优化 / 自由问),跟主框架 EditorFrame + 岗位推荐侧 composer chip 逻辑统一。A 顶部 Tab / B 流式串联 弃用。
