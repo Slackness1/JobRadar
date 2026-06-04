@@ -127,6 +127,35 @@ def test_quant_signal_overrides_org_word(
     )
 
 
+# 信用研究 / 财务分析 路径 — 张志杰(财务管理本, 真实学生)最现实的差异化方向。
+# 这些词此前 unmapped (expand=[]), 梯队骨架接不进投研篮子。归 公募/资管·投研
+# (买方固收/信用研究 子方向 — P1 的 preferred_sub_cats 已含 '信用研究员')。
+CREDIT_RESEARCH_CASES: list[tuple[str, str, str]] = [
+    ('信用研究', '公募/资管·投研', '买方信用研究 → 投研篮子'),
+    ('信用研究员', '公募/资管·投研', '同上, 全称'),
+    ('信用债研究', '公募/资管·投研', '信用债研究 → 投研'),
+    ('信用债', '公募/资管·投研', '信用债 → 投研'),
+    ('财务分析', '公募/资管·投研', '财务分析 sense 是行研/信用必备 → 投研 (SAIF 买方语境)'),
+    ('财务建模', '公募/资管·投研', '财务建模 → 投研 (行研/信用核心技能)'),
+]
+
+
+@pytest.mark.parametrize(
+    'raw,expected,comment',
+    CREDIT_RESEARCH_CASES,
+    ids=lambda v: str(v)[:50],
+)
+def test_credit_research_maps_to_investment_research(
+    raw: str, expected: str, comment: str,
+) -> None:
+    """信用研究/财务分析 路径接进投研篮子."""
+    actual = canonicalize_track(raw)
+    assert actual == expected, (
+        f'\n  raw={raw!r}\n  expected={expected!r}'
+        f'\n  actual={actual!r}\n  comment: {comment}'
+    )
+
+
 def test_persona_count_matches_design() -> None:
     """8 个 persona × 3 inferred = 24 行, 不允许漏增."""
     assert len(PERSONA_CANONICAL_CASES) == 24, (
