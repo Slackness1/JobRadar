@@ -405,6 +405,14 @@ TRACK_ALIASES: dict[str, str] = {
 TRACK_ALIASES['咨询'] = '咨询·MBB+Tier2'
 
 
+# 明确量化信号词 (小写匹配) — 出现即判定为量化意图, 不被 私募/对冲基金 组织词抢走。
+# 只收无歧义的量化词; 不含 "策略"/"trader" 等可能属 S&T/其它前台的泛词。
+_QUANT_SIGNAL_TOKENS: tuple[str, ...] = (
+    '量化', 'quant', 'quantitative', 'alpha', '因子', '高频', '中高频',
+    '做市', 'market making',
+)
+
+
 def canonicalize_track(label: str) -> str:
     """把任意 track 文本映射到 13 个 canonical 之一。映射不到就原样返回。
 
@@ -419,6 +427,13 @@ def canonicalize_track(label: str) -> str:
     label_l = label.lower().strip()
     if not label_l:
         return ''
+    # 0. 量化信号优先 — "对冲基金"/"私募" 是组织词, 既可量化也可基本面;
+    #    一旦出现明确量化词 (量化/quant/alpha/因子/高频/做市), 学生意图就是量化,
+    #    必须压过同长的组织词, 否则 longest-match 平局会按 alias 顺序错落到 私募·基本面。
+    #    边界: 不含量化词的 "对冲基金" 单独出现仍走下方常规映射 (→ 私募·基本面)。
+    for q in _QUANT_SIGNAL_TOKENS:
+        if q in label_l:
+            return '量化'
     # 1. exact match
     for alias, canon in TRACK_ALIASES.items():
         if alias.lower() == label_l:
