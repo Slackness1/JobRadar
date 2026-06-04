@@ -94,6 +94,39 @@ def test_canonicalize_persona_inferred_track(
     )
 
 
+# 量化信号共现 — 当 label 同时含"明确量化词"(量化/quant/alpha/因子/高频/做市)
+# 与"组织词"(私募/对冲基金)时, 量化意图必须压过组织词, 走 量化。
+# 这是真实量化学生的自述方式 ("量化私募 / 对冲基金 (中频 + alpha 因子)")。
+# 边界: 不含量化词的 "对冲基金" 单独出现仍 → 私募·基本面 (2026-05-23 设计, 见上 P6 case)。
+QUANT_COOCCUR_CASES: list[tuple[str, str, str]] = [
+    ('量化私募 / 对冲基金 (中频策略 + alpha 因子)', '量化',
+        '量化私募 与 对冲基金 同长, 量化信号(量化/alpha/因子)应压过组织词'),
+    ('私募量化', '量化', '"私募"(2) 与 "量化"(2) 同长 — 含量化词, 走 量化'),
+    ('量化对冲基金', '量化', '含 "量化" — 不被 "对冲基金" 抢去 私募'),
+    ('alpha 因子对冲', '量化', 'alpha / 因子 量化信号'),
+    ('高频做市私募', '量化', '高频 / 做市 量化信号压过 私募'),
+    # 反向守护: 不含量化词的组织词保持原映射, 不被误升为 量化。
+    ('外资对冲基金', '私募·基本面', '无量化词 — 保持 2026-05-23 设计 → 私募·基本面'),
+    ('头部私募研究员', '私募·基本面', '无量化词 — 基本面私募保持 私募·基本面'),
+]
+
+
+@pytest.mark.parametrize(
+    'raw,expected,comment',
+    QUANT_COOCCUR_CASES,
+    ids=lambda v: str(v)[:50],
+)
+def test_quant_signal_overrides_org_word(
+    raw: str, expected: str, comment: str,
+) -> None:
+    """量化信号词共现时压过 私募/对冲基金 组织词."""
+    actual = canonicalize_track(raw)
+    assert actual == expected, (
+        f'\n  raw={raw!r}\n  expected={expected!r}'
+        f'\n  actual={actual!r}\n  comment: {comment}'
+    )
+
+
 def test_persona_count_matches_design() -> None:
     """8 个 persona × 3 inferred = 24 行, 不允许漏增."""
     assert len(PERSONA_CANONICAL_CASES) == 24, (
