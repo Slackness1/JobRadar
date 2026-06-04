@@ -19,6 +19,7 @@
 }
 .hf .og-title { font-family: var(--font-serif, Georgia, serif); font-size: 24px; color: var(--ink, #2b2620); margin: 0 0 4px; }
 .hf .og-sub { font-size: 13px; color: var(--ink-soft, #6f675b); margin: 0 0 22px; }
+.hf .og-panel { display: flex; flex-direction: column; }
 .hf .og-steps { display: flex; flex-direction: column; gap: 12px; }
 .hf .og-step {
   display: flex; gap: 14px; padding: 14px 16px; border-radius: 14px;
