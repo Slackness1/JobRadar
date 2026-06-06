@@ -1077,3 +1077,21 @@ class KnowledgeSubcategory(Base):
     embedding = Column(LargeBinary)                    # DashScope text-embedding-v3
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class DecisionEvent(Base):
+    """统一决策事件埋点 (2026-06-06) — fallback / 护栏 / 分支触发的单一落点。
+
+    所有 record_event() 写这张表;一句 SQL 即可回答"哪个分支真在触发、命中率多少"。
+    写入走 app/services/telemetry (best-effort, 永不拖垮主流程)。
+    detail_json 只存最小定位信息, **禁 PII**。
+    """
+    __tablename__ = "decision_events"
+
+    id = Column(Integer, primary_key=True)
+    event_name = Column(Text, nullable=False, index=True)
+    session_id = Column(Integer, nullable=True)       # resume_copilot session, 可空
+    purpose = Column(Text, nullable=True)             # recommendation / parse / platforms ...
+    hit = Column(Boolean, nullable=False, default=True)
+    detail_json = Column(Text, nullable=True)         # 最小定位信息 JSON, 禁 PII
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
