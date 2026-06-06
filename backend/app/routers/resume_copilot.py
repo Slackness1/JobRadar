@@ -23,6 +23,7 @@ from app.schemas_resume_copilot import (
     ApplyRewriteIn,
     ApplyRewriteOut,
     ChatMessageIn,
+    DeepOptimizeStartIn,
     DirectionTierResult,
     MemoryEntryCreateIn,
     MemoryEntryOut,
@@ -554,6 +555,35 @@ def put_resume_copilot_preferences(
             quote(t, safe='') for t in unknown_tracks
         )
     return ResumePreferenceOut(session_id=session_id, preferences=normalized_prefs)
+
+
+@router.post('/sessions/{session_id}/deep-optimize/start', response_model=PlanStateOut)
+def post_deep_optimize_start(
+    session_id: int,
+    payload: DeepOptimizeStartIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """从打分逐段缺口进入深度优化:播种聚焦该段的单 item plan(覆盖现有 plan),
+    返回 PlanStateOut(首问已对齐目标 subcat)。后续反问走现成 /plan/turn,
+    改写写回走现成 /chat/apply-rewrite。写接口 → owner + not_demo 守卫。"""
+    from app.services.resume_copilot.deep_optimize import seed_plan_from_gap
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = seed_plan_from_gap(
+        section=payload.section,
+        label=payload.label,
+        gap_tags=payload.gaps,
+        gap_detail=payload.detail,
+        target_track=payload.target_track,
+    )
+    _save_plan(session_obj, plan)
+    session_obj.updated_at = datetime.utcnow()
+    db.commit()
+    return PlanStateOut(**plan.model_dump(mode='json'))
 
 
 @router.post(
