@@ -43,11 +43,20 @@ CACHE_DIR = ROOT / "data/intel_cache"
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_TTL_DAYS = 30
 
-DS_BASE = os.environ.get("DEEPSEEK_BASE_URL") or os.environ.get("RESUME_COPILOT_BASE_URL") or "https://api.deepseek.com/v1"
-DS_KEY = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("RESUME_COPILOT_API_KEY")
-# Intel-card LLM lives in SAIF demo's main flow — default to v4-pro for quality.
-# Override via env INTEL_MODEL_NAME (e.g. "deepseek-v4-flash") to dial down cost.
-DS_MODEL = os.environ.get("INTEL_MODEL_NAME") or "deepseek-v4-pro"
+# 脏情报抽取/转化 = 公开数据。ENRICH_LLM_* 设齐时整条走独立 provider(如 0.05x 中转),
+# 与学生 PII 链路隔离;未设齐则保持原 DeepSeek/Go 路由(与启用前一致)。
+from app.config import ENRICH_LLM_API_KEY, ENRICH_LLM_BASE_URL, ENRICH_LLM_MODEL
+
+if ENRICH_LLM_BASE_URL and ENRICH_LLM_API_KEY and ENRICH_LLM_MODEL:
+    DS_BASE = ENRICH_LLM_BASE_URL
+    DS_KEY = ENRICH_LLM_API_KEY
+    DS_MODEL = ENRICH_LLM_MODEL
+else:
+    DS_BASE = os.environ.get("DEEPSEEK_BASE_URL") or os.environ.get("RESUME_COPILOT_BASE_URL") or "https://api.deepseek.com/v1"
+    DS_KEY = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("RESUME_COPILOT_API_KEY")
+    # Intel-card LLM lives in SAIF demo's main flow — default to v4-pro for quality.
+    # Override via env INTEL_MODEL_NAME (e.g. "deepseek-v4-flash") to dial down cost.
+    DS_MODEL = os.environ.get("INTEL_MODEL_NAME") or "deepseek-v4-pro"
 
 SYSTEM_PROMPT = """你是金融求职情报分析师。从一组小红书帖子洞察里提炼出**公司+岗位**的结构化情报卡,给求职学生看。
 

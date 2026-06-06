@@ -164,6 +164,14 @@ CRAWLER_LLM_FLASH_MODEL = os.environ.get("CRAWLER_LLM_FLASH_MODEL", "deepseek-v4
 CRAWLER_LLM_PRO_MODEL = os.environ.get("CRAWLER_LLM_PRO_MODEL", "deepseek-v4-pro")
 CRAWLER_LLM_TIMEOUT_SECONDS = _get_int_env("CRAWLER_LLM_TIMEOUT_SECONDS", 30)
 
+# Enrich/batch LLM (公开数据批处理: quality enrich / sub_cat enrich / 脏情报抽取)。
+# 与学生 PII 链路(CRAWLER_LLM_* / RESUME_COPILOT_LLM_* → OpenCode Go)**隔离**:
+# 这三条只碰公开岗位/情报数据, 可走更便宜但不可信的中转(如 0.05x GPT 中转)。
+# 三个 ENRICH_LLM_* 全设齐才启用路由, 否则回落到 CRAWLER_LLM_*(=与之前行为一致)。
+ENRICH_LLM_BASE_URL = os.environ.get("ENRICH_LLM_BASE_URL", "")
+ENRICH_LLM_API_KEY = os.environ.get("ENRICH_LLM_API_KEY", "")
+ENRICH_LLM_MODEL = os.environ.get("ENRICH_LLM_MODEL", "")
+
 # Feature flags — all OFF by default; flip via env
 CRAWLER_LLM_ENRICH_ENABLED = os.environ.get("CRAWLER_LLM_ENRICH_ENABLED", "0") in {"1", "true", "True"}
 CRAWLER_LLM_DIAGNOSE_ENABLED = os.environ.get("CRAWLER_LLM_DIAGNOSE_ENABLED", "0") in {"1", "true", "True"}

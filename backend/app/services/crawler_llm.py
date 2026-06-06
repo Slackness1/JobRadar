@@ -23,6 +23,9 @@ from app.config import (
     CRAWLER_LLM_FLASH_MODEL,
     CRAWLER_LLM_PRO_MODEL,
     CRAWLER_LLM_TIMEOUT_SECONDS,
+    ENRICH_LLM_API_KEY,
+    ENRICH_LLM_BASE_URL,
+    ENRICH_LLM_MODEL,
 )
 
 
@@ -69,6 +72,40 @@ def flash_model_name() -> str:
 
 def pro_model_name() -> str:
     return CRAWLER_LLM_PRO_MODEL
+
+
+def enrich_routing_enabled() -> bool:
+    """ENRICH_LLM_* 三个都设齐才启用独立路由(公开批处理 → 中转)。"""
+    return bool(ENRICH_LLM_BASE_URL and ENRICH_LLM_API_KEY and ENRICH_LLM_MODEL)
+
+
+def build_enrich_client(
+    *, tier: str = "pro", max_retries: int | None = None, timeout: float | None = None,
+) -> OpenAI:
+    """公开批处理(enrich/subcat/脏情报)专用 client。
+
+    设了 ENRICH_LLM_* → 走独立中转(与学生 PII 链路隔离, 单一模型不分 tier);
+    否则按 tier 回落原 flash/pro client —— **flag-off 时与启用前 byte-identical**。
+    """
+    if not enrich_routing_enabled():
+        if tier == "flash":
+            return build_flash_client()
+        return build_pro_client(max_retries=max_retries, timeout=timeout)
+    kwargs: dict[str, Any] = {
+        "base_url": ENRICH_LLM_BASE_URL,
+        "api_key": ENRICH_LLM_API_KEY,
+        "timeout": CRAWLER_LLM_TIMEOUT_SECONDS if timeout is None else timeout,
+    }
+    if max_retries is not None:
+        kwargs["max_retries"] = max_retries
+    return OpenAI(**kwargs)
+
+
+def enrich_model_name(tier: str = "pro") -> str:
+    """批处理模型名:设了 ENRICH_LLM_MODEL 用它(中转 gpt-5.5);否则按 tier 回落原模型。"""
+    if enrich_routing_enabled():
+        return ENRICH_LLM_MODEL
+    return CRAWLER_LLM_FLASH_MODEL if tier == "flash" else CRAWLER_LLM_PRO_MODEL
 
 
 def estimate_cost_usd(

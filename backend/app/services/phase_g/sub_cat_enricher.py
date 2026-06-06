@@ -20,8 +20,10 @@ import app.config  # noqa: F401
 from app.database import SessionLocal
 from app.models import Job, KnowledgeSubcategory
 from app.services.crawler_llm import (
+    build_enrich_client,
     build_flash_client,
     build_pro_client,
+    enrich_model_name,
     flash_model_name,
     pro_model_name,
 )
@@ -209,10 +211,11 @@ def pass1_classify_strategy(
     use_flash=True (默认) — 用 Flash non-thinking, 7-way 分类够用且省钱 ($0.0003 vs Pro $0.0014/call)。
     use_flash=False — Pro reasoning_effort=high, 复杂 case (e.g. 战略管培 vs 投行 IBD 边界) 时切回。
     """
+    # 公开岗位数据 → enrich 独立 provider(设了 ENRICH_LLM_* 即中转, 否则按 tier 回落原 flash/pro)。
     if use_flash:
-        client = build_flash_client()
+        client = build_enrich_client(tier="flash")
         resp = client.chat.completions.create(
-            model=flash_model_name(),
+            model=enrich_model_name(tier="flash"),
             messages=[
                 {"role": "system", "content": PASS1_SYSTEM_PROMPT},
                 {"role": "user", "content": _build_job_user_msg(job_dict)},
@@ -221,9 +224,9 @@ def pass1_classify_strategy(
             temperature=0.1,
         )
     else:
-        client = build_pro_client()
+        client = build_enrich_client()
         resp = client.chat.completions.create(
-            model=pro_model_name(),
+            model=enrich_model_name(),
             messages=[
                 {"role": "system", "content": PASS1_SYSTEM_PROMPT},
                 {"role": "user", "content": _build_job_user_msg(job_dict)},
@@ -301,13 +304,13 @@ def pass2_classify_subcat(
     job_dict: dict[str, Any], strategy_type: str
 ) -> dict[str, Any]:
     """Pass 2: 在该 strategy 下选 sub_cat + industry + tier。"""
-    client = build_pro_client()
+    client = build_enrich_client()
     subcats, candidates_text = _gather_subcat_candidates(strategy_type)
     prompt = PASS2_SYSTEM_PROMPT_TEMPLATE.format(
         strategy_type=strategy_type, candidates_text=candidates_text
     )
     resp = client.chat.completions.create(
-        model=pro_model_name(),
+        model=enrich_model_name(),
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": _build_job_user_msg(job_dict)},
