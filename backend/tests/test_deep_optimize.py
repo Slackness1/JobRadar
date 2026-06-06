@@ -74,3 +74,46 @@ def test_ask_context_defensibility_gap():
 def test_ask_context_non_deep_optimize_plan_empty():
     from app.services.resume_copilot.plan import PlanState
     assert deep_optimize_ask_context(PlanState()) == ''
+
+
+class _CaptureV2Provider:
+    def __init__(self):
+        self.captured = None
+
+    def generate_v2(self, messages_payload):
+        self.captured = messages_payload
+        # 故意带 profile 里没有的高风险数字 → 应触发 fabrication warning
+        return {'text': '搭建多因子回测框架，回测年化收益提升37%，为团队节省成本约200万元', 'rationale': ''}
+
+
+def test_deep_optimize_rewrite_targets_subcat_and_keeps_warnings():
+    import json as _json
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from app.database import Base
+    from app.models import ResumeCopilotSession, ResumeConfirmedProfile
+    from app.services.resume_copilot.deep_optimize import deep_optimize_rewrite
+
+    engine = create_engine('sqlite://', connect_args={'check_same_thread': False}, poolclass=StaticPool)
+    Base.metadata.create_all(bind=engine)
+    db = sessionmaker(bind=engine)()
+    s = ResumeCopilotSession(file_name='cv.pdf', user_key='u_test', status='completed')
+    db.add(s); db.commit(); db.refresh(s); sid = int(s.id)
+    # 给源 bullet 一个真实数字(覆盖5个因子)→ detector 才会 engage;
+    # v2 引入 profile 没有的高风险数字(200万元)应被 flag。
+    src_bullet = '协助搭建因子回测框架，覆盖5个因子'
+    db.add(ResumeConfirmedProfile(session_id=sid, profile_json=_json.dumps(
+        {'internships': [{'company': '九坤', 'bullets': [src_bullet]}]})))
+    db.commit()
+
+    fake = _CaptureV2Provider()
+    out = deep_optimize_rewrite(sid, src_bullet, 'internships.0.bullets.0',
+                                db, target_track='量化', provider=fake)
+    # 目标 subcat 流进了改写 prompt
+    assert fake.captured is not None
+    assert '量化' in _json.dumps(fake.captured, ensure_ascii=False)
+    # 编数字红线没被剥(profile 里没有 200万/37%)
+    assert out.v2.warnings
+    assert out.target_title == '量化'
+    db.close()

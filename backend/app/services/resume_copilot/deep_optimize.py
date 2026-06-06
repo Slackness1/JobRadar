@@ -138,6 +138,40 @@ def deep_optimize_ask_context(plan: PlanState) -> str:
     return "\n".join(parts)
 
 
+def deep_optimize_rewrite(
+    session_id: int,
+    bullet_text: str,
+    field_path: str,
+    db,
+    *,
+    target_track: str = "",
+    section: str = "",
+    provider=None,
+):
+    """深度优化的改写写回:复用 propose_rewrite_v0_v2,把目标 subcat 作为改写定向
+    上下文传进去(走 target_job_description → 进 prompt)。**不剥** fabrication
+    warnings(CLAUDE.md 硬契约 2)——直接返回 propose_rewrite_v0_v2 的结果。"""
+    from app.services.resume_copilot.chat import propose_rewrite_v0_v2
+
+    tt = (target_track or "").strip()
+    target_jd = ""
+    if tt:
+        target_jd = (
+            f"目标赛道/岗位：{tt}。请让这段经历的表述更贴合「{tt}」方向的考察重点；"
+            f"保留真实事实，禁止编造数字、经历或技术栈。"
+        )
+    return propose_rewrite_v0_v2(
+        session_id,
+        bullet_text,
+        field_path,
+        db,
+        target_job_description=target_jd,
+        target_title=tt,
+        section=section,
+        provider=provider,
+    )
+
+
 def gap_context(plan: PlanState) -> dict:
     """取回当前 item 的 gap 上下文(rationale JSON);非深度优化 plan 返回 {}。"""
     item = None
