@@ -172,6 +172,12 @@ ENRICH_LLM_BASE_URL = os.environ.get("ENRICH_LLM_BASE_URL", "")
 ENRICH_LLM_API_KEY = os.environ.get("ENRICH_LLM_API_KEY", "")
 ENRICH_LLM_MODEL = os.environ.get("ENRICH_LLM_MODEL", "")
 
+# 2026-06-07: quality_label 降本提质 —— 两个开关默认关, 关时与现状 byte-identical。
+#   KB 注入: 往 v3 prompt 喂"每公司一行"GT 背景(梯队+典型赛道), 把 flash 系统性金融误判转随机。
+#   级联: flash+KB 跑全量, 硬规则/自一致性分歧的岗才升级强模型。
+QUALITY_KB_INJECTION_ENABLED = os.environ.get("QUALITY_KB_INJECTION_ENABLED", "0") == "1"
+QUALITY_CASCADE_ENABLED = os.environ.get("QUALITY_CASCADE_ENABLED", "0") == "1"
+
 # Feature flags — all OFF by default; flip via env
 CRAWLER_LLM_ENRICH_ENABLED = os.environ.get("CRAWLER_LLM_ENRICH_ENABLED", "0") in {"1", "true", "True"}
 CRAWLER_LLM_DIAGNOSE_ENABLED = os.environ.get("CRAWLER_LLM_DIAGNOSE_ENABLED", "0") in {"1", "true", "True"}
