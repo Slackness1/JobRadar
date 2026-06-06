@@ -277,15 +277,31 @@ def _canonicalize_track_list(values: list[str]) -> list[str]:
     映到 8 canonical(无 mapping 的保留原值,e.g. '互联网' / 'AI' 不属 8 canonical
     但也别丢)。Dedupe 保序。
     """
+    from app.services.taxonomy.canonical import CANONICAL_FINANCE_TRACKS
+
     seen: set[str] = set()
     out: list[str] = []
+    unmapped: list[str] = []
     for v in values:
         if not v:
             continue
-        canon = canonicalize_track(v) or v
+        mapped = canonicalize_track(v)
+        canon = mapped or v
+        # 没映上 (原样返回且不是 canonical 赛道) → taxonomy 缺口信号, 记下原始词。
+        # 信用研究 当初就是人肉发现的; 埋点后这类缺口自动浮出 (一句 SQL 看学生在用、
+        # 我们却接不进篮子的词)。'互联网'/'AI' 这类合法非金融词也会进, 复盘时人工区分。
+        if (not mapped or mapped == v) and v not in CANONICAL_FINANCE_TRACKS:
+            unmapped.append(v)
         if canon and canon not in seen:
             seen.add(canon)
             out.append(canon)
+    if unmapped:
+        from app.services.telemetry import record_event
+
+        record_event(
+            "canonicalize_unmapped", purpose="parse",
+            detail={"raw": unmapped[:20]},
+        )
     return out
 # 2026-05-22 #114 Phase 2: SECTION_ALIASES 同时收中英两套 heading。匹配走
 # _normalize_section_heading() 做 lowercase + 去 trailing colon, 所以这里写一种

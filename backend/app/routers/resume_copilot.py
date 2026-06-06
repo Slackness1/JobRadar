@@ -888,7 +888,18 @@ def get_resume_copilot_recommendation_platforms(
         try:
             preferred_sub_cats = _platforms_preferred_sub_cats(db, session_id)
             if preferred_sub_cats:
+                _n_before = len(platforms)
                 platforms = merge_fallback_companies(platforms, preferred_sub_cats)
+                # 公司兜底触发埋点 — 补进了几家 = live 岗对这些 sub_cat 的覆盖缺口大小。
+                _n_added = len(platforms) - _n_before
+                if _n_added > 0:
+                    from app.services.telemetry import record_event
+
+                    record_event(
+                        'company_fallback', session_id=session_id,
+                        purpose='platforms',
+                        detail={'added': _n_added, 'sub_cats': list(preferred_sub_cats)[:10]},
+                    )
         except Exception:
             log.exception('merge_fallback_companies failed for session %s', session_id)
 

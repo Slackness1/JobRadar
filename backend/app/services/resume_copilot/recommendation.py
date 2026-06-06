@@ -1083,6 +1083,10 @@ def _v2_items_from_ranked(
     return items
 
 
+# 召回少于这个数视为"薄"(埋点用) — feed 出不来几个岗的弱背景信号阈值。
+_RECALL_THIN_THRESHOLD = 10
+
+
 def _recommend_v2_dispatcher(
     db: Session,
     *,
@@ -1182,6 +1186,18 @@ def _recommend_v2_dispatcher(
     if rejected_set:
         candidates = [j for j in candidates if str(j.job_id) not in rejected_set]
     prog.on_recall(len(candidates))
+
+    # 召回过薄/为空埋点 — 弱背景学生 feed 出不来的最直接信号 (按 sub_cat 看哪些
+    # 赛道召回总是稀)。_RECALL_THIN_THRESHOLD 以下视为薄。
+    _n_recall = len(candidates)
+    if _n_recall < _RECALL_THIN_THRESHOLD:
+        from app.services.telemetry import record_event
+
+        record_event(
+            "recall_empty" if _n_recall == 0 else "recall_thin",
+            purpose="recommendation",
+            detail={"count": _n_recall, "sub_cats": list(preferred_sub_cats)[:10]},
+        )
     if not candidates:
         return [], False, "v2_no_candidates"
 
