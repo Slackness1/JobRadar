@@ -11,7 +11,8 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
-from app.config import CRAWLER_LLM_ENRICH_ENABLED
+from app.config import CRAWLER_LLM_ENRICH_ENABLED, QUALITY_KB_INJECTION_ENABLED
+from app.services.phase_g.quality_cascade.company_kb import build_company_kb_block
 from app.models import Job
 from app.services.crawler_llm import (
     build_enrich_client,
@@ -337,7 +338,12 @@ def enrich_job_quality_label_v3(job_dict: dict) -> dict:
     """
     # 公开岗位数据 → 走 enrich 独立 provider(设了 ENRICH_LLM_* 即中转, 否则回落 pro)。
     client = build_enrich_client()
+    kb_block = ""
+    if QUALITY_KB_INJECTION_ENABLED:
+        kb_block = build_company_kb_block(job_dict.get("company", ""))
+    kb_prefix = (kb_block + "\n\n") if kb_block else ""
     user_content = (
+        f"{kb_prefix}"
         f"公司: {job_dict.get('company', '')}\n"
         f"标题: {job_dict.get('job_title', '')}\n"
         f"职责: {(job_dict.get('job_duty') or '')[:1500]}\n"
