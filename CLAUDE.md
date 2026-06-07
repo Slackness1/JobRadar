@@ -71,6 +71,12 @@ Then read `docs/_private/saif-proposal-v0.1.md` before making product-shape deci
 - 纯工程小任务（修 lint、小重构、改注释）不必追加，避免日志噪声
 - 这是给其它并行 Claude 会话和新会话看的工作日志，**不写就等于没发生**——以前 7 天的工作集体消失就是因为没人写
 
+**交付物可见性 — 用户只能看到 `/home/ubuntu/jobradar-sync/` 这个文件夹（Syncthing 同步到他本机）**
+- 用户**看不到** dev VPS 上 repo 里任何文件夹（`docs/`、`backend/data/` 等），也看不到 `/tmp`。
+- 凡是要给用户**看 / review / 手动跑**的产物（spec、设计文档、待跑批次数据、prompt、结果对照），**必须 cp 一份到 `/home/ubuntu/jobradar-sync/` 下**，否则他根本看不到。
+- 让用户用免费强模型手动跑的批次：放 `jobradar-sync/enrich-queue-*/`，用户把结果 jsonl 丢回同文件夹，我再入库（见该目录 `00_README.md` 流程）。
+- 飞书（`jobradar-lark` skill）是另一条给用户/faculty 看的通道，正式文档优先飞书；快速给本人看用 sync 文件夹。
+
 ## Commands
 
 ```bash
@@ -138,6 +144,7 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 - **语音栈是 DashScope，不是 Aliyun NLS**。TTS = `cosyvoice-v2` 音色 `longyingtian`；ASR = `paraformer-realtime-v2`。`voice/avatar.py` Lingmou 数字人代码 dormant — 不要 wire 进去之前看 `DECISIONS.md` D-03。
 
 ### LLM / context
+- **LLM 供应商策略(2026-06-07 定,优先级最高)**:凡是能用 DeepSeek 的地方——**学生交互**(简历解析/对话/面试/推荐精排/narrative/意图/子类)、**跑测试**、**数据管道**(quality enrich / sub_cat enrich / 脏情报抽取)——**一律走 OpenCode 的 DeepSeek**(`https://opencode.ai/zen/go/v1`,ZDR 零保留,付费 `deepseek-v4-flash` / `deepseek-v4-pro`)。**不再用 DeepSeek 官方直连,也不再用 xhyapi gpt-5.5 中转**(gpt-5.5 实测对金融岗"偏宽"、且与库里 deepseek 基线不一致,见 `REJECTED.md`)。接线:`RESUME_COPILOT_LLM_*` 指向 OpenCode Go;`CRAWLER_LLM_*` 默认继承它;数据管道的 `ENRICH_LLM_*` **留空即可**(`build_enrich_client` 自动回落到同一条 OpenCode 链路)。`DEEPSEEK_API_KEY` 仅作"解析出 deepseek-v4-* 模型名"的开关保留,不真连官方。**两个例外不归本策略管**:① DashScope 语音栈(TTS/ASR,无 deepseek 选项);② eval harness 判官模型(`mimo-*`,故意跨厂商防 self-judge,见 `.env.local` eval 段)。注意 OpenCode Go 额度有上限(与学生流量共用),大批 backfill 错峰/分块跑。
 - **ContextProvider 顺序有讲究**。`SensitiveTopicProvider` first；命中时返 `(block, terminate=True)`，registry 短路掉后续。**不要**改顺序之前看 `DECISIONS.md` D-05。
 - **知识包的 verbatim quote 不能被改写**。Ingest 时 `_verify_verbatim`（带 smart-quote 归一化）已经 substring 验过；prompt / 输出里也不能改写。
 - **Resume rewrite 不能编造数字**。`_detect_fabricated_numbers()` 在 `improved` bullet 出现 profile 里没的数字时加 warning — **不要**剥掉这个 warning，让它显式露出。
@@ -203,14 +210,19 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 
 ## Environment setup
 
-`backend/.env.local`（最小集）：
+`backend/.env.local`（最小集 — 文本类一律走 OpenCode DeepSeek,见上文「LLM 供应商策略」）：
 
 ```
-RESUME_COPILOT_BASE_URL=https://api.deepseek.com/v1
-RESUME_COPILOT_API_KEY=sk-...
-RESUME_COPILOT_MODEL_NAME=deepseek-chat
+# 文本 LLM = OpenCode 的 DeepSeek(学生交互 + 测试 + 数据管道都用这条)
+RESUME_COPILOT_LLM_BASE_URL=https://opencode.ai/zen/go/v1
+RESUME_COPILOT_LLM_API_KEY=sk-...            # OpenCode Go key
+RESUME_COPILOT_LLM_MODEL=deepseek-v4-flash
+DEEPSEEK_API_KEY=sk-...                       # 仅作"解析出 deepseek-v4-* 模型名"的开关,不真连官方
+# CRAWLER_LLM_* 不设 → 默认继承上面这条 OpenCode 链路
+# ENRICH_LLM_*  不设 → build_enrich_client 回落到同一条 OpenCode 链路(别再填 xhyapi gpt-5.5)
 TAVILY_API_KEY=tvly-...
 FIRECRAWL_API_KEY=fc-...
+# 语音栈 = DashScope(例外,无 deepseek 选项)
 DASHSCOPE_API_KEY=sk-...
 DASHSCOPE_TTS_MODEL=cosyvoice-v2
 DASHSCOPE_TTS_VOICE=longyingtian
