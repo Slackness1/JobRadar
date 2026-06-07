@@ -66,9 +66,9 @@ def test_ask_context_quant_gap():
 
 
 def test_ask_context_defensibility_gap():
-    plan = seed_plan_from_gap('internships.0', 'x', ['可防守性低'], '角色偏弱', '投行')
+    plan = seed_plan_from_gap('internships.0', 'x', ['佐证不足'], '角色偏弱', '投行')
     ctx = deep_optimize_ask_context(plan)
-    assert '追问' in ctx  # 面试官会怎么追问
+    assert '追问' in ctx  # 让声明经得起面试官追问
 
 
 def test_ask_context_non_deep_optimize_plan_empty():

@@ -13,7 +13,7 @@ const MOCK: ScoreReportData = {
   overall_potential_low: 83,
   overall_potential_high: 88,
   summary:
-    '简历整体质量中上:逻辑清晰、可读性与专业表达突出。主要短板在 STAR 应用 与 成果量化——核心经历缺可核实的结果与数字锚点,拉低了面试可防守性。建议优先补强九坤实习与校园项目两段。',
+    '简历整体质量中上:逻辑清晰、可读性与专业表达突出。主要短板在 STAR 应用 与 成果量化——核心经历缺可核实的结果与数字锚点,拉低了佐证充分度。建议优先补强九坤实习与校园项目两段。',
   dimensions: [
     { key: 'logic', name: '逻辑清晰', score: 82, ceiling: 88, reason: '' },
     { key: 'star', name: 'STAR 应用', score: 58, ceiling: 84, reason: '核心经历缺可核实的 Result' },
@@ -22,15 +22,15 @@ const MOCK: ScoreReportData = {
     { key: 'expression', name: '专业表达', score: 80, ceiling: 86, reason: '' },
     { key: 'quantification', name: '成果量化', score: 54, ceiling: 82, reason: '缺数字锚点' },
     { key: 'track_fit', name: '赛道匹配度', score: 66, ceiling: 82, reason: '' },
-    { key: 'defensibility', name: '面试可防守性', score: 60, ceiling: 80, reason: '角色表述偏弱' },
+    { key: 'defensibility', name: '佐证充分度', score: 60, ceiling: 80, reason: '角色表述偏弱、缺佐证' },
   ],
   section_gaps: [
     {
       section: 'internships.0',
       label: '九坤投资 · 量化研究实习',
-      gaps: ['STAR 缺 Result', '可防守性低'],
+      gaps: ['STAR 缺 Result', '佐证不足'],
       detail:
-        '「协助搭建因子回测框架」缺最终结果——框架覆盖多少因子、回测哪段区间、带来什么变化都没写;且「协助」角色面试时容易被追问到崩。',
+        '「协助搭建因子回测框架」缺最终结果——框架覆盖多少因子、回测哪段区间、带来什么变化都没写;且「协助」角色缺佐证,面试一追问就露。',
     },
     {
       section: 'projects.1',

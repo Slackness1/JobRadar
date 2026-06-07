@@ -35,7 +35,7 @@ const DIM_META: DimMeta[] = [
   { key: 'expression', icon: PenLine, radarLabel: '表达' },
   { key: 'quantification', icon: BarChart3, radarLabel: '量化' },
   { key: 'track_fit', icon: Compass, radarLabel: '匹配度', fin: true },
-  { key: 'defensibility', icon: ShieldCheck, radarLabel: '可防守', fin: true },
+  { key: 'defensibility', icon: ShieldCheck, radarLabel: '佐证', fin: true },
 ];
 const META_BY_KEY = new Map(DIM_META.map((d) => [d.key, d]));
 const SURFACE_KEYS = ['logic', 'star', 'readability', 'completeness', 'expression', 'quantification'];
@@ -49,7 +49,7 @@ function fillClass(score: number): string {
 
 function finMeta(key: string, targetTrack: string): string {
   if (key === 'track_fit') return `这段经历对「${targetTrack || '目标赛道'}」的对口程度`;
-  if (key === 'defensibility') return '这句话面试官追问时是否站得住';
+  if (key === 'defensibility') return '声明是否有足够支撑、经得起面试官追问';
   return '';
 }
 

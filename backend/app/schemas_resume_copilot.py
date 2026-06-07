@@ -609,6 +609,6 @@ class DeepOptimizeStartIn(BaseModel):
     """从打分逐段缺口进入深度优化:播种一个聚焦该段的 plan。"""
     section: str                   # e.g. 'internships.0' / 'projects.1'
     label: str                     # 段标题, e.g. '九坤投资 · 量化研究实习'
-    gaps: list[str] = []           # 缺口 tag, e.g. ['STAR 缺 Result', '可防守性低']
+    gaps: list[str] = []           # 缺口 tag, e.g. ['STAR 缺 Result', '佐证不足']
     detail: str = ''               # 诊断详情(非学生事实, 仅引导提问)
     target_track: str = ''         # 目标 subcat/赛道; 空 = 仍会先反问方向
