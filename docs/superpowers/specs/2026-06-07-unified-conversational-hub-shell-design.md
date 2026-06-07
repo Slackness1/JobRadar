@@ -79,9 +79,14 @@ B 闭环(可见的护城河):
 
 ## 四、对话 Hub 落地态
 
-- 默认落地 = Hub:对话居中(像 DeepHire 主页),右槽空,底部 composer 带 skill chip(职位推荐 / 梯队骨架 / 简历优化)。
+- 默认落地 = Hub:对话居中(像 DeepHire 主页),右槽空,底部 composer 带 skill chip。
 - 可选快捷入口卡(职位推荐 / 简历优化)作为对话之外的第二入口。
 - 学生说话或点 chip → 对应模块在右槽长出来,对话继续。
+
+**chip 集合(2026-06-07 用户拍板,与 resume-copilot 分支对齐):**
+- 三个**模块 chip**:`职位推荐` / `梯队骨架` / `简历优化`(简历优化本期前端等 HiFi,先**灰置占位**,可见不可用)。
+- `深度搜索` **不是模块**,是**职位推荐内部的开关(开/关)**——控制是否走深度匹配(rerank+narrative),不在 Hub 顶部单列成 chip。
+- (曾有"只做 深度搜索+简历优化 两 chip"的另一版理解,已废,以本条为准。)
 
 ## 五、复用与新建清单(grounded)
 
@@ -121,7 +126,24 @@ B 闭环(可见的护城河):
 2. **画布槽 URL 策略**:壳内切视图是否反映到 URL(`?view=skeleton`)以支持分享/刷新落回同一视图。倾向:是,但用浅 URL 不触发整壳重载。
 3. **侧边栏收起态的持久化**(localStorage 记住用户偏好)。
 
-## 九、验收(产品可见)
+## 九、简历优化接口契约(来自 resume-copilot 分支 handoff,2026-06-07)
+
+简历优化在 Hub 是"接口位/占位",开发归 `resume-copilot` 分支。挂进画布槽的契约:
+
+- **入口路由**:`/resume-copilot/editor`(三栏编辑页,未建)/ 本期可先挂已建的 `/resume-copilot/score`(打分报告)。
+- **画布槽需传的状态**:`sessionId`(resume_copilot session)+ `X-Resume-User-Key`(owner 守卫用)。Hub 切到"简历优化"时把当前 session 传进去即可。
+- **已可调后端 API**(都带 owner + `_assert_not_demo` 守卫):
+  - `POST /api/resume-copilot/sessions/{id}/score` → 打分报告(8 维 + 现状/潜力区间 + 逐段缺口)
+  - `POST /api/resume-copilot/sessions/{id}/deep-optimize/start` → 播种深度优化(入参 `{section,label,gaps[],detail,target_track}`)
+  - 反问续走 `POST .../plan/turn`;改写写回走 `.../chat/apply-rewrite`
+- **模块内部哲学**(不干预,记录):诚实打分 + 反问取证(绝不 AI 编内容刷分);深度优化一次只聚焦一段经历 + 锁定目标赛道(subcat);打分 8 维(6 通用 + 2 金融),「面试可防守性」已改名「佐证充分度」。
+- **后端 backlog(已排,归 resume-copilot 分支)**:知识库接进深度优化——加 `PURPOSE_RESUME_OPTIMIZE`,**先接 podcast(金融招聘洞察现成对口)**,track-rubric 金融赛道薄、后补。
+
+## 十、薪资行情 = 梯队骨架的未来情报维度
+
+OfferShow 真实 offer 薪资(已落 dev DB 3843 条 / 94 家 GT 公司,代码已 durable 留底于 sync `salary-intel-preserve-2026-06-08/`)。**本期不接**;**整个前端做完后**,作为「梯队骨架」下公司情报的一个维度接入——公司卡/情报抽屉里按 `gt_name`/`sub_cats`/`tier` 聚合展示薪资行情(校招/社招/实习分档,低置信度过滤)。届时起干净 `salary-intel` 分支落代码,别带其它 WIP。
+
+## 十一、验收(产品可见)
 
 1. 从 Hub 开始,点"职位推荐"→ 右槽在原地长出推荐 feed,对话不掉、思考时间线在跑、chip 高亮 —— 无"跳到另一个产品"的割裂感。
 2. 点"梯队骨架"→ 同一个槽换成档次全景;两个视图共享同一查询/会话。
