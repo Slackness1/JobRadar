@@ -269,21 +269,21 @@
 const MODS = {
   job: {
     nav:'nav-job', name:'职位推荐',
-    nodes:[['检索候选岗位','search_candidates'],['评估匹配','rank'],['生成结果','finalize']],
+    nodes:[['锁定赛道','seed'],['检索岗位','recall'],['三维打分','score3'],['排出推荐','rank']],
     rt:'按 投研 · 券商资管 + 你的偏好,匹配好了',
     rs:'评估 40 个在招,推荐 39 个 · 想换方向/锁某家/排除什么,直接在下面说',
     view:'查看岗位 →', kind:'side'
   },
   tier: {
     nav:'nav-tier', name:'梯队骨架',
-    nodes:[['拉取赛道公司','load_platforms'],['按梯队分档','tier_fit'],['生成全景','build_ladder']],
+    nodes:[['拉取公司','load'],['梯队分档','ladder'],['背景定档','fit'],['铺出全景','assemble']],
     rt:'已铺好 投研 · 券商资管 的梯队全景',
     rs:'头部 / 腰部 / 腿部 三档 · 哪些够得着、哪些是冲刺,一眼看清',
     view:'查看梯队 →', kind:'side'
   },
   resume: {
     nav:'nav-resume', name:'简历优化',
-    nodes:[['解析简历','parse'],['8 维打分','score'],['定位缺口','gap']],
+    nodes:[['解析简历','parse'],['诚实打分','score'],['定位缺口','gap'],['给出建议','report']],
     rt:'简历 80 分,找到 3 个可提升点',
     rs:'诚实打分 · 提分靠反问把你的真实细节问出来再改,不替你编',
     view:'查看报告并编辑 →', kind:'overlay'
