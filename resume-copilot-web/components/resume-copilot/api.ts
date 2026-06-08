@@ -223,6 +223,64 @@ export function scoreResume(sessionId: number, targetTrack = ''): Promise<ScoreR
   });
 }
 
+// ── 深度优化(反问取证)— 复用现有 plan 管道 ────────────────────────────
+export interface DeepOptimizeStartIn {
+  section: string;
+  label: string;
+  gaps: string[];
+  detail: string;
+  target_track: string;
+}
+
+export interface PlanOpenQuestion {
+  id: string;
+  text: string;
+  answered_at: string | null;
+}
+export interface PlanItem {
+  id: string;
+  kind: string;
+  title: string;
+  status: string;
+  open_questions: PlanOpenQuestion[];
+  rationale?: string | null;
+  draft?: { text: string } | null;
+}
+export interface PlanStateOut {
+  status: string;
+  current_item_id: string | null;
+  items: PlanItem[];
+  version: number;
+}
+
+/** 从打分逐段缺口播种深度优化 → 单段 CLARIFYING plan(首问已对齐目标赛道)。 */
+export function deepOptimizeStart(sessionId: number, body: DeepOptimizeStartIn): Promise<PlanStateOut> {
+  return requestJson<PlanStateOut>(`/api/resume-copilot/sessions/${sessionId}/deep-optimize/start`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+/** 续走一回合反问(plan-mode one-tool-per-turn);content = 学生这轮回答。 */
+export function planTurn(sessionId: number, content: string, activeJobId = ''): Promise<PlanStateOut> {
+  return requestJson<PlanStateOut>(`/api/resume-copilot/sessions/${sessionId}/plan/turn`, {
+    method: 'POST',
+    body: JSON.stringify({ content, active_job_id: activeJobId }),
+  });
+}
+
+/** 应用某条 v0/v2 改写选项(按 message_id + option_id)→ 返回写回后的完整 profile。 */
+export interface ApplyRewriteResult {
+  profile: Record<string, unknown>;
+  applied: boolean;
+}
+export function applyRewrite(sessionId: number, messageId: number, optionId: string): Promise<ApplyRewriteResult> {
+  return requestJson<ApplyRewriteResult>(`/api/resume-copilot/sessions/${sessionId}/chat/apply-rewrite`, {
+    method: 'POST',
+    body: JSON.stringify({ message_id: messageId, option_id: optionId }),
+  });
+}
+
 export async function downloadResumePdf(sessionId: number): Promise<void> {
   const userKey = getOrCreateUserKey();
   const headers: Record<string, string> = { 'X-Resume-User-Key': userKey };
