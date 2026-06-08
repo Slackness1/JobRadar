@@ -1,0 +1,156 @@
+[
+  {
+    "sub_cat": "搜索推荐广告算法",
+    "strategy_type": "AI 应用_PM_开发",
+    "payload": {
+      "interview_style": "搜索/推荐/广告/分发/电商交易算法岗:特征工程、召回-排序-重排建模、AB实验、点击/转化/时长优化。边界:通用大模型训练post-train归LLM算法、通用业务NLP/CV归AI算法业务、Agent/工具调用归Agent工程师。",
+      "hard_requirements": ["搜推广/分发/电商交易场景的召回排序建模或策略算法经验", "区别于通用大模型训练与通用业务NLP/CV算法"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "快手"}, {"name": "小红书"}, {"name": "美团"}],
+      "industry_focus_candidates": ["互联网", "AI应用层"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "AI应用开发工程师",
+    "strategy_type": "AI 应用_PM_开发",
+    "payload": {
+      "interview_style": "AI应用开发工程师:面向业务场景做AI应用/AIGC工具/AI后端或全栈落地(调大模型API+工程集成)。边界:不做底层模型训练(归LLM算法)、不做通用平台研发、AI功能定义归AI PM、搜推广算法归搜索推荐广告算法。",
+      "hard_requirements": ["有AI应用/AIGC工具的工程落地经验(大模型API集成+业务后端/全栈)", "非底层模型训练、非纯算法研究、非产品定义"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "腾讯"}, {"name": "百度"}, {"name": "美团"}],
+      "industry_focus_candidates": ["互联网", "AI应用层"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "产品经理",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "互联网产品经理:需求分析、产品规划设计、PRD、跨团队推进、上线迭代。边界:区别于产品运营(不做拉新/活动执行)、软件研发(不写代码)、数据分析(不做纯取数)、AI PM(非AI功能定义)。",
+      "hard_requirements": ["主导过产品需求/PRD/功能设计与上线迭代", "非纯运营执行、非研发编码、非AI产品"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "腾讯"}, {"name": "美团"}, {"name": "百度"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "产品运营",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "产品运营:拉新/活跃/留存、活动策划执行、用户运营、数据复盘、策略落地。边界:区别于产品经理(不主导产品方案设计)、内容运营(不聚焦内容生态)、电商运营(不聚焦商家/交易)。",
+      "hard_requirements": ["拉新活跃/活动运营/用户增长执行与数据复盘经验", "非产品方案主导、非内容生态运营"],
+      "typical_companies": [{"name": "滴滴"}, {"name": "美团"}, {"name": "快手"}, {"name": "小红书"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "互联网软件研发",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "互联网软件研发:前端/后端/客户端/全栈/测试开发/SRE/业务系统研发。边界:AI算法(不训模型)、芯片硬件、汽车嵌入式、数据平台研发各自另归。",
+      "hard_requirements": ["前/后端/客户端/测试开发/SRE 等工程编码能力", "非AI算法、非硬件/嵌入式、非数据平台研发"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "腾讯"}, {"name": "快手"}, {"name": "美团"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "数据分析与商业分析",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "数据/商业/经营/策略/增长分析、指标体系、数据产品。边界:数据平台研发(不做底层平台)、纯运营、算法建模各自另归。",
+      "hard_requirements": ["SQL取数/指标体系/AB实验评估/商业决策支持经验", "非底层数据平台研发、非纯运营、非算法建模"],
+      "typical_companies": [{"name": "滴滴"}, {"name": "美团"}, {"name": "小红书"}, {"name": "携程"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "芯片硬件与汽车工程",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "芯片/硬件/材料/整车/嵌入式/座舱/功能安全/HIL测试工程。边界:AI芯片算法、纯软件研发各自另归。",
+      "hard_requirements": ["芯片/硬件/嵌入式/整车/功能安全工程设计经验", "非AI算法、非纯软件研发"],
+      "typical_companies": [{"name": "小米"}, {"name": "昆仑芯"}, {"name": "美团"}, {"name": "京东方"}],
+      "industry_focus_candidates": ["互联网", "硬件半导体", "汽车"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "数据平台与基础设施研发",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "大数据/数据库/存储/网络/算力平台/数据基础设施研发(分布式系统、数据管道、存储计算引擎)。边界:业务数据分析(不做底层平台)、业务系统研发各自另归。",
+      "hard_requirements": ["分布式系统/数据管道/存储计算引擎/平台工具研发经验", "非业务数据分析、非业务系统研发"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "快手"}, {"name": "阿里巴巴(中国)"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "综合管培与战略项目",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "战略分析/管培生/项目管理/公共事务/供应链;轮岗培养高潜(含京东管培生类高薪稀缺岗)。边界:基础行政执行、具体研发/投研岗各自另归。",
+      "hard_requirements": ["战略/管培/项目管理/供应链等综合经营高潜信号", "非基础行政执行、非具体技术/投研岗"],
+      "typical_companies": [{"name": "京东"}, {"name": "美团"}, {"name": "字节/抖音"}, {"name": "携程"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "电商与商业化运营",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "商家/达人/活动/治理/广告商业化/跨境电商运营。边界:基础客服、审核、地推、产品经理各自另归。",
+      "hard_requirements": ["商家运营/平台治理/商业化策略/跨境电商运营经验", "非基础客服审核地推、非产品经理"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "拼多多(寻梦)"}, {"name": "淘天集团"}, {"name": "美团"}],
+      "industry_focus_candidates": ["互联网", "电商"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "内容与社区运营",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "内容生态/社区/直播/创作者/活动运营。边界:产品经理、纯市场投放、电商商家运营各自另归。",
+      "hard_requirements": ["内容策划/创作者关系/社区生态/直播运营经验", "非产品经理、非电商商家运营"],
+      "typical_companies": [{"name": "小红书"}, {"name": "B站(宽娱)"}, {"name": "网易"}, {"name": "快手"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂", "独角兽"]
+    }
+  },
+  {
+    "sub_cat": "体验设计与用户研究",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "视觉/交互/体验设计、用户研究、创意设计、游戏美术。边界:产品经理(不定义需求)、技术美术算法各自另归。",
+      "hard_requirements": ["交互/视觉/体验设计或用户研究作品集与方法", "非产品需求定义、非技术美术算法"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "网易"}, {"name": "腾讯"}, {"name": "快手"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "销售客户成功与解决方案",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "B端客户经理/行业运营/解决方案/售前咨询/客户成功。边界:产品、研发、数据分析各自另归。",
+      "hard_requirements": ["B端客户覆盖/方案设计/售前/客户成功经验", "非产品研发数据岗"],
+      "typical_companies": [{"name": "字节/抖音"}, {"name": "阿里巴巴(中国)"}, {"name": "腾讯云"}],
+      "industry_focus_candidates": ["互联网"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  },
+  {
+    "sub_cat": "游戏策划与发行运营",
+    "strategy_type": "互联网",
+    "payload": {
+      "interview_style": "游戏策划/发行/运营/玩法设计/数值策划。边界:游戏引擎研发、游戏AI算法、游戏美术各自另归。",
+      "hard_requirements": ["游戏策划/数值/发行/运营经验", "非引擎研发、非游戏算法、非美术"],
+      "typical_companies": [{"name": "网易"}, {"name": "腾讯"}, {"name": "B站(宽娱)"}],
+      "industry_focus_candidates": ["互联网", "游戏"],
+      "institution_tier_candidates": ["大厂"]
+    }
+  }
+]

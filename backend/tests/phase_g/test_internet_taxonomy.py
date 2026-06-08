@@ -19,3 +19,12 @@ def test_new_ai_subcat_mapped():
     assert SUBCAT_TO_STRATEGY.get("搜索推荐广告算法") == "AI 应用_PM_开发"
     # spec §2.1 的已有 6 桶须齐全(本 base 缺 AI应用开发工程师,须补)
     assert SUBCAT_TO_STRATEGY.get("AI应用开发工程师") == "AI 应用_PM_开发"
+
+
+def test_internet_kb_rows_seeded():
+    import sqlite3
+    c = sqlite3.connect("data/jobradar.db").cursor()
+    got = {r[0] for r in c.execute(
+        "SELECT sub_cat FROM knowledge_subcategories WHERE strategy_type IN ('互联网','AI 应用_PM_开发')").fetchall()}
+    for sc in INTERNET_SUBCATS + ["搜索推荐广告算法", "AI应用开发工程师"]:
+        assert sc in got, f"{sc} 未入 knowledge_subcategories"
