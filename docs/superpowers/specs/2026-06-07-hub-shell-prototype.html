@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobRadar · 统一对话 Hub 路径原型</title>
+<style>
+  :root{
+    --tc:#c96442; --tc-strong:#a84f34; --tc-soft:#e8d9cf;
+    --parch:#f5f4ed; --ivory:#faf9f5; --rail:#f0eee6;
+    --ink:#2b2724; --ink2:#6b635c; --line:#e4ded3; --good:#3f7d5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#ded7c9;color:var(--ink);height:100vh;overflow:hidden}
+  .legend{background:#fff;border-bottom:1px solid var(--line);padding:8px 18px;display:flex;align-items:center;gap:14px;font-size:13px}
+  .legend b{color:var(--tc-strong)}
+  .legend .step{padding:3px 10px;border-radius:20px;background:var(--rail);color:var(--ink2);transition:.2s}
+  .legend .step.on{background:var(--tc);color:#fff}
+  .legend .reset{margin-left:auto;border:1px solid var(--line);background:var(--ivory);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink2)}
+  .legend .reset:hover{border-color:var(--tc);color:var(--tc)}
+  .app{display:flex;height:calc(100vh - 41px)}
+
+  /* sidebar */
+  .side{width:236px;background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 12px;flex-shrink:0}
+  .brand{font-size:20px;font-weight:700;letter-spacing:.5px;padding:6px 8px 14px;color:var(--ink)}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--ink2);font-size:14.5px;cursor:pointer;text-decoration:none}
+  .nav a .ic{width:18px;text-align:center;opacity:.75}
+  .nav a:hover{background:#e8e2d6}
+  .nav a.active{background:#f6e7df;color:var(--tc-strong);font-weight:600}
+  .nav a.active .ic{opacity:1}
+  .nav a .full{margin-left:auto;font-size:11px;opacity:.5}
+  .resume-switch{margin:14px 4px 6px;padding:10px 12px;background:var(--ivory);border:1px solid var(--line);border-radius:10px;font-size:13px}
+  .resume-switch .t{font-weight:600}
+  .resume-switch .s{font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .hist-h{font-size:11.5px;color:var(--ink2);padding:8px 12px 4px}
+  .hist a{display:block;padding:7px 12px;border-radius:9px;font-size:13.5px;color:var(--ink);cursor:pointer}
+  .hist a .d{font-size:11px;color:var(--ink2)}
+  .hist a.active{background:#efe7da;font-weight:600}
+  .hist a:hover{background:#e8e2d6}
+  .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid var(--line)}
+  .me .av{width:34px;height:34px;border-radius:50%;background:var(--tc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .me .t{font-size:14px;font-weight:600}
+  .me .s{font-size:11px;color:var(--ink2)}
+
+  /* conversation */
+  .conv{flex:1;display:flex;flex-direction:column;background:var(--parch);min-width:0}
+  .conv-h{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .conv-h .ti{font-size:16px;font-weight:700}
+  .conv-h .sub{font-size:12px;color:var(--ink2)}
+  .conv-h .badge{margin-left:auto;font-size:11.5px;color:var(--ink2);border:1px solid var(--line);padding:3px 10px;border-radius:20px;background:var(--ivory)}
+  .stream{flex:1;overflow-y:auto;padding:24px 22px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;gap:10px;max-width:680px}
+  .row.user{align-self:flex-end}
+  .ava{width:30px;height:30px;border-radius:50%;background:var(--tc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .bub{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 15px;font-size:14.5px;line-height:1.6}
+  .row.user .bub{background:var(--ink);color:#fff;border:none}
+  .bub b{color:var(--tc-strong)}
+  .row.user .bub b{color:#ffd9c9}
+
+  /* skill path card */
+  .skill{background:var(--ivory);border:1px solid var(--line);border-radius:14px;padding:14px 16px;max-width:560px}
+  .skill .hd{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin-bottom:10px}
+  .skill .hd .sp{margin-left:auto;font-size:11.5px}
+  .node{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:5px 0;color:var(--ink)}
+  .node .k{width:16px;text-align:center}
+  .node.done .k{color:var(--good)}
+  .node.cur{color:var(--tc-strong);font-weight:600}
+  .node .sys{margin-left:auto;font-size:11px;color:#b9b0a4;font-family:monospace}
+
+  /* result card */
+  .result{background:#fff;border:1px solid var(--tc-soft);border-radius:14px;padding:14px 16px;max-width:560px;box-shadow:0 2px 10px rgba(201,100,66,.07)}
+  .result .rt{font-size:14.5px;font-weight:600;margin-bottom:4px}
+  .result .rs{font-size:13px;color:var(--ink2);margin-bottom:12px}
+  .result .view{background:var(--tc);color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+  .result .view:hover{background:var(--tc-strong)}
+  .hint{align-self:center;font-size:12px;color:var(--ink2);background:#efe7da;padding:6px 14px;border-radius:20px}
+
+  /* composer */
+  .composer{padding:14px 22px 18px;border-top:1px solid var(--line)}
+  .chips{display:flex;gap:10px;margin-bottom:10px}
+  .chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--ivory);padding:8px 16px;border-radius:11px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+  .chip .ic{opacity:.7}
+  .chip:hover{border-color:var(--tc);color:var(--tc)}
+  .chip.primary{background:var(--tc);color:#fff;border-color:var(--tc)}
+  .chip.dis{opacity:.45;cursor:not-allowed}
+  .chip.dis:hover{border-color:var(--line);color:var(--ink)}
+  .input{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:13px;padding:12px 14px}
+  .input input{flex:1;border:none;outline:none;font-size:14.5px;background:transparent}
+  .input .send{width:34px;height:34px;border-radius:50%;background:var(--tc);color:#fff;border:none;cursor:pointer;font-size:16px}
+
+  /* right panel */
+  .panel{width:0;background:#fff;border-left:1px solid var(--line);overflow:hidden;transition:width .28s ease;flex-shrink:0}
+  .panel.open{width:430px}
+  .panel-in{width:430px;height:100%;display:flex;flex-direction:column}
+  .panel-h{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .panel-h .pt{font-size:15px;font-weight:700}
+  .panel-h .ps{font-size:11.5px;color:var(--ink2)}
+  .panel-h .x{margin-left:auto;cursor:pointer;color:var(--ink2);font-size:18px;border:none;background:none}
+  .panel-b{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+  .q-readout{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);padding-bottom:4px}
+  .q-readout .qc{background:var(--ink);color:#fff;padding:3px 11px;border-radius:16px;font-size:12px}
+
+  .job{border:1px solid var(--line);border-radius:13px;padding:14px}
+  .job .jt{font-size:15px;font-weight:600}
+  .job .jm{font-size:12.5px;color:var(--ink2);margin:3px 0 9px}
+  .job .scores{display:flex;gap:8px;margin-bottom:11px}
+  .pill{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--rail);color:var(--ink2)}
+  .pill.hot{background:#e8f1ea;color:var(--good);font-weight:600}
+  .pill.empty{border:1px dashed var(--line);background:none;color:#bbb}
+  .job .acts{display:flex;gap:8px}
+  .job .b-intel{flex:0 0 auto;border:1px solid var(--line);background:var(--ivory);padding:8px 12px;border-radius:9px;font-size:13px;cursor:pointer;color:var(--ink)}
+  .job .b-dig{flex:1;background:var(--tc);color:#fff;border:none;padding:8px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer}
+  .job .b-intel:hover{border-color:var(--tc);color:var(--tc)}
+  .job .b-dig:hover{background:var(--tc-strong)}
+
+  .tier{border:1px solid var(--line);border-radius:13px;padding:13px 14px}
+  .tier .th{font-size:13.5px;font-weight:700;color:var(--tc-strong);margin-bottom:9px;display:flex;gap:8px;align-items:center}
+  .tier .badge{font-size:11px;background:var(--rail);color:var(--ink2);padding:2px 8px;border-radius:12px;font-weight:400}
+  .co{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:5px 11px;font-size:13px;margin:0 6px 6px 0;background:var(--ivory)}
+
+  /* full overlays (简历编辑台 / 面试间) */
+  .overlay{position:fixed;inset:0;background:var(--parch);z-index:50;display:none;flex-direction:column}
+  .overlay.open{display:flex}
+  .ov-h{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:#fff}
+  .ov-h .back{border:1px solid var(--line);background:var(--ivory);padding:7px 14px;border-radius:9px;cursor:pointer;font-size:13.5px;color:var(--ink2)}
+  .ov-h .back:hover{border-color:var(--tc);color:var(--tc)}
+  .ov-h .ot{font-size:16px;font-weight:700}
+  .ov-h .os{font-size:12px;color:var(--ink2)}
+  .ov-b{flex:1;display:flex;overflow:hidden}
+  .ov-note{position:absolute;top:62px;right:22px;background:#fff;border:1px solid var(--tc-soft);border-radius:10px;padding:8px 13px;font-size:12px;color:var(--tc-strong);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  /* editor mock */
+  .ed-left{width:180px;border-right:1px solid var(--line);background:var(--rail);padding:16px 12px}
+  .ed-left .tab{padding:9px 12px;border-radius:9px;font-size:13.5px;color:var(--ink2);margin-bottom:4px;cursor:pointer}
+  .ed-left .tab.on{background:#f6e7df;color:var(--tc-strong);font-weight:600}
+  .ed-mid{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
+  .a4{width:480px;min-height:600px;background:#fff;border:1px solid var(--line);box-shadow:0 4px 20px rgba(0,0,0,.06);padding:36px}
+  .a4 h2{font-size:22px}.a4 .meta{color:var(--ink2);font-size:12.5px;margin:6px 0 16px}
+  .a4 .sec{font-size:13.5px;font-weight:700;color:var(--tc-strong);border-bottom:1px solid var(--line);padding-bottom:4px;margin:16px 0 8px}
+  .a4 p{font-size:12.5px;color:#444;line-height:1.7;margin-bottom:6px}
+  .ed-right{width:300px;border-left:1px solid var(--line);background:var(--ivory);padding:18px 16px}
+  .ed-right .score{font-size:30px;font-weight:700;color:var(--tc)}
+  .ed-right .gap{font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-top:9px;background:#fff}
+  /* interview room */
+  .room{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:linear-gradient(180deg,#f7f1ea,#efe6db)}
+  .room .orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e08a66,var(--tc-strong));box-shadow:0 10px 40px rgba(201,100,66,.3)}
+  .room .qline{font-size:18px;max-width:560px;text-align:center;line-height:1.6}
+  .room .mic{margin-top:8px;font-size:13px;color:var(--ink2);border:1px solid var(--line);background:#fff;padding:9px 18px;border-radius:24px}
+</style>
+</head>
+<body>
+
+<div class="legend">
+  <span>路径:</span>
+  <span class="step" id="lg1">①点模块</span>→
+  <span class="step" id="lg2">②对话内跑技能·路径节点</span>→
+  <span class="step" id="lg3">③结果卡</span>→
+  <span class="step" id="lg4">④点开才进视图</span>
+  <button class="reset" onclick="reset()">↺ 重置演示</button>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand">JobRadar</div>
+    <nav class="nav">
+      <a onclick="reset()"><span class="ic">✎</span>新对话</a>
+      <a id="nav-job" class="active" onclick="runSkill('job')"><span class="ic">◎</span>职位推荐</a>
+      <a id="nav-tier" onclick="runSkill('tier')"><span class="ic">▦</span>梯队骨架</a>
+      <a id="nav-resume" onclick="runSkill('resume')"><span class="ic">▤</span>简历优化</a>
+      <a id="nav-mock" onclick="runSkill('mock')"><span class="ic">◉</span>模拟面试<span class="full">⤢</span></a>
+      <a onclick="alert('打开个人档案(B 闭环:确认信息 + AI 推断待确认)')"><span class="ic">☺</span>个人档案</a>
+    </nav>
+    <div class="resume-switch">
+      <div class="t">📄 简历 · 中文主版</div>
+      <div class="s">当前画像 · 切换简历(2)▾</div>
+    </div>
+    <div class="hist-h">⏱ 历史记录 · 此简历下的会话</div>
+    <div class="hist">
+      <a class="active">券商资管 · 固收方向<div class="d">刚刚</div></a>
+      <a>量化私募 · 研究岗<div class="d">昨天</div></a>
+      <a>央国企 · 战略<div class="d">3 天前</div></a>
+    </div>
+    <div class="me">
+      <div class="av">陈</div>
+      <div><div class="t">陈思远</div><div class="s">它记得你 · 点开看档案</div></div>
+    </div>
+  </aside>
+
+  <!-- CONVERSATION -->
+  <main class="conv">
+    <div class="conv-h">
+      <div>
+        <div class="ti">求职助手</div>
+        <div class="sub">一条对话主轴 · 同会话同记忆贯穿始终</div>
+      </div>
+      <div class="badge">单会话 · L3 记忆</div>
+    </div>
+    <div class="stream" id="stream"></div>
+    <div class="composer">
+      <div class="chips">
+        <div class="chip primary" onclick="runSkill('job')"><span class="ic">◎</span>职位推荐</div>
+        <div class="chip" onclick="runSkill('tier')"><span class="ic">▦</span>梯队骨架</div>
+        <div class="chip" onclick="runSkill('resume')"><span class="ic">▤</span>简历优化</div>
+      </div>
+      <div class="input">
+        <input placeholder="说人话换方向、锁某家、或排除什么…（点上面的模块也行）">
+        <button class="send">↑</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL (side views: 职位/梯队) -->
+  <aside class="panel" id="panel"><div class="panel-in" id="panel-in"></div></aside>
+</div>
+
+<!-- FULL OVERLAY: 简历编辑台 -->
+<div class="overlay" id="ov-resume">
+  <div class="ov-h">
+    <button class="back" onclick="closeOverlay()">← 回 Hub</button>
+    <div><div class="ot">简历编辑台</div><div class="os">同一会话 · 同一记忆 · 点开后的"视图"是全编辑页</div></div>
+  </div>
+  <div class="ov-note">注意:仍是"对话内跑技能→结果卡→点开"进来的,不是一点就开</div>
+  <div class="ov-b">
+    <div class="ed-left">
+      <div class="tab">模板</div>
+      <div class="tab on">简历编辑</div>
+      <div class="tab">布局</div>
+    </div>
+    <div class="ed-mid">
+      <div class="a4">
+        <h2>陈思远</h2>
+        <div class="meta">帝国理工数据科学硕士 · 求职:投研 / 券商资管 · 上海</div>
+        <div class="sec">教育背景</div>
+        <p>帝国理工 数据科学硕士 · 剑桥 理论经济学硕士 · 利物浦 金融数学本科</p>
+        <div class="sec">实习经历</div>
+        <p>中科创达 · 能源数据分析:电价预测、时序特征工程、新能源市场……</p>
+        <div class="sec">项目</div>
+        <p>JobCopilot / StockRadar / Agent 平台 / 视频动作识别</p>
+      </div>
+    </div>
+    <div class="ed-right">
+      <div style="font-size:13px;color:var(--ink2)">当前简历分</div>
+      <div class="score">80</div>
+      <div style="font-size:12.5px;color:var(--ink2);margin-top:4px">诚实打分 · 提分靠反问取证,不替你编</div>
+      <div class="gap"><b>缺口①</b> 投研岗看重的"研究方法论"在简历上没体现</div>
+      <div class="gap"><b>缺口②</b> 量化项目缺可验证的结果数字</div>
+      <div class="gap"><b>缺口③</b> "佐证充分度"偏低:声明多、支撑少</div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL OVERLAY: 面试间 -->
+<div class="overlay" id="ov-mock">
+  <div class="ov-h">
+    <button class="back" onclick="closeOverlay()">← 结束 · 回 Hub</button>
+    <div><div class="ot">模拟面试间</div><div class="os">全屏接管 · 同一会话同记忆 · 结束回 Hub</div></div>
+  </div>
+  <div class="ov-b">
+    <div class="room">
+      <div class="orb"></div>
+      <div class="qline">「你在中科创达做电价预测时,特征工程具体怎么做的?为什么选这些特征?」</div>
+      <div class="mic">🎙 正在听你回答…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MODS = {
+  job: {
+    nav:'nav-job', name:'职位推荐',
+    nodes:[['检索候选岗位','search_candidates'],['评估匹配','rank'],['生成结果','finalize']],
+    rt:'按 投研 · 券商资管 + 你的偏好,匹配好了',
+    rs:'评估 40 个在招,推荐 39 个 · 想换方向/锁某家/排除什么,直接在下面说',
+    view:'查看岗位 →', kind:'side'
+  },
+  tier: {
+    nav:'nav-tier', name:'梯队骨架',
+    nodes:[['拉取赛道公司','load_platforms'],['按梯队分档','tier_fit'],['生成全景','build_ladder']],
+    rt:'已铺好 投研 · 券商资管 的梯队全景',
+    rs:'头部 / 腰部 / 腿部 三档 · 哪些够得着、哪些是冲刺,一眼看清',
+    view:'查看梯队 →', kind:'side'
+  },
+  resume: {
+    nav:'nav-resume', name:'简历优化',
+    nodes:[['解析简历','parse'],['8 维打分','score'],['定位缺口','gap']],
+    rt:'简历 80 分,找到 3 个可提升点',
+    rs:'诚实打分 · 提分靠反问把你的真实细节问出来再改,不替你编',
+    view:'查看报告并编辑 →', kind:'overlay'
+  },
+  mock: {
+    nav:'nav-mock', name:'模拟面试',
+    nodes:[['载入岗位画像','load_job'],['准备追问题目','prep']],
+    rt:'面试间已就绪:固定收益研究 · 实习',
+    rs:'语音对话 · 会按你的回答追问 · 结束给反馈',
+    view:'进入面试间 →', kind:'overlay'
+  }
+};
+
+const stream = document.getElementById('stream');
+function setNav(id){document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));const n=document.getElementById(id);if(n)n.classList.add('active');}
+function lg(step){for(let i=1;i<=4;i++)document.getElementById('lg'+i).classList.toggle('on',i<=step);}
+
+function greeting(){
+  stream.innerHTML = `<div class="row"><div class="ava">AI</div><div class="bub">Hi 陈思远～ 我记得你的画像(投研 · 券商资管 · 固收方向)。想看岗位、看梯队、还是优化简历?点下面的模块,或直接说一句。</div></div>`;
+}
+function reset(){closeOverlay();closePanel();setNav('nav-job');lg(1);greeting();}
+
+function runSkill(mod){
+  const m = MODS[mod]; closePanel(); closeOverlay(); setNav(m.nav); lg(2);
+  greeting();
+  // user action chip
+  stream.innerHTML += `<div class="row user"><div class="bub">点了 <b>${m.name}</b></div></div>`;
+  // skill path card
+  let nodesHtml = m.nodes.map((n,i)=>{
+    const cls = i < m.nodes.length-1 ? 'node done' : 'node cur';
+    const k = i < m.nodes.length-1 ? '✓' : '▸';
+    return `<div class="${cls}"><span class="k">${k}</span>${n[0]}<span class="sys">${n[1]}</span></div>`;
+  }).join('');
+  stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="skill"><div class="hd">⌁ 代理思考中 —— 在对话里跑技能<span class="sp">~1–2s</span></div>${nodesHtml}</div></div>`;
+  // result card (appears as the payoff; panel still NOT open)
+  setTimeout(()=>{
+    lg(3);
+    stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="result"><div class="rt">${m.rt}</div><div class="rs">${m.rs}</div><button class="view" onclick="openView('${mod}')">${m.view}</button></div></div>`;
+    stream.innerHTML += `<div class="hint">↑ 注意:结果在对话里给你了,右边还没出来 —— 点「${m.view.replace(' →','')}」才进视图</div>`;
+    stream.scrollTop = stream.scrollHeight;
+  }, 650);
+  stream.scrollTop = stream.scrollHeight;
+}
+
+function openView(mod){
+  const m = MODS[mod]; lg(4);
+  if(m.kind === 'overlay'){ openOverlay(mod); return; }
+  // side panel
+  const panel = document.getElementById('panel');
+  document.getElementById('panel-in').innerHTML = (mod==='job') ? jobPanel() : tierPanel();
+  panel.classList.add('open');
+}
+
+function jobPanel(){
+  const jobs = [
+    ['固定收益研究 · 实习','中信证券资管 · 上海','94',true,'2 天前'],
+    ['信用研究助理','华泰资管 · 上海','91',false,'今天'],
+    ['固收量化研究','广发资管 · 深圳','88',false,'4 天前']
+  ];
+  let cards = jobs.map(j=>`
+    <div class="job">
+      <div class="jt">${j[0]}</div>
+      <div class="jm">${j[1]} · ${j[4]}</div>
+      <div class="scores">
+        <span class="pill ${j[3]?'hot':''}">匹配 ${j[2]}</span>
+        ${j[3]?'<span class="pill hot">深度匹配 96</span>':'<span class="pill empty">深度匹配 —</span>'}
+      </div>
+      <div class="acts">
+        <button class="b-intel" onclick="alert('讲讲这家 → 打开公司情报卡:赛道定位 / 三维 / 徽章')">▥ 讲讲这家</button>
+        <button class="b-dig" onclick="alert('深挖这个岗 → 对这一个岗单独跑深度分析,补出「深度匹配」分 + 理由(懒加载,点哪个跑哪个)')">深挖这个岗 →</button>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="panel-h"><div><div class="pt">岗位匹配</div><div class="ps">按你的 投研·券商资管 · 12 个在招</div></div><button class="x" onclick="closePanel()">×</button></div>
+    <div class="panel-b">
+      <div class="q-readout">工作查询:<span class="qc">投研</span><span class="qc">券商资管</span> · 排序:匹配</div>
+      ${cards}
+      <div style="text-align:center;color:#b9b0a4;font-size:12.5px;padding:8px">… 还有 9 个 · 滚动查看</div>
+    </div>`;
+}
+
+function tierPanel(){
+  return `
+    <div class="panel-h"><div><div class="pt">梯队全景</div><div class="ps">投研 · 券商资管 · 按档次铺开</div></div><button class="x" onclick="closePanel()">×</button></div>
+    <div class="panel-b">
+      <div class="tier"><div class="th">头部 <span class="badge">够得着 · 冲刺</span></div>
+        <span class="co">中信证券资管</span><span class="co">华泰资管</span><span class="co">国君资管</span></div>
+      <div class="tier"><div class="th">腰部 <span class="badge">主力匹配</span></div>
+        <span class="co">广发资管</span><span class="co">招商资管</span><span class="co">光大资管</span><span class="co">平安资管</span></div>
+      <div class="tier"><div class="th">腿部 <span class="badge">保底</span></div>
+        <span class="co">渤海汇金</span><span class="co">中泰资管</span></div>
+      <div style="font-size:12.5px;color:var(--ink2);padding:4px 2px">点任一家 → 讲讲这家(公司情报卡)。薪资行情(未来)也挂在这里。</div>
+    </div>`;
+}
+
+function closePanel(){document.getElementById('panel').classList.remove('open');}
+function openOverlay(mod){document.getElementById(mod==='resume'?'ov-resume':'ov-mock').classList.add('open');}
+function closeOverlay(){document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));}
+
+reset();
+</script>
+</body>
+</html>
