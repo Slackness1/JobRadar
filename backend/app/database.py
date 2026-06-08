@@ -1,10 +1,22 @@
+import os
+
 from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from app.config import DATABASE_URL
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# 连接池大小 env 可调。默认 5/10(=SQLAlchemy 默认,行为不变);批处理高并发
+# (enrich backfill 多线程,每线程一个 session)可设大避免 QueuePool 耗尽超时。
+_POOL_SIZE = int(os.environ.get("DB_POOL_SIZE", "5"))
+_MAX_OVERFLOW = int(os.environ.get("DB_MAX_OVERFLOW", "10"))
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    pool_size=_POOL_SIZE,
+    max_overflow=_MAX_OVERFLOW,
+)
 
 
 @event.listens_for(engine, 'connect')
