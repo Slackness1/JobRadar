@@ -1,5 +1,6 @@
 from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
 from app.services.phase_g.sub_cat_enricher import STRATEGY_TYPES
+from scripts.phase_g._internet_quality_rule import quality_for_title
 
 INTERNET_SUBCATS = [
     "产品经理", "产品运营", "互联网软件研发", "数据分析与商业分析",
@@ -28,3 +29,11 @@ def test_internet_kb_rows_seeded():
         "SELECT sub_cat FROM knowledge_subcategories WHERE strategy_type IN ('互联网','AI 应用_PM_开发')").fetchall()}
     for sc in INTERNET_SUBCATS + ["搜索推荐广告算法", "AI应用开发工程师"]:
         assert sc in got, f"{sc} 未入 knowledge_subcategories"
+
+
+def test_quality_rule():
+    assert quality_for_title("后端开发实习生-抖音") == "internship_only"
+    assert quality_for_title("产品经理-2026届校园招聘") == "good"
+    assert quality_for_title("AI产品经理") == "good"
+    assert quality_for_title("数据分析实习生") == "internship_only"
+    assert quality_for_title("Data Analyst Intern") == "internship_only"
