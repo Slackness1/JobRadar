@@ -37,3 +37,15 @@ def test_quality_rule():
     assert quality_for_title("AI产品经理") == "good"
     assert quality_for_title("数据分析实习生") == "internship_only"
     assert quality_for_title("Data Analyst Intern") == "internship_only"
+
+
+def test_internet_candidate_query_excludes_finance_gt():
+    """候选必须按 32 大厂选(绕过金融 GT)。"""
+    import json, sqlite3
+    names = [r["name"] for r in json.loads(open("/home/ubuntu/jobradar-sync/out/fanout_manifest.json").read())]
+    c = sqlite3.connect("data/jobradar.db").cursor()
+    ph = ",".join("?" * len(names))
+    n = c.execute(
+        f"SELECT COUNT(*) FROM jobs WHERE source='tatawangshen' AND date(scraped_at)='2026-06-08' "
+        f"AND company IN ({ph}) AND quality_label IN ('good','internship_only')", names).fetchone()[0]
+    assert n > 5000, f"互联网候选数 {n} 偏低(Task4 quality 打标是否跑过?)"
