@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from typing import Any
 
 import app.config  # noqa: F401
@@ -30,6 +31,13 @@ from app.services.crawler_llm import (
 from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
 
 log = logging.getLogger(__name__)
+
+
+def _enrich_reasoning_effort() -> str:
+    """Pass2 reasoning effort, env 可调。默认 high(金融 enrich 行为不变);
+    打标/大批量场景可设 ENRICH_REASONING_EFFORT=low/medium 提速 + 避免 30s client 超时。"""
+    return os.environ.get("ENRICH_REASONING_EFFORT", "high")
+
 
 # 跟 knowledge_synthesis.py SUBCAT_TO_STRATEGY 字面对齐 — 注意 "AI 应用_PM_开发" 中间有空格
 STRATEGY_TYPES: tuple[str, ...] = (
