@@ -67,6 +67,20 @@
   .node.done .k{color:var(--good)}
   .node.cur{color:var(--tc-strong);font-weight:600}
   .node .sys{margin-left:auto;font-size:11px;color:#b9b0a4;font-family:monospace}
+  /* Layer-1 轻量气泡 */
+  .pill-think{display:inline-flex;align-items:center;gap:9px;background:var(--ivory);border:1px solid var(--line);border-radius:20px;padding:9px 16px;font-size:13.5px;color:var(--ink2)}
+  .dots{display:inline-flex;gap:4px}
+  .dots i{width:5px;height:5px;border-radius:50%;background:var(--tc);animation:bl 1s infinite}
+  .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+  @keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+  /* 我的理解 */
+  .understand{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 16px;font-size:14.5px;line-height:1.65;max-width:560px}
+  .understand .memtag{display:inline-block;font-size:11px;color:var(--good);background:#e8f1ea;border-radius:10px;padding:2px 9px;margin-bottom:7px}
+  /* Layer-2 可折叠思考过程 */
+  .skill .hd{cursor:pointer;user-select:none}
+  .skill .hd .chev{margin-left:auto;transition:.2s;font-size:12px}
+  .skill.collapsed .body{display:none}
+  .skill.collapsed .hd .chev{transform:rotate(-90deg)}
 
   /* result card */
   .result{background:#fff;border:1px solid var(--tc-soft);border-radius:14px;padding:14px 16px;max-width:560px;box-shadow:0 2px 10px rgba(201,100,66,.07)}
@@ -269,6 +283,7 @@
 const MODS = {
   job: {
     nav:'nav-job', name:'职位推荐',
+    understand:'我记得你:<b>投研 · 券商资管</b> · 固收偏好 · 上海。结合你帝国理工数据科学的背景,就按这个方向给你看。',
     nodes:[['锁定赛道','seed'],['检索岗位','recall'],['三维打分','score3'],['排出推荐','rank']],
     rt:'按 投研 · 券商资管 + 你的偏好,匹配好了',
     rs:'评估 40 个在招,推荐 39 个 · 想换方向/锁某家/排除什么,直接在下面说',
@@ -276,6 +291,7 @@ const MODS = {
   },
   tier: {
     nav:'nav-tier', name:'梯队骨架',
+    understand:'按你的 <b>投研 · 券商资管</b> 方向,我来铺一下这条赛道的公司梯队,看哪些档够得着、哪些是冲刺。',
     nodes:[['拉取公司','load'],['梯队分档','ladder'],['背景定档','fit'],['铺出全景','assemble']],
     rt:'已铺好 投研 · 券商资管 的梯队全景',
     rs:'头部 / 腰部 / 腿部 三档 · 哪些够得着、哪些是冲刺,一眼看清',
@@ -283,6 +299,7 @@ const MODS = {
   },
   resume: {
     nav:'nav-resume', name:'简历优化',
+    understand:'结合你的目标赛道 <b>投研 · 券商资管</b>,我来诚实看一遍你的简历 —— 分数老实反映现状,提分靠把你的真实细节问出来,不替你编。',
     nodes:[['解析简历','parse'],['诚实打分','score'],['定位缺口','gap'],['给出建议','report']],
     rt:'简历 80 分,找到 3 个可提升点',
     rs:'诚实打分 · 提分靠反问把你的真实细节问出来再改,不替你编',
@@ -306,27 +323,40 @@ function greeting(){
 }
 function reset(){closeOverlay();closePanel();setNav('nav-job');lg(1);greeting();}
 
+function nodeRow(n,k,cls){return `<div class="${cls}"><span class="k">${k}</span>${n[0]}<span class="sys">${n[1]}</span></div>`;}
+
 function runSkill(mod){
-  const m = MODS[mod]; closePanel(); closeOverlay(); setNav(m.nav); lg(2);
+  const m = MODS[mod]; closePanel(); closeOverlay(); setNav(m.nav); lg(1);
   greeting();
-  // user action chip
   stream.innerHTML += `<div class="row user"><div class="bub">点了 <b>${m.name}</b></div></div>`;
-  // skill path card
-  let nodesHtml = m.nodes.map((n,i)=>{
-    const cls = i < m.nodes.length-1 ? 'node done' : 'node cur';
-    const k = i < m.nodes.length-1 ? '✓' : '▸';
-    return `<div class="${cls}"><span class="k">${k}</span>${n[0]}<span class="sys">${n[1]}</span></div>`;
-  }).join('');
-  stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="skill"><div class="hd">⌁ 代理思考中 —— 在对话里跑技能<span class="sp">~1–2s</span></div>${nodesHtml}</div></div>`;
-  // result card (appears as the payoff; panel still NOT open)
+  // Layer-1 即时轻量气泡(只有 shimmer/dots, 不显示步骤)
+  stream.innerHTML += `<div class="row" id="pill"><div class="ava">AI</div><div class="pill-think">正在分析你的需求 <span class="dots"><i></i><i></i><i></i></span></div></div>`;
+  stream.scrollTop = stream.scrollHeight;
+
+  // beat 1: 我的理解(可见) + Layer-2 思考过程(折叠, running)
+  setTimeout(()=>{
+    lg(2);
+    const p = document.getElementById('pill'); if(p) p.remove();
+    stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="understand"><div class="memtag">⌁ 它记得你</div>${m.understand}</div></div>`;
+    const nodesHtml = m.nodes.map((n,i)=> nodeRow(n, i===0?'✓':(i===1?'⟳':'○'), i===0?'node done':(i===1?'node cur':'node'))).join('');
+    stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="skill collapsed" id="thinkcard"><div class="hd" onclick="toggleThink()">⟳ 思考中…<span class="chev">▾</span></div><div class="body">${nodesHtml}</div></div></div>`;
+    stream.scrollTop = stream.scrollHeight;
+  }, 480);
+
+  // beat 2: 思考完成(折叠收起, 全 ✓) + 结果卡
   setTimeout(()=>{
     lg(3);
+    const tc = document.getElementById('thinkcard');
+    if(tc){
+      tc.querySelector('.hd').innerHTML = `✓ 思考完成 · ${m.nodes.length} 步 <span class="sp" style="margin-left:6px;color:#b9b0a4">点开看过程</span><span class="chev">▾</span>`;
+      tc.querySelectorAll('.node').forEach(n=>{n.className='node done';n.querySelector('.k').textContent='✓';});
+    }
     stream.innerHTML += `<div class="row"><div class="ava">AI</div><div class="result"><div class="rt">${m.rt}</div><div class="rs">${m.rs}</div><button class="view" onclick="openView('${mod}')">${m.view}</button></div></div>`;
-    stream.innerHTML += `<div class="hint">↑ 注意:结果在对话里给你了,右边还没出来 —— 点「${m.view.replace(' →','')}」才进视图</div>`;
+    stream.innerHTML += `<div class="hint">↑ 结果在对话里给你了,右边还没出来 —— 点「${m.view.replace(' →','')}」才进视图</div>`;
     stream.scrollTop = stream.scrollHeight;
-  }, 650);
-  stream.scrollTop = stream.scrollHeight;
+  }, 1500);
 }
+function toggleThink(){const t=document.getElementById('thinkcard'); if(t) t.classList.toggle('collapsed');}
 
 function openView(mod){
   const m = MODS[mod]; lg(4);
