@@ -40,6 +40,7 @@ STRATEGY_TYPES: tuple[str, ...] = (
     "多资产_FOF_衍生品",
     "相关补充",
     "AI 应用_PM_开发",
+    "互联网",
 )
 
 
