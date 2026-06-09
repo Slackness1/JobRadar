@@ -34,6 +34,8 @@ import { Composer, type ComposerChip } from '../recommend-agent/chat/Composer';
 import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
+import { getStudentKbIndex, getWorkingQuery, postRecommendChat } from '../../api';
+import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
 
 // ── 技能文案 — AI 的「开始跑」一声(每模块一句)──────────────────────────────────
@@ -50,15 +52,35 @@ const SAY: Record<HubModule, string> = {
 const PROFILE_SAY =
   '帮你打开<b>个人档案</b> —— 确认信息在上，AI 推断待确认在下，确认/否掉一眼可点。';
 
+// 结果卡文案的真实上下文(feed 模块用真实赛道 + 计数)
+interface ResultCtx {
+  tracks?: string[]; // working_query.seed_sub_cats
+  feedLen?: number; // 真实召回 / 匹配条数
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // 技能跑完落在对话里的「产出」卡文案(每模块一张)
-function RESULT_FOR(key: HubModule): ResultCardData {
+function RESULT_FOR(key: HubModule, ctx?: ResultCtx): ResultCardData {
   switch (key) {
-    case 'feed':
+    case 'feed': {
+      const tracks = (ctx?.tracks ?? []).filter(Boolean);
+      const n = ctx?.feedLen ?? 0;
+      const trackText = tracks.length > 0 ? escapeHtml(tracks.join(' · ')) : '你确认的赛道';
       return {
         title: '岗位匹配已就绪',
-        body: '按 <b>投研 · 券商资管</b> 评估 40 个在招、匹配 39 个，已排出第一版 Top。',
+        body:
+          n > 0
+            ? `按 <b>${trackText}</b> 评估 ${n} 个在招、匹配 ${n} 个，已排出第一版列表。`
+            : `按 <b>${trackText}</b> 跑了一遍，这一版暂时没匹配到合适的在招岗位，换个说法或调整赛道再试试。`,
         cta: '查看岗位',
       };
+    }
     case 'skeleton':
       return {
         title: '梯队全景已铺好',
@@ -183,8 +205,22 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   const [started, setStarted] = useState(false); // 离开落地态?
   const [msgs, setMsgs] = useState<HubMessage[]>([]);
   const [thinking, setThinking] = useState(false);
+
+  // ── 真实数据态(Task 6) ──────────────────────────────────────────────────
+  const [workingQuery, setWorkingQuery] = useState<WorkingQuery | null>(null);
+  const [feed, setFeed] = useState<RecommendFeedItem[]>([]);
+  const [memoryPills, setMemoryPills] = useState<string[]>([]);
+  // deepening 预留给 Task 7 画布的深挖态(本任务只持有, 不渲染)
+  const [, setDeepening] = useState<string | null>(null);
+
   const busy = useRef(false); // 防双触发
   const completed = useRef<Set<string>>(new Set()); // skillrun id → 已落结果卡(防重)
+  // skillrun id → 真实 recommend-chat 结果(动画跑完时据此落结果卡, 防 race)
+  const respById = useRef<Map<string, RecommendTurnResponse>>(new Map());
+  // skillrun id → 请求未回时挂起的 onComplete(动画先跑完就等请求)
+  const pendingComplete = useRef<Map<string, () => void>>(new Map());
+  // 学生最近一句话(armed fire 时拿来当 recommend-chat 的 message)
+  const lastUserText = useRef<string>('');
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
   const push = (m: HubMessage) => setMsgs((cur) => [...cur, m]);
@@ -194,6 +230,55 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     const el = bodyRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [msgs, thinking]);
+
+  // ── 进场拉真实 working query + 记忆(派生 2–3 条记忆 pill 文案) ───────────
+  useEffect(() => {
+    let cancelled = false;
+    getWorkingQuery(sessionId)
+      .then((r) => {
+        if (!cancelled) setWorkingQuery(r.working_query);
+      })
+      .catch(() => {
+        if (!cancelled) setWorkingQuery(null);
+      });
+    getStudentKbIndex()
+      .then((r) => {
+        if (cancelled) return;
+        const pills = (r.items ?? [])
+          .map((it) => (it.summary ?? '').trim())
+          .filter(Boolean)
+          .slice(0, 3);
+        setMemoryPills(pills);
+      })
+      .catch(() => {
+        if (!cancelled) setMemoryPills([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  // 把真实 working query + 召回结果织进某条 skillrun 的「我的理解 / 计数」覆盖
+  function applyFeedResp(skillrunId: string, resp: RecommendTurnResponse) {
+    respById.current.set(skillrunId, resp);
+    const tracks = resp.working_query?.seed_sub_cats ?? [];
+    const feedLen = resp.feed?.length ?? 0;
+    setMsgs((cur) =>
+      cur.map((m) =>
+        m.id === skillrunId && m.kind === 'skillrun'
+          ? {
+              ...m,
+              understandOverride: { tracks, memory: memoryPills },
+              // 节点序号: 1 = 检索岗位, 3 = 排出推荐(对齐 deep-think-meta feed 节点顺序)
+              outputOverride: {
+                1: `召回 ${feedLen} → 去重 ${feedLen}`,
+                3: feedLen > 0 ? '第一版 Top 已就绪' : '本版暂无匹配',
+              },
+            }
+          : m,
+      ),
+    );
+  }
 
   // ── 跑技能: 每个模块 = 对话里跑一次技能 → 落结果卡 → 点开才进视图 ──
   function runSkill(key: HubModule) {
@@ -211,7 +296,52 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     setStarted(true);
     setActive('none'); // 收回全宽对话看它「想」—— 永不瞬移进面板
     push({ id: nextId(), kind: 'turn', who: 'ai', html: SAY[key] });
-    push({ id: nextId(), kind: 'skillrun', module: key });
+    const skillrunId = nextId();
+    push({ id: skillrunId, kind: 'skillrun', module: key });
+
+    // 职位推荐: 动画播放的同时, 并发打真后端 recommend-chat. 结果织回这条 skillrun,
+    // 落结果卡时(动画 + 请求都完成)再据此渲染真实赛道 / 计数.
+    if (key === 'feed') {
+      const text = lastUserText.current || '给我推荐一下岗位';
+      postRecommendChat(sessionId, text)
+        .then((resp) => {
+          if (resp.feed !== null) setFeed(resp.feed);
+          if (resp.working_query) setWorkingQuery(resp.working_query);
+          applyFeedResp(skillrunId, resp);
+          // 动画若已先跑完, 这里补落结果卡.
+          const waiter = pendingComplete.current.get(skillrunId);
+          if (waiter) {
+            pendingComplete.current.delete(skillrunId);
+            waiter();
+          }
+        })
+        .catch(() => {
+          // 请求失败: 标记空响应让动画完成时仍能落卡(走「暂无匹配」文案).
+          respById.current.set(skillrunId, {
+            intent: 'recommend',
+            reply: '',
+            feed: [],
+            working_query: workingQuery ?? {
+              seed_sub_cats: [],
+              sub_cats: [],
+              companies: [],
+              locations: [],
+              exclude: [],
+              sort: 'match',
+              only: false,
+              note: '',
+            },
+            trace: { intent: 'recommend', query_delta: {}, remember_note: '' },
+            remembered: null,
+          });
+          const waiter = pendingComplete.current.get(skillrunId);
+          if (waiter) {
+            pendingComplete.current.delete(skillrunId);
+            waiter();
+          }
+        });
+    }
+
     // busy 在 onSkillComplete(DeepThinkCard 跑完)时清; 这里只是安全兜底.
     setTimeout(() => {
       busy.current = false;
@@ -222,6 +352,24 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   function onSkillComplete(skillrunId: string, key: HubModule) {
     busy.current = false;
     if (completed.current.has(skillrunId)) return;
+
+    // 职位推荐: 结果卡用真实赛道 + 计数. 若请求还没回, 挂起等它(race-safe).
+    if (key === 'feed') {
+      const resp = respById.current.get(skillrunId);
+      if (!resp) {
+        // 动画先跑完 → 注册一个待请求回来再落卡的回调.
+        pendingComplete.current.set(skillrunId, () => onSkillComplete(skillrunId, key));
+        return;
+      }
+      completed.current.add(skillrunId);
+      const ctx: ResultCtx = {
+        tracks: resp.working_query?.seed_sub_cats ?? [],
+        feedLen: resp.feed?.length ?? 0,
+      };
+      push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key, ctx) });
+      return;
+    }
+
     completed.current.add(skillrunId);
     push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key) });
   }
@@ -246,40 +394,67 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
 
   // ── 发送 ──
   function onSend(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
     setStarted(true);
+    lastUserText.current = trimmed; // feed 技能用它当 recommend-chat 的 message
 
     if (armed) {
       // 有激活的模块 → 这句话就是「激发交付物」
       const key = armed;
       setArmed(null);
-      push({ id: nextId(), kind: 'turn', who: 'me', html: text });
+      push({ id: nextId(), kind: 'turn', who: 'me', html: trimmed });
       runSkill(key);
       return;
     }
 
     // 没激活 → NL 路由
-    push({ id: nextId(), kind: 'turn', who: 'me', html: text });
+    push({ id: nextId(), kind: 'turn', who: 'me', html: trimmed });
 
-    // TODO(Task 6): NL 路由 → postRecommendChat(意图解析 trace + query_delta + 记忆)
-    // 当前用最小关键词兜底命中模块后 runSkill; 都不命中则轻提示(非破坏).
+    // 关键词命中模块 → 直接跑该技能
     let target: HubModule | null = null;
-    if (/梯队|骨架|档次|全景/.test(text)) target = 'skeleton';
-    else if (/档案|我的资料|画像|记得/.test(text)) target = 'profile';
-    else if (/简历|改写|打分|优化/.test(text)) target = 'resume';
-    else if (/面试|模拟/.test(text)) target = 'interview';
-    else if (/推荐|岗位|职位|机会|看看|来点|多来|有什么/.test(text)) target = 'feed';
+    if (/梯队|骨架|档次|全景/.test(trimmed)) target = 'skeleton';
+    else if (/档案|我的资料|画像|记得/.test(trimmed)) target = 'profile';
+    else if (/简历|改写|打分|优化/.test(trimmed)) target = 'resume';
+    else if (/面试|模拟/.test(trimmed)) target = 'interview';
+    else if (/推荐|岗位|职位|机会|看看|来点|多来|有什么/.test(trimmed)) target = 'feed';
 
     if (target) {
       runSkill(target);
       return;
     }
 
-    push({
-      id: nextId(),
-      kind: 'turn',
-      who: 'ai',
-      html: '没太听懂，换个说法？比如「推荐岗位」「看看券商资管的梯队」「给简历打个分」。',
-    });
+    // 都不命中 → 当作 feed 微调: 打 recommend-chat, 落意图 trace + AI 回复 + (命中时)记忆,
+    // 同步刷新 feed / working query. 形态对齐推荐工作台 handleSend.
+    void refineFeed(trimmed);
+  }
+
+  // feed 微调(非命中关键词的自由发言)→ 真后端 recommend-chat.
+  async function refineFeed(text: string) {
+    setThinking(true);
+    try {
+      const resp = await postRecommendChat(sessionId, text);
+      push({ id: nextId(), kind: 'turn', who: 'ai', html: escapeHtml(resp.reply) });
+      push({ id: nextId(), kind: 'trace', trace: resp.trace });
+      if (resp.remembered) {
+        push({
+          id: nextId(),
+          kind: 'memory',
+          text: `记忆 → L3 preference · 后台落库（${resp.remembered.dimension}=${resp.remembered.value}）`,
+        });
+      }
+      if (resp.feed !== null) setFeed(resp.feed);
+      if (resp.working_query) setWorkingQuery(resp.working_query);
+    } catch {
+      push({
+        id: nextId(),
+        kind: 'turn',
+        who: 'ai',
+        html: '没太听懂，换个说法？比如「推荐岗位」「看看券商资管的梯队」「给简历打个分」。',
+      });
+    } finally {
+      setThinking(false);
+    }
   }
 
   // ── 新对话 ──
@@ -289,8 +464,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     setArmed(null);
     setMsgs([]);
     setThinking(false);
+    setFeed([]);
+    setDeepening(null);
     busy.current = false;
     completed.current = new Set();
+    respById.current = new Map();
+    pendingComplete.current = new Map();
+    lastUserText.current = '';
   }
 
   // 侧边栏高亮 = 激活态 或 已打开的画布槽
@@ -365,6 +545,8 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                       <DeepThinkCard
                         key={m.id}
                         module={m.module as 'feed' | 'skeleton' | 'resume' | 'interview'}
+                        understandOverride={m.understandOverride}
+                        outputOverride={m.outputOverride}
                         onComplete={() => onSkillComplete(m.id, m.module)}
                       />
                     );
@@ -458,7 +640,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
             background: 'var(--parchment)',
           }}
         >
-          {/* TODO(Task 7): CanvasSlot — feed / skeleton / resume / profile 视图 */}
+          {/* TODO(Task 7): CanvasSlot — feed / skeleton / resume / profile 视图.
+              feed / workingQuery 真实态已在此持有(Task 6),Task 7 据此渲染右栏. */}
+          <div
+            data-feed-count={feed.length}
+            data-track={workingQuery?.seed_sub_cats?.join(',') ?? ''}
+            style={{ display: 'none' }}
+          />
         </div>
       )}
     </div>

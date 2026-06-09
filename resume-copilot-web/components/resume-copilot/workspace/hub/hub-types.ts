@@ -1,4 +1,5 @@
 import type { WorkingQuery, RecommendFeedItem, RecommendTrace } from '../../types';
+import type { DeepUnderstand } from './deep-think-meta';
 
 export type HubModule = 'feed' | 'skeleton' | 'resume' | 'interview' | 'profile';
 
@@ -13,7 +14,15 @@ export interface ResultCardData {
 
 export type HubMessage =
   | { id: string; kind: 'turn'; who: 'me' | 'ai'; html: string }
-  | { id: string; kind: 'skillrun'; module: HubModule }
+  | {
+      id: string;
+      kind: 'skillrun';
+      module: HubModule;
+      /** 真实赛道 / 记忆 —— 注入 DeepThinkCard 的「我的理解」 */
+      understandOverride?: Partial<DeepUnderstand>;
+      /** 节点序号 → 真实计数 output(done 态优先) */
+      outputOverride?: Record<number, string>;
+    }
   | { id: string; kind: 'result'; module: HubModule; data: ResultCardData }
   | { id: string; kind: 'trace'; trace: RecommendTrace }
   | { id: string; kind: 'memory'; text: string }
