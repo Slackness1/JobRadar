@@ -17,6 +17,7 @@
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
 import HubProfileView from './HubProfileView';
+import ResumeSlotPlaceholder from './ResumeSlotPlaceholder';
 import type { HubSlot } from './hub-types';
 
 // 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460.
@@ -131,18 +132,8 @@ export default function CanvasSlot({
             />
           )}
 
-          {/* resume 视图在 Task 10 接入 —— 此处仅占位不渲染。 */}
-          {active === 'resume' && (
-            <div
-              style={{
-                padding: 24,
-                font: '400 12.5px/1.6 var(--font-sans)',
-                color: 'var(--ink-soft)',
-              }}
-            >
-              {/* TODO(Task 10): resume 视图 */}
-            </div>
-          )}
+          {/* 简历优化 — 接口位占位(真实打分/优化视图归 resume-copilot 分支，日后塞进同槽). */}
+          {active === 'resume' && <ResumeSlotPlaceholder />}
         </div>
       )}
     </div>

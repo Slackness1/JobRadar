@@ -23,6 +23,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import './hub-theme.css';
 import '../recommend-agent/recommend-agent.css';
 
@@ -200,6 +201,7 @@ function ResultCard({
 
 // ── HubShell ─────────────────────────────────────────────────────────────────
 export default function HubShell({ sessionId }: { sessionId: number }) {
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [active, setActive] = useState<HubSlot>('none'); // 当前打开的画布槽
   const [armed, setArmed] = useState<HubModule | null>(null); // 被「激活」但还没说话触发的模块
@@ -456,7 +458,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   // ── 点结果卡 CTA → 才进入那个模块的视图 ──
   function openView(key: HubModule) {
     if (key === 'interview') {
-      // TODO(Task 10): router.push 进全屏面试间
+      // 模拟面试全屏间 — 离开 Hub 进独立路由. 结束后由面试页自行处理回路.
+      // TODO(next): interview 页加返回 /hub?session= 按钮
+      router.push(`/interview/${sessionId}`);
       return;
     }
     setActive(key as HubSlot);
