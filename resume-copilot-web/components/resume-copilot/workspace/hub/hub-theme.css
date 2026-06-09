@@ -1,0 +1,4 @@
+[data-theme="hub"] { color: var(--ink); }
+[data-theme="hub"] *::-webkit-scrollbar { width: 8px; height: 8px; }
+[data-theme="hub"] *::-webkit-scrollbar-thumb { background: var(--ring-warm); border-radius: 8px; }
+[data-theme="hub"] *::-webkit-scrollbar-track { background: transparent; }
