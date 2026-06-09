@@ -36,7 +36,12 @@ import { Composer, type ComposerChip } from '../recommend-agent/chat/Composer';
 import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
-import { getStudentKbIndex, getWorkingQuery, postRecommendChat } from '../../api';
+import {
+  getStudentKbIndex,
+  getWorkingQuery,
+  postRecommendChat,
+  updateWorkingQuery,
+} from '../../api';
 import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
 
@@ -309,10 +314,24 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     if (key === 'feed') {
       const text = lastUserText.current || '给我推荐一下岗位';
       postRecommendChat(sessionId, text)
-        .then((resp) => {
-          if (resp.feed !== null) setFeed(resp.feed);
-          if (resp.working_query) setWorkingQuery(resp.working_query);
-          applyFeedResp(skillrunId, resp);
+        .then(async (resp) => {
+          // recommend-chat 只在「这句话改变了查询条件」时才回新列表;首次「给我推荐」
+          // 与已确认赛道一致 → 无 delta → feed 为空. 此时主动 reseed,把当前赛道下
+          // 实际在招的岗位拉出来铺满右栏(否则学生看到 0 个在招, 其实库里有).
+          let feedItems = resp.feed ?? [];
+          let wq = resp.working_query ?? null;
+          if (feedItems.length === 0) {
+            try {
+              const r = await updateWorkingQuery(sessionId, { reseed: true });
+              feedItems = r.feed ?? [];
+              if (r.working_query) wq = r.working_query;
+            } catch {
+              /* reseed 失败则保持空, 走「暂无匹配」文案 */
+            }
+          }
+          setFeed(feedItems);
+          if (wq) setWorkingQuery(wq);
+          applyFeedResp(skillrunId, { ...resp, feed: feedItems, working_query: wq ?? resp.working_query });
           // 动画若已先跑完, 这里补落结果卡.
           const waiter = pendingComplete.current.get(skillrunId);
           if (waiter) {
