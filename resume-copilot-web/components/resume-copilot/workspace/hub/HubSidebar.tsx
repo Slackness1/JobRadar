@@ -212,12 +212,12 @@ export default function HubSidebar({
             height: 40,
             margin: '0 auto 4px',
             borderRadius: 10,
-            background: 'var(--terracotta-wash)',
+            background: 'transparent',
             color: 'var(--terracotta-strong)',
             display: 'grid',
             placeItems: 'center',
             cursor: 'pointer',
-            boxShadow: '0 0 0 1px #eccfb6',
+            boxShadow: '0 0 0 1px var(--border-warm)',
             border: 0,
             outline: 'none',
           }}
@@ -311,7 +311,7 @@ export default function HubSidebar({
         </button>
       </div>
 
-      {/* 新对话 — terracotta-wash bg + left accent bar, same style as selected tab */}
+      {/* 新对话 — 动作按钮(ghost/描边),不用选中态的 wash + accent bar,避免与激活模块"双高亮" */}
       <div style={{ padding: '6px 12px 4px', flex: 'none' }}>
         <button
           onClick={onNew}
@@ -326,24 +326,13 @@ export default function HubSidebar({
             paddingLeft: 13,
             borderRadius: 10,
             cursor: 'pointer',
-            background: 'var(--terracotta-wash)',
-            boxShadow: '0 0 0 1px #eccfb6',
+            background: 'transparent',
+            boxShadow: '0 0 0 1px var(--border-warm)',
             color: 'var(--ink)',
             border: 0,
             outline: 'none',
           }}
         >
-          <span
-            style={{
-              position: 'absolute',
-              left: -1,
-              top: 8,
-              bottom: 8,
-              width: 2.5,
-              borderRadius: 2,
-              background: 'var(--terracotta)',
-            }}
-          />
           <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex', flex: 'none' }}>
             <PenLine size={16} strokeWidth={1.6} />
           </span>
