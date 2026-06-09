@@ -16,7 +16,7 @@ def test_all_subcats_mapped_to_strategy():
     assert not missing, f"sub_cats without strategy mapping: {missing}"
 
 
-def test_strategy_types_only_7():
+def test_strategy_types_only_8():
     strategy_types = set(SUBCAT_TO_STRATEGY.values())
     expected = {
         "基本面权益",
@@ -26,6 +26,7 @@ def test_strategy_types_only_7():
         "多资产_FOF_衍生品",
         "相关补充",
         "AI 应用_PM_开发",
+        "互联网",  # 互联网独立赛道 (2026-06-09)
     }
     assert strategy_types == expected
 
