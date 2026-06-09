@@ -5,6 +5,8 @@ import { A4Doc, type EditorSection } from './A4Doc';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
+import { EditorAIPanel } from './EditorAIPanel';
+import type { DeepOptimizeStartIn } from '../../../../api';
 
 type LeftTab = 'tpl' | 'edit' | 'layout';
 
@@ -25,11 +27,51 @@ const MOCK_SECTIONS: EditorSection[] = [
   { title: '掌握技能', lines: ['100%', '56%'] },
 ];
 
-const LIT_INDEX = 1; // 实习经历
+// 后端 section path 前缀(如 'internships.0' / 'projects.1')→ 中栏 MOCK_SECTIONS 索引。
+// MOCK_SECTIONS 顺序:0 教育经历 / 1 实习经历 / 2 项目经历 / 3 掌握技能。
+const SECTION_PREFIX_TO_INDEX: Record<string, number> = {
+  education: 0,
+  educations: 0,
+  internship: 1,
+  internships: 1,
+  experience: 1,
+  experiences: 1,
+  work: 1,
+  project: 2,
+  projects: 2,
+  skill: 3,
+  skills: 3,
+};
 
-/** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor(纯壳,无后端接线)。 */
-export function ResumeEditorOverlay({ onClose }: { onClose: () => void }) {
+function sectionToLitIndex(section: string): number | undefined {
+  if (!section) return undefined;
+  const prefix = section.split('.')[0].toLowerCase();
+  return SECTION_PREFIX_TO_INDEX[prefix];
+}
+
+export interface ResumeEditorOverlayProps {
+  onClose: () => void;
+  /** 真实 session id;未传 / 0 → mock 模式(离线目测)。 */
+  sessionId?: number;
+  /** 显式强制 mock。默认:无 sessionId 时为 mock。 */
+  mock?: boolean;
+}
+
+/** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
+export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
+  const [aiTab, setAiTab] = useState<string>('score');
+  const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
+  // 当前高亮("AI 刚写回")的中栏段索引。初始 1 = 实习经历(与原壳一致)。
+  const [litSection, setLitSection] = useState<number>(1);
+
+  const isMock = mock ?? !sessionId;
+
+  // 写回成功 → 把 section 映射成 A4 lit 索引并高亮。
+  const handleWriteBack = (section: string) => {
+    const idx = sectionToLitIndex(section);
+    if (idx !== undefined) setLitSection(idx);
+  };
 
   // E2/E3 接线前,引用此段仅 no-op(壳态)。
   const handleQuote = (k: string) => {
@@ -172,14 +214,20 @@ export function ResumeEditorOverlay({ onClose }: { onClose: () => void }) {
               alignItems: 'flex-start',
             }}
           >
-            <A4Doc sections={MOCK_SECTIONS} lit={LIT_INDEX} />
+            <A4Doc sections={MOCK_SECTIONS} lit={litSection} />
           </div>
         </div>
 
-        {/* RIGHT — AI 助手占位(E2/E3 接入) */}
-        <div style={{ borderLeft: '1px solid var(--border-warm)', background: 'var(--ivory)', minHeight: 0 }}>
-          <div style={{ padding: 24, color: 'var(--stone)' }}>AI 助手(E2/E3 接入)</div>
-        </div>
+        {/* RIGHT — AI 简历助手 v2(E3) */}
+        <EditorAIPanel
+          sessionId={sessionId}
+          seed={seed}
+          setSeed={setSeed}
+          tab={aiTab}
+          setTab={setAiTab}
+          onWriteBack={handleWriteBack}
+          mock={isMock}
+        />
       </div>
     </div>
   );
