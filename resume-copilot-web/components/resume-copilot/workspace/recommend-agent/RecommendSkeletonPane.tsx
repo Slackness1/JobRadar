@@ -36,6 +36,11 @@ export interface RecommendSkeletonPaneProps {
   reloadKey?: number;
   /** 公司卡情报 CTA 回调(透传给 PlatformTierGroup) */
   onOpenIntel?: (company: string, ctx?: { n_insights?: number }) => void;
+  /**
+   * 公司卡「定制深挖」CTA 回调(透传给 PlatformTierGroup) —— 仅 Hub 梯队骨架视图传入.
+   * 不传 → 按钮不渲染, /recommend 行为字节一致.
+   */
+  onOpenCoach?: (company: string) => void;
 }
 
 export function RecommendSkeletonPane({
@@ -43,6 +48,7 @@ export function RecommendSkeletonPane({
   highlightCompany,
   reloadKey,
   onOpenIntel,
+  onOpenCoach,
 }: RecommendSkeletonPaneProps) {
   // loading 由「已落地的请求 key」与「当前 key」比较派生,避免在 effect body
   // 顶层 setState(true) 触发 set-state-in-effect 告警.
@@ -145,6 +151,7 @@ export function RecommendSkeletonPane({
                 expandedCompanies={expandedCompanies}
                 onToggle={handleCompanyToggle}
                 onOpenIntel={onOpenIntel}
+                onOpenCoach={onOpenCoach}
                 isFirst={idx === 0}
                 isLast={idx === skeleton.tiers.length - 1}
               />

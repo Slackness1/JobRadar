@@ -135,10 +135,15 @@ interface CompanyCardProps {
   isExpanded: boolean;
   onToggle: (name: string) => void;
   onOpenIntel?: (company: string, ctx?: { n_insights?: number }) => void;
+  /**
+   * 「定制深挖」CTA 回调 —— 仅 Hub 梯队骨架视图传入(把「针对这家深挖」回流进对话主轴).
+   * /recommend 不传 → 整颗按钮不渲染, 行为与改动前字节一致.
+   */
+  onOpenCoach?: (company: string) => void;
   dim: boolean;
 }
 
-function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: CompanyCardProps) {
+function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, onOpenCoach, dim }: CompanyCardProps) {
   const initial = companyInitial(company.name);
   const mSuffix = matchSuffix(company.match);
 
@@ -317,9 +322,22 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: Compan
 
               {/* Actions */}
               <div className="workspace-hifi__tier-company-actions">
-                <button type="button" className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--primary">
-                  {I.target(13)} 针对这家定制
-                </button>
+                {onOpenCoach ? (
+                  <button
+                    type="button"
+                    className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenCoach(company.name);
+                    }}
+                  >
+                    {I.target(13)} 定制深挖
+                  </button>
+                ) : (
+                  <button type="button" className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--primary">
+                    {I.target(13)} 针对这家定制
+                  </button>
+                )}
                 <a
                   className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--ghost"
                   href="#"
@@ -372,14 +390,27 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, dim }: Compan
                 ) : (
                   <div />
                 )}
-                <button
-                  type="button"
-                  className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--ghost"
-                  disabled
-                  title="开岗提醒功能开发中"
-                >
-                  🔔 开岗提醒(开发中)
-                </button>
+                {onOpenCoach ? (
+                  <button
+                    type="button"
+                    className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenCoach(company.name);
+                    }}
+                  >
+                    {I.target(13)} 定制深挖
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="workspace-hifi__tier-action-btn workspace-hifi__tier-action-btn--ghost"
+                    disabled
+                    title="开岗提醒功能开发中"
+                  >
+                    🔔 开岗提醒(开发中)
+                  </button>
+                )}
               </div>
             </>
           )}
@@ -396,6 +427,8 @@ export interface PlatformTierGroupProps {
   expandedCompanies: Set<string>;
   onToggle: (name: string) => void;
   onOpenIntel?: (company: string, ctx?: { n_insights?: number }) => void;
+  /** 「定制深挖」回调 —— 仅 Hub 传入; /recommend 不传则按钮不渲染(默认关闭, 无回归). */
+  onOpenCoach?: (company: string) => void;
   isFirst: boolean;
   isLast: boolean;
 }
@@ -405,6 +438,7 @@ export function PlatformTierGroup({
   expandedCompanies,
   onToggle,
   onOpenIntel,
+  onOpenCoach,
   isFirst,
   isLast,
 }: PlatformTierGroupProps) {
@@ -460,6 +494,7 @@ export function PlatformTierGroup({
             isExpanded={expandedCompanies.has(c.name)}
             onToggle={onToggle}
             onOpenIntel={onOpenIntel}
+            onOpenCoach={onOpenCoach}
             dim={tier.role === 'floor'}
           />
         ))}

@@ -213,6 +213,8 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   const [memoryPills, setMemoryPills] = useState<string[]>([]);
   // deepening 预留给 Task 7 画布的深挖态(本任务只持有, 不渲染)
   const [, setDeepening] = useState<string | null>(null);
+  // feed 卡点选公司 → 梯队骨架卡高亮 + 滚动定位(Task 8 透传给 CanvasSlot 的骨架 Pane)
+  const [highlightCompany, setHighlightCompany] = useState<string | null>(null);
 
   const busy = useRef(false); // 防双触发
   const completed = useRef<Set<string>>(new Set()); // skillrun id → 已落结果卡(防重)
@@ -385,23 +387,69 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   }
 
   // ── feed 卡联动 ──────────────────────────────────────────────────────────
-  // 点公司 / 卡 → 联动左侧梯队骨架(Task 8 接真高亮). 本任务先无害持有, 不致命.
-  const lastHighlight = useRef<string>('');
+  // 点 feed 公司 / 卡 → 联动梯队骨架卡高亮 + 滚动定位(若骨架视图已打开).
   function onHighlightCompany(company: string) {
-    // TODO(Task 8): 联动左栏梯队骨架高亮 + 滚动定位. 暂记最近一次点选, 不致命.
-    lastHighlight.current = company;
+    setHighlightCompany(company.trim() || null);
   }
 
-  // 「讲讲这家」→ 把「讲讲{公司}」当一条 intel 回流落进中栏对话(全量情报回流 = Task 8).
-  function onIntel(company: string) {
+  // 「讲讲这家」→ 情报回流对话主轴.
+  // 诚实铁律: 没有结构化情报时显式说「暂无 · 不编造」, 绝不杜撰公司情报.
+  // ctx.n_insights 来自骨架卡(同辈情报条数), 是唯一可信的结构化信号.
+  function skelIntel(company: string, ctx?: { n_insights?: number }) {
     const name = company.trim();
     if (!name) return;
     setStarted(true);
     push({ id: nextId(), kind: 'turn', who: 'me', html: `讲讲${escapeHtml(name)}` });
+
+    const n = ctx?.n_insights ?? 0;
+    setThinking(true);
+    // 短暂「思考」后落 trace + AI 回复 + 情报块(或诚实留白).
+    window.setTimeout(() => {
+      setThinking(false);
+      if (n > 0) {
+        push({
+          id: nextId(),
+          kind: 'trace',
+          trace: {
+            intent: 'intel',
+            query_delta: { company: name, n_insights: n },
+            remember_note: '',
+          },
+        });
+        push({
+          id: nextId(),
+          kind: 'turn',
+          who: 'ai',
+          html: `<b>${escapeHtml(name)}</b> 命中 ${n} 条同辈情报，已在右侧骨架卡按门槛 / 前景 / 待遇聚合 —— 待遇没人提到的就诚实留白，不编数字。`,
+        });
+        push({
+          id: nextId(),
+          kind: 'intel',
+          text: `共 ${n} 条同辈情报，覆盖门槛与前景为主；展开 <b>${escapeHtml(name)}</b> 的骨架卡看三维明细。`,
+        });
+      } else {
+        // 无结构化情报 → 诚实, 不编造.
+        push({
+          id: nextId(),
+          kind: 'turn',
+          who: 'ai',
+          html: `<b>${escapeHtml(name)}</b> 暂无结构化同辈情报 —— 这家是按赛道梯队补全的骨架公司，等有同学讨论会自动汇入。不编造它的门槛 / 待遇。`,
+        });
+      }
+    }, 700);
+  }
+
+  // 「定制深挖」→ 定制回流对话主轴: AI 提议针对这家开一场模拟面试(实际开场 = Task 10).
+  function skelCoach(company: string) {
+    const name = company.trim();
+    if (!name) return;
+    setStarted(true);
+    push({ id: nextId(), kind: 'turn', who: 'me', html: `想针对 ${escapeHtml(name)} 深挖` });
     push({
       id: nextId(),
-      kind: 'intel',
-      text: `<b>${escapeHtml(name)}</b> 的情报正在接通，稍后给你这家的赛道定位与考点提要。`,
+      kind: 'turn',
+      who: 'ai',
+      html: `好，进入对 <b>${escapeHtml(name)}</b> 的定制：我会按它的门槛与考点反问你、对齐简历重点。要不要现在就开一场针对它的模拟面试？`,
     });
   }
 
@@ -488,6 +536,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     setThinking(false);
     setFeed([]);
     setDeepening(null);
+    setHighlightCompany(null);
     busy.current = false;
     completed.current = new Set();
     respById.current = new Map();
@@ -662,8 +711,11 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           setFeed,
           setWorkingQuery,
           onHighlightCompany,
-          onIntel,
+          onIntel: skelIntel,
         }}
+        highlightCompany={highlightCompany}
+        onOpenIntel={skelIntel}
+        onOpenCoach={skelCoach}
         onClose={() => setActive('none')}
       />
     </div>

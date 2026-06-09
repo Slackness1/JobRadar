@@ -15,6 +15,7 @@
  */
 
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
+import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
 import type { HubSlot } from './hub-types';
 
 // 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460.
@@ -30,6 +31,12 @@ export interface CanvasSlotProps {
   sessionId: number;
   /** 真实 RecommendFeedPane 的全部 props(由 HubShell 持有共享态后传入)。 */
   feedProps: RecommendFeedPaneProps;
+  /** feed 卡点选公司 → 梯队骨架卡高亮 + 滚动定位(Task 8)。 */
+  highlightCompany?: string | null;
+  /** 骨架公司卡「讲讲这家」→ 情报回流对话主轴。 */
+  onOpenIntel?: (company: string, ctx?: { n_insights?: number }) => void;
+  /** 骨架公司卡「定制深挖」→ 定制回流对话主轴。 */
+  onOpenCoach?: (company: string) => void;
   onClose: () => void;
 }
 
@@ -73,7 +80,15 @@ function CloseButton({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function CanvasSlot({ active, sessionId, feedProps, onClose }: CanvasSlotProps) {
+export default function CanvasSlot({
+  active,
+  sessionId,
+  feedProps,
+  highlightCompany,
+  onOpenIntel,
+  onOpenCoach,
+  onClose,
+}: CanvasSlotProps) {
   if (active === 'none') return null;
 
   return (
@@ -98,8 +113,19 @@ export default function CanvasSlot({ active, sessionId, feedProps, onClose }: Ca
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         {active === 'feed' && <RecommendFeedPane {...feedProps} />}
 
-        {/* skeleton / resume / profile 视图分别在 Task 8 / 9 / 10 接入 —— 此处仅占位不渲染。 */}
-        {active !== 'feed' && (
+        {/* 梯队骨架 —— 复用 /recommend 的同源 Pane(getPlatformsByTier),
+            情报「讲讲这家」+ 定制「定制深挖」回流对话主轴。 */}
+        {active === 'skeleton' && (
+          <RecommendSkeletonPane
+            sessionId={sessionId}
+            highlightCompany={highlightCompany}
+            onOpenIntel={onOpenIntel}
+            onOpenCoach={onOpenCoach}
+          />
+        )}
+
+        {/* resume / profile 视图分别在 Task 9 / 10 接入 —— 此处仅占位不渲染。 */}
+        {active !== 'feed' && active !== 'skeleton' && (
           <div
             style={{
               padding: 24,
@@ -107,7 +133,7 @@ export default function CanvasSlot({ active, sessionId, feedProps, onClose }: Ca
               color: 'var(--ink-soft)',
             }}
           >
-            {/* TODO(Task 8/9/10): {active} 视图 */}
+            {/* TODO(Task 9/10): {active} 视图 */}
           </div>
         )}
       </div>
