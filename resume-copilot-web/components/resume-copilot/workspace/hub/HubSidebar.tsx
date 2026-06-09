@@ -217,7 +217,7 @@ export default function HubSidebar({
             display: 'grid',
             placeItems: 'center',
             cursor: 'pointer',
-            boxShadow: '0 0 0 1px var(--border-warm)',
+            boxShadow: 'none',
             border: 0,
             outline: 'none',
           }}
@@ -282,9 +282,8 @@ export default function HubSidebar({
           flex: 'none',
         }}
       >
-        {/* logo mark */}
+        {/* brand wordmark — 纯文字,无方块 logo(对齐设计稿 HFLogo) */}
         <div className="hf-logo">
-          <span className="hf-logo__mark" />
           <span className="hf-logo__word">JobRadar</span>
         </div>
 
@@ -327,7 +326,7 @@ export default function HubSidebar({
             borderRadius: 10,
             cursor: 'pointer',
             background: 'transparent',
-            boxShadow: '0 0 0 1px var(--border-warm)',
+            boxShadow: 'none',
             color: 'var(--ink)',
             border: 0,
             outline: 'none',
