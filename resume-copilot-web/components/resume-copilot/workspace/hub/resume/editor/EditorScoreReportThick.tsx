@@ -132,66 +132,67 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
           <span className="hf-pill terra" style={{ height: 26 }}>{report.target_track || '未指定'}</span>
         </div>
 
-        <div
-          className="hf-card"
-          style={{ display: 'flex', gap: 18, alignItems: 'center', padding: 16, marginBottom: 16 }}
-        >
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-              <div style={{ flex: 'none' }}>
-                <div style={{ font: '500 56px/0.86 var(--font-mono)', color: 'var(--ink)', letterSpacing: '-0.03em' }}>
-                  {current}<span style={{ fontSize: 20, color: 'var(--stone)', marginLeft: 3 }}>分</span>
-                </div>
-                <div style={{ font: '500 11.5px var(--font-sans)', color: 'var(--olive)', marginTop: 7 }}>
-                  现状分 · 老实反映当前简历
-                </div>
+        <div className="hf-card" style={{ padding: 16, marginBottom: 16 }}>
+          {/* 现状 + 潜力 一行(雷达不再挤这行,改放独立一行,窄栏才不塌) */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+            <div style={{ flex: 'none' }}>
+              <div style={{ font: '500 52px/0.86 var(--font-mono)', color: 'var(--ink)', letterSpacing: '-0.03em', whiteSpace: 'nowrap' }}>
+                {current}<span style={{ fontSize: 18, color: 'var(--stone)', marginLeft: 3 }}>分</span>
               </div>
-
-              {/* 潜力进度条:现状填充 + 潜力增益(斜纹浅段) */}
-              <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid var(--border-warm)', paddingLeft: 18 }}>
-                <div style={{ font: '600 16px var(--font-mono)', color: 'var(--terracotta-strong)' }}>
-                  潜力 {report.overall_potential_low}–{report.overall_potential_high}
-                </div>
-                <div
-                  style={{
-                    position: 'relative', height: 7, borderRadius: 'var(--r-pill)',
-                    background: 'var(--warm-sand)', overflow: 'hidden', margin: '7px 0 6px',
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute', left: 0, top: 0, height: '100%', width: `${current}%`,
-                      borderRadius: 'var(--r-pill)', background: 'var(--ink-soft)',
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: 'absolute', top: 0, height: '100%', left: `${current}%`, width: `${gain}%`,
-                      opacity: 0.5,
-                      background:
-                        'repeating-linear-gradient(45deg, var(--terracotta) 0 4px, transparent 4px 8px)',
-                    }}
-                  />
-                </div>
-                <div style={{ font: '400 11.5px/1.5 var(--font-sans)', color: 'var(--stone)' }}>
-                  把下列缺口经反问取证如实补齐后可达,不靠编造
-                </div>
+              <div style={{ font: '500 11.5px var(--font-sans)', color: 'var(--olive)', marginTop: 7, whiteSpace: 'nowrap' }}>
+                现状分 · 老实反映当前简历
               </div>
             </div>
-            {report.summary && (
-              <p style={{ margin: '16px 0 0', font: '400 13.5px/1.65 var(--font-sans)', color: 'var(--ink-soft)' }}>
-                {report.summary}
-              </p>
-            )}
+
+            {/* 潜力进度条:现状填充 + 潜力增益(斜纹浅段) */}
+            <div style={{ flex: 1, minWidth: 0, borderLeft: '1px solid var(--border-warm)', paddingLeft: 16 }}>
+              <div style={{ font: '600 16px var(--font-mono)', color: 'var(--terracotta-strong)', whiteSpace: 'nowrap' }}>
+                潜力 {report.overall_potential_low}–{report.overall_potential_high}
+              </div>
+              <div
+                style={{
+                  position: 'relative', height: 7, borderRadius: 'var(--r-pill)',
+                  background: 'var(--warm-sand)', overflow: 'hidden', margin: '7px 0 6px',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute', left: 0, top: 0, height: '100%', width: `${current}%`,
+                    borderRadius: 'var(--r-pill)', background: 'var(--ink-soft)',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute', top: 0, height: '100%', left: `${current}%`, width: `${gain}%`,
+                    opacity: 0.5,
+                    background:
+                      'repeating-linear-gradient(45deg, var(--terracotta) 0 4px, transparent 4px 8px)',
+                  }}
+                />
+              </div>
+              <div style={{ font: '400 11.5px/1.5 var(--font-sans)', color: 'var(--stone)' }}>
+                把下列缺口经反问取证如实补齐后可达,不靠编造
+              </div>
+            </div>
           </div>
-          <div
-            style={{
-              flex: 'none', background: 'var(--ivory)', borderRadius: 'var(--r-lg)',
-              boxShadow: 'var(--sh-ring)', display: 'grid', placeItems: 'center', padding: 10,
-            }}
-          >
-            <HubRadar size={172} data={radarData} />
+
+          {/* 雷达 — 独立一行居中,不再和分数抢宽 */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+            <div
+              style={{
+                background: 'var(--ivory)', borderRadius: 'var(--r-lg)',
+                boxShadow: 'var(--sh-ring)', padding: 12,
+              }}
+            >
+              <HubRadar size={188} data={radarData} />
+            </div>
           </div>
+
+          {report.summary && (
+            <p style={{ margin: '14px 0 0', font: '400 13.5px/1.65 var(--font-sans)', color: 'var(--ink-soft)' }}>
+              {report.summary}
+            </p>
+          )}
         </div>
 
         {/* 6 表层维 — 逐维 fill bar + reason */}
