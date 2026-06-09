@@ -19,7 +19,7 @@ export function ScorePill({ kind, value }: ScorePillProps) {
   if (kind === 'base') {
     return (
       <span className="recommend-feed__pill recommend-feed__pill--base">
-        <span className="recommend-feed__pill-label">Base</span>
+        <span className="recommend-feed__pill-label">匹配</span>
         {value ?? '—'}
       </span>
     );
@@ -27,7 +27,7 @@ export function ScorePill({ kind, value }: ScorePillProps) {
   if (kind === 'enhanced') {
     return (
       <span className="recommend-feed__pill recommend-feed__pill--enh">
-        <span className="recommend-feed__pill-label">Enhanced</span>
+        <span className="recommend-feed__pill-label">深度匹配</span>
         {value ?? '—'}
       </span>
     );

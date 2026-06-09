@@ -338,9 +338,9 @@ export function ConfirmProfilePanel({ sessionId }: ConfirmProfilePanelProps) {
       //    `recommendation_status=running` session (~20s) instead of cold.
       //    Matches the legacy WorkspaceConfirmGuide.handleConfirm flow.
       await postResumeCopilotGenerate(sessionId);
-      // 4. Redirect to workspace. WorkspaceShell will NOT bounce back because
-      //    has_confirmed_profile is now true.
-      router.push(`/resume-copilot?sessionId=${sessionId}`);
+      // 4. 落地 Hub(2026-06-09):确认完成 → 统一对话 Hub
+      //    WorkspaceShell (/resume-copilot) remains alive as a fallback/daily-edit surface.
+      router.push(`/hub?session=${sessionId}`);
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));
       setSubmitting(false);
