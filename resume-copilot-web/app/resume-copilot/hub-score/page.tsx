@@ -2,12 +2,13 @@
 import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ResumeScorePanel } from '../../../components/resume-copilot/workspace/hub/resume/ResumeScorePanel';
+import { ResumeEditorOverlay } from '../../../components/resume-copilot/workspace/hub/resume/editor/ResumeEditorOverlay';
 
 function Inner() {
   const params = useSearchParams();
   const mock = params.get('mock') === '1';
   const sessionId = Number(params.get('session') || '0');
-  const [editorMsg, setEditorMsg] = useState('');
+  const [editorOpen, setEditorOpen] = useState(false);
   if (!mock && !sessionId) {
     return <div style={{ padding: 40, fontFamily: 'system-ui' }}>缺少 ?session=&lt;id&gt; 或 ?mock=1</div>;
   }
@@ -17,12 +18,11 @@ function Inner() {
         <ResumeScorePanel
           sessionId={sessionId}
           mock={mock}
-          onExpandEditor={() => setEditorMsg('（展开编辑器 → Phase 2 全屏 overlay）')}
-          onClose={() => setEditorMsg('（关闭面板）')}
+          onExpandEditor={() => setEditorOpen(true)}
         />
       </div>
-      {editorMsg && (
-        <div style={{ position: 'fixed', left: 16, bottom: 16, font: '400 12px var(--font-sans)', color: 'var(--stone)' }}>{editorMsg}</div>
+      {editorOpen && (
+        <ResumeEditorOverlay sessionId={sessionId} mock={mock} onClose={() => setEditorOpen(false)} />
       )}
     </div>
   );
