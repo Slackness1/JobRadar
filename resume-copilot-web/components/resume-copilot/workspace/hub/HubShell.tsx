@@ -30,6 +30,7 @@ import HubSidebar from './HubSidebar';
 import DeepThinkCard from './DeepThinkCard';
 import SkillBar from './SkillBar';
 import HubLanding from './HubLanding';
+import CanvasSlot from './CanvasSlot';
 import { Composer, type ComposerChip } from '../recommend-agent/chat/Composer';
 import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
@@ -383,6 +384,27 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     setArmed((cur) => (cur === key ? null : key)); // 再点一次取消激活
   }
 
+  // ── feed 卡联动 ──────────────────────────────────────────────────────────
+  // 点公司 / 卡 → 联动左侧梯队骨架(Task 8 接真高亮). 本任务先无害持有, 不致命.
+  const lastHighlight = useRef<string>('');
+  function onHighlightCompany(company: string) {
+    // TODO(Task 8): 联动左栏梯队骨架高亮 + 滚动定位. 暂记最近一次点选, 不致命.
+    lastHighlight.current = company;
+  }
+
+  // 「讲讲这家」→ 把「讲讲{公司}」当一条 intel 回流落进中栏对话(全量情报回流 = Task 8).
+  function onIntel(company: string) {
+    const name = company.trim();
+    if (!name) return;
+    setStarted(true);
+    push({ id: nextId(), kind: 'turn', who: 'me', html: `讲讲${escapeHtml(name)}` });
+    push({
+      id: nextId(),
+      kind: 'intel',
+      text: `<b>${escapeHtml(name)}</b> 的情报正在接通，稍后给你这家的赛道定位与考点提要。`,
+    });
+  }
+
   // ── 点结果卡 CTA → 才进入那个模块的视图 ──
   function openView(key: HubModule) {
     if (key === 'interview') {
@@ -629,26 +651,21 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         )}
       </div>
 
-      {/* Right: 画布槽占位 — 真实 CanvasSlot 在 Task 7 接入. 仅在有打开的槽时预留宽度. */}
-      {active !== 'none' && (
-        <div
-          style={{
-            width: active === 'resume' ? 500 : active === 'feed' ? 448 : 436,
-            flex: 'none',
-            minWidth: 0,
-            borderLeft: '1px solid var(--border-warm)',
-            background: 'var(--parchment)',
-          }}
-        >
-          {/* TODO(Task 7): CanvasSlot — feed / skeleton / resume / profile 视图.
-              feed / workingQuery 真实态已在此持有(Task 6),Task 7 据此渲染右栏. */}
-          <div
-            data-feed-count={feed.length}
-            data-track={workingQuery?.seed_sub_cats?.join(',') ?? ''}
-            style={{ display: 'none' }}
-          />
-        </div>
-      )}
+      {/* Right: 会变形的画布槽 — 点结果卡 CTA 才出(active!=='none'); 关闭 → 全宽对话. */}
+      <CanvasSlot
+        active={active}
+        sessionId={sessionId}
+        feedProps={{
+          sessionId,
+          workingQuery,
+          feed,
+          setFeed,
+          setWorkingQuery,
+          onHighlightCompany,
+          onIntel,
+        }}
+        onClose={() => setActive('none')}
+      />
     </div>
   );
 }

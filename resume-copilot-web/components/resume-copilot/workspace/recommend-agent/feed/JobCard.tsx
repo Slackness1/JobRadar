@@ -79,20 +79,19 @@ export function JobCard({
         ) : (
           <ScorePill kind="pending" />
         )}
-        {deep && <span className="hf-pill terra">Pro 精排 ✓</span>}
+        {deep && <span className="hf-pill terra">深度匹配 ✓</span>}
       </div>
 
       {!deep && (
         <div className="recommend-feed__subtext">
-          规则三维分（赛道匹配 / 新鲜度 / 平台梯队）·{' '}
-          <span className="recommend-feed__mono">used_ai=false</span>
+          初步匹配：按赛道吻合 / 新鲜度 / 平台梯队三维评估
         </div>
       )}
 
       {deep && anchors.length > 0 && (
         <div className="recommend-feed__anchors">
           <div className="hf-overline recommend-feed__anchors-title">
-            慢路 · 4-anchor 理由
+            为什么匹配 · 4 个理由
           </div>
           {anchors.map(([label, text], i) => (
             <div key={`${label}-${i}`} className="recommend-feed__anchor">
@@ -129,7 +128,7 @@ export function JobCard({
             className="hf-btn primary sm recommend-feed__act recommend-feed__act--wide"
             disabled
           >
-            <span className="hf-spin recommend-feed__spin" /> 精排中…
+            <span className="hf-spin recommend-feed__spin" /> 深挖中…
           </button>
         ) : (
           <button
@@ -137,7 +136,7 @@ export function JobCard({
             className="hf-btn primary sm recommend-feed__act recommend-feed__act--wide"
             onClick={() => onDeepen(item.job_id)}
           >
-            深挖（Pro 精排）→
+            深挖这个岗 →
           </button>
         )}
       </div>
