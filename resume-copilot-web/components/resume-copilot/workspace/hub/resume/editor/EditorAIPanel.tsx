@@ -36,14 +36,14 @@ export function EditorAIPanel({
   onWriteBack,
   mock = false,
 }: EditorAIPanelProps): JSX.Element {
-  // 打分缺口「去深度优化这段」→ 构造 seed → 切到深度优化 tab(gap→deep 串联)。
-  function handleOptimize(gap: ScoreSectionGap): void {
+  // 打分缺口「去深度优化这段」→ 构造 seed(带真实目标赛道)→ 切到深度优化 tab(gap→deep 串联)。
+  function handleOptimize(gap: ScoreSectionGap, targetTrack: string): void {
     setSeed({
       section: gap.section,
       label: gap.label,
       gaps: gap.gaps,
       detail: gap.detail,
-      target_track: '',
+      target_track: targetTrack,
     });
     setTab('deep');
   }

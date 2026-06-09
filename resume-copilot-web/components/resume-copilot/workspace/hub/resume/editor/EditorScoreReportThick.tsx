@@ -71,8 +71,8 @@ function finMeta(key: string, targetTrack: string): string {
 
 export interface EditorScoreReportThickProps {
   sessionId: number;
-  /** 逐段缺口 CTA「去深度优化这段」点击回调。 */
-  onOptimize: (gap: ScoreSectionGap) => void;
+  /** 逐段缺口 CTA「去深度优化这段」点击回调;带上当前目标赛道,供深度优化锁定 subcat。 */
+  onOptimize: (gap: ScoreSectionGap, targetTrack: string) => void;
   /** 无 session 时渲染样例。 */
   mock?: boolean;
 }
@@ -253,7 +253,7 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
                   {g.detail}
                 </p>
               )}
-              <button className="hf-btn sand sm" onClick={() => onOptimize(g)}>
+              <button className="hf-btn sand sm" onClick={() => onOptimize(g, report.target_track)}>
                 去深度优化这段 →
               </button>
             </div>
