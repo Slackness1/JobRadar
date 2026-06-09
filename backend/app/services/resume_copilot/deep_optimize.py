@@ -172,6 +172,65 @@ def deep_optimize_rewrite(
     )
 
 
+def write_back_current_draft(plan: PlanState, profile):
+    """深度优化写回:把当前 item 的 finalized draft 写进 profile 对应段落。
+
+    深度优化 plan 是**单段 item**(seed_plan_from_gap),draft 直接挂在该 item 上
+    (不是 sync_plan_to_profile 期望的 child)。所以这里按 item.rationale 里的 section
+    路径直接写回,而非走 sync_plan_to_profile 的父/子映射。
+
+    v1 行为:用改好的 draft **替换**该段的 bullets / highlights(deep-optimize 一次
+    聚焦一段,产出即该段改进后的描述;多 bullet 原文会收敛成这条改进版 —— 编辑器里
+    可再调)。candidate_summary 段直接替换文本。
+
+    返回 (finalized_plan, updated_profile, section)。无可写回草稿 → raise ValueError。
+    纯函数:不改入参 profile(deep copy),不写 DB。
+    """
+    from app.services.resume_copilot.plan import (
+        AgentAction,
+        Draft,  # noqa: F401  (type ref only)
+        ItemStatus,
+        apply_action,
+    )
+
+    item = None
+    if plan.current_item_id:
+        item = next((i for i in plan.items if i.id == plan.current_item_id), None)
+    if item is None and plan.items:
+        item = plan.items[0]
+    if item is None or item.draft is None or not (item.draft.text or "").strip():
+        raise ValueError("当前没有可写回的改写草稿")
+    if item.status != ItemStatus.AWAITING_REVIEW:
+        raise ValueError("草稿尚未进入待确认状态(AWAITING_REVIEW),无法写回")
+
+    draft_text = item.draft.text.strip()
+    new_plan = apply_action(plan, AgentAction(action="finalize", item_id=item.id))
+    section = (gap_context(new_plan).get("section") or "").strip()
+    updated = _apply_section_text(profile, section, draft_text)
+    return new_plan, updated, section
+
+
+def _apply_section_text(profile, section: str, text: str):
+    """把 text 写进 profile 的指定段(deep copy 返回新 profile)。"""
+    out = profile.model_copy(deep=True)
+    prefix, _, idx_s = (section or "").partition(".")
+    prefix = prefix.strip().lower()
+    if prefix in ("candidate_summary", "summary", "self_intro"):
+        out.candidate_summary = text
+        return out
+    try:
+        idx = int(idx_s)
+    except ValueError:
+        idx = 0
+    if prefix in ("internships", "internship") and 0 <= idx < len(out.internships):
+        out.internships[idx].bullets = [text]
+    elif prefix in ("projects", "project") and 0 <= idx < len(out.projects):
+        out.projects[idx].bullets = [text]
+    elif prefix in ("education",) and 0 <= idx < len(out.education):
+        out.education[idx].highlights = [text]
+    return out
+
+
 def gap_context(plan: PlanState) -> dict:
     """取回当前 item 的 gap 上下文(rationale JSON);非深度优化 plan 返回 {}。"""
     item = None

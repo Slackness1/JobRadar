@@ -612,3 +612,10 @@ class DeepOptimizeStartIn(BaseModel):
     gaps: list[str] = []           # 缺口 tag, e.g. ['STAR 缺 Result', '佐证不足']
     detail: str = ''               # 诊断详情(非学生事实, 仅引导提问)
     target_track: str = ''         # 目标 subcat/赛道; 空 = 仍会先反问方向
+
+
+class DeepOptimizeWriteBackOut(BaseModel):
+    """深度优化写回结果:把当前 finalized draft 写进 profile 后回传。"""
+    profile: 'ResumeProfilePayload'
+    section: str = ''              # 写回的段落, 如 'internships.0'(前端据此高亮)
+    applied: bool = True

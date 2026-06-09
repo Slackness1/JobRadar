@@ -24,6 +24,7 @@ from app.schemas_resume_copilot import (
     ApplyRewriteOut,
     ChatMessageIn,
     DeepOptimizeStartIn,
+    DeepOptimizeWriteBackOut,
     DirectionTierResult,
     MemoryEntryCreateIn,
     MemoryEntryOut,
@@ -584,6 +585,48 @@ def post_deep_optimize_start(
     session_obj.updated_at = datetime.utcnow()
     db.commit()
     return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.post('/sessions/{session_id}/deep-optimize/write-back', response_model=DeepOptimizeWriteBackOut)
+def post_deep_optimize_write_back(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """深度优化写回:把当前 item 的 finalized draft 写进 confirmed profile 对应段落,
+    返回更新后的 profile(前端据 section 高亮"AI 刚写回")。写接口 → owner + not_demo。"""
+    from app.services.resume_copilot.deep_optimize import write_back_current_draft
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN — 先 POST /deep-optimize/start')
+
+    confirmed = session_obj.confirmed_profile
+    parsed = session_obj.parsed_profile
+    raw = ''
+    if confirmed is not None and (confirmed.profile_json or '').strip():
+        raw = confirmed.profile_json
+    elif parsed is not None:
+        raw = parsed.profile_json or ''
+    profile = ResumeProfilePayload.model_validate(json.loads(raw or '{}'))
+
+    try:
+        new_plan, updated, section = write_back_current_draft(plan, profile)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if confirmed is None:
+        confirmed = ResumeConfirmedProfile(session_id=session_id)
+        db.add(confirmed)
+    confirmed.profile_json = updated.model_dump_json()
+    _save_plan(session_obj, new_plan)
+    session_obj.updated_at = datetime.utcnow()
+    db.commit()
+    return DeepOptimizeWriteBackOut(profile=updated, section=section, applied=True)
 
 
 @router.post(
