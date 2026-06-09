@@ -106,7 +106,7 @@ export const DEEP_META: Record<HubModule, DeepMeta> = {
         tool: 'finalize',
         input: { topN: 'Top', guard: 'substring 反幻觉' },
         output: '第一版 Top 已就绪',
-        chips: ['Base 96 · Enhanced 96'],
+        chips: ['匹配 96 · 深度匹配 96'],
       },
     ],
   },

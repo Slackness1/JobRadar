@@ -34,7 +34,7 @@ export function ScorePill({ kind, value }: ScorePillProps) {
   }
   return (
     <span className="recommend-feed__pill recommend-feed__pill--pending">
-      <span className="recommend-feed__pill-label">Enhanced</span>—
+      <span className="recommend-feed__pill-label">深度匹配</span>—
     </span>
   );
 }
