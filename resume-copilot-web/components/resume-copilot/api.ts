@@ -251,6 +251,19 @@ export function planTurn(sessionId: number, content: string, activeJobId = ''): 
   });
 }
 
+/** 深度优化写回:把当前 finalized draft 写进 profile 对应段落 → 返回更新后 profile + 段落(供高亮)。 */
+export interface DeepOptimizeWriteBackResult {
+  profile: Record<string, unknown>;
+  section: string;
+  applied: boolean;
+}
+export function deepOptimizeWriteBack(sessionId: number): Promise<DeepOptimizeWriteBackResult> {
+  return requestJson<DeepOptimizeWriteBackResult>(`/api/resume-copilot/sessions/${sessionId}/deep-optimize/write-back`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
 /** 应用某条 v0/v2 改写选项(按 message_id + option_id)→ 返回写回后的完整 profile。 */
 export interface ApplyRewriteResult {
   profile: Record<string, unknown>;
