@@ -16,6 +16,7 @@
 
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
+import HubProfileView from './HubProfileView';
 import type { HubSlot } from './hub-types';
 
 // 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460.
@@ -108,35 +109,42 @@ export default function CanvasSlot({
         overflow: 'hidden',
       }}
     >
-      <CloseButton onClose={onClose} />
+      {/* profile 视图自带头部关闭(SlotHead right), 不叠全局浮层关闭, 免双按钮. */}
+      {active !== 'profile' && <CloseButton onClose={onClose} />}
 
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        {active === 'feed' && <RecommendFeedPane {...feedProps} />}
+      {/* 个人档案: B 闭环视图(真 KB 数据, 确认/否掉). 自带头部 + 滚动体,
+          直接占满 flex 列(header flex:none + body flex:1), 不套通用 overflow 容器. */}
+      {active === 'profile' ? (
+        <HubProfileView sessionId={sessionId} onClose={onClose} />
+      ) : (
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+          {active === 'feed' && <RecommendFeedPane {...feedProps} />}
 
-        {/* 梯队骨架 —— 复用 /recommend 的同源 Pane(getPlatformsByTier),
-            情报「讲讲这家」+ 定制「定制深挖」回流对话主轴。 */}
-        {active === 'skeleton' && (
-          <RecommendSkeletonPane
-            sessionId={sessionId}
-            highlightCompany={highlightCompany}
-            onOpenIntel={onOpenIntel}
-            onOpenCoach={onOpenCoach}
-          />
-        )}
+          {/* 梯队骨架 —— 复用 /recommend 的同源 Pane(getPlatformsByTier),
+              情报「讲讲这家」+ 定制「定制深挖」回流对话主轴。 */}
+          {active === 'skeleton' && (
+            <RecommendSkeletonPane
+              sessionId={sessionId}
+              highlightCompany={highlightCompany}
+              onOpenIntel={onOpenIntel}
+              onOpenCoach={onOpenCoach}
+            />
+          )}
 
-        {/* resume / profile 视图分别在 Task 9 / 10 接入 —— 此处仅占位不渲染。 */}
-        {active !== 'feed' && active !== 'skeleton' && (
-          <div
-            style={{
-              padding: 24,
-              font: '400 12.5px/1.6 var(--font-sans)',
-              color: 'var(--ink-soft)',
-            }}
-          >
-            {/* TODO(Task 9/10): {active} 视图 */}
-          </div>
-        )}
-      </div>
+          {/* resume 视图在 Task 10 接入 —— 此处仅占位不渲染。 */}
+          {active === 'resume' && (
+            <div
+              style={{
+                padding: 24,
+                font: '400 12.5px/1.6 var(--font-sans)',
+                color: 'var(--ink-soft)',
+              }}
+            >
+              {/* TODO(Task 10): resume 视图 */}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
