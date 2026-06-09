@@ -463,19 +463,38 @@ cp docs/superpowers/handoffs/2026-06-09-resume-panel-ready.md /home/ubuntu/jobra
 
 ---
 
-## Phase 2:全屏编辑器 overlay(outline — 落地前先读 hub-editor*.jsx)
+## Phase 2:全屏编辑器 overlay(已读原型,拆成 bite-sized · 子代理执行)
 
-> Phase 1 落地 + 用户目测通过后,再把这段拆成 bite-sized。先读原型:
-> `git show hub-shell-frontend:docs/superpowers/specs/hub-prototype-2026-06-09/hub/hub-editor.jsx`
-> `git show hub-shell-frontend:docs/superpowers/specs/hub-prototype-2026-06-09/hub/hub-editor-ai.jsx`
+> 原型源(子代理自行 `git show` 读):
+> `git show hub-shell-frontend:docs/superpowers/specs/hub-prototype-2026-06-09/hub/hub-editor.jsx`(262 行:A4Doc / LeftTemplate / LeftEdit / LeftLayout / ResumeEditor)
+> `git show hub-shell-frontend:docs/superpowers/specs/hub-prototype-2026-06-09/hub/hub-editor-ai.jsx`(273 行:ScoreReport厚版 / Bubble / ThinkingDots / RewriteCard / ChatThread / EditorAIPanel)
+>
+> **用户决定(2026-06-09):两层** — 侧面板(Phase 1)紧凑雷达;编辑器右栏「简历打分」tab = **厚版逐维**(每维 fill 条 + reason,reskin 成 `.hf`)。
+> **范围**:本期编辑器是**视觉 overlay + 真 AI 接线**;真 WYSIWYG 单源 HTML→PDF 引擎是后续 Track A,本期中栏用 A4Doc 视觉版(mock sections),「下载 PDF」先接现有 `downloadResumePdf` 或占位。
+> **目录**:`components/resume-copilot/workspace/hub/resume/editor/`。**全 `.hf` token,无选择框,编数字红线不剥。**
 
-预计任务:
-- **E1 ResumeEditorOverlay 外壳** — 自管 `editorOpen` 态(`ResumeScorePanel` 的 `onExpandEditor` → 由父挂 overlay,或面板内自挂);全屏顶栏 + 三栏骨架(左 模板/编辑/布局 tab · 中 WYSIWYG A4 · 右 AI 助手)。
-- **E2 左栏三 tab** — 模板缩略图 / 分模块就地编辑(每 bullet「引用此段」)/ 布局滑块 + 显隐。
-- **E3 中栏 WYSIWYG** — 单源 `renderResumeHTML()` + `<iframe srcDoc>`;导出 `POST /export-pdf`(Track A,可能跨期)。
-- **E4 右栏 AI 助手三能力** — ① 打分报告(复用 ResumeScorePanel 内容)② 深度优化(流式反问**无选择框** → `deepOptimizeStart` 播种 + `planTurn` 续问 + `applyRewrite` 写回 → 中栏高亮"AI 刚写回")③ 自由问。
-- **E5 gap→深度优化串联** — 打分逐段缺口 CTA 带 `{section,label,gaps,detail,target_track}` seed 进右栏深度优化 chip。
-- **E6 回归 + lint/build + 目测全链路**(打分→点缺口→反问→改写→预览刷新)。
+### Task E1:编辑器视觉骨架(子代理 · 纯视觉,mock 数据,无后端)
+- Create:`editor/A4Doc.tsx`(移植 A4Doc,props `{sections, lit}`)、`editor/LeftTemplate.tsx`、`editor/LeftEdit.tsx`(每 bullet「引用此段」按钮 → `onQuote`)、`editor/LeftLayout.tsx`(滑块 + 模块显隐)、`editor/ResumeEditorOverlay.tsx`(全屏 overlay + 顶栏 + 三栏 + 左 tab 切换 `模板|简历编辑(默认)|布局` + `onClose`;**自管 overlay**,中栏挂 A4Doc,右栏先放占位 `<div>AI 助手(E2)</div>`)。
+- mock resume sections 照原型(教育/实习/项目/技能)。
+- 验收:`npm run lint`(0 error)+ `npm run build`;接进 Phase 1 目测页一个「展开编辑器」临时入口能全屏打开 + 关闭。
+
+### Task E2:右栏 AI 助手 — 简历打分(厚版)tab(子代理)
+- Create:`editor/EditorScoreReportThick.tsx` — 复用/移植第一版厚版(`components/resume-copilot/scoring/ScoreReport.tsx` 的逐维 fill 条 + reason + potential bar + section gaps),**reskin 成 `.hf` token**(去掉 `.rc-score` 自包含,改用 var(--terracotta/ivory/parchment…));数据走 `scoreResume(sessionId)`,mock 兜底。逐段缺口 CTA「去深度优化这段」→ 回调 `onOptimize(gap)`。
+- 验收:lint 0 + build;挂进 ResumeEditorOverlay 右栏「简历打分」tab 能渲染厚版。
+
+### Task E3:右栏 AI 助手 — 深度优化(反问取证)tab(子代理 · 接真后端)
+- Create:`editor/ChatThread.tsx`(`Bubble`/`ThinkingDots`/`RewriteCard` 内联或拆小文件)、`editor/EditorAIPanel.tsx`(三 tab 外壳 `简历打分|深度优化|自由问`)。
+- 深度优化:`seed`(来自 E2 缺口 CTA = `{section,label,gaps,detail,target_track}`)→ `deepOptimizeStart(sessionId, seed)` 拿首问 → 渲成 AI 气泡(**无选择框**)→ 学生输入 → `planTurn(sessionId, content)` 续问 → 出现 draft 时渲 `RewriteCard` → `applyRewrite(sessionId, messageId, optionId)` 写回 → `onWriteBack` 触发中栏 A4 `lit` 高亮。
+- 一次只聚焦一段 + 顶部显示锁定段 + 目标赛道。自由问 tab:复用 ChatThread mode='free'(接现有 `/chat` 或先占位)。
+- 验收:lint 0 + build;mock 模式渲染原型对话;真 session 下 `deepOptimizeStart` 能拉到首问(curl 验后端可达)。
+
+### Task E4:串联 + gap seed + 写回高亮(子代理或 inline)
+- 打分(厚版/侧面板)缺口 CTA → 切到深度优化 tab + 传 seed;`RewriteCard` 写回 → A4Doc `lit` 高亮该段「AI 刚写回」。
+- ResumeScorePanel(Phase 1)的 `onExpandEditor` → 挂 ResumeEditorOverlay(自管 `editorOpen`)。
+- 验收:lint 0 + build + **人工目测全链路**(打分→点缺口→展开编辑器→深度优化反问→改写写回→中栏高亮)。**用户确认后提交。**
+
+### Task E5:回归 + 交付
+- `npm run lint && npm run build` 0 error;更新 Task 6 的交付 handoff(编辑器就绪);同步 orchestrator。
 
 ---
 
