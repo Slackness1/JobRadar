@@ -10,6 +10,7 @@
  * DTIcon render helper 接受图标名查 ICONS 表，返回带统一 stroke 的 <svg>。
  */
 
+import { createElement } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Target,
@@ -284,11 +285,14 @@ export interface DTIconProps {
 
 export function DTIcon({ name, size = 15, color = 'currentColor', strokeWidth = 1.6 }: DTIconProps) {
   const Icon = ICONS[name] ?? ListChecks;
-  return Icon({
+  // createElement (not Icon(props)) so the lucide component goes through React
+  // reconciliation — calling it as a plain function would break if the icon
+  // ever uses hooks internally.
+  return createElement(Icon, {
     width: size,
     height: size,
     color,
     strokeWidth,
     style: { flex: 'none' },
-  } as Parameters<LucideIcon>[0]);
+  });
 }

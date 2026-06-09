@@ -602,7 +602,7 @@ export default function DeepThinkCard({
               <div style={{ paddingTop: 15 }}>
                 {nodes.map((n, i) => (
                   <DTStep
-                    key={i}
+                    key={n.tool}
                     node={n}
                     status={nodeStatus(i)}
                     last={i === nodes.length - 1}
