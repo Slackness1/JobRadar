@@ -232,26 +232,8 @@ export interface DeepOptimizeStartIn {
   target_track: string;
 }
 
-export interface PlanOpenQuestion {
-  id: string;
-  text: string;
-  answered_at: string | null;
-}
-export interface PlanItem {
-  id: string;
-  kind: string;
-  title: string;
-  status: string;
-  open_questions: PlanOpenQuestion[];
-  rationale?: string | null;
-  draft?: { text: string } | null;
-}
-export interface PlanStateOut {
-  status: string;
-  current_item_id: string | null;
-  items: PlanItem[];
-  version: number;
-}
+// 注:PlanStateOut / PlanItemWire / PlanOpenQuestionWire 已在本文件下方(约 804–841)
+// 定义为 canonical wire 类型,这里直接复用,不重复声明。
 
 /** 从打分逐段缺口播种深度优化 → 单段 CLARIFYING plan(首问已对齐目标赛道)。 */
 export function deepOptimizeStart(sessionId: number, body: DeepOptimizeStartIn): Promise<PlanStateOut> {
