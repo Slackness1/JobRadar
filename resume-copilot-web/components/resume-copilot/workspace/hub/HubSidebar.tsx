@@ -146,6 +146,70 @@ function SideNavItem({
   );
 }
 
+// 新对话 — 与 SideNavItem 完全同构的"标签":未选中=素色无底,选中(=当前无其它模块选中,
+// 即落地/新会话态)=土红浅底 + 左竖条 + 土红图标,字号/间距/内边距全部与导航项一致。
+function NewChatItem({
+  active,
+  collapsed,
+  onNew,
+}: {
+  active: boolean;
+  collapsed: boolean;
+  onNew: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  const iconColor = active ? 'var(--terracotta-strong)' : 'var(--ink-soft)';
+  const bg = active ? 'var(--terracotta-wash)' : hov ? 'var(--library-rail)' : 'transparent';
+
+  return (
+    <button
+      onClick={onNew}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title={collapsed ? '新对话' : undefined}
+      style={{
+        position: 'relative',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        padding: collapsed ? '10px 0' : '9px 11px',
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        borderRadius: 10,
+        cursor: 'pointer',
+        background: bg,
+        boxShadow: active ? '0 0 0 1px #eccfb6' : 'none',
+        color: active ? 'var(--ink)' : 'var(--ink-soft)',
+        transition: 'background .14s',
+        border: 0,
+        outline: 'none',
+      }}
+    >
+      {active && !collapsed && (
+        <span
+          style={{
+            position: 'absolute',
+            left: -1,
+            top: 8,
+            bottom: 8,
+            width: 2.5,
+            borderRadius: 2,
+            background: 'var(--terracotta)',
+          }}
+        />
+      )}
+      <span style={{ color: iconColor, display: 'inline-flex', flex: 'none' }}>
+        <PenLine size={collapsed ? 19 : 17} strokeWidth={1.6} />
+      </span>
+      {!collapsed && (
+        <span style={{ font: `${active ? 600 : 500} 13.5px var(--font-sans)`, flex: 1, textAlign: 'left' }}>
+          新对话
+        </span>
+      )}
+    </button>
+  );
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // HubSidebar (exported)
 // ──────────────────────────────────────────────────────────────────────────────
@@ -203,27 +267,8 @@ export default function HubSidebar({
           />
         </button>
 
-        {/* 新对话 */}
-        <button
-          onClick={onNew}
-          title="新对话"
-          style={{
-            width: 40,
-            height: 40,
-            margin: '0 auto 4px',
-            borderRadius: 10,
-            background: 'transparent',
-            color: 'var(--terracotta-strong)',
-            display: 'grid',
-            placeItems: 'center',
-            cursor: 'pointer',
-            boxShadow: 'none',
-            border: 0,
-            outline: 'none',
-          }}
-        >
-          <PenLine size={16} strokeWidth={1.6} />
-        </button>
+        {/* 新对话 — 与导航项同构,无其它模块选中时为选中态 */}
+        <NewChatItem active={active === null} collapsed onNew={onNew} />
 
         {/* nav icons */}
         {NAV.map((n) => (
@@ -310,36 +355,7 @@ export default function HubSidebar({
         </button>
       </div>
 
-      {/* 新对话 — 动作按钮(ghost/描边),不用选中态的 wash + accent bar,避免与激活模块"双高亮" */}
-      <div style={{ padding: '6px 12px 4px', flex: 'none' }}>
-        <button
-          onClick={onNew}
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: 40,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: 10,
-            paddingLeft: 13,
-            borderRadius: 10,
-            cursor: 'pointer',
-            background: 'transparent',
-            boxShadow: 'none',
-            color: 'var(--ink)',
-            border: 0,
-            outline: 'none',
-          }}
-        >
-          <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex', flex: 'none' }}>
-            <PenLine size={16} strokeWidth={1.6} />
-          </span>
-          <span style={{ font: '600 13.5px var(--font-sans)' }}>新对话</span>
-        </button>
-      </div>
-
-      {/* nav items */}
+      {/* 新对话 + nav items — 同一容器,共享内边距与间距,新对话即首个"标签" */}
       <div
         style={{
           padding: '6px 10px 4px',
@@ -349,6 +365,7 @@ export default function HubSidebar({
           flex: 'none',
         }}
       >
+        <NewChatItem active={active === null} collapsed={false} onNew={onNew} />
         {NAV.map((n) => (
           <SideNavItem
             key={n.key}
