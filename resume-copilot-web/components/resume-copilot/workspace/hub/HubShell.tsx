@@ -339,13 +339,25 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
             waiter();
           }
         })
-        .catch(() => {
-          // 请求失败: 标记空响应让动画完成时仍能落卡(走「暂无匹配」文案).
-          respById.current.set(skillrunId, {
+        .catch(async () => {
+          // 对话接口被拒(典型: demo 只读会话 403) → 退到只读 reseed,
+          // 仍按会话画像铺出在招岗; reseed 也失败才落「暂无匹配」.
+          let feedItems: RecommendTurnResponse['feed'] = [];
+          let wq = workingQuery ?? null;
+          try {
+            const r = await updateWorkingQuery(sessionId, { reseed: true });
+            feedItems = r.feed ?? [];
+            if (r.working_query) wq = r.working_query;
+          } catch {
+            /* 仍失败则保持空 */
+          }
+          setFeed(feedItems ?? []);
+          if (wq) setWorkingQuery(wq);
+          applyFeedResp(skillrunId, {
             intent: 'recommend',
             reply: '',
-            feed: [],
-            working_query: workingQuery ?? {
+            feed: feedItems ?? [],
+            working_query: wq ?? {
               seed_sub_cats: [],
               sub_cats: [],
               companies: [],

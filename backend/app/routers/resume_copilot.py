@@ -2220,12 +2220,15 @@ def update_working_query(
     from app.services.resume_copilot.working_query import WorkingQuery
 
     session = _get_session_or_404(db, session_id)
-    _assert_not_demo(session)  # 落库 working_query_json → 是写操作
     if payload.reseed:
+        # reseed = 按画像种子重查在招岗, 本质纯读; demo 只读会话也放行,
+        # 但不落库 (working_query_json 不写) — 守住 demo read-only 铁律。
         q = seed_query_for_session(db, session)
-        session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
-        db.commit()
+        if str(getattr(session, 'user_key', '') or '') != '__demo__':
+            session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
+            db.commit()
         return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
+    _assert_not_demo(session)  # 落库 working_query_json → 是写操作
     raw = getattr(session, 'working_query_json', None)
     q = WorkingQuery(**json.loads(raw)) if raw else WorkingQuery()
     if payload.remove_sub_cat:

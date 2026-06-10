@@ -102,18 +102,22 @@ DEMO_PROFILE_DICT: dict[str, object] = {
     "languages": ["英语六级"],
     "awards": ["ACM 校赛铜奖", "Kaggle Top 10%"],
     "candidate_summary": (
-        "上海交大计算机本科应届生，目标互联网/数据分析方向，"
-        "有字节、美团两段数据实习。"
+        "上海交大计算机本科应届生，目标量化投研方向，"
+        "有字节、美团两段数据实习，BERT 研报情绪分类项目 F1 0.83。"
     ),
-    "inferred_roles": ["数据分析师", "数据科学家"],
-    "inferred_tracks": ["互联网", "数据分析"],
+    "inferred_roles": ["量化研究员", "数据分析师"],
+    "inferred_tracks": ["量化"],
 }
 
+# 2026-06-10: demo 目标赛道从「互联网」改为「量化」— 旧值经 13赛道→sub_cat
+# 映射全落在 AI 子类(库内非金融池), Hub/推荐工作台的 demo 首屏会显示
+# AI 赛道 + 0 在招, 与 SAIF 金融定位相悖。量化赛道在招岗充足且贴合
+# 张三 (CS/ACM/BERT) 人设。
 DEMO_PREFERENCES_DICT: dict[str, object] = {
-    "preferred_tracks": ["互联网"],
+    "preferred_tracks": ["量化"],
     "preferred_locations": ["上海", "杭州", "北京"],
-    "preferred_roles": ["数据分析师"],
-    "preferred_company_types": ["互联网"],
+    "preferred_roles": ["量化研究员"],
+    "preferred_company_types": ["量化私募", "券商"],
     "accept_relocation": True,
     "accept_internship": False,
     "campus_only": True,
@@ -243,14 +247,22 @@ def ensure_demo_session(db: Session) -> None:
             profile_json=json.dumps(profile.model_dump(), ensure_ascii=False),
         ))
 
-    if not db.query(ResumePreferenceProfile).filter(
+    pref_row = db.query(ResumePreferenceProfile).filter(
         ResumePreferenceProfile.session_id == DEMO_SESSION_ID
-    ).first():
+    ).first()
+    if not pref_row:
         db.add(ResumePreferenceProfile(
             session_id=DEMO_SESSION_ID,
             preferences_json=json.dumps(preferences.model_dump(), ensure_ascii=False),
             all_skipped=0,
         ))
+    else:
+        # 与 user_key 同理每次启动强刷: demo 偏好是代码定义的画布,不接受
+        # 漂移 — 旧库里残留的「互联网」赛道会让推荐 demo 首屏落在 AI 池。
+        pref_row.preferences_json = json.dumps(
+            preferences.model_dump(), ensure_ascii=False
+        )
+        pref_row.all_skipped = 0
 
     rec_run = db.query(ResumeRecommendationRun).filter(
         ResumeRecommendationRun.session_id == DEMO_SESSION_ID
