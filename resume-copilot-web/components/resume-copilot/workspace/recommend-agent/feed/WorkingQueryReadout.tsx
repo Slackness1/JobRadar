@@ -51,9 +51,9 @@ export function WorkingQueryReadout({
   return (
     <div className="recommend-feed__head">
       <div className="recommend-feed__head-row">
-        <span className="recommend-feed__head-title">流动 feed</span>
+        <span className="recommend-feed__head-title">在招岗位</span>
         <span className="recommend-feed__head-sub">
-          按工作查询 · {feedCount} 个在招
+          按你的工作查询 · 共 {feedCount} 个
         </span>
       </div>
 

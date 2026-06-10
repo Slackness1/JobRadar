@@ -118,7 +118,14 @@ export default function CanvasSlot({
       {active === 'profile' ? (
         <HubProfileView sessionId={sessionId} onClose={onClose} />
       ) : (
-        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        // data-theme="recommend": feed / skeleton 是 /recommend 同源组件, 其样式全
+        // scope 在 [data-theme='recommend'] 下; Hub 槽位里必须套这层壳样式才生效
+        // (否则裸 HTML 糊成一坨). 内联 height:100% 压掉该主题根块的 height:100vh,
+        // 不让它撑破槽位.
+        <div
+          data-theme="recommend"
+          style={{ flex: 1, minHeight: 0, height: '100%', overflow: 'auto' }}
+        >
           {active === 'feed' && <RecommendFeedPane {...feedProps} />}
 
           {/* 梯队骨架 —— 复用 /recommend 的同源 Pane(getPlatformsByTier),
