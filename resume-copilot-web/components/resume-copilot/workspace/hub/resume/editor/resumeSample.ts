@@ -156,3 +156,72 @@ export const SAMPLE_PROFILE: ResumeProfile = {
     { id: 'honor', label: '所获荣誉', type: 'tags', items: ['ACM-ICPC亚洲区域赛金牌'] },
   ],
 };
+
+// ── 后端 profile → 编辑器 ResumeProfile 映射(接真实 session 用) ──────────────
+import type { ResumeProfilePayload } from '../../../../types';
+
+/** 把后端 confirmed/parsed profile 映射成编辑器渲染用的 ResumeProfile。
+ *  缺字段优雅降级:空段不渲染,保证稀疏简历也能正常显示。 */
+export function profilePayloadToResumeProfile(p: ResumeProfilePayload): ResumeProfile {
+  const bi = (p.basic_info || {}) as Record<string, string>;
+  const sk = p.skills || { technical: [], tools: [], languages: [] };
+  const skillsText = [...(sk.technical || []), ...(sk.tools || []), ...(sk.languages || [])]
+    .filter(Boolean)
+    .join('、');
+  const sections: ResumeSection[] = [];
+
+  if (p.education?.length) {
+    sections.push({
+      id: 'edu', label: '教育经历', type: 'timeline',
+      items: p.education.map((e) => ({
+        org: e.school || '',
+        date: [e.start_date, e.end_date].filter(Boolean).join(' - '),
+        location: bi.city || undefined,
+        sub: [e.major, e.degree].filter(Boolean).join('·'),
+        bullets: e.highlights || [],
+      })),
+    });
+  }
+  if (p.candidate_summary) {
+    sections.push({
+      id: 'sum', label: '个人优势', type: 'paragraphs',
+      items: p.candidate_summary.split(/\n+/).map((s) => s.trim()).filter(Boolean),
+    });
+  }
+  if (p.internships?.length) {
+    sections.push({
+      id: 'intern', label: '实习经历', type: 'timeline',
+      items: p.internships.map((i) => ({
+        org: i.company || '',
+        date: [i.start_date, i.end_date].filter(Boolean).join(' - '),
+        sub: i.role || '',
+        bullets: i.bullets || [],
+      })),
+    });
+  }
+  if (p.projects?.length) {
+    sections.push({
+      id: 'proj', label: '项目经历', type: 'timeline',
+      items: p.projects.map((pr) => ({
+        org: pr.name || '',
+        date: '',
+        sub: pr.role || '',
+        course: (pr.tech_stack || []).length ? `技术栈：${(pr.tech_stack || []).join(' / ')}` : undefined,
+        bullets: pr.bullets || [],
+      })),
+    });
+  }
+  if (skillsText) {
+    sections.push({ id: 'skills', label: '掌握技能', type: 'skills' });
+  }
+  if (p.awards?.length) {
+    sections.push({ id: 'honor', label: '所获荣誉', type: 'tags', items: p.awards });
+  }
+
+  return {
+    name: bi.name || '未命名',
+    email: bi.email || '',
+    skillsText,
+    sections,
+  };
+}

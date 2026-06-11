@@ -352,6 +352,10 @@ export function getResumeCopilotParsedProfile(sessionId: number) {
   return requestJson<ResumeParsedProfileOut>(`/api/resume-copilot/sessions/${sessionId}/parsed-profile`);
 }
 
+export function getResumeCopilotConfirmedProfile(sessionId: number) {
+  return requestJson<ResumeConfirmedProfileOut>(`/api/resume-copilot/sessions/${sessionId}/confirmed-profile`);
+}
+
 export function putResumeCopilotConfirmedProfile(sessionId: number, profile: ResumeProfilePayload) {
   return requestJson<ResumeConfirmedProfileOut>(`/api/resume-copilot/sessions/${sessionId}/confirmed-profile`, {
     method: 'PUT',

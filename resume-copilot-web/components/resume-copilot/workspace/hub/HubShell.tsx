@@ -494,6 +494,12 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       router.push(`/interview/${sessionId}`);
       return;
     }
+    if (key === 'resume') {
+      // 简历优化全屏页 — 进 hub-score(面板预览 + 全屏编辑器),带真实 session,
+      // 该页按 session 拉真实 profile(见 hub-score/page.tsx)。不再用槽内占位卡。
+      router.push(`/resume-copilot/hub-score?session=${sessionId}`);
+      return;
+    }
     setActive(key as HubSlot);
   }
 
