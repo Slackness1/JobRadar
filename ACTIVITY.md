@@ -16,6 +16,12 @@
 
 ## 2026-06-11
 
+### 网站设计-devvpstmux · 打通真·全链路最后一接(简历编辑器吃真实简历 + Hub 简历优化整屏跳)
+- **干了什么**:本人要求"全链验证、不要 demo"。补上最后一个断点——之前简历编辑器永远吃示例数据(韩怀宇)。现在:Hub「简历优化」整屏跳 `/resume-copilot/hub-score?session=N`;该页按真实 session 拉后端 confirmed(回退 parsed)简历,映射后喂面板/编辑器;请求自动带 user-key 头(登录态 ownership 匹配)。
+- **学生现在能走完整链路**:首页 → 上传简历 → 解析 → 确认 → 落地 Hub → 职位推荐(reseed 快路真岗)/ 梯队骨架 / 个人档案(都真数据)→ 点简历优化 → 全屏看**自己的简历** + 打分 + 编辑器。确认页拿 202 即跳、不等慢生成,**全程不卡**。
+- **验证**:前端 lint/build 0 error;全链各页 dev 200(/ /upload /hub /hub-score);映射器缺字段优雅降级。真实登录态因 ownership 守卫只能浏览器内验(curl 测不了,已确认前端自动带 X-Resume-User-Key)。
+- **状态**:在集成分支,dev 可全链点通;生产仍是稳定旧版(本人 dev 验收通过再上)。
+
 ### 网站设计-devvpstmux · 集成分支合 main;生产短暂上线后按本人要求回退到稳定版(改为 dev 先验收)
 - **干了什么**:集成分支(Hub + 攒批后端 + 互联网 enrich + 简历编辑器,114 提交)fast-forward 合进 main。一度推上生产 jobcopilot.top(冒烟全过、/hub 与简历编辑器上线、demo 出 40 量化岗),但本人随即更正"先上 dev 验收、别动生产"→ **已把生产回退到上个稳定版 446e926**(/hub 撤回 404,旧站恢复;alembic_version 退回旧 head b1f2a3c4d5e6,新增列/表留存无害)。
 - **现状**:生产 = 稳定旧版(SAIF 学生无感);代码仍在 main + dev;**dev 已起 `/hub` 供本人验收**(tunnel localhost:3055)。
