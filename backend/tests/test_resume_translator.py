@@ -25,3 +25,56 @@ def test_en_section_label_by_id():
 
 def test_en_section_label_unknown_falls_back_to_source():
     assert T.en_section_label("custom", "证书") == "证书"
+
+
+class _FakeProvider:
+    """回固定译文,模拟 LLM 把 zh strings 映射成 en(含一处凭空多出的数字,验数字锁)。"""
+    def __init__(self, mapping):
+        self.mapping = mapping
+
+    def translate(self, strings):
+        return [self.mapping.get(s, s) for s in strings]
+
+
+def _sample_profile():
+    return {
+        'name': '韩怀宇',
+        'email': 'a@b.com',
+        'skillsText': 'Python、回测框架',
+        'sections': [
+            {'id': 'intern', 'label': '实习经历', 'type': 'timeline', 'items': [
+                {'org': '九坤投资', 'date': '2024-06 - 2024-12', 'location': '北京',
+                 'desc': '提交12个因子,入库4个'},
+            ]},
+            {'id': 'honor', 'label': '所获荣誉', 'type': 'tags', 'items': ['ACM金牌']},
+        ],
+    }
+
+
+def test_translate_profile_structure_and_labels():
+    prof = _sample_profile()
+    fake = _FakeProvider({
+        '韩怀宇': 'Huaiyu Han', 'Python、回测框架': 'Python, backtesting framework',
+        '九坤投资': 'XXX', '提交12个因子,入库4个': 'submitted 12 factors, 4 accepted', 'ACM金牌': 'ACM Gold',
+    })
+    out = T.translate_profile(prof, provider=fake)
+    p = out['profile']
+    # 结构对齐
+    assert [s['id'] for s in p['sections']] == ['intern', 'honor']
+    # 固定英文标题
+    assert p['sections'][0]['label'] == 'Work Experience'
+    assert p['sections'][1]['label'] == 'Honors & Awards'
+    # 机构名表覆盖 LLM(九坤投资 → Ubiquant,不用 fake 的 'XXX')
+    assert p['sections'][0]['items'][0]['org'] == 'Ubiquant'
+    # 日期格式化
+    assert p['sections'][0]['items'][0]['date'] == 'Jun 2024 – Dec 2024'
+    # email 原样
+    assert p['email'] == 'a@b.com'
+
+
+def test_translate_profile_number_lock_flags_fabrication():
+    prof = _sample_profile()
+    fake = _FakeProvider({'提交12个因子,入库4个': 'submitted 12 factors, 99 accepted'})  # 99 凭空
+    out = T.translate_profile(prof, provider=fake)
+    warns = out['warnings']
+    assert any('99' in w.get('extra', '') for w in warns)
