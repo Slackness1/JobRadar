@@ -27,6 +27,29 @@ def _is_support_role(title: str) -> bool:
     return any(h in title for h in _SUPPORT_ROLE_HINTS)
 
 
+def _gt_quality_boost(job: Any) -> float:
+    """GT 平台公司质量先验: 岗位公司 ∈ 该 sub_cat 的 ground_truth 平台公司集 → +0.15。
+
+    动机(根治桶内乱序): 三维评分里 行业/梯队 两维恒中性(profile 无该字段, 见下方
+    ranked 注释), 桶内真研究岗之间只剩新鲜度(0.10)区分 → 新爬的小机构岗会盖过经过
+    策展的平台公司(中金/幻方/中欧 等)。学生对"档次"没有可填的偏好, 但所有人都想去
+    更好的平台 → 用 ground_truth 这个**干净的二元信号**做统一质量先验, 让平台公司
+    浮到桶内前列, 而非单纯按谁新排。比拿 institution_tier 自由文本(头部券商/大厂/
+    中型券商研究所… 70+ 杂值)硬映射稳, 符合"逻辑越简单耐用越好"。
+    """
+    sc = str(getattr(job, "sub_category", "") or "")
+    if not sc:
+        return 0.0
+    from app.services.phase_g.tier_fit.platform_skeleton import (
+        _norm_company,
+        gt_companies_for_sub_cat,
+    )
+    comp = _norm_company(str(getattr(job, "company", "") or ""))
+    if not comp:
+        return 0.0
+    return 0.15 if comp in gt_companies_for_sub_cat(sc) else 0.0
+
+
 def _fresh_key(job: Any) -> datetime:
     """sort=='fresh' 排序键。scraped_at 在库里 naive/aware 混存(SQLite 存 naive UTC,
     部分行带 tz) → 统一归一到 aware UTC, 缺失退回 epoch, 避免 naive/aware 比较崩。"""
@@ -98,13 +121,21 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
         confirmed_sub_cats=list(query.seed_sub_cats),
     )
     ranked = _scoring.rank_jobs(profile, jobs)  # [(job, score 0-1), ...]
-    # support 岗降权:研究/投资桶里混进的中后台支持岗(反洗钱/风险/合规/投融/运营/
-    # 清算估值等)是误配。三维评分里行业/梯队维度当前恒中性(profile 无此字段),桶内
-    # 只剩新鲜度区分 → 新爬的 support 岗盖过真研究岗。这里命中扣 0.30 沉底。
-    # 注:is_low_quality_role 只覆盖零售/销售类,中后台支持岗另用下面这组精准词。
+    # 桶内排序两道修正(三维评分里行业/梯队维度恒中性,profile 无此字段 → 桶内本只剩
+    # 新鲜度区分):
+    #  ① support 岗降权 -0.30:研究/投资桶里混进的中后台支持岗(反洗钱/风险/合规/投融/
+    #     运营/清算估值等)是误配,沉底。is_low_quality_role 只覆盖零售/销售,中后台另用
+    #     上面 _SUPPORT_ROLE_HINTS 这组精准词。
+    #  ② GT 平台公司质量先验 +0.15:让经过策展的平台公司(中金/幻方/中欧…)浮到桶内
+    #     前列,而非被新爬的小机构岗按新鲜度盖过(见 _gt_quality_boost)。
     from app.services.taxonomy.quality import is_low_quality_role
     ranked = [
-        (j, s - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0))
+        (
+            j,
+            s
+            - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0)
+            + _gt_quality_boost(j),
+        )
         for j, s in ranked
     ]
     _ = is_low_quality_role  # 保留引用,零售类已在 quality_label 阶段过滤
