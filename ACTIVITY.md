@@ -16,6 +16,13 @@
 
 ## 2026-06-11
 
+### 网站设计-devvpstmux · 🚀 集成分支合 main + 上线生产 jobcopilot.top(Hub + 简历编辑器 + 后端管道)
+- **干了什么**:经本人授权,把集成分支(Hub 外壳 + 攒批后端 + 互联网 enrich + 简历编辑器,114 提交)fast-forward 合进 main,走 vps-deploy 推上生产并重启。
+- **学生现在线上能看到**:`jobcopilot.top/hub` 统一对话工作台上线;`/resume-copilot/hub-score` 简历打分+全屏编辑器上线;demo 会话"给我推荐"出 **40 个真实量化岗**(衍复/九坤等)。
+- **验证**:7 项冒烟全过(/ /hub /upload /hub-score /api/health /sessions/1 = 200,demo PATCH = 403 只读守卫生效);2 个新迁移(working_query 列 + decision_events 表)启动自动跑通;两服务 active。
+- **数据现状(留意)**:prod 库推荐池 **2,536**(互联网/AI 1,663 + 金融 873),功能完整但**比 dev 的 13,004 少**——dev 上新跑的互联网 enrich 大批量 + 产品/AI 重分类还没同步到 prod(= 第③步,本人未要求,待定)。
+- **下一步**:本人线上验收;要把 dev 全量 enrich 同步到 prod(让线上池也到 1.3 万)再说第③步。
+
 ### 网站设计-devvpstmux · 简历优化/编辑器分支合入集成分支(Hub 简历接口位补齐)
 - **干了什么**:把简历线交付的 `hub-resume-optimize`(简历打分 + 深度优化 + 5 套模板编辑器)合进集成分支 `hub-shell-frontend`,填上 Hub 那个之前只留接口位的"简历优化"。学生现在能:看诚实打分(8 维 + 潜力区间)→ 逐维缺口 → 进全屏编辑器(模板换皮/就地改内容/排版滑块)→ 改写按目标赛道定制 + 编数字红线。
 - **合并要点(交接 note 低估了复杂度)**:该分支落后集成分支 156 个后端提交、且自带一个与集成同名的 10→13 taxonomy 重构,实际 3 个冲突(canonical.py / coverage_truth.yaml / workspace-theme.css)。核实两边 taxonomy 重构一致、集成版是超集 → 后端冲突取集成版零丢失;css resume 侧为空取集成尾块;resume 自己的打分后端(score/deep-optimize 端点)走 auto-merge 进来。
