@@ -87,6 +87,14 @@ def bootstrap() -> None:
     except Exception as exc:
         log.warning(f"TrackKnowledgeProvider register failed: {exc}")
 
+    # 7. 互联网/AI 简历方法论 (2026-06-12) — 蒸馏自腾讯校招 skill 的 resume-guide,
+    #    赛道门控: 学生选了互联网/AI 才在简历改写对话里注入面试官视角的优秀简历标准。
+    try:
+        from app.services.resume_copilot.internet_resume_provider import InternetResumeProvider
+        register(InternetResumeProvider())
+    except Exception as exc:
+        log.warning(f"InternetResumeProvider register failed: {exc}")
+
 
 __all__ = [
     "ContextProvider",
