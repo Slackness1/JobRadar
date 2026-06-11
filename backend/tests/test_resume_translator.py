@@ -1,3 +1,6 @@
+from fastapi.testclient import TestClient
+
+from app.main import app
 from app.services.resume_copilot import translator as T
 
 
@@ -88,3 +91,16 @@ def test_translate_profile_rejects_short_provider_output():
             return strings[:-1]  # drops one
     with pytest.raises(ValueError):
         T.translate_profile(prof, provider=_ShortProvider())
+
+
+def test_translate_endpoint_roundtrip(monkeypatch):
+    # 用 fake provider,避免联网
+    fake = _FakeProvider({'韩怀宇': 'Huaiyu Han'})
+    monkeypatch.setattr(T, 'OpenAICompatibleTranslator', lambda *a, **k: fake)
+    client = TestClient(app)
+    body = {'profile': _sample_profile(), 'target': 'en'}
+    r = client.post('/api/resume-copilot/translate-profile', json=body)
+    assert r.status_code == 200
+    data = r.json()
+    assert data['profile']['sections'][0]['label'] == 'Work Experience'
+    assert 'warnings' in data
