@@ -29,6 +29,14 @@ _BAND_TIER_NUM = {"头部": 1, "次头部": 2, "腰部": 3}
 _BAND_LABEL = {"头部": "第一梯队", "次头部": "第二梯队", "腰部": "第三梯队"}
 _BAND_ORDER = ["头部", "次头部", "腰部"]
 
+# 「其他梯队」: 同赛道有在招进池岗、但不在 GT 骨架名单的公司兜底档。
+# GT 名单只收每赛道的重点公司, 漏掉的同赛道在招公司(往往恰恰是真有岗的)
+# 全部归这档, 避免骨架只展示前两档导致学生看不到可投的公司。
+_OTHER_TIER_NUM = 4
+_OTHER_BAND = "其他"
+_OTHER_LABEL = "其他梯队"
+_OTHER_CAP = 20
+
 
 @lru_cache(maxsize=1)
 def _load_gt() -> dict:
@@ -178,6 +186,74 @@ def _build_intel_block(dims: dict, n_insights: int) -> dict:
     }
 
 
+def _fetch_other_tier_companies(
+    db: Session,
+    sub_cat: str,
+    gt_norms: set[str],
+    *,
+    prefer_internship: bool = False,
+) -> list[dict]:
+    """同赛道、有在招进池岗、但不在 GT 骨架名单的公司 → 兜成「其他梯队」。
+
+    - GT 双向子串命中(分部/全称变体)的不算"其他", 避免与上面三档重复展示。
+    - 标题命中中后台支持岗词(反洗钱/风险岗/合规等, 复用 recommend_search 的
+      判定)的岗不计入; 公司只剩支持岗就整家不进 —— 其他梯队只收真有对口岗的。
+    - 公司名按 _norm_company 归一去重(浙商证券 vs 浙商证券股份有限公司)。
+    """
+    from app.services.resume_copilot.recommend_search import _is_support_role
+
+    try:
+        rows = db.execute(
+            text(
+                "SELECT company, job_title FROM jobs "
+                "WHERE sub_category = :sc "
+                "AND quality_label IN ('good', 'internship_only')"
+            ),
+            {"sc": sub_cat},
+        ).fetchall()
+    except Exception:
+        logger.exception("Failed to fetch other-tier companies for %s", sub_cat)
+        return []
+
+    norms: list[str] = []
+    seen: set[str] = set()
+    for company, title in rows:
+        norm = _norm_company(str(company or ""))
+        if not norm or norm in seen:
+            continue
+        if any(g and (g in norm or norm in g) for g in gt_norms):
+            continue
+        if _is_support_role(str(title or "")):
+            continue
+        seen.add(norm)
+        norms.append(norm)
+
+    companies: list[dict] = []
+    for norm in norms:
+        jobs = _fetch_live_jobs(db, norm, sub_cat, prefer_internship=prefer_internship)
+        jobs = [j for j in jobs if not _is_support_role(str(j.get("title") or ""))]
+        if not jobs:
+            continue
+        n_insights = _fetch_n_insights(db, norm)
+        dims = _read_company_intel_cache(norm)
+        companies.append(
+            {
+                "name": norm,
+                "band": _OTHER_BAND,
+                "has_live": True,
+                "n_live": len(jobs),
+                "jobs": jobs,
+                "n_insights": n_insights,
+                "match": "强匹配",
+                "intel": _build_intel_block(dims, n_insights) if dims is not None else None,
+                "hiring_window": None,
+            }
+        )
+
+    companies.sort(key=lambda c: (-c["n_live"], -c["n_insights"], c["name"]))
+    return companies[:_OTHER_CAP]
+
+
 @lru_cache(maxsize=128)
 def gt_companies_for_sub_cat(sub_cat: str) -> set[str]:
     """返回某 sub_cat 的 GT 公司名集合（归一化后），用于「梯队内/外」判定。
@@ -238,9 +314,7 @@ def build_platform_skeleton(
     """
     gt_data = _load_gt()
     entries: list[dict] = gt_data.get("ground_truth", {}).get(sub_cat, [])
-
-    if not entries:
-        return {"sub_cat": sub_cat, "has_skeleton": False, "tiers": []}
+    # GT 无此赛道时不再直接返回空骨架 —— 库里若有同赛道在招公司, 还能兜出「其他梯队」。
 
     # 1. 按 band 分组，保留 GT 原顺序（名气兜底）
     band_groups: dict[str, list[dict]] = {b: [] for b in _BAND_ORDER}
@@ -299,8 +373,24 @@ def build_platform_skeleton(
             }
         )
 
+    # 5. 「其他梯队」: 同赛道有在招岗但不在 GT 名单的公司, 全部兜进第 4 档。
+    gt_norms = {_norm_company(e.get("name") or "") for e in entries if e.get("name")}
+    other = _fetch_other_tier_companies(
+        db, sub_cat, gt_norms, prefer_internship=prefer_internship
+    )
+    if other:
+        tiers.append(
+            {
+                "tier": _OTHER_TIER_NUM,
+                "band": _OTHER_BAND,
+                "role": "floor",
+                "label": _OTHER_LABEL,
+                "companies": other,
+            }
+        )
+
     return {
         "sub_cat": sub_cat,
-        "has_skeleton": True,
+        "has_skeleton": bool(tiers),
         "tiers": tiers,
     }

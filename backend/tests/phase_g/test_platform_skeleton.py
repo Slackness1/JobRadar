@@ -14,7 +14,7 @@ def test_skeleton_groups_gt_companies_by_band():
         assert sk["has_skeleton"] is True
         assert sk["tiers"]
         for t in sk["tiers"]:
-            assert t["band"] in ("头部", "次头部", "腰部")
+            assert t["band"] in ("头部", "次头部", "腰部", "其他")
             assert t["companies"]
             for c in t["companies"]:
                 assert "name" in c and "has_live" in c and "n_insights" in c
@@ -25,12 +25,45 @@ def test_skeleton_groups_gt_companies_by_band():
         db.close()
 
 
-def test_no_gt_subcat_degrades():
+def test_unknown_subcat_degrades():
+    """完全不存在的赛道(无 GT、无在招岗) → 空骨架。"""
     db = SessionLocal()
     try:
-        sk = build_platform_skeleton(db, "机构销售·销售支持")  # GT 无此键
+        sk = build_platform_skeleton(db, "不存在的赛道XYZ")
         assert sk["has_skeleton"] is False
         assert sk["tiers"] == []
+    finally:
+        db.close()
+
+
+def test_other_tier_collects_non_gt_companies():
+    """「其他梯队」: 同赛道有在招岗但不在 GT 名单的公司应兜进第 4 档,
+    且不与前三档的 GT 公司重复、不收支持岗(反洗钱/风险岗)误配公司。"""
+    from app.services.phase_g.tier_fit.tier_ladder import _norm_company
+
+    db = SessionLocal()
+    try:
+        sk = build_platform_skeleton(db, "PE投后VC行研")
+        assert sk["has_skeleton"] is True
+        others = [t for t in sk["tiers"] if t["band"] == "其他"]
+        assert others, "PE投后VC行研 库里有 GT 外在招公司(中金/腾讯等), 应出其他梯队"
+        other = others[0]
+        assert other["tier"] == 4
+        assert other["label"] == "其他梯队"
+        # 不与前三档 GT 公司重复
+        gt_names = {
+            _norm_company(c["name"])
+            for t in sk["tiers"]
+            if t["band"] != "其他"
+            for c in t["companies"]
+        }
+        for c in other["companies"]:
+            n = _norm_company(c["name"])
+            assert not any(g and (g in n or n in g) for g in gt_names), c["name"]
+            assert c["has_live"] is True and c["n_live"] >= 1
+            # 展示的岗不含支持岗标题
+            for j in c["jobs"]:
+                assert "反洗钱" not in (j["title"] or "")
     finally:
         db.close()
 
