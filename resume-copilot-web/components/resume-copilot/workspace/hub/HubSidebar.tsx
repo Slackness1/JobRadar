@@ -231,6 +231,13 @@ export default function HubSidebar({
 }: HubSidebarProps) {
   const displayName = (userName || '').trim() || '同学';
   const avatarChar = displayName.charAt(0) || '同';
+  // 简历切换器:每个会话 = 一份上传的简历(后端按 user_key 聚合, 无独立简历实体)。
+  // 当前简历 = 当前会话; 切换 = 切到另一会话。
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const currentResumeLabel =
+    sessions.find((s) => s.id === currentSessionId)?.label || '当前简历';
+  const otherResumes = sessions.filter((s) => s.id !== currentSessionId);
+  const resumeCount = sessions.length;
   // ── Collapsed state (width 64) ───────────────────────────────────────────
   if (collapsed) {
     return (
@@ -390,10 +397,14 @@ export default function HubSidebar({
       {/* divider */}
       <hr className="hf-hr" style={{ margin: '8px 14px', flex: 'none' }} />
 
-      {/* resume switcher — 静态展示占位，>1 份简历时显形 */}
-      {/* TODO(next): 接会话独立实体后端 */}
+      {/* resume switcher — 真实简历切换器: 当前简历名 + 真实份数, 点开切到其它简历 */}
       <div style={{ padding: '0 12px 8px', flex: 'none' }}>
         <button
+          onClick={() => {
+            if (otherResumes.length > 0) setSwitcherOpen((o) => !o);
+            else onNew();
+          }}
+          title={otherResumes.length > 0 ? '切换简历' : '上传新简历'}
           style={{
             width: '100%',
             display: 'flex',
@@ -402,9 +413,8 @@ export default function HubSidebar({
             padding: '8px 11px',
             borderRadius: 10,
             cursor: 'pointer',
-            // --library-rail exists in tokens
-            background: 'var(--library-rail)',
-            boxShadow: '0 0 0 1px var(--border-warm)',
+            background: switcherOpen ? 'var(--terracotta-wash)' : 'var(--library-rail)',
+            boxShadow: `0 0 0 1px ${switcherOpen ? 'var(--terracotta-ring)' : 'var(--border-warm)'}`,
             border: 0,
             outline: 'none',
           }}
@@ -422,20 +432,86 @@ export default function HubSidebar({
                 textOverflow: 'ellipsis',
               }}
             >
-              简历 · 中文主版
+              {currentResumeLabel}
             </div>
             <div style={{ font: '400 10px var(--font-sans)', color: 'var(--stone)', marginTop: 1 }}>
-              当前画像 · 切换简历(2)
+              {resumeCount > 1 ? `当前画像 · 切换简历(${resumeCount})` : '当前画像 · 上传新简历'}
             </div>
           </div>
-          <span style={{ color: 'var(--stone)', display: 'inline-flex' }}>
+          <span
+            style={{
+              color: 'var(--stone)',
+              display: 'inline-flex',
+              transition: 'transform .15s',
+              transform: switcherOpen ? 'rotate(90deg)' : 'none',
+            }}
+          >
             <ChevronRight size={13} strokeWidth={1.7} />
           </span>
         </button>
+
+        {/* 展开: 列出其它简历(= 其它会话), 点了即切 */}
+        {switcherOpen && otherResumes.length > 0 && (
+          <div
+            style={{
+              marginTop: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              padding: 4,
+              borderRadius: 10,
+              background: 'var(--ivory)',
+              boxShadow: '0 0 0 1px var(--border-warm)',
+            }}
+          >
+            {otherResumes.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => {
+                  onSelectSession?.(s.id);
+                  setSwitcherOpen(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '7px 9px',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  background: 'transparent',
+                  border: 0,
+                  outline: 'none',
+                  textAlign: 'left',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--library-rail)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span style={{ color: 'var(--stone)', display: 'inline-flex', flex: 'none' }}>
+                  <FileText size={13} strokeWidth={1.6} />
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    font: '500 11.5px var(--font-sans)',
+                    color: 'var(--ink-soft)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {s.label}
+                </span>
+                <span style={{ font: '400 10px var(--font-sans)', color: 'var(--stone)', flex: 'none' }}>
+                  {s.time}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* history section header */}
-      {/* TODO(next): 接会话独立实体后端 */}
       <div
         style={{
           padding: '0 16px 6px',
@@ -449,7 +525,7 @@ export default function HubSidebar({
           <History size={12} strokeWidth={1.6} />
         </span>
         <span className="hf-overline" style={{ fontSize: 9.5 }}>
-          历史记录 · 此简历下的会话
+          历史记录 · 全部会话
         </span>
       </div>
 
