@@ -5,7 +5,9 @@ import { ResumeScorePanel } from '../../../components/resume-copilot/workspace/h
 import { ResumeEditorOverlay } from '../../../components/resume-copilot/workspace/hub/resume/editor/ResumeEditorOverlay';
 import {
   SAMPLE_PROFILE,
+  SAMPLE_PROFILE_EN,
   DEFAULT_LAYOUT,
+  type Lang,
   type LayoutState,
   type ResumeProfile,
 } from '../../../components/resume-copilot/workspace/hub/resume/editor/resumeSample';
@@ -15,8 +17,17 @@ function Inner() {
   const mock = params.get('mock') === '1';
   const sessionId = Number(params.get('session') || '0');
   const [editorOpen, setEditorOpen] = useState(false);
-  // 共享简历状态:面板预览 + 全屏编辑器同一数据源(目测期用示例数据,接真实 profile 时改这里)。
-  const [profile, setProfile] = useState<ResumeProfile>(SAMPLE_PROFILE);
+  // 双语简历:zh 源 + en(翻译后填充)+ 当前语言。模板/布局/显隐为共享态(下方)。
+  const [zh, setZh] = useState<ResumeProfile>(SAMPLE_PROFILE);
+  const [en, setEn] = useState<ResumeProfile | null>(null);
+  const [lang, setLang] = useState<Lang>('zh');
+  const activeProfile = lang === 'en' && en ? en : zh;
+  const setActiveProfile = (p: ResumeProfile) => (lang === 'en' ? setEn(p) : setZh(p));
+  // A 期:翻译先用手译示例占位;B 期 Task B5 换成真后端调用。
+  const handleTranslate = () => {
+    setEn(SAMPLE_PROFILE_EN);
+    setLang('en');
+  };
   const [template, setTemplate] = useState<string>('classic');
   const [layout, setLayout] = useState<LayoutState>(DEFAULT_LAYOUT);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
@@ -38,11 +49,14 @@ function Inner() {
           sessionId={sessionId}
           mock={mock}
           onExpandEditor={() => setEditorOpen(true)}
-          profile={profile}
+          profile={activeProfile}
           template={template}
           onTemplate={setTemplate}
           layout={layout}
           hidden={hidden}
+          lang={lang}
+          onLang={setLang}
+          onTranslate={handleTranslate}
         />
       </div>
       {editorOpen && (
@@ -50,14 +64,17 @@ function Inner() {
           sessionId={sessionId}
           mock={mock}
           onClose={() => setEditorOpen(false)}
-          profile={profile}
-          onProfile={setProfile}
+          profile={activeProfile}
+          onProfile={setActiveProfile}
           template={template}
           onTemplate={setTemplate}
           layout={layout}
           onLayout={setLayout}
           hidden={hidden}
           onToggleHidden={toggleHidden}
+          lang={lang}
+          onLang={setLang}
+          onTranslate={handleTranslate}
         />
       )}
     </div>

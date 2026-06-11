@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Download, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
-import type { LayoutState, ResumeProfile } from './resumeSample';
+import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
@@ -54,6 +54,9 @@ export interface ResumeEditorOverlayProps {
   onLayout: (l: LayoutState) => void;
   hidden: Set<string>;
   onToggleHidden: (id: string) => void;
+  lang: Lang;
+  onLang: (l: Lang) => void;
+  onTranslate: () => void;
 }
 
 /** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
@@ -69,6 +72,9 @@ export function ResumeEditorOverlay({
   onLayout,
   hidden,
   onToggleHidden,
+  lang,
+  onLang,
+  onTranslate,
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
   const [aiTab, setAiTab] = useState<string>('score');
@@ -132,9 +138,23 @@ export function ResumeEditorOverlay({
         }}
       >
         <span style={{ font: '500 13px var(--font-sans)', color: 'var(--ink-soft)' }}>简历编辑器</span>
-        <span className="hf-pill" style={{ height: 24, marginLeft: 2 }}>
-          中文主版
-        </span>
+        <div style={{ display: 'flex', gap: 3, padding: 3, background: 'var(--library-rail)', borderRadius: 9, boxShadow: '0 0 0 1px var(--border-warm)', marginLeft: 2 }}>
+          {(['zh', 'en'] as const).map((l) => (
+            <button
+              key={l}
+              onClick={() => (l === 'en' ? onTranslate() : onLang('zh'))}
+              style={{
+                cursor: 'pointer', border: 'none', borderRadius: 7, padding: '4px 12px',
+                font: `${lang === l ? 600 : 500} 11.5px var(--font-sans)`,
+                color: lang === l ? 'var(--ink)' : 'var(--olive)',
+                background: lang === l ? 'var(--ivory)' : 'transparent',
+                boxShadow: lang === l ? '0 0 0 1px var(--border-strong)' : 'none',
+              }}
+            >
+              {l === 'zh' ? '中文' : 'EN'}
+            </button>
+          ))}
+        </div>
         <button onClick={onClose} className="hf-btn ghost sm" style={{ marginLeft: 'auto', gap: 6 }} aria-label="关闭">
           <X size={13} /> 返回主工作台
         </button>
