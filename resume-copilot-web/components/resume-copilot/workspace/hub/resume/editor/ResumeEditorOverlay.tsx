@@ -54,6 +54,8 @@ export interface ResumeEditorOverlayProps {
   onLayout: (l: LayoutState) => void;
   hidden: Set<string>;
   onToggleHidden: (id: string) => void;
+  /** 保存(落本地草稿 + flush)。宿主页注入。 */
+  onSave?: () => void;
 }
 
 /** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
@@ -69,8 +71,18 @@ export function ResumeEditorOverlay({
   onLayout,
   hidden,
   onToggleHidden,
+  onSave,
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
+  // "已保存 ✓" 瞬时反馈(点击时亮起 ~1.6s, 不走 effect)
+  const [justSaved, setJustSaved] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSave = () => {
+    onSave?.();
+    setJustSaved(true);
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setJustSaved(false), 1600);
+  };
   const [aiTab, setAiTab] = useState<string>('score');
   const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
   // 当前高亮("AI 刚写回")的简历段 id。初始 intern = 实习经历(与原壳一致)。
@@ -236,10 +248,20 @@ export function ResumeEditorOverlay({
             </span>
             <span style={{ font: '500 12px var(--font-sans)', color: 'var(--olive)' }}>WYSIWYG · 所见即所导出</span>
             <span style={{ marginLeft: 'auto' }} />
-            <button className="hf-btn ghost sm" style={{ gap: 6 }}>
-              <Save size={13} /> 保存
+            <button
+              className="hf-btn ghost sm"
+              style={{ gap: 6, color: justSaved ? 'var(--olive)' : undefined }}
+              onClick={handleSave}
+              title="保存当前编辑(本地, 刷新不丢)"
+            >
+              <Save size={13} /> {justSaved ? '已保存 ✓' : '保存'}
             </button>
-            <button className="hf-btn dark sm" style={{ gap: 6 }}>
+            <button
+              className="hf-btn dark sm"
+              style={{ gap: 6 }}
+              onClick={() => window.print()}
+              title="导出 PDF(浏览器打印 → 另存为 PDF)"
+            >
               <Download size={13} /> 下载 PDF
             </button>
           </div>
