@@ -29,7 +29,7 @@ def test_strategy_types_8():
     assert "互联网" in STRATEGY_TYPES
 
 
-@patch("app.services.phase_g.sub_cat_enricher.build_flash_client")
+@patch("app.services.phase_g.sub_cat_enricher.build_enrich_client")
 def test_pass1_returns_strategy_known_flash_default(mock_client_fn):
     """Pass 1 默认走 Flash (2026-05-28 cost 优化)。"""
     mock_client = MagicMock()
@@ -48,7 +48,7 @@ def test_pass1_returns_strategy_known_flash_default(mock_client_fn):
     assert "extra_body" not in call.kwargs
 
 
-@patch("app.services.phase_g.sub_cat_enricher.build_pro_client")
+@patch("app.services.phase_g.sub_cat_enricher.build_enrich_client")
 def test_pass1_returns_strategy_known_pro_optional(mock_client_fn):
     """use_flash=False 时走 Pro reasoning_effort=high。"""
     mock_client = MagicMock()
@@ -64,7 +64,7 @@ def test_pass1_returns_strategy_known_pro_optional(mock_client_fn):
     assert call.kwargs["extra_body"] == {"reasoning_effort": "high"}
 
 
-@patch("app.services.phase_g.sub_cat_enricher.build_flash_client")
+@patch("app.services.phase_g.sub_cat_enricher.build_enrich_client")
 def test_pass1_unknown_strategy_treated_as_null(mock_client_fn):
     """LLM 写了不在 7 大类的 strategy → 兜底 null + confidence 0。"""
     mock_client = MagicMock()
@@ -78,7 +78,7 @@ def test_pass1_unknown_strategy_treated_as_null(mock_client_fn):
 
 
 @patch("app.services.phase_g.sub_cat_enricher._gather_subcat_candidates")
-@patch("app.services.phase_g.sub_cat_enricher.build_pro_client")
+@patch("app.services.phase_g.sub_cat_enricher.build_enrich_client")
 def test_pass2_unknown_sub_cat_clears_to_null(mock_client_fn, mock_gather):
     """Pass 2 LLM 写了不存在的 sub_cat → 兜底 None + conf 0。"""
     mock_gather.return_value = (["量化研究员·中频", "量化研究员·高频"], "candidates text")
