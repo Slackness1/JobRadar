@@ -1201,8 +1201,13 @@ def _recommend_v2_dispatcher(
     if not candidates:
         return [], False, "v2_no_candidates"
 
-    # Step 2: 3 维评分
+    # Step 2: 3 维评分 + 桶内质量先验(support 沉底 + GT 平台浮顶), 与 Hub 快路
+    # (search_candidates)共用同一 apply_quality_priors, 保证两条推荐链路"好平台浮顶"
+    # 语义一致。先验改了分数 → 重新按分降序排, 让 GT 平台进入 rerank 的 top-N。
     ranked = rank_jobs(student_p, candidates)
+    from app.services.resume_copilot.recommend_search import apply_quality_priors
+    ranked = apply_quality_priors(ranked)
+    ranked.sort(key=lambda t: -t[1])
 
     # 渐进式：精排前先把规则排序 top-N 作占位结果回吐(前端秒级铺列表)。
     _prelim_src = [

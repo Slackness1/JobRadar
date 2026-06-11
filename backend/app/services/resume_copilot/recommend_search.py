@@ -50,6 +50,25 @@ def _gt_quality_boost(job: Any) -> float:
     return 0.15 if comp in gt_companies_for_sub_cat(sc) else 0.0
 
 
+def apply_quality_priors(ranked: list[tuple[Any, float]]) -> list[tuple[Any, float]]:
+    """对 [(job, score 0-1)] 施加桶内质量先验, 仅调分不排序(调用方自行 sort):
+      - support 岗 -0.30 沉底(研究/投资桶里的中后台误配)
+      - GT 平台公司 +0.15 浮顶(经过策展的好平台压过随机新岗)
+    两条推荐路径共用 —— Hub 快路(search_candidates 纯规则)与旧 generate 慢路
+    (recommendation._recommend_v2_dispatcher, rank_jobs→rerank)语义一致, 保证
+    '好平台浮顶'在两处行为相同。
+    """
+    return [
+        (
+            j,
+            s
+            - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0)
+            + _gt_quality_boost(j),
+        )
+        for j, s in ranked
+    ]
+
+
 def _fresh_key(job: Any) -> datetime:
     """sort=='fresh' 排序键。scraped_at 在库里 naive/aware 混存(SQLite 存 naive UTC,
     部分行带 tz) → 统一归一到 aware UTC, 缺失退回 epoch, 避免 naive/aware 比较崩。"""
@@ -121,24 +140,8 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
         confirmed_sub_cats=list(query.seed_sub_cats),
     )
     ranked = _scoring.rank_jobs(profile, jobs)  # [(job, score 0-1), ...]
-    # 桶内排序两道修正(三维评分里行业/梯队维度恒中性,profile 无此字段 → 桶内本只剩
-    # 新鲜度区分):
-    #  ① support 岗降权 -0.30:研究/投资桶里混进的中后台支持岗(反洗钱/风险/合规/投融/
-    #     运营/清算估值等)是误配,沉底。is_low_quality_role 只覆盖零售/销售,中后台另用
-    #     上面 _SUPPORT_ROLE_HINTS 这组精准词。
-    #  ② GT 平台公司质量先验 +0.15:让经过策展的平台公司(中金/幻方/中欧…)浮到桶内
-    #     前列,而非被新爬的小机构岗按新鲜度盖过(见 _gt_quality_boost)。
-    from app.services.taxonomy.quality import is_low_quality_role
-    ranked = [
-        (
-            j,
-            s
-            - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0)
-            + _gt_quality_boost(j),
-        )
-        for j, s in ranked
-    ]
-    _ = is_low_quality_role  # 保留引用,零售类已在 quality_label 阶段过滤
+    # 桶内排序质量先验(support 沉底 + GT 平台浮顶), 与旧 generate 慢路共用同一函数。
+    ranked = apply_quality_priors(ranked)
     if query.sort == "fresh":
         ranked = sorted(ranked, key=lambda t: _fresh_key(t[0]), reverse=True)
     else:
