@@ -55,8 +55,11 @@ export interface ResumeEditorOverlayProps {
   hidden: Set<string>;
   onToggleHidden: (id: string) => void;
   lang: Lang;
+  /** 仅用于切回中文;切到 'en' 必须走 onTranslate(en 可能为 null)。 */
   onLang: (l: Lang) => void;
   onTranslate: () => void;
+  /** 翻译进行中 — 在中栏预览区渲染 border-beam 动效。 */
+  translating?: boolean;
 }
 
 /** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
@@ -75,6 +78,7 @@ export function ResumeEditorOverlay({
   lang,
   onLang,
   onTranslate,
+  translating = false,
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
   const [aiTab, setAiTab] = useState<string>('score');
@@ -142,16 +146,19 @@ export function ResumeEditorOverlay({
           {(['zh', 'en'] as const).map((l) => (
             <button
               key={l}
+              disabled={l === 'en' && translating}
               onClick={() => (l === 'en' ? onTranslate() : onLang('zh'))}
               style={{
-                cursor: 'pointer', border: 'none', borderRadius: 7, padding: '4px 12px',
+                cursor: l === 'en' && translating ? 'not-allowed' : 'pointer',
+                border: 'none', borderRadius: 7, padding: '4px 12px',
                 font: `${lang === l ? 600 : 500} 11.5px var(--font-sans)`,
                 color: lang === l ? 'var(--ink)' : 'var(--olive)',
                 background: lang === l ? 'var(--ivory)' : 'transparent',
                 boxShadow: lang === l ? '0 0 0 1px var(--border-strong)' : 'none',
+                opacity: l === 'en' && translating ? 0.6 : 1,
               }}
             >
-              {l === 'zh' ? '中文' : 'EN'}
+              {l === 'zh' ? '中文' : translating ? '翻译中…' : 'EN'}
             </button>
           ))}
         </div>
@@ -273,6 +280,7 @@ export function ResumeEditorOverlay({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'flex-start',
+              position: 'relative',
             }}
           >
             <div style={{ zoom: scale }}>
@@ -285,6 +293,7 @@ export function ResumeEditorOverlay({
                 onPages={setPages}
               />
             </div>
+            {translating && <span className="border-beam" />}
           </div>
         </div>
 

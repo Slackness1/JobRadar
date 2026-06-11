@@ -18,8 +18,11 @@ export interface ResumeScorePanelProps {
   layout: LayoutState;
   hidden: Set<string>;
   lang: Lang;
+  /** 仅用于切回中文;切到 'en' 必须走 onTranslate(en 可能为 null)。 */
   onLang: (l: Lang) => void;
   onTranslate: () => void;
+  /** 翻译进行中(禁用 EN 按钮)。 */
+  translating?: boolean;
 }
 
 // 8 维 → 雷达短标签 + 金融维标记(对齐原型 R_RADAR 顺序)
@@ -63,6 +66,7 @@ export function ResumeScorePanel({
   lang,
   onLang,
   onTranslate,
+  translating = false,
 }: ResumeScorePanelProps) {
   const [view, setView] = useState<'score' | 'preview'>('score');
   const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
@@ -169,16 +173,19 @@ export function ResumeScorePanel({
               {(['zh', 'en'] as const).map((l) => (
                 <button
                   key={l}
+                  disabled={l === 'en' && translating}
                   onClick={() => (l === 'en' ? onTranslate() : onLang('zh'))}
                   style={{
-                    cursor: 'pointer', border: 'none', borderRadius: 7, padding: '3px 10px',
+                    cursor: l === 'en' && translating ? 'not-allowed' : 'pointer',
+                    border: 'none', borderRadius: 7, padding: '3px 10px',
                     font: `${lang === l ? 600 : 500} 11px var(--font-sans)`,
                     color: lang === l ? 'var(--ink)' : 'var(--olive)',
                     background: lang === l ? 'var(--ivory)' : 'transparent',
                     boxShadow: lang === l ? '0 0 0 1px var(--border-strong)' : 'none',
+                    opacity: l === 'en' && translating ? 0.6 : 1,
                   }}
                 >
-                  {l === 'zh' ? '中文' : 'EN'}
+                  {l === 'zh' ? '中文' : translating ? '翻译中…' : 'EN'}
                 </button>
               ))}
             </div>

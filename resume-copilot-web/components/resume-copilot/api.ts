@@ -190,6 +190,18 @@ export function listResumeCopilotSessions() {
   return requestJson<ResumeCopilotSessionListItem[]>('/api/resume-copilot/sessions');
 }
 
+// ── 双语翻译 (B5) ────────────────────────────────────────────────────────────
+
+export interface TranslateWarning { path: string; extra: string; }
+export interface TranslateProfileOut { profile: unknown; warnings: TranslateWarning[]; }
+
+export function translateProfile(profile: unknown): Promise<TranslateProfileOut> {
+  return requestJson<TranslateProfileOut>('/api/resume-copilot/translate-profile', {
+    method: 'POST',
+    body: JSON.stringify({ profile, target: 'en' }),
+  });
+}
+
 // ── 简历多维度打分 (B1) ─────────────────────────────────────────────────────
 export interface ScoreDimension {
   key: string;

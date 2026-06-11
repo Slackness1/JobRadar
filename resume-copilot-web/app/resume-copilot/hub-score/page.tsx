@@ -5,12 +5,12 @@ import { ResumeScorePanel } from '../../../components/resume-copilot/workspace/h
 import { ResumeEditorOverlay } from '../../../components/resume-copilot/workspace/hub/resume/editor/ResumeEditorOverlay';
 import {
   SAMPLE_PROFILE,
-  SAMPLE_PROFILE_EN,
   DEFAULT_LAYOUT,
   type Lang,
   type LayoutState,
   type ResumeProfile,
 } from '../../../components/resume-copilot/workspace/hub/resume/editor/resumeSample';
+import { translateProfile } from '../../../components/resume-copilot/api';
 
 function Inner() {
   const params = useSearchParams();
@@ -23,10 +23,20 @@ function Inner() {
   const [lang, setLang] = useState<Lang>('zh');
   const activeProfile = lang === 'en' && en ? en : zh;
   const setActiveProfile = (p: ResumeProfile) => (lang === 'en' ? setEn(p) : setZh(p));
-  // A 期:翻译先用手译示例占位;B 期 Task B5 换成真后端调用。
-  const handleTranslate = () => {
-    setEn(SAMPLE_PROFILE_EN);
-    setLang('en');
+  // B5: 调真后端翻译。已翻过则直接切语言;出错留中文不崩。
+  const [translating, setTranslating] = useState(false);
+  const handleTranslate = async () => {
+    if (en) { setLang('en'); return; }      // 已翻过 → 只切语言,不重复调用
+    setTranslating(true);
+    try {
+      const out = await translateProfile(zh);
+      setEn(out.profile as ResumeProfile);
+      setLang('en');
+    } catch {
+      setLang('zh');                          // 失败留在中文(en 仍为 null)
+    } finally {
+      setTranslating(false);
+    }
   };
   const [template, setTemplate] = useState<string>('classic');
   const [layout, setLayout] = useState<LayoutState>(DEFAULT_LAYOUT);
@@ -57,6 +67,7 @@ function Inner() {
           lang={lang}
           onLang={setLang}
           onTranslate={handleTranslate}
+          translating={translating}
         />
       </div>
       {editorOpen && (
@@ -75,6 +86,7 @@ function Inner() {
           lang={lang}
           onLang={setLang}
           onTranslate={handleTranslate}
+          translating={translating}
         />
       )}
     </div>
