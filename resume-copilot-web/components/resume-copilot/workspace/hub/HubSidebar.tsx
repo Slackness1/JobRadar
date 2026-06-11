@@ -24,6 +24,16 @@ interface HubSidebarProps {
   active: HubModule | null;   // 高亮项
   onNav: (key: HubModule) => void;
   onNew: () => void;
+  // 历史记录:真实会话列表(由 HubShell 拉 listResumeCopilotSessions 注入)
+  sessions?: HubSessionRow[];
+  currentSessionId?: number;
+  onSelectSession?: (id: number) => void;
+}
+
+export interface HubSessionRow {
+  id: number;
+  label: string;   // 会话名 / 赛道 / 文件名
+  time: string;    // 相对时间
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -43,14 +53,6 @@ const NAV: NavItem[] = [
   { key: 'resume',    label: '简历优化', Icon: FileText },
   { key: 'interview', label: '模拟面试', Icon: Mic,  jump: true },
   { key: 'profile',   label: '个人档案', Icon: User },
-];
-
-// 静态历史记录占位
-// TODO(next): 接会话独立实体后端
-const SESSIONS: [string, string][] = [
-  ['券商资管 · 固收方向', '刚刚'],
-  ['量化私募 · 研究岗', '昨天'],
-  ['央国企 · 战略', '3 天前'],
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -220,6 +222,9 @@ export default function HubSidebar({
   active,
   onNav,
   onNew,
+  sessions = [],
+  currentSessionId,
+  onSelectSession,
 }: HubSidebarProps) {
   // ── Collapsed state (width 64) ───────────────────────────────────────────
   if (collapsed) {
@@ -443,8 +448,7 @@ export default function HubSidebar({
         </span>
       </div>
 
-      {/* history session list — static mock rows */}
-      {/* TODO(next): 接会话独立实体后端 */}
+      {/* history session list — 真实会话(listResumeCopilotSessions 注入) */}
       <div
         style={{
           padding: '0 10px',
@@ -456,33 +460,43 @@ export default function HubSidebar({
           flex: '1 1 auto',
         }}
       >
-        {SESSIONS.map(([label, time], i) => (
-          <div
-            key={i}
-            style={{
-              padding: '8px 11px',
-              borderRadius: 10,
-              cursor: 'pointer',
-              background: i === 0 ? 'var(--library-rail)' : 'transparent',
-              boxShadow: i === 0 ? '0 0 0 1px var(--border-warm)' : 'none',
-            }}
-          >
-            <div
-              style={{
-                font: `${i === 0 ? 600 : 500} 12.5px var(--font-sans)`,
-                color: i === 0 ? 'var(--ink)' : 'var(--ink-soft)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {label}
-            </div>
-            <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)', marginTop: 2 }}>
-              {time}
-            </div>
+        {sessions.length === 0 ? (
+          <div style={{ padding: '8px 11px', font: '400 11px var(--font-sans)', color: 'var(--stone)' }}>
+            还没有会话 —— 上传简历开始
           </div>
-        ))}
+        ) : (
+          sessions.map((s) => {
+            const cur = s.id === currentSessionId;
+            return (
+              <div
+                key={s.id}
+                onClick={() => onSelectSession?.(s.id)}
+                style={{
+                  padding: '8px 11px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  background: cur ? 'var(--library-rail)' : 'transparent',
+                  boxShadow: cur ? '0 0 0 1px var(--border-warm)' : 'none',
+                }}
+              >
+                <div
+                  style={{
+                    font: `${cur ? 600 : 500} 12.5px var(--font-sans)`,
+                    color: cur ? 'var(--ink)' : 'var(--ink-soft)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {s.label}
+                </div>
+                <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)', marginTop: 2 }}>
+                  {s.time}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* bottom identity — persistent profile entry */}

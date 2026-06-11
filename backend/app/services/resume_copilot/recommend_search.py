@@ -14,6 +14,18 @@ from app.services.resume_copilot.working_query import WorkingQuery
 
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
+# 研究/投资类桶里的中后台支持岗误配词(非研究/投资本职)。命中则桶内降权沉底。
+# 区别于 taxonomy.quality.is_low_quality_role(那组覆盖零售/销售,在 quality_label 阶段已过滤)。
+_SUPPORT_ROLE_HINTS = (
+    "反洗钱", "风险岗", "风控岗", "风险管理岗", "合规岗", "合规经理", "内控", "稽核",
+    "投融类", "运营岗", "中后台", "清算", "结算", "估值核算", "登记结算",
+    "财务岗", "出纳", "行政", "人力资源", "招聘", "档案", "信息技术运维", "网络运维",
+)
+
+
+def _is_support_role(title: str) -> bool:
+    return any(h in title for h in _SUPPORT_ROLE_HINTS)
+
 
 def _fresh_key(job: Any) -> datetime:
     """sort=='fresh' 排序键。scraped_at 在库里 naive/aware 混存(SQLite 存 naive UTC,
@@ -86,8 +98,20 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
         confirmed_sub_cats=list(query.seed_sub_cats),
     )
     ranked = _scoring.rank_jobs(profile, jobs)  # [(job, score 0-1), ...]
+    # support 岗降权:研究/投资桶里混进的中后台支持岗(反洗钱/风险/合规/投融/运营/
+    # 清算估值等)是误配。三维评分里行业/梯队维度当前恒中性(profile 无此字段),桶内
+    # 只剩新鲜度区分 → 新爬的 support 岗盖过真研究岗。这里命中扣 0.30 沉底。
+    # 注:is_low_quality_role 只覆盖零售/销售类,中后台支持岗另用下面这组精准词。
+    from app.services.taxonomy.quality import is_low_quality_role
+    ranked = [
+        (j, s - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0))
+        for j, s in ranked
+    ]
+    _ = is_low_quality_role  # 保留引用,零售类已在 quality_label 阶段过滤
     if query.sort == "fresh":
         ranked = sorted(ranked, key=lambda t: _fresh_key(t[0]), reverse=True)
+    else:
+        ranked = sorted(ranked, key=lambda t: t[1], reverse=True)
     # sort=='pay' 暂无可靠薪资字段 → 退回 match 序
 
     # _v2_items_from_ranked 期望 list[dict]: 每条含 job / final_score / base_score (0-1)。

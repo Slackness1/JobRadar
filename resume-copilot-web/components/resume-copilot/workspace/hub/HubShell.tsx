@@ -39,11 +39,29 @@ import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
 import {
   getStudentKbIndex,
   getWorkingQuery,
+  listResumeCopilotSessions,
   postRecommendChat,
   updateWorkingQuery,
 } from '../../api';
 import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
+import type { HubSessionRow } from './HubSidebar';
+
+// 相对时间(刚刚 / N 分钟前 / N 小时前 / 昨天 / N 天前 / 日期)
+function relTime(iso: string | null): string {
+  if (!iso) return '';
+  const t = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z').getTime();
+  if (Number.isNaN(t)) return '';
+  const m = Math.floor((Date.now() - t) / 60000);
+  if (m < 1) return '刚刚';
+  if (m < 60) return `${m} 分钟前`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} 小时前`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return '昨天';
+  if (d < 30) return `${d} 天前`;
+  return new Date(t).toLocaleDateString('zh-CN');
+}
 
 // ── 技能文案 — AI 的「开始跑」一声(每模块一句)──────────────────────────────────
 const SAY: Record<HubModule, string> = {
@@ -208,6 +226,7 @@ function ResultCard({
 export default function HubShell({ sessionId }: { sessionId: number }) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [sessions, setSessions] = useState<HubSessionRow[]>([]); // 侧栏真实历史会话
   const [active, setActive] = useState<HubSlot>('none'); // 当前打开的画布槽
   const [armed, setArmed] = useState<HubModule | null>(null); // 被「激活」但还没说话触发的模块
   const [started, setStarted] = useState(false); // 离开落地态?
@@ -240,6 +259,28 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     const el = bodyRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [msgs, thinking]);
+
+  // 侧栏历史:拉本人真实会话(不是写死占位)
+  useEffect(() => {
+    let cancelled = false;
+    listResumeCopilotSessions()
+      .then((items) => {
+        if (cancelled) return;
+        setSessions(
+          items.map((s) => ({
+            id: s.id,
+            label: s.name?.trim() || s.track || s.file_name || `会话 ${s.id}`,
+            time: relTime(s.updated_at || s.created_at),
+          })),
+        );
+      })
+      .catch(() => {
+        /* 拉不到则空列表,显示「还没有会话」 */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
 
   // ── 进场拉真实 working query + 记忆(派生 2–3 条记忆 pill 文案) ───────────
   useEffect(() => {
@@ -602,6 +643,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         active={sidebarActive}
         onNav={armModule}
         onNew={onNew}
+        sessions={sessions}
+        currentSessionId={sessionId}
+        onSelectSession={(id) => router.push(`/hub?session=${id}`)}
       />
 
       {/* Center: 对话主轴(复用推荐工作台 chat 组件 → 挂 data-theme="recommend" 让其 CSS 命中) */}
