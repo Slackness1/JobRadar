@@ -82,7 +82,9 @@ class OpenAICompatibleResumeScorer:
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
             'reasoning_effort': 'medium',
-            'max_tokens': 4000,
+            # 8000 而非 4000:deepseek-v4-* 是推理模型, 每次先烧 2-4k reasoning token,
+            # 4000 会被吃光导致 content 空 → JSONDecodeError(见 translator 同款修复)。
+            'max_tokens': 8000,
             'messages': messages_payload,
         }
         req = urllib_request.Request(
@@ -91,12 +93,17 @@ class OpenAICompatibleResumeScorer:
             headers={
                 'Authorization': f'Bearer {self.client.api_key}',
                 'Content-Type': 'application/json',
+                # OpenCode 中转前置 Cloudflare 按 UA 封 Python-urllib(403/1010);
+                # 带浏览器 UA 放行(见 reference_zen_relay_urllib_gotchas)。
+                'User-Agent': 'Mozilla/5.0',
             },
             method='POST',
         )
         with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as resp:
             body = json.loads(resp.read().decode('utf-8'))
-        content = body['choices'][0]['message']['content']
+        content = (body.get('choices') or [{}])[0].get('message', {}).get('content') or ''
+        if not content.strip():
+            raise ValueError('empty content from score provider (reasoning budget exhausted?)')
         return json.loads(content)
 
 
