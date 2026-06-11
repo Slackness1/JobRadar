@@ -103,6 +103,9 @@ class ResumeCopilotSession(Base):
     # Defaults to False; default index keeps GET /sessions filter cheap.
     is_archived = Column(Boolean, default=False, nullable=False, server_default='0', index=True)
     working_query_json = Column(Text, nullable=True)  # L1 NL 推荐工作查询(JSON), 空=按 confirmed
+    # 简历编辑器草稿(渲染模型 zh + 模板/布局/隐藏项)的跨设备持久化。后端 confirmed-
+    # profile 装不下编辑器这套渲染态, 单独存; 空=学生还没在编辑器里改过。
+    editor_draft_json = Column(Text, nullable=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",

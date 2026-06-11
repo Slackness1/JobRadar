@@ -240,6 +240,31 @@ export function scoreResume(sessionId: number, targetTrack = ''): Promise<ScoreR
   });
 }
 
+// ── 简历编辑器草稿(跨设备持久化)─────────────────────────────────────────────
+// 渲染模型 + 模板/布局/隐藏项落库, 换设备/浏览器也能恢复上次编辑。
+export interface EditorDraftPayload {
+  profile: unknown;
+  template: string;
+  layout: unknown;
+  hidden: string[];
+}
+
+export function getEditorDraft(sessionId: number): Promise<{ draft: EditorDraftPayload | null }> {
+  return requestJson<{ draft: EditorDraftPayload | null }>(
+    `/api/resume-copilot/sessions/${sessionId}/editor-draft`,
+  );
+}
+
+export function putEditorDraft(
+  sessionId: number,
+  draft: EditorDraftPayload,
+): Promise<{ ok: boolean }> {
+  return requestJson<{ ok: boolean }>(`/api/resume-copilot/sessions/${sessionId}/editor-draft`, {
+    method: 'PUT',
+    body: JSON.stringify({ draft }),
+  });
+}
+
 // ── 深度优化(反问取证)— 复用现有 plan 管道 ────────────────────────────
 export interface DeepOptimizeStartIn {
   section: string;

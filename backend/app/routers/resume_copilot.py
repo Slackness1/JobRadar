@@ -2332,6 +2332,49 @@ def get_working_query(
     return {"working_query": q.model_dump()}
 
 
+# ── 简历编辑器草稿(跨设备持久化)— editor_draft_json 列 ────────────────────────
+# 编辑器改的是渲染模型 zh + 模板/布局/隐藏项, confirmed-profile 装不下这套。落库后
+# 换设备/换浏览器也能恢复上次编辑。前端仍用 localStorage 当即时缓存, 这里是真源。
+
+class EditorDraftIn(_BaseModel):
+    draft: dict[str, Any]
+
+
+@router.get('/sessions/{session_id}/editor-draft')
+def get_editor_draft(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """读简历编辑器草稿(渲染模型 + 模板/布局/隐藏)。无草稿返回 null。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    raw = getattr(session, 'editor_draft_json', None)
+    if raw:
+        try:
+            return {"draft": json.loads(raw)}
+        except Exception:
+            pass
+    return {"draft": None}
+
+
+@router.put('/sessions/{session_id}/editor-draft')
+def put_editor_draft(
+    session_id: int,
+    payload: EditorDraftIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """落简历编辑器草稿(跨设备恢复)。owner 守卫 + demo 只读守卫。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    _assert_not_demo(session)
+    session.editor_draft_json = json.dumps(payload.draft, ensure_ascii=False)
+    session.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
 @router.post('/sessions/{session_id}/recommend-deepen')
 def recommend_deepen(
     session_id: int,

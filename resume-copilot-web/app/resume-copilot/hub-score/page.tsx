@@ -12,15 +12,17 @@ import {
   type ResumeProfile,
 } from '../../../components/resume-copilot/workspace/hub/resume/editor/resumeSample';
 import {
+  getEditorDraft,
   getResumeCopilotConfirmedProfile,
   getResumeCopilotParsedProfile,
+  putEditorDraft,
   translateProfile,
 } from '../../../components/resume-copilot/api';
 
-// ── 简历编辑器草稿持久化(本地) ──────────────────────────────────────────────
-// 编辑器改的是渲染模型 + 模板/布局/隐藏项, 后端 confirmed-profile 装不下这套。
-// 跨设备同步要等统一加 DB 列(避免现在与并行会话的在途迁移撞 alembic head),
-// 当前先用 localStorage 按会话存, 刷新自动恢复 —— 解决"改了刷新就没"。
+// ── 简历编辑器草稿持久化(跨设备)──────────────────────────────────────────────
+// 编辑器改的是渲染模型 + 模板/布局/隐藏项, 后端 confirmed-profile 装不下这套, 单独
+// 落 editor_draft_json 列。换设备/浏览器也能恢复上次编辑。localStorage 仍当即时缓存:
+// 加载时本地优先即时回显, 同时拉后端真源对齐; 保存时本地即写 + 防抖 PUT 落库。
 const draftKey = (sid: number) => `hub-resume-draft:${sid}`;
 
 interface EditorDraft {
@@ -81,42 +83,58 @@ function Inner() {
   const [layout, setLayout] = useState<LayoutState>(DEFAULT_LAYOUT);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
   const loadedRef = useRef(false); // 初次加载完成前不写草稿(防覆盖)
+  const putTimer = useRef<ReturnType<typeof setTimeout> | null>(null); // 落库防抖
 
-  // 真实会话:本地草稿优先(恢复上次编辑), 否则拉真简历 profile。
+  // 真实会话:本地缓存即时回显 + 后端草稿(跨设备真源)对齐; 都无草稿再拉真简历。
   useEffect(() => {
     if (mock || !sessionId) {
       loadedRef.current = true;
       return;
     }
     let cancelled = false;
-    const draft = loadDraft(sessionId);
-    if (draft) {
-      // 微任务里应用, 避免在 effect 内同步 setState(级联渲染 lint)。
+    const applyDraft = (d: EditorDraft) => {
+      setZh(d.profile);
+      setTemplate(d.template);
+      setLayout(d.layout);
+      setHidden(new Set(d.hidden));
+    };
+    const fetchProfileIntoZh = () =>
+      getResumeCopilotConfirmedProfile(sessionId)
+        .then((r) => {
+          if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
+        })
+        .catch(() =>
+          getResumeCopilotParsedProfile(sessionId)
+            .then((r) => {
+              if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
+            })
+            .catch(() => {
+              /* 都拿不到则保持示例,不致崩 */
+            }),
+        );
+    const local = loadDraft(sessionId);
+    if (local) {
+      // 本地缓存即时回显(微任务避免 effect 内同步 setState 级联渲染 lint)。
       Promise.resolve().then(() => {
-        if (cancelled) return;
-        setZh(draft.profile);
-        setTemplate(draft.template);
-        setLayout(draft.layout);
-        setHidden(new Set(draft.hidden));
-        loadedRef.current = true;
+        if (!cancelled) applyDraft(local);
       });
-      return () => {
-        cancelled = true;
-      };
     }
-    getResumeCopilotConfirmedProfile(sessionId)
+    // 后端草稿是跨设备真源:有则覆盖本地; 无草稿且本地也无 → 拉真简历 profile。
+    getEditorDraft(sessionId)
       .then((r) => {
-        if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
-      })
-      .catch(() => {
-        getResumeCopilotParsedProfile(sessionId)
-          .then((r) => {
-            if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
-          })
-          .catch(() => {
-            /* 都拿不到则保持示例,不致崩 */
+        if (cancelled) return undefined;
+        if (r?.draft) {
+          applyDraft({
+            profile: r.draft.profile as ResumeProfile,
+            template: r.draft.template,
+            layout: r.draft.layout as LayoutState,
+            hidden: r.draft.hidden ?? [],
           });
+          return undefined;
+        }
+        return local ? undefined : fetchProfileIntoZh();
       })
+      .catch(() => (cancelled || local ? undefined : fetchProfileIntoZh()))
       .finally(() => {
         if (!cancelled) loadedRef.current = true;
       });
@@ -125,15 +143,27 @@ function Inner() {
     };
   }, [sessionId, mock]);
 
-  // 自动保存草稿:任何编辑(简历内容/模板/布局/隐藏)落本地, 刷新不丢。
+  // 自动保存草稿:任何编辑落本地即写(刷新不丢)+ 防抖 PUT 落库(跨设备恢复)。
   useEffect(() => {
     if (mock || !sessionId || !loadedRef.current) return;
-    saveDraft(sessionId, { profile: zh, template, layout, hidden: [...hidden] });
+    const d: EditorDraft = { profile: zh, template, layout, hidden: [...hidden] };
+    saveDraft(sessionId, d);
+    if (putTimer.current) clearTimeout(putTimer.current);
+    putTimer.current = setTimeout(() => {
+      putEditorDraft(sessionId, d).catch(() => {
+        /* 网络/未登录态 → 留本地缓存, 不阻断编辑 */
+      });
+    }, 1500);
   }, [zh, template, layout, hidden, sessionId, mock]);
 
-  // 保存按钮:已自动存, 这里立即 flush(反馈由编辑器本地给)。
+  // 保存按钮:已自动存, 这里立即 flush 本地 + 落库(反馈由编辑器本地给)。
   const onSaveDraft = () => {
-    if (!mock && sessionId) saveDraft(sessionId, { profile: zh, template, layout, hidden: [...hidden] });
+    if (mock || !sessionId) return;
+    const d: EditorDraft = { profile: zh, template, layout, hidden: [...hidden] };
+    saveDraft(sessionId, d);
+    putEditorDraft(sessionId, d).catch(() => {
+      /* 落库失败留本地 */
+    });
   };
 
   const toggleHidden = (id: string) =>
