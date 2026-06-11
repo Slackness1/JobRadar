@@ -37,6 +37,8 @@ import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
 import {
+  getResumeCopilotConfirmedProfile,
+  getResumeCopilotParsedProfile,
   getStudentKbIndex,
   getWorkingQuery,
   listResumeCopilotSessions,
@@ -227,6 +229,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [sessions, setSessions] = useState<HubSessionRow[]>([]); // 侧栏真实历史会话
+  const [userName, setUserName] = useState(''); // 真实候选人姓名(profile.basic_info.name)
   const [active, setActive] = useState<HubSlot>('none'); // 当前打开的画布槽
   const [armed, setArmed] = useState<HubModule | null>(null); // 被「激活」但还没说话触发的模块
   const [started, setStarted] = useState(false); // 离开落地态?
@@ -303,6 +306,17 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       })
       .catch(() => {
         if (!cancelled) setMemoryPills([]);
+      });
+    // 真实候选人姓名: confirmed 优先, 回退 parsed; 用于问候 + 侧栏头像/名(去写死「陈思远」)
+    getResumeCopilotConfirmedProfile(sessionId)
+      .catch(() => getResumeCopilotParsedProfile(sessionId))
+      .then((r) => {
+        if (cancelled) return;
+        const nm = (r?.profile?.basic_info?.name ?? '').trim();
+        if (nm) setUserName(nm);
+      })
+      .catch(() => {
+        /* 拉不到姓名则保持空 → 落「同学」 */
       });
     return () => {
       cancelled = true;
@@ -646,6 +660,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         sessions={sessions}
         currentSessionId={sessionId}
         onSelectSession={(id) => router.push(`/hub?session=${id}`)}
+        userName={userName}
       />
 
       {/* Center: 对话主轴(复用推荐工作台 chat 组件 → 挂 data-theme="recommend" 让其 CSS 命中) */}
@@ -672,7 +687,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
               padding: '0 40px',
             }}
           >
-            <HubLanding selected={armed} onPick={armModule} onSend={onSend} />
+            <HubLanding selected={armed} onPick={armModule} onSend={onSend} userName={userName} />
           </div>
         ) : (
           <>

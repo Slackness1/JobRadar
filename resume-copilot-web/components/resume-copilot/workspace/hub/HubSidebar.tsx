@@ -28,6 +28,8 @@ interface HubSidebarProps {
   sessions?: HubSessionRow[];
   currentSessionId?: number;
   onSelectSession?: (id: number) => void;
+  // 真实候选人姓名(profile.basic_info.name); 空则退「同学」
+  userName?: string;
 }
 
 export interface HubSessionRow {
@@ -225,7 +227,10 @@ export default function HubSidebar({
   sessions = [],
   currentSessionId,
   onSelectSession,
+  userName,
 }: HubSidebarProps) {
+  const displayName = (userName || '').trim() || '同学';
+  const avatarChar = displayName.charAt(0) || '同';
   // ── Collapsed state (width 64) ───────────────────────────────────────────
   if (collapsed) {
     return (
@@ -300,7 +305,7 @@ export default function HubSidebar({
               font: '600 13px var(--font-sans)',
             }}
           >
-            陈
+            {avatarChar}
           </div>
         </div>
       </div>
@@ -535,12 +540,12 @@ export default function HubSidebar({
             flex: 'none',
           }}
         >
-          陈
+          {avatarChar}
         </div>
 
         {/* name + tagline */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ font: '600 13px var(--font-sans)', color: 'var(--ink)' }}>陈思远</div>
+          <div style={{ font: '600 13px var(--font-sans)', color: 'var(--ink)' }}>{displayName}</div>
           <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)' }}>
             它记得你 · 点开看档案
           </div>
