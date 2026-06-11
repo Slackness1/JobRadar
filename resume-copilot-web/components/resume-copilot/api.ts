@@ -195,6 +195,92 @@ export function listResumeCopilotSessions() {
   return requestJson<ResumeCopilotSessionListItem[]>('/api/resume-copilot/sessions');
 }
 
+// ── 简历多维度打分 (B1) ─────────────────────────────────────────────────────
+export interface ScoreDimension {
+  key: string;
+  name: string;
+  score: number;
+  ceiling: number;
+  reason: string;
+}
+export interface ScoreSectionGap {
+  section: string;
+  label: string;
+  gaps: string[];
+  detail: string;
+}
+export interface ScoreReportData {
+  session_id: number;
+  target_track: string;
+  overall_current: number;
+  overall_potential_low: number;
+  overall_potential_high: number;
+  summary: string;
+  dimensions: ScoreDimension[];
+  section_gaps: ScoreSectionGap[];
+  used_ai: boolean;
+}
+
+export function scoreResume(sessionId: number, targetTrack = ''): Promise<ScoreReportData> {
+  return requestJson<ScoreReportData>(`/api/resume-copilot/sessions/${sessionId}/score`, {
+    method: 'POST',
+    body: JSON.stringify({ target_track: targetTrack }),
+  });
+}
+
+// ── 深度优化(反问取证)— 复用现有 plan 管道 ────────────────────────────
+export interface DeepOptimizeStartIn {
+  section: string;
+  label: string;
+  gaps: string[];
+  detail: string;
+  target_track: string;
+}
+
+// 注:PlanStateOut / PlanItemWire / PlanOpenQuestionWire 已在本文件下方(约 804–841)
+// 定义为 canonical wire 类型,这里直接复用,不重复声明。
+
+/** 从打分逐段缺口播种深度优化 → 单段 CLARIFYING plan(首问已对齐目标赛道)。 */
+export function deepOptimizeStart(sessionId: number, body: DeepOptimizeStartIn): Promise<PlanStateOut> {
+  return requestJson<PlanStateOut>(`/api/resume-copilot/sessions/${sessionId}/deep-optimize/start`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+
+/** 续走一回合反问(plan-mode one-tool-per-turn);content = 学生这轮回答。 */
+export function planTurn(sessionId: number, content: string, activeJobId = ''): Promise<PlanStateOut> {
+  return requestJson<PlanStateOut>(`/api/resume-copilot/sessions/${sessionId}/plan/turn`, {
+    method: 'POST',
+    body: JSON.stringify({ content, active_job_id: activeJobId }),
+  });
+}
+
+/** 深度优化写回:把当前 finalized draft 写进 profile 对应段落 → 返回更新后 profile + 段落(供高亮)。 */
+export interface DeepOptimizeWriteBackResult {
+  profile: Record<string, unknown>;
+  section: string;
+  applied: boolean;
+}
+export function deepOptimizeWriteBack(sessionId: number): Promise<DeepOptimizeWriteBackResult> {
+  return requestJson<DeepOptimizeWriteBackResult>(`/api/resume-copilot/sessions/${sessionId}/deep-optimize/write-back`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+/** 应用某条 v0/v2 改写选项(按 message_id + option_id)→ 返回写回后的完整 profile。 */
+export interface ApplyRewriteResult {
+  profile: Record<string, unknown>;
+  applied: boolean;
+}
+export function applyRewrite(sessionId: number, messageId: number, optionId: string): Promise<ApplyRewriteResult> {
+  return requestJson<ApplyRewriteResult>(`/api/resume-copilot/sessions/${sessionId}/chat/apply-rewrite`, {
+    method: 'POST',
+    body: JSON.stringify({ message_id: messageId, option_id: optionId }),
+  });
+}
+
 export async function downloadResumePdf(sessionId: number): Promise<void> {
   const userKey = getOrCreateUserKey();
   const headers: Record<string, string> = { 'X-Resume-User-Key': userKey };

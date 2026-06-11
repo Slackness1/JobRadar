@@ -23,6 +23,8 @@ from app.schemas_resume_copilot import (
     ApplyRewriteIn,
     ApplyRewriteOut,
     ChatMessageIn,
+    DeepOptimizeStartIn,
+    DeepOptimizeWriteBackOut,
     DirectionTierResult,
     MemoryEntryCreateIn,
     MemoryEntryOut,
@@ -54,7 +56,11 @@ from app.schemas_resume_copilot import (
     RewriteOption,
     RewriteV0V2In,
     RewriteV0V2Out,
+    ScoreReportOut,
+    ScoreRequestIn,
 )
+from app.services.resume_copilot import scoring as _scoring_mod
+from app.services.resume_copilot.scoring import derive_target_track, score_resume
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
 from app.services.resume_copilot.pdf_export import FontsNotInstalledError, render_resume_pdf
@@ -655,6 +661,64 @@ def export_resume_pdf(
     )
 
 
+@router.post('/sessions/{session_id}/score', response_model=ScoreReportOut)
+def score_resume_session(
+    session_id: int,
+    body: ScoreRequestIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """多维度诚实打分 (B1)。只读,不写库 — demo 简历也可打分。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    confirmed = (
+        db.query(ResumeConfirmedProfile)
+        .filter(ResumeConfirmedProfile.session_id == session_id)
+        .first()
+    )
+    parsed = (
+        db.query(ResumeParsedProfile)
+        .filter(ResumeParsedProfile.session_id == session_id)
+        .first()
+    )
+    source = confirmed or parsed
+    if not source:
+        raise HTTPException(status_code=404, detail='No resume profile available to score')
+
+    profile = ResumeProfilePayload.model_validate(json.loads(str(source.profile_json or '{}')))
+
+    preferences = None
+    pref_row = (
+        db.query(ResumePreferenceProfile)
+        .filter(ResumePreferenceProfile.session_id == session_id)
+        .first()
+    )
+    if pref_row is not None:
+        preferences = ResumePreferencePayload.model_validate(
+            json.loads(str(getattr(pref_row, 'preferences_json', '{}') or '{}'))
+        )
+        preferences.all_skipped = bool(getattr(pref_row, 'all_skipped', 0))
+
+    target = (body.target_track or '').strip() or derive_target_track(profile, preferences)
+
+    # 模块级 provider 钩子,测试可 monkeypatch _scoring_mod.OpenAICompatibleResumeScorer。
+    provider = _scoring_mod.OpenAICompatibleResumeScorer()
+    report = score_resume(db, profile, target, preferences=preferences, provider=provider)
+
+    return ScoreReportOut(
+        session_id=session_id,
+        target_track=report.target_track,
+        overall_current=report.overall_current,
+        overall_potential_low=report.overall_potential_low,
+        overall_potential_high=report.overall_potential_high,
+        summary=report.summary,
+        dimensions=report.dimensions,
+        section_gaps=report.section_gaps,
+        used_ai=report.used_ai,
+    )
+
+
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)
 def get_resume_copilot_preferences(
     session_id: int,
@@ -760,6 +824,77 @@ def put_resume_copilot_preferences(
             quote(t, safe='') for t in unknown_tracks
         )
     return ResumePreferenceOut(session_id=session_id, preferences=normalized_prefs)
+
+
+@router.post('/sessions/{session_id}/deep-optimize/start', response_model=PlanStateOut)
+def post_deep_optimize_start(
+    session_id: int,
+    payload: DeepOptimizeStartIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """从打分逐段缺口进入深度优化:播种聚焦该段的单 item plan(覆盖现有 plan),
+    返回 PlanStateOut(首问已对齐目标 subcat)。后续反问走现成 /plan/turn,
+    改写写回走现成 /chat/apply-rewrite。写接口 → owner + not_demo 守卫。"""
+    from app.services.resume_copilot.deep_optimize import seed_plan_from_gap
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = seed_plan_from_gap(
+        section=payload.section,
+        label=payload.label,
+        gap_tags=payload.gaps,
+        gap_detail=payload.detail,
+        target_track=payload.target_track,
+    )
+    _save_plan(session_obj, plan)
+    session_obj.updated_at = datetime.utcnow()
+    db.commit()
+    return PlanStateOut(**plan.model_dump(mode='json'))
+
+
+@router.post('/sessions/{session_id}/deep-optimize/write-back', response_model=DeepOptimizeWriteBackOut)
+def post_deep_optimize_write_back(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """深度优化写回:把当前 item 的 finalized draft 写进 confirmed profile 对应段落,
+    返回更新后的 profile(前端据 section 高亮"AI 刚写回")。写接口 → owner + not_demo。"""
+    from app.services.resume_copilot.deep_optimize import write_back_current_draft
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    plan = _load_plan(session_obj)
+    if plan is None:
+        raise HTTPException(status_code=404, detail='NO_PLAN — 先 POST /deep-optimize/start')
+
+    confirmed = session_obj.confirmed_profile
+    parsed = session_obj.parsed_profile
+    raw = ''
+    if confirmed is not None and (confirmed.profile_json or '').strip():
+        raw = confirmed.profile_json
+    elif parsed is not None:
+        raw = parsed.profile_json or ''
+    profile = ResumeProfilePayload.model_validate(json.loads(raw or '{}'))
+
+    try:
+        new_plan, updated, section = write_back_current_draft(plan, profile)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if confirmed is None:
+        confirmed = ResumeConfirmedProfile(session_id=session_id)
+        db.add(confirmed)
+    confirmed.profile_json = updated.model_dump_json()
+    _save_plan(session_obj, new_plan)
+    session_obj.updated_at = datetime.utcnow()
+    db.commit()
+    return DeepOptimizeWriteBackOut(profile=updated, section=section, applied=True)
 
 
 @router.post(

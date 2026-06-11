@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>简历编辑页 + AI 助手 v2 — 线稿</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #f0eee9; }
+  * { -webkit-font-smoothing: antialiased; box-sizing: border-box; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="wf/wf-kit.jsx"></script>
+<script type="text/babel" src="wf/wf-editor.jsx"></script>
+<script type="text/babel" src="wf/wf-scoring.jsx"></script>
+<script type="text/babel" src="wf/wf-flow.jsx"></script>
+<script type="text/babel" src="wf/wf-variations.jsx"></script>
+
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard, DCPostIt } = window;
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="editor" title="Part 1 · 简历编辑页" subtitle="独立新页 /resume-copilot/editor · 三栏:模板 / 编辑 / 布局 + WYSIWYG 预览（所见即所导出）">
+        <DCArtboard id="frame" label="整体三栏框架" width={1180} height={740}><EditorFrame /></DCArtboard>
+        <DCArtboard id="tab-tpl" label="左栏 ① 简历模版" width={300} height={560}><LeftTabTemplate /></DCArtboard>
+        <DCArtboard id="tab-edit" label="左栏 ② 简历编辑 · 引用此段" width={300} height={560}><LeftTabEdit /></DCArtboard>
+        <DCArtboard id="tab-layout" label="左栏 ③ 页面布局 · 超页提醒" width={300} height={560}><LeftTabLayout /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="scoring" title="Part 2 · ① 简历打分（优先级最高）" subtitle="报告式,不改简历 · 现状分 + 8 维雷达 + 逐段缺口（深度优化入口）· target-aware">
+        <DCArtboard id="score" label="打分报告 · 右栏全貌" width={408} height={1132}><ScoringPanel /></DCArtboard>
+        <DCArtboard id="score-note" label="设计要点" width={300} height={1132}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 6 }}>
+            <WNote style={{ maxWidth: '100%' }}>两个数:<b>现状分</b>老实反映当前;<b>潜力区间</b>只表达「缺口补齐后能到的位置」,不编造、不承诺。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>雷达 8 维 = 6 表层维 + 2 金融独有维(加粗:<b>赛道匹配度 / 面试可防守性</b>)。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>每维评判标准按<b>目标 subcat 校准</b>——同一句 bullet,投研 vs IB 标准不同。顶部可切换重打分。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>逐段缺口直接是「去深度优化这段」的入口,这是打分 → 优化的串联点。</WNote>
+            <WNote style={{ maxWidth: '100%' }}><b>只诊断、不改写。</b>提分只能靠深度优化反问取证,不靠 AI 补内容刷分。</WNote>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="optimize" title="Part 2 · ② 深度优化 + ③ 自由 chat" subtitle="重塑 coach:流式反问取证 → 定制改写(无选择框)· 自由 chat 三能力共存">
+        <DCArtboard id="deep" label="② 深度优化 · 反问取证" width={408} height={760}><DeepOptimizePanel /></DCArtboard>
+        <DCArtboard id="free" label="③ 自由问 · 随便聊" width={408} height={560}><FreeChatPanel /></DCArtboard>
+        <DCArtboard id="opt-note" label="设计要点" width={290} height={760}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 6 }}>
+            <WNote style={{ maxWidth: '100%' }}><b>反问在流式文字里直接问</b>,不做选择框,保持对话自然。问题由打分缺口驱动。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>学生的回答 = 真实事实,写进<b>统一记忆 / 事实账本</b>(3-anchor)。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>改写走 thesis-aware prompt + <b>编数字红线</b> + <b>证据门</b>,绝不编造没问出来的东西。</WNote>
+            <WNote style={{ maxWidth: '100%' }}>第一句反问先<b>对齐目标 subcat</b>。改写结果确认后写回 profile → 中栏预览实时刷新。</WNote>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="variations" title="右栏三能力组织 · 3 种方案对比" subtitle="打分 / 深度优化 / 自由问 怎么排?——并排比较,选一个定方向">
+        <DCArtboard id="v-tabs" label="A · 顶部 Tab 切换" width={340} height={600}><VarTabs /></DCArtboard>
+        <DCArtboard id="v-flow" label="B · 流式串联（单 thread）" width={340} height={600}><VarFlow /></DCArtboard>
+        <DCArtboard id="v-chip" label="C · composer chip 驱动" width={340} height={600}><VarChip /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="flow" title="串联流总览" subtitle="打分 → 深度优化 串联,自由 chat 随时可走 · 核心契约">
+        <DCArtboard id="flowstrip" label="进「简历优化」→ 打分 → 点缺口 → 深度优化 → 写回" width={1180} height={250}><FlowStrip /></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

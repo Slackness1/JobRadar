@@ -617,3 +617,53 @@ class RecommendRejectOut(BaseModel):
     ok: bool = True
     memory_entry_id: int | None = None
     rejected_count: int = 0
+
+
+# ===== 简历多维度打分 (B1) =====
+
+
+class DimensionScore(BaseModel):
+    key: str                       # logic|star|readability|completeness|expression|quantification|track_fit|defensibility
+    name: str                      # 中文显示名
+    score: int                     # 0-100 现状分
+    ceiling: int                   # 0-100 «补齐真实证据后可达» 上限(>= score)
+    reason: str = ''               # 一句话诊断
+
+
+class SectionGap(BaseModel):
+    section: str                   # 经历定位,如 "internships.0" / "projects.1"
+    label: str = ''                # 该段显示名(公司/项目名),给前端列表用
+    gaps: list[str] = []           # 该段的主要缺口(短 tag)
+    detail: str = ''               # 该段缺口的一段说明 prose
+
+
+class ScoreReportOut(BaseModel):
+    session_id: int
+    target_track: str              # canonical 赛道(打分所对齐的目标)
+    overall_current: int           # 现状总分 0-100
+    overall_potential_low: int     # 潜力区间下界
+    overall_potential_high: int    # 潜力区间上界
+    summary: str = ''              # 整体诊断 prose
+    dimensions: list[DimensionScore] = []
+    section_gaps: list[SectionGap] = []
+    used_ai: bool = False
+
+
+class ScoreRequestIn(BaseModel):
+    target_track: str = ''         # 空 = 后端自动推导
+
+
+class DeepOptimizeStartIn(BaseModel):
+    """从打分逐段缺口进入深度优化:播种一个聚焦该段的 plan。"""
+    section: str                   # e.g. 'internships.0' / 'projects.1'
+    label: str                     # 段标题, e.g. '九坤投资 · 量化研究实习'
+    gaps: list[str] = []           # 缺口 tag, e.g. ['STAR 缺 Result', '佐证不足']
+    detail: str = ''               # 诊断详情(非学生事实, 仅引导提问)
+    target_track: str = ''         # 目标 subcat/赛道; 空 = 仍会先反问方向
+
+
+class DeepOptimizeWriteBackOut(BaseModel):
+    """深度优化写回结果:把当前 finalized draft 写进 profile 后回传。"""
+    profile: 'ResumeProfilePayload'
+    section: str = ''              # 写回的段落, 如 'internships.0'(前端据此高亮)
+    applied: bool = True

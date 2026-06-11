@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>简历打分报告 · JobRadar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    display: flex;
+    justify-content: center;
+    padding: 40px 24px 64px;
+    box-sizing: border-box;
+  }
+  * { box-sizing: border-box; }
+
+  .report {
+    width: 100%;
+    max-width: 880px;
+  }
+
+  /* ── card shell ─────────────────────────────────── */
+  .card {
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-paper);
+    overflow: hidden;
+  }
+
+  /* ── header ─────────────────────────────────────── */
+  .hd {
+    display: flex; align-items: center; gap: 11px;
+    padding: 18px 26px;
+    border-bottom: 1px solid var(--border);
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: var(--radius-full);
+    background: var(--primary); color: #faf9f5;
+    display: grid; place-items: center; flex: none;
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .avatar svg { width: 18px; height: 18px; }
+  .hd-t1 { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .hd-t2 { font-size: 11.5px; color: var(--stone); margin-top: 2px; }
+  .tabs { margin-left: auto; display: flex; gap: 4px; background: var(--library-rail);
+    border: 1px solid var(--border); border-radius: var(--radius-full); padding: 3px; }
+  .tab {
+    font-size: 12.5px; font-weight: 500; color: var(--muted);
+    padding: 6px 14px; border-radius: var(--radius-full); cursor: default;
+    white-space: nowrap;
+  }
+  .tab.on { background: var(--ivory); color: var(--ink); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+
+  /* ── target track bar ───────────────────────────── */
+  .track {
+    display: flex; align-items: center; gap: 11px;
+    padding: 13px 26px; background: var(--parchment);
+    border-bottom: 1px solid var(--border);
+  }
+  .track-label { font-size: 11px; font-weight: 600; color: var(--stone);
+    text-transform: uppercase; letter-spacing: .08em; }
+  .track-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+    background: var(--ivory); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-full); padding: 6px 13px; white-space: nowrap;
+  }
+  .track-pill svg { width: 13px; height: 13px; color: var(--stone); }
+  .track-redo { margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 500; color: var(--primary); cursor: default; white-space: nowrap; }
+  .track-redo svg { width: 13px; height: 13px; }
+
+  /* ── hero: score + radar ────────────────────────── */
+  .hero {
+    display: grid; grid-template-columns: 1fr 312px;
+    gap: 8px; padding: 24px 26px 22px;
+  }
+  .hero-left { padding-right: 8px; }
+  .score-row { display: flex; align-items: flex-start; gap: 20px; }
+  .score-now { display: flex; flex-direction: column; }
+  .score-num {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 76px; line-height: .86; letter-spacing: -.04em; color: var(--ink);
+  }
+  .score-num em { font-style: normal; font-size: 28px; color: var(--stone); margin-left: 3px; letter-spacing: 0; }
+  .score-cap { font-size: 12.5px; color: var(--muted); margin-top: 9px; white-space: nowrap; }
+  .score-pot {
+    border-left: 1px solid var(--border); padding-left: 20px; padding-top: 3px;
+    display: flex; flex-direction: column; gap: 5px; min-width: 0;
+  }
+  .pot-val { font-family: var(--font-mono); font-weight: 600; font-size: 17px; color: var(--primary-strong); }
+  .pot-bar { height: 6px; border-radius: var(--radius-full); background: var(--warm-sand);
+    position: relative; overflow: hidden; margin: 1px 0 2px; }
+  .pot-now { position: absolute; left: 0; top: 0; height: 100%; border-radius: var(--radius-full);
+    background: var(--ink-soft); }
+  .pot-gain { position: absolute; top: 0; height: 100%;
+    background: repeating-linear-gradient(45deg, var(--primary) 0 4px, transparent 4px 8px);
+    opacity: .5; }
+  .pot-cap { font-size: 11.5px; line-height: 1.5; color: var(--stone); }
+
+  .summary {
+    margin-top: 18px; font-size: 14px; line-height: 1.7; color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .summary b { font-weight: 600; color: var(--ink); }
+
+  .radar-wrap { display: grid; place-items: center; }
+  .radar-wrap svg { overflow: visible; }
+
+  /* ── dimension breakdown ────────────────────────── */
+  .dims { padding: 4px 26px 22px; }
+  .dims-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 600; color: var(--stone);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin: 14px 0 11px;
+  }
+  .dims-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .dims-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dim {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--parchment); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 11px 14px;
+  }
+  .dim-ico {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex: none;
+    background: var(--ivory); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--charcoal-warm);
+  }
+  .dim-ico svg { width: 16px; height: 16px; }
+  .dim-mid { flex: 1; min-width: 0; }
+  .dim-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .dim-meter { height: 5px; border-radius: var(--radius-full); background: var(--warm-sand);
+    margin-top: 6px; position: relative; overflow: hidden; }
+  .dim-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: var(--radius-full); }
+  .dim-score { font-family: var(--font-mono); font-weight: 600; font-size: 17px; flex: none;
+    color: var(--ink); min-width: 28px; text-align: right; }
+
+  /* finance dims */
+  .dim.fin { background: #fbf3ef; border-color: #eccdbf; }
+  .dim.fin .dim-ico { background: #fff; border-color: #eccdbf; color: var(--primary); }
+  .dim.fin .dim-meta { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+  /* fill color variants */
+  .f-hi  { background: var(--ink-soft); }
+  .f-mid { background: var(--charcoal-warm); }
+  .f-lo  { background: var(--primary); }
+
+  /* ── gaps ───────────────────────────────────────── */
+  .gaps { padding: 4px 26px 24px; }
+  .gap {
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    background: var(--ivory); padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: var(--shadow-whisper);
+  }
+  .gap-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .gap-name { font-size: 13.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .gap-loc { font-family: var(--font-mono); font-size: 11px; color: var(--stone); }
+  .gap-tags { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+  .gtag { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: var(--radius-full);
+    background: var(--amber-bg); color: var(--amber-fg); border: 1px solid #e8d59a; white-space: nowrap; }
+  .gap-desc { font-size: 13px; line-height: 1.6; color: var(--muted); margin-bottom: 12px; }
+  .gap-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--primary); color: #faf9f5;
+    font-size: 12.5px; font-weight: 600; padding: 8px 14px;
+    border-radius: var(--radius-md); cursor: default; white-space: nowrap;
+    box-shadow: 0 0 0 1px var(--primary);
+  }
+  .gap-cta svg { width: 14px; height: 14px; }
+
+  /* ── footer note ────────────────────────────────── */
+  .foot {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 15px 26px 22px; border-top: 1px solid var(--border);
+    background: var(--parchment);
+  }
+  .foot svg { width: 15px; height: 15px; color: var(--primary); flex: none; margin-top: 2px; }
+  .foot p { font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+  .foot b { font-weight: 600; color: var(--ink-soft); }
+
+  .report-head { display: flex; align-items: baseline; gap: 12px; margin: 0 4px 16px; }
+  .report-head h1 { font-family: var(--font-serif); font-weight: 500; font-size: 26px;
+    letter-spacing: -.02em; color: var(--ink); margin: 0; }
+  .report-head span { font-size: 13px; color: var(--stone); white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div class="report">
+    <div class="report-head">
+      <h1>简历打分报告</h1>
+      <span>诚实诊断 · 不改写、不刷分</span>
+    </div>
+
+    <div class="card">
+      <!-- header -->
+      <div class="hd">
+        <div class="avatar"><i data-lucide="sparkles"></i></div>
+        <div>
+          <div class="hd-t1">AI 简历助手</div>
+          <div class="hd-t2">基于目标赛道校准的多维诊断</div>
+        </div>
+        <div class="tabs">
+          <span class="tab on">简历打分</span>
+          <span class="tab">深度优化</span>
+          <span class="tab">自由问</span>
+        </div>
+      </div>
+
+      <!-- target track -->
+      <div class="track">
+        <span class="track-label">目标赛道</span>
+        <span class="track-pill">量化私募 · 研究 <i data-lucide="chevron-down"></i></span>
+        <span class="track-redo"><i data-lucide="refresh-cw"></i>切换赛道重新打分</span>
+      </div>
+
+      <!-- hero -->
+      <div class="hero">
+        <div class="hero-left">
+          <div class="score-row">
+            <div class="score-now">
+              <div class="score-num">69<em>分</em></div>
+              <div class="score-cap">现状分 · 老实反映当前简历</div>
+            </div>
+            <div class="score-pot">
+              <div class="pot-val">潜力 83–88</div>
+              <div class="pot-bar">
+                <div class="pot-now" style="width: 69%;"></div>
+                <div class="pot-gain" style="left: 69%; width: 17%;"></div>
+              </div>
+              <div class="pot-cap">把下列缺口经反问取证<b>如实补齐</b>后可达,不靠编造</div>
+            </div>
+          </div>
+          <p class="summary">简历整体<b>质量中上</b>:逻辑清晰、可读性与专业表达突出。主要短板在 <b>STAR 应用</b> 与 <b>成果量化</b>——核心经历缺可核实的结果与数字锚点,拉低了面试可防守性。建议优先补强九坤实习与校园项目两段。</p>
+        </div>
+        <div class="radar-wrap"><svg id="radar" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+      </div>
+
+      <!-- dimensions -->
+      <div class="dims">
+        <div class="dims-label">6 表层维</div>
+        <div class="dims-grid">
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="git-branch"></i></div>
+            <div class="dim-mid"><div class="dim-name">逻辑清晰</div>
+              <div class="dim-meter"><div class="dim-fill f-hi" style="width:82%;"></div></div></div>
+            <div class="dim-score">82</div>
+          </div>
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="target"></i></div>
+            <div class="dim-mid"><div class="dim-name">STAR 应用</div>
+              <div class="dim-meter"><div class="dim-fill f-lo" style="width:58%;"></div></div></div>
+            <div class="dim-score">58</div>
+          </div>
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="align-left"></i></div>
+            <div class="dim-mid"><div class="dim-name">内容可读</div>
+              <div class="dim-meter"><div class="dim-fill f-hi" style="width:84%;"></div></div></div>
+            <div class="dim-score">84</div>
+          </div>
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="list-checks"></i></div>
+            <div class="dim-mid"><div class="dim-name">内容完整</div>
+              <div class="dim-meter"><div class="dim-fill f-mid" style="width:70%;"></div></div></div>
+            <div class="dim-score">70</div>
+          </div>
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="pen-line"></i></div>
+            <div class="dim-mid"><div class="dim-name">专业表达</div>
+              <div class="dim-meter"><div class="dim-fill f-hi" style="width:80%;"></div></div></div>
+            <div class="dim-score">80</div>
+          </div>
+          <div class="dim">
+            <div class="dim-ico"><i data-lucide="bar-chart-3"></i></div>
+            <div class="dim-mid"><div class="dim-name">成果量化</div>
+              <div class="dim-meter"><div class="dim-fill f-lo" style="width:54%;"></div></div></div>
+            <div class="dim-score">54</div>
+          </div>
+        </div>
+
+        <div class="dims-label">2 金融独有维</div>
+        <div class="dims-grid">
+          <div class="dim fin">
+            <div class="dim-ico"><i data-lucide="compass"></i></div>
+            <div class="dim-mid"><div class="dim-name">赛道匹配度</div>
+              <div class="dim-meta">这段经历对「量化私募·研究」的对口程度</div></div>
+            <div class="dim-score">66</div>
+          </div>
+          <div class="dim fin">
+            <div class="dim-ico"><i data-lucide="shield-check"></i></div>
+            <div class="dim-mid"><div class="dim-name">面试可防守性</div>
+              <div class="dim-meta">这句话面试官追问时是否站得住</div></div>
+            <div class="dim-score">60</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- gaps -->
+      <div class="gaps">
+        <div class="dims-label">逐段缺口 · 深度优化入口</div>
+        <div class="gap">
+          <div class="gap-top">
+            <span class="gap-name">九坤投资 · 量化研究实习</span>
+            <span class="gap-loc">internships.0</span>
+            <span class="gap-tags"><span class="gtag">STAR 缺 Result</span><span class="gtag">可防守性低</span></span>
+          </div>
+          <p class="gap-desc">「协助搭建因子回测框架」缺最终结果——框架覆盖多少因子、回测哪段区间、带来什么变化都没写;且「协助」角色面试时容易被追问到崩。</p>
+          <span class="gap-cta">去深度优化这段 <i data-lucide="arrow-right"></i></span>
+        </div>
+        <div class="gap">
+          <div class="gap-top">
+            <span class="gap-name">校园量化策略项目</span>
+            <span class="gap-loc">projects.1</span>
+            <span class="gap-tags"><span class="gtag">成果无量化锚点</span></span>
+          </div>
+          <p class="gap-desc">通篇没有数字锚点:回测区间、收益、调仓频次全缺,直接拖低成果量化与赛道匹配度两维。</p>
+          <span class="gap-cta">去深度优化这段 <i data-lucide="arrow-right"></i></span>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="foot">
+        <i data-lucide="shield"></i>
+        <p><b>诚实契约</b>:打分只诊断、不改写,分数老实反映现状。提分只能通过深度优化的反问取证,把你真实的细节补出来——绝不靠 AI 补内容刷分。</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    // ── 8-dim radar (terracotta) ──────────────────────────────
+    (function drawRadar() {
+      const svg = document.getElementById('radar');
+      const NS = 'http://www.w3.org/2000/svg';
+      const cx = 150, cy = 150, R = 96;
+      const dims = [
+        { k: '逻辑清晰', v: 82 },
+        { k: 'STAR 应用', v: 58 },
+        { k: '内容可读', v: 84 },
+        { k: '内容完整', v: 70 },
+        { k: '成果量化', v: 54 },           // re-ordered for visual balance
+        { k: '专业表达', v: 80 },
+        { k: '赛道匹配度', v: 66, fin: true },
+        { k: '面试可防守性', v: 60, fin: true },
+      ];
+      const n = dims.length;
+      const ang = i => (Math.PI * 2 * i) / n - Math.PI / 2;
+      const pt = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+      const mk = (tag, attrs) => { const e = document.createElementNS(NS, tag);
+        for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+      // rings
+      [0.25, 0.5, 0.75, 1].forEach((r, idx) => {
+        const pts = dims.map((_, i) => pt(i, R * r).join(',')).join(' ');
+        svg.appendChild(mk('polygon', { points: pts, fill: 'none',
+          stroke: idx === 3 ? '#d1cfc5' : '#e8e6dc', 'stroke-width': 1 }));
+      });
+      // spokes
+      dims.forEach((_, i) => { const [x, y] = pt(i, R);
+        svg.appendChild(mk('line', { x1: cx, y1: cy, x2: x, y2: y, stroke: '#e8e6dc', 'stroke-width': 1 })); });
+      // value polygon
+      const vpts = dims.map((d, i) => pt(i, R * (d.v / 100)).join(',')).join(' ');
+      svg.appendChild(mk('polygon', { points: vpts, fill: '#c96442', 'fill-opacity': 0.14,
+        stroke: '#c96442', 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+      // value dots
+      dims.forEach((d, i) => { const [x, y] = pt(i, R * (d.v / 100));
+        svg.appendChild(mk('circle', { cx: x, cy: y, r: 3, fill: '#c96442' })); });
+      // labels
+      dims.forEach((d, i) => {
+        const [x, y] = pt(i, R + 20);
+        const anchor = Math.abs(x - cx) < 8 ? 'middle' : x > cx ? 'start' : 'end';
+        const t = mk('text', { x, y, 'text-anchor': anchor, 'dominant-baseline': 'middle' });
+        t.textContent = d.k;
+        t.setAttribute('font-family', "'Inter','Noto Sans SC',sans-serif");
+        t.setAttribute('font-size', '11');
+        t.setAttribute('font-weight', d.fin ? '600' : '500');
+        t.setAttribute('fill', d.fin ? '#a84f34' : '#5e5d59');
+        svg.appendChild(t);
+      });
+    })();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

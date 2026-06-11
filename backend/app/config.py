@@ -92,6 +92,11 @@ RESUME_COPILOT_REWRITE_MODEL = os.environ.get(
     "RESUME_COPILOT_REWRITE_MODEL",
     RESUME_COPILOT_LLM_MODEL,  # flash (latency-critical, see 2026-05-24 plan)
 )
+# 简历多维度打分 (B1):质量优先,升 pro + thinking medium。
+RESUME_COPILOT_SCORE_MODEL = os.environ.get(
+    "RESUME_COPILOT_SCORE_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
 INTERVIEW_REPORT_MODEL = os.environ.get(
     "INTERVIEW_REPORT_MODEL",
     "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
