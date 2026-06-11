@@ -58,7 +58,7 @@ export interface ResumeEditorOverlayProps {
   /** 仅用于切回中文;切到 'en' 必须走 onTranslate(en 可能为 null)。 */
   onLang: (l: Lang) => void;
   onTranslate: () => void;
-  /** 翻译进行中 — 在中栏预览区渲染 border-beam 动效。 */
+  /** 翻译进行中 — EN 切换按钮显示「翻译中…」并禁用。 */
   translating?: boolean;
 }
 
@@ -280,7 +280,6 @@ export function ResumeEditorOverlay({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'flex-start',
-              position: 'relative',
             }}
           >
             <div style={{ zoom: scale }}>
@@ -293,7 +292,6 @@ export function ResumeEditorOverlay({
                 onPages={setPages}
               />
             </div>
-            {translating && <span className="border-beam" />}
           </div>
         </div>
 
