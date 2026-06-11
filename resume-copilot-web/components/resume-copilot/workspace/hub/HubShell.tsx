@@ -675,7 +675,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         }}
       >
         {!started ? (
-          // 落地态: 对话居中
+          // 落地态: 问候+卡片中上部, 对话框沉底(HubLanding 内部满高分布)
           <div
             style={{
               flex: 1,
@@ -683,7 +683,6 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
               padding: '0 40px',
             }}
           >

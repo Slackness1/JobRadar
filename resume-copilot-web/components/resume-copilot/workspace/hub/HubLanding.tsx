@@ -375,70 +375,85 @@ export interface HubLandingProps {
 export default function HubLanding({ selected, onPick, onSend, userName }: HubLandingProps) {
   const who = (userName || '').trim() || '同学';
   return (
-    <div style={{ width: '100%', maxWidth: 680 }}>
-      <div
-        style={{
-          font: '500 27px/1.3 var(--font-serif)',
-          color: 'var(--ink)',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        {greetPrefix()}，{who}。今天想看哪个方向？
+    <div
+      style={{
+        flex: 1,
+        width: '100%',
+        maxWidth: 680,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* ── 上块: 问候 + 预览卡(中上部) ── */}
+      <div style={{ paddingTop: 56, flex: 'none' }}>
+        <div
+          style={{
+            font: '500 27px/1.3 var(--font-serif)',
+            color: 'var(--ink)',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {greetPrefix()}，{who}。今天想看哪个方向？
+        </div>
+
+        {/* 两张预览卡 */}
+        <div style={{ display: 'flex', gap: 14, marginTop: 22 }}>
+          <CardShell on={selected === 'feed'} onClick={() => onPick('feed')}>
+            <FeedPreview />
+            <CardFooter
+              icon={RADAR_ICON}
+              title="职位推荐"
+              desc="了解你和你的需求，精准匹配职位"
+              on={selected === 'feed'}
+            />
+          </CardShell>
+          <CardShell on={selected === 'resume'} onClick={() => onPick('resume')}>
+            <ResumePreview />
+            <CardFooter
+              icon={FILE_ICON}
+              title="简历优化"
+              desc="AI 对话修改简历，懂你更懂 HR 的简历"
+              on={selected === 'resume'}
+            />
+          </CardShell>
+        </div>
       </div>
 
-      {/* 两张预览卡(卡片上移到输入框之上 — 本人新设计稿) */}
-      <div style={{ display: 'flex', gap: 14, marginTop: 20 }}>
-        <CardShell on={selected === 'feed'} onClick={() => onPick('feed')}>
-          <FeedPreview />
-          <CardFooter
-            icon={RADAR_ICON}
-            title="职位推荐"
-            desc="了解你和你的需求，精准匹配职位"
-            on={selected === 'feed'}
-          />
-        </CardShell>
-        <CardShell on={selected === 'resume'} onClick={() => onPick('resume')}>
-          <ResumePreview />
-          <CardFooter
-            icon={FILE_ICON}
-            title="简历优化"
-            desc="AI 对话修改简历，懂你更懂 HR 的简历"
-            on={selected === 'resume'}
-          />
-        </CardShell>
-      </div>
+      {/* ── 弹性留白: 把对话框推到底 ── */}
+      <div style={{ flex: 1, minHeight: 32 }} />
 
-      {/* 输入框 */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          alignItems: 'center',
-          background: 'var(--library-rail)',
-          borderRadius: 16,
-          padding: '10px 10px 10px 16px',
-          marginTop: 18,
-          boxShadow: selected ? '0 0 0 1px var(--terracotta-ring)' : '0 0 0 1px var(--border-warm)',
-          transition: 'box-shadow .2s',
-        }}
-      >
-        <LandingInput onSend={onSend} />
-      </div>
+      {/* ── 下块: 对话框沉底 + 技能 chips ── */}
+      <div style={{ flex: 'none', paddingBottom: 28 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'center',
+            background: 'var(--library-rail)',
+            borderRadius: 16,
+            padding: '10px 10px 10px 16px',
+            boxShadow: selected ? '0 0 0 1px var(--terracotta-ring)' : '0 0 0 1px var(--border-warm)',
+            transition: 'box-shadow .2s',
+          }}
+        >
+          <LandingInput onSend={onSend} />
+        </div>
 
-      {/* 技能 chips + 引导 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, minHeight: 32 }}>
-        <SkillBar active={selected} onPick={onPick} />
-        {selected && ARM_HINT_FOR[selected] && (
-          <span
-            style={{
-              font: '400 11.5px var(--font-sans)',
-              color: 'var(--terracotta-strong)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {ARM_HINT_FOR[selected]}
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, minHeight: 32 }}>
+          <SkillBar active={selected} onPick={onPick} />
+          {selected && ARM_HINT_FOR[selected] && (
+            <span
+              style={{
+                font: '400 11.5px var(--font-sans)',
+                color: 'var(--terracotta-strong)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {ARM_HINT_FOR[selected]}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
