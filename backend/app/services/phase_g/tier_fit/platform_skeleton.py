@@ -37,6 +37,24 @@ _OTHER_BAND = "其他"
 _OTHER_LABEL = "其他梯队"
 _OTHER_CAP = 20
 
+# 互联网等无 GT 名单的赛道, 用 enrich 已打的 institution_tier 给非 GT 公司分档,
+# 避免把字节/美团/百度全堆进"其他梯队"(读起来像边角料, 实则头部大厂)。
+_TOP_TIER_HINTS = ("大厂", "头部", "一线", "外资", "独角兽", "头部电商", "央企")
+_MID_TIER_HINTS = ("腰部", "中型", "二线", "次头部")
+
+
+def _inst_tier_to_band(institution_tier: str | None) -> str | None:
+    """institution_tier 文本 → 骨架 band。命中头部 hint → 头部 / 腰部 hint → 腰部 /
+    无信号 → None(归"其他")。"""
+    t = str(institution_tier or "")
+    if not t:
+        return None
+    if any(h in t for h in _TOP_TIER_HINTS):
+        return "头部"
+    if any(h in t for h in _MID_TIER_HINTS):
+        return "腰部"
+    return None
+
 
 @lru_cache(maxsize=1)
 def _load_gt() -> dict:
@@ -205,7 +223,7 @@ def _fetch_other_tier_companies(
     try:
         rows = db.execute(
             text(
-                "SELECT company, job_title FROM jobs "
+                "SELECT company, job_title, institution_tier FROM jobs "
                 "WHERE sub_category = :sc "
                 "AND quality_label IN ('good', 'internship_only')"
             ),
@@ -217,7 +235,8 @@ def _fetch_other_tier_companies(
 
     norms: list[str] = []
     seen: set[str] = set()
-    for company, title in rows:
+    inst_band: dict[str, str | None] = {}  # norm → institution_tier 推出的 band
+    for company, title, inst_tier in rows:
         norm = _norm_company(str(company or ""))
         if not norm or norm in seen:
             continue
@@ -227,6 +246,7 @@ def _fetch_other_tier_companies(
             continue
         seen.add(norm)
         norms.append(norm)
+        inst_band[norm] = _inst_tier_to_band(inst_tier)
 
     companies: list[dict] = []
     for norm in norms:
@@ -240,6 +260,7 @@ def _fetch_other_tier_companies(
             {
                 "name": norm,
                 "band": _OTHER_BAND,
+                "_inst_band": inst_band.get(norm),  # GT 空时据此分档(头部/腰部/None)
                 "has_live": True,
                 "n_live": len(jobs),
                 "jobs": jobs,
@@ -265,6 +286,39 @@ def gt_companies_for_sub_cat(sub_cat: str) -> set[str]:
     gt = _load_gt().get("ground_truth", {})
     entries = gt.get(sub_cat, [])
     return {_norm_company(e["name"]) for e in entries if e.get("name")}
+
+
+def _band_other_by_inst_tier(companies: list[dict], match_band: str | None) -> list[dict]:
+    """无 GT 名单的赛道(互联网): 把非 GT 公司按 institution_tier 推出的 band 分成
+    头部/腰部/其他三档 tier, 而非全堆"其他梯队"(让字节/美团进头部, 不再像边角料)。"""
+    groups: dict[str, list[dict]] = {"头部": [], "腰部": [], _OTHER_BAND: []}
+    for co in companies:
+        band = co.pop("_inst_band", None) or _OTHER_BAND
+        co["band"] = band
+        groups[band].append(co)
+    out: list[dict] = []
+    for band in ("头部", "腰部"):
+        if groups[band]:
+            out.append(
+                {
+                    "tier": _BAND_TIER_NUM[band],
+                    "band": band,
+                    "role": _default_role(band, match_band),
+                    "label": _BAND_LABEL[band],
+                    "companies": groups[band],
+                }
+            )
+    if groups[_OTHER_BAND]:
+        out.append(
+            {
+                "tier": _OTHER_TIER_NUM,
+                "band": _OTHER_BAND,
+                "role": "floor",
+                "label": _OTHER_LABEL,
+                "companies": groups[_OTHER_BAND],
+            }
+        )
+    return out
 
 
 def build_platform_skeleton(
@@ -379,15 +433,23 @@ def build_platform_skeleton(
         db, sub_cat, gt_norms, prefer_internship=prefer_internship
     )
     if other:
-        tiers.append(
-            {
-                "tier": _OTHER_TIER_NUM,
-                "band": _OTHER_BAND,
-                "role": "floor",
-                "label": _OTHER_LABEL,
-                "companies": other,
-            }
-        )
+        if tiers:
+            # 已有 GT 梯队(金融): 非 GT 公司统一进"其他梯队", 不细分(不动金融行为)。
+            for co in other:
+                co.pop("_inst_band", None)
+                co["band"] = _OTHER_BAND
+            tiers.append(
+                {
+                    "tier": _OTHER_TIER_NUM,
+                    "band": _OTHER_BAND,
+                    "role": "floor",
+                    "label": _OTHER_LABEL,
+                    "companies": other,
+                }
+            )
+        else:
+            # 无 GT 名单(互联网): 用 institution_tier 把非 GT 公司分头部/腰部/其他档。
+            tiers.extend(_band_other_by_inst_tier(other, match_band))
 
     return {
         "sub_cat": sub_cat,
