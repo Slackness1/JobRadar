@@ -101,7 +101,9 @@ class OpenAICompatibleTranslator:
             'model': self.client.model,
             'response_format': {'type': 'json_object'},
             'reasoning_effort': 'medium',
-            'max_tokens': 4000,
+            # deepseek-v4-pro 是推理模型,每次先烧 2000-4000 reasoning token;整份简历正文又要 ~3500。
+            # 4000 会被 reasoning 吃光导致 content 空(JSONDecodeError char 0)/截断;8000 给足余量保证 finish=stop。
+            'max_tokens': 8000,
             'messages': [
                 {'role': 'system', 'content': _system_prompt()},
                 {'role': 'user', 'content': json.dumps({'strings': strings}, ensure_ascii=False)},
@@ -121,6 +123,9 @@ class OpenAICompatibleTranslator:
         with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as resp:
             body = json.loads(resp.read().decode('utf-8'))
         content = body['choices'][0]['message']['content']
+        if not (content or '').strip():
+            # 正文为空 = token 预算被 reasoning 吃光(见 max_tokens 注释);明确报错而非生 JSONDecodeError。
+            raise ValueError('translator: empty content (token budget exhausted by reasoning)')
         data = json.loads(content)
         out = data.get('strings') if isinstance(data, dict) else data
         if not isinstance(out, list) or len(out) != len(strings):
