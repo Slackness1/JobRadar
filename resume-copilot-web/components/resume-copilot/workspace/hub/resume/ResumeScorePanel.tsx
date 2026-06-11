@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HubRadar, type RadarDatum } from './HubRadar';
 import { ResumeDoc } from './editor/ResumeDoc';
-import { TEMPLATES, type LayoutState, type ResumeProfile } from './editor/resumeSample';
+import { TEMPLATES, type Lang, type LayoutState, type ResumeProfile } from './editor/resumeSample';
 import { scoreResume, type ScoreReportData } from '../../../api';
 import { cacheScoreReport, readFreshScoreReport } from '../scoreCache';
 
@@ -18,6 +18,12 @@ export interface ResumeScorePanelProps {
   onTemplate: (id: string) => void;
   layout: LayoutState;
   hidden: Set<string>;
+  lang: Lang;
+  /** 仅用于切回中文;切到 'en' 必须走 onTranslate(en 可能为 null)。 */
+  onLang: (l: Lang) => void;
+  onTranslate: () => void;
+  /** 翻译进行中(禁用 EN 按钮)。 */
+  translating?: boolean;
 }
 
 // 8 维 → 雷达短标签 + 金融维标记(对齐原型 R_RADAR 顺序)
@@ -58,6 +64,10 @@ export function ResumeScorePanel({
   onTemplate,
   layout,
   hidden,
+  lang,
+  onLang,
+  onTranslate,
+  translating = false,
 }: ResumeScorePanelProps) {
   const [view, setView] = useState<'score' | 'preview'>('score');
   const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
@@ -173,6 +183,26 @@ export function ResumeScorePanel({
             <span className={`hf-pill${pages > 1 ? ' amber' : ''}`} style={{ height: 26, fontFamily: 'var(--font-mono)' }}>
               {pages > 1 ? `${pages} 页` : '1 页'}
             </span>
+            <div style={{ display: 'flex', gap: 3, padding: 3, background: 'var(--library-rail)', borderRadius: 9, boxShadow: '0 0 0 1px var(--border-warm)' }}>
+              {(['zh', 'en'] as const).map((l) => (
+                <button
+                  key={l}
+                  disabled={l === 'en' && translating}
+                  onClick={() => (l === 'en' ? onTranslate() : onLang('zh'))}
+                  style={{
+                    cursor: l === 'en' && translating ? 'not-allowed' : 'pointer',
+                    border: 'none', borderRadius: 7, padding: '3px 10px',
+                    font: `${lang === l ? 600 : 500} 11px var(--font-sans)`,
+                    color: lang === l ? 'var(--ink)' : 'var(--olive)',
+                    background: lang === l ? 'var(--ivory)' : 'transparent',
+                    boxShadow: lang === l ? '0 0 0 1px var(--border-strong)' : 'none',
+                    opacity: l === 'en' && translating ? 0.6 : 1,
+                  }}
+                >
+                  {l === 'zh' ? '中文' : translating ? '翻译中…' : 'EN'}
+                </button>
+              ))}
+            </div>
             {/* 真模板下拉:原生 select 罩在 pill 样式上 */}
             <span className="hf-pill" style={{ height: 26, position: 'relative', paddingRight: 22 }}>
               模板 · {TEMPLATES.find((t) => t.id === template)?.name ?? '素白单栏'} ▾

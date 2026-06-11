@@ -7,12 +7,14 @@ import {
   SAMPLE_PROFILE,
   DEFAULT_LAYOUT,
   profilePayloadToResumeProfile,
+  type Lang,
   type LayoutState,
   type ResumeProfile,
 } from '../../../components/resume-copilot/workspace/hub/resume/editor/resumeSample';
 import {
   getResumeCopilotConfirmedProfile,
   getResumeCopilotParsedProfile,
+  translateProfile,
 } from '../../../components/resume-copilot/api';
 
 // ── 简历编辑器草稿持久化(本地) ──────────────────────────────────────────────
@@ -52,9 +54,29 @@ function Inner() {
   const mock = params.get('mock') === '1';
   const sessionId = Number(params.get('session') || '0');
   const [editorOpen, setEditorOpen] = useState(false);
-  // 共享简历状态:面板预览 + 全屏编辑器同一数据源。mock=1 用示例;真实 ?session=N
-  // 时下方 effect 先看本地草稿, 无草稿再拉后端 confirmed(回退 parsed)profile。
-  const [profile, setProfile] = useState<ResumeProfile>(SAMPLE_PROFILE);
+  // 双语简历:zh 源 + en(翻译后填充)+ 当前语言。模板/布局/显隐为共享态(下方)。
+  // 草稿持久化只存 zh 源(en 是按需翻译的派生, 不落草稿); 真实 session 先看本地
+  // 草稿、无草稿再拉后端 confirmed(回退 parsed)profile —— 都写进 zh。
+  const [zh, setZh] = useState<ResumeProfile>(SAMPLE_PROFILE);
+  const [en, setEn] = useState<ResumeProfile | null>(null);
+  const [lang, setLang] = useState<Lang>('zh');
+  const activeProfile = lang === 'en' && en ? en : zh;
+  const setActiveProfile = (p: ResumeProfile) => (lang === 'en' ? setEn(p) : setZh(p));
+  // B5: 调真后端翻译。已翻过则直接切语言;出错留中文不崩。
+  const [translating, setTranslating] = useState(false);
+  const handleTranslate = async () => {
+    if (en) { setLang('en'); return; }      // 已翻过 → 只切语言,不重复调用
+    setTranslating(true);
+    try {
+      const out = await translateProfile(zh);
+      setEn(out.profile as ResumeProfile);
+      setLang('en');
+    } catch {
+      setLang('zh');                          // 失败留在中文(en 仍为 null)
+    } finally {
+      setTranslating(false);
+    }
+  };
   const [template, setTemplate] = useState<string>('classic');
   const [layout, setLayout] = useState<LayoutState>(DEFAULT_LAYOUT);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
@@ -72,7 +94,7 @@ function Inner() {
       // 微任务里应用, 避免在 effect 内同步 setState(级联渲染 lint)。
       Promise.resolve().then(() => {
         if (cancelled) return;
-        setProfile(draft.profile);
+        setZh(draft.profile);
         setTemplate(draft.template);
         setLayout(draft.layout);
         setHidden(new Set(draft.hidden));
@@ -84,12 +106,12 @@ function Inner() {
     }
     getResumeCopilotConfirmedProfile(sessionId)
       .then((r) => {
-        if (!cancelled && r?.profile) setProfile(profilePayloadToResumeProfile(r.profile));
+        if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
       })
       .catch(() => {
         getResumeCopilotParsedProfile(sessionId)
           .then((r) => {
-            if (!cancelled && r?.profile) setProfile(profilePayloadToResumeProfile(r.profile));
+            if (!cancelled && r?.profile) setZh(profilePayloadToResumeProfile(r.profile));
           })
           .catch(() => {
             /* 都拿不到则保持示例,不致崩 */
@@ -106,12 +128,12 @@ function Inner() {
   // 自动保存草稿:任何编辑(简历内容/模板/布局/隐藏)落本地, 刷新不丢。
   useEffect(() => {
     if (mock || !sessionId || !loadedRef.current) return;
-    saveDraft(sessionId, { profile, template, layout, hidden: [...hidden] });
-  }, [profile, template, layout, hidden, sessionId, mock]);
+    saveDraft(sessionId, { profile: zh, template, layout, hidden: [...hidden] });
+  }, [zh, template, layout, hidden, sessionId, mock]);
 
   // 保存按钮:已自动存, 这里立即 flush(反馈由编辑器本地给)。
   const onSaveDraft = () => {
-    if (!mock && sessionId) saveDraft(sessionId, { profile, template, layout, hidden: [...hidden] });
+    if (!mock && sessionId) saveDraft(sessionId, { profile: zh, template, layout, hidden: [...hidden] });
   };
 
   const toggleHidden = (id: string) =>
@@ -132,11 +154,15 @@ function Inner() {
           sessionId={sessionId}
           mock={mock}
           onExpandEditor={() => setEditorOpen(true)}
-          profile={profile}
+          profile={activeProfile}
           template={template}
           onTemplate={setTemplate}
           layout={layout}
           hidden={hidden}
+          lang={lang}
+          onLang={setLang}
+          onTranslate={handleTranslate}
+          translating={translating}
         />
       </div>
       {editorOpen && (
@@ -144,8 +170,8 @@ function Inner() {
           sessionId={sessionId}
           mock={mock}
           onClose={() => setEditorOpen(false)}
-          profile={profile}
-          onProfile={setProfile}
+          profile={activeProfile}
+          onProfile={setActiveProfile}
           template={template}
           onTemplate={setTemplate}
           layout={layout}
@@ -153,6 +179,10 @@ function Inner() {
           hidden={hidden}
           onToggleHidden={toggleHidden}
           onSave={onSaveDraft}
+          lang={lang}
+          onLang={setLang}
+          onTranslate={handleTranslate}
+          translating={translating}
         />
       )}
     </div>

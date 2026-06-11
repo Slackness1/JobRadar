@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Download, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
-import type { LayoutState, ResumeProfile } from './resumeSample';
+import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
@@ -56,6 +56,12 @@ export interface ResumeEditorOverlayProps {
   onToggleHidden: (id: string) => void;
   /** 保存(落本地草稿 + flush)。宿主页注入。 */
   onSave?: () => void;
+  lang: Lang;
+  /** 仅用于切回中文;切到 'en' 必须走 onTranslate(en 可能为 null)。 */
+  onLang: (l: Lang) => void;
+  onTranslate: () => void;
+  /** 翻译进行中 — EN 切换按钮显示「翻译中…」并禁用。 */
+  translating?: boolean;
 }
 
 /** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
@@ -72,6 +78,10 @@ export function ResumeEditorOverlay({
   hidden,
   onToggleHidden,
   onSave,
+  lang,
+  onLang,
+  onTranslate,
+  translating = false,
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
   // "已保存 ✓" 瞬时反馈(点击时亮起 ~1.6s, 不走 effect)
@@ -144,9 +154,26 @@ export function ResumeEditorOverlay({
         }}
       >
         <span style={{ font: '500 13px var(--font-sans)', color: 'var(--ink-soft)' }}>简历编辑器</span>
-        <span className="hf-pill" style={{ height: 24, marginLeft: 2 }}>
-          中文主版
-        </span>
+        <div style={{ display: 'flex', gap: 3, padding: 3, background: 'var(--library-rail)', borderRadius: 9, boxShadow: '0 0 0 1px var(--border-warm)', marginLeft: 2 }}>
+          {(['zh', 'en'] as const).map((l) => (
+            <button
+              key={l}
+              disabled={l === 'en' && translating}
+              onClick={() => (l === 'en' ? onTranslate() : onLang('zh'))}
+              style={{
+                cursor: l === 'en' && translating ? 'not-allowed' : 'pointer',
+                border: 'none', borderRadius: 7, padding: '4px 12px',
+                font: `${lang === l ? 600 : 500} 11.5px var(--font-sans)`,
+                color: lang === l ? 'var(--ink)' : 'var(--olive)',
+                background: lang === l ? 'var(--ivory)' : 'transparent',
+                boxShadow: lang === l ? '0 0 0 1px var(--border-strong)' : 'none',
+                opacity: l === 'en' && translating ? 0.6 : 1,
+              }}
+            >
+              {l === 'zh' ? '中文' : translating ? '翻译中…' : 'EN'}
+            </button>
+          ))}
+        </div>
         <button onClick={onClose} className="hf-btn ghost sm" style={{ marginLeft: 'auto', gap: 6 }} aria-label="关闭">
           <X size={13} /> 返回主工作台
         </button>

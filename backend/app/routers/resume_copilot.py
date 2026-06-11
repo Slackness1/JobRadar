@@ -59,7 +59,9 @@ from app.schemas_resume_copilot import (
     ScoreReportOut,
     ScoreRequestIn,
 )
+from pydantic import BaseModel
 from app.services.resume_copilot import scoring as _scoring_mod
+from app.services.resume_copilot import translator as translator_svc
 from app.services.resume_copilot.scoring import derive_target_track, score_resume
 from app.services.resume_copilot.demo_session import DEMO_SESSION_ID
 from app.services.resume_copilot.ingest import ResumeUploadError, extract_resume_text_with_page_count, validate_pdf_upload
@@ -2376,3 +2378,15 @@ def update_working_query(
     session.working_query_json = json.dumps(q.model_dump(), ensure_ascii=False)
     db.commit()
     return {"working_query": q.model_dump(), "feed": search_candidates(db, q)}
+# ── Translate profile endpoint (B4) ─────────────────────────────────────────
+
+class TranslateProfileIn(BaseModel):
+    profile: dict[str, Any]
+    target: str = 'en'
+
+
+@router.post('/translate-profile')
+def translate_profile_endpoint(body: TranslateProfileIn) -> dict:
+    if body.target != 'en':
+        return {'profile': body.profile, 'warnings': []}
+    return translator_svc.translate_profile(body.profile)

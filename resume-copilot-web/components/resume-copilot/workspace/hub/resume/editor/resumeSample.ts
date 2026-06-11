@@ -225,3 +225,99 @@ export function profilePayloadToResumeProfile(p: ResumeProfilePayload): ResumePr
     sections,
   };
 }
+/** 简历显示语言。 */
+export type Lang = 'zh' | 'en';
+
+/** 英文示例简历 — 与 SAMPLE_PROFILE 结构/section id 严格对齐,仅文本/日期为英文。 */
+export const SAMPLE_PROFILE_EN: ResumeProfile = {
+  name: 'Huaiyu Han',
+  email: 'han.huaiyu@saif.sjtu.edu.cn',
+  skillsText:
+    'Python (pandas/numpy/pytest/numba/cython), C++ (STL/template metaprogramming), time-series models (LSTM/Transformer/GRU+Attention), machine learning (LightGBM/XGBoost/neural nets), high-frequency data processing (order-book reconstruction/tick-level cleaning), backtesting framework development, Linux, Git, Docker',
+  sections: [
+    {
+      id: 'edu',
+      label: 'Education',
+      type: 'timeline',
+      items: [
+        {
+          org: 'Shanghai Advanced Institute of Finance (SAIF), SJTU',
+          date: 'Sep 2025 – Jun 2027',
+          location: 'Shanghai',
+          sub: 'M.F. in Finance, FinTech track (MF-FT)',
+          course: 'Selected courses: Machine Learning & Empirical Finance (A+), Time Series Analysis (A+)',
+        },
+        {
+          org: 'Zhiyuan College, Shanghai Jiao Tong University',
+          date: 'Sep 2021 – Jun 2025',
+          location: 'Shanghai',
+          sub: 'B.S. in Mathematics & Applied Mathematics + Computer Science',
+          course: 'Selected courses: Machine Learning & Empirical Finance (A+), Time Series Analysis (A+)',
+        },
+      ],
+    },
+    {
+      id: 'str',
+      label: 'Summary',
+      type: 'paragraphs',
+      items: [
+        'Dual math & engineering foundation: B.S. in Mathematics & Applied Mathematics + Computer Science at SJTU, ACM-ICPC Asia Regional gold medalist; strong mathematical derivation and high-performance programming, able to implement complex algorithms and models quickly.',
+        'Hands-on quant experience: at Ubiquant, developed mid-frequency alpha factors, submitting 12 factors with 4 accepted into the library (single-factor Sharpe > 0.8); at Zhixuan Investment, reproduced and improved 4 alpha-factor papers, demonstrating paper-to-strategy capability.',
+        'Frontier technical stack: proficient in Python/C++, fluent with PyTorch and LightGBM; deep-learning (LSTM/Transformer) modeling experience on high-frequency order-book data; able to build backtesting frameworks and data pipelines independently.',
+        'Clear goal: aiming to join a top quant fund (Ubiquant, Minghong, Mingshi, Point72) as a Quantitative Researcher, with a mid-term goal of becoming a PM; currently broadening cross-asset and macro perspectives to complete the strategy framework.',
+      ],
+    },
+    {
+      id: 'intern',
+      label: 'Work Experience',
+      type: 'timeline',
+      items: [
+        {
+          org: 'Ubiquant',
+          date: 'Jun 2024 – Dec 2024',
+          location: 'Beijing',
+          desc: 'Under senior researcher guidance, systematically developed mid-frequency (1–5 day holding) alpha factors across the full pipeline of data cleaning, feature engineering, model construction, and backtest validation. Submitted 12 factors, 4 accepted into the library (single-factor Sharpe > 0.8), a 33% acceptance rate.',
+        },
+      ],
+    },
+    {
+      id: 'proj',
+      label: 'Projects',
+      type: 'timeline',
+      items: [
+        {
+          org: 'Zhixuan Investment · Alpha Factor Group · Quant Intern (winter project)',
+          date: 'Jan 2025 – Apr 2025',
+          location: 'Shanghai',
+          bullets: [
+            'Reproduced and improved 4 alpha-factor papers (Avramov, Lin, Frazzini, et al.), optimizing signal processing and backtest methodology, and produced 4 detailed reproduction reports',
+            'Submitted and validated the improved factors; single-factor Sharpe ratio improved ~15% over the original papers',
+          ],
+        },
+        {
+          org: 'Deep Learning for Direction Prediction on High-Frequency Order-Book Data',
+          date: 'Sep 2024 – Jun 2025',
+          location: 'Shanghai',
+          desc: 'Extracted high-frequency order-book data of index futures (IF/IC/IH) and built a hybrid LSTM+Transformer+attention deep-learning model to predict 5–30 second price direction.',
+          bullets: [
+            'Designed and implemented a multi-scale feature-extraction module fusing temporal dependency and long-range attention to improve signal capture',
+            'Backtested on live historical data with directional accuracy above 58%, ~4 percentage points over a single-LSTM baseline',
+            'Built an end-to-end data-processing and model-training pipeline supporting batch backtesting and hyperparameter tuning',
+          ],
+        },
+        {
+          org: 'ACM-ICPC Regional Gold Medal Project',
+          date: 'Jan 2022 – Jan 2023',
+          location: 'Shanghai',
+          desc: 'Represented SJTU at the ACM-ICPC Asia Regional Contest as the graph-theory and dynamic-programming lead, winning gold (top 10%) with the team.',
+          bullets: [
+            'Led strategy and implementation for graph and DP algorithms, solving multiple hard problems within 5 hours spanning shortest paths, network flow, and bitmask DP',
+            'Improved solving speed and accuracy through efficient algorithm design, consistently contributing key points for the team',
+          ],
+        },
+      ],
+    },
+    { id: 'skills', label: 'Skills', type: 'skills' },
+    { id: 'honor', label: 'Honors & Awards', type: 'tags', items: ['ACM-ICPC Asia Regional Gold Medal'] },
+  ],
+};
