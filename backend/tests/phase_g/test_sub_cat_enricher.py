@@ -22,9 +22,11 @@ def _mock_resp(payload: dict) -> MagicMock:
     return r
 
 
-def test_strategy_types_7():
-    assert len(STRATEGY_TYPES) == 7
+def test_strategy_types_8():
+    # 7 金融/AI + 互联网独立赛道 (2026-06-09)
+    assert len(STRATEGY_TYPES) == 8
     assert "AI 应用_PM_开发" in STRATEGY_TYPES  # 注意空格
+    assert "互联网" in STRATEGY_TYPES
 
 
 @patch("app.services.phase_g.sub_cat_enricher.build_flash_client")
