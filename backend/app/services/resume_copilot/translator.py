@@ -110,7 +110,12 @@ class OpenAICompatibleTranslator:
         req = urllib_request.Request(
             self.client.chat_completions_url,
             data=json.dumps(payload).encode('utf-8'),
-            headers={'Authorization': f'Bearer {self.client.api_key}', 'Content-Type': 'application/json'},
+            headers={
+                'Authorization': f'Bearer {self.client.api_key}',
+                'Content-Type': 'application/json',
+                # 中转(opencode.ai/zen)前置 Cloudflare 按 UA 封 Python-urllib(403 code 1010);带浏览器 UA 放行。
+                'User-Agent': 'Mozilla/5.0',
+            },
             method='POST',
         )
         with urllib_request.urlopen(req, timeout=self.client.timeout_seconds) as resp:
