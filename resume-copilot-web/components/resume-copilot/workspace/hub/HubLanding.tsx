@@ -385,8 +385,11 @@ export default function HubLanding({ selected, onPick, onSend, userName }: HubLa
         flexDirection: 'column',
       }}
     >
+      {/* ── 顶部留白(小): 把问候+卡片压到中上部约 1/4 处, 不贴顶 ── */}
+      <div style={{ flex: 1, minHeight: 40 }} />
+
       {/* ── 上块: 问候 + 预览卡(中上部) ── */}
-      <div style={{ paddingTop: 56, flex: 'none' }}>
+      <div style={{ flex: 'none' }}>
         <div
           style={{
             font: '500 27px/1.3 var(--font-serif)',
@@ -420,8 +423,8 @@ export default function HubLanding({ selected, onPick, onSend, userName }: HubLa
         </div>
       </div>
 
-      {/* ── 弹性留白: 把对话框推到底 ── */}
-      <div style={{ flex: 1, minHeight: 32 }} />
+      {/* ── 弹性留白(大): 把对话框推到底, 与顶部 1:2 → 内容落在中上部 ── */}
+      <div style={{ flex: 2, minHeight: 48 }} />
 
       {/* ── 下块: 对话框沉底 + 技能 chips ── */}
       <div style={{ flex: 'none', paddingBottom: 28 }}>
