@@ -78,3 +78,13 @@ def test_translate_profile_number_lock_flags_fabrication():
     out = T.translate_profile(prof, provider=fake)
     warns = out['warnings']
     assert any('99' in w.get('extra', '') for w in warns)
+
+
+def test_translate_profile_rejects_short_provider_output():
+    import pytest
+    prof = _sample_profile()
+    class _ShortProvider:
+        def translate(self, strings):
+            return strings[:-1]  # drops one
+    with pytest.raises(ValueError):
+        T.translate_profile(prof, provider=_ShortProvider())

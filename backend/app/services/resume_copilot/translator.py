@@ -1,6 +1,7 @@
 """中→英简历翻译 — 纯函数(日期/数字锁/标题映射)+ LLM provider + translate_profile。"""
 from __future__ import annotations
 
+import copy
 import json
 import re
 import urllib.request as urllib_request
@@ -158,13 +159,14 @@ def _set_path(profile: dict, path: tuple, value) -> None:
 
 def translate_profile(profile: dict, *, provider=None) -> dict:
     """中→英翻译。provider 可注入(fake 不联网)。返回 {profile, warnings}。"""
-    import copy
     out = copy.deepcopy(profile)
     prov = provider or OpenAICompatibleTranslator()
 
     jobs = _collect_strings(out)
     sources = [src for _, src in jobs]
     translated = prov.translate(sources) if sources else []
+    if len(translated) != len(sources):
+        raise ValueError('translator: provider returned wrong number of strings')
 
     warnings: list[dict] = []
     for (path, src), en in zip(jobs, translated):
