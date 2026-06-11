@@ -16,12 +16,10 @@
 
 ## 2026-06-11
 
-### 网站设计-devvpstmux · 🚀 集成分支合 main + 上线生产 jobcopilot.top(Hub + 简历编辑器 + 后端管道)
-- **干了什么**:经本人授权,把集成分支(Hub 外壳 + 攒批后端 + 互联网 enrich + 简历编辑器,114 提交)fast-forward 合进 main,走 vps-deploy 推上生产并重启。
-- **学生现在线上能看到**:`jobcopilot.top/hub` 统一对话工作台上线;`/resume-copilot/hub-score` 简历打分+全屏编辑器上线;demo 会话"给我推荐"出 **40 个真实量化岗**(衍复/九坤等)。
-- **验证**:7 项冒烟全过(/ /hub /upload /hub-score /api/health /sessions/1 = 200,demo PATCH = 403 只读守卫生效);2 个新迁移(working_query 列 + decision_events 表)启动自动跑通;两服务 active。
-- **数据现状(留意)**:prod 库推荐池 **2,536**(互联网/AI 1,663 + 金融 873),功能完整但**比 dev 的 13,004 少**——dev 上新跑的互联网 enrich 大批量 + 产品/AI 重分类还没同步到 prod(= 第③步,本人未要求,待定)。
-- **下一步**:本人线上验收;要把 dev 全量 enrich 同步到 prod(让线上池也到 1.3 万)再说第③步。
+### 网站设计-devvpstmux · 集成分支合 main;生产短暂上线后按本人要求回退到稳定版(改为 dev 先验收)
+- **干了什么**:集成分支(Hub + 攒批后端 + 互联网 enrich + 简历编辑器,114 提交)fast-forward 合进 main。一度推上生产 jobcopilot.top(冒烟全过、/hub 与简历编辑器上线、demo 出 40 量化岗),但本人随即更正"先上 dev 验收、别动生产"→ **已把生产回退到上个稳定版 446e926**(/hub 撤回 404,旧站恢复;alembic_version 退回旧 head b1f2a3c4d5e6,新增列/表留存无害)。
+- **现状**:生产 = 稳定旧版(SAIF 学生无感);代码仍在 main + dev;**dev 已起 `/hub` 供本人验收**(tunnel localhost:3055)。
+- **下一步**:本人在 dev 验收 Hub + 简历编辑器;通过后再走部署上生产(届时再确认)。
 
 ### 网站设计-devvpstmux · 简历优化/编辑器分支合入集成分支(Hub 简历接口位补齐)
 - **干了什么**:把简历线交付的 `hub-resume-optimize`(简历打分 + 深度优化 + 5 套模板编辑器)合进集成分支 `hub-shell-frontend`,填上 Hub 那个之前只留接口位的"简历优化"。学生现在能:看诚实打分(8 维 + 潜力区间)→ 逐维缺口 → 进全屏编辑器(模板换皮/就地改内容/排版滑块)→ 改写按目标赛道定制 + 编数字红线。
