@@ -97,6 +97,11 @@ RESUME_COPILOT_SCORE_MODEL = os.environ.get(
     "RESUME_COPILOT_SCORE_MODEL",
     "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
 )
+# 翻译(中→英):质量优先,pro + reasoning medium。降本可设 flash。
+RESUME_COPILOT_TRANSLATE_MODEL = os.environ.get(
+    "RESUME_COPILOT_TRANSLATE_MODEL",
+    "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
+)
 INTERVIEW_REPORT_MODEL = os.environ.get(
     "INTERVIEW_REPORT_MODEL",
     "deepseek-v4-pro" if os.environ.get("DEEPSEEK_API_KEY") else RESUME_COPILOT_LLM_MODEL,
