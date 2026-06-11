@@ -50,23 +50,44 @@ def _gt_quality_boost(job: Any) -> float:
     return 0.15 if comp in gt_companies_for_sub_cat(sc) else 0.0
 
 
+# institution_tier 档次退路 —— GT 名单是金融导向(SAIF), 互联网/非 GT 金融桶里 GT 集
+# 为空, 此时桶内只剩新鲜度区分(同 finance 改前的"破岗位")。enrich 时已给每个岗打了
+# institution_tier(大厂/互联网大厂/独角兽/头部券商…), 拿它做退路: 头部档浮顶。
+# 关键词匹配, 不硬编公司名 —— 互联网(大厂/独角兽)与非 GT 金融(头部/一线/外资)通用。
+_TOP_TIER_HINTS = ("大厂", "头部", "一线", "外资", "独角兽", "头部电商", "央企")
+_MID_TIER_HINTS = ("腰部", "中型", "二线", "次头部")
+
+
+def _tier_quality_boost(job: Any) -> float:
+    """institution_tier → 桶内档次加分(仅 GT 空时作退路)。头部 +0.12 / 腰部 +0.04。"""
+    t = str(getattr(job, "institution_tier", "") or "")
+    if not t:
+        return 0.0
+    if any(h in t for h in _TOP_TIER_HINTS):
+        return 0.12
+    if any(h in t for h in _MID_TIER_HINTS):
+        return 0.04
+    return 0.0
+
+
 def apply_quality_priors(ranked: list[tuple[Any, float]]) -> list[tuple[Any, float]]:
     """对 [(job, score 0-1)] 施加桶内质量先验, 仅调分不排序(调用方自行 sort):
       - support 岗 -0.30 沉底(研究/投资桶里的中后台误配)
       - GT 平台公司 +0.15 浮顶(经过策展的好平台压过随机新岗)
-    两条推荐路径共用 —— Hub 快路(search_candidates 纯规则)与旧 generate 慢路
-    (recommendation._recommend_v2_dispatcher, rank_jobs→rerank)语义一致, 保证
-    '好平台浮顶'在两处行为相同。
+      - GT 集为空的桶(互联网 PM / 非 GT 金融)退到 institution_tier 档次加分,
+        让大厂/头部浮顶, 而非只按新鲜度排(修互联网赛道"破岗位")
+    两条推荐路径共用 —— Hub 快路(search_candidates)与旧 generate 慢路语义一致。
     """
-    return [
-        (
-            j,
-            s
-            - (0.30 if _is_support_role(str(getattr(j, "job_title", "") or "")) else 0.0)
-            + _gt_quality_boost(j),
-        )
-        for j, s in ranked
-    ]
+    out: list[tuple[Any, float]] = []
+    for j, s in ranked:
+        adj = s
+        if _is_support_role(str(getattr(j, "job_title", "") or "")):
+            adj -= 0.30
+        gt = _gt_quality_boost(j)
+        # GT 命中用策展信号(+0.15); 否则退到 institution_tier 档次, 二者不叠加。
+        adj += gt if gt > 0 else _tier_quality_boost(j)
+        out.append((j, adj))
+    return out
 
 
 def _fresh_key(job: Any) -> datetime:
