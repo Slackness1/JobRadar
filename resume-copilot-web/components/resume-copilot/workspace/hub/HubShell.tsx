@@ -37,14 +37,17 @@ import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
 import {
+  getPlatformsByTier,
   getResumeCopilotConfirmedProfile,
   getResumeCopilotParsedProfile,
   getStudentKbIndex,
   getWorkingQuery,
   listResumeCopilotSessions,
   postRecommendChat,
+  scoreResume,
   updateWorkingQuery,
 } from '../../api';
+import { cacheScoreReport } from './scoreCache';
 import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
 import type { HubSessionRow } from './HubSidebar';
@@ -79,10 +82,20 @@ const SAY: Record<HubModule, string> = {
 const PROFILE_SAY =
   '帮你打开<b>个人档案</b> —— 确认信息在上，AI 推断待确认在下，确认/否掉一眼可点。';
 
-// 结果卡文案的真实上下文(feed 模块用真实赛道 + 计数)
+// 结果卡文案的真实上下文 —— 每个模块技能跑完后用真实后端数据填,不再写死。
 interface ResultCtx {
-  tracks?: string[]; // working_query.seed_sub_cats
-  feedLen?: number; // 真实召回 / 匹配条数
+  // feed: working_query.seed_sub_cats + 真实召回 / 匹配条数
+  tracks?: string[];
+  feedLen?: number;
+  // skeleton: 真实赛道名 + GT 公司总数 + 分档标签
+  subCat?: string;
+  skeletonCount?: number;
+  skeletonBands?: string[];
+  // resume: 真实现状分 + 潜力区间 + 有缺口的经历段数
+  resumeCurrent?: number;
+  resumePotLow?: number;
+  resumePotHigh?: number;
+  resumeGaps?: number;
 }
 
 function escapeHtml(s: string): string {
@@ -108,18 +121,41 @@ function RESULT_FOR(key: HubModule, ctx?: ResultCtx): ResultCardData {
         cta: '查看岗位',
       };
     }
-    case 'skeleton':
+    case 'skeleton': {
+      const cnt = ctx?.skeletonCount ?? 0;
+      const scText = ctx?.subCat ? escapeHtml(ctx.subCat) : '你确认的赛道';
+      const bands = (ctx?.skeletonBands ?? []).filter(Boolean);
+      const bandText = bands.length > 0 ? escapeHtml(bands.join(' / ')) : '头部 / 主力 / 腰部';
       return {
         title: '梯队全景已铺好',
-        body: '二级买方 · 基本面 共 <b>18</b> 家 GT 公司，按 头部 / 主力 / 腰部 分了档，匹配档已高亮。',
+        body:
+          cnt > 0
+            ? `<b>${scText}</b> 共 <b>${cnt}</b> 家公司，按 ${bandText} 分了档，匹配档已高亮。`
+            : `<b>${scText}</b> 这一版暂时没铺出梯队公司，确认赛道后再看。`,
         cta: '查看全景',
       };
-    case 'resume':
+    }
+    case 'resume': {
+      const cur = ctx?.resumeCurrent;
+      if (cur == null) {
+        return {
+          title: '简历打分完成',
+          body: '已生成诚实打分与逐段缺口定位，点开看现状分、潜力区间和可补缺口。',
+          cta: '查看打分报告',
+        };
+      }
+      const lo = ctx?.resumePotLow;
+      const hi = ctx?.resumePotHigh;
+      const gaps = ctx?.resumeGaps ?? 0;
+      const potText = lo != null && hi != null ? ` · 潜力 ${lo}–${hi}` : '';
+      const gapText =
+        gaps > 0 ? `${gaps} 段经历有可补的缺口，已定位到逐段入口。` : '逐段缺口已定位到入口。';
       return {
         title: '简历打分完成',
-        body: '现状 <b>72</b> · 潜力 80–85，3 段经历有可补的缺口，已定位到逐段入口。',
+        body: `现状 <b>${cur}</b>${potText}，${gapText}`,
         cta: '查看打分报告',
       };
+    }
     case 'interview':
       return {
         title: '面试间准备好了',
@@ -249,6 +285,8 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   const completed = useRef<Set<string>>(new Set()); // skillrun id → 已落结果卡(防重)
   // skillrun id → 真实 recommend-chat 结果(动画跑完时据此落结果卡, 防 race)
   const respById = useRef<Map<string, RecommendTurnResponse>>(new Map());
+  // skillrun id → skeleton / resume 技能的真实结果卡上下文(同 race-safe 落卡)
+  const ctxById = useRef<Map<string, ResultCtx>>(new Map());
   // skillrun id → 请求未回时挂起的 onComplete(动画先跑完就等请求)
   const pendingComplete = useRef<Map<string, () => void>>(new Map());
   // 学生最近一句话(armed fire 时拿来当 recommend-chat 的 message)
@@ -433,6 +471,50 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         });
     }
 
+    // 梯队骨架: 并发拉真实 platform-skeleton(读缓存情报, 不打实时 LLM, 便宜),
+    // 结果卡用真实赛道 + GT 公司总数 + 分档标签. race-safe 同 feed.
+    if (key === 'skeleton') {
+      const finish = (ctx: ResultCtx) => {
+        ctxById.current.set(skillrunId, ctx);
+        const waiter = pendingComplete.current.get(skillrunId);
+        if (waiter) {
+          pendingComplete.current.delete(skillrunId);
+          waiter();
+        }
+      };
+      getPlatformsByTier(sessionId)
+        .then((sk) => {
+          const count = (sk.tiers ?? []).reduce((n, t) => n + (t.companies?.length ?? 0), 0);
+          const bands = (sk.tiers ?? []).map((t) => t.band).filter(Boolean);
+          finish({ subCat: sk.sub_cat || '', skeletonCount: count, skeletonBands: bands });
+        })
+        .catch(() => finish({}));
+    }
+
+    // 简历优化: 并发打真实诚实打分(LLM). 结果卡用真实现状分 + 潜力区间 + 缺口段数;
+    // 同时把分缓存下来给打分报告页复用, 避免一次交互打两遍 LLM.
+    if (key === 'resume') {
+      const finish = (ctx: ResultCtx) => {
+        ctxById.current.set(skillrunId, ctx);
+        const waiter = pendingComplete.current.get(skillrunId);
+        if (waiter) {
+          pendingComplete.current.delete(skillrunId);
+          waiter();
+        }
+      };
+      scoreResume(sessionId)
+        .then((sc) => {
+          cacheScoreReport(sessionId, sc);
+          finish({
+            resumeCurrent: sc.overall_current,
+            resumePotLow: sc.overall_potential_low,
+            resumePotHigh: sc.overall_potential_high,
+            resumeGaps: (sc.section_gaps ?? []).length,
+          });
+        })
+        .catch(() => finish({}));
+    }
+
     // busy 在 onSkillComplete(DeepThinkCard 跑完)时清; 这里只是安全兜底.
     setTimeout(() => {
       busy.current = false;
@@ -457,6 +539,18 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         tracks: resp.working_query?.seed_sub_cats ?? [],
         feedLen: resp.feed?.length ?? 0,
       };
+      push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key, ctx) });
+      return;
+    }
+
+    // 梯队骨架 / 简历优化: 结果卡用真实后端数据. 请求没回则挂起等它(race-safe).
+    if (key === 'skeleton' || key === 'resume') {
+      const ctx = ctxById.current.get(skillrunId);
+      if (!ctx) {
+        pendingComplete.current.set(skillrunId, () => onSkillComplete(skillrunId, key));
+        return;
+      }
+      completed.current.add(skillrunId);
       push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key, ctx) });
       return;
     }

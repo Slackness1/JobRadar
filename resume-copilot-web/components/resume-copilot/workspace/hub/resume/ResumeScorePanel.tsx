@@ -4,6 +4,7 @@ import { HubRadar, type RadarDatum } from './HubRadar';
 import { ResumeDoc } from './editor/ResumeDoc';
 import { TEMPLATES, type LayoutState, type ResumeProfile } from './editor/resumeSample';
 import { scoreResume, type ScoreReportData } from '../../../api';
+import { cacheScoreReport, readFreshScoreReport } from '../scoreCache';
 
 export interface ResumeScorePanelProps {
   sessionId: number;
@@ -69,9 +70,22 @@ export function ResumeScorePanel({
 
   useEffect(() => {
     if (mock || !sessionId) return;
+    // Hub 对话里跑「简历优化」技能时已打过一次 LLM 打分并缓存; 报告页优先复用,
+    // 避免一次交互打两遍 LLM(与学生流量共用 OpenCode 额度)。无新鲜缓存才重打。
     let alive = true;
+    const cached = readFreshScoreReport(sessionId);
+    if (cached) {
+      // 微任务里应用, 避免在 effect 内同步 setState(级联渲染 lint)。
+      Promise.resolve().then(() => {
+        if (!alive) return;
+        setReport(cached);
+        setError('');
+        setLoading(false);
+      });
+      return () => { alive = false; };
+    }
     scoreResume(sessionId)
-      .then((r) => { if (alive) { setReport(r); setError(''); } })
+      .then((r) => { if (alive) { setReport(r); setError(''); cacheScoreReport(sessionId, r); } })
       .catch((e) => { if (alive) setError(e instanceof Error ? e.message : '打分失败'); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
