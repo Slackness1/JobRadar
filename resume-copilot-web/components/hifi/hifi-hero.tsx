@@ -3,8 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { DEMO_SESSION_ID, getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
+import { getAuthUser, isAuthenticated, isGuestUser } from '@/components/resume-copilot/api';
 import { AuthModal } from './auth-modal';
+import { GuideModal } from '@/components/onboarding/GuideModal';
+import { GuidePanel } from '@/components/onboarding/GuidePanel';
 import { HFBtn, HFLogo, HFPill, HFTicker, I, useCountUp } from './hifi-primitives';
 
 const GUEST_DISPLAY_NAME = 'guest1';
@@ -54,6 +56,7 @@ export function HFHero() {
   const [tickerPaused, setTickerPaused] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   useEffect(() => {
     // Hydration sync: sessionStorage / localStorage 在 SSR 不可用,挂载后读一次。
@@ -95,6 +98,9 @@ export function HFHero() {
       <div className="hf-hero-page__nav">
         <HFLogo />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <HFBtn variant="link" size="sm" icon={I.book(14)} onClick={() => setGuideOpen(true)}>
+            怎么用
+          </HFBtn>
           {loggedIn ? (
             <UserBadge
               name={getAuthUser()?.email ?? GUEST_DISPLAY_NAME}
@@ -194,14 +200,16 @@ export function HFHero() {
             >
               上传简历
             </HFBtn>
-            <HFBtn
-              variant="ghost"
-              size="lg"
-              icon={I.book(14)}
-              onClick={() => handleCTA(`/resume-copilot?sessionId=${DEMO_SESSION_ID}`)}
-            >
-              看示例推荐
-            </HFBtn>
+            {loggedIn ? (
+              <HFBtn
+                variant="ghost"
+                size="lg"
+                icon={I.book(14)}
+                onClick={() => router.push('/resume-copilot/sessions')}
+              >
+                我的简历
+              </HFBtn>
+            ) : null}
           </div>
 
           {/* Metric row */}
@@ -253,6 +261,15 @@ export function HFHero() {
         }}
         onSuccess={onLoginSuccess}
       />
+      <GuideModal open={guideOpen} onClose={() => setGuideOpen(false)}>
+        <GuidePanel
+          onStart={() => {
+            setGuideOpen(false);
+            handleCTA('/upload');
+          }}
+          onDismiss={() => setGuideOpen(false)}
+        />
+      </GuideModal>
     </div>
   );
 }

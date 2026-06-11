@@ -1,0 +1,45 @@
+/* Onboarding「一图看懂」向导 — 全部 scope 在 .hf 下, 类名前缀 og- */
+.hf .og-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: rgba(40, 30, 24, 0.46); backdrop-filter: blur(2px);
+  animation: og-fade 0.18s ease;
+}
+@keyframes og-fade { from { opacity: 0; } to { opacity: 1; } }
+.hf .og-modal {
+  position: relative; width: min(720px, 100%); max-height: 88vh; overflow-y: auto;
+  background: var(--parchment, #f5f4ed); border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28); padding: 32px 32px 24px;
+}
+.hf .og-close {
+  position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; border-radius: 15px;
+  border: none; cursor: pointer; background: var(--ivory, #fffdf8);
+  box-shadow: 0 0 0 1px var(--border-cream, #e7e0d3); color: var(--stone, #8a8175);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hf .og-title { font-family: var(--font-serif, Georgia, serif); font-size: 24px; color: var(--ink, #2b2620); margin: 0 0 4px; }
+.hf .og-sub { font-size: 13px; color: var(--ink-soft, #6f675b); margin: 0 0 22px; }
+.hf .og-panel { display: flex; flex-direction: column; }
+.hf .og-steps { display: flex; flex-direction: column; gap: 12px; }
+.hf .og-step {
+  display: flex; gap: 14px; padding: 14px 16px; border-radius: 14px;
+  background: var(--ivory, #fffdf8); box-shadow: 0 0 0 1px var(--border-cream, #e7e0d3);
+  cursor: default; transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.hf .og-step:hover { box-shadow: 0 0 0 1.5px var(--terracotta, #c96442); transform: translateY(-1px); }
+.hf .og-step__icon {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--terracotta-wash, #f7e9e2); color: var(--terracotta, #c96442);
+}
+.hf .og-step__no { font-family: var(--font-serif, Georgia, serif); font-size: 12px; color: var(--terracotta, #c96442); font-weight: 700; letter-spacing: 0.08em; }
+.hf .og-step__title { font-size: 15px; font-weight: 600; color: var(--ink, #2b2620); margin: 2px 0; }
+.hf .og-step__what { font-size: 13px; color: var(--ink-soft, #6f675b); line-height: 1.55; }
+.hf .og-step__value { font-size: 12.5px; color: var(--terracotta-strong, #b04f30); margin-top: 4px; }
+.hf .og-step__detail { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-cream, #e7e0d3); font-size: 12.5px; color: var(--ink-soft, #6f675b); line-height: 1.5; }
+.hf .og-foot { display: flex; align-items: center; gap: 16px; margin-top: 22px; }
+.hf .og-dismiss { margin-left: auto; font-size: 12.5px; color: var(--stone, #8a8175); background: none; border: none; cursor: pointer; text-decoration: underline; }
+@media (max-width: 560px) {
+  .hf .og-modal { padding: 22px 18px 18px; }
+  .hf .og-title { font-size: 20px; }
+}

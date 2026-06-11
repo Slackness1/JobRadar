@@ -19,6 +19,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { HFBtn, HFLogo, I } from '@/components/hifi/hifi-primitives';
+import { GuideModal } from '@/components/onboarding/GuideModal';
+import { GuidePanel } from '@/components/onboarding/GuidePanel';
+import { hasSeenGuide, markGuideSeen } from '@/components/onboarding/guide-seen';
 import {
   deleteResumeCopilotSession,
   duplicateResumeCopilotSession,
@@ -78,6 +81,7 @@ export function SessionsPanel() {
 
   const [filter, setFilter] = useState<SessionFilter>('active');
   const [sort, setSort] = useState<SessionSort>('updated');
+  const [guideOpen, setGuideOpen] = useState(false);
 
   useEffect(() => {
     // Sessions are user-scoped via X-Resume-User-Key (api.ts handles that
@@ -102,6 +106,12 @@ export function SessionsPanel() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    if (!hasSeenGuide()) {
+      setGuideOpen(true);
+    }
   }, []);
 
   // ── Derived ─────────────────────────────────────────────────────────────
@@ -206,6 +216,16 @@ export function SessionsPanel() {
     }
   }, [router, currentSessionId]);
 
+  const closeGuide = () => {
+    markGuideSeen();
+    setGuideOpen(false);
+  };
+  const startFromGuide = () => {
+    markGuideSeen();
+    setGuideOpen(false);
+    router.push('/upload');
+  };
+
   // Display name for top-right avatar — same logic as hifi-hero.
   const avatarLabel = (() => {
     if (typeof window === 'undefined') return '';
@@ -225,6 +245,9 @@ export function SessionsPanel() {
           <span className="rc-sessions__crumb-sep">/</span>
           <span className="rc-sessions__crumb-current">我的简历会话</span>
           <div className="rc-sessions__topbar-spacer" />
+          <HFBtn variant="link" size="sm" icon={I.book(14)} onClick={() => setGuideOpen(true)}>
+            怎么用
+          </HFBtn>
           {currentSessionId ? (
             <HFBtn
               variant="ghost"
@@ -314,6 +337,9 @@ export function SessionsPanel() {
             </span>
           </div>
         </div>
+        <GuideModal open={guideOpen} onClose={closeGuide}>
+          <GuidePanel onStart={startFromGuide} onDismiss={closeGuide} />
+        </GuideModal>
       </div>
     </div>
   );
