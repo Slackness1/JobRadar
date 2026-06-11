@@ -56,6 +56,19 @@ def _inst_tier_to_band(institution_tier: str | None) -> str | None:
     return None
 
 
+def _band_for_company(company: str | None, institution_tier: str | None) -> str | None:
+    """无 GT 赛道(互联网)给公司定 band: 策展互联网名单优先(tier1→头部/tier2→腰部),
+    未命中再退到 institution_tier 关键词。名单按品牌词根子串匹配, 能命中带子公司前缀的
+    真大厂, 又挡掉被误标"互联网大厂"的噪声(银泰百货/国金证券)。见 internet_tiers.py。"""
+    from app.services.phase_g.tier_fit.internet_tiers import internet_tier_of
+    tier = internet_tier_of(company)
+    if tier == "tier1":
+        return "头部"
+    if tier == "tier2":
+        return "腰部"
+    return _inst_tier_to_band(institution_tier)
+
+
 @lru_cache(maxsize=1)
 def _load_gt() -> dict:
     """加载 ground_truth_companies_v1.json，返回原始 dict。"""
@@ -246,7 +259,7 @@ def _fetch_other_tier_companies(
             continue
         seen.add(norm)
         norms.append(norm)
-        inst_band[norm] = _inst_tier_to_band(inst_tier)
+        inst_band[norm] = _band_for_company(company, inst_tier)
 
     companies: list[dict] = []
     for norm in norms:

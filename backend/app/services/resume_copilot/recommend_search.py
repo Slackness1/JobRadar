@@ -70,12 +70,27 @@ def _tier_quality_boost(job: Any) -> float:
     return 0.0
 
 
+def _curated_internet_boost(job: Any) -> float:
+    """策展互联网名单 → 桶内档次加分。tier1 +0.15(与 GT 平台同量级) / tier2 +0.08。
+
+    优先于 institution_tier 关键词退路: 名单按品牌词根子串匹配, 能命中带子公司前缀的
+    真大厂(深圳市腾讯…/百度在线网络技术…), 又天然挡掉被误标"互联网大厂"的噪声
+    (银泰百货/国金证券)。见 internet_tiers.py。"""
+    from app.services.phase_g.tier_fit.internet_tiers import internet_tier_of
+    tier = internet_tier_of(str(getattr(job, "company", "") or ""))
+    if tier == "tier1":
+        return 0.15
+    if tier == "tier2":
+        return 0.08
+    return 0.0
+
+
 def apply_quality_priors(ranked: list[tuple[Any, float]]) -> list[tuple[Any, float]]:
     """对 [(job, score 0-1)] 施加桶内质量先验, 仅调分不排序(调用方自行 sort):
       - support 岗 -0.30 沉底(研究/投资桶里的中后台误配)
       - GT 平台公司 +0.15 浮顶(经过策展的好平台压过随机新岗)
-      - GT 集为空的桶(互联网 PM / 非 GT 金融)退到 institution_tier 档次加分,
-        让大厂/头部浮顶, 而非只按新鲜度排(修互联网赛道"破岗位")
+      - GT 集为空的桶(互联网 PM / 非 GT 金融)按优先级退路, 让大厂/头部浮顶, 而非只按
+        新鲜度排(修互联网赛道"破岗位"): 策展互联网名单(tier1/tier2) > institution_tier 关键词。
     两条推荐路径共用 —— Hub 快路(search_candidates)与旧 generate 慢路语义一致。
     """
     out: list[tuple[Any, float]] = []
@@ -83,9 +98,14 @@ def apply_quality_priors(ranked: list[tuple[Any, float]]) -> list[tuple[Any, flo
         adj = s
         if _is_support_role(str(getattr(j, "job_title", "") or "")):
             adj -= 0.30
+        # 档次先验优先级(三者取第一个命中的, 不叠加):
+        #   GT 平台(金融, +0.15) > 策展互联网名单(tier1 +0.15/tier2 +0.08) > institution_tier 关键词退路
         gt = _gt_quality_boost(j)
-        # GT 命中用策展信号(+0.15); 否则退到 institution_tier 档次, 二者不叠加。
-        adj += gt if gt > 0 else _tier_quality_boost(j)
+        if gt > 0:
+            adj += gt
+        else:
+            ci = _curated_internet_boost(j)
+            adj += ci if ci > 0 else _tier_quality_boost(j)
         out.append((j, adj))
     return out
 
