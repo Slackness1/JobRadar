@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HubRadar, type RadarDatum } from './HubRadar';
-import { ResumeA4 } from './ResumeA4';
+import { ResumeDoc } from './editor/ResumeDoc';
+import { TEMPLATES, type LayoutState, type ResumeProfile } from './editor/resumeSample';
 import { scoreResume, type ScoreReportData } from '../../../api';
 
 export interface ResumeScorePanelProps {
@@ -10,6 +11,12 @@ export interface ResumeScorePanelProps {
   onClose?: () => void;
   /** 无 session 时渲染原型样例,供独立目测 */
   mock?: boolean;
+  /** 受控简历状态(与全屏编辑器共用同一数据源)。 */
+  profile: ResumeProfile;
+  template: string;
+  onTemplate: (id: string) => void;
+  layout: LayoutState;
+  hidden: Set<string>;
 }
 
 // 8 维 → 雷达短标签 + 金融维标记(对齐原型 R_RADAR 顺序)
@@ -40,11 +47,25 @@ const MOCK: ScoreReportData = {
 };
 
 /** 简历优化画布槽侧面板:契约 props {sessionId,onExpandEditor,onClose}(orchestrator 传)。 */
-export function ResumeScorePanel({ sessionId, onExpandEditor, onClose, mock = false }: ResumeScorePanelProps) {
+export function ResumeScorePanel({
+  sessionId,
+  onExpandEditor,
+  onClose,
+  mock = false,
+  profile,
+  template,
+  onTemplate,
+  layout,
+  hidden,
+}: ResumeScorePanelProps) {
   const [view, setView] = useState<'score' | 'preview'>('score');
   const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
   const [loading, setLoading] = useState(!mock);
   const [error, setError] = useState('');
+  // 预览缩放 + 页数
+  const [pages, setPages] = useState(1);
+  const [scale, setScale] = useState(0.5);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (mock || !sessionId) return;
@@ -55,6 +76,18 @@ export function ResumeScorePanel({ sessionId, onExpandEditor, onClose, mock = fa
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [mock, sessionId]);
+
+  // 把 794px A4 缩放进侧栏预览宽度(进入预览 tab 时挂载量宽)。
+  useEffect(() => {
+    if (view !== 'preview') return;
+    const el = previewRef.current;
+    if (!el) return;
+    const fit = () => setScale(Math.min(1, (el.clientWidth - 32) / 794));
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [view]);
 
   const radarData: RadarDatum[] = report
     ? RADAR_META.map((m) => ({ k: m.k, fin: m.fin, v: report.dimensions.find((d) => d.key === m.key)?.score ?? 0 }))
@@ -123,12 +156,31 @@ export function ResumeScorePanel({ sessionId, onExpandEditor, onClose, mock = fa
       {report && view === 'preview' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--parchment)' }}>
           <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-warm)', background: 'var(--ivory)', display: 'flex', alignItems: 'center', gap: 7, flex: 'none' }}>
-            <span className="hf-pill" style={{ height: 26, fontFamily: 'var(--font-mono)' }}>1 页</span>
-            <span className="hf-pill" style={{ height: 26 }}>模板 · 经典单栏 ▾</span>
+            <span className={`hf-pill${pages > 1 ? ' amber' : ''}`} style={{ height: 26, fontFamily: 'var(--font-mono)' }}>
+              {pages > 1 ? `${pages} 页` : '1 页'}
+            </span>
+            {/* 真模板下拉:原生 select 罩在 pill 样式上 */}
+            <span className="hf-pill" style={{ height: 26, position: 'relative', paddingRight: 22 }}>
+              模板 · {TEMPLATES.find((t) => t.id === template)?.name ?? '素白单栏'} ▾
+              <select
+                value={template}
+                onChange={(e) => onTemplate(e.target.value)}
+                aria-label="切换模板"
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', border: 'none' }}
+              >
+                {TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </span>
             <button className="hf-btn dark sm" style={{ marginLeft: 'auto', height: 28 }} onClick={onExpandEditor}>下载 PDF</button>
           </div>
-          <div style={{ flex: 1, overflow: 'auto', padding: '18px 0', display: 'flex', justifyContent: 'center' }}>
-            <ResumeA4 highlight />
+          <div ref={previewRef} style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '18px 0', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <div style={{ zoom: scale }}>
+              <ResumeDoc profile={profile} templateId={template} layout={layout} hidden={hidden} onPages={setPages} />
+            </div>
           </div>
         </div>
       )}

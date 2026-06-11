@@ -1,72 +1,72 @@
 'use client';
-import { useState } from 'react';
 import { Check } from 'lucide-react';
+import type { LayoutState } from './resumeSample';
 
-const MODULES = ['基本信息', '个人介绍', '教育经历', '实习经历', '项目经历', '掌握技能'];
-const SLIDERS: [string, number][] = [
-  ['字号', 0.5],
-  ['行高', 0.62],
-  ['页边距', 0.4],
-  ['模块间距', 0.55],
+const SLIDERS: [keyof LayoutState, string][] = [
+  ['font', '字号'],
+  ['line', '行高'],
+  ['margin', '页边距'],
+  ['gap', '模块间距'],
 ];
 
-/** 左栏「布局」tab — 排版滑块 + 模块显示/隐藏 + 超页提醒。 */
-export function LeftLayout() {
-  const [values, setValues] = useState<number[]>(SLIDERS.map(([, v]) => v));
-  const [hidden, setHidden] = useState<Set<string>>(() => new Set(['个人介绍']));
+export interface LeftLayoutProps {
+  layout: LayoutState;
+  onLayout: (l: LayoutState) => void;
+  /** 可显示/隐藏的模块(来自简历各段),与中栏文档一致。 */
+  modules: { id: string; label: string }[];
+  hidden: Set<string>;
+  onToggleHidden: (id: string) => void;
+  /** 中栏实测页数,驱动超页提醒。 */
+  pages: number;
+}
 
-  const toggle = (m: string) =>
-    setHidden((s) => {
-      const n = new Set(s);
-      if (n.has(m)) n.delete(m);
-      else n.add(m);
-      return n;
-    });
-
-  const setValue = (i: number, v: number) =>
-    setValues((arr) => arr.map((cur, idx) => (idx === i ? v : cur)));
+/** 左栏「布局」tab — 排版滑块 + 模块显示/隐藏 + 超页提醒。受控驱动中栏实时改版。 */
+export function LeftLayout({ layout, onLayout, modules, hidden, onToggleHidden, pages }: LeftLayoutProps) {
+  const setValue = (key: keyof LayoutState, v: number) => onLayout({ ...layout, [key]: v });
 
   return (
-    <div style={{ overflow: 'auto', padding: '4px 2px 0' }}>
-      {/* 超页提醒 */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 9,
-          alignItems: 'flex-start',
-          background: 'var(--amber-bg)',
-          boxShadow: '0 0 0 1px #ecdfa4',
-          borderRadius: 11,
-          padding: 11,
-          marginBottom: 14,
-        }}
-      >
-        <span
+    <div style={{ overflow: 'auto', padding: '4px 2px 18px' }}>
+      {/* 超页提醒 — 仅在超过 1 页时出现 */}
+      {pages > 1 && (
+        <div
           style={{
-            font: '600 11px var(--font-mono)',
-            color: 'var(--amber-fg)',
+            display: 'flex',
+            gap: 9,
+            alignItems: 'flex-start',
+            background: 'var(--amber-bg)',
             boxShadow: '0 0 0 1px #ecdfa4',
-            borderRadius: 6,
-            padding: '2px 7px',
-            background: 'var(--ivory)',
-            flex: 'none',
+            borderRadius: 11,
+            padding: 11,
+            marginBottom: 14,
           }}
         >
-          2 页
-        </span>
-        <div style={{ font: '400 11px/1.5 var(--font-sans)', color: 'var(--amber-fg)' }}>
-          当前超过 1 页 · 仅提醒,不自动缩排。下调字号或页边距,或隐藏次要模块。
+          <span
+            style={{
+              font: '600 11px var(--font-mono)',
+              color: 'var(--amber-fg)',
+              boxShadow: '0 0 0 1px #ecdfa4',
+              borderRadius: 6,
+              padding: '2px 7px',
+              background: 'var(--ivory)',
+              flex: 'none',
+            }}
+          >
+            {pages} 页
+          </span>
+          <div style={{ font: '400 11px/1.5 var(--font-sans)', color: 'var(--amber-fg)' }}>
+            当前超过 1 页 · 仅提醒,不自动缩排。下调字号或页边距,或隐藏次要模块。
+          </div>
         </div>
-      </div>
+      )}
 
       <span className="hf-pill" style={{ height: 24, marginBottom: 12 }}>
         排版滑块
       </span>
       <div style={{ marginTop: 12 }}>
-        {SLIDERS.map(([l], i) => {
-          const v = values[i];
+        {SLIDERS.map(([key, label]) => {
+          const v = layout[key];
           return (
-            <div key={i} style={{ marginBottom: 14 }}>
+            <div key={key} style={{ marginBottom: 14 }}>
               <div
                 style={{
                   display: 'flex',
@@ -76,7 +76,7 @@ export function LeftLayout() {
                   marginBottom: 7,
                 }}
               >
-                <span>{l}</span>
+                <span>{label}</span>
               </div>
               <div style={{ position: 'relative', height: 14 }}>
                 <div
@@ -121,8 +121,8 @@ export function LeftLayout() {
                   max={1}
                   step={0.01}
                   value={v}
-                  onChange={(e) => setValue(i, Number(e.target.value))}
-                  aria-label={l}
+                  onChange={(e) => setValue(key, Number(e.target.value))}
+                  aria-label={label}
                   style={{
                     position: 'absolute',
                     inset: 0,
@@ -142,12 +142,12 @@ export function LeftLayout() {
         模块显示 / 隐藏
       </span>
       <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {MODULES.map((m, i) => {
-          const off = hidden.has(m);
+        {modules.map((m) => {
+          const off = hidden.has(m.id);
           return (
             <button
-              key={i}
-              onClick={() => toggle(m)}
+              key={m.id}
+              onClick={() => onToggleHidden(m.id)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -174,7 +174,9 @@ export function LeftLayout() {
               >
                 {!off && <Check size={11} />}
               </span>
-              <span style={{ font: '500 12px var(--font-sans)', color: off ? 'var(--stone)' : 'var(--ink-soft)' }}>{m}</span>
+              <span style={{ font: '500 12px var(--font-sans)', color: off ? 'var(--stone)' : 'var(--ink-soft)' }}>
+                {m.label}
+              </span>
               {off && (
                 <span style={{ marginLeft: 'auto', font: '400 10px var(--font-sans)', color: 'var(--stone)' }}>已隐藏</span>
               )}

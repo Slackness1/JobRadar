@@ -1,14 +1,6 @@
 'use client';
-import { useState } from 'react';
 import type { JSX } from 'react';
-
-const TEMPLATES: [string, number][] = [
-  ['素白单栏', 0],
-  ['蓝栏双侧', 1],
-  ['深首横幅', 2],
-  ['墨绿弧顶', 3],
-  ['浅青色块', 4],
-];
+import { TEMPLATES } from './resumeSample';
 
 /** 模板 mini-card 缩略图 — 移植自 hub-prototype LeftTemplate.mini。 */
 function mini(i: number): JSX.Element {
@@ -74,26 +66,34 @@ function mini(i: number): JSX.Element {
   );
 }
 
-/** 左栏「模板」tab — 5 个模板 mini-card 选择。 */
-export function LeftTemplate() {
-  const [sel, setSel] = useState(0);
+export interface LeftTemplateProps {
+  /** 当前选中模板 id。 */
+  value: string;
+  /** 切换模板 → 中栏实时换皮。 */
+  onChange: (id: string) => void;
+}
+
+/** 左栏「模板」tab — 5 个模板 mini-card 选择,受控驱动中栏换皮。 */
+export function LeftTemplate({ value, onChange }: LeftTemplateProps) {
   return (
-    <div style={{ overflow: 'auto', padding: '4px 2px 0' }}>
+    <div style={{ overflow: 'auto', padding: '4px 2px 18px' }}>
       <span className="hf-pill" style={{ height: 24, marginBottom: 12 }}>
         5 个模板 · 默认素白单栏(纯净无色)
       </span>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-        {TEMPLATES.map(([t, i]) => (
+        {TEMPLATES.map((tpl, i) => {
+          const on = value === tpl.id;
+          return (
           <button
-            key={i}
-            onClick={() => setSel(i)}
+            key={tpl.id}
+            onClick={() => onChange(tpl.id)}
             style={{
               textAlign: 'left',
               borderRadius: 10,
               padding: 7,
               cursor: 'pointer',
-              background: sel === i ? 'var(--terracotta-wash)' : 'var(--ivory)',
-              boxShadow: sel === i ? '0 0 0 1.5px var(--terracotta)' : '0 0 0 1px var(--border-warm)',
+              background: on ? 'var(--terracotta-wash)' : 'var(--ivory)',
+              boxShadow: on ? '0 0 0 1.5px var(--terracotta)' : '0 0 0 1px var(--border-warm)',
             }}
           >
             <div
@@ -111,30 +111,16 @@ export function LeftTemplate() {
             </div>
             <div
               style={{
-                font: `${sel === i ? 600 : 500} 11px var(--font-sans)`,
-                color: sel === i ? 'var(--terracotta-strong)' : 'var(--olive)',
+                font: `${on ? 600 : 500} 11px var(--font-sans)`,
+                color: on ? 'var(--terracotta-strong)' : 'var(--olive)',
                 textAlign: 'center',
               }}
             >
-              {t}
+              {tpl.name}
             </div>
           </button>
-        ))}
-        <div
-          style={{
-            borderRadius: 10,
-            boxShadow: '0 0 0 1px var(--border-strong)',
-            borderStyle: 'dashed',
-            display: 'grid',
-            placeItems: 'center',
-            font: '500 10.5px/1.4 var(--font-sans)',
-            color: 'var(--stone)',
-            textAlign: 'center',
-            padding: 6,
-          }}
-        >
-          全无照片 · 金融极简
-        </div>
+          );
+        })}
       </div>
     </div>
   );

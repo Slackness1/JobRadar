@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download, Save, X } from 'lucide-react';
-import { A4Doc, type EditorSection } from './A4Doc';
+import { ResumeDoc } from './ResumeDoc';
+import type { LayoutState, ResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
@@ -16,37 +17,26 @@ const L_TABS: [LeftTab, string][] = [
   ['layout', '布局'],
 ];
 
-// 中栏 A4 mock 内容 — 实习经历段被点亮("AI 刚写回")。
-const MOCK_SECTIONS: EditorSection[] = [
-  { title: '教育经历', lines: ['100%', '100%', '56%'] },
-  {
-    title: '实习经历',
-    bullet: '搭建覆盖 40+ 量价因子的回测框架(2021–2023),将单因子筛选由手动改为一键批量,显著缩短迭代周期。',
-  },
-  { title: '项目经历', lines: ['100%', '100%', '74%'] },
-  { title: '掌握技能', lines: ['100%', '56%'] },
-];
-
-// 后端 section path 前缀(如 'internships.0' / 'projects.1')→ 中栏 MOCK_SECTIONS 索引。
-// MOCK_SECTIONS 顺序:0 教育经历 / 1 实习经历 / 2 项目经历 / 3 掌握技能。
-const SECTION_PREFIX_TO_INDEX: Record<string, number> = {
-  education: 0,
-  educations: 0,
-  internship: 1,
-  internships: 1,
-  experience: 1,
-  experiences: 1,
-  work: 1,
-  project: 2,
-  projects: 2,
-  skill: 3,
-  skills: 3,
+// 后端 section path 前缀(如 'internships.0' / 'projects.1')→ 简历文档 section id。
+// SAMPLE_PROFILE.sections id:edu / str / intern / proj / skills / honor。
+const SECTION_PREFIX_TO_ID: Record<string, string> = {
+  education: 'edu',
+  educations: 'edu',
+  internship: 'intern',
+  internships: 'intern',
+  experience: 'intern',
+  experiences: 'intern',
+  work: 'intern',
+  project: 'proj',
+  projects: 'proj',
+  skill: 'skills',
+  skills: 'skills',
 };
 
-function sectionToLitIndex(section: string): number | undefined {
+function sectionToLitId(section: string): string | undefined {
   if (!section) return undefined;
   const prefix = section.split('.')[0].toLowerCase();
-  return SECTION_PREFIX_TO_INDEX[prefix];
+  return SECTION_PREFIX_TO_ID[prefix];
 }
 
 export interface ResumeEditorOverlayProps {
@@ -55,22 +45,59 @@ export interface ResumeEditorOverlayProps {
   sessionId?: number;
   /** 显式强制 mock。默认:无 sessionId 时为 mock。 */
   mock?: boolean;
+  /** 受控简历状态(与侧面板预览共用同一数据源,由 hub 页面上提)。 */
+  profile: ResumeProfile;
+  onProfile: (p: ResumeProfile) => void;
+  template: string;
+  onTemplate: (id: string) => void;
+  layout: LayoutState;
+  onLayout: (l: LayoutState) => void;
+  hidden: Set<string>;
+  onToggleHidden: (id: string) => void;
 }
 
 /** 简历编辑器全屏壳 — 移植自 hub-prototype ResumeEditor,右栏接 EditorAIPanel(E3)。 */
-export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEditorOverlayProps) {
+export function ResumeEditorOverlay({
+  onClose,
+  sessionId = 0,
+  mock,
+  profile,
+  onProfile,
+  template,
+  onTemplate,
+  layout,
+  onLayout,
+  hidden,
+  onToggleHidden,
+}: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
   const [aiTab, setAiTab] = useState<string>('score');
   const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
-  // 当前高亮("AI 刚写回")的中栏段索引。初始 1 = 实习经历(与原壳一致)。
-  const [litSection, setLitSection] = useState<number>(1);
+  // 当前高亮("AI 刚写回")的简历段 id。初始 intern = 实习经历(与原壳一致)。
+  const [litSectionId, setLitSectionId] = useState<string | undefined>('intern');
+  // 中栏实测页数(简历文档自量上报)。
+  const [pages, setPages] = useState(1);
+  // 中栏 A4 文档(794px)缩放到可用宽度。
+  const [scale, setScale] = useState(1);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   const isMock = mock ?? !sessionId;
 
-  // 写回成功 → 把 section 映射成 A4 lit 索引并高亮。
+  // 按可用宽度把 794px A4 文档缩放进中栏(zoom 同时缩布局盒,避免横向溢出)。
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const fit = () => setScale(Math.min(1, (el.clientWidth - 48) / 794));
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // 写回成功 → 把 section 映射成简历段 id 并高亮。
   const handleWriteBack = (section: string) => {
-    const idx = sectionToLitIndex(section);
-    if (idx !== undefined) setLitSection(idx);
+    const id = sectionToLitId(section);
+    if (id) setLitSectionId(id);
   };
 
   // E2/E3 接线前,引用此段仅 no-op(壳态)。
@@ -172,14 +199,23 @@ export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEdit
             </div>
           </div>
           <div style={{ flex: 1, minHeight: 0, padding: '12px 14px' }}>
-            {leftTab === 'tpl' && <LeftTemplate />}
-            {leftTab === 'edit' && <LeftEdit onQuote={handleQuote} />}
-            {leftTab === 'layout' && <LeftLayout />}
+            {leftTab === 'tpl' && <LeftTemplate value={template} onChange={onTemplate} />}
+            {leftTab === 'edit' && <LeftEdit profile={profile} onProfile={onProfile} onQuote={handleQuote} />}
+            {leftTab === 'layout' && (
+              <LeftLayout
+                layout={layout}
+                onLayout={onLayout}
+                modules={profile.sections.map((s) => ({ id: s.id, label: s.label }))}
+                hidden={hidden}
+                onToggleHidden={onToggleHidden}
+                pages={pages}
+              />
+            )}
           </div>
         </div>
 
         {/* CENTER — WYSIWYG */}
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, background: 'var(--parchment)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, background: 'var(--parchment)' }}>
           <div
             style={{
               height: 46,
@@ -192,8 +228,11 @@ export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEdit
               background: 'var(--ivory)',
             }}
           >
-            <span className="hf-pill" style={{ height: 26, fontFamily: 'var(--font-mono)' }}>
-              1 页
+            <span
+              className={`hf-pill${pages > 1 ? ' amber' : ''}`}
+              style={{ height: 26, fontFamily: 'var(--font-mono)' }}
+            >
+              {pages > 1 ? `${pages} 页 · 超 ${pages - 1} 页` : '1 页'}
             </span>
             <span style={{ font: '500 12px var(--font-sans)', color: 'var(--olive)' }}>WYSIWYG · 所见即所导出</span>
             <span style={{ marginLeft: 'auto' }} />
@@ -205,8 +244,10 @@ export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEdit
             </button>
           </div>
           <div
+            ref={stageRef}
             style={{
               flex: 1,
+              minHeight: 0,
               overflow: 'auto',
               padding: '28px 0',
               display: 'flex',
@@ -214,7 +255,16 @@ export function ResumeEditorOverlay({ onClose, sessionId = 0, mock }: ResumeEdit
               alignItems: 'flex-start',
             }}
           >
-            <A4Doc sections={MOCK_SECTIONS} lit={litSection} />
+            <div style={{ zoom: scale }}>
+              <ResumeDoc
+                profile={profile}
+                templateId={template}
+                layout={layout}
+                hidden={hidden}
+                litSectionId={litSectionId}
+                onPages={setPages}
+              />
+            </div>
           </div>
         </div>
 

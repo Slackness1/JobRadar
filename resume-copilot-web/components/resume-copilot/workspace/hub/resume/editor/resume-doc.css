@@ -1,0 +1,351 @@
+/* ============================================================
+   RESUME DOCUMENT — single source render (matches export PDF)
+   移植自设计源 简历模板.html。所有选择器自限定在 .doc 下,
+   不与编辑器 terracotta chrome 冲突。5 套皮肤靠 .doc.t-* 切换。
+   字号/行高/页边距/段间距走 CSS 变量(--doc-fs/--doc-line/--doc-pad/--sec-gap),
+   「布局」tab 滑块通过覆盖这些变量实时改版。
+   ============================================================ */
+.doc {
+  --doc-ink: #1c1c1e;
+  --doc-soft: #4a4a4d;
+  --doc-muted: #6d6d70;
+  --doc-faint: #9a9a9d;
+  --doc-rule: #e2e2e0;
+  --doc-accent: #1c1c1e;
+  --doc-pad: 48px;
+  --doc-fs: 13px;
+  --doc-line: 1.6;
+  --sec-gap: 19px;
+  width: 794px;
+  min-height: 1123px;
+  background: #fff;
+  color: var(--doc-ink);
+  font-family: var(--font-sans);
+  font-size: var(--doc-fs);
+  line-height: var(--doc-line);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 24px 60px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.doc .pagebreak {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed #d8b9ac;
+  pointer-events: none;
+}
+.doc .pagebreak span {
+  position: absolute;
+  right: 8px;
+  top: -9px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #b07a64;
+  background: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+}
+.doc * {
+  box-sizing: border-box;
+}
+.doc .pad {
+  padding: 44px var(--doc-pad) 48px;
+}
+
+/* Name header (default left) */
+.doc .rhead {
+  margin-bottom: 22px;
+}
+.doc .rname {
+  font-size: calc(var(--doc-fs) * 1.923);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--doc-ink);
+  line-height: 1.1;
+}
+.doc .rcontact {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  font-size: calc(var(--doc-fs) * 0.923);
+  color: var(--doc-muted);
+}
+.doc .rcontact svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.75;
+}
+
+/* Section */
+.doc .sec {
+  margin-bottom: var(--sec-gap);
+}
+.doc .sec-h {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 11px;
+}
+.doc .sec-h .t {
+  font-size: calc(var(--doc-fs) * 1.077);
+  font-weight: 700;
+  color: var(--doc-ink);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+.doc .sec-h::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--doc-rule);
+}
+
+/* Timeline item */
+.doc .item {
+  margin-bottom: 14px;
+}
+.doc .item:last-child {
+  margin-bottom: 0;
+}
+.doc .item-top {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.doc .item-org {
+  font-size: calc(var(--doc-fs) * 1.038);
+  font-weight: 700;
+  color: var(--doc-ink);
+}
+.doc .item-loc {
+  font-size: calc(var(--doc-fs) * 0.846);
+  color: var(--doc-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.doc .item-loc::before {
+  content: '·';
+  margin: 0 6px;
+  color: var(--doc-faint);
+}
+.doc .item-date {
+  margin-left: auto;
+  flex: none;
+  font-size: calc(var(--doc-fs) * 0.846);
+  color: var(--doc-faint);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.doc .item-sub {
+  font-size: calc(var(--doc-fs) * 0.923);
+  color: var(--doc-muted);
+  margin-top: 3px;
+}
+.doc .item-sub .dot {
+  margin: 0 6px;
+  color: var(--doc-faint);
+}
+.doc .item-course {
+  font-size: calc(var(--doc-fs) * 0.923);
+  color: var(--doc-muted);
+  margin-top: 6px;
+}
+.doc .item-desc {
+  font-size: calc(var(--doc-fs) * 0.962);
+  color: var(--doc-soft);
+  margin-top: 6px;
+  line-height: 1.65;
+}
+.doc .blist {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.doc .blist li {
+  position: relative;
+  padding-left: 15px;
+  font-size: calc(var(--doc-fs) * 0.962);
+  color: var(--doc-soft);
+  line-height: 1.65;
+  margin-top: 5px;
+}
+.doc .blist li::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 9px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--doc-faint);
+}
+
+/* Strengths paragraphs */
+.doc .para {
+  font-size: calc(var(--doc-fs) * 0.962);
+  color: var(--doc-soft);
+  line-height: 1.7;
+  margin: 0 0 8px;
+}
+.doc .para:last-child {
+  margin-bottom: 0;
+}
+.doc .para b {
+  color: var(--doc-ink);
+  font-weight: 700;
+}
+
+/* Skills paragraph */
+.doc .skills {
+  font-size: calc(var(--doc-fs) * 0.962);
+  color: var(--doc-soft);
+  line-height: 1.75;
+}
+
+/* Honor tags */
+.doc .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.doc .tags span {
+  font-size: calc(var(--doc-fs) * 0.923);
+  color: var(--doc-soft);
+  background: #f3f3f1;
+  border-radius: 7px;
+  padding: 5px 11px;
+  box-shadow: inset 0 0 0 1px #ececea;
+}
+
+/* ---- Template 1 · 经典单栏 (default vars already classic) ---- */
+
+/* ---- Template 3 · 深色页眉横幅 ---- */
+.doc.t-darkhdr .pad {
+  padding-top: 0;
+}
+.doc.t-darkhdr .band {
+  background: #343a4b;
+  margin: 0 calc(-1 * var(--doc-pad));
+  padding: 30px var(--doc-pad) 26px;
+  margin-bottom: 26px;
+}
+.doc.t-darkhdr .band .rname {
+  color: #fff;
+}
+.doc.t-darkhdr .band .rcontact {
+  color: rgba(255, 255, 255, 0.78);
+}
+.doc.t-darkhdr .band .rcontact svg {
+  opacity: 0.85;
+}
+
+/* ---- Template 4 · 墨绿弧形页眉 ---- */
+.doc.t-tealcurve .pad {
+  padding-top: 0;
+}
+.doc.t-tealcurve .band {
+  background: #007b86;
+  height: 118px;
+  margin: 0 calc(-1 * var(--doc-pad)) 0;
+  border-radius: 0 0 50% 50% / 0 0 46px 46px;
+}
+.doc.t-tealcurve .rhead {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+.doc.t-tealcurve .rcontact {
+  justify-content: center;
+}
+.doc.t-tealcurve .sec-h {
+  justify-content: flex-start;
+}
+
+/* ---- Template 5 · 浅青色块高亮 ---- */
+.doc.t-cyanblock .sec-h {
+  gap: 0;
+}
+.doc.t-cyanblock .sec-h::after {
+  display: none;
+}
+.doc.t-cyanblock .sec-h .t {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: #e3f3f3;
+  color: #0c7c78;
+  border-radius: 7px;
+  padding: 8px 14px 8px 0;
+  box-shadow: inset 4px 0 0 #0e8c88;
+}
+.doc.t-cyanblock .sec-h .t::before {
+  content: '';
+  width: 14px;
+  flex: none;
+}
+
+/* ---- Template 2 · 蓝色双栏侧边 (separate skeleton) ---- */
+.doc.t-sidebar {
+  display: flex;
+}
+.doc.t-sidebar .aside {
+  width: 232px;
+  flex: none;
+  background: #1d65b1;
+  color: #fff;
+  padding: 40px 24px;
+}
+.doc.t-sidebar .aside .a-h {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: calc(var(--doc-fs) * 1.077);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.doc.t-sidebar .aside .a-h svg {
+  width: 18px;
+  height: 18px;
+}
+.doc.t-sidebar .aside .a-skills {
+  font-size: calc(var(--doc-fs) * 0.962);
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.92);
+}
+.doc.t-sidebar .main {
+  flex: 1;
+  padding: 40px 40px 44px;
+  min-width: 0;
+}
+.doc.t-sidebar .main .rhead {
+  margin-bottom: 20px;
+}
+
+/* ---- "AI 刚写回" 高亮(编辑器集成,非导出态) ---- */
+.doc .sec.is-lit {
+  position: relative;
+  background: var(--terracotta-wash);
+  border-radius: 8px;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding: 11px 12px;
+  box-shadow: 0 0 0 1.5px var(--terracotta);
+}
+.doc .sec.is-lit .lit-badge {
+  position: absolute;
+  top: 11px;
+  right: 12px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--terracotta);
+  border-radius: 999px;
+  padding: 2px 8px;
+  letter-spacing: 0.02em;
+}
