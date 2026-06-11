@@ -150,10 +150,10 @@ class TestClassifyTrackMatch:
         assert kind == 'mismatch'
 
     def test_back_office_营销策划岗(self, touyan_prefs):
-        """富国基金 营销策划岗:canonical=二级买方·基本面 (source 默认),
+        """富国基金 营销策划岗:canonical=公募/资管·投研 (source 默认),
         但 title 是 back-office 营销岗 → 必须 mismatch,不能 hit。"""
         job = Job(job_title='营销策划岗（新媒体运营视频方向）-2027届暑期实习',
-                  canonical_track='二级买方·基本面', source='funds_moka_embedded')
+                  canonical_track='公募/资管·投研', source='funds_moka_embedded')
         kind, pen = _classify_track_match(job, touyan_prefs)
         assert kind == 'mismatch'
         assert pen == 15
@@ -176,7 +176,7 @@ class TestClassifyTrackMatch:
     def test_normal_research_岗位不受影响(self, touyan_prefs):
         """正常「半导体研究员」要保持 hit,不能被 back-office 误伤。"""
         job = Job(job_title='研究员（半导体）',
-                  canonical_track='二级买方·基本面', source='funds_zhiye')
+                  canonical_track='公募/资管·投研', source='funds_zhiye')
         kind, _ = _classify_track_match(job, touyan_prefs)
         assert kind == 'hit'
 
