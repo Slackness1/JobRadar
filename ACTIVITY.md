@@ -16,6 +16,13 @@
 
 ## 2026-06-11
 
+### 网站设计-devvpstmux · 简历优化/编辑器分支合入集成分支(Hub 简历接口位补齐)
+- **干了什么**:把简历线交付的 `hub-resume-optimize`(简历打分 + 深度优化 + 5 套模板编辑器)合进集成分支 `hub-shell-frontend`,填上 Hub 那个之前只留接口位的"简历优化"。学生现在能:看诚实打分(8 维 + 潜力区间)→ 逐维缺口 → 进全屏编辑器(模板换皮/就地改内容/排版滑块)→ 改写按目标赛道定制 + 编数字红线。
+- **合并要点(交接 note 低估了复杂度)**:该分支落后集成分支 156 个后端提交、且自带一个与集成同名的 10→13 taxonomy 重构,实际 3 个冲突(canonical.py / coverage_truth.yaml / workspace-theme.css)。核实两边 taxonomy 重构一致、集成版是超集 → 后端冲突取集成版零丢失;css resume 侧为空取集成尾块;resume 自己的打分后端(score/deep-optimize 端点)走 auto-merge 进来。
+- **验证**:后端 150 passed(含 resume 打分新测试通过,2 个失败为存量红非本次引入);前端 lint 0 error + build 绿;后端无回退(互联网 enrich/NL 推荐/taxonomy 全在)。
+- **状态**:并进 PR #4(= Hub + 攒批后端 + 互联网 enrich + 简历编辑器);未进生产。已知遗留:简历内容仍是示例数据(接真实 session profile 是独立后续)、PDF 导出未做。
+- **下一步**:本人 review PR #4 整体;真实简历数据接入留给简历线后续。
+
 ### 网站设计-devvpstmux · Hub 外壳整理就绪 → 开 PR #4 待 review(Hub + 攒批后端管道)
 - **干了什么**:把 `hub-shell-frontend` 分支整理到可合并状态——同步最新主干(无冲突)、修掉一个跟废弃赛道字段一起过期的存量红测试、跑齐前后端验证,开 PR #4 对着 main 等 review。范围含 Hub 外壳(~28 提交)+ 这台 dev 机长期攒下的后端管道(自然语言推荐/情报卡/档次阶梯/taxonomy/遥测,~39 提交;质量级联已否决默认关)。
 - **用户能看到**:一个干净的 PR(https://github.com/Slackness1/JobRadar/pull/4),合不合最后由本人点;未进生产。
