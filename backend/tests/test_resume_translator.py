@@ -75,6 +75,22 @@ def test_translate_profile_structure_and_labels():
     assert p['email'] == 'a@b.com'
 
 
+def test_translate_profile_unmatched_org_uses_llm_not_chinese():
+    """官方名表没收录的机构 → 用 LLM 译文,不退回中文(否则简历半中半英)。"""
+    prof = {
+        'name': '张三', 'email': 'a@b.com', 'skillsText': '',
+        'sections': [
+            {'id': 'edu', 'label': '教育经历', 'type': 'timeline', 'items': [
+                {'org': '上海交通大学致远学院', 'date': '2021-09 - 2025-06'},
+            ]},
+        ],
+    }
+    fake = _FakeProvider({'上海交通大学致远学院': 'Zhiyuan College, SJTU'})
+    out = T.translate_profile(prof, provider=fake)
+    org = out['profile']['sections'][0]['items'][0]['org']
+    assert org == 'Zhiyuan College, SJTU'   # LLM 译文,不是中文原文
+
+
 def test_translate_profile_number_lock_flags_fabrication():
     prof = _sample_profile()
     fake = _FakeProvider({'提交12个因子,入库4个': 'submitted 12 factors, 99 accepted'})  # 99 凭空

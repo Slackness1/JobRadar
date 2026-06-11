@@ -136,7 +136,8 @@ class OpenAICompatibleTranslator:
 # 需要翻译的字符串字段路径收集 / 回填 ──────────────────────────────────────────
 
 def _collect_strings(profile: dict) -> list[tuple]:
-    """返回 [(getter_key_path, source_text)] 的顺序列表。仅收可译文本(不含 email/date/section label/机构名)。"""
+    """返回 [(getter_key_path, source_text)] 的顺序列表。收可译文本(不含 email/date/section label)。
+    org 也收进来交 LLM 翻译;命中官方机构名表的会在后处理被覆盖回官方英文名(见 translate_profile)。"""
     jobs: list[tuple] = []
     jobs.append((('name',), profile.get('name', '')))
     jobs.append((('skillsText',), profile.get('skillsText', '')))
@@ -144,6 +145,8 @@ def _collect_strings(profile: dict) -> list[tuple]:
         t = sec.get('type')
         if t == 'timeline':
             for ii, it in enumerate(sec.get('items', [])):
+                if it.get('org'):
+                    jobs.append((('sections', si, 'items', ii, 'org'), it['org']))
                 for fld in ('sub', 'course', 'desc'):
                     if it.get(fld):
                         jobs.append((('sections', si, 'items', ii, fld), it[fld]))
@@ -186,21 +189,22 @@ def translate_profile(profile: dict, *, provider=None) -> dict:
             warnings.append({'path': '.'.join(str(x) for x in path), 'extra': '、'.join(sorted(extra))})
         _set_path(out, path, en)
 
-    # 翻译前快照每个 timeline item 的源 org(机构名表用源中文匹配,不被 LLM 译文污染)
+    # 翻译前快照每个 timeline item 的源 org(官方名表用源中文匹配,不被 LLM 译文污染)
     src_orgs = {}
     for sec in profile.get('sections', []):
         if sec.get('type') == 'timeline':
             for ii, it in enumerate(sec.get('items', [])):
                 src_orgs[(sec.get('id'), ii)] = it.get('org', '')
 
-    # 机构官方英文名 + 日期格式化 + 固定英文标题(确定性后处理,覆盖 LLM)。
+    # 官方机构名覆盖(命中表才覆盖,否则保留 LLM 译文)+ 日期格式化 + 固定英文标题。
     orgs = _org_names()
     for sec in out.get('sections', []):
         sec['label'] = en_section_label(sec.get('id', ''), sec.get('label', ''))
         if sec.get('type') == 'timeline':
             for ii, it in enumerate(sec.get('items', [])):
                 src_org = src_orgs.get((sec.get('id'), ii), '')
-                it['org'] = orgs.get(src_org, src_org)  # 命中名表用官方名,否则保留源中文
+                if src_org in orgs:
+                    it['org'] = orgs[src_org]  # 命中名表用官方英文名,覆盖 LLM 译文;未命中保留 LLM 翻译
                 if it.get('date'):
                     it['date'] = format_date_en(it['date'])
     return {'profile': out, 'warnings': warnings}
