@@ -906,11 +906,30 @@ def post_deep_optimize_start(
     """从打分逐段缺口进入深度优化:播种聚焦该段的单 item plan(覆盖现有 plan),
     返回 PlanStateOut(首问已对齐目标 subcat)。后续反问走现成 /plan/turn,
     改写写回走现成 /chat/apply-rewrite。写接口 → owner + not_demo 守卫。"""
-    from app.services.resume_copilot.deep_optimize import seed_plan_from_gap
+    from app.services.resume_copilot.deep_optimize import (
+        section_source_texts,
+        seed_plan_from_gap,
+    )
 
     session_obj = _get_session_or_404(db, session_id)
     _assert_session_owner(session_obj, x_resume_user_key)
     _assert_not_demo(session_obj)
+
+    # 该段简历原文入证据池(STRONG)——否则审计铁律会逼学生把简历重新口述一遍。
+    source_texts: list[str] = []
+    confirmed = session_obj.confirmed_profile
+    parsed = session_obj.parsed_profile
+    raw = ''
+    if confirmed is not None and (confirmed.profile_json or '').strip():
+        raw = confirmed.profile_json
+    elif parsed is not None:
+        raw = parsed.profile_json or ''
+    if raw.strip():
+        try:
+            seed_profile = ResumeProfilePayload.model_validate(json.loads(raw))
+            source_texts = section_source_texts(seed_profile, payload.section)
+        except (ValueError, TypeError):
+            source_texts = []
 
     plan = seed_plan_from_gap(
         section=payload.section,
@@ -918,6 +937,7 @@ def post_deep_optimize_start(
         gap_tags=payload.gaps,
         gap_detail=payload.detail,
         target_track=payload.target_track,
+        source_texts=source_texts,
     )
     _save_plan(session_obj, plan)
     session_obj.updated_at = datetime.utcnow()

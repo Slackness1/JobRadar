@@ -62,7 +62,8 @@ SYSTEM_PROMPT = """\
 """
 
 
-def _default_caller(messages: list[dict[str, str]], timeout_seconds: int = 30) -> str:
+def _default_caller(messages: list[dict[str, str]], timeout_seconds: int = 120) -> str:
+    # timeout 120s:中转的推理模型常规 20-40s,长上下文(学生长回答)更久;30s 会系统性掐断。
     # Phase 2 (2026-05-24): builder agent (Plan finalize 写 draft) — pro + medium。
     from app import config
     client = build_resume_llm_client(model=config.RESUME_AGENT_MODEL)
@@ -184,19 +185,23 @@ def _build_user_prompt(
         '此 item 没有 prior draft — 如果 evidence 够, 第一次写 draft 即可。'
     )
 
-    return json.dumps(
-        {
-            "profile": profile_summary,
-            "preferences": prefs_summary,
-            "plan_summary": plan_summary,
-            "current_item": _compact_item(current_item),
-            "prior_draft": prior_draft_text,
-            "extension_hint": extension_hint,
-            "recent_chat": last_messages[-6:],
-            "user_message": user_message,
-        },
-        ensure_ascii=False,
-    )
+    payload: dict[str, Any] = {
+        "profile": profile_summary,
+        "preferences": prefs_summary,
+        "plan_summary": plan_summary,
+        "current_item": _compact_item(current_item),
+        "prior_draft": prior_draft_text,
+        "extension_hint": extension_hint,
+        "recent_chat": last_messages[-6:],
+        "user_message": user_message,
+    }
+    # 深度优化:把打分诊断出的缺口引导注入(之前这个引导从未接线,提问完全
+    # 不围绕缺口)。非深度优化 plan 返回 '',不影响普通 plan-mode。
+    from app.services.resume_copilot.deep_optimize import deep_optimize_ask_context
+    guidance = deep_optimize_ask_context(plan)
+    if guidance:
+        payload["ask_guidance"] = guidance
+    return json.dumps(payload, ensure_ascii=False)
 
 
 def _fallback_ask(item: PlanItem, reason: str = "请补充一下这条经历的细节") -> AgentAction:
@@ -288,7 +293,11 @@ def propose_next_action(
                 })
                 continue
         except Exception as exc:
+            # 网络/超时类错误也重试一次(不附加纠错消息) — 学生答了一大段却
+            # 收到"系统暂时无法生成"兜底,比多等几十秒伤得多。
             last_error = f"transport: {exc}"
+            if attempt < max_retries:
+                continue
             break
 
     return _fallback_ask(current, f"系统暂时无法生成详细问题（{last_error[:120]}），请直接告诉我这条经历的核心数字和你的角色。")

@@ -7,6 +7,7 @@ import {
   deepOptimizeStart,
   planTurn,
   deepOptimizeWriteBack,
+  postChatMessage,
   type DeepOptimizeStartIn,
   type PlanStateOut,
   type PlanItemWire,
@@ -240,6 +241,18 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
   const seededNonce = useRef<DeepOptimizeStartIn | null>(null);
   const busy = useRef(false);
   const bodyRef = useRef<HTMLDivElement | null>(null);
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // 输入框随内容自动加高:先归零再贴合 scrollHeight,最多三行(再多内部滚动)。
+  useEffect(() => {
+    const ta = taRef.current;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    const lh = 19.5; // 13px 字号 × 1.5 行高
+    const max = Math.round(lh * 3);
+    ta.style.height = `${Math.min(ta.scrollHeight, max)}px`;
+    ta.style.overflowY = ta.scrollHeight > max ? 'auto' : 'hidden';
+  }, [val]);
 
   // 自动滚到底。
   useEffect(() => {
@@ -313,19 +326,31 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
     setMsgs((m) => [...m, { kind: 'text', who: 'me', html: v }]);
     setVal('');
 
-    // 自由问:本地 echo placeholder(后端 /chat 待接,不阻塞、不报错)。
+    // 自由问:走后端真实顾问对话(/chat,带改写审计与目标赛道上下文)。
+    if (mode === 'free' && !mock) {
+      setThinking(true);
+      postChatMessage(sessionId, v)
+        .then((reply) => {
+          setMsgs((m) => [...m, { kind: 'text', who: 'ai', html: reply.content || '(空回复)' }]);
+        })
+        .catch((e) => {
+          setMsgs((m) => [
+            ...m,
+            { kind: 'text', who: 'ai', html: `这条没答上来:${e instanceof Error ? e.message : '未知错误'}。可以换个问法再试。` },
+          ]);
+        })
+        .finally(() => {
+          setThinking(false);
+          busy.current = false;
+        });
+      return;
+    }
     if (mode === 'free') {
+      // 离线目测(mock):不调后端,给一句示例回声。
       setThinking(true);
       setTimeout(() => {
         setThinking(false);
-        setMsgs((m) => [
-          ...m,
-          {
-            kind: 'text',
-            who: 'ai',
-            html: '自由问(接 /chat 待接)。先记下你的问题——按目标赛道标准给判断,但不替你编没发生过的经历。',
-          },
-        ]);
+        setMsgs((m) => [...m, { kind: 'text', who: 'ai', html: '(示例会话不接真模型——上传真实简历后这里会按目标赛道标准回答。)' }]);
         busy.current = false;
       }, 700);
       return;
@@ -470,7 +495,7 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
             <div style={{ font: '400 11.5px/1.6 var(--font-sans)', color: 'var(--stone)' }}>
               {mode === 'deep'
                 ? '从打分缺口进来,AI 会先反问你真实事实,再做定制改写 —— 不编没问出来的东西。'
-                : '问写法、问赛道标准、对齐目标 —— 三能力随时可切。'}
+                : '围绕你的简历和目标赛道随便问:写法、面试考点、行业标准都行。只按事实回答,不替你编经历。'}
             </div>
           </div>
         )}
@@ -517,25 +542,39 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
           style={{
             display: 'flex',
             gap: 9,
-            alignItems: 'center',
+            alignItems: 'flex-end',
             background: 'var(--library-rail)',
             borderRadius: 14,
             padding: '7px 7px 7px 13px',
             boxShadow: '0 0 0 1px var(--border-warm)',
           }}
         >
-          <input
+          <textarea
+            ref={taRef}
+            rows={1}
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && send()}
+            onKeyDown={(e) => {
+              // Enter 发送;Shift+Enter 换行。
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
             placeholder={mode === 'deep' ? '把真实情况说给它(数字越具体越好)…' : '问点什么…'}
             style={{
               flex: 1,
               background: 'transparent',
               border: 0,
               outline: 0,
+              resize: 'none',
               font: '400 13px var(--font-sans)',
+              lineHeight: '19.5px',
               color: 'var(--ink)',
+              maxHeight: 59,
+              overflowY: 'hidden',
+              padding: 0,
+              margin: '6px 0',
             }}
           />
           <button

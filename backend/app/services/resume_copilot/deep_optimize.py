@@ -16,6 +16,7 @@ import uuid
 from typing import Optional
 
 from app.services.resume_copilot.plan import (
+    Evidence,
     ItemKind,
     ItemStatus,
     OpenQuestion,
@@ -55,14 +56,57 @@ def _first_question(target_track: str) -> str:
     return "这段经历你最想往哪个岗位/赛道方向打磨？先告诉我目标，我据此帮你逐项取证补强。"
 
 
+def section_source_texts(profile, section: str) -> list[str]:
+    """取该段简历原文要点 — 播种为 STRONG 证据(source='parsed_resume')。
+
+    简历原文是学生自己写的事实,与 gap_detail(我们的诊断,不入 evidence)不同,
+    入池后审计允许引用原文里已有的数字,反问也不必让学生把简历复述一遍。
+    """
+    prefix, _, idx_s = (section or "").partition(".")
+    prefix = prefix.strip().lower()
+    try:
+        idx = int(idx_s)
+    except ValueError:
+        idx = 0
+    texts: list[str] = []
+    if prefix in ("internships", "internship"):
+        items = getattr(profile, "internships", []) or []
+        if 0 <= idx < len(items):
+            it = items[idx]
+            head = " · ".join(x for x in (it.company, it.role) if (x or "").strip())
+            if head:
+                texts.append(head)
+            texts.extend(b.strip() for b in (it.bullets or []) if (b or "").strip())
+    elif prefix in ("projects", "project"):
+        items = getattr(profile, "projects", []) or []
+        if 0 <= idx < len(items):
+            it = items[idx]
+            head = " · ".join(x for x in (it.name, it.role) if (x or "").strip())
+            if head:
+                texts.append(head)
+            if it.tech_stack:
+                texts.append("技术栈：" + "、".join(it.tech_stack))
+            texts.extend(b.strip() for b in (it.bullets or []) if (b or "").strip())
+    elif prefix in ("candidate_summary", "summary", "self_intro"):
+        cs = (getattr(profile, "candidate_summary", "") or "").strip()
+        if cs:
+            texts.append(cs)
+    return texts
+
+
 def seed_plan_from_gap(
     section: str,
     label: str,
     gap_tags: Optional[list[str]],
     gap_detail: str,
     target_track: str,
+    source_texts: Optional[list[str]] = None,
 ) -> PlanState:
-    """从一条打分缺口播种聚焦单段 plan(纯函数,不写 DB)。"""
+    """从一条打分缺口播种聚焦单段 plan(纯函数,不写 DB)。
+
+    source_texts(该段简历原文要点)直接入 evidence 池当初始 STRONG 证据 —
+    没有它,审计铁律会逼着 LLM 让学生把简历内容重新口述一遍才能用。
+    """
     item_id = str(uuid.uuid4())
     rationale = json.dumps(
         {
@@ -74,11 +118,17 @@ def seed_plan_from_gap(
         },
         ensure_ascii=False,
     )
+    evidence = [
+        Evidence(source="parsed_resume", text=t)
+        for t in (source_texts or [])
+        if (t or "").strip()
+    ]
     item = PlanItem(
         id=item_id,
         kind=_kind_for_section(section),
         title=label or "",
         status=ItemStatus.CLARIFYING,
+        evidence=evidence,
         open_questions=[OpenQuestion(text=_first_question(target_track))],
         rationale=rationale,
     )
@@ -133,6 +183,13 @@ def deep_optimize_ask_context(plan: PlanState) -> str:
         header += f"，并让这段更贴合「{target}」方向的考察点"
     header += "（一次只问一件事；只引导提问，绝不替学生编造数字/事实）："
     parts = [header, *lines]
+    item = _current_item(plan)
+    if item is not None and any(ev.source == "parsed_resume" for ev in item.evidence):
+        parts.append(
+            "注意：这段简历的原文已在 evidence 池里（source=parsed_resume），"
+            "原文里已有的数字/事实**直接可用，不要再让学生复述**；"
+            "只追问缺口里真正缺的新信息。如果原文加学生补充已够支撑，尽快 ready_to_write。"
+        )
     if detail:
         parts.append(f"（诊断参考，非学生事实，勿直接写入：{detail}）")
     return "\n".join(parts)
@@ -231,13 +288,18 @@ def _apply_section_text(profile, section: str, text: str):
     return out
 
 
-def gap_context(plan: PlanState) -> dict:
-    """取回当前 item 的 gap 上下文(rationale JSON);非深度优化 plan 返回 {}。"""
+def _current_item(plan: PlanState) -> PlanItem | None:
     item = None
     if plan.current_item_id:
         item = next((i for i in plan.items if i.id == plan.current_item_id), None)
     if item is None and plan.items:
         item = plan.items[0]
+    return item
+
+
+def gap_context(plan: PlanState) -> dict:
+    """取回当前 item 的 gap 上下文(rationale JSON);非深度优化 plan 返回 {}。"""
+    item = _current_item(plan)
     if item is None or not item.rationale:
         return {}
     try:

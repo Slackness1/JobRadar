@@ -686,7 +686,14 @@ def run_plan_turn(
             sum(1 for ev in (target_item.evidence if target_item else [])
                 if getattr(ev, 'source', '') == 'user_clarification')
         )
-        if user_clarification_count < 2:
+        # 深度优化播种已带简历原文 STRONG 证据时,floor 降到 1 —— 原文充分的段
+        # 落不需要逼学生答满 2 轮(复述简历)才许出草稿。
+        has_resume_evidence = any(
+            getattr(ev, 'source', '') == 'parsed_resume'
+            for ev in (target_item.evidence if target_item else [])
+        )
+        clarification_floor = 1 if has_resume_evidence else 2
+        if user_clarification_count < clarification_floor:
             # 强制再聊一轮 — 用一个温和的"还有一个细节想确认"追问, 等
             # 学生答了再 inline write。
             new_plan, action = _apply_action_with_audit_fallback(

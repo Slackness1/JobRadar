@@ -9,7 +9,8 @@ import type { DeepOptimizeStartIn, ScoreSectionGap } from '../../../../api';
 const TABS: [string, string][] = [
   ['score', '简历打分'],
   ['deep', '深度优化'],
-  ['free', '自由问'],
+  // 自由问后端接好前先藏(占位回声让用户一头雾水);ChatThread mode='free' 已接
+  // /chat,下版本恢复 ['free', '自由问'] 即可。
 ];
 
 export interface EditorAIPanelProps {
@@ -139,9 +140,7 @@ export function EditorAIPanel({
       <div style={{ flex: 1, minHeight: 0, display: tab === 'deep' ? 'flex' : 'none', flexDirection: 'column' }}>
         <ChatThread sessionId={sessionId} mode="deep" seed={seed} onWriteBack={onWriteBack} mock={mock} />
       </div>
-      <div style={{ flex: 1, minHeight: 0, display: tab === 'free' ? 'flex' : 'none', flexDirection: 'column' }}>
-        <ChatThread sessionId={sessionId} mode="free" mock={mock} />
-      </div>
+      {/* 自由问内容随 tab 一起藏(TABS 注释见上)。 */}
     </div>
   );
 }
