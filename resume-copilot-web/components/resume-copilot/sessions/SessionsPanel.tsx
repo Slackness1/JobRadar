@@ -21,7 +21,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { HFBtn, HFLogo, I } from '@/components/hifi/hifi-primitives';
 import { GuideModal } from '@/components/onboarding/GuideModal';
 import { GuidePanel } from '@/components/onboarding/GuidePanel';
-import { hasSeenGuide, markGuideSeen } from '@/components/onboarding/guide-seen';
+import { markGuideSeen } from '@/components/onboarding/guide-seen';
 import {
   deleteResumeCopilotSession,
   duplicateResumeCopilotSession,
@@ -109,9 +109,11 @@ export function SessionsPanel() {
   }, []);
 
   useEffect(() => {
-    if (!hasSeenGuide()) {
-      setGuideOpen(true);
-    }
+    // 2026-06-12:全面改版后旧"怎么使用"引导已过时,暂时关掉登录/上传后的自动弹出。
+    // 手动入口(顶栏"怎么用")保留;重做引导后把这段恢复即可。
+    // if (!hasSeenGuide()) {
+    //   setGuideOpen(true);
+    // }
   }, []);
 
   // ── Derived ─────────────────────────────────────────────────────────────
