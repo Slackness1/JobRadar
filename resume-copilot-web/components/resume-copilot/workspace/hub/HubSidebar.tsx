@@ -673,7 +673,7 @@ export default function HubSidebar({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ font: '600 13px var(--font-sans)', color: 'var(--ink)' }}>{displayName}</div>
           <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)' }}>
-            它记得你 · 点开看档案
+            你的档案
           </div>
         </div>
 
