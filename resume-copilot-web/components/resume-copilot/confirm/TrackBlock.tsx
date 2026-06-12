@@ -77,7 +77,7 @@ export function TrackBlock({ activeTrackKey, onChange, inferredKeys, disabled }:
           onClick={() => setModalOpen(true)}
           disabled={disabled}
         >
-          全部 10 个 {I.arrowRight(12)}
+          全部 {TRACKS.length} 个 {I.arrowRight(12)}
         </button>
       </div>
       <div className="rc-confirm__track-grid">
@@ -166,7 +166,7 @@ function TrackSelectionModal({
           <div style={{ flex: 1, minWidth: 0 }}>
             <h2 className="rc-confirm__modal-title">选择你想准备的赛道</h2>
             <div className="rc-confirm__modal-sub">
-              10 个 SAIF MF 主流赛道。选了赛道后系统会按此赛道给推荐 + Coach 反问。
+              {TRACKS.length} 个赛道（金融 + 互联网/AI）。选了赛道后系统会按此赛道给推荐 + Coach 反问。
             </div>
           </div>
           <button
