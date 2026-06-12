@@ -367,6 +367,49 @@ def _band_other_by_curated_tier(companies: list[dict], match_band: str | None) -
     return out
 
 
+def _merge_by_brand(companies: list[dict]) -> list[dict]:
+    """同品牌的多个公司名变体合并成一张卡(字节/抖音 + 字节跳动 → 字节跳动)。
+
+    只合并命中策展品牌名单的(长尾小公司本就不会拆重, 不动)。合并规则:
+    展示名=品牌标准名; 在招岗拼接(去重 by job id, 保序, cap 5 与单公司一致);
+    情报数相加; 公司情报缓存/招聘窗口取第一个非空。
+    """
+    from app.services.phase_g.tier_fit.internet_tiers import internet_brand_of
+
+    merged: dict[str, dict] = {}
+    out: list[dict] = []
+    for co in companies:
+        brand = internet_brand_of(co.get("name"))
+        if brand is None:
+            out.append(co)
+            continue
+        if brand not in merged:
+            co = dict(co)
+            co["name"] = brand
+            merged[brand] = co
+            out.append(co)
+            continue
+        tgt = merged[brand]
+        seen_ids = {j.get("id") for j in tgt.get("jobs") or []}
+        for j in co.get("jobs") or []:
+            if j.get("id") in seen_ids:
+                continue
+            if len(tgt.setdefault("jobs", [])) >= 5:
+                break
+            tgt["jobs"].append(j)
+            seen_ids.add(j.get("id"))
+        tgt["n_live"] = len(tgt.get("jobs") or [])
+        tgt["has_live"] = bool(tgt["n_live"])
+        tgt["n_insights"] = int(tgt.get("n_insights") or 0) + int(co.get("n_insights") or 0)
+        if tgt.get("intel") is None:
+            tgt["intel"] = co.get("intel")
+        if tgt.get("hiring_window") is None:
+            tgt["hiring_window"] = co.get("hiring_window")
+        if tgt.get("match") != "强匹配" and co.get("match") == "强匹配":
+            tgt["match"] = "强匹配"
+    return out
+
+
 def _build_internet_skeleton(
     db: Session,
     sub_cat: str,
@@ -414,9 +457,10 @@ def _build_internet_skeleton(
         band = co.pop("_inst_band", None) or _OTHER_BAND
         co["band"] = band
         groups[band].append(co)
-    # 档内排序: 有在招岗 → 情报多 → 名字
-    for lst in groups.values():
-        lst.sort(key=lambda c: (0 if c["has_live"] else 1, -c["n_insights"], c["name"]))
+    # 品牌合并(字节/抖音+字节跳动→一张卡)后, 档内排序: 有在招岗 → 情报多 → 名字
+    for band in groups:
+        groups[band] = _merge_by_brand(groups[band])
+        groups[band].sort(key=lambda c: (0 if c["has_live"] else 1, -c["n_insights"], c["name"]))
 
     tiers: list[dict] = []
     for band in ("头部", "次头部"):

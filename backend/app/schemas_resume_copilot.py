@@ -239,6 +239,9 @@ class ResumeRecommendationItem(BaseModel):
     industry_tags: list[str] = []
     # 2026-06-03 Task 11: 岗位所属公司是否在该 sub_cat 的 GT 骨架公司集合内。
     in_skeleton: bool = False
+    # 2026-06-12 方案B: 公司所在档位文案("第一梯队"/"第二梯队"/"AI 原生"/"其他梯队");
+    # 互联网赛道才填,前端有它就显示档位 chip,代替"梯队内/外"二元标。
+    skeleton_band: str = ""
 
 
 class ResumeRecommendationResultOut(BaseModel):

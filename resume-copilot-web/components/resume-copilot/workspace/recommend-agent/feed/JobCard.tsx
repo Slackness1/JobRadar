@@ -39,7 +39,9 @@ export function JobCard({
   const deep = item.used_ai === true;
   const baseScore = item.base_score ?? item.base_match_score;
   const anchors = item.anchors ?? [];
-  const outOfSkeleton = item.in_skeleton === false;
+  // 方案B: 有档位文案(互联网赛道)就显示具体档位,不再用"内/外"二元标。
+  const band = item.skeleton_band || '';
+  const outOfSkeleton = !band && item.in_skeleton === false;
 
   return (
     <div
@@ -58,15 +60,29 @@ export function JobCard({
           </button>
           <div className="recommend-feed__job-meta">
             {item.company} · {item.location || '地点未知'}
-            {item.in_skeleton === true && (
-              <span className="recommend-feed__skel-badge recommend-feed__skel-badge--in">
-                梯队内
+            {band ? (
+              <span
+                className={`recommend-feed__skel-badge ${
+                  band === '其他梯队'
+                    ? 'recommend-feed__skel-badge--out'
+                    : 'recommend-feed__skel-badge--in'
+                }`}
+              >
+                {band}
               </span>
-            )}
-            {item.in_skeleton === false && (
-              <span className="recommend-feed__skel-badge recommend-feed__skel-badge--out">
-                梯队外机会
-              </span>
+            ) : (
+              <>
+                {item.in_skeleton === true && (
+                  <span className="recommend-feed__skel-badge recommend-feed__skel-badge--in">
+                    梯队内
+                  </span>
+                )}
+                {item.in_skeleton === false && (
+                  <span className="recommend-feed__skel-badge recommend-feed__skel-badge--out">
+                    梯队外机会
+                  </span>
+                )}
+              </>
             )}
           </div>
         </div>

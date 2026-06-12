@@ -216,6 +216,9 @@ export interface ResumeRecommendationItem {
   /** Phase G v2: 公司是否在该岗 sub_cat 的 GT 梯队骨架内。
    *  true = 梯队内;false = 梯队外机会;undefined = 旧数据无此字段。 */
   in_skeleton?: boolean;
+  /** 方案B(2026-06-12): 公司档位文案("第一梯队"/"第二梯队"/"AI 原生"/"其他梯队")。
+   *  互联网赛道才有;非空时显示档位 chip,代替"梯队内/外"二元标。 */
+  skeleton_band?: string;
 }
 
 export interface ResumeAgentTraceItem {

@@ -23,32 +23,54 @@ _DATA_PATH = Path(__file__).resolve().parents[4] / "data" / "internet_company_ti
 
 
 @lru_cache(maxsize=1)
-def _load_stems() -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
-    """返回 (tier1_stems, tier2_stems, ai_special_stems), lower-case 便于英文词根
-    大小写无关匹配。"""
+def _load_brands() -> tuple[tuple[str, str, tuple[str, ...]], ...]:
+    """返回有序品牌表 ((tier, brand, stems), ...)。
+
+    JSON 2026-06-12 起为品牌分组结构 {tier: {品牌标准名: [词根...]}}; 词根 lower-case
+    便于英文大小写无关匹配。顺序 = 匹配优先级: ai_special > tier1 > tier2。
+    """
     try:
         raw = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
     except Exception:
-        return ((), (), ())
-    t1 = tuple(str(s).strip().lower() for s in raw.get("tier1", []) if str(s).strip())
-    t2 = tuple(str(s).strip().lower() for s in raw.get("tier2", []) if str(s).strip())
-    ai = tuple(str(s).strip().lower() for s in raw.get("ai_special", []) if str(s).strip())
-    return (t1, t2, ai)
+        return ()
+    out: list[tuple[str, str, tuple[str, ...]]] = []
+    for tier in ("ai_special", "tier1", "tier2"):
+        brands = raw.get(tier) or {}
+        if not isinstance(brands, dict):
+            continue
+        for brand, stems in brands.items():
+            st = tuple(str(s).strip().lower() for s in (stems or []) if str(s).strip())
+            if brand and st:
+                out.append((tier, str(brand).strip(), st))
+    return tuple(out)
 
 
-def internet_tier_of(company: str | None) -> str | None:
-    """公司名 → 'tier1' / 'tier2' / 'ai_special' / None(未命中)。子串匹配,
-    ai_special 最先(AI 原生公司单列档, 不混入 T1/T2 —— 口径 2026-06-12)。"""
+def internet_brand_tier_of(company: str | None) -> tuple[str, str] | None:
+    """公司名 → (品牌标准名, tier)。子串匹配, 未命中返回 None。
+
+    品牌聚合的核心入口: '字节/抖音' 与 '字节跳动' 都归 ('字节跳动','tier1'),
+    '阿里文娱' 与 '阿里巴巴文化娱乐有限公司' 都归 ('阿里巴巴','tier1') ——
+    梯队骨架据此把同品牌的多个公司名变体合并成一张卡。
+    """
     if not company:
         return None
     c = str(company).strip().lower()
     if not c:
         return None
-    t1, t2, ai = _load_stems()
-    if any(stem in c for stem in ai):
-        return "ai_special"
-    if any(stem in c for stem in t1):
-        return "tier1"
-    if any(stem in c for stem in t2):
-        return "tier2"
+    for tier, brand, stems in _load_brands():
+        if any(stem in c for stem in stems):
+            return (brand, tier)
     return None
+
+
+def internet_tier_of(company: str | None) -> str | None:
+    """公司名 → 'tier1' / 'tier2' / 'ai_special' / None(未命中)。子串匹配,
+    ai_special 最先(AI 原生公司单列档, 不混入 T1/T2 —— 口径 2026-06-12)。"""
+    hit = internet_brand_tier_of(company)
+    return hit[1] if hit else None
+
+
+def internet_brand_of(company: str | None) -> str | None:
+    """公司名 → 品牌标准名(未命中返回 None)。"""
+    hit = internet_brand_tier_of(company)
+    return hit[0] if hit else None

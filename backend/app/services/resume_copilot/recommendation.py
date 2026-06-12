@@ -1037,9 +1037,15 @@ def _v2_items_from_ranked(
     """把 reranked/prelim dict 列表转成 ResumeRecommendationItem(供占位结果与最终结果共用)。
     每个 dict 需含 job/final_score(0-1)/base_score(0-1)，可选 llm_reasoning/data_confidence/kb_available。
     narr_by_index=None → 规则占位模式(理由留空)。"""
-    from app.services.phase_g.tier_fit.platform_skeleton import gt_companies_for_sub_cat
+    from app.services.phase_g.tier_fit.platform_skeleton import (
+        _internet_sub_cats,
+        gt_companies_for_sub_cat,
+    )
     from app.services.phase_g.tier_fit.tier_ladder import _norm_company
     from app.services.phase_g.tier_fit.internet_tiers import internet_tier_of
+
+    _TIER_BAND_LABEL = {"tier1": "第一梯队", "tier2": "第二梯队", "ai_special": "AI 原生"}
+    _inet_subs = _internet_sub_cats()
 
     narr_by_index = narr_by_index or {}
     _empty = {"narrative": "", "anchors_used": [], "kb_available": False}
@@ -1060,10 +1066,15 @@ def _v2_items_from_ranked(
         # 「梯队内/外」判定: 金融赛道查 GT 名单; 互联网赛道 GT 为空, 改查策展互联网
         # 大厂分档(internet_tier_of 命中 tier1/2/ai 即属骨架内)。两套都不中才算梯队外。
         # 修(2026-06-12): 原来只查 GT → 互联网岗永远判"梯队外"(腾讯/字节也被错标)。
+        _co_tier = internet_tier_of(job.company or "")
         _in_sk = bool(_sc) and (
             _norm_company(job.company or "") in gt_companies_for_sub_cat(_sc)
-            or internet_tier_of(job.company or "") is not None
+            or _co_tier is not None
         )
+        # 方案B(2026-06-12): 互联网赛道 feed 卡不再用"内/外"二元标, 给具体档位文案。
+        _band_label = ""
+        if _sc in _inet_subs:
+            _band_label = _TIER_BAND_LABEL.get(_co_tier or "", "其他梯队")
         items.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id),
@@ -1097,6 +1108,7 @@ def _v2_items_from_ranked(
                 is_internship=(job.quality_label == "internship_only"),
                 industry_tags=[],
                 in_skeleton=_in_sk,
+                skeleton_band=_band_label,
             )
         )
     return items
