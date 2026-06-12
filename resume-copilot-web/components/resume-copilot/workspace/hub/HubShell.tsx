@@ -42,17 +42,18 @@ import {
   getPlatformsByTier,
   getResumeCopilotConfirmedProfile,
   getResumeCopilotParsedProfile,
+  getScoreTaskStatus,
   getStudentKbIndex,
   getWorkingQuery,
   listHubConversations,
   listResumeCopilotSessions,
   postRecommendChat,
   putHubConversationDetail,
-  scoreResume,
+  startScoreTask,
   updateWorkingQuery,
 } from '../../api';
 import { cacheScoreReport } from './scoreCache';
-import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
+import type { RecommendFeedItem, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
 import type { HubConvRow, HubSessionRow } from './HubSidebar';
 
@@ -318,17 +319,26 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   // feed 卡点选公司 → 梯队骨架卡高亮 + 滚动定位(Task 8 透传给 CanvasSlot 的骨架 Pane)
   const [highlightCompany, setHighlightCompany] = useState<string | null>(null);
 
-  const busy = useRef(false); // 防双触发
-  const completed = useRef<Set<string>>(new Set()); // skillrun id → 已落结果卡(防重)
-  // skillrun id → 真实 recommend-chat 结果(动画跑完时据此落结果卡, 防 race)
-  const respById = useRef<Map<string, RecommendTurnResponse>>(new Map());
-  // skillrun id → skeleton / resume 技能的真实结果卡上下文(同 race-safe 落卡)
-  const ctxById = useRef<Map<string, ResultCtx>>(new Map());
-  // skillrun id → 请求未回时挂起的 onComplete(动画先跑完就等请求)
-  const pendingComplete = useRef<Map<string, () => void>>(new Map());
+  const busy = useRef(false); // 防双触发(受控技能启动后即释放 — 长任务期间还能继续聊)
+  const completed = useRef<Set<string>>(new Set()); // skillrun id → 已落结果卡(防重, 仅 interview 定时路径)
   // 学生最近一句话(armed fire 时拿来当 recommend-chat 的 message)
   const lastUserText = useRef<string>('');
   const bodyRef = useRef<HTMLDivElement | null>(null);
+
+  // ── 后台续跑机制(③): 技能运行登记簿 + 对话纪元 ────────────────────────────
+  // 每条 skillrun 登记 {module, epoch, sessionId}; epoch 在每次切对话/新对话/换简历
+  // 时自增。完成时 epoch 没变 → 还在原对话, 结果就地落卡; 变了 → 学生已切走,
+  // 把进度定格 + 结果卡直接写回原对话的库行(切回去就能看到), 任务不白跑。
+  interface RunRec {
+    module: HubModule;
+    epoch: number;
+    sessionId: number;
+    finished: boolean;
+  }
+  const runsRef = useRef<Map<string, RunRec>>(new Map());
+  const convEpoch = useRef(0);
+  // epoch → 该纪元对话的库行 id(写回用)。create 成功 / 水合 / 切换时登记。
+  const epochConvId = useRef<Map<number, number>>(new Map());
 
   // ── 多对话持久化(简历是 base, 一份简历下多个对话)─────────────────────────
   // convs = 当前简历名下的对话列表(侧栏历史); activeConvId = 正在聊的对话行。
@@ -350,10 +360,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
 
   const push = (m: HubMessage) => setMsgs((cur) => [...cur, m]);
 
-  // 滚到底
+  // 滚到底 — 仅当本来就贴近底部(长任务轮询会持续更新思考卡, 不能把正在
+  // 往上翻历史的学生反复拽回底部)。
   useEffect(() => {
     const el = bodyRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+    if (nearBottom) el.scrollTop = el.scrollHeight;
   }, [msgs, thinking]);
 
   // 侧栏历史:拉本人真实会话(不是写死占位)
@@ -442,6 +455,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     const json = pendingJson.current;
     if (!json || json === lastSavedConv.current) return;
     const messages = pendingMsgs.current;
+    const epochAtFlush = convEpoch.current; // 同步捕获 — create 回来时可能已切走
     saveBusy.current = true;
     pendingJson.current = null;
     try {
@@ -449,6 +463,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         const r = await createHubConversation(sessionId, deriveConvTitle(messages), messages);
         activeConvIdRef.current = r.id;
         setActiveConvId(r.id);
+        epochConvId.current.set(epochAtFlush, r.id); // 后台续跑写回要认得这行
       } else {
         await putHubConversationDetail(sessionId, activeConvIdRef.current, messages);
       }
@@ -497,8 +512,11 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           lastSavedConv.current = JSON.stringify(arr);
           activeConvIdRef.current = latest.id;
           setActiveConvId(latest.id);
+          convEpoch.current += 1; // 新视图纪元(换简历进场也算切换)
+          epochConvId.current.set(convEpoch.current, latest.id);
           setMsgs(arr);
           setStarted(true);
+          adoptRunningSkillruns(arr); // 「跑到一半」的打分任务重新挂上轮询(③)
         }
       })
       .catch(() => {
@@ -510,6 +528,8 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     return () => {
       cancelled = true;
     };
+    // adoptRunningSkillruns 是稳定的组件内函数(只碰 ref + setState), 不入依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   // ── 对话变动 → 记快照 + 短防抖落库。skillrun(思考路径)也入库 —— 打上 settled 标,
@@ -518,8 +538,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   //   连续 push 的几条消息(400ms); 跳页/卸载由上面的 unmount flush 兜底, 不会再丢。
   useEffect(() => {
     if (!convLoaded.current) return;
+    // 已完成(progress.done 或老定时卡)的 skillrun 落库时打 settled(回放定格);
+    // 还在跑的(progress 未 done)原样入库 —— 它是「跑到一半」的真实状态,
+    // 切回/刷新时据此重新挂上轮询续跑(③ 后台续跑的存档面)。
     const persistable = msgs.map((m) =>
-      m.kind === 'skillrun' && !m.settled ? { ...m, settled: true } : m,
+      m.kind === 'skillrun' && !m.settled && (!m.progress || m.progress.done)
+        ? { ...m, settled: true }
+        : m,
     );
     if (persistable.length === 0) return;
     const json = JSON.stringify(persistable);
@@ -531,6 +556,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   }, [msgs, sessionId]);
 
   // ── 切到这份简历名下的另一个对话(侧栏历史点选): 先存当前, 再整段重放目标对话──
+  // 运行登记簿不清 —— 原对话还在跑的任务继续跑(③), 完成时写回它自己的对话行。
   function selectConversation(convId: number) {
     if (convId === activeConvId) return;
     flushRef.current();
@@ -542,45 +568,217 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         lastSavedConv.current = JSON.stringify(arr);
         activeConvIdRef.current = convId;
         setActiveConvId(convId);
+        convEpoch.current += 1; // 新纪元 — 旧对话的运行落到「后台」语义
+        epochConvId.current.set(convEpoch.current, convId);
         setMsgs(arr);
         setStarted(arr.length > 0);
         setActive('none');
         setArmed(null);
         setThinking(false);
         busy.current = false;
-        completed.current = new Set();
-        respById.current = new Map();
-        ctxById.current = new Map();
-        pendingComplete.current = new Map();
+        adoptRunningSkillruns(arr); // 切回来 — 还在跑的任务改绑当前视图, 实时续播
       })
       .catch(() => {
         /* 拉不到则留在当前对话 */
       });
   }
 
-  // 把真实 working query + 召回结果织进某条 skillrun 的「我的理解 / 计数」覆盖
-  function applyFeedResp(skillrunId: string, resp: RecommendTurnResponse) {
-    respById.current.set(skillrunId, resp);
-    const tracks = resp.working_query?.seed_sub_cats ?? [];
-    const feedLen = resp.feed?.length ?? 0;
+  // ── 技能运行的统一收口(真实进度 + 后台续跑)────────────────────────────────
+  // 给某条 skillrun 打补丁(仅当它还在当前对话视图里; 切走了由 completeRun 写回库行)
+  function patchSkillrun(run: RunRec, skillrunId: string, patch: Record<string, unknown>) {
+    if (run.epoch !== convEpoch.current) return;
     setMsgs((cur) =>
       cur.map((m) =>
-        m.id === skillrunId && m.kind === 'skillrun'
-          ? {
-              ...m,
-              understandOverride: { tracks, memory: memoryPills },
-              // 节点序号: 1 = 检索岗位, 3 = 排出推荐(对齐 deep-think-meta feed 节点顺序)
-              outputOverride: {
-                1: `召回 ${feedLen} → 去重 ${feedLen}`,
-                3: feedLen > 0 ? '第一版 Top 已就绪' : '本版暂无匹配',
-              },
-            }
-          : m,
+        m.id === skillrunId && m.kind === 'skillrun' ? ({ ...m, ...patch } as HubMessage) : m,
       ),
     );
   }
 
+  // 失败时的诚实话术(不落假「完成」结果卡 — 修「明明失败了卡片还说完成」)
+  const FAIL_SAY: Record<string, string> = {
+    feed: '这次<b>职位推荐</b>没跑成(网络或服务波动)。再说一句「给我推荐一下岗位」就能重试。',
+    skeleton: '这次<b>梯队骨架</b>没拉出来。再说一句「看看券商资管的梯队」就能重试。',
+    resume:
+      '这次<b>简历打分</b>没跑成(评审模型超时或服务波动)。再说一句「帮我的简历打个分」就能重试。',
+  };
+
+  // 在(可能已切走的)skillrun 所属对话里定格进度 + 落结果卡/失败说明。
+  // epoch 没变 → 就地更新; 变了 → 直接写回那条对话的库行, 切回去就能看到(③)。
+  async function completeRun(
+    skillrunId: string,
+    outcome:
+      | {
+          ok: true;
+          ctx: ResultCtx;
+          outputOverride?: Record<number, string>;
+          understandOverride?: object;
+          nodeOverride?: Record<number, { input?: Record<string, string | string[]>; chips?: string[] }>;
+        }
+      | { ok: false; failStep: number },
+  ) {
+    const run = runsRef.current.get(skillrunId);
+    if (!run || run.finished) return;
+    run.finished = true;
+    busy.current = false;
+
+    const finalPatch: Record<string, unknown> = outcome.ok
+      ? {
+          progress: { step: 4, done: true },
+          ...(outcome.outputOverride ? { outputOverride: outcome.outputOverride } : {}),
+          ...(outcome.understandOverride ? { understandOverride: outcome.understandOverride } : {}),
+          ...(outcome.nodeOverride ? { nodeOverride: outcome.nodeOverride } : {}),
+        }
+      : { progress: { step: outcome.failStep, done: true, failed: true } };
+
+    if (run.epoch === convEpoch.current) {
+      // 还在原对话 — 就地定格 + 落卡
+      patchSkillrun(run, skillrunId, finalPatch);
+      if (outcome.ok) {
+        push({ id: nextId(), kind: 'result', module: run.module, data: RESULT_FOR(run.module, outcome.ctx) });
+      } else {
+        push({ id: nextId(), kind: 'turn', who: 'ai', html: FAIL_SAY[run.module] ?? '这次没跑成,再试一次。' });
+      }
+      return;
+    }
+
+    // 已切走 — 写回原对话库行(后台续跑的交付面)
+    const convId = epochConvId.current.get(run.epoch);
+    if (convId == null) return; // 对话从未落库(demo 只读等) → 无处可写, 放弃
+    try {
+      const detail = await getHubConversationDetail(run.sessionId, convId);
+      const arr = Array.isArray(detail.messages) ? (detail.messages as HubMessage[]) : [];
+      const patched = arr.map((m) =>
+        m.id === skillrunId && m.kind === 'skillrun'
+          ? ({ ...m, ...finalPatch, settled: true } as HubMessage)
+          : m,
+      );
+      const tail: HubMessage = outcome.ok
+        ? { id: nextId(), kind: 'result', module: run.module, data: RESULT_FOR(run.module, outcome.ctx) }
+        : { id: nextId(), kind: 'turn', who: 'ai', html: FAIL_SAY[run.module] ?? '这次没跑成,再试一次。' };
+      await putHubConversationDetail(run.sessionId, convId, [...patched, tail]);
+      if (run.sessionId === sessionId) refreshConvs();
+    } catch {
+      /* 写回失败(网络/只读)不阻断 — 任务结果仍在后端缓存, 重开还能拿到 */
+    }
+  }
+
+  // 简历打分: 轮询后端任务真实阶段 → 思考卡节点(prepare=解析, llm=评审, parse=定位)。
+  // 任务在服务端跑, 切对话/刷新都不中断; 这里只是「看表」。
+  function pollScoreTask(skillrunId: string) {
+    const STAGE_STEP: Record<string, number> = { prepare: 0, llm: 1, parse: 2 };
+    let netFails = 0; // 连续网络失败计数 — 有界重试, 不无限转
+    const tick = async () => {
+      const run = runsRef.current.get(skillrunId);
+      if (!run || run.finished) return;
+      try {
+        const st = await getScoreTaskStatus(run.sessionId);
+        netFails = 0;
+        if (st.status === 'running') {
+          const step = STAGE_STEP[st.stage] ?? 0;
+          const live: Record<number, string> = {};
+          if (st.stage === 'llm' && st.elapsed_seconds != null && st.elapsed_seconds >= 10) {
+            // 10s 粒度 — 既给「真的在跑」的体感, 又不至于每拍都触发落库
+            live[1] = `评审模型工作中 · 已约 ${Math.floor(st.elapsed_seconds / 10) * 10}s`;
+          }
+          patchSkillrun(run, skillrunId, {
+            progress: { step, done: false },
+            ...(Object.keys(live).length ? { outputOverride: live } : {}),
+          });
+          window.setTimeout(() => void tick(), 2500);
+          return;
+        }
+        if (st.status === 'done' && st.report) {
+          const sc = st.report;
+          cacheScoreReport(run.sessionId, sc);
+          const gaps = (sc.section_gaps ?? []).length;
+          const gapLabels = (sc.section_gaps ?? [])
+            .map((g) => (g.label || '').trim())
+            .filter(Boolean)
+            .slice(0, 3);
+          void completeRun(skillrunId, {
+            ok: true,
+            ctx: {
+              resumeCurrent: sc.overall_current,
+              resumePotLow: sc.overall_potential_low,
+              resumePotHigh: sc.overall_potential_high,
+              resumeGaps: gaps,
+            },
+            understandOverride: {
+              tracks: sc.target_track ? [sc.target_track] : [],
+              memory: memoryPills,
+            },
+            outputOverride: {
+              0: '简历画像已就绪',
+              1: `现状 ${sc.overall_current} · 潜力 ${sc.overall_potential_low}–${sc.overall_potential_high}`,
+              2: gaps > 0 ? `定位到 ${gaps} 段可补缺口` : '未发现硬缺口',
+              3: gaps > 0 ? `${gaps} 段建议 · 已挂逐段入口` : '建议已生成',
+            },
+            nodeOverride: {
+              0: { chips: ['结构化完成'] },
+              1: {
+                input: { against: `${sc.target_track || '通用'} 画像` },
+                chips: [
+                  `现状 ${sc.overall_current}`,
+                  `潜力 ${sc.overall_potential_low}–${sc.overall_potential_high}`,
+                ],
+              },
+              2: { chips: gapLabels.length > 0 ? gapLabels : ['未发现硬缺口'] },
+              3: { chips: gaps > 0 ? ['逐段入口已挂'] : ['无需逐段修补'] },
+            },
+          });
+          return;
+        }
+        // failed / none(后端重启任务丢了) → 诚实失败
+        void completeRun(skillrunId, { ok: false, failStep: 1 });
+      } catch {
+        // 单次轮询失败不算任务失败(网络抖动), 但连抖 6 次(~24s)就诚实失败
+        netFails += 1;
+        if (netFails >= 6) {
+          void completeRun(skillrunId, { ok: false, failStep: 1 });
+          return;
+        }
+        window.setTimeout(() => void tick(), 4000);
+      }
+    };
+    void tick();
+  }
+
+  // 水合/切对话后: 把「跑到一半」的 skillrun 重新挂上(③ 切回续跑)。
+  // - 登记簿里还有活的(同页切换) → 改绑到新纪元, 完成时就地落卡;
+  // - 簿里没有但是 resume(任务在后端) → 重新挂轮询;
+  // - 簿里没有的 feed/skeleton(请求随刷新丢了) → 诚实定格为未完成。
+  function adoptRunningSkillruns(arr: HubMessage[]) {
+    for (const m of arr) {
+      if (m.kind !== 'skillrun' || !m.progress || m.progress.done) continue;
+      const live = runsRef.current.get(m.id);
+      if (live && !live.finished) {
+        live.epoch = convEpoch.current;
+        continue;
+      }
+      if (m.module === 'resume') {
+        runsRef.current.set(m.id, {
+          module: 'resume',
+          epoch: convEpoch.current,
+          sessionId,
+          finished: false,
+        });
+        pollScoreTask(m.id);
+      } else {
+        // 请求已随页面生命周期丢失 — 定格为未完成, 不装成功
+        setMsgs((cur) =>
+          cur.map((x) =>
+            x.id === m.id && x.kind === 'skillrun'
+              ? { ...x, progress: { ...m.progress!, done: true, failed: true }, settled: true }
+              : x,
+          ),
+        );
+      }
+    }
+  }
+
   // ── 跑技能: 每个模块 = 对话里跑一次技能 → 落结果卡 → 点开才进视图 ──
+  // feed/skeleton/resume 走「受控真实进度」: 思考卡节点跟着真实请求/后端任务走,
+  // 结果出来之前卡不会说「完成」(修「思考完了很久才出结果, 体验割裂」)。
   function runSkill(key: HubModule) {
     if (busy.current) return;
 
@@ -592,17 +790,133 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       return;
     }
 
+    // 同一对话里同模块还在跑 → 不重复开(后端打分本身也会去重)
+    for (const [, r] of runsRef.current) {
+      if (!r.finished && r.module === key && r.epoch === convEpoch.current) {
+        push({
+          id: nextId(),
+          kind: 'turn',
+          who: 'ai',
+          html: '这个还在跑 —— 上面的思考卡就是实时进度,跑完结果会落在这里。',
+        });
+        return;
+      }
+    }
+
     busy.current = true;
     setStarted(true);
     setActive('none'); // 收回全宽对话看它「想」—— 永不瞬移进面板
     push({ id: nextId(), kind: 'turn', who: 'ai', html: SAY[key] });
     const skillrunId = nextId();
-    push({ id: skillrunId, kind: 'skillrun', module: key });
 
-    // 职位推荐: 动画播放的同时, 并发打真后端 recommend-chat. 结果织回这条 skillrun,
-    // 落结果卡时(动画 + 请求都完成)再据此渲染真实赛道 / 计数.
+    if (key === 'interview') {
+      // 面试预备没有真实后端任务 — 保留定时思考卡, 跑完由 onSkillComplete 落卡
+      push({ id: skillrunId, kind: 'skillrun', module: key });
+      setTimeout(() => {
+        busy.current = false;
+      }, 8000);
+      return;
+    }
+
+    // 受控模块: skillrun 自带 progress(真实进度), 登记进运行簿(③ 后台续跑)。
+    // 「我的理解」与节点入参从启动起就用真实数据(当前工作查询的子赛道 + 真实记忆),
+    // 不再露静态底座里写死的投研/券商资管话术(2026-06-12 反馈「我选的是互联网赛道」)。
+    const seedTracks = (workingQuery?.seed_sub_cats ?? []).filter(Boolean);
+    const trackText = seedTracks.length > 0 ? seedTracks.slice(0, 3).join(' · ') : '你确认的赛道';
+    const understand0 = {
+      tracks: seedTracks,
+      memory: memoryPills,
+      ...(key === 'feed'
+        ? {
+            headline: `${trackText} 方向的真实在招岗位,不是泛泛撒网。`,
+            reasoning:
+              '结合你确认的赛道和记忆,我会先锁定范围,再检索在招、做三维打分,最后排出最值得投的几个。',
+          }
+        : {}),
+      ...(key === 'skeleton' ? { headline: `把 ${trackText} 的公司按梯队分档铺成全景。` } : {}),
+    };
+    const node0: Record<number, { input?: Record<string, string | string[]>; chips?: string[] }> =
+      key === 'feed'
+        ? {
+            0: {
+              input: { track: seedTracks.length ? seedTracks : '你确认的赛道' },
+              chips: [...seedTracks.slice(0, 3), `命中记忆 ×${memoryPills.length}`],
+            },
+            1: { input: { tracks: seedTracks.length ? seedTracks : '你确认的赛道' } },
+          }
+        : key === 'skeleton'
+          ? {
+              0: { input: { track: trackText } },
+              2: { input: { profile: userName || '你的画像' } },
+            }
+          : {
+              0: { chips: ['结构化完成'] },
+              1: { input: { against: '你确认的目标赛道画像' } },
+            };
+    const initialStep = key === 'feed' ? 1 : 0; // feed 的节点0「锁定赛道」即时完成
+    push({
+      id: skillrunId,
+      kind: 'skillrun',
+      module: key,
+      progress: { step: initialStep, done: false },
+      understandOverride: understand0,
+      nodeOverride: node0,
+    });
+    const run: RunRec = { module: key, epoch: convEpoch.current, sessionId, finished: false };
+    runsRef.current.set(skillrunId, run);
+    // 启动即释放 busy — 长任务(打分 ~90s)期间学生还能继续聊/跑别的模块
+    busy.current = false;
+
+    // 职位推荐: 真后端 recommend-chat; 最后一个节点等真实结果回来才亮(不抢跑)。
     if (key === 'feed') {
       const text = lastUserText.current || '给我推荐一下岗位';
+      const finishFeed = (feedItems: RecommendFeedItem[], wq: WorkingQuery | null) => {
+        setFeed(feedItems);
+        if (wq) setWorkingQuery(wq);
+        const tracks = (wq?.seed_sub_cats ?? []).filter(Boolean);
+        const tt = tracks.length > 0 ? tracks.slice(0, 3).join(' · ') : '你确认的赛道';
+        // 检索节点的结果签用真实赛道分布(按命中赛道计数), 不再写死券商研究×14
+        const counts = new Map<string, number>();
+        for (const it of feedItems) {
+          const label = (it.matched_track_label || '').trim();
+          if (label) counts.set(label, (counts.get(label) ?? 0) + 1);
+        }
+        const topChips = [...counts.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([k, v]) => `${k} ×${v}`);
+        const n = feedItems.length;
+        void completeRun(skillrunId, {
+          ok: true,
+          ctx: { tracks, feedLen: n },
+          understandOverride: {
+            tracks,
+            memory: memoryPills,
+            headline: `${tt} 方向的真实在招岗位,不是泛泛撒网。`,
+            reasoning:
+              '结合你确认的赛道和记忆,我会先锁定范围,再检索在招、做三维打分,最后排出最值得投的几个。',
+          },
+          outputOverride: {
+            1: `召回 ${n} → 去重 ${n}`,
+            2: n > 0 ? `${n} 个岗位三维评分完成` : '本版无可评分岗位',
+            3: n > 0 ? '第一版 Top 已就绪' : '本版暂无匹配',
+          },
+          nodeOverride: {
+            0: {
+              input: { track: tracks.length ? tracks : '你确认的赛道' },
+              chips: [...tracks.slice(0, 3), `命中记忆 ×${memoryPills.length}`],
+            },
+            1: {
+              input: { tracks: tracks.length ? tracks : '你确认的赛道' },
+              chips: topChips.length > 0 ? topChips : [`在招 ${n}`],
+            },
+            3: {
+              input: { topN: `Top ${Math.min(n, 10)}`, guard: 'substring 反幻觉' },
+              chips: n > 0 ? [`Top ${Math.min(n, 10)} 已排出`] : ['本版暂无匹配'],
+            },
+          },
+        });
+      };
       postRecommendChat(sessionId, text)
         .then(async (resp) => {
           // recommend-chat 只在「这句话改变了查询条件」时才回新列表;首次「给我推荐」
@@ -619,139 +933,69 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
               /* reseed 失败则保持空, 走「暂无匹配」文案 */
             }
           }
-          setFeed(feedItems);
-          if (wq) setWorkingQuery(wq);
-          applyFeedResp(skillrunId, { ...resp, feed: feedItems, working_query: wq ?? resp.working_query });
-          // 动画若已先跑完, 这里补落结果卡.
-          const waiter = pendingComplete.current.get(skillrunId);
-          if (waiter) {
-            pendingComplete.current.delete(skillrunId);
-            waiter();
-          }
+          finishFeed(feedItems, wq);
         })
         .catch(async () => {
           // 对话接口被拒(典型: demo 只读会话 403) → 退到只读 reseed,
           // 仍按会话画像铺出在招岗; reseed 也失败才落「暂无匹配」.
-          let feedItems: RecommendTurnResponse['feed'] = [];
-          let wq = workingQuery ?? null;
           try {
             const r = await updateWorkingQuery(sessionId, { reseed: true });
-            feedItems = r.feed ?? [];
-            if (r.working_query) wq = r.working_query;
+            finishFeed(r.feed ?? [], r.working_query ?? workingQuery ?? null);
           } catch {
-            /* 仍失败则保持空 */
-          }
-          setFeed(feedItems ?? []);
-          if (wq) setWorkingQuery(wq);
-          applyFeedResp(skillrunId, {
-            intent: 'recommend',
-            reply: '',
-            feed: feedItems ?? [],
-            working_query: wq ?? {
-              seed_sub_cats: [],
-              sub_cats: [],
-              companies: [],
-              locations: [],
-              exclude: [],
-              sort: 'match',
-              only: false,
-              note: '',
-            },
-            trace: { intent: 'recommend', query_delta: {}, remember_note: '' },
-            remembered: null,
-          });
-          const waiter = pendingComplete.current.get(skillrunId);
-          if (waiter) {
-            pendingComplete.current.delete(skillrunId);
-            waiter();
+            finishFeed([], workingQuery ?? null);
           }
         });
+      return;
     }
 
-    // 梯队骨架: 并发拉真实 platform-skeleton(读缓存情报, 不打实时 LLM, 便宜),
-    // 结果卡用真实赛道 + GT 公司总数 + 分档标签. race-safe 同 feed.
+    // 梯队骨架: 拉真实 platform-skeleton(读缓存情报, 不打实时 LLM, 便宜)。
     if (key === 'skeleton') {
-      const finish = (ctx: ResultCtx) => {
-        ctxById.current.set(skillrunId, ctx);
-        const waiter = pendingComplete.current.get(skillrunId);
-        if (waiter) {
-          pendingComplete.current.delete(skillrunId);
-          waiter();
-        }
-      };
       getPlatformsByTier(sessionId)
         .then((sk) => {
           const count = (sk.tiers ?? []).reduce((n, t) => n + (t.companies?.length ?? 0), 0);
           const bands = (sk.tiers ?? []).map((t) => t.band).filter(Boolean);
-          finish({ subCat: sk.sub_cat || '', skeletonCount: count, skeletonBands: bands });
-        })
-        .catch(() => finish({}));
-    }
-
-    // 简历优化: 并发打真实诚实打分(LLM). 结果卡用真实现状分 + 潜力区间 + 缺口段数;
-    // 同时把分缓存下来给打分报告页复用, 避免一次交互打两遍 LLM.
-    if (key === 'resume') {
-      const finish = (ctx: ResultCtx) => {
-        ctxById.current.set(skillrunId, ctx);
-        const waiter = pendingComplete.current.get(skillrunId);
-        if (waiter) {
-          pendingComplete.current.delete(skillrunId);
-          waiter();
-        }
-      };
-      scoreResume(sessionId)
-        .then((sc) => {
-          cacheScoreReport(sessionId, sc);
-          finish({
-            resumeCurrent: sc.overall_current,
-            resumePotLow: sc.overall_potential_low,
-            resumePotHigh: sc.overall_potential_high,
-            resumeGaps: (sc.section_gaps ?? []).length,
+          const sc = sk.sub_cat || '你确认的赛道';
+          void completeRun(skillrunId, {
+            ok: true,
+            ctx: { subCat: sk.sub_cat || '', skeletonCount: count, skeletonBands: bands },
+            understandOverride: {
+              tracks: sk.sub_cat ? [sk.sub_cat] : [],
+              memory: memoryPills,
+              headline: `把 ${sc} 的公司按梯队分档铺成全景。`,
+            },
+            outputOverride: {
+              0: `拉到 ${count} 家公司`,
+              1: bands.length > 0 ? `分出 ${bands.join(' / ')}` : '本版暂无分档',
+              // 个人定档不是这条便宜链路算的 — 不冒领, 指到骨架卡看真实对照
+              2: '梯队全景铺开 · 个人定档看骨架卡',
+            },
+            nodeOverride: {
+              0: { input: { track: sc }, chips: [`${count} 家公司`] },
+              1: { chips: bands.length > 0 ? bands : ['本版暂无分档'] },
+              2: {
+                input: { profile: userName || '你的画像' },
+                chips: bands.length > 0 ? [`按 ${bands.join(' / ')} 对照`] : [],
+              },
+            },
           });
         })
-        .catch(() => finish({}));
+        .catch(() => void completeRun(skillrunId, { ok: false, failStep: 0 }));
+      return;
     }
 
-    // busy 在 onSkillComplete(DeepThinkCard 跑完)时清; 这里只是安全兜底.
-    setTimeout(() => {
-      busy.current = false;
-    }, 8000);
+    // 简历优化(④⑤核心): 打分改后端任务 — start 立即返回, 任务在服务端跑
+    // (切对话/跳页不中断), 思考卡轮询真实阶段; 失败诚实失败, 不落假「完成」。
+    if (key === 'resume') {
+      startScoreTask(sessionId, { force: true })
+        .then(() => pollScoreTask(skillrunId))
+        .catch(() => void completeRun(skillrunId, { ok: false, failStep: 0 }));
+    }
   }
 
-  // 技能跑完 → 落结果卡(产出, 不是落点). 按 skillrun id guard, 防 onComplete 重入.
+  // 技能跑完 → 落结果卡(仅 interview 定时路径; 受控模块由 completeRun 收口)。
   function onSkillComplete(skillrunId: string, key: HubModule) {
     busy.current = false;
     if (completed.current.has(skillrunId)) return;
-
-    // 职位推荐: 结果卡用真实赛道 + 计数. 若请求还没回, 挂起等它(race-safe).
-    if (key === 'feed') {
-      const resp = respById.current.get(skillrunId);
-      if (!resp) {
-        // 动画先跑完 → 注册一个待请求回来再落卡的回调.
-        pendingComplete.current.set(skillrunId, () => onSkillComplete(skillrunId, key));
-        return;
-      }
-      completed.current.add(skillrunId);
-      const ctx: ResultCtx = {
-        tracks: resp.working_query?.seed_sub_cats ?? [],
-        feedLen: resp.feed?.length ?? 0,
-      };
-      push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key, ctx) });
-      return;
-    }
-
-    // 梯队骨架 / 简历优化: 结果卡用真实后端数据. 请求没回则挂起等它(race-safe).
-    if (key === 'skeleton' || key === 'resume') {
-      const ctx = ctxById.current.get(skillrunId);
-      if (!ctx) {
-        pendingComplete.current.set(skillrunId, () => onSkillComplete(skillrunId, key));
-        return;
-      }
-      completed.current.add(skillrunId);
-      push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key, ctx) });
-      return;
-    }
-
     completed.current.add(skillrunId);
     push({ id: nextId(), kind: 'result', module: key, data: RESULT_FOR(key) });
   }
@@ -912,6 +1156,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   }
 
   // ── 新对话 = 在当前简历下另起一行(旧对话存好原样保留, 绝不覆盖)──
+  // 运行登记簿不清 — 旧对话还在跑的任务转入后台, 完成时写回它自己的对话行(③)。
   function onNew() {
     flushRef.current(); // 当前对话的未落笔先存掉, 它会留在侧栏历史里
     setStarted(false);
@@ -923,9 +1168,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     setDeepening(null);
     setHighlightCompany(null);
     busy.current = false;
-    completed.current = new Set();
-    respById.current = new Map();
-    pendingComplete.current = new Map();
+    convEpoch.current += 1; // 新纪元(对话行 id 等第一笔 create 后由 flush 登记)
     lastUserText.current = '';
     // 清当前对话指针 → 下一句话 create 新对话行(修单槽时代「新对话再聊就覆盖旧对话」)
     activeConvIdRef.current = null;
@@ -1019,8 +1262,14 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                         understandOverride={m.understandOverride}
                         outputOverride={m.outputOverride}
                         settled={m.settled}
-                        // 回放态不重触发结果卡(历史里已有那张); 双保险, 卡内 fired 也挡
-                        onComplete={m.settled ? () => {} : () => onSkillComplete(m.id, m.module)}
+                        // 受控模式: 节点状态由真实进度驱动, 结果卡由 completeRun 收口
+                        progress={m.progress}
+                        // 回放/受控都不经卡片触发结果卡; 仅 interview 定时路径用
+                        onComplete={
+                          m.settled || m.progress
+                            ? () => {}
+                            : () => onSkillComplete(m.id, m.module)
+                        }
                       />
                     );
                   case 'result':

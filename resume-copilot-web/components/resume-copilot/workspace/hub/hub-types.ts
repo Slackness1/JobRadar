@@ -23,10 +23,22 @@ export type HubMessage =
       /** 节点序号 → 真实计数 output(done 态优先) */
       outputOverride?: Record<number, string>;
       /**
+       * 节点序号 → 真实 input / chips 覆盖。思考节点的入参与结果签
+       * 不再写死投研/券商资管/96 分 —— 启动/完成时由 HubShell 注入真数据。
+       */
+      nodeOverride?: Record<number, { input?: Record<string, string | string[]>; chips?: string[] }>;
+      /**
        * 已定格(落库回放态): 直接渲染完成折叠态, 不播动画、不触发 onComplete。
        * 思考路径是交付物的一部分 —— 落库时打上此标, 重放能看到当时的轨迹。
        */
       settled?: boolean;
+      /**
+       * 真实进度(受控模式): 由 HubShell 按真实请求/任务阶段驱动节点状态,
+       * 不再放 5s 定时动画。done 才触发 onComplete; failed 渲染诚实未完成态。
+       * 落库时随消息一起存 —— !done 的 skillrun 是「跑到一半」, 切回/刷新时
+       * 据此重新挂上轮询续跑。缺省 = 旧定时模式(interview 仍用)。
+       */
+      progress?: { step: number; done: boolean; failed?: boolean };
     }
   | { id: string; kind: 'result'; module: HubModule; data: ResultCardData }
   | { id: string; kind: 'trace'; trace: RecommendTrace }

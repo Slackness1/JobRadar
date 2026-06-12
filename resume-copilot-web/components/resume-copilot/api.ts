@@ -240,6 +240,35 @@ export function scoreResume(sessionId: number, targetTrack = ''): Promise<ScoreR
   });
 }
 
+// ── 打分任务制(start 立即返回 + status 轮询真实阶段)────────────────────────
+// 打分在服务端线程跑: 切对话/跳页不中断(后台续跑), 浏览器不再被 90s 长请求
+// 占连接池。done 时 status 带完整报告(服务端缓存) — 对话卡/报告面板共用一份。
+export interface ScoreTaskStatus {
+  session_id: number;
+  status: 'none' | 'running' | 'done' | 'failed';
+  stage: string; // prepare | llm | parse | done
+  elapsed_seconds: number | null;
+  report: ScoreReportData | null;
+  error: string;
+}
+
+export function startScoreTask(
+  sessionId: number,
+  opts: { targetTrack?: string; force?: boolean } = {},
+): Promise<Omit<ScoreTaskStatus, 'report'>> {
+  return requestJson<Omit<ScoreTaskStatus, 'report'>>(
+    `/api/resume-copilot/sessions/${sessionId}/score/start`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ target_track: opts.targetTrack ?? '', force: opts.force ?? false }),
+    },
+  );
+}
+
+export function getScoreTaskStatus(sessionId: number): Promise<ScoreTaskStatus> {
+  return requestJson<ScoreTaskStatus>(`/api/resume-copilot/sessions/${sessionId}/score/status`);
+}
+
 // ── 简历编辑器草稿(跨设备持久化)─────────────────────────────────────────────
 // 渲染模型 + 模板/布局/隐藏项落库, 换设备/浏览器也能恢复上次编辑。
 export interface EditorDraftPayload {

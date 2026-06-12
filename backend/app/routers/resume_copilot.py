@@ -61,6 +61,7 @@ from app.schemas_resume_copilot import (
     ScoreRequestIn,
 )
 from pydantic import BaseModel
+from app.services.resume_copilot import score_task as _score_task_mod
 from app.services.resume_copilot import scoring as _scoring_mod
 from app.services.resume_copilot import translator as translator_svc
 from app.services.resume_copilot.scoring import derive_target_track, score_resume
@@ -674,17 +675,10 @@ def export_resume_pdf(
     )
 
 
-@router.post('/sessions/{session_id}/score', response_model=ScoreReportOut)
-def score_resume_session(
-    session_id: int,
-    body: ScoreRequestIn,
-    x_resume_user_key: str = Header(default=''),
-    db: Session = Depends(get_db),
-):
-    """多维度诚实打分 (B1)。只读,不写库 — demo 简历也可打分。"""
-    session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
-
+def _load_score_inputs(
+    db: Session, session_id: int, raw_target: str
+) -> tuple[ResumeProfilePayload, ResumePreferencePayload | None, str]:
+    """同步 /score 与后台 /score/start 共用的画像 + 偏好 + 目标赛道装载。"""
     confirmed = (
         db.query(ResumeConfirmedProfile)
         .filter(ResumeConfirmedProfile.session_id == session_id)
@@ -713,7 +707,24 @@ def score_resume_session(
         )
         preferences.all_skipped = bool(getattr(pref_row, 'all_skipped', 0))
 
-    target = (body.target_track or '').strip() or derive_target_track(profile, preferences)
+    target = (raw_target or '').strip() or derive_target_track(profile, preferences)
+    return profile, preferences, target
+
+
+@router.post('/sessions/{session_id}/score', response_model=ScoreReportOut)
+def score_resume_session(
+    session_id: int,
+    body: ScoreRequestIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """多维度诚实打分 (B1)。只读,不写库 — demo 简历也可打分。
+
+    同步阻塞版, 留作兼容; Hub 走 /score/start + /score/status 任务制。
+    """
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    profile, preferences, target = _load_score_inputs(db, session_id, body.target_track)
 
     # 模块级 provider 钩子,测试可 monkeypatch _scoring_mod.OpenAICompatibleResumeScorer。
     provider = _scoring_mod.OpenAICompatibleResumeScorer()
@@ -730,6 +741,50 @@ def score_resume_session(
         section_gaps=report.section_gaps,
         used_ai=report.used_ai,
     )
+
+
+class ScoreStartIn(BaseModel):
+    target_track: str = ''
+    # force=True 重打(用户明确再要一次); 默认复用 running/done 任务, 一次交互只打一遍 LLM。
+    force: bool = False
+
+
+@router.post('/sessions/{session_id}/score/start', status_code=status.HTTP_202_ACCEPTED)
+def start_score_task(
+    session_id: int,
+    body: ScoreStartIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """启动后台打分任务(立即返回)。
+
+    打分在服务端线程跑 —— 学生切对话/跳页都不中断(Hub「后台继续跑」的根);
+    浏览器不再被 90s 长请求占连接池(修「返回工作台点不动」)。只读不写库,
+    demo 简历也可打。
+    """
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    profile, preferences, target = _load_score_inputs(db, session_id, body.target_track)
+    snap = _score_task_mod.start_score_task(
+        session_id, profile, target, preferences, force=bool(body.force)
+    )
+    return {"session_id": session_id, **{k: v for k, v in snap.items() if k != 'report'}}
+
+
+@router.get('/sessions/{session_id}/score/status')
+def get_score_task_status(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """轮询打分任务真实进度。status: none|running|done|failed; stage: prepare|llm|parse|done。
+
+    done 时带完整报告(服务端缓存)— 对话结果卡 / 报告面板 / 编辑页共用同一份,
+    不再各打一遍 LLM、也不再互相对不上(修「对话出了报告, 面板还在打分中」)。
+    """
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    return {"session_id": session_id, **_score_task_mod.get_task_snapshot(session_id)}
 
 
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)

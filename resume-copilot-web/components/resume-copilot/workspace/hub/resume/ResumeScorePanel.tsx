@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { HubRadar, type RadarDatum } from './HubRadar';
 import { ResumeDoc } from './editor/ResumeDoc';
 import { TEMPLATES, type Lang, type LayoutState, type ResumeProfile } from './editor/resumeSample';
-import { scoreResume, type ScoreReportData } from '../../../api';
+import { getScoreTaskStatus, startScoreTask, type ScoreReportData } from '../../../api';
 import { cacheScoreReport, readFreshScoreReport } from '../scoreCache';
 
 export interface ResumeScorePanelProps {
@@ -72,6 +72,7 @@ export function ResumeScorePanel({
   const [view, setView] = useState<'score' | 'preview'>('score');
   const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
   const [loading, setLoading] = useState(!mock);
+  const [stageNote, setStageNote] = useState(''); // 真实阶段短句(不再干等一句「打分中」)
   const [error, setError] = useState('');
   // 预览缩放 + 页数
   const [pages, setPages] = useState(1);
@@ -80,9 +81,12 @@ export function ResumeScorePanel({
 
   useEffect(() => {
     if (mock || !sessionId) return;
-    // Hub 对话里跑「简历优化」技能时已打过一次 LLM 打分并缓存; 报告页优先复用,
-    // 避免一次交互打两遍 LLM(与学生流量共用 OpenCode 额度)。无新鲜缓存才重打。
+    // 打分走后端任务制: 这里只「看表」—— 对话技能跑过的分直接复用(本地缓存 /
+    // 服务端任务缓存), 在跑的就轮询真实阶段, 都没有才自己起一个任务。
+    // 不再同步阻塞打 LLM: 一次交互只打一遍, 面板和对话卡永远对得上。
     let alive = true;
+    let timer: number | undefined;
+    let startedOnce = false; // 自动起任务只试一次, 再失败就诚实报错(防失败循环重打)
     const cached = readFreshScoreReport(sessionId);
     if (cached) {
       // 微任务里应用, 避免在 effect 内同步 setState(级联渲染 lint)。
@@ -94,11 +98,49 @@ export function ResumeScorePanel({
       });
       return () => { alive = false; };
     }
-    scoreResume(sessionId)
-      .then((r) => { if (alive) { setReport(r); setError(''); cacheScoreReport(sessionId, r); } })
-      .catch((e) => { if (alive) setError(e instanceof Error ? e.message : '打分失败'); })
-      .finally(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
+    const poll = async () => {
+      try {
+        const st = await getScoreTaskStatus(sessionId);
+        if (!alive) return;
+        if (st.status === 'done' && st.report) {
+          cacheScoreReport(sessionId, st.report);
+          setReport(st.report);
+          setError('');
+          setLoading(false);
+          return;
+        }
+        if (st.status === 'running') {
+          setStageNote(
+            st.stage === 'llm'
+              ? `评审模型工作中 · 已 ${Math.round(st.elapsed_seconds ?? 0)}s`
+              : st.stage === 'parse'
+                ? '正在整理维度与缺口…'
+                : '准备打分材料…',
+          );
+          timer = window.setTimeout(() => void poll(), 2500);
+          return;
+        }
+        // none(还没人打过)/ failed(上次没跑成) → 起一个后台任务再等
+        if (st.status === 'failed' && startedOnce) {
+          setError(st.error || '打分没跑成,稍后再试');
+          setLoading(false);
+          return;
+        }
+        startedOnce = true;
+        await startScoreTask(sessionId, {});
+        timer = window.setTimeout(() => void poll(), 2000);
+      } catch (e) {
+        if (alive) {
+          setError(e instanceof Error ? e.message : '打分失败');
+          setLoading(false);
+        }
+      }
+    };
+    void poll();
+    return () => {
+      alive = false;
+      if (timer) window.clearTimeout(timer);
+    };
   }, [mock, sessionId]);
 
   // 把 794px A4 缩放进侧栏预览宽度(进入预览 tab 时挂载量宽)。
@@ -141,7 +183,11 @@ export function ResumeScorePanel({
         </div>
       </div>
 
-      {loading && <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>打分中…</div>}
+      {loading && (
+        <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>
+          打分中… {stageNote && <span style={{ color: 'var(--olive)' }}>{stageNote}</span>}
+        </div>
+      )}
       {error && <div style={{ padding: 40, color: 'var(--terracotta-strong)', font: '400 13px var(--font-sans)' }}>打分失败:{error}</div>}
 
       {report && view === 'score' && (

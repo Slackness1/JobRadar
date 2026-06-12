@@ -929,6 +929,9 @@ def _v2_extract_preferred_sub_cats(
     """从 profile/preferences 拿学生偏好 sub_cat 列表 (v2)。
 
     优先级 (2026-05-29 重写, 修迁移赛道失效 + 子串映射有损):
+      0. 确认页勾到的具体子赛道 (preferences.confirmed_sub_cats) —— 学生已经
+         精确到子赛道, 就只按这几个推, **不再把一级赛道下所有子赛道全铺进来**
+         (修 2026-06-12 反馈「我只勾了 AI 产品经理和 Agent, 为什么默认全都要了」)。
       1. 学生显式选的赛道 (preferences.preferred_tracks) → 走显式映射表
          CANONICAL_TRACK_TO_SUBCATS。**选择优先于简历** —— 学生简历是卖方固收
          但选了买方固收, 就按买方固收推, 不被简历盖过。覆盖缺口赛道 (监管/咨询/
@@ -937,6 +940,15 @@ def _v2_extract_preferred_sub_cats(
       3. 都落空: 老子串启发 (preferred_roles + inferred_roles 文本), 兼容兜底。
     """
     from app.services.phase_g.track_subcat_map import subcats_for_tracks
+
+    # 0) 勾选的具体子赛道最优先 (只勾了赛道没细选时为空 → 落到赛道展开)
+    confirmed = [
+        str(s).strip()
+        for s in (getattr(preferences, "confirmed_sub_cats", None) or [] if preferences else [])
+        if str(s).strip()
+    ]
+    if confirmed:
+        return confirmed
 
     # 1) 显式选择优先 (选了就用, 即便映射为空也尊重选择 → 不退回简历)
     explicit = [

@@ -56,15 +56,34 @@ def derive_target_track(
     profile: ResumeProfilePayload,
     preferences: ResumePreferencePayload | None,
 ) -> str:
-    """推导打分对齐的目标 canonical 赛道。空串 = 无信号。"""
+    """推导打分对齐的目标赛道。空串 = 无信号。
+
+    显式选择优先于简历推断(与推荐侧同一条铁律): 学生确认页选了
+    互联网/AI 产品, 打分就按这个方向对齐 —— 不能因为简历里有段 PE 实习
+    就被盖成一级股权·PE/VC(2026-06-12 反馈)。非金融赛道没有沉淀的细化
+    标尺, 走通用 8 维 + 目标赛道文本对齐; 勾了子赛道则带上, 评审更聚焦。
+    """
     canon = set(CANONICAL_FINANCE_TRACKS)
 
-    candidates: list[str] = []
     if preferences is not None and not preferences.all_skipped:
-        candidates.extend(preferences.preferred_tracks or [])
-    candidates.extend(profile.inferred_tracks or [])
+        explicit = [str(t).strip() for t in (preferences.preferred_tracks or []) if str(t).strip()]
+        for raw in explicit:
+            c = canonicalize_track(raw)
+            if c in canon:
+                return c
+        if explicit:
+            # 显式选了非金融赛道(如 互联网/AI 产品)→ 尊重选择, 不退回简历推断
+            label = canonicalize_track(explicit[0]) or explicit[0]
+            subs = [
+                str(s).strip()
+                for s in (getattr(preferences, 'confirmed_sub_cats', None) or [])
+                if str(s).strip()
+            ]
+            if subs:
+                return f"{label} · {'/'.join(subs[:2])}"
+            return label
 
-    for raw in candidates:
+    for raw in profile.inferred_tracks or []:
         c = canonicalize_track(str(raw or '').strip())
         if c in canon:
             return c

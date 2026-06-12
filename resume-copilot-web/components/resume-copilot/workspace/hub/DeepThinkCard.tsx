@@ -153,17 +153,20 @@ function DTEnter({
   );
 }
 
-type NodeStatus = 'pending' | 'running' | 'done';
+type NodeStatus = 'pending' | 'running' | 'done' | 'failed';
 
 // ── tool input/output body ───────────────────────────────────────────────────
 function DTToolBody({
   node,
   status,
   outputText,
+  liveText = '',
 }: {
   node: DeepNode;
   status: NodeStatus;
   outputText: string;
+  /** running 态的真实进度短句(如「LLM 评审中 · 已 42s」), 不回落静态完成文案 */
+  liveText?: string;
 }) {
   const done = status === 'done';
   return (
@@ -220,6 +223,10 @@ function DTToolBody({
         </div>
         {done ? (
           <div style={{ font: '500 12px var(--font-mono)', color: 'var(--ink)' }}>{outputText}</div>
+        ) : status === 'failed' ? (
+          <div style={{ font: '500 12px var(--font-mono)', color: 'var(--terracotta-strong)' }}>
+            这一步没跑成 · 未完成
+          </div>
         ) : (
           <div
             style={{
@@ -230,7 +237,7 @@ function DTToolBody({
               color: 'var(--stone)',
             }}
           >
-            <DTSpinner /> 执行中…
+            <DTSpinner /> {liveText || '执行中…'}
           </div>
         )}
       </div>
@@ -244,11 +251,13 @@ function DTStep({
   status,
   last,
   outputText,
+  liveText = '',
 }: {
   node: DeepNode;
   status: NodeStatus;
   last: boolean;
   outputText: string;
+  liveText?: string;
 }) {
   const [userOpen, setUserOpen] = useState<boolean | null>(null);
   const open = userOpen !== null ? userOpen : status === 'running';
@@ -279,7 +288,7 @@ function DTStep({
           boxShadow:
             status === 'done'
               ? '0 0 0 1.5px #c1ddc0'
-              : status === 'running'
+              : status === 'running' || status === 'failed'
                 ? '0 0 0 1.5px var(--terracotta)'
                 : '0 0 0 1.5px var(--ring-warm)',
           zIndex: 1,
@@ -298,6 +307,19 @@ function DTStep({
             strokeLinejoin="round"
           >
             <path d="M20 6 9 17l-5-5" />
+          </svg>
+        ) : status === 'failed' ? (
+          // 诚实失败标 — 不装完成
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--terracotta-strong)"
+            strokeWidth="3"
+            strokeLinecap="round"
+          >
+            <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         ) : status === 'running' ? (
           <DTSpinner />
@@ -352,7 +374,9 @@ function DTStep({
             <DTChevron open={open} />
           </span>
         </button>
-        {open && <DTToolBody node={node} status={status} outputText={outputText} />}
+        {open && (
+          <DTToolBody node={node} status={status} outputText={outputText} liveText={liveText} />
+        )}
         {status === 'done' && (
           <DTEnter style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 9 }}>
             {node.chips.map((c) => (
@@ -372,10 +396,18 @@ export interface DeepThinkCardProps {
   module: 'feed' | 'skeleton' | 'resume' | 'interview';
   /** HubShell 注入真实赛道 / 记忆 —— merge 进 cfg.understand */
   understandOverride?: Partial<DeepUnderstand>;
-  /** 节点序号 → 真实计数 output(done 态优先) */
+  /** 节点序号 → 真实计数 output(done 态优先; running 态作实时短句) */
   outputOverride?: Record<number, string>;
+  /** 节点序号 → 真实 input / chips 覆盖(去掉静态底座里写死的赛道/计数) */
+  nodeOverride?: Record<number, { input?: Record<string, string | string[]>; chips?: string[] }>;
   /** 定格回放(历史对话重放): 直接渲染完成折叠态, 不播动画、不触发 onComplete。 */
   settled?: boolean;
+  /**
+   * 真实进度(受控模式): 节点状态由 HubShell 按真实请求/后端任务阶段驱动,
+   * 不再播 5s 定时假动画 —— 卡片纯展示, onComplete 不再由卡片触发
+   * (结果卡由 HubShell 的完成回调落)。failed 渲染诚实未完成态。
+   */
+  progress?: { step: number; done: boolean; failed?: boolean };
   onComplete: () => void;
 }
 
@@ -386,7 +418,9 @@ export default function DeepThinkCard({
   module,
   understandOverride,
   outputOverride,
+  nodeOverride,
   settled = false,
+  progress,
   onComplete,
 }: DeepThinkCardProps) {
   const base: DeepMeta = DEEP_META[module];
@@ -394,12 +428,15 @@ export default function DeepThinkCard({
   const u: DeepUnderstand = { ...base.understand, ...(understandOverride ?? {}) };
   const nodes: DeepNode[] = base.nodes;
 
+  // controlled = 真实进度模式: 节点状态由 progress 驱动, 内部定时器不跑。
+  const controlled = progress !== undefined;
+
   // settled = 历史回放: 一进场就是完成折叠态(全节点 done、全文理解), 跳过所有动画。
   const [phase, setPhase] = useState<Phase>(settled ? 'done' : 'understand');
   const [step, setStep] = useState(settled ? nodes.length : 0); // active node index while thinking
   const [chars, setChars] = useState(0); // reasoning typewriter cursor
   const [thinkOpen, setThinkOpen] = useState<boolean | null>(null);
-  const fired = useRef(settled); // settled 不再触发 onComplete(结果卡已在历史里)
+  const fired = useRef(settled || controlled); // settled/受控 都不由卡片触发 onComplete
 
   // keep latest onComplete without re-running the timer effect
   const onCompleteRef = useRef(onComplete);
@@ -407,7 +444,7 @@ export default function DeepThinkCard({
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  // understanding → think
+  // understanding → think(受控模式也保留 1.6s「我的理解」开场 — 它是即时推导, 不撒谎)
   useEffect(() => {
     if (settled) return;
     const t = setTimeout(() => setPhase('think'), UNDERSTAND_MS);
@@ -429,8 +466,9 @@ export default function DeepThinkCard({
   }, [phase, u.reasoning]);
 
   // run the nodes one-by-one, then settle to done + fire onComplete once
+  // —— 仅旧定时模式(interview); 受控模式节点状态完全由 progress 派生。
   useEffect(() => {
-    if (phase !== 'think') return;
+    if (controlled || phase !== 'think') return;
     const timers = nodes.map((_, i) =>
       setTimeout(() => setStep(i + 1), NODE_STEP_MS * (i + 1)),
     );
@@ -449,15 +487,47 @@ export default function DeepThinkCard({
       clearTimeout(end);
     };
     // nodes is stable per module; phase drives the run
-  }, [phase, nodes]);
+  }, [controlled, phase, nodes]);
 
-  const understanding = phase === 'understand';
-  const running = phase !== 'done';
+  // 受控模式的有效相位/步数: progress 是单一真源(完成可早于 1.6s 开场, 直接跳 done)
+  const phaseEff: Phase = controlled
+    ? settled || progress.done
+      ? 'done'
+      : phase === 'understand'
+        ? 'understand'
+        : 'think'
+    : phase;
+  const failed = controlled && progress.done && progress.failed === true;
+  const stepEff = controlled
+    ? progress.done && !failed
+      ? nodes.length
+      : Math.min(Math.max(progress.step, 0), nodes.length)
+    : step;
+
+  const understanding = phaseEff === 'understand';
+  const running = phaseEff !== 'done';
   const thinkOpenEff = thinkOpen !== null ? thinkOpen : running; // auto-collapse on done
-  const doneCount = phase === 'done' ? nodes.length : step;
-  const nodeStatus = (i: number): NodeStatus =>
-    i < step ? 'done' : i === step && phase === 'think' ? 'running' : 'pending';
+  const doneCount = phaseEff === 'done' && !failed ? nodes.length : stepEff;
+  const nodeStatus = (i: number): NodeStatus => {
+    if (i < stepEff) return 'done';
+    if (i === stepEff) {
+      if (failed) return 'failed';
+      if (phaseEff === 'think') return 'running';
+    }
+    return 'pending';
+  };
   const outputFor = (i: number): string => outputOverride?.[i] ?? nodes[i].output;
+  const liveFor = (i: number): string => outputOverride?.[i] ?? '';
+  // 节点 input / chips 用真实覆盖(有则替换整段, 不与静态底座混拼)
+  const nodeFor = (i: number): DeepNode => {
+    const ov = nodeOverride?.[i];
+    if (!ov) return nodes[i];
+    return {
+      ...nodes[i],
+      ...(ov.input ? { input: ov.input } : {}),
+      ...(ov.chips ? { chips: ov.chips } : {}),
+    };
+  };
   // typewriter while understanding; full text once we move past it
   const displayedReasoning = understanding ? u.reasoning.slice(0, chars) : u.reasoning;
 
@@ -480,7 +550,7 @@ export default function DeepThinkCard({
         <div
           style={{
             padding: '13px 15px',
-            borderBottom: phase !== 'understand' ? '1px solid var(--border-cream)' : 'none',
+            borderBottom: phaseEff !== 'understand' ? '1px solid var(--border-cream)' : 'none',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7 }}>
@@ -561,7 +631,7 @@ export default function DeepThinkCard({
         </div>
 
         {/* 思考过程 — done 时自动折叠, 点击可重新展开 */}
-        {phase !== 'understand' && (
+        {phaseEff !== 'understand' && (
           <div style={{ padding: '13px 15px' }}>
             <button
               type="button"
@@ -578,8 +648,21 @@ export default function DeepThinkCard({
                 padding: 0,
               }}
             >
-              {phase === 'done' ? (
+              {phaseEff === 'done' && !failed ? (
                 <DTCheck size={15} on />
+              ) : failed ? (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--terracotta-strong)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  style={{ flex: 'none' }}
+                >
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
               ) : !thinkOpenEff ? (
                 <DTSpinner />
               ) : (
@@ -595,9 +678,14 @@ export default function DeepThinkCard({
               >
                 思考过程
               </span>
-              <span style={{ font: '400 11px var(--font-mono)', color: 'var(--stone)' }}>
+              <span
+                style={{
+                  font: '400 11px var(--font-mono)',
+                  color: failed ? 'var(--terracotta-strong)' : 'var(--stone)',
+                }}
+              >
                 {doneCount}/{nodes.length}
-                {phase === 'done' ? ' · 已完成' : ''}
+                {phaseEff === 'done' ? (failed ? ' · 未完成' : ' · 已完成') : ''}
               </span>
               <span style={{ marginLeft: 'auto' }}>
                 <DTChevron open={thinkOpenEff} />
@@ -608,10 +696,11 @@ export default function DeepThinkCard({
                 {nodes.map((n, i) => (
                   <DTStep
                     key={n.tool}
-                    node={n}
+                    node={nodeFor(i)}
                     status={nodeStatus(i)}
                     last={i === nodes.length - 1}
                     outputText={outputFor(i)}
+                    liveText={liveFor(i)}
                   />
                 ))}
               </div>
