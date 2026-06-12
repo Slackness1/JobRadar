@@ -220,6 +220,9 @@ class OpenAICompatibleChatLLMProvider:
             headers={
                 'Authorization': f'Bearer {self.client.api_key}',
                 'Content-Type': 'application/json',
+                # OpenCode 中转前置 Cloudflare 按 UA 封 Python-urllib(403);
+                # 带浏览器 UA 放行(同 scoring.py / translator 修复)。
+                'User-Agent': 'Mozilla/5.0',
             },
             method='POST',
         )
@@ -1153,6 +1156,9 @@ class OpenAICompatibleV2RewriteLLMProvider:
             headers={
                 'Authorization': f'Bearer {self.client.api_key}',
                 'Content-Type': 'application/json',
+                # OpenCode 中转前置 Cloudflare 按 UA 封 Python-urllib(403);
+                # 带浏览器 UA 放行(同 scoring.py / translator 修复)。
+                'User-Agent': 'Mozilla/5.0',
             },
             method='POST',
         )
