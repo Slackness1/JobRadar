@@ -22,6 +22,11 @@ export type HubMessage =
       understandOverride?: Partial<DeepUnderstand>;
       /** 节点序号 → 真实计数 output(done 态优先) */
       outputOverride?: Record<number, string>;
+      /**
+       * 已定格(落库回放态): 直接渲染完成折叠态, 不播动画、不触发 onComplete。
+       * 思考路径是交付物的一部分 —— 落库时打上此标, 重放能看到当时的轨迹。
+       */
+      settled?: boolean;
     }
   | { id: string; kind: 'result'; module: HubModule; data: ResultCardData }
   | { id: string; kind: 'trace'; trace: RecommendTrace }

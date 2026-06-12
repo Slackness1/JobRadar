@@ -57,9 +57,13 @@ import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types
 import type { HubConvRow, HubSessionRow } from './HubSidebar';
 
 // 相对时间(刚刚 / N 分钟前 / N 小时前 / 昨天 / N 天前 / 日期)
+// 后端存 naive UTC, 序列化出来不带时区标记(`2026-06-12T08:17:48.271168`)——
+// 不补 Z 浏览器会按本地时区(CST)解析, 每条凭空老 8 小时(修「都是七八小时前」)。
 function relTime(iso: string | null): string {
   if (!iso) return '';
-  const t = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z').getTime();
+  let s = iso.includes('T') ? iso : iso.replace(' ', 'T');
+  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(s)) s += 'Z';
+  const t = new Date(s).getTime();
   if (Number.isNaN(t)) return '';
   const m = Math.floor((Date.now() - t) / 60000);
   if (m < 1) return '刚刚';
@@ -472,8 +476,8 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   }, []);
 
   // ── 进会话: 拉这份简历名下的对话列表, 默认续上最新一个对话(切回来能看到记录)──
-  // 只重放 settled 记录(turn/result/trace/memory/intel); skillrun 思考表演是 live-only,
-  // 不入库也不重放。没有对话则按空白落地。
+  // 全部消息都重放, skillrun 带 settled 标 → 思考卡渲染成完成折叠态(轨迹可点开看,
+  // 不重播动画、不重触发结果卡)。没有对话则按空白落地。
   useEffect(() => {
     let cancelled = false;
     listHubConversations(sessionId)
@@ -508,12 +512,15 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     };
   }, [sessionId]);
 
-  // ── 对话变动 → 记快照 + 短防抖落库。滤掉 skillrun 只存对话本体; 水合完成前不落
-  //   (convLoaded)、空对话不落、内容没变不重复落。防抖只为合并同一轮连续 push 的
-  //   几条消息(400ms); 跳页/卸载由上面的 unmount flush 兜底, 不会再丢。
+  // ── 对话变动 → 记快照 + 短防抖落库。skillrun(思考路径)也入库 —— 打上 settled 标,
+  //   回放时渲染成定格完成态(修「思考过程不保存」: 路径本身是交付物的一部分)。
+  //   水合完成前不落(convLoaded)、空对话不落、内容没变不重复落。防抖只为合并同一轮
+  //   连续 push 的几条消息(400ms); 跳页/卸载由上面的 unmount flush 兜底, 不会再丢。
   useEffect(() => {
     if (!convLoaded.current) return;
-    const persistable = msgs.filter((m) => m.kind !== 'skillrun');
+    const persistable = msgs.map((m) =>
+      m.kind === 'skillrun' && !m.settled ? { ...m, settled: true } : m,
+    );
     if (persistable.length === 0) return;
     const json = JSON.stringify(persistable);
     if (json === lastSavedConv.current) return;
@@ -1011,7 +1018,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                         module={m.module as 'feed' | 'skeleton' | 'resume' | 'interview'}
                         understandOverride={m.understandOverride}
                         outputOverride={m.outputOverride}
-                        onComplete={() => onSkillComplete(m.id, m.module)}
+                        settled={m.settled}
+                        // 回放态不重触发结果卡(历史里已有那张); 双保险, 卡内 fired 也挡
+                        onComplete={m.settled ? () => {} : () => onSkillComplete(m.id, m.module)}
                       />
                     );
                   case 'result':

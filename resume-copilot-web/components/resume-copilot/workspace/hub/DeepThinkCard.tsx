@@ -374,6 +374,8 @@ export interface DeepThinkCardProps {
   understandOverride?: Partial<DeepUnderstand>;
   /** 节点序号 → 真实计数 output(done 态优先) */
   outputOverride?: Record<number, string>;
+  /** 定格回放(历史对话重放): 直接渲染完成折叠态, 不播动画、不触发 onComplete。 */
+  settled?: boolean;
   onComplete: () => void;
 }
 
@@ -384,6 +386,7 @@ export default function DeepThinkCard({
   module,
   understandOverride,
   outputOverride,
+  settled = false,
   onComplete,
 }: DeepThinkCardProps) {
   const base: DeepMeta = DEEP_META[module];
@@ -391,11 +394,12 @@ export default function DeepThinkCard({
   const u: DeepUnderstand = { ...base.understand, ...(understandOverride ?? {}) };
   const nodes: DeepNode[] = base.nodes;
 
-  const [phase, setPhase] = useState<Phase>('understand'); // understand | think | done
-  const [step, setStep] = useState(0); // active node index while thinking
+  // settled = 历史回放: 一进场就是完成折叠态(全节点 done、全文理解), 跳过所有动画。
+  const [phase, setPhase] = useState<Phase>(settled ? 'done' : 'understand');
+  const [step, setStep] = useState(settled ? nodes.length : 0); // active node index while thinking
   const [chars, setChars] = useState(0); // reasoning typewriter cursor
   const [thinkOpen, setThinkOpen] = useState<boolean | null>(null);
-  const fired = useRef(false);
+  const fired = useRef(settled); // settled 不再触发 onComplete(结果卡已在历史里)
 
   // keep latest onComplete without re-running the timer effect
   const onCompleteRef = useRef(onComplete);
@@ -405,9 +409,10 @@ export default function DeepThinkCard({
 
   // understanding → think
   useEffect(() => {
+    if (settled) return;
     const t = setTimeout(() => setPhase('think'), UNDERSTAND_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [settled]);
 
   // reasoning typewriter — only ticks during understanding.
   // Once phase leaves understand, displayedReasoning falls back to full text
