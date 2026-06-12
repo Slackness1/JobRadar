@@ -1039,6 +1039,7 @@ def _v2_items_from_ranked(
     narr_by_index=None → 规则占位模式(理由留空)。"""
     from app.services.phase_g.tier_fit.platform_skeleton import gt_companies_for_sub_cat
     from app.services.phase_g.tier_fit.tier_ladder import _norm_company
+    from app.services.phase_g.tier_fit.internet_tiers import internet_tier_of
 
     narr_by_index = narr_by_index or {}
     _empty = {"narrative": "", "anchors_used": [], "kb_available": False}
@@ -1056,7 +1057,13 @@ def _v2_items_from_ranked(
         if narr.get("kb_available") is False and final_int < 50:
             risks.append("本赛道知识库覆盖有限, 推荐基于通用规则")
         _sc = job.sub_category or ""
-        _in_sk = bool(_sc) and _norm_company(job.company or "") in gt_companies_for_sub_cat(_sc)
+        # 「梯队内/外」判定: 金融赛道查 GT 名单; 互联网赛道 GT 为空, 改查策展互联网
+        # 大厂分档(internet_tier_of 命中 tier1/2/ai 即属骨架内)。两套都不中才算梯队外。
+        # 修(2026-06-12): 原来只查 GT → 互联网岗永远判"梯队外"(腾讯/字节也被错标)。
+        _in_sk = bool(_sc) and (
+            _norm_company(job.company or "") in gt_companies_for_sub_cat(_sc)
+            or internet_tier_of(job.company or "") is not None
+        )
         items.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id),
