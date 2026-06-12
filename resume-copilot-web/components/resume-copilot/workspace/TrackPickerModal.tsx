@@ -106,6 +106,16 @@ export const TRACKS: Array<{ key: string; label: string; blurb: string; icon: st
     icon: '🛢️',
     blurb: '大宗商品 / 能源 trading — LDC / Cargill / 托克 / 中石油国际',
   },
+  {
+    // 互联网/AI 产品 — 非金融 canonical, 单列一个可选赛道(后端 EXTRA_SELECTABLE_TRACKS
+    // 放行, 不进 CANONICAL_FINANCE_TRACKS 以免触发金融 SAIF 重罚/coverage 校验)。
+    // 选它 → preferred_tracks 经 subcats_for_tracks 展开成 10 个互联网/AI sub_cat,
+    // 推荐/梯队/简历方法论(InternetResumeProvider)全部联动激活。
+    key: '互联网/AI 产品',
+    label: '互联网/AI 产品 · 用增/商业化/AI PM',
+    icon: '🚀',
+    blurb: '字节 / 腾讯 / 阿里 / 美团 / 小红书 + AI 大模型公司 — 用户增长 / 商业化 / 策略数据 / ToB / AI 产品 + AI 应用开发',
+  },
 ];
 
 export interface TrackPickerModalProps {

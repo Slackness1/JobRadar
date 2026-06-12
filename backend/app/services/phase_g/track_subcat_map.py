@@ -87,7 +87,26 @@ CANONICAL_TRACK_TO_SUBCATS: dict[str, list[str]] = {
     "咨询·MBB+Tier2": [],
     "企业战略·管培·实业金融": [],
     "大宗·能源": [],
+    # 互联网/AI 产品 — 非金融 canonical 的可选赛道(2026-06-12)。把纯互联网产品桶 +
+    # AI 应用桶都挂上, 学生在确认页选它即可让推荐/梯队/简历方法论联动激活。
+    "互联网/AI 产品": [
+        "用户/增长产品经理",
+        "商业化/广告/交易产品经理",
+        "策略/数据产品经理",
+        "平台/工具/ToB产品经理",
+        "金融科技/支付/风控产品经理",
+        "AI产品经理",
+        "Agent/工作流产品经理",
+        "AI产品工程师/Product Engineer",
+        "LLM/RAG应用工程师",
+        "Agent平台工程师",
+    ],
 }
+
+# 非金融 canonical 但可在确认页选择的赛道。后端 PUT /preferences 用它放行(不弹
+# "赛道不识别"提示), 又不进 CANONICAL_FINANCE_TRACKS, 避免触发金融 SAIF 重罚 /
+# coverage_truth.yaml 校验。互联网赛道的"重罚不命中"恰是想要的(不该惩罚互联网岗)。
+EXTRA_SELECTABLE_TRACKS: tuple[str, ...] = ("互联网/AI 产品",)
 
 
 def subcats_for_tracks(tracks: list[str]) -> list[str]:

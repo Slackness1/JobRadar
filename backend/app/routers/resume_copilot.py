@@ -783,7 +783,9 @@ def put_resume_copilot_preferences(
 
     # Canonicalize preferred_tracks before persisting. Track strings that
     # don't map are echoed in X-Unknown-Tracks so the FE can warn the user.
-    canon_set = set(CANONICAL_FINANCE_TRACKS)
+    # EXTRA_SELECTABLE_TRACKS = 非金融但可选(互联网/AI), 放行不弹"不识别"提示。
+    from app.services.phase_g.track_subcat_map import EXTRA_SELECTABLE_TRACKS
+    canon_set = set(CANONICAL_FINANCE_TRACKS) | set(EXTRA_SELECTABLE_TRACKS)
     canon_tracks: list[str] = []
     unknown_tracks: list[str] = []
     seen: set[str] = set()

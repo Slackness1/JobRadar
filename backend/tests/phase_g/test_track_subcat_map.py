@@ -3,6 +3,7 @@ from app.schemas_resume_copilot import ResumeProfilePayload, ResumePreferencePay
 from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
 from app.services.phase_g.track_subcat_map import (
     CANONICAL_TRACK_TO_SUBCATS,
+    EXTRA_SELECTABLE_TRACKS,
     subcats_for_tracks,
 )
 from app.services.taxonomy.canonical import CANONICAL_FINANCE_TRACKS
@@ -10,7 +11,8 @@ from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub
 
 
 def test_table_keys_align_with_canonical_tracks():
-    assert set(CANONICAL_TRACK_TO_SUBCATS) == set(CANONICAL_FINANCE_TRACKS)
+    # 金融 canonical + 非金融可选(互联网/AI) 都是合法 key。
+    assert set(CANONICAL_TRACK_TO_SUBCATS) == set(CANONICAL_FINANCE_TRACKS) | set(EXTRA_SELECTABLE_TRACKS)
 
 
 def test_table_subcats_all_valid():
@@ -56,3 +58,13 @@ def test_uncovered_explicit_choice_does_not_revert_to_resume():
     profile = ResumeProfilePayload(inferred_tracks=["卖方研究"])
     prefs = ResumePreferencePayload(preferred_tracks=["监管·体制内"])
     assert _v2_extract_preferred_sub_cats(profile, prefs) == []
+
+
+def test_internet_track_expands_to_internet_subcats():
+    # 选"互联网/AI 产品"赛道 → 展开 10 个互联网/AI sub_cat(供推荐召回 + 方法论门控)
+    out = subcats_for_tracks(["互联网/AI 产品"])
+    assert "用户/增长产品经理" in out
+    assert "AI产品经理" in out
+    assert "LLM/RAG应用工程师" in out
+    assert len(out) == 10
+    assert "互联网/AI 产品" in set(EXTRA_SELECTABLE_TRACKS)
