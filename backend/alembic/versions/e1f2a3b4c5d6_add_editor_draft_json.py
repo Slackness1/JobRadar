@@ -1,15 +1,17 @@
 """add editor_draft_json to resume_copilot_sessions (简历编辑器草稿跨设备持久化)
 
-NOTE(链路): down_revision 指向 d8e9f0a1b2c3 —— 它是另一会话在途(本提交时未跟踪)的
-offershow_salaries 迁移, 但已是 dev DB 当前单一 head。chain 在它之后是当下唯一不产生
-multi-head(会让 lifespan `alembic upgrade head` 崩)的合法选择。合并到 main 时需确保
-d8e9f0a1b2c3 已先行入仓。
+NOTE(链路, 2026-06-12 改): 原 down_revision 指向另一会话在途未入仓的 offershow_salaries
+迁移(d8e9f0a1b2c3),导致本 Hub 改版无法独立上生产(prod 没有那个迁移 → alembic 崩)。
+已 re-parent 到生产已有的 c7d8e9f0a1b2(decision_events),让本链路不依赖 offshow,可独立
+上线。代价:dev 库上 offshow 文件仍在,会与本链路并成双 head —— dev 用未入仓的本地 merge
+迁移收口(zzz_local_merge_*),prod 无 offshow 故单链干净。offshow 那条线将来入仓时由其
+会话补一个 merge 迁移把两头并回。
 """
 from alembic import op
 import sqlalchemy as sa
 
 revision = "e1f2a3b4c5d6"
-down_revision = "d8e9f0a1b2c3"
+down_revision = "c7d8e9f0a1b2"
 branch_labels = None
 depends_on = None
 
