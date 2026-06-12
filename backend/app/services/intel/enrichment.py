@@ -150,6 +150,8 @@ def _call_llm(messages: list[dict]) -> dict:
         headers={
             "Authorization": f"Bearer {DS_KEY}",
             "Content-Type": "application/json",
+            # OpenCode 中转前置防火墙按 UA 封 Python-urllib(403)— 带浏览器 UA 放行
+            "User-Agent": "Mozilla/5.0",
         },
         method="POST",
     )

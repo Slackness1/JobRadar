@@ -49,6 +49,8 @@ def _llm_json(system_prompt: str, user_payload: str, *, max_tokens: int = 4000) 
         headers={
             "Authorization": f"Bearer {client.api_key}",
             "Content-Type": "application/json",
+            # OpenCode 中转前置防火墙按 UA 封 Python-urllib(403)— 带浏览器 UA 放行
+            "User-Agent": "Mozilla/5.0",
         },
         method="POST",
     )
