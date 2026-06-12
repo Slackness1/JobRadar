@@ -35,7 +35,8 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 export interface LeftEditProps {
   profile: ResumeProfile;
   onProfile: (p: ResumeProfile) => void;
-  onQuote: (k: string) => void;
+  /** 引用此段 → (段落 id, 条目序号)。宿主据此播种深度优化对这段反问取证。 */
+  onQuote: (k: string, itemIdx: number) => void;
 }
 
 /** 左栏「简历编辑」tab — 分模块手风琴,就地编辑实时写回中栏文档。 */
@@ -151,7 +152,7 @@ export function LeftEdit({ profile, onProfile, onQuote }: LeftEditProps) {
             </Field>
           )}
           <button
-            onClick={() => onQuote(section.id)}
+            onClick={() => onQuote(section.id, idx)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

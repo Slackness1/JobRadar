@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
 import { HubRadar, type RadarDatum } from '../HubRadar';
-import { scoreResume, type ScoreReportData, type ScoreSectionGap } from '../../../../api';
+import {
+  getScoreTaskStatus,
+  startScoreTask,
+  type ScoreReportData,
+  type ScoreSectionGap,
+} from '../../../../api';
+import { cacheScoreReport, readFreshScoreReport } from '../../scoreCache';
 
 // 8 维 → 雷达短标签 + 金融维标记(对齐 ResumeScorePanel / ScoreReport 顺序)。
 const DIM_META: { key: string; radarLabel: string; fin?: boolean }[] = [
@@ -83,21 +89,76 @@ export interface EditorScoreReportThickProps {
 export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: EditorScoreReportThickProps): JSX.Element {
   const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
   const [loading, setLoading] = useState(!mock);
+  const [stageNote, setStageNote] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (mock || !sessionId) return;
+    // 与打分报告面板同一套「看表」逻辑: 对话/面板已打过的分直接复用(本地缓存 /
+    // 服务端任务缓存), 在跑的轮询真实阶段, 都没有才自己起后台任务 ——
+    // 不再每次进编辑器同步重打一遍 LLM(90s 超时报错的根因)。
     let alive = true;
-    scoreResume(sessionId)
-      .then((r) => { if (alive) { setReport(r); setError(''); } })
-      .catch((e) => { if (alive) setError(e instanceof Error ? e.message : '打分失败'); })
-      .finally(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
+    let timer: number | undefined;
+    let startedOnce = false;
+    const cached = readFreshScoreReport(sessionId);
+    if (cached) {
+      Promise.resolve().then(() => {
+        if (!alive) return;
+        setReport(cached);
+        setError('');
+        setLoading(false);
+      });
+      return () => { alive = false; };
+    }
+    const poll = async () => {
+      try {
+        const st = await getScoreTaskStatus(sessionId);
+        if (!alive) return;
+        if (st.status === 'done' && st.report) {
+          cacheScoreReport(sessionId, st.report);
+          setReport(st.report);
+          setError('');
+          setLoading(false);
+          return;
+        }
+        if (st.status === 'running') {
+          setStageNote(
+            st.stage === 'llm'
+              ? `评审模型工作中 · 已 ${Math.round(st.elapsed_seconds ?? 0)}s`
+              : st.stage === 'parse'
+                ? '正在整理维度与缺口…'
+                : '准备打分材料…',
+          );
+          timer = window.setTimeout(() => void poll(), 2500);
+          return;
+        }
+        if (st.status === 'failed' && startedOnce) {
+          setError(st.error || '打分没跑成,稍后再试');
+          setLoading(false);
+          return;
+        }
+        startedOnce = true;
+        await startScoreTask(sessionId, {});
+        timer = window.setTimeout(() => void poll(), 2000);
+      } catch (e) {
+        if (alive) {
+          setError(e instanceof Error ? e.message : '打分失败');
+          setLoading(false);
+        }
+      }
+    };
+    void poll();
+    return () => {
+      alive = false;
+      if (timer) window.clearTimeout(timer);
+    };
   }, [mock, sessionId]);
 
   if (loading) {
     return (
-      <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>打分中…</div>
+      <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>
+        打分中… {stageNote && <span style={{ color: 'var(--olive)' }}>{stageNote}</span>}
+      </div>
     );
   }
   if (error) {

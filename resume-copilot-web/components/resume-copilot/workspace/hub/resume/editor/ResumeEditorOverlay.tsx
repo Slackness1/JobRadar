@@ -95,8 +95,9 @@ export function ResumeEditorOverlay({
   };
   const [aiTab, setAiTab] = useState<string>('score');
   const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
-  // 当前高亮("AI 刚写回")的简历段 id。初始 intern = 实习经历(与原壳一致)。
-  const [litSectionId, setLitSectionId] = useState<string | undefined>('intern');
+  // 当前高亮("AI 刚写回")的简历段 id。只在真实写回(深度优化落笔)后亮;
+  // 初始绝不预亮 —— 之前硬编码初始亮在实习经历, 没写回也顶着"AI 刚写回"是撒谎。
+  const [litSectionId, setLitSectionId] = useState<string | undefined>(undefined);
   // 中栏实测页数(简历文档自量上报)。
   const [pages, setPages] = useState(1);
   // 中栏 A4 文档(794px)缩放到可用宽度。
@@ -122,9 +123,28 @@ export function ResumeEditorOverlay({
     if (id) setLitSectionId(id);
   };
 
-  // E2/E3 接线前,引用此段仅 no-op(壳态)。
-  const handleQuote = (k: string) => {
-    void k;
+  // 「引用此段」接通: 复用打分缺口「去深度优化这段」的同一条管道 ——
+  // 构造该段的 seed → 右栏切到深度优化, AI 围绕这段反问取证(不再是 no-op 假按钮)。
+  const ID_TO_SECTION_PREFIX: Record<string, string> = {
+    edu: 'education',
+    intern: 'internships',
+    proj: 'projects',
+    skills: 'skills',
+  };
+  const handleQuote = (sectionId: string, itemIdx: number) => {
+    const sec = profile.sections.find((s) => s.id === sectionId);
+    const item =
+      sec && sec.type === 'timeline' ? sec.items[itemIdx] : undefined;
+    const label = [sec?.label, item?.org].filter(Boolean).join(' · ') || '这段经历';
+    const prefix = ID_TO_SECTION_PREFIX[sectionId] ?? sectionId;
+    setSeed({
+      section: `${prefix}.${itemIdx}`,
+      label,
+      gaps: [],
+      detail: '',
+      target_track: '',
+    });
+    setAiTab('deep');
   };
 
   return (
@@ -237,7 +257,9 @@ export function ResumeEditorOverlay({
               ))}
             </div>
           </div>
-          <div style={{ flex: 1, minHeight: 0, padding: '12px 14px' }}>
+          {/* overflow: 滚动链条在这层闭合 — 子组件自身 overflow:auto 但没有高度约束,
+              少了这层会让长内容(多段实习/项目)溢出被全屏壳裁掉、永远滚不到(2026-06-12 反馈) */}
+          <div style={{ flex: 1, minHeight: 0, padding: '12px 14px', overflow: 'auto' }}>
             {leftTab === 'tpl' && <LeftTemplate value={template} onChange={onTemplate} />}
             {leftTab === 'edit' && <LeftEdit profile={profile} onProfile={onProfile} onQuote={handleQuote} />}
             {leftTab === 'layout' && (
