@@ -55,7 +55,8 @@ def test_deep_optimize_start_seeds_focused_plan():
     assert item['kind'] == 'internship'
     assert item['title'] == '九坤投资 · 量化研究实习'
     assert item['status'] == 'clarifying'
-    assert '量化' in item['open_questions'][0]['text']
+    # 有缺口时首问从缺口开问(STAR 缺 Result → 问最终结果),不再问赛道
+    assert 'STAR 缺 Result' in item['open_questions'][0]['text']
     assert body['status'] == 'clarifying'
 
     # 持久化: plan_json 落到 session

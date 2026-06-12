@@ -46,8 +46,38 @@ def _kind_for_section(section: str) -> ItemKind:
     return _SECTION_KIND.get(prefix, ItemKind.INTERNSHIP)
 
 
-def _first_question(target_track: str) -> str:
+# 缺口类别 → 给学生的第一问。从打分缺口 CTA 进来时,首问直接挑最关键的缺口
+# 开问 — 不再问"想往哪个赛道靠"(目标已锁定,锁定条里就写着)。
+_GAP_FIRST_QUESTION = [
+    (("决策", "为何", "为什么", "decision"),
+     "先补「为什么这样做」——挑这段里一个核心设计，讲讲当时的背景、备选方案、你拍板的理由？"),
+    (("口径", "统计", "量化", "数字", "锚点", "quant", "metric"),
+     "先把数字钉死——挑一个最重要的指标，说说它是怎么统计出来的（样本、周期、分母）？"),
+    (("角色", "边界", "leadership", "独立", "主导"),
+     "这段里你**独立负责**的是哪一部分、哪些是协作完成的？边界说清楚，改写才立得住。"),
+    (("结果", "result", "star", "影响", "outcome"),
+     "这段做完最硬的结果是什么——谁在用、对比之前变化多少？"),
+    (("佐证", "支撑", "防守", "defensib"),
+     "挑一个最亮的数字说说出处——面试官追问时你打算怎么答？"),
+    (("完整", "completeness", "缺"),
+     "先把来龙去脉补全——这段的背景、你的具体动作、关键约束分别是什么？"),
+]
+
+
+def _first_question(
+    target_track: str,
+    gap_tags: Optional[list[str]] = None,
+    gap_detail: str = "",
+) -> str:
     tt = (target_track or "").strip()
+    tags = [str(t).strip() for t in (gap_tags or []) if str(t).strip()]
+    blob = " ".join(tags).lower() + " " + (gap_detail or "").lower()
+    if blob.strip():
+        for keys, q in _GAP_FIRST_QUESTION:
+            if any(k.lower() in blob for k in keys):
+                head = f"打分时这段被诊断出：{'、'.join(tags[:3])}。" if tags else ""
+                return head + q
+    # 没有缺口上下文(如编辑器里直接「引用此段」):先对齐目标方向。
     if tt:
         return (
             f"这段经历我打算帮你往「{tt}」方向打磨。如果你的目标其实不是这个方向，"
@@ -129,7 +159,7 @@ def seed_plan_from_gap(
         title=label or "",
         status=ItemStatus.CLARIFYING,
         evidence=evidence,
-        open_questions=[OpenQuestion(text=_first_question(target_track))],
+        open_questions=[OpenQuestion(text=_first_question(target_track, gap_tags, gap_detail))],
         rationale=rationale,
     )
     return PlanState(
@@ -141,10 +171,12 @@ def seed_plan_from_gap(
 
 # 缺口 tag → 提问取证引导短语(只引导问对问题,不替学生编内容)
 _GAP_GUIDANCE = [
+    (("决策", "为何", "为什么", "decision"),
+     "缺「为什么这样做」的决策逻辑——追问核心设计当时的背景、备选方案与取舍理由"),
     (("result", "结果", "star", "影响", "outcome"),
      "缺可核实的最终结果——追问这段做完带来的具体结果与影响（谁用了、变化多少、对比基线）"),
-    (("量化", "数字", "锚点", "quant", "metric"),
-     "缺量化锚点——追问真实的数字/范围/频次（区间、周期、规模），明确说明不接受估测或编造"),
+    (("量化", "数字", "锚点", "口径", "统计", "quant", "metric"),
+     "缺量化锚点/统计口径——追问真实数字的统计方法（样本、周期、分母），明确说明不接受估测或编造"),
     (("佐证", "支撑", "防守", "defensib"),
      "佐证不足——追问这段的角色边界、数字出处与依据，让每条声明都有支撑、经得起面试官追问"),
     (("角色", "leadership", "独立", "主导"),

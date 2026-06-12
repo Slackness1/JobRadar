@@ -244,13 +244,16 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
   const taRef = useRef<HTMLTextAreaElement | null>(null);
 
   // 输入框随内容自动加高:先归零再贴合 scrollHeight,最多三行(再多内部滚动)。
+  // tab 用 display:none 切换 — 隐藏时 scrollHeight=0,直接套用会把输入框塌成
+  // 零高度(点不进去、占位字也没了),所以隐藏状态跳过。
   useEffect(() => {
     const ta = taRef.current;
-    if (!ta) return;
+    if (!ta || ta.offsetParent === null) return;
     ta.style.height = 'auto';
     const lh = 19.5; // 13px 字号 × 1.5 行高
     const max = Math.round(lh * 3);
-    ta.style.height = `${Math.min(ta.scrollHeight, max)}px`;
+    const h = Math.max(Math.round(lh), Math.min(ta.scrollHeight, max));
+    ta.style.height = `${h}px`;
     ta.style.overflowY = ta.scrollHeight > max ? 'auto' : 'hidden';
   }, [val]);
 

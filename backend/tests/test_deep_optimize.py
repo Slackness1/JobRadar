@@ -28,14 +28,33 @@ def test_seed_from_internship_gap():
     assert item.title == '九坤投资 · 量化研究实习'
     assert item.status == ItemStatus.CLARIFYING
     assert plan.current_item_id == item.id
-    # 第一条反问对齐 subcat
-    assert '量化' in item.open_questions[0].text
+    # 有缺口时首问直接从缺口开问(STAR 缺 Result → 问最终结果),不再问赛道
+    assert 'STAR 缺 Result' in item.open_questions[0].text
+    assert '结果' in item.open_questions[0].text
     # gap 上下文进 rationale(JSON),不进 evidence(防审计污染)
     assert item.evidence == []
     ctx = gap_context(plan)
     assert ctx['gap_tags'] == ['STAR 缺 Result']
     assert ctx['gap_detail'] == '协助搭建因子回测框架缺最终结果'
     assert ctx['target_track'] == '量化'
+
+
+def test_seed_source_texts_become_strong_evidence_and_no_gap_falls_back_to_track():
+    # 简历原文要点 → parsed_resume STRONG 证据(不再逼学生复述简历)
+    plan = seed_plan_from_gap(
+        section='projects.0', label='OpenJob',
+        gap_tags=['部分指标统计口径不明'], gap_detail='',
+        target_track='AI 产品经理',
+        source_texts=['OpenJob · 独立设计与全栈开发', '完成率由 52% 提升至 72%'],
+    )
+    item = plan.items[0]
+    assert [ev.source for ev in item.evidence] == ['parsed_resume', 'parsed_resume']
+    assert '52%' in item.evidence[1].text
+    # 口径类缺口 → 首问问统计口径
+    assert '统计' in item.open_questions[0].text
+    # 无缺口(纯引用此段)→ 回落到对齐目标方向的模板首问
+    plan2 = seed_plan_from_gap('projects.0', 'OpenJob', [], '', 'AI 产品经理')
+    assert 'AI 产品经理' in plan2.items[0].open_questions[0].text
 
 
 def test_seed_section_kind_mapping():
