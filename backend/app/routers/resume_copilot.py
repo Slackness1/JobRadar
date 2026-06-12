@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import (
+    HubConversation,
     ResumeConfirmedProfile,
     ResumeCopilotSession,
     ResumeDirectionAnalysisRun,
@@ -260,6 +261,15 @@ def list_resume_copilot_sessions(
         .limit(20)
         .all()
     )
+    # 「聊过」= hub_conversations 表里有这份简历名下的对话(批量一查, 不逐行打 DB)
+    conversed_ids: set[int] = set()
+    if rows:
+        conversed_ids = {
+            int(sid)
+            for (sid,) in db.query(HubConversation.session_id)
+            .filter(HubConversation.session_id.in_([int(r.id) for r in rows]))
+            .distinct()
+        }
     return [
         ResumeCopilotSessionListItem(
             id=int(getattr(r, 'id')),
@@ -267,6 +277,7 @@ def list_resume_copilot_sessions(
             name=str(getattr(r, 'name', '') or ''),
             status=str(getattr(r, 'status', '') or ''),
             has_recommendations=_recommendation_run_has_visible_items(r.recommendation_run),
+            has_conversation=int(getattr(r, 'id')) in conversed_ids,
             is_archived=bool(getattr(r, 'is_archived', False) or False),
             created_at=getattr(r, 'created_at', None),
             updated_at=getattr(r, 'updated_at', None),
@@ -2373,6 +2384,129 @@ def put_editor_draft(
     _assert_not_demo(session)
     session.editor_draft_json = json.dumps(payload.draft, ensure_ascii=False)
     session.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
+# ── 统一 Hub 对话(多对话: 简历是 base, 一份简历下可开多个对话)──────────────────
+# 取代旧单槽 hub_conversation_json(一份简历只装得下一段对话 → 「新对话」清空复用,
+# 再聊就覆盖掉旧对话)。现在: 新对话=插新行(旧对话原样保留), 每个对话有自己的
+# id / 标题(前端取首句) / 时间; 侧栏历史按当前简历列它名下的对话。
+# 消息体仍是 turn/result/trace/memory/intel 有序数组(滤掉 skillrun 思考表演)。
+
+class HubConversationCreateIn(_BaseModel):
+    title: str = ""
+    messages: list[dict[str, Any]]
+
+
+class HubConversationUpdateIn(_BaseModel):
+    messages: list[dict[str, Any]]
+    title: str | None = None
+
+
+def _conv_or_404(db: Session, session_id: int, conv_id: int) -> HubConversation:
+    conv = (
+        db.query(HubConversation)
+        .filter(HubConversation.id == conv_id, HubConversation.session_id == session_id)
+        .first()
+    )
+    if conv is None:
+        raise HTTPException(status_code=404, detail='Conversation not found')
+    return conv
+
+
+@router.get('/sessions/{session_id}/hub-conversations')
+def list_hub_conversations(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """这份简历名下的对话列表(新→旧)。侧栏「历史对话」与进场取最新对话都用它。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    rows = (
+        db.query(HubConversation)
+        .filter(HubConversation.session_id == session_id)
+        .order_by(HubConversation.updated_at.desc(), HubConversation.id.desc())
+        .all()
+    )
+    out = []
+    for r in rows:
+        try:
+            n = len(json.loads(r.messages_json or '[]'))
+        except Exception:
+            n = 0
+        out.append(
+            {
+                "id": int(r.id),
+                "title": str(r.title or ''),
+                "updated_at": r.updated_at,
+                "message_count": n,
+            }
+        )
+    return {"conversations": out}
+
+
+@router.post('/sessions/{session_id}/hub-conversations')
+def create_hub_conversation(
+    session_id: int,
+    payload: HubConversationCreateIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """在这份简历下开一个新对话(旧对话不动)。owner + demo 只读守卫。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    _assert_not_demo(session)
+    now = datetime.utcnow()
+    conv = HubConversation(
+        session_id=session_id,
+        title=(payload.title or '').strip()[:48] or '对话',
+        messages_json=json.dumps(payload.messages, ensure_ascii=False),
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(conv)
+    db.commit()
+    db.refresh(conv)
+    return {"id": int(conv.id), "title": str(conv.title or '')}
+
+
+@router.get('/sessions/{session_id}/hub-conversations/{conv_id}')
+def get_hub_conversation_detail(
+    session_id: int,
+    conv_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """读某个对话的消息流(切回来重放)。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    conv = _conv_or_404(db, session_id, conv_id)
+    try:
+        messages = json.loads(conv.messages_json or '[]')
+    except Exception:
+        messages = []
+    return {"id": int(conv.id), "title": str(conv.title or ''), "messages": messages}
+
+
+@router.put('/sessions/{session_id}/hub-conversations/{conv_id}')
+def update_hub_conversation(
+    session_id: int,
+    conv_id: int,
+    payload: HubConversationUpdateIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """追加式落库某个对话(每轮对话后即时调, 不再防抖丢存)。owner + demo 守卫。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    _assert_not_demo(session)
+    conv = _conv_or_404(db, session_id, conv_id)
+    conv.messages_json = json.dumps(payload.messages, ensure_ascii=False)
+    if payload.title is not None and payload.title.strip():
+        conv.title = payload.title.strip()[:48]
+    conv.updated_at = datetime.utcnow()
     db.commit()
     return {"ok": True}
 

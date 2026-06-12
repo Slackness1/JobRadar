@@ -71,7 +71,9 @@ def _tier_quality_boost(job: Any) -> float:
 
 
 def _curated_internet_boost(job: Any) -> float:
-    """策展互联网名单 → 桶内档次加分。tier1 +0.15(与 GT 平台同量级) / tier2 +0.08。
+    """策展互联网名单 → 桶内档次加分(口径 2026-06-12 与产品对齐)。
+    tier1(第一梯队) +0.15(与 GT 平台同量级) / ai_special(AI 原生单列档, 高潜) +0.12 /
+    tier2(第二梯队) +0.08。
 
     优先于 institution_tier 关键词退路: 名单按品牌词根子串匹配, 能命中带子公司前缀的
     真大厂(深圳市腾讯…/百度在线网络技术…), 又天然挡掉被误标"互联网大厂"的噪声
@@ -80,6 +82,8 @@ def _curated_internet_boost(job: Any) -> float:
     tier = internet_tier_of(str(getattr(job, "company", "") or ""))
     if tier == "tier1":
         return 0.15
+    if tier == "ai_special":
+        return 0.12
     if tier == "tier2":
         return 0.08
     return 0.0

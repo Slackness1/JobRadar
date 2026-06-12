@@ -24,10 +24,17 @@ interface HubSidebarProps {
   active: HubModule | null;   // 高亮项
   onNav: (key: HubModule) => void;
   onNew: () => void;
-  // 历史记录:真实会话列表(由 HubShell 拉 listResumeCopilotSessions 注入)
+  // 上传新简历:路由到 /upload 走真实上传 → 新会话(区别于 onNew 的「当前会话开新对话」)
+  onUploadNew?: () => void;
+  // 简历切换器:真实会话列表(由 HubShell 拉 listResumeCopilotSessions 注入)
   sessions?: HubSessionRow[];
   currentSessionId?: number;
   onSelectSession?: (id: number) => void;
+  // 历史对话:**当前简历名下**的对话列表(对话 base 简历 —— 切简历后这栏跟着换,
+  // 不再全局混列所有简历的对话)。标题=对话首句, 不再借简历赛道名。
+  conversations?: HubConvRow[];
+  activeConversationId?: number | null;
+  onSelectConversation?: (id: number) => void;
   // 真实候选人姓名(profile.basic_info.name); 空则退「同学」
   userName?: string;
 }
@@ -35,6 +42,12 @@ interface HubSidebarProps {
 export interface HubSessionRow {
   id: number;
   label: string;   // 会话名 / 赛道 / 文件名
+  time: string;    // 相对时间
+}
+
+export interface HubConvRow {
+  id: number;
+  title: string;   // 对话首句(后端落库时定)
   time: string;    // 相对时间
 }
 
@@ -224,9 +237,13 @@ export default function HubSidebar({
   active,
   onNav,
   onNew,
+  onUploadNew,
   sessions = [],
   currentSessionId,
   onSelectSession,
+  conversations = [],
+  activeConversationId = null,
+  onSelectConversation,
   userName,
 }: HubSidebarProps) {
   const displayName = (userName || '').trim() || '同学';
@@ -401,8 +418,10 @@ export default function HubSidebar({
       <div style={{ padding: '0 12px 8px', flex: 'none' }}>
         <button
           onClick={() => {
+            // 有其它简历 → 展开切换列表(列表底部仍有「上传新简历」)。
+            // 只有当前一份 → 直接进真实上传流程(/upload → 新会话), 不再只是清空当前画布。
             if (otherResumes.length > 0) setSwitcherOpen((o) => !o);
-            else onNew();
+            else (onUploadNew ?? onNew)();
           }}
           title={otherResumes.length > 0 ? '切换简历' : '上传新简历'}
           style={{
@@ -507,6 +526,36 @@ export default function HubSidebar({
                 </span>
               </button>
             ))}
+            {/* 列表底部常驻「上传新简历」—— 任何时候都能再加一份, 走真实上传流程 */}
+            <button
+              onClick={() => {
+                (onUploadNew ?? onNew)();
+                setSwitcherOpen(false);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '7px 9px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                background: 'transparent',
+                border: 0,
+                outline: 'none',
+                textAlign: 'left',
+                borderTop: '1px solid var(--border-warm)',
+                marginTop: 2,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--library-rail)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex', flex: 'none' }}>
+                <PenLine size={13} strokeWidth={1.7} />
+              </span>
+              <span style={{ flex: 1, font: '600 11.5px var(--font-sans)', color: 'var(--terracotta-strong)' }}>
+                上传新简历
+              </span>
+            </button>
           </div>
         )}
       </div>
@@ -525,11 +574,12 @@ export default function HubSidebar({
           <History size={12} strokeWidth={1.6} />
         </span>
         <span className="hf-overline" style={{ fontSize: 9.5 }}>
-          历史记录 · 全部会话
+          历史对话 · 当前简历
         </span>
       </div>
 
-      {/* history session list — 真实会话(listResumeCopilotSessions 注入) */}
+      {/* history conversation list — 当前简历名下的对话(标题=首句, 点选整段重放)。
+          切到另一份简历时这栏跟着换成那份简历自己的对话, 不再跨简历串台。 */}
       <div
         style={{
           padding: '0 10px',
@@ -541,17 +591,17 @@ export default function HubSidebar({
           flex: '1 1 auto',
         }}
       >
-        {sessions.length === 0 ? (
+        {conversations.length === 0 ? (
           <div style={{ padding: '8px 11px', font: '400 11px var(--font-sans)', color: 'var(--stone)' }}>
-            还没有会话 —— 上传简历开始
+            这份简历还没有历史对话 —— 跟它聊一句就开始
           </div>
         ) : (
-          sessions.map((s) => {
-            const cur = s.id === currentSessionId;
+          conversations.map((c) => {
+            const cur = c.id === activeConversationId;
             return (
               <div
-                key={s.id}
-                onClick={() => onSelectSession?.(s.id)}
+                key={c.id}
+                onClick={() => onSelectConversation?.(c.id)}
                 style={{
                   padding: '8px 11px',
                   borderRadius: 10,
@@ -569,10 +619,10 @@ export default function HubSidebar({
                     textOverflow: 'ellipsis',
                   }}
                 >
-                  {s.label}
+                  {c.title}
                 </div>
                 <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)', marginTop: 2 }}>
-                  {s.time}
+                  {c.time}
                 </div>
               </div>
             );

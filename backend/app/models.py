@@ -106,6 +106,10 @@ class ResumeCopilotSession(Base):
     # 简历编辑器草稿(渲染模型 zh + 模板/布局/隐藏项)的跨设备持久化。后端 confirmed-
     # profile 装不下编辑器这套渲染态, 单独存; 空=学生还没在编辑器里改过。
     editor_draft_json = Column(Text, nullable=True)
+    # [legacy 单对话槽] 统一 Hub 对话的旧持久化(一份简历=一段对话)。该模型装不下
+    # "一份简历下多个对话"(新对话会覆盖旧对话, 实测毁过用户的历史), 已被
+    # hub_conversations 表取代; 列保留只为兼容, 迁移把存量数据搬进新表, 不再读写。
+    hub_conversation_json = Column(Text, nullable=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",
@@ -149,6 +153,31 @@ class ResumeCopilotSession(Base):
         cascade="all, delete-orphan",
         order_by="ResumeCopilotMessage.created_at",
     )
+
+
+class HubConversation(Base):
+    """统一 Hub 的对话实体 —— 简历是 base, 一份简历(session)下可开多个对话。
+
+    取代 ResumeCopilotSession.hub_conversation_json 单槽模型: 单槽下「新对话」只能
+    清空复用, 再聊就覆盖掉旧对话; 独立成表后每个对话有自己的 id/标题/时间,
+    新对话=插新行, 旧对话原样保留, 侧栏历史按当前简历列它名下的对话。
+    title 由前端取首句生成(替代之前"全显示赛道名分不清谁是谁")。
+    """
+
+    __tablename__ = "hub_conversations"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(
+        Integer,
+        ForeignKey("resume_copilot_sessions.id"),
+        nullable=False,
+        index=True,
+    )
+    title = Column(Text, default="")
+    # turn/result/trace/memory/intel 的有序数组 JSON(滤掉 skillrun 思考表演)
+    messages_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, index=True)
 
 
 class ResumeParsedProfile(Base):

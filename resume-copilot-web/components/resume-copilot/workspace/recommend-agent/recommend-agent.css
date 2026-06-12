@@ -347,6 +347,16 @@
   padding: 16px 14px 28px;
 }
 
+/* 骨架 Pane 借 `.workspace-hifi` 接梯队卡的 token, 但那个类在整页布局里是视口根
+ * (height:100vh + overflow:hidden)。嵌进滚动容器当**内容块**时这俩属性会把超过
+ * 一屏的梯队(第二梯队/其他梯队)整段裁掉 —— 表现为「最多只能拉到第一梯队底部」。
+ * 这里按内容块语义覆盖: 高度随内容长, 不裁切, 由外层 .recommend-skeleton 滚动。 */
+[data-theme='recommend'] .recommend-skeleton__body .workspace-hifi {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
 [data-theme='recommend'] .recommend-skeleton__state {
   display: flex;
   flex-direction: column;

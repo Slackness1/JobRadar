@@ -265,6 +265,56 @@ export function putEditorDraft(
   });
 }
 
+// ── Hub 多对话持久化(简历是 base, 一份简历下多个对话)─────────────────────────
+// messages = 有序消息数组(turn/result/trace/memory/intel; 不含 skillrun 思考表演)。
+// 进会话 list 取最新对话水合; 「新对话」= create 插新行(旧对话原样保留);
+// 每轮对话变动即时 PUT 落到自己的对话行, 不再共用单槽互相覆盖。
+export interface HubConversationListItem {
+  id: number;
+  title: string;
+  updated_at: string | null;
+  message_count: number;
+}
+
+export function listHubConversations(
+  sessionId: number,
+): Promise<{ conversations: HubConversationListItem[] }> {
+  return requestJson<{ conversations: HubConversationListItem[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/hub-conversations`,
+  );
+}
+
+export function createHubConversation(
+  sessionId: number,
+  title: string,
+  messages: unknown[],
+): Promise<{ id: number; title: string }> {
+  return requestJson<{ id: number; title: string }>(
+    `/api/resume-copilot/sessions/${sessionId}/hub-conversations`,
+    { method: 'POST', body: JSON.stringify({ title, messages }) },
+  );
+}
+
+export function getHubConversationDetail(
+  sessionId: number,
+  convId: number,
+): Promise<{ id: number; title: string; messages: unknown[] }> {
+  return requestJson<{ id: number; title: string; messages: unknown[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/hub-conversations/${convId}`,
+  );
+}
+
+export function putHubConversationDetail(
+  sessionId: number,
+  convId: number,
+  messages: unknown[],
+): Promise<{ ok: boolean }> {
+  return requestJson<{ ok: boolean }>(
+    `/api/resume-copilot/sessions/${sessionId}/hub-conversations/${convId}`,
+    { method: 'PUT', body: JSON.stringify({ messages }) },
+  );
+}
+
 // ── 深度优化(反问取证)— 复用现有 plan 管道 ────────────────────────────
 export interface DeepOptimizeStartIn {
   section: string;

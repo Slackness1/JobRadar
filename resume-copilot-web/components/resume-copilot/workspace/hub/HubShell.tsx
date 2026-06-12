@@ -37,20 +37,24 @@ import { Turn } from '../recommend-agent/chat/Turn';
 import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
 import {
+  createHubConversation,
+  getHubConversationDetail,
   getPlatformsByTier,
   getResumeCopilotConfirmedProfile,
   getResumeCopilotParsedProfile,
   getStudentKbIndex,
   getWorkingQuery,
+  listHubConversations,
   listResumeCopilotSessions,
   postRecommendChat,
+  putHubConversationDetail,
   scoreResume,
   updateWorkingQuery,
 } from '../../api';
 import { cacheScoreReport } from './scoreCache';
 import type { RecommendFeedItem, RecommendTurnResponse, WorkingQuery } from '../../types';
 import type { HubModule, HubSlot, HubMessage, ResultCardData } from './hub-types';
-import type { HubSessionRow } from './HubSidebar';
+import type { HubConvRow, HubSessionRow } from './HubSidebar';
 
 // 相对时间(刚刚 / N 分钟前 / N 小时前 / 昨天 / N 天前 / 日期)
 function relTime(iso: string | null): string {
@@ -183,8 +187,37 @@ const QUICK_CHIPS: ComposerChip[] = [
   { key: 'q-resume', label: '帮我的简历打个分' },
 ];
 
+// 对话标题 = 第一条学生发言(去标签截 24 字); 没有学生发言退首条 turn。
+// 修「历史对话以赛道命名分不清谁是谁」—— 标题长在对话自己身上, 不再借简历的赛道名。
+function stripHtml(html: string): string {
+  return String(html || '').replace(/<[^>]+>/g, '').trim();
+}
+function deriveConvTitle(messages: HubMessage[]): string {
+  for (const m of messages) {
+    if (m.kind === 'turn' && m.who === 'me') {
+      const t = stripHtml(m.html);
+      if (t) return t.slice(0, 24);
+    }
+  }
+  for (const m of messages) {
+    if (m.kind === 'turn') {
+      const t = stripHtml(m.html);
+      if (t) return t.slice(0, 24);
+    }
+  }
+  return '对话';
+}
+
 let msgSeq = 0;
 const nextId = () => `hub-${++msgSeq}`;
+// 水合历史对话后, 把全局序号推过已有 id, 防止新消息 id 与水合 id 撞(同一份简历重放时
+// 旧 id 形如 hub-7, 新消息得从 8 起)。
+function bumpSeqFromIds(ids: string[]) {
+  for (const id of ids) {
+    const n = Number(String(id).replace(/^hub-/, ''));
+    if (Number.isFinite(n) && n > msgSeq) msgSeq = n;
+  }
+}
 
 // ── 结果卡 — 技能跑完落在对话里的「产出」. 点 CTA 才进入那个模块的视图(永不瞬移). ──
 function ResultCard({
@@ -293,6 +326,24 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
   const lastUserText = useRef<string>('');
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
+  // ── 多对话持久化(简历是 base, 一份简历下多个对话)─────────────────────────
+  // convs = 当前简历名下的对话列表(侧栏历史); activeConvId = 正在聊的对话行。
+  // 「新对话」= activeConvId 置空, 下一句话 create 插新行 —— 旧对话原样保留,
+  // 不再像单槽时代被覆盖毁掉。
+  const [convs, setConvs] = useState<HubConvRow[]>([]);
+  const [activeConvId, setActiveConvId] = useState<number | null>(null);
+  // convLoaded = 进场水合完成(之前不落库, 防空数组覆盖真源);
+  // lastSavedConv = 最近一次落库的 JSON(防水合回声 + 防重复落同样内容);
+  // pending* + saveBusy = 待落库快照: 短防抖合并同轮连续消息, 卸载时同步 flush ——
+  // 修「聊完马上跳页, 1.2s 防抖被 unmount 掐掉, 整笔存档丢失」的根因。
+  const convLoaded = useRef(false);
+  const activeConvIdRef = useRef<number | null>(null);
+  const lastSavedConv = useRef<string>('');
+  const pendingJson = useRef<string | null>(null);
+  const pendingMsgs = useRef<HubMessage[]>([]);
+  const saveBusy = useRef(false);
+  const flushRef = useRef<() => void>(() => {});
+
   const push = (m: HubMessage) => setMsgs((cur) => [...cur, m]);
 
   // 滚到底
@@ -360,6 +411,145 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       cancelled = true;
     };
   }, [sessionId]);
+
+  // 刷新当前简历名下的对话列表(侧栏「历史对话」)。每次落库成功后也调一次 ——
+  // 修「历史出现得不稳定/要刷新页面才看到」: 列表跟着每轮对话即时更新。
+  function refreshConvs() {
+    listHubConversations(sessionId)
+      .then((r) => {
+        setConvs(
+          (r.conversations ?? []).map((c) => ({
+            id: c.id,
+            title: c.title || '对话',
+            time: relTime(c.updated_at),
+          })),
+        );
+      })
+      .catch(() => {
+        /* 拉不到先留旧列表 */
+      });
+  }
+
+  // 把待落库快照真正写进后端: 无 activeConvId → create 插新行(=「新对话」第一笔);
+  // 有 → PUT 到自己的对话行。串行化(saveBusy)防 create 重入; finally 里若又积了
+  // 新快照则连环 flush。失败(demo 只读 403/网络)留前端态不阻断。
+  async function flushSaveNow() {
+    if (saveBusy.current) return;
+    const json = pendingJson.current;
+    if (!json || json === lastSavedConv.current) return;
+    const messages = pendingMsgs.current;
+    saveBusy.current = true;
+    pendingJson.current = null;
+    try {
+      if (activeConvIdRef.current == null) {
+        const r = await createHubConversation(sessionId, deriveConvTitle(messages), messages);
+        activeConvIdRef.current = r.id;
+        setActiveConvId(r.id);
+      } else {
+        await putHubConversationDetail(sessionId, activeConvIdRef.current, messages);
+      }
+      lastSavedConv.current = json;
+      refreshConvs();
+    } catch {
+      /* demo 只读 / 网络 → 留前端态 */
+    } finally {
+      saveBusy.current = false;
+      if (pendingJson.current && pendingJson.current !== lastSavedConv.current) {
+        void flushSaveNow();
+      }
+    }
+  }
+  // flushRef 让卸载清理函数永远拿到最新闭包(不能在 render 里写 ref, 放 effect)。
+  useEffect(() => {
+    flushRef.current = () => void flushSaveNow();
+  });
+  // 卸载(跳模拟面试/编辑页/切简历)时同步 flush 待落库快照 —— 修旧版 1.2s 防抖
+  // 被 router.push 掐掉、整笔对话丢失的根因。SPA 内跳页 JS 还活着, fetch 能送达。
+  useEffect(() => {
+    return () => {
+      flushRef.current();
+    };
+  }, []);
+
+  // ── 进会话: 拉这份简历名下的对话列表, 默认续上最新一个对话(切回来能看到记录)──
+  // 只重放 settled 记录(turn/result/trace/memory/intel); skillrun 思考表演是 live-only,
+  // 不入库也不重放。没有对话则按空白落地。
+  useEffect(() => {
+    let cancelled = false;
+    listHubConversations(sessionId)
+      .then(async (r) => {
+        if (cancelled) return;
+        const list = r.conversations ?? [];
+        setConvs(
+          list.map((c) => ({ id: c.id, title: c.title || '对话', time: relTime(c.updated_at) })),
+        );
+        const latest = list[0];
+        if (!latest || latest.message_count === 0) return;
+        const detail = await getHubConversationDetail(sessionId, latest.id);
+        if (cancelled) return;
+        const arr = Array.isArray(detail.messages) ? (detail.messages as HubMessage[]) : [];
+        if (arr.length > 0) {
+          bumpSeqFromIds(arr.map((m) => m.id));
+          lastSavedConv.current = JSON.stringify(arr);
+          activeConvIdRef.current = latest.id;
+          setActiveConvId(latest.id);
+          setMsgs(arr);
+          setStarted(true);
+        }
+      })
+      .catch(() => {
+        /* 拉不到 → 按空白落地, 不阻断 */
+      })
+      .finally(() => {
+        if (!cancelled) convLoaded.current = true;
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+
+  // ── 对话变动 → 记快照 + 短防抖落库。滤掉 skillrun 只存对话本体; 水合完成前不落
+  //   (convLoaded)、空对话不落、内容没变不重复落。防抖只为合并同一轮连续 push 的
+  //   几条消息(400ms); 跳页/卸载由上面的 unmount flush 兜底, 不会再丢。
+  useEffect(() => {
+    if (!convLoaded.current) return;
+    const persistable = msgs.filter((m) => m.kind !== 'skillrun');
+    if (persistable.length === 0) return;
+    const json = JSON.stringify(persistable);
+    if (json === lastSavedConv.current) return;
+    pendingJson.current = json;
+    pendingMsgs.current = persistable;
+    const t = window.setTimeout(() => flushRef.current(), 400);
+    return () => window.clearTimeout(t);
+  }, [msgs, sessionId]);
+
+  // ── 切到这份简历名下的另一个对话(侧栏历史点选): 先存当前, 再整段重放目标对话──
+  function selectConversation(convId: number) {
+    if (convId === activeConvId) return;
+    flushRef.current();
+    getHubConversationDetail(sessionId, convId)
+      .then((detail) => {
+        const arr = Array.isArray(detail.messages) ? (detail.messages as HubMessage[]) : [];
+        bumpSeqFromIds(arr.map((m) => m.id));
+        pendingJson.current = null;
+        lastSavedConv.current = JSON.stringify(arr);
+        activeConvIdRef.current = convId;
+        setActiveConvId(convId);
+        setMsgs(arr);
+        setStarted(arr.length > 0);
+        setActive('none');
+        setArmed(null);
+        setThinking(false);
+        busy.current = false;
+        completed.current = new Set();
+        respById.current = new Map();
+        ctxById.current = new Map();
+        pendingComplete.current = new Map();
+      })
+      .catch(() => {
+        /* 拉不到则留在当前对话 */
+      });
+  }
 
   // 把真实 working query + 召回结果织进某条 skillrun 的「我的理解 / 计数」覆盖
   function applyFeedResp(skillrunId: string, resp: RecommendTurnResponse) {
@@ -643,12 +833,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       router.push(`/interview/${sessionId}`);
       return;
     }
-    if (key === 'resume') {
-      // 简历优化全屏页 — 进 hub-score(面板预览 + 全屏编辑器),带真实 session,
-      // 该页按 session 拉真实 profile(见 hub-score/page.tsx)。不再用槽内占位卡。
-      router.push(`/resume-copilot/hub-score?session=${sessionId}`);
-      return;
-    }
+    // 简历优化 — 无感嵌入: 收进右侧画布槽(active='resume'), 保留左侧对话 + 思考流,
+    // 不再 router.push 甩去 /hub-score 全屏页(那页左边空白、回不去)。打分已在跑技能
+    // 时缓存, 面板优先复用缓存不重打 LLM。深链 /hub-score 仍保留作兜底入口。
     setActive(key as HubSlot);
   }
 
@@ -717,8 +904,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     }
   }
 
-  // ── 新对话 ──
+  // ── 新对话 = 在当前简历下另起一行(旧对话存好原样保留, 绝不覆盖)──
   function onNew() {
+    flushRef.current(); // 当前对话的未落笔先存掉, 它会留在侧栏历史里
     setStarted(false);
     setActive('none');
     setArmed(null);
@@ -732,6 +920,11 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     respById.current = new Map();
     pendingComplete.current = new Map();
     lastUserText.current = '';
+    // 清当前对话指针 → 下一句话 create 新对话行(修单槽时代「新对话再聊就覆盖旧对话」)
+    activeConvIdRef.current = null;
+    setActiveConvId(null);
+    pendingJson.current = null;
+    lastSavedConv.current = '';
   }
 
   // 侧边栏高亮 = 激活态 或 已打开的画布槽
@@ -751,9 +944,16 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         active={sidebarActive}
         onNav={armModule}
         onNew={onNew}
+        onUploadNew={() => router.push('/upload')}
         sessions={sessions}
         currentSessionId={sessionId}
-        onSelectSession={(id) => router.push(`/hub?session=${id}`)}
+        onSelectSession={(id) => {
+          flushRef.current(); // 切简历前把当前对话存好(remount 会掐掉一切前端态)
+          router.push(`/hub?session=${id}`);
+        }}
+        conversations={convs}
+        activeConversationId={activeConvId}
+        onSelectConversation={selectConversation}
         userName={userName}
       />
 

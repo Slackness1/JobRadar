@@ -17,7 +17,7 @@
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
 import HubProfileView from './HubProfileView';
-import ResumeSlotPlaceholder from './ResumeSlotPlaceholder';
+import ResumeCanvas from './ResumeCanvas';
 import type { HubSlot } from './hub-types';
 
 // 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460.
@@ -110,21 +110,29 @@ export default function CanvasSlot({
         overflow: 'hidden',
       }}
     >
-      {/* profile 视图自带头部关闭(SlotHead right), 不叠全局浮层关闭, 免双按钮. */}
-      {active !== 'profile' && <CloseButton onClose={onClose} />}
+      {/* profile / resume 视图自带头部关闭(panel onClose → ✕), 不叠全局浮层关闭, 免双按钮. */}
+      {active !== 'profile' && active !== 'resume' && <CloseButton onClose={onClose} />}
 
       {/* 个人档案: B 闭环视图(真 KB 数据, 确认/否掉). 自带头部 + 滚动体,
           直接占满 flex 列(header flex:none + body flex:1), 不套通用 overflow 容器. */}
       {active === 'profile' ? (
         <HubProfileView sessionId={sessionId} onClose={onClose} />
+      ) : active === 'resume' ? (
+        // 简历优化: 只内嵌「打分 + 小预览」面板(embedded). 与 HubShell 同源
+        // data-theme="hub"(外层已挂), 故**不**套 recommend 主题壳; 直接撑满槽位.
+        // 自带头部 ✕(onClose)→ 收回全宽对话. 展开的大编辑器**不**塞进对话,
+        // 「展开编辑器/深度优化」走独立编辑页(见 ResumeCanvas embedded 分支)。
+        <ResumeCanvas sessionId={sessionId} embedded onClose={onClose} />
       ) : (
         // data-theme="recommend": feed / skeleton 是 /recommend 同源组件, 其样式全
-        // scope 在 [data-theme='recommend'] 下; Hub 槽位里必须套这层壳样式才生效
-        // (否则裸 HTML 糊成一坨). 内联 height:100% 压掉该主题根块的 height:100vh,
-        // 不让它撑破槽位.
+        // scope 在 [data-theme='recommend'] 下; Hub 槽位里必须套这层壳样式才生效。
+        // 关键: 这层必须是 **flex 列 + overflow:hidden** —— /recommend 页里这俩 Pane
+        // 的父级就是 flex 列, feed(height:100%)/skeleton(flex:1+overflow:auto)才能各自
+        // 内部滚动。之前用 block + overflow:auto, skeleton 的 flex:1 落空 → 梯队栏滚不动
+        // (头部 16 家压住 腰部/其他, 看着像「只有第一梯队」)。
         <div
           data-theme="recommend"
-          style={{ flex: 1, minHeight: 0, height: '100%', overflow: 'auto' }}
+          style={{ flex: 1, minHeight: 0, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
         >
           {active === 'feed' && <RecommendFeedPane {...feedProps} />}
 
@@ -138,9 +146,6 @@ export default function CanvasSlot({
               onOpenCoach={onOpenCoach}
             />
           )}
-
-          {/* 简历优化 — 接口位占位(真实打分/优化视图归 resume-copilot 分支，日后塞进同槽). */}
-          {active === 'resume' && <ResumeSlotPlaceholder />}
         </div>
       )}
     </div>

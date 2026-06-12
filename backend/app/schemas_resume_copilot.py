@@ -162,6 +162,10 @@ class ResumeCopilotSessionListItem(BaseModel):
     name: str = ''
     status: str
     has_recommendations: bool
+    # 这份简历是否真正聊过(hub_conversation_json 非空)。Hub 侧栏"历史对话"只列
+    # has_conversation=true 的会话 —— 上传简历≠就有一条历史对话, 聊了才有。默认 False
+    # 向后兼容老客户端。
+    has_conversation: bool = False
     # P0a (resume-copilot-redesign-2026-05-26): soft-archive flag — Sessions
     # page splits 使用中 / 归档 / 全部 tabs from this. Defaults False for
     # backwards compatibility with any client that ignored the field.

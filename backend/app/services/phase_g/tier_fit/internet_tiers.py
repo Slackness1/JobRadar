@@ -23,25 +23,30 @@ _DATA_PATH = Path(__file__).resolve().parents[4] / "data" / "internet_company_ti
 
 
 @lru_cache(maxsize=1)
-def _load_stems() -> tuple[tuple[str, ...], tuple[str, ...]]:
-    """返回 (tier1_stems, tier2_stems), 全部 lower-case 便于英文词根大小写无关匹配。"""
+def _load_stems() -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    """返回 (tier1_stems, tier2_stems, ai_special_stems), lower-case 便于英文词根
+    大小写无关匹配。"""
     try:
         raw = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
     except Exception:
-        return ((), ())
+        return ((), (), ())
     t1 = tuple(str(s).strip().lower() for s in raw.get("tier1", []) if str(s).strip())
     t2 = tuple(str(s).strip().lower() for s in raw.get("tier2", []) if str(s).strip())
-    return (t1, t2)
+    ai = tuple(str(s).strip().lower() for s in raw.get("ai_special", []) if str(s).strip())
+    return (t1, t2, ai)
 
 
 def internet_tier_of(company: str | None) -> str | None:
-    """公司名 → 'tier1' / 'tier2' / None(未命中)。子串匹配, tier1 优先。"""
+    """公司名 → 'tier1' / 'tier2' / 'ai_special' / None(未命中)。子串匹配,
+    ai_special 最先(AI 原生公司单列档, 不混入 T1/T2 —— 口径 2026-06-12)。"""
     if not company:
         return None
     c = str(company).strip().lower()
     if not c:
         return None
-    t1, t2 = _load_stems()
+    t1, t2, ai = _load_stems()
+    if any(stem in c for stem in ai):
+        return "ai_special"
     if any(stem in c for stem in t1):
         return "tier1"
     if any(stem in c for stem in t2):

@@ -124,6 +124,9 @@ export interface ResumeCopilotSessionListItem {
   name: string;
   status: string;
   has_recommendations: boolean;
+  /** 这份简历是否真正聊过(hub_conversation 非空)。Hub 侧栏"历史对话"只列
+   *  has_conversation 的会话 —— 上传≠有对话。老后端没回时默认 false。 */
+  has_conversation?: boolean;
   /** P0a (2026-05-26): soft-archive flag. Sessions page splits 使用中 /
    *  归档 / 全部 tabs from this. Defaults false when backend hasn't migrated. */
   is_archived?: boolean;

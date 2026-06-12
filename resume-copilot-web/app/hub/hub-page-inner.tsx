@@ -55,5 +55,8 @@ export function HubPageInner() {
     return <main className="p-8 text-sm text-[var(--muted)]">解析会话中…</main>;
   }
 
-  return <HubShell sessionId={sessionId} />;
+  // key={sessionId}: 切历史会话(?session= 变)时强制 HubShell 整体重挂载, 给一个干净的
+  // 落地态 + 重新按新会话拉真实数据 —— 否则旧会话的对话流 / 画布槽会串台到新会话。
+  // (完整的「重放历史对话内容」是下一轮: 需后端把 hub 对话落库。)
+  return <HubShell key={sessionId} sessionId={sessionId} />;
 }
