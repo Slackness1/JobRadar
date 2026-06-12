@@ -1261,6 +1261,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                         module={m.module as 'feed' | 'skeleton' | 'resume' | 'interview'}
                         understandOverride={m.understandOverride}
                         outputOverride={m.outputOverride}
+                        nodeOverride={m.nodeOverride}
                         settled={m.settled}
                         // 受控模式: 节点状态由真实进度驱动, 结果卡由 completeRun 收口
                         progress={m.progress}
