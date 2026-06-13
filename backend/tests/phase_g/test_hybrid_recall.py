@@ -89,3 +89,22 @@ def test_hybrid_recall_empty_query_falls_back(db):
     di.reload_cache(db)
     jobs = hr.hybrid_recall(db, "", embed_fn=_fake_embed, k=5)
     assert [j.id for j in jobs] == [1]  # 空 query 走硬过滤兜底
+
+
+def test_sparse_chinese_segmentation(db):
+    """真实无空格中文 JD:jieba 分词后 FTS5 BM25 能召回(证明 unicode61 整段问题已解)。"""
+    if not si.fts5_available(db):
+        pytest.skip("SQLite 无 FTS5")
+    db.add_all([
+        _job(1, "九坤投资", "量化研究员", "负责中频量化策略研究与因子挖掘"),  # 无空格
+        _job(2, "中金公司", "投行业务部", "负责IPO项目承做与材料制作"),
+    ])
+    db.commit()
+    si.rebuild_index(db)
+    # 查"量化策略"(无空格)应召回 job1,不召回 job2
+    res = si.sparse_search(db, "量化策略研究", k=5)
+    ids = [r[0] for r in res]
+    assert 1 in ids and 2 not in ids
+    # 英文技术词保留:查"IPO"召回 job2
+    res2 = si.sparse_search(db, "IPO承做", k=5)
+    assert 2 in [r[0] for r in res2]
