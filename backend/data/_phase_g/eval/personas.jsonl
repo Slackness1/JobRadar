@@ -1,0 +1,8 @@
+{"persona_id": "P1", "name": "林思远", "canonical_track": "公募/资管·投研", "tier": "strong", "location": "上海", "blurb": "清华经济本+SAIF MF,头部三段(中信研究所+易方达消费+某PE),目标头部公募行研(消费/医药)", "intent_queries": ["公募基金 消费行业研究员 买方投研", "医药行业 基本面研究 公募权益", "二级市场 行业研究员 应届"]}
+{"persona_id": "P2", "name": "顾天瑜", "canonical_track": "卖方研究", "tier": "strong", "location": "上海", "blurb": "目标卖方研究 TMT,券商研究所科技行业分析师", "intent_queries": ["券商研究所 TMT 行业分析师", "卖方研究 科技 电子行业", "证券研究 助理分析师 应届"]}
+{"persona_id": "P3", "name": "陈昊", "canonical_track": "私募·基本面", "tier": "mid", "location": "上海", "blurb": "目标私募/资管基本面研究,股票多头主观投研", "intent_queries": ["私募基金 基本面研究员", "股票多头 主观投研 研究员", "资管 行业研究 买方"]}
+{"persona_id": "P4", "name": "夏文清", "canonical_track": "银行·总行核心", "tier": "mid", "location": "上海", "blurb": "目标银行管培/综合金融,总行管培生", "intent_queries": ["银行 总行 管培生", "综合金融 管理培训生", "银行 战略 综合岗 应届"]}
+{"persona_id": "P5", "name": "魏文骏", "canonical_track": "投行·并购·资本市场", "tier": "strong", "location": "上海", "blurb": "目标投行 IBD,IPO 承做与并购", "intent_queries": ["投行 IBD 分析师", "IPO 项目 承做 股权", "并购 资本市场 投行"]}
+{"persona_id": "P6", "name": "韩怀宇", "canonical_track": "量化", "tier": "strong", "location": "上海", "blurb": "目标量化私募/对冲基金,中频策略+alpha因子", "intent_queries": ["量化私募 中频策略 研究员", "alpha 因子 量化研究 机器学习", "对冲基金 量化策略"]}
+{"persona_id": "P7", "name": "蒋睿哲", "canonical_track": "金融科技", "tier": "mid", "location": "杭州", "blurb": "目标 FinTech 数据/算法,金融科技数据岗", "intent_queries": ["金融科技 数据 算法工程师", "量化平台 数据工程", "金融科技 风控 数据分析"]}
+{"persona_id": "P8", "name": "段沛霖", "canonical_track": "大宗·能源", "tier": "weak_cross", "location": "上海", "blurb": "能源工程转金融(cross-major),目标大宗商品/能源研究", "intent_queries": ["大宗商品 研究员", "能源 行业研究 转金融", "商品 期货 研究 应届"]}
