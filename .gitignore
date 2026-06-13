@@ -35,6 +35,7 @@ backend/data/*.bak.*
 backend/data/*.json
 !backend/data/ground_truth_companies_v1.json
 !backend/data/internet_company_tiers.json
+!backend/data/source_registry.json
 backend/data/browser_sessions/
 backend/data/validation_reports/
 backend/data/_secrets/
