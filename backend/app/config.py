@@ -217,6 +217,9 @@ UNIFIED_MEMORY_ENABLED = os.environ.get("UNIFIED_MEMORY_ENABLED", "1") in {"1", 
 # 生产切换需等 T1–T21 完成后再统一上线。
 RECOMMENDATION_V2_ENABLED = os.environ.get("RECOMMENDATION_V2_ENABLED", "0") in {"1", "true", "True"}
 
+# Rerank fallback: 无KB岗是否调 LLM 做通用相关性打分（默认 OFF = 与现状一致返 score=50）。
+RERANK_FALLBACK_ENABLED = os.environ.get("RERANK_FALLBACK_ENABLED", "0") in {"1", "true", "True"}
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 

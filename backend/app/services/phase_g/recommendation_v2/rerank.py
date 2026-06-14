@@ -13,11 +13,23 @@ import json
 import logging
 from typing import Any
 
+from app.config import RERANK_FALLBACK_ENABLED
 from app.database import SessionLocal
 from app.models import Job, KnowledgeSubcategory
 from app.services.crawler_llm import build_pro_client, pro_model_name
 
 log = logging.getLogger(__name__)
+
+
+RERANK_FALLBACK_PROMPT = """你是 SAIF 学院的资深求职顾问。给你一个学生 profile + 一个候选岗位，请按岗位与学生目标方向/职能的 fit 打分 (0-100)，不看公司名气高低。
+
+判分原则:
+- 学生偏好 sub_cat 与岗位 sub_category 直接匹配，重点加分
+- 岗位职责 / 要求与学生背景经历对齐程度
+- reasoning ≤120 字，具体说明匹配/不匹配点，禁止"匹配度高/很适合"这类模板话
+- 如无法判断，返回 50 分并在 reasoning 说明原因
+
+输出严格 JSON: {"score": <0-100 int>, "reasoning": "<≤120 字>"}"""
 
 
 RERANK_SYSTEM_PROMPT = """你是 SAIF 学院的资深求职顾问。给你一个学生 profile + 一个候选岗位 + 该岗位 sub_cat 的知识库摘要。请评估学生 vs 岗位 fit, 输出 score (0-100) + 推荐理由 (≤120 字)。
@@ -105,10 +117,35 @@ def rerank_one(
     """单条 rerank。无 KB row 时返 score=50 + 提示, 不调 LLM。"""
     kb = _gather_kb_row(job.sub_category or "")
     if kb is None:
+        if not RERANK_FALLBACK_ENABLED:
+            return {
+                "score": 50,
+                "reasoning": "(知识库未覆盖, 默认中性分)",
+                "kb_available": False,
+            }
+        # flag ON: 用通用相关性 prompt 调 LLM，不依赖 KB
+        client = build_pro_client(max_retries=1, timeout=75)
+        user_msg = _build_rerank_user_message(student_profile, job, kb=None)
+        resp = client.chat.completions.create(
+            model=pro_model_name(),
+            messages=[
+                {"role": "system", "content": RERANK_FALLBACK_PROMPT},
+                {"role": "user", "content": user_msg},
+            ],
+            extra_body={"reasoning_effort": "medium"},
+            response_format={"type": "json_object"},
+        )
+        parsed = json.loads(resp.choices[0].message.content or "{}")
+        try:
+            score = int(parsed.get("score") or 0)
+        except (TypeError, ValueError):
+            score = 0
+        score = max(0, min(100, score))
         return {
-            "score": 50,
-            "reasoning": "(知识库未覆盖, 默认中性分)",
+            "score": score,
+            "reasoning": str(parsed.get("reasoning") or "")[:120],
             "kb_available": False,
+            "data_confidence": None,
         }
     # Pro medium reasoning 实测常 30-60s,默认 30s 超时太紧 → 一半精排超时失败、岗位
     # 拿不到真打分(2026-06-02 实测 10 个里约 5 个 timed out)。放宽到 75s + 重试 1 次,
