@@ -92,8 +92,14 @@ def hybrid_recall(
     sparse_weight: float = 1.0,
     embed_fn=dense_index.embed_many,
     target_sub_cats: Sequence[str] = (),
+    use_sparse: bool = False,
 ) -> list[Job]:
-    """混合召回:硬过滤 → dense + sparse(在 allowed 内)→ RRF → 软降权 → 返回 Job 列表。
+    """召回:硬过滤 → dense(默认纯稠密)→ 软降权 → 返回 Job 列表。
+
+    **2026-06-14 评测定论:sparse(BM25)净拖累**——72-query eval 上 dense 各项都优于
+    dense+sparse 融合(nDCG 0.641 vs 0.620、off@20 17.7% vs 19.6%);中文金融语境近邻多,
+    关键词命中把"职能擦边"岗拉进来稀释排序。故 `use_sparse` 默认 False 走纯 dense;
+    留参数可一键回到 RRF 混合(顶多当 tie-breaker 用)。
 
     query_text 空时退化为"硬过滤集合按新鲜度"(稀疏/稠密都需 query)。
 
@@ -120,10 +126,15 @@ def hybrid_recall(
         return _soft_demote(jobs, target_sub_cats)
 
     dense = dense_index.dense_search(db, query_text, embed_fn=embed_fn, allowed_ids=allowed, k=k * 2)
-    sparse = sparse_index.sparse_search(db, query_text, allowed_ids=allowed, k=k * 2)
-    fused = rrf_fuse([dense, sparse], weights=[dense_weight, sparse_weight])
+    if use_sparse:
+        # 可选:回到 dense+sparse RRF 混合(评测显示净拖累,默认不走)
+        sparse = sparse_index.sparse_search(db, query_text, allowed_ids=allowed, k=k * 2)
+        fused = rrf_fuse([dense, sparse], weights=[dense_weight, sparse_weight])
+    else:
+        # 默认:纯 dense —— cosine 降序即排序
+        fused = dense
     ids = [jid for jid, _ in fused[:k]]
-    # RRF 可能漏掉两路都没召到但在 allowed 里的岗 —— 不补,语义不相关本就该靠后
+    # 漏掉的(语义不相关、未召到)不补,本就该靠后
     jobs = _fetch_jobs_in_order(db, ids)
     return _soft_demote(jobs, target_sub_cats)
 

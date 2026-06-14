@@ -82,6 +82,44 @@ def test_hybrid_recall_surfaces_unenriched_relevant(db):
     assert jobs and jobs[0].id == 1
 
 
+def test_hybrid_recall_pure_dense_default_no_sparse(db):
+    """默认 use_sparse=False → 纯 dense:不依赖 FTS5、不调 sparse_search 也能召回排序。
+    用 monkeypatch 让 sparse_search 一旦被调用就炸,证明默认路径根本不碰它。"""
+    db.add_all([
+        _job(1, "九坤", "量化研究员", "量化 研究 因子", sub=None),
+        _job(2, "中金", "投行分析师", "投行 IPO", sub="投行 IBD"),
+    ])
+    db.commit()
+    di.backfill_embeddings(db, embed_fn=_fake_embed)
+    di.reload_cache(db)
+
+    import pytest as _pt
+    orig = si.sparse_search
+    si.sparse_search = lambda *a, **k: (_ for _ in ()).throw(AssertionError("纯 dense 不应调 sparse"))
+    try:
+        jobs = hr.hybrid_recall(db, "量化 研究 因子", embed_fn=_fake_embed, k=5)
+    finally:
+        si.sparse_search = orig
+    # dense 命中:job1(量化研究因子全中)排在 job2(投行,几乎不命中)之前
+    assert jobs and jobs[0].id == 1
+
+
+def test_hybrid_recall_use_sparse_opt_in_still_works(db):
+    """use_sparse=True → 回到 dense+sparse RRF 融合路径(留作 tie-breaker 的回退口)。"""
+    if not si.fts5_available(db):
+        pytest.skip("SQLite 无 FTS5")
+    db.add_all([
+        _job(1, "九坤", "量化研究员", "量化 研究 因子", sub=None),
+        _job(2, "中金", "投行分析师", "投行 IPO", sub="投行 IBD"),
+    ])
+    db.commit()
+    di.backfill_embeddings(db, embed_fn=_fake_embed)
+    di.reload_cache(db)
+    si.rebuild_index(db)
+    jobs = hr.hybrid_recall(db, "量化 研究 因子", embed_fn=_fake_embed, k=5, use_sparse=True)
+    assert jobs and jobs[0].id == 1  # 两路都指向 job1
+
+
 def test_hybrid_recall_empty_query_falls_back(db):
     db.add_all([_job(1, "九坤", "量化研究员", "量化 研究")])
     db.commit()
