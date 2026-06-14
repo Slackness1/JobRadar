@@ -1,0 +1,212 @@
+[
+ {
+  "company": "中欧基金管理有限公司",
+  "none": 10,
+  "company_ev": 15,
+  "generic": 15
+ },
+ {
+  "company": "南方基金管理股份有限公司",
+  "none": 20,
+  "company_ev": 40,
+  "generic": 20
+ },
+ {
+  "company": "招商基金",
+  "none": 95,
+  "company_ev": 85,
+  "generic": 95
+ },
+ {
+  "company": "华夏基金管理有限公司",
+  "none": 30,
+  "company_ev": 35,
+  "generic": 20
+ },
+ {
+  "company": "广发基金管理有限公司",
+  "none": 40,
+  "company_ev": 40,
+  "generic": 30
+ },
+ {
+  "company": "易方达基金管理有限公司",
+  "none": 30,
+  "company_ev": 20,
+  "generic": 30
+ },
+ {
+  "company": "汇添富基金管理股份有限公",
+  "none": 15,
+  "company_ev": 30,
+  "generic": 25
+ },
+ {
+  "company": "华泰证券股份有限公司",
+  "none": 95,
+  "company_ev": 95,
+  "generic": 95
+ },
+ {
+  "company": "国泰海通证券股份有限公司",
+  "none": 10,
+  "company_ev": 0,
+  "generic": 0
+ },
+ {
+  "company": "招商证券",
+  "none": 5,
+  "company_ev": 0,
+  "generic": 10
+ },
+ {
+  "company": "国信证券",
+  "none": 25,
+  "company_ev": 15,
+  "generic": 10
+ },
+ {
+  "company": "兴业证券股份有限公司",
+  "none": 25,
+  "company_ev": 50,
+  "generic": 30
+ },
+ {
+  "company": "中信建投",
+  "none": 98,
+  "company_ev": 95,
+  "generic": 95
+ },
+ {
+  "company": "幻方量化",
+  "none": 15,
+  "company_ev": 25,
+  "generic": 25
+ },
+ {
+  "company": "鸣石投资",
+  "none": 95,
+  "company_ev": 85,
+  "generic": 95
+ },
+ {
+  "company": "灵均投资",
+  "none": 35,
+  "company_ev": 30,
+  "generic": 35
+ },
+ {
+  "company": "上海衍复投资管理有限公司",
+  "none": 65,
+  "company_ev": 70,
+  "generic": 65
+ },
+ {
+  "company": "宽德投资",
+  "none": 85,
+  "company_ev": 85,
+  "generic": 90
+ },
+ {
+  "company": "中信建投",
+  "none": 100,
+  "company_ev": 95,
+  "generic": 95
+ },
+ {
+  "company": "中金公司",
+  "none": 95,
+  "company_ev": 95,
+  "generic": 85
+ },
+ {
+  "company": "国金证券",
+  "none": 98,
+  "company_ev": 100,
+  "generic": 100
+ },
+ {
+  "company": "国泰海通证券股份有限公司",
+  "none": 15,
+  "company_ev": 15,
+  "generic": 15
+ },
+ {
+  "company": "九坤投资（北京）有限公司",
+  "none": 70,
+  "company_ev": 75,
+  "generic": 95
+ },
+ {
+  "company": "网易",
+  "none": 95,
+  "company_ev": 100,
+  "generic": 95
+ },
+ {
+  "company": "字节跳动",
+  "none": 15,
+  "company_ev": 15,
+  "generic": 35
+ },
+ {
+  "company": "美团",
+  "none": 20,
+  "company_ev": 20,
+  "generic": 30
+ },
+ {
+  "company": "腾讯",
+  "none": 40,
+  "company_ev": 25,
+  "generic": 30
+ },
+ {
+  "company": "阿里巴巴",
+  "none": 95,
+  "company_ev": 90,
+  "generic": 95
+ },
+ {
+  "company": "腾讯",
+  "none": 30,
+  "company_ev": 45,
+  "generic": 25
+ },
+ {
+  "company": "字节跳动",
+  "none": 10,
+  "company_ev": 10,
+  "generic": 15
+ },
+ {
+  "company": "美团",
+  "none": 0,
+  "company_ev": 5,
+  "generic": 0
+ },
+ {
+  "company": "百度在线网络技术（北京）",
+  "none": 40,
+  "company_ev": 15,
+  "generic": 60
+ },
+ {
+  "company": "阿里巴巴文化娱乐有限公司",
+  "none": 10,
+  "company_ev": 5,
+  "generic": 15
+ },
+ {
+  "company": "广州网易计算机系统有限公",
+  "none": 95,
+  "company_ev": 95,
+  "generic": 90
+ },
+ {
+  "company": "快手",
+  "none": 85,
+  "company_ev": 85,
+  "generic": 90
+ }
+]

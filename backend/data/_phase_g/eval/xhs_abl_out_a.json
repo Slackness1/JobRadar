@@ -1,0 +1,164 @@
+[
+  {
+    "idx": 0,
+    "company": "华夏基金管理有限公司",
+    "score_none": 42,
+    "score_prod": 38,
+    "score_company": 52,
+    "score_generic": 42,
+    "note": "prod证据谈量化+中金门槛拉低分；company证据含华夏内部真实留用率和买方面试题小幅拉高"
+  },
+  {
+    "idx": 1,
+    "company": "易方达基金管理有限公司",
+    "score_none": 38,
+    "score_prod": 30,
+    "score_company": 38,
+    "score_generic": 38,
+    "note": "量化主动方向与消费/医药行研方向严重错位；prod证据强调编程背景进一步拉低；company证据无方向信息不动分"
+  },
+  {
+    "idx": 2,
+    "company": "招商基金",
+    "score_none": 75,
+    "score_prod": 70,
+    "score_company": 72,
+    "score_generic": 75,
+    "note": "消费服务股票研究员高度对口；prod证据提到big name实习门槛小幅拉低；company指出银行系薪资固化不影响方向得分"
+  },
+  {
+    "idx": 3,
+    "company": "中欧基金管理有限公司",
+    "score_none": 32,
+    "score_prod": 26,
+    "score_company": 32,
+    "score_generic": 32,
+    "note": "量化研究与消费/医药行研完全错位；prod证据再次强调量化数理背景要求，进一步确认不匹配拉低分"
+  },
+  {
+    "idx": 4,
+    "company": "广发基金管理有限公司",
+    "score_none": 35,
+    "score_prod": 35,
+    "score_company": 38,
+    "score_generic": 35,
+    "note": "交易岗非行研方向，不对口；company证据提到广发量化做不如易方达的背景信息，小幅调整感知"
+  },
+  {
+    "idx": 5,
+    "company": "南方基金管理股份有限公司",
+    "score_none": 30,
+    "score_prod": 28,
+    "score_company": 32,
+    "score_generic": 30,
+    "note": "REITs研究非消费/医药行研，JD为空；company证据提到南方基金中后台进入路径和FOF，略微拉高"
+  },
+  {
+    "idx": 6,
+    "company": "汇添富基金管理股份有限公司",
+    "score_none": 40,
+    "score_prod": 38,
+    "score_company": 45,
+    "score_generic": 40,
+    "note": "固收分析师与买方权益行研方向偏移；prod提债券背景要求拉低；company提留用率良心+面试题拉高方向感知"
+  },
+  {
+    "idx": 7,
+    "company": "华泰证券股份有限公司",
+    "score_none": 70,
+    "score_prod": 75,
+    "score_company": 72,
+    "score_generic": 70,
+    "note": "卖方行研方向匹配TMT学生；prod详述华泰校招流程+实习考察机制，增强可信度拉高；company证据正面但信息量少"
+  },
+  {
+    "idx": 8,
+    "company": "国泰海通证券股份有限公司",
+    "score_none": 30,
+    "score_prod": 32,
+    "score_company": 35,
+    "score_generic": 30,
+    "note": "能化/有色/黑色/农产品方向与TMT行研方向完全错位；company证据提到行业第一实力小幅提振吸引力感知"
+  },
+  {
+    "idx": 9,
+    "company": "国信证券",
+    "score_none": 52,
+    "score_prod": 48,
+    "score_company": 58,
+    "score_generic": 52,
+    "note": "总量研究(宏观/固收/策略)非TMT但属研究方向；company有TMT行研真实实习经历引述，明确拉高相关性感知"
+  },
+  {
+    "idx": 10,
+    "company": "兴业证券股份有限公司",
+    "score_none": 30,
+    "score_prod": 30,
+    "score_company": 30,
+    "score_generic": 30,
+    "note": "兴证期货研究助理与TMT方向完全错位且JD为空；三种证据均无实质方向信息，分数全部锚定none"
+  },
+  {
+    "idx": 11,
+    "company": "招商证券",
+    "score_none": 28,
+    "score_prod": 28,
+    "score_company": 28,
+    "score_generic": 28,
+    "note": "场外衍生品量化与TMT行研错位且JD为空；证据全聚焦投行实习氛围，无方向增量，分数不动"
+  },
+  {
+    "idx": 12,
+    "company": "中信建投",
+    "score_none": 68,
+    "score_prod": 65,
+    "score_company": 60,
+    "score_generic": 68,
+    "note": "研究发展助理含TMT方向，对口度高；prod提headcount收紧拉低预期；company聚焦实习生泄密丑闻，负面感知拉低"
+  },
+  {
+    "idx": 13,
+    "company": "幻方量化",
+    "score_none": 35,
+    "score_prod": 42,
+    "score_company": 38,
+    "score_generic": 35,
+    "note": "资深开发工程师非中频alpha因子研究方向；prod明确描述幻方扁平自驱+新人独立上线，契合量化私募环境拉高"
+  },
+  {
+    "idx": 14,
+    "company": "九坤投资（北京）有限公司",
+    "score_none": 72,
+    "score_prod": 72,
+    "score_company": 75,
+    "score_generic": 72,
+    "note": "量化交易分析师岗位量化策略+风控链路高度匹配；company有在职五年正面留存证据，小幅拉高"
+  },
+  {
+    "idx": 15,
+    "company": "鸣石投资",
+    "score_none": 55,
+    "score_prod": 52,
+    "score_company": 48,
+    "score_generic": 55,
+    "note": "AI量化工程师偏AI/ML工程侧，与中频alpha因子研究略有偏移；company有评论指鸣石频发论文=管理费导向，拉低信心"
+  },
+  {
+    "idx": 16,
+    "company": "上海衍复投资管理有限公司",
+    "score_none": 48,
+    "score_prod": 45,
+    "score_company": 52,
+    "score_generic": 48,
+    "note": "Quant Developer偏C++工程侧；company有「二线私募无脑去私募」的正面建议，略微拉高对衍复的吸引力感知"
+  },
+  {
+    "idx": 17,
+    "company": "灵均投资",
+    "score_none": 58,
+    "score_prod": 55,
+    "score_company": 62,
+    "score_generic": 58,
+    "note": "量化开发工程师JD为空；prod再强调数理背景门槛略拉低；company有量化私募内部人视角和暑期实习全记录，提升真实感"
+  }
+]

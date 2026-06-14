@@ -1,0 +1,19 @@
+[
+  {"idx": 18, "company": "宽德投资", "score_none": 45, "score_prod": 45, "score_company": 48, "score_generic": 45, "note": "company证据含宽德面经+量化去向，小幅正向；prod/generic与岗位无关"},
+  {"idx": 19, "company": "中金公司", "score_none": 82, "score_prod": 82, "score_company": 84, "score_generic": 82, "note": "company有中金IBD实习直接印证，小幅提分；其余两臂无实质影响"},
+  {"idx": 20, "company": "国金证券", "score_none": 80, "score_prod": 81, "score_company": 82, "score_generic": 80, "note": "company明确提腰腿部券商机会更多，稍微正向；prod仅间接相关"},
+  {"idx": 21, "company": "中信建投", "score_none": 81, "score_prod": 79, "score_company": 79, "score_generic": 81, "note": "prod提中信门槛高(藤校+清北复交)，小幅降分；company强调高门槛同方向"},
+  {"idx": 22, "company": "国泰海通证券股份有限公司", "score_none": 28, "score_prod": 28, "score_company": 26, "score_generic": 28, "note": "岗位偏衍生品销售vs意图IBD；company暗示国海销售HC多，反向提示不对口"},
+  {"idx": 23, "company": "腾讯", "score_none": 22, "score_prod": 22, "score_company": 22, "score_generic": 22, "note": "PM岗vs算法意图，三种证据均未命中，分数不动"},
+  {"idx": 24, "company": "字节跳动", "score_none": 20, "score_prod": 20, "score_company": 22, "score_generic": 20, "note": "company含AI PM技术深度描述，略微提示可接受性，小幅正向"},
+  {"idx": 25, "company": "网易", "score_none": 82, "score_prod": 83, "score_company": 85, "score_generic": 83, "note": "company直接命中网易大模型算法面试，印证岗位技术深度；prod/generic小幅正向"},
+  {"idx": 26, "company": "美团", "score_none": 18, "score_prod": 18, "score_company": 20, "score_generic": 18, "note": "company含美团大模型算法面经易误导，把PM岗分数拉高；prod/generic无关"},
+  {"idx": 27, "company": "快手", "score_none": 60, "score_prod": 60, "score_company": 61, "score_generic": 61, "note": "company印证快手技术硬核；generic大模型面经轻微正向；prod基本无关"},
+  {"idx": 28, "company": "百度在线网络技术（北京）有限公司", "score_none": 35, "score_prod": 35, "score_company": 40, "score_generic": 35, "note": "company含百度文心大模型Agent面经，严重带偏（岗位实为自驾感知），分被拉高"},
+  {"idx": 29, "company": "阿里巴巴", "score_none": 62, "score_prod": 63, "score_company": 63, "score_generic": 63, "note": "三种证据均小幅正向但差异不显著；岗位是搜推AI架构，交叉模糊"},
+  {"idx": 30, "company": "腾讯", "score_none": 55, "score_prod": 58, "score_company": 55, "score_generic": 55, "note": "prod含AI工程师技术栈描述，对推理引擎infra有参考，小幅提分"},
+  {"idx": 31, "company": "字节跳动", "score_none": 25, "score_prod": 25, "score_company": 25, "score_generic": 25, "note": "前端岗vs后端意图；三种证据均未改变判断"},
+  {"idx": 32, "company": "美团", "score_none": 8, "score_prod": 8, "score_company": 10, "score_generic": 8, "note": "硬件岗vs软件后端；company含C++面经易误导，小幅带偏"},
+  {"idx": 33, "company": "阿里巴巴文化娱乐有限公司", "score_none": 20, "score_prod": 20, "score_company": 20, "score_generic": 20, "note": "3D图形岗vs后端意图；三种证据均无命中，分数不变"},
+  {"idx": 34, "company": "广州网易计算机系统有限公司", "score_none": 84, "score_prod": 84, "score_company": 85, "score_generic": 84, "note": "company含网易AI后端方向讨论，小幅正向；prod/generic无实质增量"}
+]
