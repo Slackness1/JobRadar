@@ -46,7 +46,15 @@ class XhsContextProvider:
                 track_label=str(job.get("track_label") or ""),
                 k=2,
             )
-            return format_block(insights, header="本岗位相关小红书一手信息")
+            # 按 company_match_kind 分两组,诚实标注来源
+            company_insights = [i for i in insights if i.get("company_match_kind") in ("exact", "alias")]
+            generic_insights = [i for i in insights if i.get("company_match_kind") not in ("exact", "alias")]
+            parts = []
+            if company_insights:
+                parts.append(format_block(company_insights, header="本公司相关一手经验(小红书)"))
+            if generic_insights:
+                parts.append(format_block(generic_insights, header="同岗位泛化经验(小红书,非该公司专属,仅供参考)"))
+            return "\n\n".join(parts)
 
         if req.purpose == PURPOSE_INTERVIEW_QUESTION:
             insights = fetch_for_interview(req.db, target_job=req.target_job, purpose="questions", k=4)

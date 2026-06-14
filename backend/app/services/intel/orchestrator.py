@@ -115,7 +115,9 @@ def run_intel_task(db: Session, task_id: int) -> JobIntelTask:
                 relevance_score=rec.get("relevance_score", 0.0),
                 confidence_score=rec.get("confidence_score", 0.0),
                 sentiment=rec.get("sentiment", "neutral"),
-                data_version="v1-mvp",
+                # 优先使用 rec 里的 data_version（mock 记录携带 "v1-mock"），
+                # 真实抓取记录默认 "v1-mvp"
+                data_version=rec.get("data_version", "v1-mvp"),
                 fetched_at=datetime.utcnow(),
                 parsed_at=datetime.utcnow(),
                 updated_at=datetime.utcnow(),
@@ -179,6 +181,12 @@ def _run_xiaohongshu_mvp(query: str, job_id: int, task_id: int) -> List[Dict[str
 
 
 def _build_mock_records(job_id: int) -> List[Dict[str, Any]]:
+    """兜底 mock 数据。每条记录满足以下三个硬标识，供下游过滤：
+    1. data_version = "v1-mock"（列级标识，最易 SQL 过滤）
+    2. author_meta_json["source"] = "mock"（JSON 级标识，已有）
+    3. title 含 "(mock)"、url 含 "mock"（文本级可读标记）
+    严禁被推荐/精排/narrative 主链路当真实情报使用 — 用 real_records_for_job() 过滤。
+    """
     return [
         {
             "platform": "nowcoder",
@@ -199,8 +207,96 @@ def _build_mock_records(job_id: int) -> List[Dict[str, Any]]:
             "relevance_score": 0.8,
             "confidence_score": 0.7,
             "sentiment": "positive",
+            # 硬标识：data_version 区分 mock vs 真实抓取
+            "data_version": "v1-mock",
         }
     ]
+
+
+# ---------------------------------------------------------------------------
+# 读取口径：排除 mock 数据
+# ---------------------------------------------------------------------------
+
+def real_records_for_job(db, job_id: int) -> List[Dict[str, Any]]:
+    """返回指定岗位的**真实**情报记录（排除所有 mock 兜底条目）。
+
+    过滤策略（三层，任意一层命中则排除）：
+      1. data_version == "v1-mock"     ← 首选，列级精确匹配
+      2. author_meta_json["source"] == "mock"  ← JSON 二次兜底
+      3. url 含 "/mock"                ← 文本三次兜底
+
+    返回 dict 列表（非 ORM 对象），调用方可直接序列化。
+    当前推荐/精排/narrative 主链路**尚未**接入 job_intel_records；
+    本 helper 作为防御层，供未来接入点直接使用。
+    """
+    from app.models import JobIntelRecord  # 局部 import 避免循环
+
+    rows = (
+        db.query(JobIntelRecord)
+        .filter(JobIntelRecord.job_id == job_id)
+        .all()
+    )
+    return [_to_dict(r) for r in rows if not _is_mock_record(r)]
+
+
+def _is_mock_record(record) -> bool:
+    """判断一条 JobIntelRecord（ORM 对象或 dict）是否为 mock 兜底数据。"""
+    # 支持 ORM 对象和 dict 两种形式
+    if isinstance(record, dict):
+        dv = record.get("data_version", "")
+        meta_str = record.get("author_meta_json", "{}")
+        url = record.get("url", "")
+    else:
+        dv = getattr(record, "data_version", "") or ""
+        meta_str = getattr(record, "author_meta_json", "{}") or "{}"
+        url = getattr(record, "url", "") or ""
+
+    # 1. 列级标识
+    if dv == "v1-mock":
+        return True
+
+    # 2. JSON 级标识（兼容历史记录 data_version 未设的情况）
+    try:
+        meta = json.loads(meta_str)
+        if meta.get("source") == "mock":
+            return True
+    except Exception:
+        pass
+
+    # 3. URL 文本标识（再兜底）
+    if "/mock" in url or url.endswith("mock"):
+        return True
+
+    return False
+
+
+def _to_dict(record) -> Dict[str, Any]:
+    """把 ORM JobIntelRecord 转成普通 dict。"""
+    return {
+        "id": record.id,
+        "job_id": record.job_id,
+        "task_id": record.task_id,
+        "platform": record.platform,
+        "content_type": record.content_type,
+        "platform_item_id": record.platform_item_id,
+        "title": record.title,
+        "author_name": record.author_name,
+        "author_meta_json": record.author_meta_json,
+        "url": record.url,
+        "raw_text": record.raw_text,
+        "cleaned_text": record.cleaned_text,
+        "summary": record.summary,
+        "keywords_json": record.keywords_json,
+        "tags_json": record.tags_json,
+        "metrics_json": record.metrics_json,
+        "entities_json": record.entities_json,
+        "relevance_score": record.relevance_score,
+        "confidence_score": record.confidence_score,
+        "sentiment": record.sentiment,
+        "data_version": record.data_version,
+        "fetched_at": record.fetched_at,
+        "publish_time": record.publish_time,
+    }
 
 
 def refresh_intel_for_job(db: Session, job_id: int, force: bool = False):
