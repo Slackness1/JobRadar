@@ -396,6 +396,10 @@ export interface RecommendFeedItem extends Omit<ResumeRecommendationItem, 'enhan
   base_score?: number;
   /** ≤4 evidence anchors surfaced after deepen. Each tuple: [label, text]. */
   anchors?: [string, string][];
+  /** 对学生意图的相关度分层 (与"公司梯队"正交)。
+   *  strong = 命中目标赛道;transferable = 相邻赛道有迁移可能;
+   *  explore = 语义召回的新发现。后端未返回时为 undefined (视作 strong)。*/
+  match_tier?: 'strong' | 'transferable' | 'explore';
 }
 
 export interface RecommendTurnResponse {

@@ -116,6 +116,33 @@ export function RecommendFeedPane({
     [onHighlightCompany],
   );
 
+  // ── Match-tier 分组(优雅降级) ────────────────────────────────────────────
+  // 按原始 feed 顺序把每张卡分进三个桶,同时记住全局 index(i),
+  // 保证 JobCard 的 rank 联动不因分组而错位。
+  const TIER_ORDER = ['strong', 'transferable', 'explore'] as const;
+  type Tier = (typeof TIER_ORDER)[number];
+
+  const TIER_META: Record<Tier, { title: string; sub: string }> = {
+    strong: { title: '强匹配', sub: '最贴合你目标方向' },
+    transferable: { title: '可迁移', sub: '相邻赛道,有迁移可能' },
+    explore: { title: '探索机会', sub: '语义发现,可拓展投递池' },
+  };
+
+  // 构建分组:{ tier -> Array<{ item, globalIndex }> }
+  const grouped = new Map<Tier, Array<{ item: RecommendFeedItem; globalIndex: number }>>();
+  for (const tier of TIER_ORDER) grouped.set(tier, []);
+  feed.forEach((item, i) => {
+    const tier: Tier =
+      item.match_tier === 'transferable' || item.match_tier === 'explore'
+        ? item.match_tier
+        : 'strong'; // undefined / 'strong' / 未知值 → strong
+    grouped.get(tier)!.push({ item, globalIndex: i });
+  });
+
+  // 有内容的 tier 数
+  const activeTiers = TIER_ORDER.filter((t) => (grouped.get(t)?.length ?? 0) > 0);
+  const showGroupHeaders = activeTiers.length >= 2;
+
   return (
     <div className="recommend-feed">
       {workingQuery && (
@@ -129,17 +156,43 @@ export function RecommendFeedPane({
       )}
 
       <div className="recommend-feed__list">
-        {feed.map((item, i) => (
-          <JobCard
-            key={item.job_id}
-            item={item}
-            rank={i + 1}
-            deepening={deepeningId === item.job_id}
-            onDeepen={handleDeepen}
-            onIntel={onIntel}
-            onHighlightCompany={handleHighlight}
-          />
-        ))}
+        {showGroupHeaders
+          ? // ≥2 个 tier 有内容:按段渲染
+            activeTiers.map((tier) => {
+              const entries = grouped.get(tier)!;
+              const meta = TIER_META[tier];
+              return (
+                <div key={tier} className="recommend-feed__tier-group">
+                  <div className="recommend-feed__tier-header">
+                    <span className="recommend-feed__tier-title">{meta.title}</span>
+                    <span className="recommend-feed__tier-sub">{meta.sub}</span>
+                  </div>
+                  {entries.map(({ item, globalIndex }) => (
+                    <JobCard
+                      key={item.job_id}
+                      item={item}
+                      rank={globalIndex + 1}
+                      deepening={deepeningId === item.job_id}
+                      onDeepen={handleDeepen}
+                      onIntel={onIntel}
+                      onHighlightCompany={handleHighlight}
+                    />
+                  ))}
+                </div>
+              );
+            })
+          : // 只有一个 tier(或全 strong):扁平渲染,和改前完全一致
+            feed.map((item, i) => (
+              <JobCard
+                key={item.job_id}
+                item={item}
+                rank={i + 1}
+                deepening={deepeningId === item.job_id}
+                onDeepen={handleDeepen}
+                onIntel={onIntel}
+                onHighlightCompany={handleHighlight}
+              />
+            ))}
 
         {feed.length === 0 && (
           <div className="recommend-feed__empty">

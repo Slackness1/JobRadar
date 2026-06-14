@@ -242,6 +242,11 @@ class ResumeRecommendationItem(BaseModel):
     # 2026-06-12 方案B: 公司所在档位文案("第一梯队"/"第二梯队"/"AI 原生"/"其他梯队");
     # 互联网赛道才填,前端有它就显示档位 chip,代替"梯队内/外"二元标。
     skeleton_band: str = ""
+    # 2026-06-14 S1: 对学生意图的相关度分层(与"公司梯队"正交)。
+    # strong=sub_cat 命中目标赛道(强匹配);transferable=有 sub_cat 但非目标(相邻可迁移);
+    # explore=sub_cat 空,纯语义召回(新发现,标签未定)。前端按它分三栏;
+    # HYBRID_RECALL OFF 时召回仍走 sub_cat 闸 → 几乎全 strong,前端优雅降级为单列。
+    match_tier: str = "strong"
 
 
 class ResumeRecommendationResultOut(BaseModel):

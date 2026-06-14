@@ -849,6 +849,39 @@
   gap: 11px;
 }
 
+/* ── Match-tier 分组标题 (只在 ≥2 个 tier 有内容时出现) ──────────────── */
+
+[data-theme='recommend'] .recommend-feed__tier-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+[data-theme='recommend'] .recommend-feed__tier-group + .recommend-feed__tier-group {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-warm);
+}
+
+[data-theme='recommend'] .recommend-feed__tier-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 2px;
+  margin-bottom: 2px;
+}
+
+[data-theme='recommend'] .recommend-feed__tier-title {
+  font: 600 11.5px var(--font-sans);
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+[data-theme='recommend'] .recommend-feed__tier-sub {
+  font: 400 11px var(--font-sans);
+  color: var(--stone);
+}
+
 [data-theme='recommend'] .recommend-feed__card {
   background: var(--ivory);
   border-radius: 14px;

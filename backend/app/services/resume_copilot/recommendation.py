@@ -1075,6 +1075,13 @@ def _v2_items_from_ranked(
         _band_label = ""
         if _sc in _inet_subs:
             _band_label = _TIER_BAND_LABEL.get(_co_tier or "", "其他梯队")
+        # S1 相关度三态(与软降权同源):命中目标=强匹配;有 sub_cat 但非目标=可迁移;无 sub_cat=探索。
+        if not _sc:
+            _match_tier = "explore"
+        elif _sc in preferred_sub_cats or (job.sub_category_secondary or "") in preferred_sub_cats:
+            _match_tier = "strong"
+        else:
+            _match_tier = "transferable"
         items.append(
             ResumeRecommendationItem(
                 job_id=str(job.job_id),
@@ -1109,6 +1116,7 @@ def _v2_items_from_ranked(
                 industry_tags=[],
                 in_skeleton=_in_sk,
                 skeleton_band=_band_label,
+                match_tier=_match_tier,
             )
         )
     return items
