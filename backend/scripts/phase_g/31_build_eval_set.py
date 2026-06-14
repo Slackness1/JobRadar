@@ -153,7 +153,8 @@ def main() -> None:
     # 1) 先跑所有 (persona, query) 的四套召回 + 收候选元数据
     tasks = []  # 每条 = (persona, query, legs, meta)
     for p in personas:
-        subcats = track_subcat_map.subcats_for_tracks([p["canonical_track"]])
+        # baseline_subcats 显式覆盖(互联网工程/算法岗 track 映射缺失时直接给目标子赛道,保证 baseline 公平)
+        subcats = p.get("baseline_subcats") or track_subcat_map.subcats_for_tracks([p["canonical_track"]])
         for q in p["intent_queries"]:
             legs = _run_legs(db, q, subcats, p.get("location", ""), args.k)
             union = sorted({i for lst in legs.values() for i in lst})
@@ -188,6 +189,7 @@ def main() -> None:
         for p, q, legs, meta, scores in results:
             rec = {
                 "persona_id": p["persona_id"], "name": p["name"],
+                "segment": p.get("segment", "finance"),
                 "canonical_track": p["canonical_track"], "query": q,
                 "legs": legs,
                 "labels": {str(i): scores.get(i, 0) for i in meta},

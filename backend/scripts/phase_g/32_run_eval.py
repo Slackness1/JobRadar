@@ -14,7 +14,10 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
+
+random.seed(7)
 
 EVAL_DIR = Path("data/_phase_g/eval")
 RUN = EVAL_DIR / "eval_run.jsonl"
@@ -64,15 +67,27 @@ def _avg(xs):
     return sum(xs) / len(xs) if xs else 0.0
 
 
-def main() -> None:
-    recs = [json.loads(l) for l in RUN.read_text(encoding="utf-8").splitlines() if l.strip()]
-    agg = {leg: {"recall": [], "ndcg": [], "mrr": [], "off": []} for leg in LEGS}
-    n_rel_total = 0
+def _boot_ci(xs, n_boot=2000):
+    """bootstrap 95% CI of the mean。返回 (mean, lo, hi)。"""
+    xs = [x for x in xs if x is not None]
+    if not xs:
+        return 0.0, 0.0, 0.0
+    n = len(xs)
+    means = []
+    for _ in range(n_boot):
+        s = sum(xs[random.randrange(n)] for _ in range(n)) / n
+        means.append(s)
+    means.sort()
+    return sum(xs) / n, means[int(0.025 * n_boot)], means[int(0.975 * n_boot)]
 
+
+def _collect(recs):
+    agg = {leg: {"recall": [], "ndcg": [], "mrr": [], "off": []} for leg in LEGS}
+    n_rel = 0
     for r in recs:
         labels = r["labels"]
         rel_ids = {int(k) for k, v in labels.items() if v >= REL}
-        n_rel_total += len(rel_ids)
+        n_rel += len(rel_ids)
         base_ids = r["legs"]["A"]
         for leg in LEGS:
             ids = r["legs"][leg]
@@ -80,16 +95,48 @@ def main() -> None:
             agg[leg]["ndcg"].append(_ndcg_at_k(ids, labels, K_NDCG))
             agg[leg]["mrr"].append(_mrr(ids, labels))
             agg[leg]["off"].append(_off_target(ids, labels, base_ids, K_RECALL))
+    return agg, n_rel
 
-    print(f"\n{'='*72}\nS1 召回离线 eval  ({len(recs)} 条 query, {n_rel_total} 个相关标注, 相关阈值≥{REL})\n{'='*72}")
-    print(f"{'召回腿':<18}{'Recall@20':>11}{'nDCG@10':>10}{'MRR':>8}{'跑偏率':>9}")
-    print("-" * 72)
+
+def _print_table(recs, title):
+    agg, n_rel = _collect(recs)
+    print(f"\n{'='*78}\n{title}  ({len(recs)} 条 query, {n_rel} 个相关标注, 阈值≥{REL})\n{'='*78}")
+    print(f"{'召回腿':<18}{'Recall@20 [95%CI]':>24}{'nDCG@10 [95%CI]':>24}{'跑偏率':>10}")
+    print("-" * 78)
     M = {}
     for leg in LEGS:
-        rc, nd, mr, of = (_avg(agg[leg]["recall"]), _avg(agg[leg]["ndcg"]),
-                          _avg(agg[leg]["mrr"]), _avg(agg[leg]["off"]))
+        rc, rlo, rhi = _boot_ci(agg[leg]["recall"])
+        nd, nlo, nhi = _boot_ci(agg[leg]["ndcg"])
+        of = _avg(agg[leg]["off"])
+        mr = _avg(agg[leg]["mrr"])
         M[leg] = (rc, nd, mr, of)
-        print(f"{LEG_NAME[leg]:<18}{rc:>10.1%}{nd:>10.3f}{mr:>8.3f}{of:>8.1%}")
+        print(f"{LEG_NAME[leg]:<18}"
+              f"{rc:>7.1%} [{rlo:.0%},{rhi:.0%}]".rjust(24)
+              + f"{nd:>6.3f} [{nlo:.2f},{nhi:.2f}]".rjust(24)
+              + f"{of:>9.1%}")
+    return M, agg
+
+
+def main() -> None:
+    recs = [json.loads(l) for l in RUN.read_text(encoding="utf-8").splitlines() if l.strip()]
+    M, agg = _print_table(recs, "S1 召回离线 eval — 全体")
+
+    # 分段(金融 vs 互联网)
+    for seg in ("finance", "internet"):
+        sub = [r for r in recs if r.get("segment", "finance") == seg]
+        if sub:
+            _print_table(sub, f"分段:{seg}")
+
+    # 配对差检验:hybrid - baseline nDCG
+    diffs = []
+    for r in recs:
+        a = _ndcg_at_k(r["legs"]["A"], r["labels"], K_NDCG)
+        d = _ndcg_at_k(r["legs"]["D"], r["labels"], K_NDCG)
+        if a is not None and d is not None:
+            diffs.append(d - a)
+    dm, dlo, dhi = _boot_ci(diffs)
+    print(f"\n配对差 hybrid−baseline nDCG@10: {dm:+.3f}  95%CI [{dlo:+.3f}, {dhi:+.3f}]  "
+          f"(n={len(diffs)}, 整段为正=稳健胜出)")
 
     # 裁决
     base_rc, base_nd = M["A"][0], M["A"][1]
