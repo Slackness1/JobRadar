@@ -91,10 +91,17 @@ def hybrid_recall(
     dense_weight: float = 1.0,
     sparse_weight: float = 1.0,
     embed_fn=dense_index.embed_many,
+    target_sub_cats: Sequence[str] = (),
 ) -> list[Job]:
-    """混合召回:硬过滤 → dense + sparse(在 allowed 内)→ RRF → 返回 Job 列表(融合序)。
+    """混合召回:硬过滤 → dense + sparse(在 allowed 内)→ RRF → 软降权 → 返回 Job 列表。
 
     query_text 空时退化为"硬过滤集合按新鲜度"(稀疏/稠密都需 query)。
+
+    target_sub_cats:
+        非空时对结果做软降权 —— sub_category 非空且不在 target_sub_cats 的 Job
+        移到列表队尾(sub_category 为 NULL/''/在 target 内的保持原相对顺序在前)。
+        不删除任何候选,仅重排,供下游分层展示。
+        target_sub_cats=() → 不降权,顺序不变。
     """
     allowed = hard_filter_ids(
         db, freshness_days=freshness_days, preferred_locations=preferred_locations
@@ -109,14 +116,38 @@ def hybrid_recall(
             {"ids": list(allowed), "lim": k},
         ).fetchall()
         ids = [int(r[0]) for r in rows]
-        return _fetch_jobs_in_order(db, ids)
+        jobs = _fetch_jobs_in_order(db, ids)
+        return _soft_demote(jobs, target_sub_cats)
 
     dense = dense_index.dense_search(db, query_text, embed_fn=embed_fn, allowed_ids=allowed, k=k * 2)
     sparse = sparse_index.sparse_search(db, query_text, allowed_ids=allowed, k=k * 2)
     fused = rrf_fuse([dense, sparse], weights=[dense_weight, sparse_weight])
     ids = [jid for jid, _ in fused[:k]]
     # RRF 可能漏掉两路都没召到但在 allowed 里的岗 —— 不补,语义不相关本就该靠后
-    return _fetch_jobs_in_order(db, ids)
+    jobs = _fetch_jobs_in_order(db, ids)
+    return _soft_demote(jobs, target_sub_cats)
+
+
+def _soft_demote(jobs: list[Job], target_sub_cats: Sequence[str]) -> list[Job]:
+    """把 sub_category 非空且不在 target_sub_cats 里的 Job 稳定移到队尾。
+
+    - sub_category 为 None/'' 的:保持在前(未 enrich 的语义命中岗不降)。
+    - sub_category 在 target_sub_cats 里的:保持在前。
+    - 其余(sub_category 有值但不在 target 里):移到队尾。
+    - target_sub_cats 为空 → 直接返回原列表(不降权)。
+    """
+    if not target_sub_cats:
+        return jobs
+    target_set = set(target_sub_cats)
+    keep: list[Job] = []
+    demote: list[Job] = []
+    for job in jobs:
+        sc = job.sub_category or ""
+        if not sc or sc in target_set:
+            keep.append(job)
+        else:
+            demote.append(job)
+    return keep + demote
 
 
 def _fetch_jobs_in_order(db: Session, ids: list[int]) -> list[Job]:

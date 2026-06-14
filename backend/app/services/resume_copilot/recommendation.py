@@ -1207,13 +1207,31 @@ def _recommend_v2_dispatcher(
         confirmed_sub_cats=_confirmed,
     )
 
-    # Step 1: SQL recall (含地点过滤 — 学生选了城市就不召回明显异地岗)
-    candidates = recall_candidates(
-        db,
-        preferred_sub_cats=preferred_sub_cats,
-        limit=200,
-        preferred_locations=preferred_locations,
-    )
+    # Step 1: 召回
+    # flag ON → 混合召回(dense+sparse+RRF),解绑 sub_cat 标签硬闸,语义相关的未 enrich 岗也能进池;
+    # flag OFF(默认)→ 原 SQL recall_candidates,行为与现状字节一致。
+    from app.config import HYBRID_RECALL_ENABLED
+    if HYBRID_RECALL_ENABLED:
+        from app.services.phase_g.recommendation_v2.hybrid_recall import hybrid_recall
+        # query_text:把学生偏好 sub_cat + background 拼成意图串,让向量/BM25 找语义最近的岗。
+        # background 截 200 字避免超长;sub_cat 列表直接拼在前(命中词权重高)。
+        _bg_text = str(profile_dict.get("background", "") or "")
+        _query = " ".join(preferred_sub_cats) + (" " + _bg_text[:200] if _bg_text else "")
+        candidates = hybrid_recall(
+            db,
+            query_text=_query.strip(),
+            freshness_days=30,
+            preferred_locations=preferred_locations,
+            target_sub_cats=preferred_sub_cats,
+            k=200,
+        )
+    else:
+        candidates = recall_candidates(
+            db,
+            preferred_sub_cats=preferred_sub_cats,
+            limit=200,
+            preferred_locations=preferred_locations,
+        )
     if rejected_set:
         candidates = [j for j in candidates if str(j.job_id) not in rejected_set]
     prog.on_recall(len(candidates))

@@ -220,6 +220,12 @@ RECOMMENDATION_V2_ENABLED = os.environ.get("RECOMMENDATION_V2_ENABLED", "0") in 
 # Rerank fallback: 无KB岗是否调 LLM 做通用相关性打分（默认 OFF = 与现状一致返 score=50）。
 RERANK_FALLBACK_ENABLED = os.environ.get("RERANK_FALLBACK_ENABLED", "0") in {"1", "true", "True"}
 
+# Phase G — 混合召回（dense + sparse + RRF）灰度开关。
+# 默认 OFF = 行为与现状字节一致（走纯 SQL recall_candidates）。
+# ON 时 _recommend_v2_dispatcher 的召回步骤改走 hybrid_recall（语义 + BM25），
+# 但 sub_cat 为空/标错的岗通过语义仍可被召回，下游 scoring/rerank/narrative 不变。
+HYBRID_RECALL_ENABLED = os.environ.get("HYBRID_RECALL_ENABLED", "0") in {"1", "true", "True"}
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 

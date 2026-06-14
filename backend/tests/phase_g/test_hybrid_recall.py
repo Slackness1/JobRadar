@@ -91,6 +91,118 @@ def test_hybrid_recall_empty_query_falls_back(db):
     assert [j.id for j in jobs] == [1]  # 空 query 走硬过滤兜底
 
 
+def test_hybrid_recall_subcat_soft_demote(db):
+    """target_sub_cats 软降权:不在 target 的非空 sub_cat 岗排队尾;NULL sub_cat 保持在前。
+    并验证 target_sub_cats=() 时顺序不变。"""
+    if not si.fts5_available(db):
+        pytest.skip("SQLite 无 FTS5")
+
+    db.add_all([
+        _job(1, "九坤", "量化研究员", "量化 研究 因子", sub="量化研究员·中频"),   # in target
+        _job(2, "幻方", "量化策略", "量化 研究 因子", sub=None),                  # NULL → keep
+        _job(3, "中金", "投行分析师", "量化 研究 因子", sub="投行 IBD"),           # NOT in target → demote
+        _job(4, "九坤", "另类数据", "量化 研究", sub="量化研究员·高频"),           # in target
+    ])
+    db.commit()
+    di.backfill_embeddings(db, embed_fn=_fake_embed)
+    di.reload_cache(db)
+    si.rebuild_index(db)
+
+    target = ["量化研究员·中频", "量化研究员·高频"]
+    jobs = hr.hybrid_recall(db, "量化 研究 因子", embed_fn=_fake_embed, k=10,
+                            target_sub_cats=target)
+
+    # 所有候选都在结果里(不删任何人)
+    assert len(jobs) == 4
+
+    job_ids = [j.id for j in jobs]
+    # job3(sub=投行 IBD, NOT in target) 必须在 job1/job2/job4 之后
+    pos = {j.id: i for i, j in enumerate(jobs)}
+    assert pos[3] > pos[1], "投行 IBD 岗应在目标 sub_cat 岗之后"
+    assert pos[3] > pos[2], "投行 IBD 岗应在 NULL sub_cat 岗之后"
+    assert pos[3] > pos[4], "投行 IBD 岗应在另一目标 sub_cat 岗之后"
+
+    # 验证 target_sub_cats=() 时不改变顺序(与不传参结果一致)
+    jobs_no_target = hr.hybrid_recall(db, "量化 研究 因子", embed_fn=_fake_embed, k=10,
+                                      target_sub_cats=())
+    jobs_default   = hr.hybrid_recall(db, "量化 研究 因子", embed_fn=_fake_embed, k=10)
+    assert [j.id for j in jobs_no_target] == [j.id for j in jobs_default], \
+        "target_sub_cats=() 时顺序必须与不传 target_sub_cats 一致"
+
+
+def test_dispatcher_flag_routing(monkeypatch):
+    """flag 路由单测:HYBRID_RECALL_ENABLED=True 时走 hybrid_recall,False 时走 recall_candidates。
+    用 monkeypatch 替换两个召回函数并构造最小 profile 调 _recommend_v2_dispatcher。"""
+    import app.config as cfg
+    from app.services.resume_copilot import recommendation as rec_mod
+    from app.schemas_resume_copilot import ResumeProfilePayload, ResumePreferencePayload
+
+    calls: dict[str, int] = {"hybrid": 0, "sql": 0}
+
+    # 最小 Profile — 填能让 dispatcher 跑到召回步骤即可
+    profile = ResumeProfilePayload.model_validate({
+        "basic_info": {"name": "测试生"},
+        "education": [], "internships": [], "projects": [],
+        "skills": {"technical": [], "tools": [], "languages": []},
+        "languages": [], "awards": [], "candidate_summary": "",
+        "inferred_roles": [], "inferred_tracks": ["量化"],
+    })
+    preferences = None
+
+    # stub hybrid_recall — 直接返回空列表(让 dispatcher 走到 no_candidates 分支)
+    def _stub_hybrid(*args, **kwargs):
+        calls["hybrid"] += 1
+        return []
+
+    def _stub_sql(*args, **kwargs):
+        calls["sql"] += 1
+        return []
+
+    # monkeypatch 两个召回函数在 dispatcher 实际 import 的命名空间
+    monkeypatch.setattr(
+        "app.services.phase_g.recommendation_v2.hybrid_recall.hybrid_recall",
+        _stub_hybrid,
+    )
+    monkeypatch.setattr(
+        "app.services.phase_g.recommendation_v2.recall.recall_candidates",
+        _stub_sql,
+    )
+
+    # 构造最小 db stub (只需不报错;两个召回 stub 都不用 db)
+    class _FakeDb:
+        pass
+
+    db = _FakeDb()
+
+    # --- flag OFF (默认) → 走 recall_candidates ---
+    monkeypatch.setattr(cfg, "HYBRID_RECALL_ENABLED", False)
+    # 重新导入 HYBRID_RECALL_ENABLED 到 rec_mod 里(dispatcher 在函数体内 import,无需 reload)
+    rec_mod._recommend_v2_dispatcher(
+        db,  # type: ignore[arg-type]
+        profile=profile,
+        preferences=preferences,
+        rejected_job_ids=[],
+        limit=None, min_score=0, top_n=10,
+    )
+    assert calls["sql"] == 1, "flag OFF 时应调用 recall_candidates"
+    assert calls["hybrid"] == 0, "flag OFF 时不应调用 hybrid_recall"
+
+    calls["hybrid"] = 0
+    calls["sql"] = 0
+
+    # --- flag ON → 走 hybrid_recall ---
+    monkeypatch.setattr(cfg, "HYBRID_RECALL_ENABLED", True)
+    rec_mod._recommend_v2_dispatcher(
+        db,  # type: ignore[arg-type]
+        profile=profile,
+        preferences=preferences,
+        rejected_job_ids=[],
+        limit=None, min_score=0, top_n=10,
+    )
+    assert calls["hybrid"] == 1, "flag ON 时应调用 hybrid_recall"
+    assert calls["sql"] == 0, "flag ON 时不应调用 recall_candidates"
+
+
 def test_sparse_chinese_segmentation(db):
     """真实无空格中文 JD:jieba 分词后 FTS5 BM25 能召回(证明 unicode61 整段问题已解)。"""
     if not si.fts5_available(db):
