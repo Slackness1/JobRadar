@@ -1,0 +1,138 @@
+[
+  {
+    "idx": 0,
+    "company": "华夏基金管理有限公司",
+    "score_without": 40,
+    "score_with": 42,
+    "evidence_effect": "neutral",
+    "note": "岗位是指数研究员(量化/被动)，学生想做买方行研(主动消费/医药)，方向错位；证据是泛化行业介绍，未改变判断"
+  },
+  {
+    "idx": 1,
+    "company": "易方达基金管理有限公司",
+    "score_without": 48,
+    "score_with": 46,
+    "evidence_effect": "neutral",
+    "note": "岗位主动量化研究，学生目标买方行研；证据是公司排名/行业鄙视链泛论，与岗位fit无关，分变化仅2分"
+  },
+  {
+    "idx": 2,
+    "company": "招商基金",
+    "score_without": 78,
+    "score_with": 80,
+    "evidence_effect": "neutral",
+    "note": "消费服务行研与学生消费买方方向高度吻合；证据混杂私募梯队排名等无关内容，对本岗fit判断无实质增量"
+  },
+  {
+    "idx": 3,
+    "company": "中欧基金管理有限公司",
+    "score_without": 30,
+    "score_with": 25,
+    "evidence_effect": "hurt",
+    "note": "岗位是量化研究，与公募行研学生方向不符；证据全是FOF/中欧MBA信息，毫不相关却暗示'人才流失'，误导压低分"
+  },
+  {
+    "idx": 4,
+    "company": "华泰证券股份有限公司",
+    "score_without": 65,
+    "score_with": 72,
+    "evidence_effect": "helped",
+    "note": "无JD；证据揭示华泰研究所真实工作内容(金融工程/衍生品/交易背景要求)，补充了岗位方向信息，合理调整了判断"
+  },
+  {
+    "idx": 5,
+    "company": "国泰海通证券股份有限公司",
+    "score_without": 28,
+    "score_with": 22,
+    "evidence_effect": "hurt",
+    "note": "岗位是大宗商品/能化研究，与TMT行研意图完全错位；证据讲投行排名和实习留用，与能化研究无关，反而因负面信号压低分"
+  },
+  {
+    "idx": 6,
+    "company": "国信证券",
+    "score_without": 38,
+    "score_with": 40,
+    "evidence_effect": "neutral",
+    "note": "岗位是总量研究(宏观/固收/策略)，与TMT行研方向偏差大；证据里有TMT行研职位描述片段，稍增相关感，分变仅2分"
+  },
+  {
+    "idx": 7,
+    "company": "兴业证券股份有限公司",
+    "score_without": 20,
+    "score_with": 15,
+    "evidence_effect": "hurt",
+    "note": "岗位是兴证期货研究助理，与TMT卖方研究意图完全不符；证据讲投行留用率/中信券商排名，与期货岗无关，产生负向拉偏"
+  },
+  {
+    "idx": 8,
+    "company": "幻方量化",
+    "score_without": 35,
+    "score_with": 50,
+    "evidence_effect": "helped",
+    "note": "无JD；证据揭示幻方是头部量化机构、DeepSeek同源背景、管理规模700亿+，明确了公司性质和研究岗位属性，合理抬分"
+  },
+  {
+    "idx": 9,
+    "company": "九坤投资（北京）有限公司",
+    "score_without": 72,
+    "score_with": 78,
+    "evidence_effect": "helped",
+    "note": "JD详实；证据补充了九坤待遇好、员工忠诚度高(五年留任)、比赛经历重视等真实信息，强化了岗位正向fit"
+  },
+  {
+    "idx": 10,
+    "company": "鸣石投资",
+    "score_without": 68,
+    "score_with": 62,
+    "evidence_effect": "hurt",
+    "note": "岗位为AI量化工程师，JD契合学生方向；但证据含\"频繁发论文=以管理费为主\"的主观评价，误导性压低了公司和岗位认可度"
+  },
+  {
+    "idx": 11,
+    "company": "中金公司",
+    "score_without": 32,
+    "score_with": 38,
+    "evidence_effect": "helped",
+    "note": "岗位是机械组行研实习，与IBD意图错位；但证据明确揭示中金IBD实习接本科生且重要的机会信息，合理微调认知"
+  },
+  {
+    "idx": 12,
+    "company": "国金证券",
+    "score_without": 72,
+    "score_with": 75,
+    "evidence_effect": "neutral",
+    "note": "股权承做JD与IBD意图高度契合；证据含国金投行真实体验(接触企业财务总监/IPO项目)，小幅强化但分变化仅3分"
+  },
+  {
+    "idx": 13,
+    "company": "腾讯",
+    "score_without": 30,
+    "score_with": 20,
+    "evidence_effect": "hurt",
+    "note": "岗位是AI策略产品经理，学生目标算法工程师；证据全是游戏/推荐算法面经，与IMA Agent产品岗完全无关，误导压低分"
+  },
+  {
+    "idx": 14,
+    "company": "字节跳动",
+    "score_without": 32,
+    "score_with": 28,
+    "evidence_effect": "hurt",
+    "note": "岗位是AI产品实习生而非算法岗，方向本已偏；证据讲C端经验要求、6面挂经，强化了'门槛高/不合适'印象，进一步压低分"
+  },
+  {
+    "idx": 15,
+    "company": "网易",
+    "score_without": 60,
+    "score_with": 65,
+    "evidence_effect": "helped",
+    "note": "大模型应用工程师岗与学生方向吻合；证据含GRPO面试题和真实LLM算法考点，揭示了岗位真实技术深度，合理抬分"
+  },
+  {
+    "idx": 16,
+    "company": "美团",
+    "score_without": 28,
+    "score_with": 20,
+    "evidence_effect": "hurt",
+    "note": "岗位是营销安全产品经理，与大模型算法意图完全不符；但证据全是大模型算法面经，误导性地用算法信息为产品岗打高了印象后又产生落差，净效果压低"
+  }
+]

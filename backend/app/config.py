@@ -226,6 +226,12 @@ RERANK_FALLBACK_ENABLED = os.environ.get("RERANK_FALLBACK_ENABLED", "0") in {"1"
 # 但 sub_cat 为空/标错的岗通过语义仍可被召回，下游 scoring/rerank/narrative 不变。
 HYBRID_RECALL_ENABLED = os.environ.get("HYBRID_RECALL_ENABLED", "0") in {"1", "true", "True"}
 
+# 小红书证据是否注入岗位精排(rerank) prompt。**默认 OFF — 这是基于数据的行为变更**:
+# 2026-06-15 消融实验(17 对本公司证据,sonnet 双臂)显示净风险>净收益(helped 5 / hurt 7),
+# 根因是证据按公司名取、未按岗位职能过滤("同公司错职能"证据 + 单条情绪帖把精排分带偏 5-15)。
+# XHS 仍用于 CHAT / narrative / 面试(用户带上下文阅读),只是不再静默改精排分数。设 1 可恢复旧行为。
+XHS_RERANK_ENABLED = os.environ.get("XHS_RERANK_ENABLED", "0") in {"1", "true", "True"}
+
 # Backward-compatible single default config id.
 TATA_CONFIG_ID = TATA_CONFIG_IDS[0]
 

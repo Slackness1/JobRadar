@@ -38,6 +38,10 @@ class XhsContextProvider:
             return format_block(insights, header="来自小红书的相关一手分享")
 
         if req.purpose == PURPOSE_RERANK_JOB:
+            # 2026-06-15 消融:XHS 进精排净风险>净收益,默认不注入(仍保留 CHAT/面试等)。
+            from app.config import XHS_RERANK_ENABLED
+            if not XHS_RERANK_ENABLED:
+                return ""
             job = req.job or {}
             insights = fetch_for_job(
                 req.db,
