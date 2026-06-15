@@ -16,7 +16,7 @@ from typing import Any
 from app.config import RERANK_FALLBACK_ENABLED
 from app.database import SessionLocal
 from app.models import Job, KnowledgeSubcategory
-from app.services.crawler_llm import build_pro_client, pro_model_name
+from app.services.crawler_llm import build_interactive_client, interactive_model_name
 
 log = logging.getLogger(__name__)
 
@@ -124,15 +124,14 @@ def rerank_one(
                 "kb_available": False,
             }
         # flag ON: 用通用相关性 prompt 调 LLM，不依赖 KB
-        client = build_pro_client(max_retries=1, timeout=75)
+        client = build_interactive_client(max_retries=1, timeout=60)
         user_msg = _build_rerank_user_message(student_profile, job, kb=None)
         resp = client.chat.completions.create(
-            model=pro_model_name(),
+            model=interactive_model_name(),
             messages=[
                 {"role": "system", "content": RERANK_FALLBACK_PROMPT},
                 {"role": "user", "content": user_msg},
             ],
-            extra_body={"reasoning_effort": "medium"},
             response_format={"type": "json_object"},
         )
         parsed = json.loads(resp.choices[0].message.content or "{}")
@@ -150,15 +149,14 @@ def rerank_one(
     # Pro medium reasoning 实测常 30-60s,默认 30s 超时太紧 → 一半精排超时失败、岗位
     # 拿不到真打分(2026-06-02 实测 10 个里约 5 个 timed out)。放宽到 75s + 重试 1 次,
     # 并发跑所以墙钟仍 ~75-90s,但 10 个岗位都能拿到真精排,不再又少又空。
-    client = build_pro_client(max_retries=1, timeout=75)
+    client = build_interactive_client(max_retries=1, timeout=60)
     user_msg = _build_rerank_user_message(student_profile, job, kb)
     resp = client.chat.completions.create(
-        model=pro_model_name(),
+        model=interactive_model_name(),
         messages=[
             {"role": "system", "content": RERANK_SYSTEM_PROMPT},
             {"role": "user", "content": user_msg},
         ],
-        extra_body={"reasoning_effort": "medium"},
         response_format={"type": "json_object"},
         temperature=0.2,
     )

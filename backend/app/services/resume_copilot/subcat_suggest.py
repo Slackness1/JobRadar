@@ -26,14 +26,14 @@ _PROMPT = """你是金融招聘顾问。下面是一个学生的简历摘要, �
 
 
 def _build_client():
-    """复用项目 Flash client 工厂; 预勾是简单分类, 用便宜的 flash 档即可。"""
-    from app.services.crawler_llm import build_flash_client
-    return build_flash_client()
+    """交互链路(确认页学生在等):走官方 DeepSeek,不走批处理中转 flash。"""
+    from app.services.crawler_llm import build_interactive_client
+    return build_interactive_client(max_retries=1, timeout=30)
 
 
 def _model_name() -> str:
-    from app.services.crawler_llm import flash_model_name
-    return flash_model_name()
+    from app.services.crawler_llm import interactive_model_name
+    return interactive_model_name()
 
 
 def suggest_sub_cats(resume_summary: str, candidate_sub_cats: list[str], *, client=None) -> list[str]:

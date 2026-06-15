@@ -16,7 +16,7 @@ from typing import Any
 
 from app.database import SessionLocal
 from app.models import Job, KnowledgeSubcategory
-from app.services.crawler_llm import build_pro_client, pro_model_name
+from app.services.crawler_llm import build_interactive_client, interactive_model_name
 
 log = logging.getLogger(__name__)
 
@@ -115,16 +115,15 @@ def generate_narrative(
             "anchors_used": [],
             "kb_available": False,
         }
-    # 同 rerank: 默认 30s 对 Pro medium 太紧会超时丢理由,放宽 75s + 重试 1 次(并发跑)。
-    client = build_pro_client(max_retries=1, timeout=75)
+    # 2026-06-15: 交互链路改走官方 DeepSeek(中转并发限流太重),非推理模型不传 reasoning_effort。
+    client = build_interactive_client(max_retries=1, timeout=60)
     user_msg = _build_user_msg(student_profile, job, kb, llm_rerank)
     resp = client.chat.completions.create(
-        model=pro_model_name(),
+        model=interactive_model_name(),
         messages=[
             {"role": "system", "content": NARRATIVE_SYSTEM_PROMPT},
             {"role": "user", "content": user_msg},
         ],
-        extra_body={"reasoning_effort": "medium"},
         response_format={"type": "json_object"},
         temperature=0.3,
     )

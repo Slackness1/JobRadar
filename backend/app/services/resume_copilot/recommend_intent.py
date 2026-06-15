@@ -29,13 +29,14 @@ _FALLBACK = {"intent": "chitchat", "query_delta": {}, "remember": None, "reply":
 
 
 def _build_client():
-    from app.services.crawler_llm import build_flash_client
-    return build_flash_client()
+    # 交互链路:走官方 DeepSeek(中转并发限流太重),不走批处理 flash 客户端。
+    from app.services.crawler_llm import build_interactive_client
+    return build_interactive_client(max_retries=1, timeout=30)
 
 
 def _model_name() -> str:
-    from app.services.crawler_llm import flash_model_name
-    return flash_model_name()
+    from app.services.crawler_llm import interactive_model_name
+    return interactive_model_name()
 
 
 def parse_intent(message: str, *, current_query: dict, client=None) -> dict:

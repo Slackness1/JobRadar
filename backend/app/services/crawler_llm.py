@@ -26,6 +26,10 @@ from app.config import (
     ENRICH_LLM_API_KEY,
     ENRICH_LLM_BASE_URL,
     ENRICH_LLM_MODEL,
+    INTERACTIVE_LLM_API_KEY,
+    INTERACTIVE_LLM_BASE_URL,
+    INTERACTIVE_LLM_MODEL,
+    INTERACTIVE_LLM_TIMEOUT_SECONDS,
 )
 
 
@@ -64,6 +68,29 @@ def build_pro_client(
     if max_retries is not None:
         kwargs["max_retries"] = max_retries
     return OpenAI(**kwargs)
+
+
+def build_interactive_client(
+    *, max_retries: int | None = None, timeout: float | None = None,
+) -> OpenAI:
+    """学生交互链路客户端 → RESUME_COPILOT_LLM_*(2026-06-15 起 = DeepSeek 官方直连)。
+
+    与批处理客户端(build_pro/flash_client → CRAWLER_LLM_* = OpenCode 中转)**物理隔离**:
+    中转对并发重度限流(实测单调用 ~26s vs 官方 ~1.4s),凡"学生坐屏幕前等"的调用
+    (推荐精排/narrative/意图/子类预勾)走本客户端,后台批处理仍走中转。
+    """
+    kwargs: dict[str, Any] = {
+        "base_url": INTERACTIVE_LLM_BASE_URL,
+        "api_key": INTERACTIVE_LLM_API_KEY,
+        "timeout": INTERACTIVE_LLM_TIMEOUT_SECONDS if timeout is None else timeout,
+    }
+    if max_retries is not None:
+        kwargs["max_retries"] = max_retries
+    return OpenAI(**kwargs)
+
+
+def interactive_model_name() -> str:
+    return INTERACTIVE_LLM_MODEL
 
 
 def flash_model_name() -> str:
