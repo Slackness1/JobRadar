@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
-import { Sparkles, ArrowUp, Check, Target } from 'lucide-react';
+import { Sparkles, ArrowUp, Check, Target, Quote, X } from 'lucide-react';
 import {
   deepOptimizeStart,
   planTurn,
   deepOptimizeWriteBack,
   postChatMessage,
   type DeepOptimizeStartIn,
+  type PendingQuote,
   type PlanStateOut,
   type PlanItemWire,
 } from '../../../../api';
@@ -198,6 +199,9 @@ export interface ChatThreadProps {
   mode: 'deep' | 'free';
   /** 深度优化:从打分缺口播种的首问入参。null = 还没选段。 */
   seed?: DeepOptimizeStartIn | null;
+  /** 「待引用」低调引子(引用此段 / 选行引用挂上;发送时才据此启动)。 */
+  pendingQuote?: PendingQuote | null;
+  setPendingQuote?: (q: PendingQuote | null) => void;
   /** 写回成功 → 通知父组件把对应段映射成 A4 lit。 */
   onWriteBack?: (section: string) => void;
   /** 无真实 session 时渲染样例对话(离线目测)。 */
@@ -229,7 +233,15 @@ const MOCK_DEEP: ChatMsg[] = [
   },
 ];
 
-export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = false }: ChatThreadProps): JSX.Element {
+export function ChatThread({
+  sessionId,
+  mode,
+  seed = null,
+  pendingQuote = null,
+  setPendingQuote,
+  onWriteBack,
+  mock = false,
+}: ChatThreadProps): JSX.Element {
   const [msgs, setMsgs] = useState<ChatMsg[]>(mock && mode === 'deep' ? MOCK_DEEP : []);
   const [thinking, setThinking] = useState(false);
   const [val, setVal] = useState('');
@@ -239,6 +251,8 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
 
   const plan = useRef<PlanStateOut | null>(null);
   const seededNonce = useRef<DeepOptimizeStartIn | null>(null);
+  // 深度优化是否已启动(seed 自动起头 或 引用+用户首句起头)。决定 send 走 start 还是 turn。
+  const started = useRef(false);
   const busy = useRef(false);
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
@@ -268,6 +282,7 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
     if (mode !== 'deep' || !seed || mock) return;
     if (seededNonce.current === seed) return; // 同一 seed 不重复 start
     seededNonce.current = seed;
+    started.current = true; // 打分缺口路径:seed 自动起头(保留原行为)
     let alive = true;
 
     setFocusLabel(seed.label);
@@ -379,7 +394,42 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
       return;
     }
 
-    // 真实深度优化:planTurn → 派生下一条反问 / 改写卡。
+    // 真实深度优化首句:有「待引用」引子且尚未启动 → 用引用+用户诉求 deepOptimizeStart。
+    // 触发点是用户主动发的这一句(不再是引用即自动反问)。
+    if (!started.current && pendingQuote) {
+      const q = pendingQuote;
+      started.current = true;
+      setFocusLabel(q.label);
+      setTargetTrack(q.target_track || TARGET_TRACK_FALLBACK);
+      setPendingQuote?.(null);
+      const startBody: DeepOptimizeStartIn = {
+        section: q.section,
+        label: q.label,
+        gaps: [],
+        detail: `引用片段:\n${q.text}\n\n我的诉求:${v}`,
+        target_track: q.target_track || TARGET_TRACK_FALLBACK,
+      };
+      setThinking(true);
+      deepOptimizeStart(sessionId, startBody)
+        .then((p) => {
+          plan.current = p;
+          applyPlanToMsgs(p, true);
+        })
+        .catch((e) => {
+          started.current = false; // 启动失败允许重试
+          setMsgs((m) => [
+            ...m,
+            { kind: 'text', who: 'ai', html: `启动深度优化失败:${e instanceof Error ? e.message : '未知错误'}` },
+          ]);
+        })
+        .finally(() => {
+          setThinking(false);
+          busy.current = false;
+        });
+      return;
+    }
+
+    // 真实深度优化续轮:planTurn → 派生下一条反问 / 改写卡。
     setThinking(true);
     planTurn(sessionId, v)
       .then((p) => {
@@ -532,13 +582,67 @@ export function ChatThread({ sessionId, mode, seed = null, onWriteBack, mock = f
           background: 'var(--parchment)',
         }}
       >
-        {empty && (
+        {empty && !pendingQuote && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 9 }}>
             {hints.map((h, i) => (
               <button key={i} onClick={() => setVal(h)} className="hf-pill" style={{ height: 26, cursor: 'pointer' }}>
                 {h}
               </button>
             ))}
+          </div>
+        )}
+        {/* 低调引用条:有「待引用」引子时浮在输入框上方,小灰 blockquote 风格,
+            ✕ 可撤掉;发送时据此启动深度优化(不自动发问)。 */}
+        {pendingQuote && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 7,
+              marginBottom: 8,
+              padding: '6px 9px',
+              borderLeft: '2px solid var(--warm-silver)',
+              borderRadius: 4,
+              background: 'rgba(176,174,165,0.10)',
+            }}
+          >
+            <Quote size={11} style={{ color: 'var(--warm-silver)', flex: 'none', marginTop: 2 }} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ font: '500 9.5px var(--font-sans)', color: 'var(--stone)', marginBottom: 1 }}>
+                引用 · {pendingQuote.label}
+              </div>
+              <div
+                style={{
+                  font: '400 11px/1.5 var(--font-sans)',
+                  color: 'var(--stone)',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {pendingQuote.text}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPendingQuote?.(null)}
+              aria-label="撤掉引用"
+              style={{
+                flex: 'none',
+                width: 18,
+                height: 18,
+                display: 'grid',
+                placeItems: 'center',
+                border: 'none',
+                borderRadius: 999,
+                cursor: 'pointer',
+                color: 'var(--stone)',
+                background: 'transparent',
+              }}
+            >
+              <X size={12} />
+            </button>
           </div>
         )}
         <div

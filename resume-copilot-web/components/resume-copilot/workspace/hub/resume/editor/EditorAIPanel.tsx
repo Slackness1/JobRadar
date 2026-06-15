@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 import { Sparkles } from 'lucide-react';
 import { EditorScoreReportThick } from './EditorScoreReportThick';
 import { ChatThread } from './ChatThread';
-import type { DeepOptimizeStartIn, ScoreSectionGap } from '../../../../api';
+import type { DeepOptimizeStartIn, PendingQuote, ScoreSectionGap } from '../../../../api';
 
 const TABS: [string, string][] = [
   ['score', '简历打分'],
@@ -18,6 +18,9 @@ export interface EditorAIPanelProps {
   /** 当前深度优化播种(从打分缺口 CTA 构造)。null = 还没选段。 */
   seed: DeepOptimizeStartIn | null;
   setSeed: (s: DeepOptimizeStartIn | null) => void;
+  /** 「待引用」低调引子(引用此段 / 选行引用挂上;不自动发问)。 */
+  pendingQuote: PendingQuote | null;
+  setPendingQuote: (q: PendingQuote | null) => void;
   /** 受控 tab。 */
   tab: string;
   setTab: (t: string) => void;
@@ -32,6 +35,8 @@ export function EditorAIPanel({
   sessionId,
   seed,
   setSeed,
+  pendingQuote,
+  setPendingQuote,
   tab,
   setTab,
   onWriteBack,
@@ -125,7 +130,7 @@ export function EditorAIPanel({
               }}
             >
               {t}
-              {k === 'deep' && seed && !on && (
+              {k === 'deep' && (seed || pendingQuote) && !on && (
                 <span style={{ width: 5, height: 5, borderRadius: 999, background: 'var(--terracotta)' }} />
               )}
             </button>
@@ -138,7 +143,15 @@ export function EditorAIPanel({
         <EditorScoreReportThick sessionId={sessionId} onOptimize={handleOptimize} mock={mock} />
       </div>
       <div style={{ flex: 1, minHeight: 0, display: tab === 'deep' ? 'flex' : 'none', flexDirection: 'column' }}>
-        <ChatThread sessionId={sessionId} mode="deep" seed={seed} onWriteBack={onWriteBack} mock={mock} />
+        <ChatThread
+          sessionId={sessionId}
+          mode="deep"
+          seed={seed}
+          pendingQuote={pendingQuote}
+          setPendingQuote={setPendingQuote}
+          onWriteBack={onWriteBack}
+          mock={mock}
+        />
       </div>
       {/* 自由问内容随 tab 一起藏(TABS 注释见上)。 */}
     </div>

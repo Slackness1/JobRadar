@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Download, Save, X } from 'lucide-react';
+import { Download, Quote, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
 import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
 import { EditorAIPanel } from './EditorAIPanel';
-import type { DeepOptimizeStartIn } from '../../../../api';
+import type { DeepOptimizeStartIn, PendingQuote } from '../../../../api';
 
 type LeftTab = 'tpl' | 'edit' | 'layout';
 
@@ -37,6 +37,42 @@ function sectionToLitId(section: string): string | undefined {
   if (!section) return undefined;
   const prefix = section.split('.')[0].toLowerCase();
   return SECTION_PREFIX_TO_ID[prefix];
+}
+
+// 简历文档 section id → 后端 section path 前缀(SECTION_PREFIX_TO_ID 的反向)。
+// 引用此段 + 选行引用都用它把文档段映射回后端 path。
+const ID_TO_SECTION_PREFIX: Record<string, string> = {
+  edu: 'education',
+  intern: 'internships',
+  proj: 'projects',
+  skills: 'skills',
+};
+
+// 从选区某个节点往上找最近带 data-blk 的祖先,解析出 {docId, itemIdx}。
+// data-blk 形如 it:<docId>:<i> / pa:<docId>:<i> / sk:<docId> / tg:<docId> / hd:<docId>。
+function resolveBlkFromNode(node: Node | null): { docId: string; itemIdx: number } | null {
+  let el: HTMLElement | null =
+    node && node.nodeType === Node.ELEMENT_NODE
+      ? (node as HTMLElement)
+      : (node?.parentElement ?? null);
+  while (el) {
+    const blk = el.getAttribute?.('data-blk');
+    if (blk) {
+      const parts = blk.split(':');
+      if (parts.length >= 2 && parts[1]) {
+        const itemIdx = parts.length >= 3 ? Number(parts[2]) : 0;
+        return { docId: parts[1], itemIdx: Number.isFinite(itemIdx) ? itemIdx : 0 };
+      }
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
+
+// 选区文本估行数:按非空行计;不少于 1。
+function countSelectedLines(text: string): number {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  return Math.max(1, lines.length);
 }
 
 export interface ResumeEditorOverlayProps {
@@ -95,6 +131,15 @@ export function ResumeEditorOverlay({
   };
   const [aiTab, setAiTab] = useState<string>('score');
   const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
+  // 「待引用」低调引子 — 引用此段 / 选行引用挂在这里,不自动发问;
+  // 用户在深度优化输入框打字发送时才据此启动深度优化。
+  const [pendingQuote, setPendingQuote] = useState<PendingQuote | null>(null);
+  // 中间文档选区浮条:有选中文本时显示「已选 N 行 · 引用」。
+  const [selChip, setSelChip] = useState<{ top: number; left: number; lines: number } | null>(null);
+  // 暂存当前选区解析结果(点「引用」时落成 pendingQuote)。
+  const pendingSelRef = useRef<PendingQuote | null>(null);
+  // 中间文档容器(限定只在文档内的选区才触发)。
+  const docRef = useRef<HTMLDivElement>(null);
   // 当前高亮("AI 刚写回")的简历段 id。只在真实写回(深度优化落笔)后亮;
   // 初始绝不预亮 —— 之前硬编码初始亮在实习经历, 没写回也顶着"AI 刚写回"是撒谎。
   const [litSectionId, setLitSectionId] = useState<string | undefined>(undefined);
@@ -123,28 +168,81 @@ export function ResumeEditorOverlay({
     if (id) setLitSectionId(id);
   };
 
-  // 「引用此段」接通: 复用打分缺口「去深度优化这段」的同一条管道 ——
-  // 构造该段的 seed → 右栏切到深度优化, AI 围绕这段反问取证(不再是 no-op 假按钮)。
-  const ID_TO_SECTION_PREFIX: Record<string, string> = {
-    edu: 'education',
-    intern: 'internships',
-    proj: 'projects',
-    skills: 'skills',
-  };
+  // 「引用此段」改造:不再 setSeed 自动发问。只挂一个低调「待引用」引子,
+  // 把该段内容作为引用文字 + section/label 记下 → 切到深度优化 tab。
+  // 真正启动深度优化交给用户在输入框主动发第一句(见 ChatThread)。
   const handleQuote = (sectionId: string, itemIdx: number) => {
     const sec = profile.sections.find((s) => s.id === sectionId);
     const item =
       sec && sec.type === 'timeline' ? sec.items[itemIdx] : undefined;
     const label = [sec?.label, item?.org].filter(Boolean).join(' · ') || '这段经历';
     const prefix = ID_TO_SECTION_PREFIX[sectionId] ?? sectionId;
-    setSeed({
-      section: `${prefix}.${itemIdx}`,
-      label,
-      gaps: [],
-      detail: '',
-      target_track: '',
-    });
+    // 引用文字:该 item 的描述 + bullet(没有就用 sub / 标题兜底)。
+    const text =
+      item
+        ? [item.sub, item.desc, ...(item.bullets ?? [])].filter(Boolean).join('\n') || label
+        : label;
+    setPendingQuote({ text, section: `${prefix}.${itemIdx}`, label, target_track: '' });
     setAiTab('deep');
+  };
+
+  // 中间文档选区监听:在文档容器内选中 ≥1 行文本 → 浮出「已选 N 行 · 引用」。
+  useEffect(() => {
+    const onSelChange = () => {
+      const sel = window.getSelection();
+      const doc = docRef.current;
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0 || !doc) {
+        setSelChip(null);
+        pendingSelRef.current = null;
+        return;
+      }
+      const range = sel.getRangeAt(0);
+      // 只认完全落在中间文档容器内的选区(右栏对话 / 左栏 tab 不触发)。
+      if (!doc.contains(range.commonAncestorContainer)) {
+        setSelChip(null);
+        pendingSelRef.current = null;
+        return;
+      }
+      const text = sel.toString();
+      if (!text.trim()) {
+        setSelChip(null);
+        pendingSelRef.current = null;
+        return;
+      }
+      const blk = resolveBlkFromNode(range.startContainer);
+      const docId = blk?.docId ?? '';
+      const sec = docId ? profile.sections.find((s) => s.id === docId) : undefined;
+      const itemIdx = blk?.itemIdx ?? 0;
+      const item = sec && sec.type === 'timeline' ? sec.items[itemIdx] : undefined;
+      const label = [sec?.label, item?.org].filter(Boolean).join(' · ') || '简历片段';
+      const prefix = docId ? ID_TO_SECTION_PREFIX[docId] ?? docId : '';
+      pendingSelRef.current = {
+        text: text.trim(),
+        section: prefix ? `${prefix}.${itemIdx}` : '',
+        label,
+        target_track: '',
+      };
+      // 浮条位置:选区末端附近,换算成相对文档容器(可滚动)的坐标。
+      const rects = range.getClientRects();
+      const last = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+      const box = doc.getBoundingClientRect();
+      setSelChip({
+        top: last.bottom - box.top + doc.scrollTop + 6,
+        left: Math.max(8, last.right - box.left + doc.scrollLeft - 60),
+        lines: countSelectedLines(text),
+      });
+    };
+    document.addEventListener('selectionchange', onSelChange);
+    return () => document.removeEventListener('selectionchange', onSelChange);
+  }, [profile]);
+
+  const handleSelQuote = () => {
+    if (pendingSelRef.current) {
+      setPendingQuote(pendingSelRef.current);
+      setAiTab('deep');
+    }
+    setSelChip(null);
+    window.getSelection()?.removeAllRanges();
   };
 
   return (
@@ -315,8 +413,12 @@ export function ResumeEditorOverlay({
             </button>
           </div>
           <div
-            ref={stageRef}
+            ref={(el) => {
+              stageRef.current = el;
+              docRef.current = el;
+            }}
             style={{
+              position: 'relative',
               flex: 1,
               minHeight: 0,
               overflow: 'auto',
@@ -336,6 +438,34 @@ export function ResumeEditorOverlay({
                 onPages={setPages}
               />
             </div>
+            {/* 选行引用浮条:跟随选区,点了挂成低调引用条 */}
+            {selChip && (
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleSelQuote}
+                style={{
+                  position: 'absolute',
+                  top: selChip.top,
+                  left: selChip.left,
+                  zIndex: 5,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  height: 28,
+                  padding: '0 11px',
+                  borderRadius: 999,
+                  cursor: 'pointer',
+                  font: '600 11.5px var(--font-sans)',
+                  color: 'var(--ivory)',
+                  background: 'var(--terracotta)',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(201,100,66,0.32)',
+                }}
+              >
+                <Quote size={12} /> 已选 {selChip.lines} 行 · 引用
+              </button>
+            )}
           </div>
         </div>
 
@@ -344,6 +474,8 @@ export function ResumeEditorOverlay({
           sessionId={sessionId}
           seed={seed}
           setSeed={setSeed}
+          pendingQuote={pendingQuote}
+          setPendingQuote={setPendingQuote}
           tab={aiTab}
           setTab={setAiTab}
           onWriteBack={handleWriteBack}

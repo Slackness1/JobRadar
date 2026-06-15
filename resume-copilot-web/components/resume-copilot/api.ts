@@ -353,6 +353,21 @@ export interface DeepOptimizeStartIn {
   target_track: string;
 }
 
+/**
+ * 「待引用」片段(低调引子)。引用此段 / 选行引用都先挂成它,
+ * 不自动发问;用户在深度优化输入框打字发送时才据此启动 deepOptimizeStart。
+ */
+export interface PendingQuote {
+  /** 被引用的原文文字(可多行)。 */
+  text: string;
+  /** 后端 section path(如 'internships.0')。 */
+  section: string;
+  /** 人类可读段标签(如「九坤投资 · 量化研究实习」)。 */
+  label: string;
+  /** 目标赛道(可空,启动时回落到默认)。 */
+  target_track: string;
+}
+
 // 注:PlanStateOut / PlanItemWire / PlanOpenQuestionWire 已在本文件下方(约 804–841)
 // 定义为 canonical wire 类型,这里直接复用,不重复声明。
 
