@@ -254,13 +254,20 @@ export interface ScoreTaskStatus {
 
 export function startScoreTask(
   sessionId: number,
-  opts: { targetTrack?: string; force?: boolean } = {},
+  opts: { targetTrack?: string; force?: boolean; profile?: unknown } = {},
 ): Promise<Omit<ScoreTaskStatus, 'report'>> {
+  // profile 覆盖 = 给「指定版本」的快照打分(不复用服务端缓存)。
+  // 传 profile 时强制 force:true,避免命中旧版本的缓存报告。
+  const body: Record<string, unknown> = {
+    target_track: opts.targetTrack ?? '',
+    force: opts.profile != null ? true : opts.force ?? false,
+  };
+  if (opts.profile != null) body.profile = opts.profile;
   return requestJson<Omit<ScoreTaskStatus, 'report'>>(
     `/api/resume-copilot/sessions/${sessionId}/score/start`,
     {
       method: 'POST',
-      body: JSON.stringify({ target_track: opts.targetTrack ?? '', force: opts.force ?? false }),
+      body: JSON.stringify(body),
     },
   );
 }
@@ -341,6 +348,43 @@ export function putHubConversationDetail(
   return requestJson<{ ok: boolean }>(
     `/api/resume-copilot/sessions/${sessionId}/hub-conversations/${convId}`,
     { method: 'PUT', body: JSON.stringify({ messages }) },
+  );
+}
+
+// ── 简历版本(显式保存的快照 + 对应打分报告)+ 编辑器对话(深度优化多 tab)──────
+// 两者都是整组替换式持久化:GET 取整组水合, PUT 整组覆盖。
+// demo / 只读 session 的 PUT 返 403 —— 调用方 catch 后内存态继续, 不崩。
+export function getResumeVersions(sessionId: number): Promise<{ versions: unknown[] }> {
+  return requestJson<{ versions: unknown[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/resume-versions`,
+  );
+}
+
+export function putResumeVersions(
+  sessionId: number,
+  versions: unknown[],
+): Promise<{ ok: boolean }> {
+  return requestJson<{ ok: boolean }>(
+    `/api/resume-copilot/sessions/${sessionId}/resume-versions`,
+    { method: 'PUT', body: JSON.stringify({ versions }) },
+  );
+}
+
+export function getEditorConversations(
+  sessionId: number,
+): Promise<{ conversations: unknown[] }> {
+  return requestJson<{ conversations: unknown[] }>(
+    `/api/resume-copilot/sessions/${sessionId}/editor-conversations`,
+  );
+}
+
+export function putEditorConversations(
+  sessionId: number,
+  conversations: unknown[],
+): Promise<{ ok: boolean }> {
+  return requestJson<{ ok: boolean }>(
+    `/api/resume-copilot/sessions/${sessionId}/editor-conversations`,
+    { method: 'PUT', body: JSON.stringify({ conversations }) },
   );
 }
 

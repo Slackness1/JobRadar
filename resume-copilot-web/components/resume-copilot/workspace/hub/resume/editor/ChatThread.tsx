@@ -178,7 +178,7 @@ function RewriteCard({
 }
 
 // ── 会话消息(本地视图模型,从 PlanStateOut 派生 / 自由问本地 echo)────────
-type ChatMsg =
+export type ChatMsg =
   | { kind: 'text'; who: 'me' | 'ai'; html: string }
   | { kind: 'rewrite'; label: string; text: string; done: boolean };
 
@@ -206,6 +206,10 @@ export interface ChatThreadProps {
   onWriteBack?: (section: string) => void;
   /** 无真实 session 时渲染样例对话(离线目测)。 */
   mock?: boolean;
+  /** 挂载时一次性水合该 tab 的历史消息(多 tab 各自持久化用)。 */
+  initialMsgs?: ChatMsg[];
+  /** 消息变动时回调(父组件 debounce 落库 editor-conversations)。 */
+  onMsgsChange?: (msgs: ChatMsg[]) => void;
 }
 
 // mock 样例对话(深度优化:AI 反问 → 用户答 → 改写卡)。
@@ -241,8 +245,14 @@ export function ChatThread({
   setPendingQuote,
   onWriteBack,
   mock = false,
+  initialMsgs,
+  onMsgsChange,
 }: ChatThreadProps): JSX.Element {
-  const [msgs, setMsgs] = useState<ChatMsg[]>(mock && mode === 'deep' ? MOCK_DEEP : []);
+  // 初始消息:水合的历史(若有)> mock 样例 > 空。水合只在挂载读一次(lazy init)。
+  const [msgs, setMsgs] = useState<ChatMsg[]>(() => {
+    if (initialMsgs && initialMsgs.length) return initialMsgs;
+    return mock && mode === 'deep' ? MOCK_DEEP : [];
+  });
   const [thinking, setThinking] = useState(false);
   const [val, setVal] = useState('');
   const [focusLabel, setFocusLabel] = useState<string | null>(mock && mode === 'deep' ? '九坤投资 · 量化研究实习' : null);
@@ -252,7 +262,10 @@ export function ChatThread({
   const plan = useRef<PlanStateOut | null>(null);
   const seededNonce = useRef<DeepOptimizeStartIn | null>(null);
   // 深度优化是否已启动(seed 自动起头 或 引用+用户首句起头)。决定 send 走 start 还是 turn。
-  const started = useRef(false);
+  // 若挂载时已水合到历史消息,视为已启动 —— 不让 seed 自动起头覆盖旧对话。
+  const started = useRef<boolean>(Boolean(initialMsgs && initialMsgs.length));
+  // 是否已水合历史(用于 seed 守卫:水合过的 tab 不再被 seed 重新起头)。
+  const hydrated = useRef<boolean>(Boolean(initialMsgs && initialMsgs.length));
   const busy = useRef(false);
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
@@ -277,9 +290,17 @@ export function ChatThread({
     if (el) el.scrollTop = el.scrollHeight;
   }, [msgs, thinking]);
 
+  // 消息变动 → 通知父组件落库(父组件 debounce)。挂载首帧也上报,保证空 tab 也成行。
+  useEffect(() => {
+    onMsgsChange?.(msgs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [msgs]);
+
   // 深度优化:seed 变化 → 锁定该段 + 调 deepOptimizeStart → 渲染首问。
   useEffect(() => {
     if (mode !== 'deep' || !seed || mock) return;
+    // 已从历史水合的 tab 不接受 seed 自动起头(否则会盖掉用户已有对话)。
+    if (hydrated.current) return;
     if (seededNonce.current === seed) return; // 同一 seed 不重复 start
     seededNonce.current = seed;
     started.current = true; // 打分缺口路径:seed 自动起头(保留原行为)

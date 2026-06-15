@@ -747,6 +747,9 @@ class ScoreStartIn(BaseModel):
     target_track: str = ''
     # force=True 重打(用户明确再要一次); 默认复用 running/done 任务, 一次交互只打一遍 LLM。
     force: bool = False
+    # 可选: 直接打这份简历(编辑器「重新打分」打的是当前版本的简历快照, 而非库里 confirmed)。
+    # 空=按库里 confirmed/parsed。给了 profile 时一般同时 force=True, 才不会复用旧缓存。
+    profile: dict[str, Any] | None = None
 
 
 @router.post('/sessions/{session_id}/score/start', status_code=status.HTTP_202_ACCEPTED)
@@ -760,11 +763,15 @@ def start_score_task(
 
     打分在服务端线程跑 —— 学生切对话/跳页都不中断(Hub「后台继续跑」的根);
     浏览器不再被 90s 长请求占连接池(修「返回工作台点不动」)。只读不写库,
-    demo 简历也可打。
+    demo 简历也可打。body.profile 给了就打这份(编辑器版本快照), 否则按库里画像。
     """
     session = _get_session_or_404(db, session_id)
     _assert_session_owner(session, x_resume_user_key)
     profile, preferences, target = _load_score_inputs(db, session_id, body.target_track)
+    if body.profile is not None:
+        # 编辑器「重新打分」: 打当前版本的简历快照(可能与库里 confirmed 不同)。
+        profile = ResumeProfilePayload.model_validate(body.profile)
+        target = (body.target_track or '').strip() or derive_target_track(profile, preferences)
     snap = _score_task_mod.start_score_task(
         session_id, profile, target, preferences, force=bool(body.force)
     )
@@ -2458,6 +2465,93 @@ def put_editor_draft(
     _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)
     session.editor_draft_json = json.dumps(payload.draft, ensure_ascii=False)
+    session.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
+# ── 简历版本存档 + 编辑器深度优化对话(统一 Hub 编辑器改版)─────────────────────
+# 简历版本: 显式点保存才记一版, 每版 = 简历快照 + 该版打分报告(可空)。切版本载入该版
+# 简历, 报告跟着切; 重新打分把报告归档进当前版。整组数组按 blob 存取(同 editor-draft 模式)。
+# 编辑器对话: 编辑器内深度优化最多 3 个 tab, 各自独立消息, 也按 blob 存取。
+
+class _VersionsIn(_BaseModel):
+    versions: list[dict[str, Any]]
+
+
+class _EditorConvosIn(_BaseModel):
+    conversations: list[dict[str, Any]]
+
+
+@router.get('/sessions/{session_id}/resume-versions')
+def get_resume_versions(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """读简历版本存档数组(每版 = 简历快照 + 该版打分报告)。无存档返回 []。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    raw = getattr(session, 'resume_versions_json', None)
+    if raw:
+        try:
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return {"versions": data}
+        except Exception:
+            pass
+    return {"versions": []}
+
+
+@router.put('/sessions/{session_id}/resume-versions')
+def put_resume_versions(
+    session_id: int,
+    payload: _VersionsIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """整组落简历版本存档。owner 守卫 + demo 只读守卫。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    _assert_not_demo(session)
+    session.resume_versions_json = json.dumps(payload.versions, ensure_ascii=False)
+    session.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
+@router.get('/sessions/{session_id}/editor-conversations')
+def get_editor_conversations(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """读编辑器深度优化对话数组(最多 3 个 tab)。无对话返回 []。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    raw = getattr(session, 'editor_conversations_json', None)
+    if raw:
+        try:
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return {"conversations": data}
+        except Exception:
+            pass
+    return {"conversations": []}
+
+
+@router.put('/sessions/{session_id}/editor-conversations')
+def put_editor_conversations(
+    session_id: int,
+    payload: _EditorConvosIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """整组落编辑器深度优化对话。owner 守卫 + demo 只读守卫。"""
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    _assert_not_demo(session)
+    session.editor_conversations_json = json.dumps(payload.conversations, ensure_ascii=False)
     session.updated_at = datetime.utcnow()
     db.commit()
     return {"ok": True}

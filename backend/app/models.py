@@ -110,6 +110,12 @@ class ResumeCopilotSession(Base):
     # "一份简历下多个对话"(新对话会覆盖旧对话, 实测毁过用户的历史), 已被
     # hub_conversations 表取代; 列保留只为兼容, 迁移把存量数据搬进新表, 不再读写。
     hub_conversation_json = Column(Text, nullable=True)
+    # 简历版本存档(显式保存才记一版): JSON 数组, 每版 = 简历快照 + 该版打分报告。
+    # 一版对应一份打分报告(可为空=未打分); 切版本载入该版简历, 报告跟着切。空=还没保存过版本。
+    resume_versions_json = Column(Text, nullable=True)
+    # 简历编辑器内的深度优化对话(最多 3 个 tab): JSON 数组, 每个 tab = 一段独立对话消息。
+    # 与主 Hub 对话(hub_conversations 表)区分: 这是编辑器内 fanout 出来的改写对话。空=还没在编辑器里聊过。
+    editor_conversations_json = Column(Text, nullable=True)
 
     parsed_profile = relationship(
         "ResumeParsedProfile",

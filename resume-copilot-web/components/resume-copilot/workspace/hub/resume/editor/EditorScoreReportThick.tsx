@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
+import { History, RotateCw } from 'lucide-react';
 import { HubRadar, type RadarDatum } from '../HubRadar';
 import {
   getScoreTaskStatus,
@@ -9,6 +10,7 @@ import {
   type ScoreReportData,
   type ScoreSectionGap,
 } from '../../../../api';
+import type { ResumeProfile } from './resumeSample';
 import { cacheScoreReport, readFreshScoreReport } from '../../scoreCache';
 
 // 8 维 → 雷达短标签 + 金融维标记(对齐 ResumeScorePanel / ScoreReport 顺序)。
@@ -81,18 +83,53 @@ export interface EditorScoreReportThickProps {
   onOptimize: (gap: ScoreSectionGap, targetTrack: string) => void;
   /** 无 session 时渲染样例。 */
   mock?: boolean;
+  // ── 版本对应 + 重新打分(由 ResumeEditorOverlay 上提)──────────────────────
+  /** 外部指定要展示的报告(选中某版本 / 重新打分后的结果)。传了就用它、跳过自动轮询。 */
+  reportOverride?: ScoreReportData | null;
+  /** 打分面板当前展示的是哪一版的报告(版本名,如 'V2')。 */
+  shownVName?: string;
+  /** 当前编辑中的版本名(如 'V3')。 */
+  currentVName?: string;
+  /** 展示报告版本 ≠ 当前版本 → 横幅转琥珀、重新打分高亮。 */
+  stale?: boolean;
+  /** 当前版本的简历快照 —— 重新打分就给它打。 */
+  currentProfile?: ResumeProfile;
+  /** 当前目标赛道(重新打分透传)。 */
+  targetTrack?: string;
+  /** 重新打分跑出报告 → 回调父组件:盖到当前版本上。 */
+  onRescored?: (report: ScoreReportData) => void;
 }
 
 /** 简历打分「厚版」报告 — 编辑器全屏右栏「简历打分」tab 用。
  *  相较紧凑侧栏面板,这一版多出:潜力进度条 + 逐维 fill bar + reason + 金融维标注。
  *  只读:仅 scoreResume + onOptimize 回调,不接深度优化/chat(那是 E3)。 */
-export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: EditorScoreReportThickProps): JSX.Element {
-  const [report, setReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
+export function EditorScoreReportThick({
+  sessionId,
+  onOptimize,
+  mock = false,
+  reportOverride,
+  shownVName,
+  currentVName,
+  stale = false,
+  currentProfile,
+  targetTrack,
+  onRescored,
+}: EditorScoreReportThickProps): JSX.Element {
+  const [polledReport, setPolledReport] = useState<ScoreReportData | null>(mock ? MOCK : null);
   const [loading, setLoading] = useState(!mock);
   const [stageNote, setStageNote] = useState('');
   const [error, setError] = useState('');
+  // 重新打分(给当前版本的快照打)进行中。
+  const [rescoring, setRescoring] = useState(false);
+  const rescorePoll = useRef<number | undefined>(undefined);
+
+  // 父组件接管了版本/报告(传了 reportOverride)→ 直接展示它,不再自动轮询。
+  // 这是「版本对应」开启后的常态路径:每个版本的报告由 overlay 持有。
+  const controlled = reportOverride !== undefined;
+  const shownReport = controlled ? reportOverride : polledReport;
 
   useEffect(() => {
+    if (controlled) return; // 受控:报告由父组件给
     if (mock || !sessionId) return;
     // 与打分报告面板同一套「看表」逻辑: 对话/面板已打过的分直接复用(本地缓存 /
     // 服务端任务缓存), 在跑的轮询真实阶段, 都没有才自己起后台任务 ——
@@ -104,7 +141,7 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
     if (cached) {
       Promise.resolve().then(() => {
         if (!alive) return;
-        setReport(cached);
+        setPolledReport(cached);
         setError('');
         setLoading(false);
       });
@@ -116,7 +153,7 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
         if (!alive) return;
         if (st.status === 'done' && st.report) {
           cacheScoreReport(sessionId, st.report);
-          setReport(st.report);
+          setPolledReport(st.report);
           setError('');
           setLoading(false);
           return;
@@ -152,27 +189,103 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
       alive = false;
       if (timer) window.clearTimeout(timer);
     };
-  }, [mock, sessionId]);
+  }, [mock, sessionId, controlled]);
 
-  if (loading) {
+  // 重新打分:给「当前版本」的快照打分(profile 覆盖 + force),轮询到 done → 回调父组件盖版。
+  const handleRescore = useCallback(() => {
+    if (rescoring) return;
+    if (mock || !sessionId) {
+      // 离线目测:本地造一份「与展示一致」的报告即可,主要给设计走查。
+      const base = shownReport ?? MOCK;
+      onRescored?.({ ...base });
+      return;
+    }
+    setRescoring(true);
+    const poll = async () => {
+      try {
+        const st = await getScoreTaskStatus(sessionId);
+        if (st.status === 'done' && st.report) {
+          cacheScoreReport(sessionId, st.report);
+          onRescored?.(st.report);
+          setRescoring(false);
+          return;
+        }
+        if (st.status === 'failed') {
+          setError(st.error || '重新打分没跑成,稍后再试');
+          setRescoring(false);
+          return;
+        }
+        rescorePoll.current = window.setTimeout(() => void poll(), 2500);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '重新打分失败');
+        setRescoring(false);
+      }
+    };
+    // profile 覆盖 → 后端 startScoreTask 自动 force:true(见 api.ts),不复用旧版缓存。
+    startScoreTask(sessionId, { targetTrack: targetTrack ?? '', profile: currentProfile })
+      .then(() => {
+        rescorePoll.current = window.setTimeout(() => void poll(), 1500);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : '重新打分失败');
+        setRescoring(false);
+      });
+  }, [rescoring, mock, sessionId, shownReport, onRescored, targetTrack, currentProfile]);
+
+  useEffect(() => () => {
+    if (rescorePoll.current) window.clearTimeout(rescorePoll.current);
+  }, []);
+
+  // 受控态:报告由父组件给。loading/error 仅在非受控自动轮询路径展示。
+  if (!controlled && loading) {
     return (
       <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>
         打分中… {stageNote && <span style={{ color: 'var(--olive)' }}>{stageNote}</span>}
       </div>
     );
   }
-  if (error) {
+  if (!controlled && error) {
     return (
       <div style={{ padding: 40, color: 'var(--terracotta-strong)', font: '400 13px var(--font-sans)' }}>
         打分失败:{error}
       </div>
     );
   }
-  if (!report) {
+
+  // 版本横幅 —— 即使当前版本「未打分」也要露出(配重新打分按钮)。
+  // 受控态没有可展示报告时,只渲染横幅 + 空态提示。
+  const banner =
+    controlled && (shownVName || currentVName) ? (
+      <VersionBanner
+        stale={stale}
+        shownVName={shownVName}
+        currentVName={currentVName}
+        rescoring={rescoring}
+        onRescore={handleRescore}
+        error={error}
+      />
+    ) : null;
+
+  if (!shownReport) {
     return (
-      <div style={{ padding: 40, color: 'var(--stone)', font: '400 13px var(--font-sans)' }}>暂无打分数据</div>
+      <div style={{ overflow: 'auto', height: '100%', background: 'var(--parchment)' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 22px 28px' }}>
+          {banner}
+          <div
+            style={{
+              padding: '40px 16px',
+              textAlign: 'center',
+              color: 'var(--stone)',
+              font: '400 13px/1.6 var(--font-sans)',
+            }}
+          >
+            这一版还没打分。点上方「重新打分」给当前版本算一份报告。
+          </div>
+        </div>
+      </div>
     );
   }
+  const report = shownReport;
 
   const dimByKey = new Map(report.dimensions.map((d) => [d.key, d]));
   const radarData: RadarDatum[] = DIM_META.map((m) => ({
@@ -192,6 +305,9 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
           <span className="hf-overline" style={{ fontSize: 9.5 }}>目标赛道</span>
           <span className="hf-pill terra" style={{ height: 26 }}>{report.target_track || '未指定'}</span>
         </div>
+
+        {/* 版本对应 + 重新打分横幅(版本不一致 → 琥珀 + 按钮高亮) */}
+        {banner}
 
         <div className="hf-card" style={{ padding: 16, marginBottom: 16 }}>
           {/* 现状 + 潜力 一行(雷达不再挤这行,改放独立一行,窄栏才不塌) */}
@@ -329,6 +445,79 @@ export function EditorScoreReportThick({ sessionId, onOptimize, mock = false }: 
           只诊断、不改写 · 提分靠深度优化反问取证,把你真实的细节补出来——绝不靠 AI 补内容刷分
         </div>
       </div>
+    </div>
+  );
+}
+
+interface VersionBannerProps {
+  stale: boolean;
+  shownVName?: string;
+  currentVName?: string;
+  rescoring: boolean;
+  onRescore: () => void;
+  error?: string;
+}
+
+/** 版本对应横幅 + 重新打分按钮(移植自 hub-editor-ai.jsx ScoreReport banner)。
+ *  版本一致:素色 + ghost 按钮;不一致:琥珀色 + primary 按钮带 ring 高亮。 */
+function VersionBanner({
+  stale,
+  shownVName,
+  currentVName,
+  rescoring,
+  onRescore,
+  error,
+}: VersionBannerProps): JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        marginBottom: 16,
+        padding: '9px 11px',
+        borderRadius: 12,
+        background: stale ? 'var(--amber-bg)' : 'var(--library-rail)',
+        boxShadow: stale ? '0 0 0 1px #ecdfa4' : '0 0 0 1px var(--border-warm)',
+      }}
+    >
+      <span
+        style={{
+          color: stale ? 'var(--amber-fg)' : 'var(--stone)',
+          display: 'inline-flex',
+          flex: 'none',
+        }}
+      >
+        <History size={14} />
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            font: '600 11.5px var(--font-sans)',
+            color: stale ? 'var(--amber-fg)' : 'var(--ink-soft)',
+          }}
+        >
+          {stale
+            ? `打分基于 ${shownVName ?? '旧版'} · 当前 ${currentVName ?? ''}`
+            : `当前打分 · ${shownVName ?? currentVName ?? ''}`}
+        </div>
+        <div style={{ font: '400 10.5px var(--font-sans)', color: 'var(--stone)', marginTop: 1 }}>
+          {error ? error : stale ? '简历已更新,建议重新打分' : '版本与打分一致'}
+        </div>
+      </div>
+      <button
+        onClick={onRescore}
+        disabled={rescoring}
+        className={stale ? 'hf-btn primary sm' : 'hf-btn ghost sm'}
+        style={{
+          gap: 6,
+          flex: 'none',
+          boxShadow: stale ? '0 0 0 1px var(--terracotta), 0 0 0 4px var(--terracotta-ring)' : undefined,
+        }}
+      >
+        {rescoring ? <span className="hf-spin" /> : <RotateCw size={13} />}
+        {rescoring ? '打分中' : '重新打分'}
+      </button>
     </div>
   );
 }

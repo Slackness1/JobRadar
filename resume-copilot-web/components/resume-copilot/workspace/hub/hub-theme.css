@@ -2,3 +2,11 @@
 [data-theme="hub"] *::-webkit-scrollbar { width: 8px; height: 8px; }
 [data-theme="hub"] *::-webkit-scrollbar-thumb { background: var(--ring-warm); border-radius: 8px; }
 [data-theme="hub"] *::-webkit-scrollbar-track { background: transparent; }
+
+/* 弹层入场:小幅缩放 + 淡入(版本下拉 / 历史记录浮层共用)。
+   不限定 [data-theme="hub"] —— 历史记录浮层 portal 到 body 时也要生效。 */
+@keyframes hub-pop {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.hub-pop { animation: hub-pop 0.14s cubic-bezier(0.16, 1, 0.3, 1); }

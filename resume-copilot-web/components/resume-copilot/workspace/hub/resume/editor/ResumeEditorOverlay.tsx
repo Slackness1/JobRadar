@@ -1,14 +1,23 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Download, Quote, Save, X } from 'lucide-react';
+import { Check, ChevronDown, Download, GitBranch, Quote, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
 import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
 import { EditorAIPanel } from './EditorAIPanel';
-import type { DeepOptimizeStartIn, PendingQuote } from '../../../../api';
+import type { ResumeVersion } from './versionTypes';
+import {
+  getResumeVersions,
+  putResumeVersions,
+  getScoreTaskStatus,
+  type DeepOptimizeStartIn,
+  type PendingQuote,
+  type ScoreReportData,
+} from '../../../../api';
+import { readFreshScoreReport } from '../../scoreCache';
 
 type LeftTab = 'tpl' | 'edit' | 'layout';
 
@@ -76,6 +85,27 @@ function countSelectedLines(text: string): number {
   return Math.max(1, lines.length);
 }
 
+// 深拷贝简历快照(版本互不影响)。
+function snapshotProfile(p: ResumeProfile): ResumeProfile {
+  return JSON.parse(JSON.stringify(p)) as ResumeProfile;
+}
+
+// 版本保存时间的友好展示。
+function fmtSavedAt(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const now = Date.now();
+  const diff = now - d.getTime();
+  if (diff < 60_000) return '刚刚';
+  const sameDay = new Date().toDateString() === d.toDateString();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  if (sameDay) return `今天 ${hh}:${mm}`;
+  const mo = d.getMonth() + 1;
+  const da = d.getDate();
+  return `${mo} 月 ${da} 日 ${hh}:${mm}`;
+}
+
 export interface ResumeEditorOverlayProps {
   onClose: () => void;
   /** 真实 session id;未传 / 0 → mock 模式(离线目测)。 */
@@ -121,15 +151,6 @@ export function ResumeEditorOverlay({
   translating = false,
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
-  // "已保存 ✓" 瞬时反馈(点击时亮起 ~1.6s, 不走 effect)
-  const [justSaved, setJustSaved] = useState(false);
-  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleSave = () => {
-    onSave?.();
-    setJustSaved(true);
-    if (savedTimer.current) clearTimeout(savedTimer.current);
-    savedTimer.current = setTimeout(() => setJustSaved(false), 1600);
-  };
   const [aiTab, setAiTab] = useState<string>('score');
   const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
   // 「待引用」低调引子 — 引用此段 / 选行引用挂在这里,不自动发问;
@@ -151,6 +172,142 @@ export function ResumeEditorOverlay({
   const stageRef = useRef<HTMLDivElement>(null);
 
   const isMock = mock ?? !sessionId;
+
+  // ── 简历版本 ──────────────────────────────────────────────────────────────
+  // 显式保存才记一版(快照当前 profile);一版对应一份打分报告(可为 null=未打分)。
+  const [versions, setVersions] = useState<ResumeVersion[]>([]);
+  const [currentVid, setCurrentVid] = useState<string>('');
+  // 打分面板当前展示的是哪一版的报告(切版本时,目标版无报告就留旧报告不切)。
+  const [shownReportVid, setShownReportVid] = useState<string>('');
+  const [verOpen, setVerOpen] = useState(false);
+  const [versionsReady, setVersionsReady] = useState(false);
+  // 版本组写库(整组替换);demo / 只读 403 静默吞掉。
+  const persistVersions = useCallback(
+    (next: ResumeVersion[]) => {
+      if (isMock || !sessionId) return;
+      putResumeVersions(sessionId, next as unknown[]).catch(() => {
+        /* demo / 只读 session 403 → 内存态继续 */
+      });
+    },
+    [isMock, sessionId],
+  );
+
+  // 挂载:从后端水合版本组;空则用当前 profile 起一版 V1(尽量补一份现有报告)。
+  useEffect(() => {
+    let alive = true;
+    const seedInitial = async (): Promise<ResumeVersion> => {
+      let report: ScoreReportData | null = null;
+      if (!isMock && sessionId) {
+        report = readFreshScoreReport(sessionId);
+        if (!report) {
+          try {
+            const st = await getScoreTaskStatus(sessionId);
+            if (st.status === 'done' && st.report) report = st.report;
+          } catch {
+            /* 没有就 null,显式重新打分再补 */
+          }
+        }
+      }
+      return {
+        id: 'v1',
+        label: 'V1',
+        savedAt: new Date().toISOString(),
+        profile: snapshotProfile(profile),
+        report,
+      };
+    };
+    const hydrate = async () => {
+      if (isMock || !sessionId) {
+        if (!alive) return;
+        const v1 = await seedInitial();
+        if (!alive) return;
+        setVersions([v1]);
+        setCurrentVid(v1.id);
+        setShownReportVid(v1.id);
+        setVersionsReady(true);
+        return;
+      }
+      try {
+        const { versions: raw } = await getResumeVersions(sessionId);
+        if (!alive) return;
+        const list = (raw as ResumeVersion[]) ?? [];
+        if (list.length) {
+          setVersions(list);
+          const last = list[list.length - 1];
+          setCurrentVid(last.id);
+          // 展示报告默认取「最新一个有报告的版本」,没有就停在最新版。
+          const lastWithReport = [...list].reverse().find((v) => v.report);
+          setShownReportVid((lastWithReport ?? last).id);
+          setVersionsReady(true);
+          return;
+        }
+      } catch {
+        /* 取版本失败 → 退回内存态 V1 */
+      }
+      if (!alive) return;
+      const v1 = await seedInitial();
+      if (!alive) return;
+      setVersions([v1]);
+      setCurrentVid(v1.id);
+      setShownReportVid(v1.id);
+      setVersionsReady(true);
+      persistVersions([v1]);
+    };
+    void hydrate();
+    return () => {
+      alive = false;
+    };
+    // 只在挂载 / session 切换时水合一次(profile 后续变动不重水合)。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, isMock]);
+
+  // 显式保存 → 记一版(快照当前 profile,新版本暂无报告 → 打分面板停旧报告 → 转“不一致”)。
+  // "已保存 ✓" 瞬时反馈(点击时亮起 ~1.6s, 不走 effect)。
+  const [justSaved, setJustSaved] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSave = () => {
+    onSave?.();
+    setVersions((vs) => {
+      const n = vs.length + 1;
+      const v: ResumeVersion = {
+        id: `v${n}-${Date.now().toString(36)}`,
+        label: `V${n}`,
+        savedAt: new Date().toISOString(),
+        profile: snapshotProfile(profile),
+        report: null,
+      };
+      const next = [...vs, v];
+      setCurrentVid(v.id);
+      persistVersions(next);
+      return next;
+    });
+    setJustSaved(true);
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setJustSaved(false), 1600);
+  };
+
+  // 切版本 → 载入该版 profile;该版有报告就切到它,没有就留旧报告(不 blank)。
+  const switchVersion = (v: ResumeVersion) => {
+    setCurrentVid(v.id);
+    onProfile(snapshotProfile(v.profile));
+    if (v.report) setShownReportVid(v.id);
+    setVerOpen(false);
+  };
+
+  // 重新打分跑出报告 → 盖到当前版本上,并把打分面板切到当前版。
+  const handleRescored = (report: ScoreReportData) => {
+    setVersions((vs) => {
+      const next = vs.map((v) => (v.id === currentVid ? { ...v, report } : v));
+      persistVersions(next);
+      return next;
+    });
+    setShownReportVid(currentVid);
+  };
+
+  const currentVersion = versions.find((v) => v.id === currentVid);
+  const shownVersion = versions.find((v) => v.id === shownReportVid);
+  const shownReport = shownVersion?.report ?? null;
+  const reportStale = Boolean(currentVid) && shownReportVid !== currentVid;
 
   // 按可用宽度把 794px A4 文档缩放进中栏(zoom 同时缩布局盒,避免横向溢出)。
   useEffect(() => {
@@ -395,11 +552,138 @@ export function ResumeEditorOverlay({
               {pages > 1 ? `${pages} 页 · 超 ${pages - 1} 页` : '1 页'}
             </span>
             <span style={{ marginLeft: 'auto' }} />
+            {/* 版本切换器 · 在「保存」左边 */}
+            <div style={{ position: 'relative' }}>
+              <button
+                className="hf-btn ghost sm"
+                style={{ gap: 6 }}
+                onClick={() => setVerOpen((v) => !v)}
+                title="简历版本 · 显式保存记一版"
+              >
+                <GitBranch size={13} />
+                {currentVersion?.label ?? 'V1'}
+                {reportStale && (
+                  <span
+                    style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--amber-fg)' }}
+                  />
+                )}
+                <ChevronDown size={11} />
+              </button>
+              {verOpen && (
+                <>
+                  <div
+                    onClick={() => setVerOpen(false)}
+                    style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                  />
+                  <div
+                    className="hub-pop"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 7px)',
+                      right: 0,
+                      zIndex: 41,
+                      width: 256,
+                      background: 'var(--ivory)',
+                      borderRadius: 14,
+                      boxShadow: 'var(--sh-paper)',
+                      padding: 6,
+                      transformOrigin: '90% 0',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px 8px' }}>
+                      <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex' }}>
+                        <GitBranch size={13} />
+                      </span>
+                      <span className="hf-overline" style={{ color: 'var(--olive)' }}>
+                        简历版本
+                      </span>
+                      <span
+                        style={{
+                          marginLeft: 'auto',
+                          font: '400 10.5px var(--font-sans)',
+                          color: 'var(--stone)',
+                        }}
+                      >
+                        显式保存
+                      </span>
+                    </div>
+                    {versions
+                      .slice()
+                      .reverse()
+                      .map((v) => {
+                        const on = v.id === currentVid;
+                        return (
+                          <button
+                            key={v.id}
+                            onClick={() => switchVersion(v)}
+                            style={{
+                              width: '100%',
+                              textAlign: 'left',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 10,
+                              padding: '9px 10px',
+                              borderRadius: 10,
+                              cursor: 'pointer',
+                              marginBottom: 2,
+                              border: 'none',
+                              background: on ? 'var(--terracotta-wash)' : 'transparent',
+                              boxShadow: on ? '0 0 0 1px #eccfb6' : 'none',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!on) e.currentTarget.style.background = 'var(--library-rail)';
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!on) e.currentTarget.style.background = 'transparent';
+                            }}
+                          >
+                            <span
+                              style={{
+                                flex: 'none',
+                                width: 30,
+                                height: 30,
+                                borderRadius: 8,
+                                display: 'grid',
+                                placeItems: 'center',
+                                font: '600 12px var(--font-mono)',
+                                color: on ? '#fff' : 'var(--ink-soft)',
+                                background: on ? 'var(--terracotta)' : 'var(--ivory)',
+                                boxShadow: on ? 'none' : '0 0 0 1px var(--border-warm)',
+                              }}
+                            >
+                              {v.label}
+                            </span>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ font: `${on ? 600 : 500} 12.5px var(--font-sans)`, color: 'var(--ink)' }}>
+                                {v.label === 'V1' ? '初始版' : `保存于 ${fmtSavedAt(v.savedAt)}`}
+                              </div>
+                              <div
+                                style={{
+                                  font: '400 10.5px var(--font-mono)',
+                                  color: v.report ? 'var(--emerald)' : 'var(--stone)',
+                                  marginTop: 2,
+                                }}
+                              >
+                                {v.report ? `已打分 · ${v.report.overall_current}` : '未打分'}
+                              </div>
+                            </div>
+                            {on && (
+                              <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex', flex: 'none' }}>
+                                <Check size={14} />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </>
+              )}
+            </div>
             <button
               className="hf-btn ghost sm"
               style={{ gap: 6, color: justSaved ? 'var(--olive)' : undefined }}
               onClick={handleSave}
-              title="保存当前编辑(本地, 刷新不丢)"
+              title="保存当前编辑(本地, 刷新不丢)· 记一版"
             >
               <Save size={13} /> {justSaved ? '已保存 ✓' : '保存'}
             </button>
@@ -480,6 +764,22 @@ export function ResumeEditorOverlay({
           setTab={setAiTab}
           onWriteBack={handleWriteBack}
           mock={isMock}
+          // 版本对应 + 重新打分
+          versionsReady={versionsReady}
+          versions={versions}
+          shownReport={shownReport}
+          shownVName={shownVersion?.label}
+          currentVName={currentVersion?.label}
+          reportStale={reportStale}
+          currentProfile={profile}
+          targetTrack={shownReport?.target_track}
+          onRescored={handleRescored}
+          // 历史:点报告项 → 切到那一版报告
+          onOpenReportVid={(vid) => {
+            const v = versions.find((x) => x.id === vid);
+            if (v?.report) setShownReportVid(vid);
+            setAiTab('score');
+          }}
         />
       </div>
 
