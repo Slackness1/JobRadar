@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -91,7 +92,12 @@ def main():
                 d = json.loads(line)
                 scores[(d["qi"], d["jid"])] = d["score"]
     work = [(qi, jid, profile) for (qi, jid, profile) in work if (qi, jid) not in scores]
-    print(f"[init] {len(tasks)} query, 待精排 {len(work)} 个(已缓存 {len(scores)})", flush=True)
+    # 多 key 分片:SHARD="i/n" 只跑 work[i::n](两个 key 各跑一半,共享断点文件)
+    shard = os.environ.get("SHARD")
+    if shard:
+        si, sn = (int(x) for x in shard.split("/"))
+        work = work[si::sn]
+    print(f"[init] {len(tasks)} query, 待精排 {len(work)} 个(已缓存 {len(scores)}, shard={shard or 'all'})", flush=True)
 
     kb_hits = 0
     t0 = time.time()
@@ -125,6 +131,12 @@ def main():
                 print(f"  {done}/{len(work)}  ({done/(time.time()-t0):.2f}/s)  KB命中 {kb_hits}", flush=True)
     fh.close()
     print(f"[rerank done] 本轮 {done} 个, KB命中 {kb_hits}, 用时 {time.time()-t0:.0f}s", flush=True)
+
+    if shard:
+        # 分片实例只跑精排+落断点,指标留给最后一次无 shard 的汇总跑(它读全断点)
+        print(f"[shard {shard} done] 分片完成,指标由汇总跑统一算", flush=True)
+        db.close()
+        return
 
     # 3) 重排 + 指标
     def metrics(allowed_qi):
