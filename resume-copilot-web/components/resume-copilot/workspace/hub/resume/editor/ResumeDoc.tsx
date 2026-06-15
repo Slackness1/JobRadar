@@ -312,10 +312,11 @@ export function ResumeDoc({
   const { off, pages } = state;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: SHEET_GAP }}>
+    <div className="rdoc-sheets" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: SHEET_GAP }}>
       {Array.from({ length: pages }, (_, i) => (
         <div
           key={i}
+          className="rdoc-sheet"
           style={{
             position: 'relative',
             width: 794,
@@ -329,6 +330,7 @@ export function ResumeDoc({
           <div style={{ position: 'absolute', top: -i * PAGE_H, left: 0, width: 794 }}>{renderContent(off)}</div>
           {pages > 1 && (
             <span
+              className="rdoc-pageno"
               style={{
                 position: 'absolute',
                 right: 12,
@@ -349,6 +351,7 @@ export function ResumeDoc({
       <div
         ref={measureRef}
         aria-hidden
+        className="rdoc-measure"
         style={{ position: 'absolute', left: -99999, top: 0, width: 794, visibility: 'hidden', pointerEvents: 'none' }}
       >
         {renderContent({})}

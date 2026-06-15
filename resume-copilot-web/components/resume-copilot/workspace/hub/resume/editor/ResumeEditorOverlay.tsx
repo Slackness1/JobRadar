@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Download, Quote, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
 import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
@@ -481,6 +482,18 @@ export function ResumeEditorOverlay({
           mock={isMock}
         />
       </div>
+
+      {/* 打印副本 — 「下载 PDF」走 window.print(),只打印这份 1:1 的 A4 文档。
+          直挂 body(避开编辑器 fixed 壳 / 中栏 zoom 缩放 / overflow 裁剪),
+          屏幕上离屏隐藏但仍参与排版(才能算对分页);打印态由 resume-doc.css
+          的 @media print 接管:隐藏整个 app,只显示这份。所见即所得。 */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <div className="hf rdoc-print-portal" data-theme="hub" aria-hidden>
+            <ResumeDoc profile={profile} templateId={template} layout={layout} hidden={hidden} />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

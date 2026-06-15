@@ -327,6 +327,60 @@
   margin-bottom: 20px;
 }
 
+/* ============================================================
+   PDF 导出 = 浏览器打印(所见即所得)
+   「下载 PDF」走 window.print()。屏幕上挂一份离屏的打印副本
+   (.rdoc-print-portal,直挂 body,不受编辑器 fixed 壳 / 中栏 zoom /
+   overflow 裁剪影响),仍参与排版以算对分页;打印时只显示它。
+   ============================================================ */
+.rdoc-print-portal {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: 794px;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+  background: #fff;
+}
+@media print {
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  /* 隐藏整个 app(含编辑器壳),只留打印副本 */
+  body > *:not(.rdoc-print-portal) { display: none !important; }
+  .rdoc-print-portal {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    visibility: visible !important;
+    z-index: auto !important;
+  }
+  /* 离屏量稿不进 PDF */
+  .rdoc-print-portal .rdoc-measure { display: none !important; }
+  /* 纸张容器:去居中间距,自然流 */
+  .rdoc-print-portal .rdoc-sheets {
+    display: block !important;
+    gap: 0 !important;
+  }
+  /* 每张纸 = 一个 A4 页:去阴影/去间距,精确撑满页框,页间硬分页 */
+  .rdoc-print-portal .rdoc-sheet {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .rdoc-print-portal .rdoc-sheet:last-of-type {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  /* 屏幕态角标不进 PDF */
+  .rdoc-print-portal .rdoc-pageno { display: none !important; }
+}
+
 /* ---- "AI 刚写回" 高亮(编辑器集成,非导出态) ---- */
 .doc .sec.is-lit {
   position: relative;
