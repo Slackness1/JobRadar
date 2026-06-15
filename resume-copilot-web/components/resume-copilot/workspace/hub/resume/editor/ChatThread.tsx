@@ -496,7 +496,7 @@ export function ChatThread({
   const empty = msgs.length === 0 && !thinking;
   const hints =
     mode === 'deep'
-      ? ['先去左边「打分」点一段缺口', '或直接说要改哪一段']
+      ? []
       : ['这段写法面试会被问什么?', '量化私募更看重哪些经历?', '帮我看下整体结构'];
 
   return (

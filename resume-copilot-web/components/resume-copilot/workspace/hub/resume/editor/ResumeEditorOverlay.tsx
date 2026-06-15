@@ -393,7 +393,6 @@ export function ResumeEditorOverlay({
             >
               {pages > 1 ? `${pages} 页 · 超 ${pages - 1} 页` : '1 页'}
             </span>
-            <span style={{ font: '500 12px var(--font-sans)', color: 'var(--olive)' }}>WYSIWYG · 所见即所导出</span>
             <span style={{ marginLeft: 'auto' }} />
             <button
               className="hf-btn ghost sm"
