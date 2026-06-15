@@ -1195,6 +1195,10 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         onNav={armModule}
         onNew={onNew}
         onUploadNew={() => router.push('/upload')}
+        onOpenEditor={() => {
+          flushRef.current(); // 跳全屏编辑器前把当前对话存好
+          router.push(`/resume-copilot/hub-score?session=${sessionId}&editor=1`);
+        }}
         sessions={sessions}
         currentSessionId={sessionId}
         onSelectSession={(id) => {

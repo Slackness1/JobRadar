@@ -4,6 +4,7 @@ import {
   Radar,
   Layers,
   FileText,
+  SquarePen,
   Mic,
   User,
   PenLine,
@@ -26,6 +27,8 @@ interface HubSidebarProps {
   onNew: () => void;
   // 上传新简历:路由到 /upload 走真实上传 → 新会话(区别于 onNew 的「当前会话开新对话」)
   onUploadNew?: () => void;
+  // 简历编辑器:直接跳全屏大编辑器(路由,带 ↗ 外链徽标)。设了才显示该导航项。
+  onOpenEditor?: () => void;
   // 简历切换器:真实会话列表(由 HubShell 拉 listResumeCopilotSessions 注入)
   sessions?: HubSessionRow[];
   currentSessionId?: number;
@@ -56,10 +59,11 @@ export interface HubConvRow {
 // ──────────────────────────────────────────────────────────────────────────────
 
 interface NavItem {
-  key: HubModule;
+  key: HubModule | 'editor';
   label: string;
   Icon: React.ElementType;
-  jump?: boolean;          // 外链徽标（模拟面试跳新页面）
+  jump?: boolean;          // 外链徽标（模拟面试 / 简历编辑器 跳新页面）
+  onActivate?: () => void; // 设了则点击走它(路由跳转项,如简历编辑器),不走 onNav(module)
 }
 
 const NAV: NavItem[] = [
@@ -96,7 +100,7 @@ function SideNavItem({
 
   return (
     <button
-      onClick={() => onClick(item.key)}
+      onClick={() => (item.onActivate ? item.onActivate() : onClick(item.key as HubModule))}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       title={collapsed ? item.label : undefined}
@@ -238,6 +242,7 @@ export default function HubSidebar({
   onNav,
   onNew,
   onUploadNew,
+  onOpenEditor,
   sessions = [],
   currentSessionId,
   onSelectSession,
@@ -400,7 +405,14 @@ export default function HubSidebar({
         }}
       >
         <NewChatItem active={active === null} collapsed={false} onNew={onNew} />
-        {NAV.map((n) => (
+        {(onOpenEditor
+          ? [
+              ...NAV.slice(0, 3), // 职位推荐 / 梯队骨架 / 简历优化
+              { key: 'editor' as const, label: '简历编辑器', Icon: SquarePen, jump: true, onActivate: onOpenEditor },
+              ...NAV.slice(3), // 模拟面试 / 个人档案
+            ]
+          : NAV
+        ).map((n) => (
           <SideNavItem
             key={n.key}
             item={n}
