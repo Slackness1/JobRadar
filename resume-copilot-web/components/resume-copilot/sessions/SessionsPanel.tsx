@@ -156,7 +156,9 @@ export function SessionsPanel() {
   // ── Handlers ────────────────────────────────────────────────────────────
   const handleSwitch = useCallback(
     (sessionId: number) => {
-      router.push(`/resume-copilot?sessionId=${sessionId}`);
+      // 2026-06-15: 老用户从「我的简历会话」点进 → 新版统一 Hub(/hub),
+      // 与 upload→确认→/hub 同一入口;不再甩去旧版 /resume-copilot 工作台。
+      router.push(`/hub?session=${sessionId}`);
     },
     [router],
   );
