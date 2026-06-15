@@ -16,14 +16,25 @@ from __future__ import annotations
 import re
 from typing import Optional, Sequence
 
-import jieba
 from sqlalchemy import bindparam, text
 from sqlalchemy.orm import Session
 
 from app.services.phase_g.recommendation_v2.dense_index import _DOC_MAXLEN
 
-# jieba 首次 cut 会构建词典(~1s),进程内 warm 一次
-jieba.initialize()
+# jieba 懒加载:sparse 是默认关的 opt-in 召回腿(评测证明 BM25 净拖累),
+# 纯 dense 路径不应依赖它。只在真正用到分词时才 import + warm 词典,
+# 这样 prod 走纯 dense 时无需安装 jieba。
+_jieba = None
+
+
+def _get_jieba():
+    global _jieba
+    if _jieba is None:
+        import jieba  # noqa: PLC0415
+        jieba.initialize()  # 首次 ~1s 建词典
+        _jieba = jieba
+    return _jieba
+
 
 _EN_NUM = re.compile(r"[A-Za-z0-9]")
 
@@ -37,7 +48,7 @@ def segment(s: str) -> str:
     if not s:
         return ""
     toks = []
-    for t in jieba.cut(s, cut_all=False):
+    for t in _get_jieba().cut(s, cut_all=False):
         t = t.strip()
         if not t:
             continue
