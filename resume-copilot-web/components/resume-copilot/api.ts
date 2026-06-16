@@ -2,6 +2,8 @@ import type {
   ApplyRewriteOut,
   CopilotMessage,
   DirectionTierResult,
+  JobState,
+  MyJobsResult,
   RecommendFeedItem,
   RecommendTurnResponse,
   ResumeConfirmedProfileOut,
@@ -1374,4 +1376,31 @@ export async function postRecommendDeepen(
       body: JSON.stringify({ job_ids: jobIds }),
     },
   );
+}
+
+// ── 岗位推荐 2.0 — 求职状态 + 下一批推荐 + 我的岗位 (Task 10) ───────────────────
+
+/** 标记一个推荐岗的求职状态。state='' 清除已有状态。 */
+export function markJobState(
+  sessionId: number,
+  jobId: string,
+  state: '' | JobState,
+): Promise<{ ok: boolean; job_id: string; state: string }> {
+  return requestJson<{ ok: boolean; job_id: string; state: string }>(
+    `/api/resume-copilot/sessions/${sessionId}/jobs/${encodeURIComponent(jobId)}/state`,
+    { method: 'POST', body: JSON.stringify({ state }) },
+  );
+}
+
+/** 触发下一批推荐岗。返回与 GET /recommendations 相同结构。 */
+export function nextRecommendBatch(sessionId: number): Promise<ResumeRecommendationResult> {
+  return requestJson<ResumeRecommendationResult>(
+    `/api/resume-copilot/sessions/${sessionId}/recommendations/next-batch`,
+    { method: 'POST' },
+  );
+}
+
+/** 获取学生已收藏/已投递/已屏蔽的岗位列表。 */
+export function getMyJobs(): Promise<MyJobsResult> {
+  return requestJson<MyJobsResult>('/api/resume-copilot/my-jobs', { method: 'GET' });
 }

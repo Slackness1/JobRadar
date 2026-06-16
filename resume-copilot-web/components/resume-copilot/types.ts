@@ -219,6 +219,10 @@ export interface ResumeRecommendationItem {
   /** 方案B(2026-06-12): 公司档位文案("第一梯队"/"第二梯队"/"AI 原生"/"其他梯队")。
    *  互联网赛道才有;非空时显示档位 chip,代替"梯队内/外"二元标。 */
   skeleton_band?: string;
+  /** 岗位推荐 2.0: 发布时间 (ISO 字符串)。后端未返回时为 undefined。 */
+  posted_at?: string;
+  /** true = posted_at 来自 publish_date;false = 来自 scraped_at 估算。 */
+  posted_is_publish?: boolean;
 }
 
 export interface ResumeAgentTraceItem {
@@ -425,3 +429,24 @@ export const EMPTY_PREFERENCES: ResumePreferencePayload = {
   job_stage: '',
   graduation_date: '',
 };
+
+// ── 岗位推荐 2.0 — 求职状态 + 我的岗位 (Task 10) ────────────────────────────
+
+export type JobState = 'seen' | 'saved' | 'applied' | 'dismissed';
+
+export interface MyJobItem {
+  job_id: string;
+  company: string;
+  job_title: string;
+  location: string;
+  detail_url: string;
+  publish_date: string;
+  scraped_at: string;
+}
+
+export interface MyJobsResult {
+  saved: MyJobItem[];
+  applied: MyJobItem[];
+  dismissed: MyJobItem[];
+  counts: { saved: number; applied: number; dismissed: number };
+}
