@@ -1,0 +1,4 @@
+# 截图 / 探索报告 / browser-use 隔离 venv —— 都是本地产物,不入仓
+_shots/
+_explore_report.md
+.venv-bu/
