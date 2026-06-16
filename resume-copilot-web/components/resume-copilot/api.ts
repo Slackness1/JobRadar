@@ -322,6 +322,27 @@ export function listHubConversations(
   );
 }
 
+export interface CompanyIntelInsight {
+  type: string;
+  content: string;
+  quote: string;
+  speaker: string;
+  confidence: string;
+}
+
+export interface CompanyIntelResult {
+  company: string;
+  n: number;
+  insights: CompanyIntelInsight[];
+}
+
+export function getCompanyIntel(sessionId: number, company: string): Promise<CompanyIntelResult> {
+  return requestJson<CompanyIntelResult>(
+    `/api/resume-copilot/sessions/${sessionId}/company-intel?company=${encodeURIComponent(company)}`,
+    { method: 'GET' },
+  );
+}
+
 export function createHubConversation(
   sessionId: number,
   title: string,

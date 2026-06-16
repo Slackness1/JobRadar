@@ -86,9 +86,12 @@ const CHIPS: ChipDef[] = [
 export interface SkillBarProps {
   active: HubModule | null;
   onPick: (key: HubModule) => void;
+  /** 若提供, 在末尾渲染「我的岗位」chip, 点击走此回调而非 onPick */
+  myJobsActive?: boolean;
+  onMyJobs?: () => void;
 }
 
-export default function SkillBar({ active, onPick }: SkillBarProps) {
+export default function SkillBar({ active, onPick, myJobsActive, onMyJobs }: SkillBarProps) {
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
       {CHIPS.map((c) => {
@@ -118,6 +121,41 @@ export default function SkillBar({ active, onPick }: SkillBarProps) {
           </button>
         );
       })}
+      {onMyJobs && (
+        <button
+          type="button"
+          onClick={onMyJobs}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            height: 32,
+            padding: '0 13px',
+            borderRadius: 999,
+            cursor: 'pointer',
+            font: `${myJobsActive ? 600 : 500} 12.5px var(--font-sans)`,
+            background: myJobsActive ? 'var(--terracotta)' : 'var(--ivory)',
+            color: myJobsActive ? 'var(--ivory)' : 'var(--ink-soft)',
+            boxShadow: myJobsActive ? '0 0 0 1px var(--terracotta)' : '0 0 0 1px var(--border-warm)',
+            transition: 'background .14s, box-shadow .14s, color .14s',
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+          我的岗位
+        </button>
+      )}
     </div>
   );
 }

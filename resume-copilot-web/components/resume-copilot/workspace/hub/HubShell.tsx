@@ -38,6 +38,7 @@ import { TraceCard } from '../recommend-agent/chat/TraceCard';
 import { MemoryToast } from '../recommend-agent/chat/MemoryToast';
 import {
   createHubConversation,
+  getCompanyIntel,
   getHubConversationDetail,
   getPlatformsByTier,
   getResumeCopilotConfirmedProfile,
@@ -83,13 +84,9 @@ const SAY: Record<HubModule, string> = {
   skeleton: '好，我把<b>梯队骨架</b>拉出来分一下档。',
   resume: '好，我给你的<b>简历</b>做一次诚实打分 + 缺口定位。',
   interview: '好，我按你的目标赛道备一场<b>模拟面试</b>。',
-  // profile 不跑技能, 走 PROFILE_SAY
+  // profile 不跑技能, 点开直接看
   profile: '',
 };
-
-// 个人档案不是「跑技能」—— 点开直接看(确认/纠正闭环)
-const PROFILE_SAY =
-  '帮你打开<b>个人档案</b> —— 确认信息在上，AI 推断待确认在下，确认/否掉一眼可点。';
 
 // 结果卡文案的真实上下文 —— 每个模块技能跑完后用真实后端数据填,不再写死。
 interface ResultCtx {
@@ -803,7 +800,6 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     if (key === 'profile') {
       // 个人档案不是「跑技能」, 直接看(无思考卡、无结果卡)
       setStarted(true);
-      push({ id: nextId(), kind: 'turn', who: 'ai', html: PROFILE_SAY });
       setActive('profile');
       return;
     }
@@ -1036,49 +1032,68 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
 
   // 「讲讲这家」→ 情报回流对话主轴.
   // 诚实铁律: 没有结构化情报时显式说「暂无 · 不编造」, 绝不杜撰公司情报.
-  // ctx.n_insights 来自骨架卡(同辈情报条数), 是唯一可信的结构化信号.
-  function skelIntel(company: string, ctx?: { n_insights?: number }) {
+  // 实时查询后端 company-intel 接口, 不再依赖骨架卡预计算的 n_insights.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function skelIntel(company: string, _ctx?: { n_insights?: number }) {
     const name = company.trim();
     if (!name) return;
     setStarted(true);
     push({ id: nextId(), kind: 'turn', who: 'me', html: `讲讲${escapeHtml(name)}` });
-
-    const n = ctx?.n_insights ?? 0;
     setThinking(true);
-    // 短暂「思考」后落 trace + AI 回复 + 情报块(或诚实留白).
-    window.setTimeout(() => {
-      setThinking(false);
-      if (n > 0) {
-        push({
-          id: nextId(),
-          kind: 'trace',
-          trace: {
-            intent: 'intel',
-            query_delta: { company: name, n_insights: n },
-            remember_note: '',
-          },
-        });
-        push({
-          id: nextId(),
-          kind: 'turn',
-          who: 'ai',
-          html: `<b>${escapeHtml(name)}</b> 命中 ${n} 条同辈情报，已在右侧骨架卡按门槛 / 前景 / 待遇聚合 —— 待遇没人提到的就诚实留白，不编数字。`,
-        });
-        push({
-          id: nextId(),
-          kind: 'intel',
-          text: `共 ${n} 条同辈情报，覆盖门槛与前景为主；展开 <b>${escapeHtml(name)}</b> 的骨架卡看三维明细。`,
-        });
-      } else {
-        // 无结构化情报 → 诚实, 不编造.
+
+    getCompanyIntel(sessionId, name)
+      .then((res) => {
+        setThinking(false);
+        const n = res.n;
+        if (n > 0) {
+          push({
+            id: nextId(),
+            kind: 'trace',
+            trace: {
+              intent: 'intel',
+              query_delta: { company: name, n_insights: n },
+              remember_note: '',
+            },
+          });
+          push({
+            id: nextId(),
+            kind: 'turn',
+            who: 'ai',
+            html: `<b>${escapeHtml(name)}</b> 命中 ${n} 条同辈情报：`,
+          });
+          // 展示前 3 条情报的内容(含 quote 时加书名引号)
+          const top = res.insights.slice(0, 3);
+          const lines = top
+            .map((it) => {
+              const q = it.quote ? `「${it.quote}」` : '';
+              return `· ${it.content}${q ? ' — ' + q : ''}`;
+            })
+            .join('\n');
+          push({
+            id: nextId(),
+            kind: 'intel',
+            text: lines,
+          });
+        } else {
+          // 无结构化情报 → 诚实, 不编造.
+          push({
+            id: nextId(),
+            kind: 'turn',
+            who: 'ai',
+            html: `<b>${escapeHtml(name)}</b> 暂无结构化同辈情报 —— 这家是按赛道梯队补全的骨架公司，等有同学讨论会自动汇入。不编造它的门槛 / 待遇。`,
+          });
+        }
+      })
+      .catch(() => {
+        setThinking(false);
+        // 请求失败 → 诚实留白, 不崩溃.
         push({
           id: nextId(),
           kind: 'turn',
           who: 'ai',
           html: `<b>${escapeHtml(name)}</b> 暂无结构化同辈情报 —— 这家是按赛道梯队补全的骨架公司，等有同学讨论会自动汇入。不编造它的门槛 / 待遇。`,
         });
-      }
-    }, 700);
+      });
   }
 
   // 「定制深挖」→ 定制回流对话主轴: AI 提议针对这家开一场模拟面试(实际开场 = Task 10).
@@ -1414,7 +1429,12 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                   </span>
                 </div>
               )}
-              <SkillBar active={armed} onPick={armModule} />
+              <SkillBar
+                active={armed}
+                onPick={armModule}
+                myJobsActive={active === 'myjobs'}
+                onMyJobs={() => setActive((cur) => (cur === 'myjobs' ? 'none' : 'myjobs'))}
+              />
               <Composer
                 chips={QUICK_CHIPS}
                 placeholder={

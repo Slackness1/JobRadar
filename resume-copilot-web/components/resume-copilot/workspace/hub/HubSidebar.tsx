@@ -6,7 +6,6 @@ import {
   FileText,
   SquarePen,
   Mic,
-  User,
   PenLine,
   ChevronLeft,
   ExternalLink,
@@ -71,7 +70,6 @@ const NAV: NavItem[] = [
   { key: 'skeleton',  label: '梯队骨架', Icon: Layers },
   { key: 'resume',    label: '简历优化', Icon: FileText },
   { key: 'interview', label: '模拟面试', Icon: Mic,  jump: true },
-  { key: 'profile',   label: '个人档案', Icon: User },
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
