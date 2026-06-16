@@ -193,6 +193,17 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
         ranked = sorted(ranked, key=lambda t: t[1], reverse=True)
     # sort=='pay' 暂无可靠薪资字段 → 退回 match 序
 
+    # 多样性:按公司限流(防美团这类大厂海量岗淹没 feed),与 v2 dispatcher 同一道闸。
+    # 用户显式点名公司(query.companies)时不限流 —— 那是他主动要看某家,尊重意图。
+    if not query.companies:
+        import os as _os
+        from app.services.resume_copilot.recommendation import (
+            RECOMMEND_PER_COMPANY_CAP,
+            _diversify_by_company,
+        )
+        _cap = int(_os.environ.get("RECOMMEND_PER_COMPANY_CAP", RECOMMEND_PER_COMPANY_CAP))
+        ranked = _diversify_by_company(ranked, _cap)
+
     # _v2_items_from_ranked 期望 list[dict]: 每条含 job / final_score / base_score (0-1)。
     # 纯规则模式无 LLM rerank → final == base == 规则分。
     ranked_dicts = [

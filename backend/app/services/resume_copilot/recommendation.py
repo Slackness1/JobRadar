@@ -912,6 +912,10 @@ def _filter_candidate_jobs(db: Session, preferences: ResumePreferencePayload | N
 
 RECOMMEND_TOP_N = 10
 RECOMMEND_MIN_SCORE = 50
+# 单家公司在"进精排/feed 头部"的最多占位数 —— 防"美团这类大厂海量岗位淹没 feed"
+# (互联网推荐多样性塌陷,实测一次推荐大半是美团)。超出的同公司岗下沉尾部(仍按分序),
+# 把头部名额让给其他同样相关的公司。env RECOMMEND_PER_COMPANY_CAP 可调;0/负数=关闭。
+RECOMMEND_PER_COMPANY_CAP = 2
 
 
 # ===== Phase G T19 (2026-05-28) — v2 dispatcher =====
@@ -1126,6 +1130,45 @@ def _v2_items_from_ranked(
 _RECALL_THIN_THRESHOLD = 10
 
 
+def _diversify_by_company(
+    ranked: list[tuple["Job", float]], cap: int
+) -> list[tuple["Job", float]]:
+    """按公司限流的多样性重排:输入已按分降序。
+
+    每家公司在"头部"最多保留 ``cap`` 个(归一公司名:美团/美团点评算一家);
+    超出的同公司岗下沉到尾部(彼此仍保持分序),把头部名额让给其他同样相关的公司。
+    修"互联网推荐被某几个大厂海量岗位淹没"。cap<=0 → 不限流原样返回;无公司名的岗
+    不计数、原位保留。整体仍近似分序(头部按分穿插不同公司,尾部是各家溢出的低位岗)。
+    """
+    if cap <= 0:
+        return ranked
+    from app.services.phase_g.tier_fit.internet_tiers import internet_brand_of
+    from app.services.resume_copilot.workflow import _canonical_employer_key
+
+    def _div_key(company: str) -> str:
+        # 先走互联网品牌聚合(美团/美团(三快)→美团, 字节/抖音/字节跳动→字节跳动);
+        # 非互联网(金融)公司回落到法人后缀归一(蚂蚁集团/蚂蚁科技→蚂蚁)。
+        brand = internet_brand_of(company)
+        if brand:
+            return "brand:" + brand
+        return _canonical_employer_key(company)
+
+    counts: dict[str, int] = {}
+    head: list[tuple["Job", float]] = []
+    overflow: list[tuple["Job", float]] = []
+    for job, score in ranked:
+        key = _div_key(str(getattr(job, "company", "") or ""))
+        if not key:
+            head.append((job, score))
+            continue
+        if counts.get(key, 0) < cap:
+            counts[key] = counts.get(key, 0) + 1
+            head.append((job, score))
+        else:
+            overflow.append((job, score))
+    return head + overflow
+
+
 def _recommend_v2_dispatcher(
     db: Session,
     *,
@@ -1265,6 +1308,12 @@ def _recommend_v2_dispatcher(
     from app.services.resume_copilot.recommend_search import apply_quality_priors
     ranked = apply_quality_priors(ranked)
     ranked.sort(key=lambda t: -t[1])
+
+    # 多样性:按公司限流(防美团这类大厂海量岗淹没 feed)。必须在选 top-N 进精排「之前」做
+    # —— 否则 top-N(=feed)可能整批同一家公司,精排只在这批内排序救不回多样性。
+    import os as _os
+    _company_cap = int(_os.environ.get("RECOMMEND_PER_COMPANY_CAP", RECOMMEND_PER_COMPANY_CAP))
+    ranked = _diversify_by_company(ranked, _company_cap)
 
     # 渐进式：精排前先把规则排序 top-N 作占位结果回吐(前端秒级铺列表)。
     _prelim_src = [
