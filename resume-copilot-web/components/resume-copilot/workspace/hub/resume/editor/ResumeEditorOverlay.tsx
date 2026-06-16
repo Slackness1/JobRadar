@@ -17,7 +17,6 @@ import {
   type PendingQuote,
   type ScoreReportData,
 } from '../../../../api';
-import { readFreshScoreReport } from '../../scoreCache';
 
 type LeftTab = 'tpl' | 'edit' | 'layout';
 
@@ -198,14 +197,14 @@ export function ResumeEditorOverlay({
     const seedInitial = async (): Promise<ResumeVersion> => {
       let report: ScoreReportData | null = null;
       if (!isMock && sessionId) {
-        report = readFreshScoreReport(sessionId);
-        if (!report) {
-          try {
-            const st = await getScoreTaskStatus(sessionId);
-            if (st.status === 'done' && st.report) report = st.report;
-          } catch {
-            /* 没有就 null,显式重新打分再补 */
-          }
+        // 只认服务端「已完成」的真实打分(它打的是库里完整简历)。不读 localStorage 短缓存
+        // —— 那个缓存可能是简历还空时打的 0 分,会被当成 V1 成绩误显(实测 cz9z V1=0 即此因)。
+        // 没有就留 null → 进编辑器自动给当前简历打一次真分(见 EditorScoreReportThick 自动打分)。
+        try {
+          const st = await getScoreTaskStatus(sessionId);
+          if (st.status === 'done' && st.report) report = st.report;
+        } catch {
+          /* 没有就 null,自动/显式重新打分再补 */
         }
       }
       return {

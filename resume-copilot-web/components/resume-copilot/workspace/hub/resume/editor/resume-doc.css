@@ -356,6 +356,14 @@
     visibility: visible !important;
     z-index: auto !important;
   }
+  /* 强制打印背景色/图 —— 否则 window.print() 默认丢掉模板皮肤的色块
+     (深色页眉横幅 / 墨绿弧形 / 浅青色块 / 蓝色侧栏全变成白底经典版)。
+     print-color-adjust 可继承, 设在副本根 + 全后代双保险。 */
+  .rdoc-print-portal,
+  .rdoc-print-portal * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   /* 离屏量稿不进 PDF */
   .rdoc-print-portal .rdoc-measure { display: none !important; }
   /* 纸张容器:去居中间距,自然流 */

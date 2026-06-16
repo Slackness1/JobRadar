@@ -111,7 +111,8 @@ export function EditorScoreReportThick({
   shownVName,
   currentVName,
   stale = false,
-  currentProfile,
+  // currentProfile 不再用于打分(编辑器渲染模型 ≠ 后端 ResumeProfilePayload, 传了会被当空简历)。
+  // 重新打分一律打库里 confirmed 简历;prop 保留在接口上供将来"渲染模型→payload"转换接入。
   targetTrack,
   onRescored,
 }: EditorScoreReportThickProps): JSX.Element {
@@ -221,8 +222,11 @@ export function EditorScoreReportThick({
         setRescoring(false);
       }
     };
-    // profile 覆盖 → 后端 startScoreTask 自动 force:true(见 api.ts),不复用旧版缓存。
-    startScoreTask(sessionId, { targetTrack: targetTrack ?? '', profile: currentProfile })
+    // 打库里那份完整简历(force 重打)。注意:不能把编辑器的"渲染模型"(name/sections/…)
+    // 当 profile 覆盖传后端 —— 后端要的是 ResumeProfilePayload(education/internships/projects),
+    // 形态不同会被解析成空简历 → "简历完全空白 0 分"(实测 cz9z 的 V1=0 即此因)。
+    // 深度优化写回会落到后端简历,所以打库里这份即当前内容。
+    startScoreTask(sessionId, { targetTrack: targetTrack ?? '', force: true })
       .then(() => {
         rescorePoll.current = window.setTimeout(() => void poll(), 1500);
       })
@@ -230,11 +234,25 @@ export function EditorScoreReportThick({
         setError(e instanceof Error ? e.message : '重新打分失败');
         setRescoring(false);
       });
-  }, [rescoring, mock, sessionId, shownReport, onRescored, targetTrack, currentProfile]);
+  }, [rescoring, mock, sessionId, shownReport, onRescored, targetTrack]);
 
   useEffect(() => () => {
     if (rescorePoll.current) window.clearTimeout(rescorePoll.current);
   }, []);
+
+  // 首进编辑器:当前版本还没打分(受控且 reportOverride===null)→ 自动给库里完整简历打一次真分,
+  // 不传 profile 覆盖 → 打的是后端 confirmed 简历(完整),不会出现"空白简历 0 分"。打完由
+  // onRescored 落进当前版本并持久化,下次进来直接复用、不再重打。
+  const autoScored = useRef(false);
+  useEffect(() => {
+    if (!controlled || reportOverride !== null) return;
+    if (mock || !sessionId) return;
+    if (autoScored.current || rescoring) return;
+    autoScored.current = true;
+    // 异步触发,避免在 effect 内同步 setState(setRescoring)。
+    const t = window.setTimeout(() => handleRescore(), 0);
+    return () => window.clearTimeout(t);
+  }, [controlled, reportOverride, mock, sessionId, rescoring, handleRescore]);
 
   // 受控态:报告由父组件给。loading/error 仅在非受控自动轮询路径展示。
   if (!controlled && loading) {
