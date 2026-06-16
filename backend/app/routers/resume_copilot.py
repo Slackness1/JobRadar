@@ -2294,6 +2294,33 @@ def get_platforms_by_tier(
     return skeleton
 
 
+@router.get('/sessions/{session_id}/company-track-jobs')
+def get_company_track_jobs(
+    session_id: int,
+    company: str,
+    sub_cat: str | None = None,
+    mode: str | None = None,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> dict:
+    """梯队骨架:某公司在「当前赛道」的全部在招对口岗(解除骨架预览的 5 条上限)。"""
+    from app.services.phase_g.tier_fit.platform_skeleton import _fetch_live_jobs
+    from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
+
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    if not sub_cat:
+        profile, prefs = _load_profile_and_prefs(db, session_id)
+        subs = _v2_extract_preferred_sub_cats(profile, prefs)
+        sub_cat = subs[0] if subs else None
+    if not company or not sub_cat:
+        return {"session_id": session_id, "company": company, "sub_cat": sub_cat, "n": 0, "jobs": []}
+
+    jobs = _fetch_live_jobs(db, company, sub_cat, prefer_internship=(mode == 'intern'), limit=100)
+    return {"session_id": session_id, "company": company, "sub_cat": sub_cat, "n": len(jobs), "jobs": jobs}
+
+
 @router.delete(
     '/sessions/{session_id}/memory/{entry_id}',
     status_code=status.HTTP_204_NO_CONTENT,
