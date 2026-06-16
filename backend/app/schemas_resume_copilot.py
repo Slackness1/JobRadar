@@ -631,6 +631,29 @@ class RecommendRejectOut(BaseModel):
     rejected_count: int = 0
 
 
+class MyJobItem(BaseModel):
+    job_id: str
+    company: str = ''
+    job_title: str = ''
+    location: str = ''
+    detail_url: str = ''
+    publish_date: str = ''
+    scraped_at: str = ''
+
+
+class MyJobsCounts(BaseModel):
+    saved: int = 0
+    applied: int = 0
+    dismissed: int = 0
+
+
+class MyJobsOut(BaseModel):
+    saved: list[MyJobItem] = []
+    applied: list[MyJobItem] = []
+    dismissed: list[MyJobItem] = []
+    counts: MyJobsCounts
+
+
 class JobStateIn(BaseModel):
     # "" = 清除(降回 seen);否则必须是 saved/applied/dismissed
     state: str = ""
