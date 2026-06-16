@@ -126,6 +126,8 @@ export function EditorAIPanel({
   useEffect(() => {
     openRef.current = { openTabIds, activeTabId };
   }, [openTabIds, activeTabId]);
+  // 后端只有一份 plan_json;记当前占用它的 section。任何对话 start 成功后认领。
+  const backendPlanSectionRef = useRef<string | null>(null);
 
   // overlay 传进来的「引用某段」一次性请求 → 路由到该段对话(复用/新建)→ 清空 overlay 全局。
   useEffect(() => {
@@ -678,6 +680,12 @@ export function EditorAIPanel({
                 mock={mock}
                 initialMsgs={t.messages}
                 onMsgsChange={(msgs) => handleTabMsgs(t.id, msgs)}
+                section={t.section}
+                active={t.id === activeTabId}
+                isPlanOwner={!!t.section && t.section === backendPlanSectionRef.current}
+                onClaimPlan={(s) => {
+                  backendPlanSectionRef.current = s;
+                }}
               />
             </div>
           ))}
