@@ -16,6 +16,12 @@
 
 ## 2026-06-16
 
+### 网站设计-devvpstmux · 简历深度优化"多轮对话"质量评测(自研驱动 + DeepEval 双层)
+- **干了什么**:之前"深度优化反问取证"这条多轮对话只能人工抽查 AI 问得到不到位、改写有没有瞎编。补了离线多轮评测(`backend/tests/eval/deep_optimize.py` + `deepeval_conversational.py`):进程内把整条 SUT 跑一遍、模拟 SAIF 学生跨轮答题,**自研层**判追问质量/忠实度/赛道对齐/跨轮连贯(复用现有 judge + 改写审计),**DeepEval 层**在同一转写上跑标准多轮指标(角色一致/知识保持/对话完整度)。两层互印——DeepEval 独立抓到自研层(基于数字)漏掉的文字类编造。
+- **意义**:面试多轮早有 eval,这次把"AI 说得对不对"的可证伪检测补到了简历优化对话侧;每次改 prompt/模型可量化回归。
+- **验证**:单 persona 两层均跑通(自研:reached=yes、追问 2.67-3、忠实 3;DeepEval:角色一致 .75-1、完整度 1.0)。离线手动跑、烧共用额度,默认 3 persona/6 轮,不进 CI。
+- **⚠️ 留给本人(需补)**:`.env.local` 跨厂商判官 key 全失效(mimo 401 / dashscope 403)→ 现自动回落 self-judge(同厂商判官有 ~10-20% 偏高 bias,metadata 已标)。**正式 eval 前补一把有效跨厂商判官 key**,数字才可信。
+
 ### 网站设计-devvpstmux · 前端自动化测试套件:Playwright 确定性体检 + browser-use AI 探索
 - **干了什么**:之前前端只有 lint+build+手动看,没有"自动开浏览器把流程点一遍"的测试。补了两套(`resume-copilot-web/e2e/`):① **Playwright 体检**——真浏览器跑关键路由 + 大编辑器只读全流程,断言页面活着/控制台无报错/截图,**0 token、确定性、几十秒出结果**,适合每次改完前端必跑;② **browser-use AI 测试员**——挂我们的 DeepSeek,像学生一样自己决定点哪、找意外 bug(烧 token、非确定性,手动限步跑)。
 - **本人/其它会话能看到**:`./e2e/run.sh --base-url <dev或线上>` 一键体检;`./e2e/explore.sh` 放 AI 出来扫雷。复用 backend/.venv 的 Playwright,无需额外装。
