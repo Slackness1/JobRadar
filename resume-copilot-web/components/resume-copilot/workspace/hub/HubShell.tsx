@@ -356,6 +356,14 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
 
   const push = (m: HubMessage) => setMsgs((cur) => [...cur, m]);
 
+  // 把当前 feed 快照藏进 msgs — 水合时从 msgs 里读出来恢复 feed 状态。
+  // 每次更新只保留最新一条(去掉旧的 feedsnap, 追加新的), 对话 JSON 里只存一份。
+  const persistFeedSnapshot = (items: RecommendFeedItem[]) =>
+    setMsgs((cur) => [
+      ...cur.filter((m) => m.kind !== 'feedsnap'),
+      { id: nextId(), kind: 'feedsnap', items },
+    ]);
+
   // 滚到底 — 仅当本来就贴近底部(长任务轮询会持续更新思考卡, 不能把正在
   // 往上翻历史的学生反复拽回底部)。
   useEffect(() => {
@@ -511,6 +519,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           convEpoch.current += 1; // 新视图纪元(换简历进场也算切换)
           epochConvId.current.set(convEpoch.current, latest.id);
           setMsgs(arr);
+          // 水合 feed 快照 — 让重开老对话时右栏岗位不变空
+          const snap = [...arr].reverse().find((m) => m.kind === 'feedsnap');
+          setFeed(
+            snap && Array.isArray((snap as { items?: RecommendFeedItem[] }).items)
+              ? (snap as { items: RecommendFeedItem[] }).items
+              : [],
+          );
           setStarted(true);
           adoptRunningSkillruns(arr); // 「跑到一半」的打分任务重新挂上轮询(③)
         }
@@ -567,6 +582,13 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
         convEpoch.current += 1; // 新纪元 — 旧对话的运行落到「后台」语义
         epochConvId.current.set(convEpoch.current, convId);
         setMsgs(arr);
+        // 水合 feed 快照 — 切回老对话时恢复右栏岗位
+        const snap = [...arr].reverse().find((m) => m.kind === 'feedsnap');
+        setFeed(
+          snap && Array.isArray((snap as { items?: RecommendFeedItem[] }).items)
+            ? (snap as { items: RecommendFeedItem[] }).items
+            : [],
+        );
         setStarted(arr.length > 0);
         setActive('none');
         setArmed(null);
@@ -868,6 +890,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       const text = lastUserText.current || '给我推荐一下岗位';
       const finishFeed = (feedItems: RecommendFeedItem[], wq: WorkingQuery | null) => {
         setFeed(feedItems);
+        persistFeedSnapshot(feedItems);
         if (wq) setWorkingQuery(wq);
         const tracks = (wq?.seed_sub_cats ?? []).filter(Boolean);
         const tt = tracks.length > 0 ? tracks.slice(0, 3).join(' · ') : '你确认的赛道';
@@ -1137,7 +1160,10 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           text: `记忆 → L3 preference · 后台落库（${resp.remembered.dimension}=${resp.remembered.value}）`,
         });
       }
-      if (resp.feed !== null) setFeed(resp.feed);
+      if (resp.feed !== null) {
+        setFeed(resp.feed);
+        persistFeedSnapshot(resp.feed);
+      }
       if (resp.working_query) setWorkingQuery(resp.working_query);
     } catch {
       push({
@@ -1292,6 +1318,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
                         <span dangerouslySetInnerHTML={{ __html: m.text }} />
                       </Turn>
                     );
+                  case 'feedsnap':
+                    // 隐藏消息 — 只作持久化载体, 不在对话里渲染
+                    return null;
                   default:
                     return null;
                 }

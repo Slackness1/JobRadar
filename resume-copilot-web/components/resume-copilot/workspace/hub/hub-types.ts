@@ -43,6 +43,7 @@ export type HubMessage =
   | { id: string; kind: 'result'; module: HubModule; data: ResultCardData }
   | { id: string; kind: 'trace'; trace: RecommendTrace }
   | { id: string; kind: 'memory'; text: string }
-  | { id: string; kind: 'intel'; text: string };
+  | { id: string; kind: 'intel'; text: string }
+  | { id: string; kind: 'feedsnap'; items: RecommendFeedItem[] };
 
 export type { WorkingQuery, RecommendFeedItem };
