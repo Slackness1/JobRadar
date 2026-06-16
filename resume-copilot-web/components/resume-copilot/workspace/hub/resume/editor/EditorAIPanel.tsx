@@ -28,6 +28,8 @@ interface Convo {
   id: number;
   messages: ChatMsg[];
   updatedAt: string; // ISO;最近改动(历史按它倒序)
+  section?: string;  // 绑定的简历段路径,如 'internships.0' / 'education';undefined = 自由对话
+  label?: string;    // 段落显示名(tab 标题 / 历史标题 / 锁定段横幅)
 }
 
 const DEBOUNCE_MS = 800;
@@ -152,6 +154,8 @@ export function EditorAIPanel({
           messages: c.messages,
           updatedAt: c.updatedAt,
           title: deriveTitle(c.messages, i + 1),
+          section: c.section,
+          label: c.label,
         }));
         const meta: EditorTabsMeta = { __meta__: true, openTabIds: ot, activeTabId: at };
         body.push(meta);
@@ -183,6 +187,8 @@ export function EditorAIPanel({
             id: c.id as number,
             messages: Array.isArray(c.messages) ? (c.messages as ChatMsg[]) : [],
             updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : new Date().toISOString(),
+            section: typeof c.section === 'string' ? (c.section as string) : undefined,
+            label: typeof c.label === 'string' ? (c.label as string) : undefined,
           }));
         if (!list.length) return; // 没有真实会话 → 沿用默认 1 tab
         // 打开态元记录(新格式);取不到就回退「前 3 个会话作为打开 tab」(兼容旧格式)。
