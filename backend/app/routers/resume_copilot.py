@@ -33,6 +33,8 @@ from app.schemas_resume_copilot import (
     MemoryGroupedOut,
     PlanStartIn,
     PlanStateOut,
+    JobStateIn,
+    JobStateOut,
     RecommendRejectIn,
     RecommendRejectOut,
     ResumeAgentTraceItem,
@@ -1416,6 +1418,36 @@ def post_reject_recommendation(
         memory_entry_id=memory_entry_id,
         rejected_count=len(current_rejected),
     )
+
+
+@router.post('/sessions/{session_id}/jobs/{job_id}/state', response_model=JobStateOut)
+def post_job_state(
+    session_id: int,
+    job_id: str,
+    payload: JobStateIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> JobStateOut:
+    """推荐 2.0:设置/清除某岗位的显式状态(收藏想投/已投递/不合适)。
+
+    state="" → 清除回 seen。state ∈ {saved,applied,dismissed} → upsert。
+    纯追踪,不回流推荐算法(设计稿 2026-06-16 §七.4)。
+    """
+    from app.services.resume_copilot import job_state as js
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    user_key = str(getattr(session_obj, 'user_key', '') or '')
+    state = (payload.state or '').strip()
+    if state == '':
+        js.clear_explicit_state(db, user_key, job_id)
+        return JobStateOut(ok=True, job_id=str(job_id), state=js.STATE_SEEN)
+    if state not in js.EXPLICIT_STATES:
+        raise HTTPException(status_code=422, detail=f'INVALID_STATE: {state}')
+    row = js.set_explicit_state(db, user_key, job_id, state, source_session_id=session_id)
+    return JobStateOut(ok=True, job_id=str(job_id), state=row.state)
 
 
 @router.get('/sessions/{session_id}/direction-analysis', response_model=list[DirectionTierResult])
