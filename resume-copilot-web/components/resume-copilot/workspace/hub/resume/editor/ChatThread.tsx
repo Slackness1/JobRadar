@@ -205,8 +205,8 @@ export interface ChatThreadProps {
   onSeedConsumed?: () => void;
   /** pendingQuote 已消费(发首句 start 收尾)→ 通知父组件删除该对话的 pendingQuote。 */
   onQuoteConsumed?: () => void;
-  /** 写回成功 → 通知父组件把对应段映射成 A4 lit。 */
-  onWriteBack?: (section: string) => void;
+  /** 写回成功 → 通知父组件把对应段映射成 A4 lit + 把写回后的最新 profile 合并进工作态。 */
+  onWriteBack?: (section: string, profile?: Record<string, unknown>) => void;
   /** 无真实 session 时渲染样例对话(离线目测)。 */
   mock?: boolean;
   /** 挂载时一次性水合该 tab 的历史消息(多 tab 各自持久化用)。 */
@@ -553,7 +553,7 @@ export function ChatThread({
       .then((res) => {
         if (res.applied) {
           setMsgs((m) => m.map((x, i) => (i === idx && x.kind === 'rewrite' ? { ...x, done: true } : x)));
-          onWriteBack?.(res.section);
+          onWriteBack?.(res.section, res.profile);
           setTimeout(
             () =>
               setMsgs((m) => [

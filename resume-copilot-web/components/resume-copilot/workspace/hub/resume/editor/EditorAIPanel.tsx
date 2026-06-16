@@ -66,8 +66,8 @@ export interface EditorAIPanelProps {
   /** 受控 tab。 */
   tab: string;
   setTab: (t: string) => void;
-  /** 写回成功 → 父组件把 section 映射成 A4 lit。 */
-  onWriteBack: (section: string) => void;
+  /** 写回成功 → 父组件把 section 映射成 A4 lit + 合并写回后的最新 profile 到工作态。 */
+  onWriteBack: (section: string, profile?: Record<string, unknown>) => void;
   /** 无真实 session 时走样例。 */
   mock?: boolean;
   // ── 版本对应 + 重新打分(从 overlay 上提)──────────────────────────────────

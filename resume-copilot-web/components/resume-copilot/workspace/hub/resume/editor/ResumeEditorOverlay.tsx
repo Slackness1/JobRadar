@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Download, GitBranch, Quote, Save, X } from 'lucide-react';
 import { ResumeDoc } from './ResumeDoc';
 import type { Lang, LayoutState, ResumeProfile } from './resumeSample';
+import { profilePayloadToResumeProfile } from './resumeSample';
 import { LeftTemplate } from './LeftTemplate';
 import { LeftEdit } from './LeftEdit';
 import { LeftLayout } from './LeftLayout';
@@ -45,6 +46,33 @@ function sectionToLitId(section: string): string | undefined {
   if (!section) return undefined;
   const prefix = section.split('.')[0].toLowerCase();
   return SECTION_PREFIX_TO_ID[prefix];
+}
+
+// 写回成功后,把后端最新 confirmed 里「被改的这一段」合并进当前工作态:
+// timeline 段精确替换被改的那一条 item(保留同段其它条目的手动改动);
+// 非 timeline 段(summary/skills 等)整段替换;段不存在(被隐藏/删)则原样返回。
+// 其它段的手动改动一律保留。
+function applyWriteBackSection(working: ResumeProfile, fresh: ResumeProfile, section: string): ResumeProfile {
+  const id = sectionToLitId(section);
+  if (!id) return working;
+  const freshSec = fresh.sections.find((s) => s.id === id);
+  const workingSec = working.sections.find((s) => s.id === id);
+  if (!freshSec || !workingSec) return working;
+  const idxStr = section.split('.')[1];
+  const idx = idxStr === undefined ? NaN : Number(idxStr);
+  if (
+    workingSec.type === 'timeline' &&
+    freshSec.type === 'timeline' &&
+    Number.isInteger(idx) &&
+    idx >= 0 &&
+    idx < workingSec.items.length &&
+    idx < freshSec.items.length
+  ) {
+    const items = workingSec.items.map((it, i) => (i === idx ? freshSec.items[idx] : it));
+    const merged = { ...workingSec, items };
+    return { ...working, sections: working.sections.map((s) => (s.id === id ? merged : s)) };
+  }
+  return { ...working, sections: working.sections.map((s) => (s.id === id ? freshSec : s)) };
 }
 
 // 简历文档 section id → 后端 section path 前缀(SECTION_PREFIX_TO_ID 的反向)。
@@ -317,9 +345,17 @@ export function ResumeEditorOverlay({
     return () => ro.disconnect();
   }, []);
 
-  // 写回成功 → 把 section 映射成简历段 id 并高亮。
-  const handleWriteBack = (section: string) => {
+  // 写回成功 → 把写回后的最新 confirmed 里被改的这段合并进工作态(中栏即时刷新、
+  // 保存能带上、草稿同步),并把 section 映射成简历段 id 高亮。仅中文视图合并
+  // (英文是译稿,不注入中文改写);改动段未匹配则只高亮。
+  const handleWriteBack = (section: string, payloadProfile?: Record<string, unknown>) => {
     const id = sectionToLitId(section);
+    if (payloadProfile && lang === 'zh') {
+      const fresh = profilePayloadToResumeProfile(
+        payloadProfile as unknown as Parameters<typeof profilePayloadToResumeProfile>[0],
+      );
+      onProfile(applyWriteBackSection(profile, fresh, section));
+    }
     if (id) setLitSectionId(id);
   };
 
