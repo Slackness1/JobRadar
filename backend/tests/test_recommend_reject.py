@@ -152,6 +152,12 @@ def test_reject_writes_preference_memory_and_filters_subsequent_recommendations(
         finally:
             db.close()
 
+        # 推荐 2.0:reject 应同时把该岗写进 resume_job_user_state=dismissed
+        from app.services.resume_copilot import job_state as js
+        _db = sl()
+        assert js.states_map(_db, "user-abc").get("job-2") == "dismissed"
+        _db.close()
+
 
 def test_second_reject_same_job_id_dedupes_session_list_and_refreshes_memory():
     with _MEMORY_ON:
