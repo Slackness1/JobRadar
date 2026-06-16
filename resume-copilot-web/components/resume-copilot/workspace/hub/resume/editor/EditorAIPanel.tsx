@@ -129,6 +129,10 @@ export function EditorAIPanel({
   const [activeTabId, setActiveTabId] = useState<number>(1);
   const nextId = useRef(2);
   const hydratedConvos = useRef(false);
+  // seed/quote 按对话 id 投递(替代全局「谁激活谁抢」)。ChatThread 消费后回调删除该条,
+  // 保证 seed 永不泄漏到下一个新建/切换的 tab —— 根治「新对话沿用旧内容 / 重复增生」。
+  const [pendingSeedByConv, setPendingSeedByConv] = useState<Record<number, DeepOptimizeStartIn>>({});
+  const [pendingQuoteByConv, setPendingQuoteByConv] = useState<Record<number, PendingQuote>>({});
   const [historyOpen, setHistoryOpen] = useState(false);
   const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 持久化要取最新的 open 态,但 persistConvos 又不想随它们重建(避免循环依赖)。
@@ -289,6 +293,24 @@ export function EditorAIPanel({
     },
     [persistConvos],
   );
+
+  // ChatThread 消费完它那份 seed → 删除,避免重复 start / 泄漏到其它 tab。
+  const consumeSeed = useCallback((convId: number) => {
+    setPendingSeedByConv((m) => {
+      if (!(convId in m)) return m;
+      const next = { ...m };
+      delete next[convId];
+      return next;
+    });
+  }, []);
+  const consumeQuote = useCallback((convId: number) => {
+    setPendingQuoteByConv((m) => {
+      if (!(convId in m)) return m;
+      const next = { ...m };
+      delete next[convId];
+      return next;
+    });
+  }, []);
 
   // 当前打开成 tab 的会话(按 openTabIds 顺序)。
   const openConvos = openTabIds
@@ -566,10 +588,10 @@ export function EditorAIPanel({
               <ChatThread
                 sessionId={sessionId}
                 mode="deep"
-                // seed 只喂当前激活 tab,别让后台 tab 也被同一缺口起头。
-                seed={t.id === activeTabId ? seed : null}
-                pendingQuote={t.id === activeTabId ? pendingQuote : null}
-                setPendingQuote={setPendingQuote}
+                seed={pendingSeedByConv[t.id] ?? null}
+                pendingQuote={pendingQuoteByConv[t.id] ?? null}
+                onSeedConsumed={() => consumeSeed(t.id)}
+                onQuoteConsumed={() => consumeQuote(t.id)}
                 onWriteBack={onWriteBack}
                 mock={mock}
                 initialMsgs={t.messages}

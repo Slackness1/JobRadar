@@ -201,7 +201,10 @@ export interface ChatThreadProps {
   seed?: DeepOptimizeStartIn | null;
   /** 「待引用」低调引子(引用此段 / 选行引用挂上;发送时才据此启动)。 */
   pendingQuote?: PendingQuote | null;
-  setPendingQuote?: (q: PendingQuote | null) => void;
+  /** seed 已消费(start 收尾)→ 通知父组件删除该对话的 pendingSeed。 */
+  onSeedConsumed?: () => void;
+  /** pendingQuote 已消费(发首句 start 收尾)→ 通知父组件删除该对话的 pendingQuote。 */
+  onQuoteConsumed?: () => void;
   /** 写回成功 → 通知父组件把对应段映射成 A4 lit。 */
   onWriteBack?: (section: string) => void;
   /** 无真实 session 时渲染样例对话(离线目测)。 */
@@ -242,7 +245,8 @@ export function ChatThread({
   mode,
   seed = null,
   pendingQuote = null,
-  setPendingQuote,
+  onSeedConsumed,
+  onQuoteConsumed,
   onWriteBack,
   mock = false,
   initialMsgs,
@@ -326,6 +330,7 @@ export function ChatThread({
       })
       .finally(() => {
         if (alive) setThinking(false);
+        onSeedConsumed?.(); // seed 已消费,父组件删除该对话的 pendingSeed
       });
 
     return () => {
@@ -422,7 +427,6 @@ export function ChatThread({
       started.current = true;
       setFocusLabel(q.label);
       setTargetTrack(q.target_track || TARGET_TRACK_FALLBACK);
-      setPendingQuote?.(null);
       const startBody: DeepOptimizeStartIn = {
         section: q.section,
         label: q.label,
@@ -446,6 +450,7 @@ export function ChatThread({
         .finally(() => {
           setThinking(false);
           busy.current = false;
+          onQuoteConsumed?.();
         });
       return;
     }
@@ -647,7 +652,7 @@ export function ChatThread({
             </div>
             <button
               type="button"
-              onClick={() => setPendingQuote?.(null)}
+              onClick={() => onQuoteConsumed?.()}
               aria-label="撤掉引用"
               style={{
                 flex: 'none',
