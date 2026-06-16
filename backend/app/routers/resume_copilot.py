@@ -1411,6 +1411,16 @@ def post_reject_recommendation(
         current_rejected.append(job_str)
     session_obj.rejected_job_ids_json = json.dumps(current_rejected)
     session_obj.updated_at = datetime.utcnow()
+
+    # 推荐 2.0:同源写新状态表(dismissed),便于"我的岗位"聚合 + 轮换排除。
+    # 不改既有 account_memory / rejected_job_ids_json 行为。
+    try:
+        from app.services.resume_copilot import job_state as js
+        if user_key:
+            js.set_explicit_state(db, user_key, str(job_id), js.STATE_DISMISSED, source_session_id=session_id)
+    except Exception:
+        pass  # 双写失败不阻断既有拒绝流
+
     db.commit()
 
     return RecommendRejectOut(
