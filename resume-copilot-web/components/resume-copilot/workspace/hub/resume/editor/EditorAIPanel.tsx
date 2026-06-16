@@ -28,6 +28,8 @@ interface Convo {
   id: number;
   messages: ChatMsg[];
   updatedAt: string; // ISO;最近改动(历史按它倒序)
+  section?: string;  // 绑定的简历段路径,如 'internships.0' / 'education';undefined = 自由对话
+  label?: string;    // 段落显示名(tab 标题 / 历史标题 / 锁定段横幅)
 }
 
 const DEBOUNCE_MS = 800;
@@ -58,17 +60,14 @@ function fmtRel(iso: string): string {
 
 export interface EditorAIPanelProps {
   sessionId: number;
-  /** 当前深度优化播种(从打分缺口 CTA 构造)。null = 还没选段。 */
-  seed: DeepOptimizeStartIn | null;
-  setSeed: (s: DeepOptimizeStartIn | null) => void;
   /** 「待引用」低调引子(引用此段 / 选行引用挂上;不自动发问)。 */
   pendingQuote: PendingQuote | null;
   setPendingQuote: (q: PendingQuote | null) => void;
   /** 受控 tab。 */
   tab: string;
   setTab: (t: string) => void;
-  /** 写回成功 → 父组件把 section 映射成 A4 lit。 */
-  onWriteBack: (section: string) => void;
+  /** 写回成功 → 父组件把 section 映射成 A4 lit + 合并写回后的最新 profile 到工作态。 */
+  onWriteBack: (section: string, profile?: Record<string, unknown>) => void;
   /** 无真实 session 时走样例。 */
   mock?: boolean;
   // ── 版本对应 + 重新打分(从 overlay 上提)──────────────────────────────────
@@ -88,8 +87,6 @@ export interface EditorAIPanelProps {
 /** 简历编辑器右栏「AI 简历助手 v2」三能力壳:简历打分 / 深度优化 / 自由问。 */
 export function EditorAIPanel({
   sessionId,
-  seed,
-  setSeed,
   pendingQuote,
   setPendingQuote,
   tab,
@@ -107,17 +104,6 @@ export function EditorAIPanel({
   onRescored,
   onOpenReportVid,
 }: EditorAIPanelProps): JSX.Element {
-  // 打分缺口「去深度优化这段」→ 构造 seed(带真实目标赛道)→ 切到深度优化 tab(gap→deep 串联)。
-  function handleOptimize(gap: ScoreSectionGap, track: string): void {
-    setSeed({
-      section: gap.section,
-      label: gap.label,
-      gaps: gap.gaps,
-      detail: gap.detail,
-      target_track: track,
-    });
-    setTab('deep');
-  }
 
   // ── 深度优化对话 ─────────────────────────────────────────────────────────────
   // 全部会话(无上限)存 convos;同时「打开」成 tab 的是其 ≤3 个子集 openTabIds;
@@ -127,6 +113,10 @@ export function EditorAIPanel({
   const [activeTabId, setActiveTabId] = useState<number>(1);
   const nextId = useRef(2);
   const hydratedConvos = useRef(false);
+  // seed/quote 按对话 id 投递(替代全局「谁激活谁抢」)。ChatThread 消费后回调删除该条,
+  // 保证 seed 永不泄漏到下一个新建/切换的 tab —— 根治「新对话沿用旧内容 / 重复增生」。
+  const [pendingSeedByConv, setPendingSeedByConv] = useState<Record<number, DeepOptimizeStartIn>>({});
+  const [pendingQuoteByConv, setPendingQuoteByConv] = useState<Record<number, PendingQuote>>({});
   const [historyOpen, setHistoryOpen] = useState(false);
   const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 持久化要取最新的 open 态,但 persistConvos 又不想随它们重建(避免循环依赖)。
@@ -136,6 +126,17 @@ export function EditorAIPanel({
   useEffect(() => {
     openRef.current = { openTabIds, activeTabId };
   }, [openTabIds, activeTabId]);
+  // 后端只有一份 plan_json;记当前占用它的 section。用 state 而非 ref,
+  // 让 isPlanOwner 在 claim 后立刻经 rerender 反映,避免重启 effect ping-pong。
+  const [backendPlanSection, setBackendPlanSection] = useState<string | null>(null);
+
+  // overlay 传进来的「引用某段」一次性请求 → 路由到该段对话(复用/新建)→ 清空 overlay 全局。
+  useEffect(() => {
+    if (!pendingQuote) return;
+    routeToSection(pendingQuote.section, pendingQuote.label || pendingQuote.section, { quote: pendingQuote });
+    setPendingQuote(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingQuote]);
 
   // 整组对话 + 打开态写库(debounce);demo / 只读 403 静默吞掉。
   // 数组里:每个会话一条 {id, messages, updatedAt, title};末尾追一条 __meta__ 记打开态。
@@ -152,6 +153,8 @@ export function EditorAIPanel({
           messages: c.messages,
           updatedAt: c.updatedAt,
           title: deriveTitle(c.messages, i + 1),
+          section: c.section,
+          label: c.label,
         }));
         const meta: EditorTabsMeta = { __meta__: true, openTabIds: ot, activeTabId: at };
         body.push(meta);
@@ -183,6 +186,8 @@ export function EditorAIPanel({
             id: c.id as number,
             messages: Array.isArray(c.messages) ? (c.messages as ChatMsg[]) : [],
             updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : new Date().toISOString(),
+            section: typeof c.section === 'string' ? (c.section as string) : undefined,
+            label: typeof c.label === 'string' ? (c.label as string) : undefined,
           }));
         if (!list.length) return; // 没有真实会话 → 沿用默认 1 tab
         // 打开态元记录(新格式);取不到就回退「前 3 个会话作为打开 tab」(兼容旧格式)。
@@ -238,6 +243,26 @@ export function EditorAIPanel({
     });
   }, [persistConvos]);
 
+  // 新建一个绑定指定 section 的对话(addTab 变体)。返回新对话 id。
+  // 满 3 个打开 tab 时顶掉当前激活槽位(被顶会话留在历史)。
+  const createSectionConvo = useCallback((section: string, label: string): number => {
+    const id = nextId.current++;
+    const fresh: Convo = { id, messages: [], updatedAt: new Date().toISOString(), section, label };
+    setConvos((cs) => {
+      const next = [...cs, fresh];
+      setOpenTabIds((ot) => {
+        const nextOpen =
+          ot.length < MAX_OPEN_EDITOR_TABS ? [...ot, id] : ot.map((x) => (x === openRef.current.activeTabId ? id : x));
+        openRef.current = { openTabIds: nextOpen, activeTabId: id };
+        return nextOpen;
+      });
+      setActiveTabId(id);
+      persistConvos(next, true);
+      return next;
+    });
+    return id;
+  }, [persistConvos]);
+
   // 打开一段已有会话(从历史点入):已打开 → 切到它;不足 3 → 新增 tab;已 3 → 顶掉激活槽位。
   const openConvo = useCallback((id: number) => {
     setOpenTabIds((ot) => {
@@ -255,6 +280,48 @@ export function EditorAIPanel({
       return cs;
     });
   }, [persistConvos]);
+
+  // 「优化某段 / 引用某段」统一入口:该段已有对话→切回(空才补 seed/quote);没有→新建。
+  // 例外:当前激活对话恰是「空白无 section」→ 复用它认领该段(避免空白 orphan)。
+  const routeToSection = useCallback(
+    (section: string, label: string, payload: { seed?: DeepOptimizeStartIn; quote?: PendingQuote }): void => {
+      setTab('deep');
+      const existing = convos.find((c) => c.section === section);
+      if (existing) {
+        openConvo(existing.id);
+        if (existing.messages.length === 0) {
+          if (payload.seed) setPendingSeedByConv((m) => ({ ...m, [existing.id]: payload.seed! }));
+          if (payload.quote) setPendingQuoteByConv((m) => ({ ...m, [existing.id]: payload.quote! }));
+        }
+        return;
+      }
+      // 空白激活对话(无 section、无消息)→ 认领该段,而不是再叠一个空白。
+      const activeBlank = convos.find(
+        (c) => c.id === openRef.current.activeTabId && !c.section && c.messages.length === 0,
+      );
+      let targetId: number;
+      if (activeBlank) {
+        targetId = activeBlank.id;
+        setConvos((cs) => {
+          const next = cs.map((c) => (c.id === activeBlank.id ? { ...c, section, label } : c));
+          persistConvos(next, true);
+          return next;
+        });
+      } else {
+        targetId = createSectionConvo(section, label);
+      }
+      if (payload.seed) setPendingSeedByConv((m) => ({ ...m, [targetId]: payload.seed! }));
+      if (payload.quote) setPendingQuoteByConv((m) => ({ ...m, [targetId]: payload.quote! }));
+    },
+    [convos, openConvo, createSectionConvo, persistConvos, setTab],
+  );
+
+  // 打分缺口「去深度优化这段」→ 路由到对应段对话(已有则复用,无则新建)→ 切到深度优化 tab。
+  function handleOptimize(gap: ScoreSectionGap, track: string): void {
+    routeToSection(gap.section, gap.label, {
+      seed: { section: gap.section, label: gap.label, gaps: gap.gaps, detail: gap.detail, target_track: track },
+    });
+  }
 
   // 关闭一个 tab(右键):移出打开集合,但会话留在历史(不删消息)。永不关到 0。
   const closeTab = useCallback((id: number) => {
@@ -283,6 +350,54 @@ export function EditorAIPanel({
     },
     [persistConvos],
   );
+
+  // ChatThread 消费完它那份 seed → 删除,避免重复 start / 泄漏到其它 tab。
+  const consumeSeed = useCallback((convId: number) => {
+    setPendingSeedByConv((m) => {
+      if (!(convId in m)) return m;
+      const next = { ...m };
+      delete next[convId];
+      return next;
+    });
+  }, []);
+  const consumeQuote = useCallback((convId: number) => {
+    setPendingQuoteByConv((m) => {
+      if (!(convId in m)) return m;
+      const next = { ...m };
+      delete next[convId];
+      return next;
+    });
+  }, []);
+
+  // 从历史彻底删除一段会话:移出 convos + 打开集合;激活则切到其它打开 tab;永不删到 0。
+  const deleteConvo = useCallback((id: number) => {
+    setConvos((cs) => {
+      let result = cs.filter((c) => c.id !== id);
+      let nextOpen = openRef.current.openTabIds.filter((x) => x !== id);
+      let nextActive =
+        openRef.current.activeTabId === id ? nextOpen[nextOpen.length - 1] : openRef.current.activeTabId;
+      if (result.length === 0) {
+        // 删光了 → 立刻补一个空白对话(永不 0)。
+        const fresh: Convo = { id: nextId.current++, messages: [], updatedAt: new Date().toISOString() };
+        result = [...result, fresh];
+        nextOpen = [fresh.id];
+        nextActive = fresh.id;
+      } else if (nextOpen.length === 0) {
+        nextOpen = [result[result.length - 1].id];
+        nextActive = nextOpen[0];
+      }
+      openRef.current = { openTabIds: nextOpen, activeTabId: nextActive };
+      setOpenTabIds(nextOpen);
+      setActiveTabId(nextActive);
+      // 删的若是当前持有后端 plan 的那段 → 清归属,避免新建同段对话被误判已认领。
+      const deletedSection = cs.find((c) => c.id === id)?.section;
+      if (deletedSection) setBackendPlanSection((cur) => (cur === deletedSection ? null : cur));
+      persistConvos(result, true);
+      return result;
+    });
+    consumeSeed(id);
+    consumeQuote(id);
+  }, [persistConvos, consumeSeed, consumeQuote]);
 
   // 当前打开成 tab 的会话(按 openTabIds 顺序)。
   const openConvos = openTabIds
@@ -413,6 +528,7 @@ export function EditorAIPanel({
             onOpenReportVid?.(vid);
             setHistoryOpen(false);
           }}
+          onDeleteConvo={deleteConvo}
         />
       )}
 
@@ -447,7 +563,7 @@ export function EditorAIPanel({
               }}
             >
               {t}
-              {k === 'deep' && (seed || pendingQuote) && !on && (
+              {k === 'deep' && (Object.keys(pendingSeedByConv).length > 0 || Object.keys(pendingQuoteByConv).length > 0) && !on && (
                 <span style={{ width: 5, height: 5, borderRadius: 999, background: 'var(--terracotta)' }} />
               )}
             </button>
@@ -560,14 +676,18 @@ export function EditorAIPanel({
               <ChatThread
                 sessionId={sessionId}
                 mode="deep"
-                // seed 只喂当前激活 tab,别让后台 tab 也被同一缺口起头。
-                seed={t.id === activeTabId ? seed : null}
-                pendingQuote={t.id === activeTabId ? pendingQuote : null}
-                setPendingQuote={setPendingQuote}
+                seed={pendingSeedByConv[t.id] ?? null}
+                pendingQuote={pendingQuoteByConv[t.id] ?? null}
+                onSeedConsumed={() => consumeSeed(t.id)}
+                onQuoteConsumed={() => consumeQuote(t.id)}
                 onWriteBack={onWriteBack}
                 mock={mock}
                 initialMsgs={t.messages}
                 onMsgsChange={(msgs) => handleTabMsgs(t.id, msgs)}
+                section={t.section}
+                active={t.id === activeTabId}
+                isPlanOwner={!!t.section && t.section === backendPlanSection}
+                onClaimPlan={(s) => setBackendPlanSection(s)}
               />
             </div>
           ))}

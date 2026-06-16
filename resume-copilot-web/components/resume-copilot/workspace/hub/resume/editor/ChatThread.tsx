@@ -201,15 +201,26 @@ export interface ChatThreadProps {
   seed?: DeepOptimizeStartIn | null;
   /** 「待引用」低调引子(引用此段 / 选行引用挂上;发送时才据此启动)。 */
   pendingQuote?: PendingQuote | null;
-  setPendingQuote?: (q: PendingQuote | null) => void;
-  /** 写回成功 → 通知父组件把对应段映射成 A4 lit。 */
-  onWriteBack?: (section: string) => void;
+  /** seed 已消费(start 收尾)→ 通知父组件删除该对话的 pendingSeed。 */
+  onSeedConsumed?: () => void;
+  /** pendingQuote 已消费(发首句 start 收尾)→ 通知父组件删除该对话的 pendingQuote。 */
+  onQuoteConsumed?: () => void;
+  /** 写回成功 → 通知父组件把对应段映射成 A4 lit + 把写回后的最新 profile 合并进工作态。 */
+  onWriteBack?: (section: string, profile?: Record<string, unknown>) => void;
   /** 无真实 session 时渲染样例对话(离线目测)。 */
   mock?: boolean;
   /** 挂载时一次性水合该 tab 的历史消息(多 tab 各自持久化用)。 */
   initialMsgs?: ChatMsg[];
   /** 消息变动时回调(父组件 debounce 落库 editor-conversations)。 */
   onMsgsChange?: (msgs: ChatMsg[]) => void;
+  /** 本对话绑定的 section(后端单 plan 对齐用;自由对话为 undefined)。 */
+  section?: string;
+  /** 本对话是否当前激活 tab。 */
+  active?: boolean;
+  /** 本对话是否当前拥有后端 plan(section === backendPlanSection)。 */
+  isPlanOwner?: boolean;
+  /** start 成功认领后端 plan → 通知父组件记录归属 section。 */
+  onClaimPlan?: (section: string) => void;
 }
 
 // mock 样例对话(深度优化:AI 反问 → 用户答 → 改写卡)。
@@ -242,11 +253,16 @@ export function ChatThread({
   mode,
   seed = null,
   pendingQuote = null,
-  setPendingQuote,
+  onSeedConsumed,
+  onQuoteConsumed,
   onWriteBack,
   mock = false,
   initialMsgs,
   onMsgsChange,
+  section,
+  active = false,
+  isPlanOwner = false,
+  onClaimPlan,
 }: ChatThreadProps): JSX.Element {
   // 初始消息:水合的历史(若有)> mock 样例 > 空。水合只在挂载读一次(lazy init)。
   const [msgs, setMsgs] = useState<ChatMsg[]>(() => {
@@ -261,6 +277,7 @@ export function ChatThread({
 
   const plan = useRef<PlanStateOut | null>(null);
   const seededNonce = useRef<DeepOptimizeStartIn | null>(null);
+  const lastSeed = useRef<DeepOptimizeStartIn | null>(seed);
   // 深度优化是否已启动(seed 自动起头 或 引用+用户首句起头)。决定 send 走 start 还是 turn。
   // 若挂载时已水合到历史消息,视为已启动 —— 不让 seed 自动起头覆盖旧对话。
   const started = useRef<boolean>(Boolean(initialMsgs && initialMsgs.length));
@@ -303,6 +320,7 @@ export function ChatThread({
     if (hydrated.current) return;
     if (seededNonce.current === seed) return; // 同一 seed 不重复 start
     seededNonce.current = seed;
+    lastSeed.current = seed;
     started.current = true; // 打分缺口路径:seed 自动起头(保留原行为)
     let alive = true;
 
@@ -316,6 +334,7 @@ export function ChatThread({
         if (!alive) return;
         plan.current = p;
         applyPlanToMsgs(p, true);
+        if (seed.section) onClaimPlan?.(seed.section);
       })
       .catch((e) => {
         if (!alive) return;
@@ -326,6 +345,7 @@ export function ChatThread({
       })
       .finally(() => {
         if (alive) setThinking(false);
+        onSeedConsumed?.(); // seed 已消费,父组件删除该对话的 pendingSeed
       });
 
     return () => {
@@ -333,6 +353,46 @@ export function ChatThread({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seed, mode, mock, sessionId]);
+
+  // 后端单 plan 对齐:本对话变激活、有 section、已有消息、但当前不持有后端 plan
+  // → 它的后端进度已被别的段覆盖,重新开始这段(消息重置为新首问)。
+  useEffect(() => {
+    if (mock || mode !== 'deep') return;
+    if (!active || !section || isPlanOwner) return;
+    if (msgs.length === 0) return; // 空对话由 seed/quote 正常起头,不在此处理
+    let alive = true;
+    const body: DeepOptimizeStartIn = lastSeed.current ?? {
+      section,
+      label: focusLabel || section,
+      gaps: [],
+      detail: '',
+      target_track: targetTrack,
+    };
+    setFocusLabel(body.label);
+    setTargetTrack(body.target_track || TARGET_TRACK_FALLBACK);
+    setMsgs([{ kind: 'text', who: 'ai', html: '已重新开始这段优化(后端一次只跟一段)。' }]);
+    setThinking(true);
+    started.current = true;
+    deepOptimizeStart(sessionId, body)
+      .then((p) => {
+        if (!alive) return;
+        plan.current = p;
+        applyPlanToMsgs(p, true);
+        onClaimPlan?.(section);
+      })
+      .catch((e) => {
+        if (!alive) return;
+        started.current = false; // 重启失败 → 允许下次重试,不卡在 planTurn
+        setMsgs((m) => [...m, { kind: 'text', who: 'ai', html: `重新开始失败:${e instanceof Error ? e.message : '未知错误'}` }]);
+      })
+      .finally(() => {
+        if (alive) setThinking(false);
+      });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, isPlanOwner, section]);
 
   // 把一份 plan 派生成要追加的 AI 消息:反问气泡 / 改写卡。
   // reset=true 时(首问)只追加 AI 内容(用户气泡已先放好)。
@@ -422,7 +482,6 @@ export function ChatThread({
       started.current = true;
       setFocusLabel(q.label);
       setTargetTrack(q.target_track || TARGET_TRACK_FALLBACK);
-      setPendingQuote?.(null);
       const startBody: DeepOptimizeStartIn = {
         section: q.section,
         label: q.label,
@@ -435,6 +494,7 @@ export function ChatThread({
         .then((p) => {
           plan.current = p;
           applyPlanToMsgs(p, true);
+          onClaimPlan?.(q.section);
         })
         .catch((e) => {
           started.current = false; // 启动失败允许重试
@@ -446,6 +506,7 @@ export function ChatThread({
         .finally(() => {
           setThinking(false);
           busy.current = false;
+          onQuoteConsumed?.();
         });
       return;
     }
@@ -492,7 +553,7 @@ export function ChatThread({
       .then((res) => {
         if (res.applied) {
           setMsgs((m) => m.map((x, i) => (i === idx && x.kind === 'rewrite' ? { ...x, done: true } : x)));
-          onWriteBack?.(res.section);
+          onWriteBack?.(res.section, res.profile);
           setTimeout(
             () =>
               setMsgs((m) => [
@@ -647,7 +708,7 @@ export function ChatThread({
             </div>
             <button
               type="button"
-              onClick={() => setPendingQuote?.(null)}
+              onClick={() => onQuoteConsumed?.()}
               aria-label="撤掉引用"
               style={{
                 flex: 'none',
