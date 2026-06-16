@@ -185,12 +185,8 @@ const ARM_HINT: Record<HubModule, { label: string; tip: string }> = {
   profile: { label: '个人档案', tip: '' },
 };
 
-// 对话主轴下方的快捷 chip
-const QUICK_CHIPS: ComposerChip[] = [
-  { key: 'q-feed', label: '给我推荐一下岗位' },
-  { key: 'q-skeleton', label: '看看券商资管的梯队' },
-  { key: 'q-resume', label: '帮我的简历打个分' },
-];
+// 对话主轴下方的快捷 chip —— 按产品要求移除(留空数组,Composer 不渲染 chip 区)
+const QUICK_CHIPS: ComposerChip[] = [];
 
 // 对话标题 = 第一条学生发言(去标签截 24 字); 没有学生发言退首条 turn。
 // 修「历史对话以赛道命名分不清谁是谁」—— 标题长在对话自己身上, 不再借简历的赛道名。
