@@ -1,6 +1,9 @@
 import json
+import logging
 import re
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 from app.database import SessionLocal
 from app.models import (
@@ -434,16 +437,22 @@ def run_resume_generate_workflow(
         recommendation_run.agent_trace_json = serialize_agent_trace(agent_trace)
         from app import config as _cfg
         if getattr(_cfg, 'RECOMMENDATION_ROTATION_ENABLED', False):
-            from app.services.resume_copilot import job_state as _js
-            from app.services.resume_copilot.rotation import next_page as _next_page
-            _user_key = str(getattr(session, 'user_key', '') or '')
-            _pool = [item.model_dump() for item in recommendations][: _cfg.ROTATION_POOL_SIZE]
-            recommendation_run.pool_json = json.dumps(_pool, ensure_ascii=False)
-            _exclude = _js.seen_or_dismissed_ids(db, _user_key) if _user_key else set()
-            _page, _ = _next_page(_pool, _exclude, _cfg.ROTATION_PAGE_SIZE)
-            recommendation_run.recommendations_json = json.dumps(_page, ensure_ascii=False)
-            if _user_key and _page:
-                _js.mark_seen(db, _user_key, [str(p.get('job_id', '')) for p in _page], session.id)
+            try:
+                from app.services.resume_copilot import job_state as _js
+                from app.services.resume_copilot.rotation import next_page as _next_page
+                _user_key = str(getattr(session, 'user_key', '') or '')
+                _pool = [item.model_dump() for item in recommendations][: _cfg.ROTATION_POOL_SIZE]
+                recommendation_run.pool_json = json.dumps(_pool, ensure_ascii=False)
+                _exclude = _js.seen_or_dismissed_ids(db, _user_key) if _user_key else set()
+                _page, _ = _next_page(_pool, _exclude, _cfg.ROTATION_PAGE_SIZE)
+                recommendation_run.recommendations_json = json.dumps(_page, ensure_ascii=False)
+                if _user_key and _page:
+                    _js.mark_seen(db, _user_key, [str(p.get('job_id', '')) for p in _page], session.id)
+            except Exception:
+                logger.warning('rotation seeding failed, falling back to full list', exc_info=True)
+                recommendation_run.recommendations_json = json.dumps(
+                    [item.model_dump() for item in recommendations]
+                )
         else:
             recommendation_run.recommendations_json = json.dumps(
                 [item.model_dump() for item in recommendations]
