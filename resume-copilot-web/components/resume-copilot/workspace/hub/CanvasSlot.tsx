@@ -14,8 +14,11 @@
  * Token 全取自 `.hf`(外层 HubShell className="hf"); 左描边 + 羊皮纸底 + 全高 + 右上角关闭.
  */
 
+import { useState } from 'react';
+
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
+import { IntelDrawer } from '../intel/IntelDrawer';
 import HubProfileView from './HubProfileView';
 import MyJobsPanel from './MyJobsPanel';
 import ResumeCanvas from './ResumeCanvas';
@@ -84,6 +87,73 @@ function CloseButton({ onClose }: { onClose: () => void }) {
   );
 }
 
+/**
+ * FeedWithIntel — feed 视图的上下分栏壳。
+ *   上半:原 RecommendFeedPane(可滚, ~60%)。
+ *   下半:点某岗「讲讲这家」就地展开该岗结构化情报卡(IntelDrawer, ~40%, 独立滚动)。
+ *
+ * 铁律:job 卡「讲讲这家」**只**设本地 intelJob —— 不碰中栏对话(不调 feedProps.onIntel)。
+ */
+function FeedWithIntel({ feedProps }: { feedProps: RecommendFeedPaneProps }) {
+  const [intelJob, setIntelJob] = useState<{ company: string; jobId: string } | null>(
+    null,
+  );
+
+  return (
+    <div
+      style={{
+        flex: 1,
+        minHeight: 0,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {/* 上半:岗位推荐 feed —— 拦截 onIntel,只设本地态,不进对话。 */}
+      <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+        <RecommendFeedPane
+          {...feedProps}
+          onIntel={(company, jobId) => setIntelJob({ company, jobId })}
+        />
+      </div>
+
+      {/* 下半:就地结构化情报卡(IntelDrawer)。空时只留一条极淡提示。 */}
+      {intelJob ? (
+        <div
+          style={{
+            flex: '0 0 40%',
+            minHeight: 0,
+            borderTop: '1px solid var(--border-warm)',
+            overflow: 'auto',
+            background: 'var(--parchment)',
+          }}
+        >
+          <IntelDrawer
+            key={intelJob.jobId}
+            companyName={intelJob.company}
+            jobKey={intelJob.jobId}
+            onClose={() => setIntelJob(null)}
+          />
+        </div>
+      ) : (
+        <div
+          style={{
+            flex: 'none',
+            borderTop: '1px solid var(--border-warm)',
+            padding: '8px 14px',
+            fontSize: 12,
+            color: 'var(--ink-soft, #8a7e6f)',
+            opacity: 0.7,
+          }}
+        >
+          点某个岗的「🏢 讲讲这家」看同辈情报(就地展开,不进对话)
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CanvasSlot({
   active,
   sessionId,
@@ -139,7 +209,7 @@ export default function CanvasSlot({
           data-theme="recommend"
           style={{ flex: 1, minHeight: 0, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
         >
-          {active === 'feed' && <RecommendFeedPane {...feedProps} />}
+          {active === 'feed' && <FeedWithIntel feedProps={feedProps} />}
 
           {/* 梯队骨架 —— 复用 /recommend 的同源 Pane(getPlatformsByTier),
               情报「讲讲这家」+ 定制「定制深挖」回流对话主轴。 */}

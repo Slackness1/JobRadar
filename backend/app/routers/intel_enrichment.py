@@ -6,6 +6,7 @@ GET /api/intel/demo-page?company=...&role=...     # standalone HTML preview
 from __future__ import annotations
 
 import html
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import HTMLResponse
@@ -146,12 +147,26 @@ job_intel_router = APIRouter(prefix="/api/job-intel", tags=["job-intel"])
 
 @job_intel_router.get("/card")
 def job_intel_card(
-    job_id: int,
+    job_id: Optional[int] = None,
+    job_key: Optional[str] = None,
     refresh: int = 0,
     db: Session = Depends(get_db),
 ) -> dict:
     # 情报卡三维抽取 = 信息抽取类，用 Flash（实测快 ~7x、成本低 ~40x，质量足够）。
     # 判断/挂出处类(tier-fit)仍走 Pro。
     from app.services.llm_json import flash_json_fn
+    from app.models import Job
 
-    return build_job_card(db, job_id, use_cache=(refresh == 0), llm_fn=flash_json_fn)
+    # hub feed 的 RecommendFeedItem.job_id 是字符串哈希(jobs.job_id)，不是整数主键。
+    # 传 job_key 时先解析成整数 jobs.id 再走 build_job_card；解析不到则用与缺岗一致的空骨架。
+    resolved_id = job_id
+    if job_key is not None:
+        row = db.query(Job.id).filter(Job.job_id == job_key).first()
+        if row is None:
+            return {"job_id": None, "_status": "not_found"}
+        resolved_id = row[0]
+
+    if resolved_id is None:
+        return {"job_id": None, "_status": "not_found"}
+
+    return build_job_card(db, resolved_id, use_cache=(refresh == 0), llm_fn=flash_json_fn)

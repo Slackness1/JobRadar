@@ -24,7 +24,7 @@ export interface JobCardProps {
   rank: number;
   deepening: boolean;
   onDeepen: (jobId: string) => void;
-  onIntel: (company: string) => void;
+  onIntel: (company: string, jobId: string) => void;
   onHighlightCompany: (item: RecommendFeedItem) => void;
   /** 当前岗位的求职状态(由父级 RecommendFeedPane 持有) */
   jobState?: JobState;
@@ -132,7 +132,7 @@ export function JobCard({
         <button
           type="button"
           className="hf-btn ghost sm recommend-feed__act"
-          onClick={() => onIntel(item.company)}
+          onClick={() => onIntel(item.company, item.job_id)}
         >
           🏢 讲讲这家
         </button>

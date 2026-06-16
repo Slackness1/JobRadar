@@ -34,8 +34,8 @@ export interface RecommendFeedPaneProps {
   setWorkingQuery: (wq: WorkingQuery) => void;
   /** 点公司 / 卡 → 联动左侧梯队骨架(梯队外不强制高亮)。 */
   onHighlightCompany: (company: string) => void;
-  /** 讲讲这家 → 把「讲讲{公司}」当普通消息送中栏对话。 */
-  onIntel: (company: string) => void;
+  /** 讲讲这家 → 把公司 + 岗位哈希交给父级(hub 里就地展开情报卡，不进对话)。 */
+  onIntel: (company: string, jobId: string) => void;
 }
 
 export function RecommendFeedPane({
