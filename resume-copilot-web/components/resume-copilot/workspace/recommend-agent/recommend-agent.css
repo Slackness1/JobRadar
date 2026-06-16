@@ -1100,3 +1100,14 @@
   font: 400 12.5px var(--font-sans);
   line-height: 1.6;
 }
+
+/* ── 三态标记行 ──────────────────────────────────────────────────────── */
+
+[data-theme='recommend'] .recommend-feed__job-states {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-warm);
+  flex-wrap: wrap;
+}

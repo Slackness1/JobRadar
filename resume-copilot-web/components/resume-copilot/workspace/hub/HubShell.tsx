@@ -1199,8 +1199,10 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     lastSavedConv.current = '';
   }
 
-  // 侧边栏高亮 = 激活态 或 已打开的画布槽
-  const sidebarActive: HubModule | null = armed ?? (active === 'none' ? null : (active as HubModule));
+  // 侧边栏高亮 = 激活态 或 已打开的画布槽(myjobs 不在导航项里,不高亮)
+  const HUB_MODULES = new Set<string>(['feed', 'skeleton', 'resume', 'interview', 'profile']);
+  const sidebarActive: HubModule | null =
+    armed ?? (active !== 'none' && HUB_MODULES.has(active) ? (active as HubModule) : null);
 
   return (
     <div
@@ -1244,6 +1246,52 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           background: 'var(--parchment)',
         }}
       >
+        {/* 顶部常驻「我的岗位」入口 — 落地态和已开始态都可见 */}
+        <div
+          style={{
+            flex: 'none',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            padding: '8px 14px 0',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setActive((cur) => (cur === 'myjobs' ? 'none' : 'myjobs'))}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              height: 28,
+              padding: '0 11px',
+              borderRadius: 999,
+              cursor: 'pointer',
+              font: `${active === 'myjobs' ? 600 : 500} 12px var(--font-sans)`,
+              background: active === 'myjobs' ? 'var(--terracotta)' : 'var(--ivory)',
+              color: active === 'myjobs' ? 'var(--ivory)' : 'var(--ink-soft)',
+              boxShadow: active === 'myjobs' ? '0 0 0 1px var(--terracotta)' : '0 0 0 1px var(--border-warm)',
+              transition: 'background .14s, box-shadow .14s, color .14s',
+              border: 0,
+              outline: 'none',
+            }}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            我的岗位
+          </button>
+        </div>
+
         {!started ? (
           // 落地态: 问候+卡片中上部, 对话框沉底(HubLanding 内部满高分布)
           <div

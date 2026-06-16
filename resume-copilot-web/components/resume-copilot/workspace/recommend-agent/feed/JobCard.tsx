@@ -16,7 +16,7 @@
  *   点公司名 / 卡 → 联动左侧梯队骨架高亮;梯队外(in_skeleton===false)给内联提示。
  */
 
-import type { RecommendFeedItem } from '../../../types';
+import type { JobState, RecommendFeedItem } from '../../../types';
 import { ScorePill } from './ScorePill';
 
 export interface JobCardProps {
@@ -26,6 +26,10 @@ export interface JobCardProps {
   onDeepen: (jobId: string) => void;
   onIntel: (company: string) => void;
   onHighlightCompany: (item: RecommendFeedItem) => void;
+  /** 当前岗位的求职状态(由父级 RecommendFeedPane 持有) */
+  jobState?: JobState;
+  /** 标记/取消标记求职状态(不传 = 不显示三态按钮) */
+  onSetJobState?: (jobId: string, state: '' | JobState) => void;
 }
 
 export function JobCard({
@@ -35,6 +39,8 @@ export function JobCard({
   onDeepen,
   onIntel,
   onHighlightCompany,
+  jobState,
+  onSetJobState,
 }: JobCardProps) {
   const deep = item.used_ai === true;
   const baseScore = item.base_score ?? item.base_match_score;
@@ -156,6 +162,32 @@ export function JobCard({
           </button>
         )}
       </div>
+
+      {onSetJobState && (
+        <div className="recommend-feed__job-states">
+          <button
+            type="button"
+            className={`hf-btn sm ${jobState === 'saved' ? 'primary' : 'ghost'}`}
+            onClick={() => onSetJobState(item.job_id, jobState === 'saved' ? '' : 'saved')}
+          >
+            ★ {jobState === 'saved' ? '已收藏' : '收藏想投'}
+          </button>
+          <button
+            type="button"
+            className={`hf-btn sm ${jobState === 'applied' ? 'primary' : 'sand'}`}
+            onClick={() => onSetJobState(item.job_id, jobState === 'applied' ? '' : 'applied')}
+          >
+            {jobState === 'applied' ? '已投递 ✓' : '标记已投递'}
+          </button>
+          <button
+            type="button"
+            className={`hf-btn sm ${jobState === 'dismissed' ? 'primary' : 'ghost'}`}
+            onClick={() => onSetJobState(item.job_id, jobState === 'dismissed' ? '' : 'dismissed')}
+          >
+            不合适
+          </button>
+        </div>
+      )}
     </div>
   );
 }

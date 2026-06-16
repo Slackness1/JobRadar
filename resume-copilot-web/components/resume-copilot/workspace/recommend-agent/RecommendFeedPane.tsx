@@ -19,10 +19,10 @@
  * react-compiler:所有 setState 都在 async 回调 / 事件处理器内,render 纯净。
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { postRecommendDeepen, updateWorkingQuery } from '../../api';
-import type { RecommendFeedItem, WorkingQuery } from '../../types';
+import { getMyJobs, markJobState, postRecommendDeepen, updateWorkingQuery } from '../../api';
+import type { JobState, RecommendFeedItem, WorkingQuery } from '../../types';
 import { JobCard } from './feed/JobCard';
 import { WorkingQueryReadout } from './feed/WorkingQueryReadout';
 
@@ -49,6 +49,50 @@ export function RecommendFeedPane({
 }: RecommendFeedPaneProps) {
   // 正在精排的岗位 id(单张转 spinner);其余卡照常。
   const [deepeningId, setDeepeningId] = useState<string | null>(null);
+  // 三态求职状态: job_id → 当前 JobState(saved/applied/dismissed/seen)
+  const [jobStates, setJobStates] = useState<Record<string, JobState>>({});
+
+  // ── 进场水合: 把已标记的岗位状态映射回卡片 ──────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    getMyJobs()
+      .then((r) => {
+        if (cancelled) return;
+        const map: Record<string, JobState> = {};
+        for (const it of r.saved) map[it.job_id] = 'saved';
+        for (const it of r.applied) map[it.job_id] = 'applied';
+        for (const it of r.dismissed) map[it.job_id] = 'dismissed';
+        setJobStates(map);
+      })
+      .catch(() => {
+        /* 水合失败则保持空态,不影响主流程 */
+      });
+    return () => { cancelled = true; };
+  // 只在 sessionId 变化时重拉(进场一次即可)
+  }, [sessionId]);
+
+  // ── 标记/取消标记求职状态 ────────────────────────────────────────────────
+  const handleSetJobState = useCallback(
+    async (jobId: string, state: '' | JobState) => {
+      // 乐观更新
+      setJobStates((prev) => {
+        const next = { ...prev };
+        if (state === '') {
+          delete next[jobId];
+        } else {
+          next[jobId] = state;
+        }
+        return next;
+      });
+      try {
+        await markJobState(sessionId, jobId, state);
+      } catch {
+        // 失败时回滚到原值(无法还原 '' 的情形,留着原值保守处理)
+        setJobStates((prev) => ({ ...prev }));
+      }
+    },
+    [sessionId],
+  );
 
   // ── 工作查询 fast-path(无 LLM) ──────────────────────────────────────────
   const applyWorkingQueryOp = useCallback(
@@ -176,6 +220,8 @@ export function RecommendFeedPane({
                       onDeepen={handleDeepen}
                       onIntel={onIntel}
                       onHighlightCompany={handleHighlight}
+                      jobState={jobStates[item.job_id]}
+                      onSetJobState={handleSetJobState}
                     />
                   ))}
                 </div>
@@ -191,6 +237,8 @@ export function RecommendFeedPane({
                 onDeepen={handleDeepen}
                 onIntel={onIntel}
                 onHighlightCompany={handleHighlight}
+                jobState={jobStates[item.job_id]}
+                onSetJobState={handleSetJobState}
               />
             ))}
 

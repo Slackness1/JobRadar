@@ -4,7 +4,7 @@ import type { DeepUnderstand } from './deep-think-meta';
 export type HubModule = 'feed' | 'skeleton' | 'resume' | 'interview' | 'profile';
 
 // 画布槽当前视图（profile 直接开，不跑技能）
-export type HubSlot = 'none' | 'feed' | 'skeleton' | 'resume' | 'profile';
+export type HubSlot = 'none' | 'feed' | 'skeleton' | 'resume' | 'profile' | 'myjobs';
 
 export interface ResultCardData {
   title: string;

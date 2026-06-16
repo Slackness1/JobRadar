@@ -17,15 +17,17 @@
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
 import HubProfileView from './HubProfileView';
+import MyJobsPanel from './MyJobsPanel';
 import ResumeCanvas from './ResumeCanvas';
 import type { HubSlot } from './hub-types';
 
-// 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460.
+// 每个视图的宽度(对齐原型): feed 448 / skeleton 436 / resume 500 / profile 460 / myjobs 420.
 const SLOT_WIDTH: Record<Exclude<HubSlot, 'none'>, number> = {
   feed: 448,
   skeleton: 436,
   resume: 500,
   profile: 460,
+  myjobs: 420,
 };
 
 export interface CanvasSlotProps {
@@ -110,12 +112,15 @@ export default function CanvasSlot({
         overflow: 'hidden',
       }}
     >
-      {/* profile / resume 视图自带头部关闭(panel onClose → ✕), 不叠全局浮层关闭, 免双按钮. */}
-      {active !== 'profile' && active !== 'resume' && <CloseButton onClose={onClose} />}
+      {/* profile / resume / myjobs 视图自带头部关闭(panel onClose → ✕), 不叠全局浮层关闭, 免双按钮. */}
+      {active !== 'profile' && active !== 'resume' && active !== 'myjobs' && <CloseButton onClose={onClose} />}
 
-      {/* 个人档案: B 闭环视图(真 KB 数据, 确认/否掉). 自带头部 + 滚动体,
-          直接占满 flex 列(header flex:none + body flex:1), 不套通用 overflow 容器. */}
-      {active === 'profile' ? (
+      {/* 我的岗位: 自带头部 + 关闭按钮, 不套通用浮层关闭. */}
+      {active === 'myjobs' ? (
+        <MyJobsPanel sessionId={sessionId} onClose={onClose} />
+      ) : /* 个人档案: B 闭环视图(真 KB 数据, 确认/否掉). 自带头部 + 滚动体,
+          直接占满 flex 列(header flex:none + body flex:1), 不套通用 overflow 容器. */
+      active === 'profile' ? (
         <HubProfileView sessionId={sessionId} onClose={onClose} />
       ) : active === 'resume' ? (
         // 简历优化: 只内嵌「打分 + 小预览」面板(embedded). 与 HubShell 同源
