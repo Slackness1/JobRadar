@@ -60,9 +60,6 @@ function fmtRel(iso: string): string {
 
 export interface EditorAIPanelProps {
   sessionId: number;
-  /** 当前深度优化播种(从打分缺口 CTA 构造)。null = 还没选段。 */
-  seed: DeepOptimizeStartIn | null;
-  setSeed: (s: DeepOptimizeStartIn | null) => void;
   /** 「待引用」低调引子(引用此段 / 选行引用挂上;不自动发问)。 */
   pendingQuote: PendingQuote | null;
   setPendingQuote: (q: PendingQuote | null) => void;
@@ -90,8 +87,6 @@ export interface EditorAIPanelProps {
 /** 简历编辑器右栏「AI 简历助手 v2」三能力壳:简历打分 / 深度优化 / 自由问。 */
 export function EditorAIPanel({
   sessionId,
-  seed,
-  setSeed,
   pendingQuote,
   setPendingQuote,
   tab,
@@ -109,17 +104,6 @@ export function EditorAIPanel({
   onRescored,
   onOpenReportVid,
 }: EditorAIPanelProps): JSX.Element {
-  // 打分缺口「去深度优化这段」→ 构造 seed(带真实目标赛道)→ 切到深度优化 tab(gap→deep 串联)。
-  function handleOptimize(gap: ScoreSectionGap, track: string): void {
-    setSeed({
-      section: gap.section,
-      label: gap.label,
-      gaps: gap.gaps,
-      detail: gap.detail,
-      target_track: track,
-    });
-    setTab('deep');
-  }
 
   // ── 深度优化对话 ─────────────────────────────────────────────────────────────
   // 全部会话(无上限)存 convos;同时「打开」成 tab 的是其 ≤3 个子集 openTabIds;
@@ -142,6 +126,14 @@ export function EditorAIPanel({
   useEffect(() => {
     openRef.current = { openTabIds, activeTabId };
   }, [openTabIds, activeTabId]);
+
+  // overlay 传进来的「引用某段」一次性请求 → 路由到该段对话(复用/新建)→ 清空 overlay 全局。
+  useEffect(() => {
+    if (!pendingQuote) return;
+    routeToSection(pendingQuote.section, pendingQuote.label || pendingQuote.section, { quote: pendingQuote });
+    setPendingQuote(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingQuote]);
 
   // 整组对话 + 打开态写库(debounce);demo / 只读 403 静默吞掉。
   // 数组里:每个会话一条 {id, messages, updatedAt, title};末尾追一条 __meta__ 记打开态。
@@ -248,6 +240,26 @@ export function EditorAIPanel({
     });
   }, [persistConvos]);
 
+  // 新建一个绑定指定 section 的对话(addTab 变体)。返回新对话 id。
+  // 满 3 个打开 tab 时顶掉当前激活槽位(被顶会话留在历史)。
+  const createSectionConvo = useCallback((section: string, label: string): number => {
+    const id = nextId.current++;
+    const fresh: Convo = { id, messages: [], updatedAt: new Date().toISOString(), section, label };
+    setConvos((cs) => {
+      const next = [...cs, fresh];
+      setOpenTabIds((ot) => {
+        const nextOpen =
+          ot.length < MAX_OPEN_EDITOR_TABS ? [...ot, id] : ot.map((x) => (x === openRef.current.activeTabId ? id : x));
+        openRef.current = { openTabIds: nextOpen, activeTabId: id };
+        return nextOpen;
+      });
+      setActiveTabId(id);
+      persistConvos(next, true);
+      return next;
+    });
+    return id;
+  }, [persistConvos]);
+
   // 打开一段已有会话(从历史点入):已打开 → 切到它;不足 3 → 新增 tab;已 3 → 顶掉激活槽位。
   const openConvo = useCallback((id: number) => {
     setOpenTabIds((ot) => {
@@ -265,6 +277,48 @@ export function EditorAIPanel({
       return cs;
     });
   }, [persistConvos]);
+
+  // 「优化某段 / 引用某段」统一入口:该段已有对话→切回(空才补 seed/quote);没有→新建。
+  // 例外:当前激活对话恰是「空白无 section」→ 复用它认领该段(避免空白 orphan)。
+  const routeToSection = useCallback(
+    (section: string, label: string, payload: { seed?: DeepOptimizeStartIn; quote?: PendingQuote }): void => {
+      setTab('deep');
+      const existing = convos.find((c) => c.section === section);
+      if (existing) {
+        openConvo(existing.id);
+        if (existing.messages.length === 0) {
+          if (payload.seed) setPendingSeedByConv((m) => ({ ...m, [existing.id]: payload.seed! }));
+          if (payload.quote) setPendingQuoteByConv((m) => ({ ...m, [existing.id]: payload.quote! }));
+        }
+        return;
+      }
+      // 空白激活对话(无 section、无消息)→ 认领该段,而不是再叠一个空白。
+      const activeBlank = convos.find(
+        (c) => c.id === openRef.current.activeTabId && !c.section && c.messages.length === 0,
+      );
+      let targetId: number;
+      if (activeBlank) {
+        targetId = activeBlank.id;
+        setConvos((cs) => {
+          const next = cs.map((c) => (c.id === activeBlank.id ? { ...c, section, label } : c));
+          persistConvos(next, true);
+          return next;
+        });
+      } else {
+        targetId = createSectionConvo(section, label);
+      }
+      if (payload.seed) setPendingSeedByConv((m) => ({ ...m, [targetId]: payload.seed! }));
+      if (payload.quote) setPendingQuoteByConv((m) => ({ ...m, [targetId]: payload.quote! }));
+    },
+    [convos, openConvo, createSectionConvo, persistConvos, setTab],
+  );
+
+  // 打分缺口「去深度优化这段」→ 路由到对应段对话(已有则复用,无则新建)→ 切到深度优化 tab。
+  function handleOptimize(gap: ScoreSectionGap, track: string): void {
+    routeToSection(gap.section, gap.label, {
+      seed: { section: gap.section, label: gap.label, gaps: gap.gaps, detail: gap.detail, target_track: track },
+    });
+  }
 
   // 关闭一个 tab(右键):移出打开集合,但会话留在历史(不删消息)。永不关到 0。
   const closeTab = useCallback((id: number) => {
@@ -475,7 +529,7 @@ export function EditorAIPanel({
               }}
             >
               {t}
-              {k === 'deep' && (seed || pendingQuote) && !on && (
+              {k === 'deep' && (pendingQuote || Object.keys(pendingSeedByConv).length > 0) && !on && (
                 <span style={{ width: 5, height: 5, borderRadius: 999, background: 'var(--terracotta)' }} />
               )}
             </button>

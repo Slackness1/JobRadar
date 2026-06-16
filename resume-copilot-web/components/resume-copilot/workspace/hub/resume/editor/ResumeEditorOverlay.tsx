@@ -13,7 +13,6 @@ import {
   getResumeVersions,
   putResumeVersions,
   getScoreTaskStatus,
-  type DeepOptimizeStartIn,
   type PendingQuote,
   type ScoreReportData,
 } from '../../../../api';
@@ -151,7 +150,6 @@ export function ResumeEditorOverlay({
 }: ResumeEditorOverlayProps) {
   const [leftTab, setLeftTab] = useState<LeftTab>('edit');
   const [aiTab, setAiTab] = useState<string>('score');
-  const [seed, setSeed] = useState<DeepOptimizeStartIn | null>(null);
   // 「待引用」低调引子 — 引用此段 / 选行引用挂在这里,不自动发问;
   // 用户在深度优化输入框打字发送时才据此启动深度优化。
   const [pendingQuote, setPendingQuote] = useState<PendingQuote | null>(null);
@@ -755,8 +753,6 @@ export function ResumeEditorOverlay({
         {/* RIGHT — AI 简历助手 v2(E3) */}
         <EditorAIPanel
           sessionId={sessionId}
-          seed={seed}
-          setSeed={setSeed}
           pendingQuote={pendingQuote}
           setPendingQuote={setPendingQuote}
           tab={aiTab}
