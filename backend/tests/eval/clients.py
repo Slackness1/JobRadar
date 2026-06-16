@@ -141,6 +141,12 @@ def build_judge_client() -> LLMClient:
     - deepseek: 与 SUT 同厂商,有 self-judge bias (~10-20% 偏高);仅应急用
     """
     provider = os.environ.get("EVAL_JUDGE_PROVIDER", "mimo").lower()
+    if provider == "gemini":
+        # 跨厂商判官:Gemini(经 Google Code Assist,复用 Antigravity 的 OAuth 登录,
+        # 自动续 token、零 API key)。接口对齐 LLMClient.chat,可直接当 judge。
+        from tests.eval.gemini_judge import build_gemini_judge
+
+        return build_gemini_judge()
     if provider == "qwen":
         return LLMClient(
             base_url=os.environ.get(

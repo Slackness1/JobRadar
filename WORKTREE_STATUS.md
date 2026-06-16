@@ -19,6 +19,29 @@
 
 `aiintel` tmux session (2026-05-26 从 wild `60` 改名) 里跑 `ai-intel-vault` claude。不在 `open-all.sh` 管理。
 
+## 🔀 Handoff / 在途 (2026-06-16, 网站设计线写)
+
+> 最新前端在 **`hub-shell-frontend`** 分支(推到 origin/main)。版本存档 / 多对话历史 /
+> PDF 真所见即所得 / 左栏接真简历(草稿→confirmed→parsed)/ 修 V1 打分=0 / 推荐按公司
+> 限流多样性 全在这条。探编辑器/推荐照它看,**别再照过期的 hub-resume-optimize**。
+
+**① 「自由问」待接 → 交给「简历推荐」线做**
+- 现状:**故意没接**(不是漏)。`resume-copilot-web/.../editor/EditorAIPanel.tsx` 的 `TABS`
+  只放了 简历打分 / 深度优化;`['free','自由问']` 被注释藏起来(注释:占位回声会让学生一头雾水)。
+- 代码其实就绪:`ChatThread mode="free"` 已接 `/chat`,但**后端 `/chat` 还是占位回声**。
+- 要做(归简历推荐,它管 `backend/app/services/resume_copilot/`):把 `/chat` 后端接成真回答 →
+  再在 `EditorAIPanel.tsx` 的 `TABS` 取消隐藏那一项。网站设计线不碰,避免撞同块。
+
+**② 在途 eval / 跨厂商判官(网站设计线自持,勿动)**
+- `backend/tests/eval/`:`deep_optimize.py`(深度优化多轮自研 eval)+ `deepeval_conversational.py`(DeepEval 层)。
+- 新增**跨厂商判官 Gemini**:`tests/eval/gemini_judge.py`(经 Google Code Assist,复用 Antigravity 的
+  consumer OAuth,自动续 token,零 API key)。凭据在 `/home/ubuntu/.config/jobradar-eval/gemini_oauth.json`
+  (0600,不入仓)。启用:`EVAL_JUDGE_PROVIDER=gemini`。**正用它重跑 deep_optimize 出无 self-judge-bias 真分**(进行中)。
+- 待办:DeepEval 层判官也切 Gemini(目前还是自研判官);`.env.local` 的 mimo/dashscope 判官 key 已失效。
+
+**③ 推荐多样性已上线**:`recommendation.py` + `recommend_search.py` 加了按公司限流(`RECOMMEND_PER_COMPANY_CAP`,
+默认 2),治"美团等大厂淹没 feed"。网站设计线下一步继续往**岗位推荐**改。
+
 ## Clone A 工作分区 (worktrees)
 
 | Worktree | 分支 | 当前占用 |

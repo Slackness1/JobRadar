@@ -16,6 +16,12 @@
 
 ## 2026-06-16
 
+### 网站设计-devvpstmux · eval 跨厂商判官接 Gemini(复用 Antigravity 登录,治 self-judge bias)
+- **干了什么**:之前判官的跨厂商 key(mimo/dashscope)全失效,只能 DeepSeek 自判自(有偏松 bias)。本人用 Antigravity 的 Google 登录授权后,接了一条 Gemini 判官:经 Google Code Assist 端点调 Gemini,复用那把 consumer OAuth(带 refresh、自动续 token、零 API key),`EVAL_JUDGE_PROVIDER=gemini` 启用。重跑深度优化多轮 eval,判官换成真·跨厂商 Gemini。
+- **意义**:AI 质量评测的分数从"自己判自己"升级到独立第三方(Google)判,数字更可信——给 SAIF"可证伪反馈"加了把客观尺子。
+- **验证**:Gemini 判官单测通过 + deep_optimize n=2 跑通(日志确认 judge=gemini-2.5-flash cross-vendor、无回落)。Gemini 对"忠实度"明显比自判更严(P1 给 1 vs 自判 2),抓出"改写没充分织入证据"的深度不足。
+- **注意/下一步**:凭据存 `/home/ubuntu/.config/jobradar-eval`(不入仓);单 run 间 SUT 非确定性,跨 run 不可直比(量化 bias 需同转写双判官或大 n);DeepEval 层判官还没切 Gemini(待办)。429 限流已加独立重试扛过。
+
 ### 网站设计-devvpstmux · 推荐 feed 按公司限流 — 治"互联网推荐被美团等大厂淹没"
 - **干了什么**:学生反馈互联网推荐相关性不错但多样性差,常被某几家大厂(如美团)海量岗位淹没(一次推荐大半是美团)。根因:v2 / NL 推荐链路按相关分排完直接取 top-N,大厂库内岗位多、相关分都高就把前排全占(老 v1 有 per_employer_cap=3,新链路漏了)。加了一道"按公司限流 + 溢出下沉":每家在 feed 头部最多占 N 个(默认 2,env 可调),超出的同公司岗下沉、把名额让给其他同样相关的公司;公司归一先走互联网品牌聚合(美团/美团(三快)→美团,字节/抖音/字节跳动→一家)再回落金融法人归一。两条推荐链路都接同一道闸,用户显式点名某公司时不限流。
 - **本人/学生能看到**:互联网推荐不再一屏全是同一家,前排公司明显摊开(相关性不变)。
