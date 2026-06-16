@@ -14,18 +14,37 @@ logger = logging.getLogger(__name__)
 _ANCHOR_LABELS = ["赛道契合", "平台梯队", "岗位画像", "不确定点"]
 
 
+def _resolve_query(db, session):
+    """解析本会话的工作查询, 与 feed 的产出源保持一致。
+
+    关键: feed 可能由 reseed 铺出 (按画像 seed_query), 而 reseed 对 demo 只读会话
+    **不回写** working_query_json。若深挖只读 working_query_json, demo 会话拿到空查询 →
+    search_candidates 召回的是另一批岗 → 目标 job_id 永远不在里面 → 深挖恒空。
+    故 working_query 为空时回落到与 reseed 同源的 seed_query_for_session, 让候选集对齐。
+    """
+    from app.services.resume_copilot.working_query import WorkingQuery
+
+    raw = getattr(session, "working_query_json", None)
+    if raw:
+        try:
+            return WorkingQuery(**json.loads(raw))
+        except Exception:  # noqa: BLE001
+            pass
+    try:
+        from app.services.resume_copilot.recommend_chat import seed_query_for_session
+
+        return seed_query_for_session(db, session)
+    except Exception:  # noqa: BLE001
+        return WorkingQuery()
+
+
 def deepen_jobs(db, session, job_ids: list[str]) -> list[dict]:
     """对 job_ids 跑 Pro 精排 + 4-anchor 理由。永不抛出, 失败回落规则 item。"""
     if not job_ids:
         return []
     from app.services.resume_copilot.recommend_search import search_candidates
-    from app.services.resume_copilot.working_query import WorkingQuery
 
-    raw = getattr(session, "working_query_json", None)
-    try:
-        q = WorkingQuery(**json.loads(raw)) if raw else WorkingQuery()
-    except Exception:  # noqa: BLE001
-        q = WorkingQuery()
+    q = _resolve_query(db, session)
     try:
         feed = search_candidates(db, q, limit=60)
     except Exception:  # noqa: BLE001
@@ -67,13 +86,8 @@ def _deepen_targets(db, session, targets: list) -> list[tuple[Any, dict | None]]
     job_by_id = {str(j.job_id): j for j in jobs}
 
     # 用工作查询的 sub_cat 集做 student_profile 的偏好画像 (轻量, 够 Pro 说理)。
-    from app.services.resume_copilot.working_query import WorkingQuery
-
-    raw = getattr(session, "working_query_json", None)
-    try:
-        wq = WorkingQuery(**json.loads(raw)) if raw else WorkingQuery()
-    except Exception:  # noqa: BLE001
-        wq = WorkingQuery()
+    # 与 feed 候选集同源 (见 _resolve_query 注释), 否则 demo 会话偏好画像为空。
+    wq = _resolve_query(db, session)
     student_profile: dict[str, Any] = {
         "name": "",
         "background": "",
