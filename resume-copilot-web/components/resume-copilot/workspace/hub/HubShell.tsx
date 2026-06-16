@@ -1363,7 +1363,9 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           setFeed,
           setWorkingQuery,
           onHighlightCompany,
-          onIntel: skelIntel,
+          // job 卡「讲讲这家」由 CanvasSlot 就地拦截(展开下半情报卡, 不进对话),
+          // 这里给个 no-op 占位以满足类型 —— 实际不会被调用。
+          onIntel: () => {},
         }}
         highlightCompany={highlightCompany}
         onOpenIntel={skelIntel}

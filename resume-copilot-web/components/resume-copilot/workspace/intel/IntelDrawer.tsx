@@ -24,6 +24,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import '../workspace-theme.css';
 import { I } from '@/components/hifi/hifi-primitives';
 import { IntelTabs, type IntelTabDef, type IntelTabId } from './IntelTabs';
 import { IntelQuote, type IntelQuoteData } from './IntelQuote';
@@ -112,8 +113,10 @@ export interface IntelDrawerProps {
   priority?: string | null;
   /** xhs 洞察数 — 用于 header sub-line. 不传就 fallback 用 n_insights_used. */
   xhsCount?: number | null;
-  /** 岗位 ID — 传入时拉取岗位情报卡(定位+三维). 不传则只渲染公司卡. */
+  /** 岗位 ID(整数主键) — 传入时拉取岗位情报卡(定位+三维). 不传则只渲染公司卡. */
   jobId?: number | null;
+  /** 岗位哈希(jobs.job_id) — hub feed 传这个；有值时优先于 jobId. */
+  jobKey?: string | null;
   /** 用户点关闭(右上角 ✕). */
   onClose: () => void;
   /** 用户点 "用这些做 Coach 定制" — P1 接 Coach mode;P0b 只 placeholder 日志. */
@@ -125,9 +128,12 @@ export function IntelDrawer({
   priority,
   xhsCount,
   jobId,
+  jobKey,
   onClose,
   onMock,
 }: IntelDrawerProps) {
+  // jobKey(字符串哈希)优先于 jobId(整数主键)；统一成 getJobIntelCard 的入参。
+  const jobRef: number | string | null | undefined = jobKey ?? jobId;
   // "Adjust state when props change" idiom (React 19) — when companyName
   // changes, snap card/loading/failed back to initial without an effect.
   // The effect below only fires the network request.
@@ -140,13 +146,15 @@ export function IntelDrawer({
 
   // ── Job intel card state ─────────────────────────────────────────────────────
   const [jobCard, setJobCard] = useState<JobIntelCard | null>(null);
-  const [jobCardLoading, setJobCardLoading] = useState<boolean>(Boolean(jobId));
-  const [activeJobId, setActiveJobId] = useState<number | null | undefined>(jobId);
+  const [jobCardLoading, setJobCardLoading] = useState<boolean>(Boolean(jobRef));
+  const [activeJobRef, setActiveJobRef] = useState<
+    number | string | null | undefined
+  >(jobRef);
 
-  if (jobId !== activeJobId) {
-    setActiveJobId(jobId);
+  if (jobRef !== activeJobRef) {
+    setActiveJobRef(jobRef);
     setJobCard(null);
-    setJobCardLoading(Boolean(jobId));
+    setJobCardLoading(Boolean(jobRef));
   }
 
   if (companyName !== activeCompany) {
@@ -182,12 +190,12 @@ export function IntelDrawer({
     return () => controller.abort();
   }, [activeCompany]);
 
-  // Fetch job intel card when activeJobId changes (only when a real jobId is set).
+  // Fetch job intel card when activeJobRef changes (only when a real ref is set).
   // Loading is pre-set to true in the render-time adjust block above.
   useEffect(() => {
-    if (!activeJobId) return;
+    if (!activeJobRef) return;
     const controller = new AbortController();
-    getJobIntelCard(activeJobId)
+    getJobIntelCard(activeJobRef)
       .then((d) => {
         if (controller.signal.aborted) return;
         setJobCard(d);
@@ -200,7 +208,7 @@ export function IntelDrawer({
         setJobCardLoading(false);
       });
     return () => controller.abort();
-  }, [activeJobId]);
+  }, [activeJobRef]);
 
   const tone = toneFromPriority(priority);
   const initial = companyInitial(companyName);
@@ -368,14 +376,14 @@ export function IntelDrawer({
         ) : null}
 
         {/* ── 岗位情报卡:定位 + 三维 ─────────────────────────────────────── */}
-        {activeJobId && (
+        {activeJobRef && (
           <div className="workspace-hifi__intel-job-card">
             {jobCardLoading ? (
               <div className="workspace-hifi__intel-loading">
                 <span className="workspace-hifi__intel-loading-dot" aria-hidden />
                 <span>加载岗位情报…</span>
               </div>
-            ) : jobCard ? (
+            ) : jobCard && jobCard.positioning ? (
               <>
                 {/* 定位段 */}
                 <div className="workspace-hifi__intel-positioning">

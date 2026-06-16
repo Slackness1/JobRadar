@@ -1198,8 +1198,16 @@ export interface JobIntelCard {
   };
 }
 
-export async function getJobIntelCard(jobId: number): Promise<JobIntelCard> {
-  return requestJson<JobIntelCard>(`/api/job-intel/card?job_id=${jobId}`);
+export async function getJobIntelCard(
+  job: number | string,
+): Promise<JobIntelCard> {
+  // hub feed 的 job_id 是字符串哈希(jobs.job_id) → 走 job_key；
+  // 老的 WorkspaceShell 仍传整数主键 → 走 job_id。
+  const q =
+    typeof job === 'number'
+      ? `job_id=${job}`
+      : `job_key=${encodeURIComponent(job)}`;
+  return requestJson<JobIntelCard>(`/api/job-intel/card?${q}`);
 }
 
 // ── Tier-fit ladder (GET /api/resume-copilot/sessions/{id}/tier-fit) ─────────
