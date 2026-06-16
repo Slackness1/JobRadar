@@ -234,6 +234,9 @@ class ResumeRecommendationRun(Base):
     fallback_reason = Column(Text, default="")
     agent_trace_json = Column(Text, default="[]")
     recommendations_json = Column(Text, default="[]")
+    # 推荐 2.0 轮换:完整有序候选池(item dict 列表 JSON)。recommendations_json 仍是
+    # "当前下发页",pool_json 是可翻的全池。flag OFF 时不写,留 None=兼容旧行为。
+    pool_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
 
@@ -1133,3 +1136,28 @@ class DecisionEvent(Base):
     hit = Column(Boolean, nullable=False, default=True)
     detail_json = Column(Text, nullable=True)         # 最小定位信息 JSON, 禁 PII
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
+
+
+class JobUserState(Base):
+    """岗位级用户状态 — 按 (user_key, job_id) 唯一，跟随用户跨会话。
+
+    state ∈ {seen, saved, applied, dismissed}：
+      - seen 隐式（下发即标记），用于轮换排除；
+      - saved/applied/dismissed 显式且互斥（同一岗同一时刻只一个）。
+    本期纯做追踪展示，不回流推荐算法（见设计稿 2026-06-16 §七.4）。
+    """
+
+    __tablename__ = "resume_job_user_state"
+    __table_args__ = (
+        UniqueConstraint("user_key", "job_id", name="uq_job_user_state_user_job"),
+    )
+
+    id = Column(Integer, primary_key=True)
+    user_key = Column(Text, nullable=False, index=True)
+    job_id = Column(Text, nullable=False, index=True)
+    state = Column(Text, nullable=False, default="seen")
+    first_seen_at = Column(DateTime, default=datetime.utcnow)
+    state_updated_at = Column(DateTime, default=datetime.utcnow)
+    source_session_id = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)

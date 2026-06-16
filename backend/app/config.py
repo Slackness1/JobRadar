@@ -235,6 +235,11 @@ RERANK_FALLBACK_ENABLED = os.environ.get("RERANK_FALLBACK_ENABLED", "0") in {"1"
 # 但 sub_cat 为空/标错的岗通过语义仍可被召回，下游 scoring/rerank/narrative 不变。
 HYBRID_RECALL_ENABLED = os.environ.get("HYBRID_RECALL_ENABLED", "0") in {"1", "true", "True"}
 
+# 推荐 2.0 — 岗位级状态 + 轮换。默认 OFF = 与现状字节级一致(单页下发,无状态层)。
+RECOMMENDATION_ROTATION_ENABLED = os.getenv("RECOMMENDATION_ROTATION_ENABLED", "0") == "1"
+ROTATION_PAGE_SIZE = int(os.getenv("ROTATION_PAGE_SIZE", "12"))   # 每页下发数
+ROTATION_POOL_SIZE = int(os.getenv("ROTATION_POOL_SIZE", "100"))  # 持久化的候选池上限
+
 # 小红书证据是否注入岗位精排(rerank) prompt。**默认 OFF — 这是基于数据的行为变更**:
 # 2026-06-15 消融实验(17 对本公司证据,sonnet 双臂)显示净风险>净收益(helped 5 / hurt 7),
 # 根因是证据按公司名取、未按岗位职能过滤("同公司错职能"证据 + 单条情绪帖把精排分带偏 5-15)。
