@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的岗位 — 视觉稿 (HiFi)</title>
+<style>
+/* ===== HiFi tokens (摘自 components/hifi/hifi-tokens.css，保持同源) ===== */
+.hf{
+  --parchment:#f5f4ed; --ivory:#faf9f5; --library-rail:#f0eee6; --warm-sand:#e8e6dc;
+  --ring-warm:#d1cfc5; --ring-deep:#c2c0b6; --dark-surface:#30302e; --deep-dark:#141413; --pure-white:#fff;
+  --ink:#141413; --ink-soft:#3d3d3a; --charcoal:#4d4c48; --olive:#5e5d59; --stone:#87867f; --warm-silver:#b0aea5;
+  --terracotta:#c96442; --terracotta-strong:#a84f34; --coral:#d97757; --terracotta-ring:rgba(201,100,66,.28); --terracotta-wash:#f8ecd9;
+  --border-cream:#f0eee6; --border-warm:#e8e6dc; --border-strong:#d1cfc5; --border-dark:#30302e;
+  --emerald:#3f9a5d; --emerald-soft:#e5efe2; --cool-blue:#7c9ef7; --focus-blue:#3898ec; --crimson:#b53333; --amber-bg:#f6f0d9; --amber-fg:#a16207;
+  --font-serif:'Fraunces','Noto Serif SC',ui-serif,Georgia,serif;
+  --font-sans:'Inter','Noto Sans SC',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px; --r-2xl:22px; --r-pill:999px;
+  --sh-ring:0 0 0 1px var(--border-warm);
+  --sh-lift:0 0 0 1px var(--border-warm),0 10px 30px rgba(15,23,42,.06);
+  --sh-paper:0 0 0 1px var(--border-warm),0 18px 52px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.hf{font-family:var(--font-sans);color:var(--ink);background:var(--parchment);-webkit-font-smoothing:antialiased;min-height:100vh}
+.hf button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.hf-serif{font-family:var(--font-serif);font-weight:500;letter-spacing:-.02em}
+.hf-h2{font-family:var(--font-serif);font-weight:500;font-size:30px;line-height:1.15;letter-spacing:-.02em}
+.hf-h3{font-family:var(--font-serif);font-weight:500;font-size:20px;line-height:1.25}
+.hf-body{font-size:15px;line-height:1.55;color:var(--olive)}
+.hf-body-sm{font-size:13.5px;line-height:1.5;color:var(--olive)}
+.hf-cap{font-size:12.5px;line-height:1.4;color:var(--stone)}
+.hf-overline{font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone)}
+.hf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--r-md);font-size:14.5px;font-weight:500;transition:.15s;white-space:nowrap}
+.hf-btn.sm{height:32px;padding:0 12px;font-size:13px;border-radius:8px}
+.hf-btn.primary{background:var(--terracotta);color:var(--ivory);box-shadow:0 0 0 1px var(--terracotta)}
+.hf-btn.primary:hover{background:var(--terracotta-strong)}
+.hf-btn.ghost{background:transparent;color:var(--ink);box-shadow:0 0 0 1px var(--border-warm)}
+.hf-btn.ghost:hover{background:var(--ivory)}
+.hf-btn.sand{background:var(--warm-sand);color:var(--charcoal);box-shadow:0 0 0 1px var(--ring-warm)}
+.hf-btn.sand:hover{background:#dcdace}
+.hf-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--r-pill);font-size:12px;font-weight:500;background:var(--ivory);color:var(--ink-soft);box-shadow:0 0 0 1px var(--border-warm)}
+.hf-pill.terra{background:var(--terracotta-wash);color:var(--terracotta-strong);box-shadow:0 0 0 1px #eccfb6}
+.hf-pill.emerald{background:var(--emerald-soft);color:var(--emerald);box-shadow:0 0 0 1px #c7d9c2}
+.hf-pill.amber{background:var(--amber-bg);color:var(--amber-fg);box-shadow:0 0 0 1px #ecdfa4}
+.hf-card{background:var(--ivory);border-radius:var(--r-xl);box-shadow:var(--sh-ring)}
+.hf-card.lift{box-shadow:var(--sh-lift)}
+.hf-logo{display:inline-flex;align-items:center;gap:8px}
+.hf-logo__mark{width:26px;height:26px;border-radius:8px;background:#141413;position:relative;flex-shrink:0}
+.hf-logo__mark::after{content:'';position:absolute;width:30%;height:30%;border-radius:50%;background:#c96442;top:35%;left:35%;box-shadow:0 0 0 3px rgba(201,100,66,.22)}
+.hf-logo__word{font-family:var(--font-serif);font-weight:500;font-size:18px;letter-spacing:-.01em;color:#141413}
+
+/* ===== 页面布局 ===== */
+.shell{max-width:980px;margin:0 auto;padding:0 24px}
+.topbar{height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-warm);background:var(--ivory)}
+.tabs{display:flex;gap:4px;background:var(--library-rail);padding:4px;border-radius:var(--r-pill)}
+.tab{height:34px;padding:0 18px;border-radius:var(--r-pill);font-size:13.5px;font-weight:500;color:var(--olive);display:flex;align-items:center}
+.tab.active{background:var(--ivory);color:var(--ink);box-shadow:var(--sh-ring)}
+.logo-comp{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:600;font-size:16px;color:var(--ivory);flex-shrink:0}
+.seg{display:inline-flex;background:var(--library-rail);border-radius:var(--r-pill);padding:3px}
+.seg button{height:32px;padding:0 16px;border-radius:var(--r-pill);font-size:13px;font-weight:500;color:var(--olive)}
+.seg button.on{background:var(--ivory);color:var(--ink);box-shadow:var(--sh-ring)}
+.jobcard{display:flex;gap:14px;padding:16px 18px;align-items:flex-start}
+.jobcard + .jobcard{margin-top:12px}
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.grow{flex:1 1 auto;min-width:0}
+.dot{width:3px;height:3px;border-radius:50%;background:var(--warm-silver);display:inline-block;margin:0 8px;vertical-align:middle}
+.state-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.muted-section{opacity:.78}
+.callout{background:var(--terracotta-wash);border-radius:var(--r-md);padding:10px 14px;font-size:13px;color:var(--terracotta-strong);box-shadow:0 0 0 1px #eccfb6}
+.note{background:var(--amber-bg);border-radius:var(--r-md);padding:8px 12px;font-size:12.5px;color:var(--amber-fg);box-shadow:0 0 0 1px #ecdfa4;display:inline-block}
+a.applylink{color:var(--terracotta-strong);font-size:13px;font-weight:500;text-decoration:none}
+a.applylink:hover{text-decoration:underline}
+.divider{height:1px;background:var(--border-cream);margin:0}
+.mockup-banner{background:var(--deep-dark);color:var(--warm-silver);font-size:12px;text-align:center;padding:6px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="hf" data-theme="hub">
+  <div class="mockup-banner">视觉稿 · 岗位推荐 2.0「我的岗位」tab · 按 HiFi 设计系统(terracotta/parchment/Fraunces)绘制 · 非真实数据</div>
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="shell row between" style="width:100%">
+      <div class="hf-logo"><span class="hf-logo__mark"></span><span class="hf-logo__word">JobRadar</span></div>
+      <div class="tabs">
+        <div class="tab">岗位推荐</div>
+        <div class="tab active">我的岗位</div>
+        <div class="tab">简历</div>
+      </div>
+      <button class="hf-btn ghost sm">钦奕阳 ▾</button>
+    </div>
+  </div>
+
+  <div class="shell" style="padding-top:28px;padding-bottom:64px">
+
+    <!-- 标题 + 进度概览 -->
+    <div class="row between" style="align-items:flex-end;margin-bottom:6px">
+      <h1 class="hf-h2">我的岗位</h1>
+      <div class="row" style="gap:8px">
+        <span class="hf-pill terra">想投 3</span>
+        <span class="hf-pill emerald">已投递 2</span>
+        <span class="hf-pill">已屏蔽 4</span>
+      </div>
+    </div>
+    <p class="hf-body-sm" style="margin-bottom:18px">把感兴趣的岗位收起来、记下投递进度。这里只做记录，不会改变给你的推荐。</p>
+
+    <!-- 分组切换 -->
+    <div class="seg" style="margin-bottom:18px">
+      <button class="on">收藏 · 想投 (3)</button>
+      <button>已投递 (2)</button>
+      <button>已屏蔽 (4)</button>
+    </div>
+
+    <!-- ===== 收藏/想投 列表 ===== -->
+    <div class="hf-card lift" style="padding:6px 0">
+
+      <!-- card 1 -->
+      <div class="jobcard">
+        <div class="logo-comp" style="background:#2f6db0">中金</div>
+        <div class="grow">
+          <div class="row between">
+            <div>
+              <div class="hf-serif" style="font-size:16px">量化研究员（股票alpha）</div>
+              <div class="hf-cap" style="margin-top:2px">中金公司 · 上海<span class="dot"></span>校招<span class="dot"></span><span style="color:var(--olive)">收录于 05-30（3 天前）</span></div>
+            </div>
+            <span class="hf-pill terra">想投</span>
+          </div>
+          <div class="state-actions">
+            <button class="hf-btn primary sm">标记已投递</button>
+            <button class="hf-btn ghost sm">取消收藏</button>
+            <a class="applylink" href="#" style="margin-left:auto;align-self:center">去投递 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <!-- card 2 -->
+      <div class="jobcard">
+        <div class="logo-comp" style="background:#c0392b">幻方</div>
+        <div class="grow">
+          <div class="row between">
+            <div>
+              <div class="hf-serif" style="font-size:16px">实习 · 量化策略研究</div>
+              <div class="hf-cap" style="margin-top:2px">幻方量化 · 杭州<span class="dot"></span>实习<span class="dot"></span><span style="color:var(--olive)">收录于 06-02（昨天）</span></div>
+            </div>
+            <span class="hf-pill terra">想投</span>
+          </div>
+          <div class="state-actions">
+            <button class="hf-btn primary sm">标记已投递</button>
+            <button class="hf-btn ghost sm">取消收藏</button>
+            <a class="applylink" href="#" style="margin-left:auto;align-self:center">去投递 ↗</a>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <!-- card 3 -->
+      <div class="jobcard">
+        <div class="logo-comp" style="background:#1a7a5e">衍复</div>
+        <div class="grow">
+          <div class="row between">
+            <div>
+              <div class="hf-serif" style="font-size:16px">量化研究员（中低频）</div>
+              <div class="hf-cap" style="margin-top:2px">衍复投资 · 上海<span class="dot"></span>校招<span class="dot"></span><span style="color:var(--olive)">收录于 05-21（12 天前）</span></div>
+            </div>
+            <span class="hf-pill terra">想投</span>
+          </div>
+          <div class="state-actions">
+            <button class="hf-btn primary sm">标记已投递</button>
+            <button class="hf-btn ghost sm">取消收藏</button>
+            <a class="applylink" href="#" style="margin-left:auto;align-self:center">去投递 ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== 已屏蔽 折叠区 ===== -->
+    <div class="row" style="gap:8px;margin-top:24px;cursor:pointer">
+      <span class="hf-overline">▸ 我屏蔽的岗位 (4)</span>
+      <span class="hf-cap">— 展开可撤回</span>
+    </div>
+
+    <hr class="divider" style="margin:36px 0 22px">
+
+    <!-- ===================================================== -->
+    <!-- 关联：岗位推荐 feed 卡上的新动作（三态标记 + 显式日期 + 换一批） -->
+    <!-- ===================================================== -->
+    <div class="hf-overline" style="margin-bottom:10px">关联设计 · 岗位推荐 feed 卡新增的动作</div>
+
+    <div class="hf-card" style="padding:18px">
+      <div class="jobcard" style="padding:0">
+        <div class="logo-comp" style="background:#5b4b8a">易方达</div>
+        <div class="grow">
+          <div class="row between">
+            <div>
+              <div class="hf-serif" style="font-size:16px">公募权益研究员（消费）</div>
+              <div class="hf-cap" style="margin-top:2px">
+                易方达基金 · 上海<span class="dot"></span>校招<span class="dot"></span>
+                <span style="color:var(--terracotta-strong);font-weight:500">收录于 06-02（昨天）</span>
+              </div>
+            </div>
+            <div class="row" style="gap:6px">
+              <span class="hf-pill terra">梯队内</span>
+              <span class="hf-pill">强匹配 · A</span>
+            </div>
+          </div>
+          <p class="hf-body-sm" style="margin:10px 0 0">消费赛道权益研究方向，与你的消费行业实习 + 财报建模经历高度对口。</p>
+          <div class="state-actions" style="margin-top:14px">
+            <button class="hf-btn primary sm">★ 收藏 · 想投</button>
+            <button class="hf-btn sand sm">已投递</button>
+            <button class="hf-btn ghost sm">不合适</button>
+            <a class="applylink" href="#" style="margin-left:auto;align-self:center">查看详情 / 投递 ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 换一批 -->
+    <div class="row" style="justify-content:center;margin-top:18px;gap:12px;flex-direction:column;align-items:center">
+      <button class="hf-btn sand">换一批（还有 ~80 个没看过的岗位）</button>
+      <span class="hf-cap">看过的岗位会自动记下，下次优先给你没看过的</span>
+    </div>
+
+    <!-- 池见底兜底文案示意 -->
+    <div style="margin-top:18px;text-align:center">
+      <span class="note">池见底时：你已看完目前所有新岗位，以下是之前看过的 · 按钮变「重看之前看过的岗位」</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
