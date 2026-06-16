@@ -1070,6 +1070,8 @@ def get_resume_copilot_recommendations(
     if not recommendation_run:
         raise HTTPException(status_code=404, detail=f'Recommendations for session {session_id} not found')
     recommendations_json: Any = getattr(recommendation_run, 'recommendations_json', '[]') or '[]'
+    items = [ResumeRecommendationItem.model_validate(item) for item in json.loads(str(recommendations_json))]
+    _attach_posted_dates(db, items)
     return ResumeRecommendationResultOut(
         session_id=session_id,
         status=str(getattr(recommendation_run, 'status', '') or ''),
@@ -1077,7 +1079,7 @@ def get_resume_copilot_recommendations(
         used_ai=bool(getattr(recommendation_run, 'used_ai', 0)),
         fallback_reason=str(getattr(recommendation_run, 'fallback_reason', '') or ''),
         error_message=str(getattr(recommendation_run, 'error_message', '') or ''),
-        items=[ResumeRecommendationItem.model_validate(item) for item in json.loads(str(recommendations_json))],
+        items=items,
     )
 
 
@@ -1430,6 +1432,71 @@ def post_reject_recommendation(
         ok=True,
         memory_entry_id=memory_entry_id,
         rejected_count=len(current_rejected),
+    )
+
+
+def _attach_posted_dates(db: Session, items: list) -> None:
+    """给 ResumeRecommendationItem 列表填 posted_at / posted_is_publish(就地)。"""
+    from app.models import Job
+    ids = [str(getattr(it, 'job_id', '') or '') for it in items]
+    if not ids:
+        return
+    jobs = {j.job_id: j for j in db.query(Job).filter(Job.job_id.in_(ids))}
+    for it in items:
+        j = jobs.get(str(getattr(it, 'job_id', '') or ''))
+        if not j:
+            continue
+        if getattr(j, 'publish_date', None):
+            it.posted_at = j.publish_date.isoformat()
+            it.posted_is_publish = True
+        elif getattr(j, 'scraped_at', None):
+            it.posted_at = j.scraped_at.isoformat()
+            it.posted_is_publish = False
+
+
+@router.post('/sessions/{session_id}/recommendations/next-batch',
+             response_model=ResumeRecommendationResultOut)
+def post_recommendations_next_batch(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> ResumeRecommendationResultOut:
+    """推荐 2.0「换一批」:从 pool_json 排除已看过/已屏蔽取下一页,设为当前页并标记看过。"""
+    from app.services.resume_copilot import job_state as js
+    from app.services.resume_copilot.rotation import next_page
+    from app import config
+
+    session_obj = _get_session_or_404(db, session_id)
+    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_not_demo(session_obj)
+
+    run = db.query(ResumeRecommendationRun).filter(
+        ResumeRecommendationRun.session_id == session_id).first()
+    if not run:
+        raise HTTPException(status_code=404, detail=f'NO_RECOMMENDATIONS: {session_id}')
+    try:
+        pool = json.loads(str(getattr(run, 'pool_json', '[]') or '[]'))
+    except json.JSONDecodeError:
+        pool = []
+    user_key = str(getattr(session_obj, 'user_key', '') or '')
+    exclude = js.seen_or_dismissed_ids(db, user_key) if user_key else set()
+    page, recycled = next_page(pool, exclude, config.ROTATION_PAGE_SIZE)
+    run.recommendations_json = json.dumps(page, ensure_ascii=False)
+    run.updated_at = datetime.utcnow()
+    db.commit()
+    if user_key and page:
+        js.mark_seen(db, user_key, [str(p.get('job_id', '')) for p in page], session_id)
+
+    items = [ResumeRecommendationItem.model_validate(it) for it in page]
+    _attach_posted_dates(db, items)
+    return ResumeRecommendationResultOut(
+        session_id=session_id,
+        status=str(getattr(run, 'status', '') or ''),
+        agent_trace=[],
+        used_ai=bool(getattr(run, 'used_ai', 0)),
+        fallback_reason=('recycled' if recycled else ''),
+        error_message='',
+        items=items,
     )
 
 

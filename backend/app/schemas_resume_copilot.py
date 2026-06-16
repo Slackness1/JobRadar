@@ -247,6 +247,10 @@ class ResumeRecommendationItem(BaseModel):
     # explore=sub_cat 空,纯语义召回(新发现,标签未定)。前端按它分三栏;
     # HYBRID_RECALL OFF 时召回仍走 sub_cat 闸 → 几乎全 strong,前端优雅降级为单列。
     match_tier: str = "strong"
+    # 推荐 2.0:显式日期。posted_at = publish_date(优先) 或 scraped_at 的 ISO 串;
+    # posted_is_publish=True 表示是真实发布日(文案"发布于"),否则收录日("收录于")。
+    posted_at: str = ''
+    posted_is_publish: bool = False
 
 
 class ResumeRecommendationResultOut(BaseModel):

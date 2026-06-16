@@ -770,6 +770,12 @@ def test_get_recommendations_returns_persisted_result():
                 'priority_letter': '',
                 'track_match_kind': '',
                 'is_internship': False,  # 2026-05-20: 校招/实习 分流字段, default False
+                'industry_tags': [],
+                'in_skeleton': False,
+                'skeleton_band': '',
+                'match_tier': 'strong',
+                'posted_at': '',          # 2026-06-16 Task 9: 推荐 2.0 显式日期
+                'posted_is_publish': False,
             }
         ],
     }
