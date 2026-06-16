@@ -2380,6 +2380,44 @@ def get_company_track_jobs(
     return {"session_id": session_id, "company": company, "sub_cat": sub_cat, "n": len(jobs), "jobs": jobs}
 
 
+@router.get('/sessions/{session_id}/company-intel')
+def get_company_intel(
+    session_id: int,
+    company: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> dict:
+    """「讲讲这家」:实时按公司名查 XHS 同辈情报(不依赖骨架预先算的计数,跨赛道也准)。
+
+    诚实铁律:只回真实抽取的洞察(content/quote),没有就 n=0 留白,绝不编造门槛/待遇。
+    """
+    from app.services.xhs import retrieve
+
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+
+    name = (company or '').strip()
+    if not name:
+        return {"company": name, "n": 0, "insights": []}
+    try:
+        rows = retrieve.search(db, company=[name], limit=6)
+    except Exception:
+        logger.exception('company-intel search failed for %s', name)
+        rows = []
+    insights = [
+        {
+            "type": str(r.get("primary_type", "") or ""),
+            "content": str(r.get("content", "") or ""),
+            "quote": str(r.get("source_quote", "") or ""),
+            "speaker": str(r.get("speaker", "") or ""),
+            "confidence": str(r.get("confidence", "") or ""),
+        }
+        for r in (rows or [])
+        if str(r.get("content", "") or "").strip()
+    ]
+    return {"company": name, "n": len(insights), "insights": insights}
+
+
 @router.delete(
     '/sessions/{session_id}/memory/{entry_id}',
     status_code=status.HTTP_204_NO_CONTENT,
