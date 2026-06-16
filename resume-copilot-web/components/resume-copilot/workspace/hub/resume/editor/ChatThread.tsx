@@ -368,6 +368,8 @@ export function ChatThread({
       detail: '',
       target_track: targetTrack,
     };
+    setFocusLabel(body.label);
+    setTargetTrack(body.target_track || TARGET_TRACK_FALLBACK);
     setMsgs([{ kind: 'text', who: 'ai', html: '已重新开始这段优化(后端一次只跟一段)。' }]);
     setThinking(true);
     started.current = true;
@@ -380,6 +382,7 @@ export function ChatThread({
       })
       .catch((e) => {
         if (!alive) return;
+        started.current = false; // 重启失败 → 允许下次重试,不卡在 planTurn
         setMsgs((m) => [...m, { kind: 'text', who: 'ai', html: `重新开始失败:${e instanceof Error ? e.message : '未知错误'}` }]);
       })
       .finally(() => {
