@@ -631,6 +631,17 @@ class RecommendRejectOut(BaseModel):
     rejected_count: int = 0
 
 
+class JobStateIn(BaseModel):
+    # "" = 清除(降回 seen);否则必须是 saved/applied/dismissed
+    state: str = ""
+
+
+class JobStateOut(BaseModel):
+    ok: bool
+    job_id: str
+    state: str  # 当前生效状态(清除后为 "seen")
+
+
 # ===== 简历多维度打分 (B1) =====
 
 
