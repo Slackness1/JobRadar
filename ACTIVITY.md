@@ -14,6 +14,14 @@
 
 ---
 
+## 2026-06-16
+
+### 网站设计-devvpstmux · 前端自动化测试套件:Playwright 确定性体检 + browser-use AI 探索
+- **干了什么**:之前前端只有 lint+build+手动看,没有"自动开浏览器把流程点一遍"的测试。补了两套(`resume-copilot-web/e2e/`):① **Playwright 体检**——真浏览器跑关键路由 + 大编辑器只读全流程,断言页面活着/控制台无报错/截图,**0 token、确定性、几十秒出结果**,适合每次改完前端必跑;② **browser-use AI 测试员**——挂我们的 DeepSeek,像学生一样自己决定点哪、找意外 bug(烧 token、非确定性,手动限步跑)。
+- **本人/其它会话能看到**:`./e2e/run.sh --base-url <dev或线上>` 一键体检;`./e2e/explore.sh` 放 AI 出来扫雷。复用 backend/.venv 的 Playwright,无需额外装。
+- **验证**:Playwright 对 jobcopilot.top **8/8 全绿**(连跑 4 次稳),调试中还抓出选择器歧义+出网代理两个真问题并修掉;browser-use 5 步小验证跑通(真读到首页 3884 公司/12.6万岗 + Top5 推荐,DeepSeek 接线证明可用)。
+- **下一步留给本人**:可决定是否把 Playwright 体检接进部署流程(每次推完线上自动跑);browser-use 仅手动非高峰用。
+
 ## 2026-06-15
 
 ### 网站设计-devvpstmux · 大编辑器:简历版本存档 + 每版打分报告 + 重新打分 + 深度优化多对话/历史
