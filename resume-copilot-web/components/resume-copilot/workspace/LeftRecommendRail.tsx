@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I } from '@/components/hifi/hifi-primitives';
 import type {
+  JobState,
   ResumeCopilotSession,
   ResumeJobMode,
   ResumeRecommendationItem,
@@ -32,6 +33,7 @@ import {
   getResumeCopilotPlatforms,
   getPlatformsByTier,
   getTierFit,
+  markJobState,
   postRejectRecommendation,
   type PlatformSkeleton,
   type RecommendRejectReason,
@@ -104,6 +106,8 @@ export function LeftRecommendRail({
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const [toast, setToast] = useState<string>('');
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(false);
+  // Task 11 — 三态按钮: per-job 求职状态本地缓存 (saved / applied; 不持久化到后端直到点击)
+  const [jobStates, setJobStates] = useState<Record<string, JobState>>({});
   // Platform view state (Phase 4)
   const [viewMode, setViewMode] = useState<'platform' | 'campus' | 'intern'>('platform');
   const [platforms, setPlatforms] = useState<ResumeRecommendationPlatform[] | null>(null);
@@ -387,6 +391,19 @@ export function LeftRecommendRail({
     [sessionId, onRejectRecommendation, onRecommendationsChanged, flip],
   );
 
+  // Task 11 — 三态按钮: POST 求职状态到后端,同步本地 map。
+  const handleSetState = useCallback(
+    async (jobId: string, state: '' | JobState) => {
+      if (sessionId === undefined) return;
+      await markJobState(sessionId, jobId, state);
+      setJobStates((prev) => ({
+        ...prev,
+        [jobId]: state === '' ? 'seen' : state,
+      }));
+    },
+    [sessionId],
+  );
+
   // ── Render ─────────────────────────────────────────────────────────────────
   // 推荐是否"可展示"只看 items 快照。`session.has_recommendations` 是后端
   // 会话级摘要,生成中第一批规则结果已落库时可能仍为 false；如果这里继续绑它,
@@ -539,6 +556,8 @@ export function LeftRecommendRail({
                     onCustomiseForJob={onCustomiseForJob}
                     sessionId={sid}
                     onOpenIntel={onOpenIntel}
+                    currentState={jobStates[jobId]}
+                    onSetState={(s) => handleSetState(jobId, s)}
                   />
                 </div>
               );
@@ -729,6 +748,8 @@ export function LeftRecommendRail({
                     onCustomiseForJob={onCustomiseForJob}
                     sessionId={sid}
                     onOpenIntel={onOpenIntel}
+                    currentState={jobStates[jobId]}
+                    onSetState={(s) => handleSetState(jobId, s)}
                   />
                 </div>
               );

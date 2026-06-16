@@ -13,7 +13,7 @@
  */
 
 import { useState } from 'react';
-import type { ResumeRecommendationItem } from '../../types';
+import type { JobState, ResumeRecommendationItem } from '../../types';
 import type { RecommendRejectReason } from '../../api';
 import { I } from '@/components/hifi/hifi-primitives';
 import { RecommendNarrativeSection } from './RecommendNarrativeSection';
@@ -36,6 +36,21 @@ export interface RecommendCardProps {
     company: string,
     ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null },
   ) => void;
+  /** 岗位推荐 2.0 Task 11 — 三态按钮: 当前求职状态 (saved / applied / 其他)。 */
+  currentState?: JobState;
+  /** 岗位推荐 2.0 Task 11 — 更新求职状态回调。state='' 清除。 */
+  onSetState?: (state: '' | JobState) => Promise<void>;
+}
+
+/** 格式化发布/收录时间为可读相对日期字符串。 */
+function formatPosted(postedAt?: string, isPublish?: boolean): string {
+  if (!postedAt) return '';
+  const d = new Date(postedAt);
+  if (Number.isNaN(d.getTime())) return '';
+  const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  const rel = days <= 0 ? '今天' : days === 1 ? '昨天' : `${days} 天前`;
+  const md = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return `${isPublish ? '发布于' : '收录于'} ${md}（${rel}）`;
 }
 
 /** First letter of company for the logo placeholder — there's no logo CDN in
@@ -114,6 +129,8 @@ export function RecommendCard({
   onCustomiseForJob,
   sessionId,
   onOpenIntel,
+  currentState,
+  onSetState,
 }: RecommendCardProps) {
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -233,6 +250,9 @@ export function RecommendCard({
             </span>
           ))}
           <span className="workspace-hifi__rec-card-why-one">{primaryReason(item)}</span>
+          {item.posted_at && (
+            <span className="hf-cap">{formatPosted(item.posted_at, item.posted_is_publish)}</span>
+          )}
         </div>
       )}
 
@@ -324,13 +344,31 @@ export function RecommendCard({
                   <span>针对这家定制</span>
                 </button>
               )}
+              {onSetState && (
+                <>
+                  <button
+                    type="button"
+                    className={`hf-btn sm ${currentState === 'saved' ? 'primary' : 'ghost'}`}
+                    onClick={() => onSetState(currentState === 'saved' ? '' : 'saved')}
+                  >
+                    ★ {currentState === 'saved' ? '已收藏' : '收藏想投'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`hf-btn sm ${currentState === 'applied' ? 'primary' : 'sand'}`}
+                    onClick={() => onSetState(currentState === 'applied' ? '' : 'applied')}
+                  >
+                    {currentState === 'applied' ? '已投递 ✓' : '标记已投递'}
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 className="workspace-hifi__rec-card-action workspace-hifi__rec-card-action--reject"
                 onClick={() => setRejectOpen(true)}
               >
                 <span aria-hidden>✗</span>
-                <span>反馈</span>
+                <span>不合适</span>
               </button>
             </div>
           )}
