@@ -389,6 +389,9 @@ export function EditorAIPanel({
       openRef.current = { openTabIds: nextOpen, activeTabId: nextActive };
       setOpenTabIds(nextOpen);
       setActiveTabId(nextActive);
+      // 删的若是当前持有后端 plan 的那段 → 清归属,避免新建同段对话被误判已认领。
+      const deletedSection = cs.find((c) => c.id === id)?.section;
+      if (deletedSection) setBackendPlanSection((cur) => (cur === deletedSection ? null : cur));
       persistConvos(result, true);
       return result;
     });
@@ -560,7 +563,7 @@ export function EditorAIPanel({
               }}
             >
               {t}
-              {k === 'deep' && (pendingQuote || Object.keys(pendingSeedByConv).length > 0) && !on && (
+              {k === 'deep' && (Object.keys(pendingSeedByConv).length > 0 || Object.keys(pendingQuoteByConv).length > 0) && !on && (
                 <span style={{ width: 5, height: 5, borderRadius: 999, background: 'var(--terracotta)' }} />
               )}
             </button>
