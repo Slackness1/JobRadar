@@ -1,0 +1,9 @@
+# DeepEval 隔离 venv —— 很大,绝不入仓(STEP 2 用,re-creatable)
+.venv-deepeval/
+
+# deep-optimize / deepeval eval 输出产物(每次跑都新生成,re-runnable)
+# 注意:_out/ 下已有 tracked 的 mock_interview baseline,这里只忽略本次新增的
+_out/deep_optimize_*.json
+_out/deepeval_*.json
+
+__pycache__/
