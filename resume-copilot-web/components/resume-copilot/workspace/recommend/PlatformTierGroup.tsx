@@ -14,8 +14,16 @@
  * 遵循 .workspace-hifi__ scope, 所有颜色走项目 token.
  */
 
+import { useState } from 'react';
+
 import { I } from '@/components/hifi/hifi-primitives';
-import type { PlatformSkeletonCompany, PlatformSkeletonIntel, PlatformSkeletonTier } from '../../api';
+import type {
+  CompanyTrackJobsResult,
+  PlatformSkeletonCompany,
+  PlatformSkeletonIntel,
+  PlatformSkeletonJob,
+  PlatformSkeletonTier,
+} from '../../api';
 
 // ── role meta ────────────────────────────────────────────────────────────────
 
@@ -140,12 +148,17 @@ interface CompanyCardProps {
    * /recommend 不传 → 整颗按钮不渲染, 行为与改动前字节一致.
    */
   onOpenCoach?: (company: string) => void;
+  /** 拉取本赛道该公司全部在招岗(解除骨架预览 5 条上限) — 仅 Hub 传入 */
+  onLoadAllJobs?: (company: string) => Promise<CompanyTrackJobsResult>;
   dim: boolean;
 }
 
-function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, onOpenCoach, dim }: CompanyCardProps) {
+function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, onOpenCoach, onLoadAllJobs, dim }: CompanyCardProps) {
   const initial = companyInitial(company.name);
   const mSuffix = matchSuffix(company.match);
+
+  const [allJobs, setAllJobs] = useState<PlatformSkeletonJob[] | null>(null);
+  const [loadingAll, setLoadingAll] = useState(false);
 
   const introPrefix = company.has_live ? '✦' : '◇';
   const hasIntel = company.n_insights > 0;
@@ -274,10 +287,15 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, onOpenCoach, 
                 </div>
               </div>
 
-              {/* Job list */}
-              {company.jobs.length > 0 && (
+              {/* Job list — 预览(5条)或全量(展开后) */}
+              {(allJobs !== null ? allJobs : company.jobs).length > 0 && (
                 <div className="workspace-hifi__tier-jobs-list">
-                  {company.jobs.map((job) => (
+                  {allJobs !== null && (
+                    <div className="workspace-hifi__tier-jobs-caption">
+                      共 {allJobs.length} 个
+                    </div>
+                  )}
+                  {(allJobs !== null ? allJobs : company.jobs).map((job) => (
                     <a
                       key={job.id}
                       className="workspace-hifi__tier-job-row"
@@ -300,6 +318,30 @@ function CompanyCard({ company, isExpanded, onToggle, onOpenIntel, onOpenCoach, 
                     </a>
                   ))}
                 </div>
+              )}
+
+              {/* 查看全部岗位 CTA (仅预览态，未加载全量时显示) */}
+              {onLoadAllJobs && company.has_live && allJobs === null && (
+                <button
+                  type="button"
+                  className="workspace-hifi__intel-cta-row"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (loadingAll) return;
+                    setLoadingAll(true);
+                    try {
+                      const res = await onLoadAllJobs(company.name);
+                      setAllJobs(res.jobs);
+                    } finally {
+                      setLoadingAll(false);
+                    }
+                  }}
+                >
+                  <span style={{ flex: 1, textAlign: 'left' }}>
+                    {loadingAll ? '加载中…' : '查看本赛道全部岗位'}
+                  </span>
+                  <span aria-hidden style={{ display: 'inline-flex' }}>{I.arrowRight(12)}</span>
+                </button>
               )}
 
               {/* Intel CTA */}
@@ -429,6 +471,8 @@ export interface PlatformTierGroupProps {
   onOpenIntel?: (company: string, ctx?: { n_insights?: number }) => void;
   /** 「定制深挖」回调 —— 仅 Hub 传入; /recommend 不传则按钮不渲染(默认关闭, 无回归). */
   onOpenCoach?: (company: string) => void;
+  /** 拉取本赛道某公司全部在招岗 —— 仅 Hub 传入; 不传则「查看全部」按钮不渲染. */
+  onLoadAllJobs?: (company: string) => Promise<CompanyTrackJobsResult>;
   isFirst: boolean;
   isLast: boolean;
 }
@@ -439,6 +483,7 @@ export function PlatformTierGroup({
   onToggle,
   onOpenIntel,
   onOpenCoach,
+  onLoadAllJobs,
   isFirst,
   isLast,
 }: PlatformTierGroupProps) {
@@ -495,6 +540,7 @@ export function PlatformTierGroup({
             onToggle={onToggle}
             onOpenIntel={onOpenIntel}
             onOpenCoach={onOpenCoach}
+            onLoadAllJobs={onLoadAllJobs}
             dim={tier.role === 'floor'}
           />
         ))}

@@ -1302,6 +1302,28 @@ export function getPlatformsByTier(
   );
 }
 
+export interface CompanyTrackJobsResult {
+  company: string;
+  sub_cat: string | null;
+  n: number;
+  jobs: PlatformSkeletonJob[];
+}
+
+export function getCompanyTrackJobs(
+  sessionId: number,
+  company: string,
+  subCat?: string | null,
+  mode?: string,
+): Promise<CompanyTrackJobsResult> {
+  const params = new URLSearchParams({ company });
+  if (subCat) params.set('sub_cat', subCat);
+  if (mode) params.set('mode', mode);
+  return requestJson<CompanyTrackJobsResult>(
+    `/api/resume-copilot/sessions/${sessionId}/company-track-jobs?${params.toString()}`,
+    { method: 'GET' },
+  );
+}
+
 // ── Recommend-chat / working-query / deepen (Phase G Task 8) ─────────────────
 
 export async function postRecommendChat(

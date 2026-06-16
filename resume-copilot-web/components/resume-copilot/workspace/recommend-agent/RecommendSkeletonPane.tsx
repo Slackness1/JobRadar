@@ -19,7 +19,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
+  getCompanyTrackJobs,
   getPlatformsByTier,
+  type CompanyTrackJobsResult,
   type PlatformSkeleton,
 } from '../../api';
 import { PlatformTierGroup } from '../recommend/PlatformTierGroup';
@@ -96,6 +98,13 @@ export function RecommendSkeletonPane({
     });
   }, []);
 
+  // 「查看本赛道全部岗位」— 拉取某公司全量在招岗(解除骨架预览 5 条上限)
+  const loadAllJobs = useCallback(
+    (company: string): Promise<CompanyTrackJobsResult> =>
+      getCompanyTrackJobs(sessionId, company, skeleton?.sub_cat ?? undefined),
+    [sessionId, skeleton?.sub_cat],
+  );
+
   // feed→骨架点联:命中公司卡描边 + scrollIntoView.
   // PlatformTierGroup 不暴露 per-card ref,这里用容器内 DOM 查询(按公司名文本)
   // 在 effect 里做 class toggle —— 不在 render/effect-body 顶层 setState.
@@ -152,6 +161,7 @@ export function RecommendSkeletonPane({
                 onToggle={handleCompanyToggle}
                 onOpenIntel={onOpenIntel}
                 onOpenCoach={onOpenCoach}
+                onLoadAllJobs={loadAllJobs}
                 isFirst={idx === 0}
                 isLast={idx === skeleton.tiers.length - 1}
               />
