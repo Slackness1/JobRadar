@@ -75,6 +75,32 @@ def set_explicit_state(db: Session, user_key: str, job_id: str, state: str, sour
     return row
 
 
+def my_jobs_grouped(db: Session, user_key: str) -> dict:
+    """按显式状态分组,join jobs 取展示字段。seen 不进任何组。
+
+    返回 {saved:[...], applied:[...], dismissed:[...], counts:{...}}。
+    每个 item:{job_id, company, job_title, location, detail_url, publish_date, scraped_at}。
+    """
+    from app.models import Job  # 局部 import 避免循环
+
+    rows = [r for r in _rows(db, user_key) if r.state in EXPLICIT_STATES]
+    job_ids = [r.job_id for r in rows]
+    jobs = {j.job_id: j for j in db.query(Job).filter(Job.job_id.in_(job_ids))} if job_ids else {}
+    groups: dict[str, list] = {STATE_SAVED: [], STATE_APPLIED: [], STATE_DISMISSED: []}
+    for r in sorted(rows, key=lambda x: (x.state_updated_at or x.created_at), reverse=True):
+        j = jobs.get(r.job_id)
+        groups[r.state].append({
+            "job_id": r.job_id,
+            "company": getattr(j, "company", "") or "",
+            "job_title": getattr(j, "job_title", "") or "",
+            "location": getattr(j, "location", "") or "",
+            "detail_url": getattr(j, "detail_url", "") or "",
+            "publish_date": (j.publish_date.isoformat() if j and j.publish_date else ""),
+            "scraped_at": (j.scraped_at.isoformat() if j and j.scraped_at else ""),
+        })
+    return {**groups, "counts": {k: len(v) for k, v in groups.items()}}
+
+
 def clear_explicit_state(db: Session, user_key: str, job_id: str) -> None:
     """显式状态降回 seen(保留行 → 仍算看过)。无行则无操作。"""
     row = _rows(db, user_key).filter(JobUserState.job_id == str(job_id)).first()

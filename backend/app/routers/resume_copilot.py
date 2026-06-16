@@ -35,6 +35,9 @@ from app.schemas_resume_copilot import (
     PlanStateOut,
     JobStateIn,
     JobStateOut,
+    MyJobItem,
+    MyJobsCounts,
+    MyJobsOut,
     RecommendRejectIn,
     RecommendRejectOut,
     ResumeAgentTraceItem,
@@ -1458,6 +1461,20 @@ def post_job_state(
         raise HTTPException(status_code=422, detail=f'INVALID_STATE: {state}')
     row = js.set_explicit_state(db, user_key, job_id, state, source_session_id=session_id)
     return JobStateOut(ok=True, job_id=str(job_id), state=row.state)
+
+
+@router.get('/my-jobs', response_model=MyJobsOut)
+def get_my_jobs(
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> MyJobsOut:
+    """推荐 2.0:按 user_key 聚合该用户标记过的岗位(收藏想投/已投递/不合适)。"""
+    from app.services.resume_copilot import job_state as js
+    user_key = (x_resume_user_key or '').strip()
+    if not user_key:
+        return MyJobsOut(counts=MyJobsCounts())
+    grouped = js.my_jobs_grouped(db, user_key)
+    return MyJobsOut(**grouped)
 
 
 @router.get('/sessions/{session_id}/direction-analysis', response_model=list[DirectionTierResult])
