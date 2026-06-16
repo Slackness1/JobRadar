@@ -11,6 +11,7 @@ import {
   FileText,
   Plus,
   MessageSquare,
+  Trash2,
 } from 'lucide-react';
 import type { ScoreReportData } from '../../../../api';
 
@@ -61,6 +62,8 @@ export interface HubHistoryPanelProps {
   initialSegment?: 'convo' | 'report';
   top?: number;
   right?: number;
+  /** 删除一段会话(从历史移除)。 */
+  onDeleteConvo?: (id: number) => void;
 }
 
 /** 历史记录浮层 — 两类历史:① 会话历史(深度优化 tab) ② 简历打分报告(保存版本)。
@@ -76,12 +79,14 @@ export function HubHistoryPanel({
   initialSegment = 'convo',
   top = 56,
   right = 16,
+  onDeleteConvo,
 }: HubHistoryPanelProps): JSX.Element | null {
   // 初始分段跟随当前 AI 面板 tab(报告 tab→打分报告;深度对话 tab→会话历史);
   // 仍可在浮层内自由切换两段。
   const [tab, setTab] = useState<'convo' | 'report'>(initialSegment);
   const [pickConvo, setPickConvo] = useState<number | null>(null);
   const [pickReport, setPickReport] = useState<string | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState<number | null>(null);
 
   // Esc 关闭。
   useEffect(() => {
@@ -231,81 +236,122 @@ export function HubHistoryPanel({
               )
               : convos.map((c) => {
                 const on = pickConvo === c.id;
+                const confirming = confirmingDelete === c.id;
                 return (
-                  <button
+                  <div
                     key={c.id}
-                    onClick={() => {
-                      setPickConvo(c.id);
-                      onOpenConvo?.(c.id);
-                    }}
                     style={{
-                      width: '100%',
-                      textAlign: 'left',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 11,
-                      padding: '10px 11px',
+                      gap: 4,
+                      padding: '2px 2px 2px 0',
                       borderRadius: 11,
-                      cursor: 'pointer',
                       marginBottom: 2,
-                      border: 'none',
                       background: on ? 'var(--terracotta-wash)' : 'transparent',
                       boxShadow: on ? '0 0 0 1px #eccfb6' : 'none',
-                      transition: 'background .12s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!on) e.currentTarget.style.background = 'var(--library-rail)';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!on) e.currentTarget.style.background = 'transparent';
                     }}
                   >
-                    <span
+                    <button
+                      onClick={() => {
+                        setPickConvo(c.id);
+                        onOpenConvo?.(c.id);
+                      }}
                       style={{
-                        flex: 'none',
-                        width: 30,
-                        height: 30,
-                        borderRadius: 9,
-                        display: 'grid',
-                        placeItems: 'center',
-                        color: on ? 'var(--terracotta-strong)' : 'var(--stone)',
-                        background: on ? 'var(--ivory)' : 'var(--library-rail)',
-                        boxShadow: on ? '0 0 0 1px #eccfb6' : '0 0 0 1px var(--border-warm)',
+                        flex: 1,
+                        minWidth: 0,
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 11,
+                        padding: '10px 11px',
+                        borderRadius: 11,
+                        cursor: 'pointer',
+                        border: 'none',
+                        background: 'transparent',
                       }}
                     >
-                      <MessageSquare size={15} />
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
+                      <span
                         style={{
-                          font: `${on ? 600 : 500} 13px var(--font-sans)`,
-                          color: on ? 'var(--ink)' : 'var(--ink-soft)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          flex: 'none',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 9,
+                          display: 'grid',
+                          placeItems: 'center',
+                          color: on ? 'var(--terracotta-strong)' : 'var(--stone)',
+                          background: on ? 'var(--ivory)' : 'var(--library-rail)',
+                          boxShadow: on ? '0 0 0 1px #eccfb6' : '0 0 0 1px var(--border-warm)',
                         }}
                       >
-                        {c.title}
-                      </div>
-                      <div style={{ font: '400 11px var(--font-mono)', color: 'var(--stone)', marginTop: 2 }}>
-                        {c.date}
-                        {c.active ? (
-                          <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--terracotta-strong)' }}>
-                            {' · 当前会话'}
-                          </span>
-                        ) : c.open ? (
-                          <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--olive)' }}>
-                            {' · 已在标签'}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    {on && (
-                      <span style={{ color: 'var(--terracotta-strong)', display: 'inline-flex', flex: 'none' }}>
-                        <ArrowRight size={14} />
+                        <MessageSquare size={15} />
                       </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            font: `${on ? 600 : 500} 13px var(--font-sans)`,
+                            color: on ? 'var(--ink)' : 'var(--ink-soft)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {c.title}
+                        </div>
+                        <div style={{ font: '400 11px var(--font-mono)', color: 'var(--stone)', marginTop: 2 }}>
+                          {c.date}
+                          {c.active ? (
+                            <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--terracotta-strong)' }}>
+                              {' · 当前会话'}
+                            </span>
+                          ) : c.open ? (
+                            <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--olive)' }}>{' · 已在标签'}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </button>
+                    {confirming ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 'none', paddingRight: 6 }}>
+                        <button
+                          onClick={() => {
+                            onDeleteConvo?.(c.id);
+                            setConfirmingDelete(null);
+                          }}
+                          className="hf-btn primary sm"
+                          style={{ height: 26, padding: '0 9px', fontSize: 11 }}
+                        >
+                          删
+                        </button>
+                        <button
+                          onClick={() => setConfirmingDelete(null)}
+                          className="hf-btn ghost sm"
+                          style={{ height: 26, padding: '0 9px', fontSize: 11 }}
+                        >
+                          取消
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmingDelete(c.id)}
+                        title="删除这段对话"
+                        aria-label="删除对话"
+                        style={{
+                          flex: 'none',
+                          width: 28,
+                          height: 28,
+                          marginRight: 6,
+                          borderRadius: 8,
+                          display: 'grid',
+                          placeItems: 'center',
+                          cursor: 'pointer',
+                          border: 'none',
+                          color: 'var(--stone)',
+                          background: 'transparent',
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     )}
-                  </button>
+                  </div>
                 );
               })
             : reports.length === 0

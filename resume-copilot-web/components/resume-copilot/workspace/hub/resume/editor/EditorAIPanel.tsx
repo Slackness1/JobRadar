@@ -366,6 +366,34 @@ export function EditorAIPanel({
     });
   }, []);
 
+  // 从历史彻底删除一段会话:移出 convos + 打开集合;激活则切到其它打开 tab;永不删到 0。
+  const deleteConvo = useCallback((id: number) => {
+    setConvos((cs) => {
+      const remaining = cs.filter((c) => c.id !== id);
+      setOpenTabIds((ot) => {
+        let nextOpen = ot.filter((x) => x !== id);
+        let nextActive = openRef.current.activeTabId === id ? nextOpen[nextOpen.length - 1] : openRef.current.activeTabId;
+        if (remaining.length === 0) {
+          // 删光了 → 立刻补一个空白对话(永不 0)。
+          const fresh: Convo = { id: nextId.current++, messages: [], updatedAt: new Date().toISOString() };
+          remaining.push(fresh);
+          nextOpen = [fresh.id];
+          nextActive = fresh.id;
+        } else if (nextOpen.length === 0) {
+          nextOpen = [remaining[remaining.length - 1].id];
+          nextActive = nextOpen[0];
+        }
+        openRef.current = { openTabIds: nextOpen, activeTabId: nextActive };
+        setActiveTabId(nextActive);
+        return nextOpen;
+      });
+      persistConvos(remaining, true);
+      return remaining;
+    });
+    consumeSeed(id);
+    consumeQuote(id);
+  }, [persistConvos, consumeSeed, consumeQuote]);
+
   // 当前打开成 tab 的会话(按 openTabIds 顺序)。
   const openConvos = openTabIds
     .map((id) => convos.find((c) => c.id === id))
@@ -495,6 +523,7 @@ export function EditorAIPanel({
             onOpenReportVid?.(vid);
             setHistoryOpen(false);
           }}
+          onDeleteConvo={deleteConvo}
         />
       )}
 
