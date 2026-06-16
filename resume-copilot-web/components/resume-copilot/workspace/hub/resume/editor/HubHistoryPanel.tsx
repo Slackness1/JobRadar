@@ -334,6 +334,14 @@ export function HubHistoryPanel({
                         onClick={() => setConfirmingDelete(c.id)}
                         title="删除这段对话"
                         aria-label="删除对话"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--terracotta-wash)';
+                          e.currentTarget.style.color = 'var(--terracotta-strong)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--stone)';
+                        }}
                         style={{
                           flex: 'none',
                           width: 28,

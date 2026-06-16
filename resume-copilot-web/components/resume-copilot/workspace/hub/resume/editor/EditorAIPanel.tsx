@@ -369,26 +369,25 @@ export function EditorAIPanel({
   // 从历史彻底删除一段会话:移出 convos + 打开集合;激活则切到其它打开 tab;永不删到 0。
   const deleteConvo = useCallback((id: number) => {
     setConvos((cs) => {
-      const remaining = cs.filter((c) => c.id !== id);
-      setOpenTabIds((ot) => {
-        let nextOpen = ot.filter((x) => x !== id);
-        let nextActive = openRef.current.activeTabId === id ? nextOpen[nextOpen.length - 1] : openRef.current.activeTabId;
-        if (remaining.length === 0) {
-          // 删光了 → 立刻补一个空白对话(永不 0)。
-          const fresh: Convo = { id: nextId.current++, messages: [], updatedAt: new Date().toISOString() };
-          remaining.push(fresh);
-          nextOpen = [fresh.id];
-          nextActive = fresh.id;
-        } else if (nextOpen.length === 0) {
-          nextOpen = [remaining[remaining.length - 1].id];
-          nextActive = nextOpen[0];
-        }
-        openRef.current = { openTabIds: nextOpen, activeTabId: nextActive };
-        setActiveTabId(nextActive);
-        return nextOpen;
-      });
-      persistConvos(remaining, true);
-      return remaining;
+      let result = cs.filter((c) => c.id !== id);
+      let nextOpen = openRef.current.openTabIds.filter((x) => x !== id);
+      let nextActive =
+        openRef.current.activeTabId === id ? nextOpen[nextOpen.length - 1] : openRef.current.activeTabId;
+      if (result.length === 0) {
+        // 删光了 → 立刻补一个空白对话(永不 0)。
+        const fresh: Convo = { id: nextId.current++, messages: [], updatedAt: new Date().toISOString() };
+        result = [...result, fresh];
+        nextOpen = [fresh.id];
+        nextActive = fresh.id;
+      } else if (nextOpen.length === 0) {
+        nextOpen = [result[result.length - 1].id];
+        nextActive = nextOpen[0];
+      }
+      openRef.current = { openTabIds: nextOpen, activeTabId: nextActive };
+      setOpenTabIds(nextOpen);
+      setActiveTabId(nextActive);
+      persistConvos(result, true);
+      return result;
     });
     consumeSeed(id);
     consumeQuote(id);
