@@ -14,6 +14,7 @@ from app.models import (
     ResumeCopilotSession,
     ResumeDirectionAnalysisRun,
     ResumeCopilotMessage,
+    ResumeFeedbackRun,
     ResumeParsedProfile,
     ResumePreferenceProfile,
     ResumeRecommendationRun,
@@ -48,6 +49,7 @@ from app.schemas_resume_copilot import (
     ResumeCopilotSessionCreatedOut,
     ResumeCopilotSessionListItem,
     ResumeCopilotSessionOut,
+    ResumeFeedbackResultOut,
     ResumeGenerateOut,
     ResumePreferenceIn,
     ResumeJobModeOut,
@@ -797,6 +799,52 @@ def get_score_task_status(
     session = _get_session_or_404(db, session_id)
     _assert_session_owner(session, x_resume_user_key)
     return {"session_id": session_id, **_score_task_mod.get_task_snapshot(session_id)}
+
+
+@router.get('/sessions/{session_id}/feedback', response_model=ResumeFeedbackResultOut)
+def get_resume_feedback(
+    session_id: int,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> ResumeFeedbackResultOut:
+    """整体反馈读接口(诊断 + 改写示例)。
+
+    此前后端没注册这个路由 → 前端请求落到 Next catch-all 返首页 HTML, 调用方
+    `JSON.parse(<!DOCTYPE html>)` 炸。现在返干净 JSON: 有反馈 run 就回它的内容,
+    没有就回 status(取 session.feedback_status)+ 空诊断/改写, 让前端诚实显示
+    "暂无整体反馈"而不是崩。
+    """
+    session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
+    run = (
+        db.query(ResumeFeedbackRun)
+        .filter(ResumeFeedbackRun.session_id == session_id)
+        .first()
+    )
+    if run is None:
+        sess_status = str(getattr(session, 'feedback_status', '') or 'pending')
+        return ResumeFeedbackResultOut(
+            session_id=session_id,
+            status=sess_status if sess_status else 'pending',
+            error_message='',
+            diagnostics=[],
+            rewrite_examples=[],
+        )
+    try:
+        diagnostics = json.loads(str(getattr(run, 'diagnostics_json', '[]') or '[]'))
+    except json.JSONDecodeError:
+        diagnostics = []
+    try:
+        rewrite_examples = json.loads(str(getattr(run, 'rewrite_examples_json', '[]') or '[]'))
+    except json.JSONDecodeError:
+        rewrite_examples = []
+    return ResumeFeedbackResultOut(
+        session_id=session_id,
+        status=str(getattr(run, 'status', '') or 'pending'),
+        error_message=str(getattr(run, 'error_message', '') or ''),
+        diagnostics=diagnostics,
+        rewrite_examples=rewrite_examples,
+    )
 
 
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)

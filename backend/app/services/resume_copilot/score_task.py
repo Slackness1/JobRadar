@@ -15,9 +15,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import threading
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app import config
 from app.database import SessionLocal
@@ -27,6 +29,36 @@ from app.schemas_resume_copilot import (
 )
 
 logger = logging.getLogger(__name__)
+
+# 完成的报告除了留进程内存, 再落一份磁盘缓存(与情报卡 data/_intel_cache 同套路):
+# 进程内存重启即丢 → 学生刷新/服务重启后打分结果消失、得重打一遍(烧 LLM+等 40s)。
+# 磁盘缓存让 done 报告跨重启存活、单机多请求共享; 仍是可重算派生数据, 不进 DB schema
+# (避免与其它会话 WIP migration 抢 alembic head)。
+_CACHE_DIR = str(Path(__file__).resolve().parents[3] / "data" / "_score_cache")
+
+
+def _cache_path(session_id: int) -> str:
+    return os.path.join(_CACHE_DIR, f"{int(session_id)}.json")
+
+
+def _save_cached(session_id: int, report: dict) -> None:
+    try:
+        os.makedirs(_CACHE_DIR, exist_ok=True)
+        with open(_cache_path(session_id), "w", encoding="utf-8") as f:
+            json.dump(report, f, ensure_ascii=False)
+    except Exception as exc:  # noqa: BLE001 — 缓存写失败不该影响打分主流程
+        logger.warning("score cache write failed for session %s: %s", session_id, exc)
+
+
+def _load_cached(session_id: int) -> dict | None:
+    try:
+        with open(_cache_path(session_id), encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("score cache read failed for session %s: %s", session_id, exc)
+        return None
 
 # 后台路径放宽 LLM 超时: 同步时代 90s 超时砍掉了 ~一半本可成功的打分(实测 75-90s);
 # 现在没有浏览器连接在等, 多等一会儿换成功率是纯赚。
@@ -64,12 +96,21 @@ _tasks: dict[int, ScoreTask] = {}
 _lock = threading.Lock()
 
 
+def _done_snapshot_from_report(report: dict) -> dict:
+    return {"status": "done", "stage": "done", "elapsed_seconds": None, "report": report, "error": ""}
+
+
 def get_task_snapshot(session_id: int) -> dict:
     with _lock:
         task = _tasks.get(session_id)
-    if task is None:
-        return {"status": "none", "stage": "", "elapsed_seconds": None, "report": None, "error": ""}
-    return task.snapshot()
+    if task is not None:
+        return task.snapshot()
+    # 进程内存没有(从没跑过, 或重启清掉了) → 回落磁盘缓存, 让 done 报告跨重启存活,
+    # 不再"刷新即 none / 得重打"。缓存也没有才是真 none。
+    cached = _load_cached(session_id)
+    if cached is not None:
+        return _done_snapshot_from_report(cached)
+    return {"status": "none", "stage": "", "elapsed_seconds": None, "report": None, "error": ""}
 
 
 def start_score_task(
@@ -95,6 +136,16 @@ def start_score_task(
                 return existing.snapshot()
             if existing.status == "done" and not force:
                 return existing.snapshot()
+        # 内存里没有 done 任务但磁盘有缓存(重启后) → 非 force 直接复用, 不再重打 LLM。
+        if existing is None and not force:
+            cached = _load_cached(session_id)
+            if cached is not None:
+                task = ScoreTask(
+                    session_id=session_id, status="done", stage="done",
+                    report=cached, finished_at=time.time(),
+                )
+                _tasks[session_id] = task
+                return task.snapshot()
         task = ScoreTask(session_id=session_id)
         _tasks[session_id] = task
 
@@ -165,6 +216,7 @@ def _run(
         }
         task.status = "done"
         task.stage = "done"
+        _save_cached(task.session_id, task.report)  # 落磁盘 → 跨重启存活, 不必重打
     except Exception as exc:  # noqa: BLE001 — 任务边界, 失败要落成可轮询的诚实状态
         logger.warning("score task failed for session %s: %s", task.session_id, exc)
         task.status = "failed"
@@ -177,3 +229,10 @@ def _run(
 def _reset_for_tests() -> None:
     with _lock:
         _tasks.clear()
+    # 清磁盘缓存, 保证各测试隔离(否则上个测试给 session 1 写的报告会被下个测试读到)。
+    try:
+        for fn in os.listdir(_CACHE_DIR):
+            if fn.endswith(".json"):
+                os.remove(os.path.join(_CACHE_DIR, fn))
+    except FileNotFoundError:
+        pass
