@@ -5459,6 +5459,40 @@
   box-shadow: none;
 }
 
+/* feed↕情报 中间分隔条: 明显可见 + 可上下拖拽(row-resize) + 中间抓握指示。 */
+.hub-feed__split-handle {
+  flex: none;
+  height: 12px;
+  cursor: row-resize;
+  background: var(--ivory);
+  border-top: 1px solid var(--border-warm);
+  border-bottom: 1px solid var(--border-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  transition: background 120ms;
+}
+
+.hub-feed__split-handle::before {
+  content: '';
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--stone);
+  opacity: 0.55;
+  transition: background 120ms, opacity 120ms;
+}
+
+.hub-feed__split-handle:hover {
+  background: var(--terracotta-wash);
+}
+
+.hub-feed__split-handle:hover::before {
+  background: var(--terracotta);
+  opacity: 1;
+}
+
 /* 右栏 tab 左缘拖拽手柄 (CanvasSlot)。 */
 .hub-canvas__resize-handle {
   position: absolute;

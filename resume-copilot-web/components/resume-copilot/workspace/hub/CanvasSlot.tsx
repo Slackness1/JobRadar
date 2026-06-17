@@ -98,9 +98,49 @@ function FeedWithIntel({ feedProps }: { feedProps: RecommendFeedPaneProps }) {
   const [intelJob, setIntelJob] = useState<{ company: string; jobId: string } | null>(
     null,
   );
+  // 情报区高度占比(%),可拖中间分隔条上下调整,落 localStorage 记住。
+  const SPLIT_KEY = 'hub.intelSplitPct';
+  const [intelPct, setIntelPct] = useState<number>(() => {
+    if (typeof window === 'undefined') return 58;
+    const n = Number(window.localStorage.getItem(SPLIT_KEY));
+    return Number.isFinite(n) && n >= 20 && n <= 85 ? n : 58;
+  });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+
+  function startSplitDrag(e: React.PointerEvent) {
+    e.preventDefault();
+    draggingRef.current = true;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: PointerEvent) => {
+      const el = containerRef.current;
+      if (!draggingRef.current || !el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.height <= 0) return;
+      // 情报区在下方:从底边量到指针 = 情报区高度。
+      let pct = ((rect.bottom - ev.clientY) / rect.height) * 100;
+      pct = Math.max(20, Math.min(85, pct));
+      setIntelPct(pct);
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setIntelPct((p) => {
+        window.localStorage.setItem(SPLIT_KEY, String(Math.round(p)));
+        return p;
+      });
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
 
   return (
     <div
+      ref={containerRef}
       style={{
         flex: 1,
         minHeight: 0,
@@ -111,37 +151,52 @@ function FeedWithIntel({ feedProps }: { feedProps: RecommendFeedPaneProps }) {
       }}
     >
       {/* 上半:岗位推荐 feed —— 拦截 onIntel,只设本地态,不进对话。
-          情报展开时让出空间(占 ~42%),收起时占满。 */}
-      <div style={{ flex: intelJob ? '1 1 42%' : 1, minHeight: 0, overflow: 'auto' }}>
+          情报展开时按 intelPct 让出空间,收起时占满。 */}
+      <div
+        style={{
+          flex: intelJob ? `1 1 ${100 - intelPct}%` : 1,
+          minHeight: 0,
+          overflow: 'auto',
+        }}
+      >
         <RecommendFeedPane
           {...feedProps}
           onIntel={(company, jobId) => setIntelJob({ company, jobId })}
         />
       </div>
 
-      {/* 下半:就地结构化情报卡(IntelDrawer)。占满 feed 之下的全部剩余高度,
-          情报内容在抽屉内部自滚(头部固定),不再是底部一小块被截。空时留极淡提示。 */}
       {intelJob ? (
-        <div
-          className="hub-feed__intel-fill"
-          style={{
-            flex: '1 1 58%',
-            minHeight: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            borderTop: '1px solid var(--border-warm)',
-            overflow: 'hidden',
-            background: 'var(--parchment)',
-          }}
-        >
-          <IntelDrawer
-            key={intelJob.jobId}
-            companyName={intelJob.company}
-            jobKey={intelJob.jobId}
-            onClose={() => setIntelJob(null)}
-            hideFooter
+        <>
+          {/* 中间分隔条:既是明显分隔、又可上下拖拽调情报区高矮。 */}
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            aria-label="拖拽调整情报区高度"
+            title="拖拽调整情报区高度"
+            onPointerDown={startSplitDrag}
+            className="hub-feed__split-handle"
           />
-        </div>
+          {/* 下半:就地结构化情报卡(IntelDrawer),按 intelPct 占高,抽屉内部自滚(头部固定)。 */}
+          <div
+            className="hub-feed__intel-fill"
+            style={{
+              flex: `1 1 ${intelPct}%`,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              background: 'var(--parchment)',
+            }}
+          >
+            <IntelDrawer
+              key={intelJob.jobId}
+              companyName={intelJob.company}
+              jobKey={intelJob.jobId}
+              onClose={() => setIntelJob(null)}
+              hideFooter
+            />
+          </div>
+        </>
       ) : (
         <div
           style={{
