@@ -154,6 +154,47 @@ def _clamp(v, lo: int = 0, hi: int = 100) -> int:
     return max(lo, min(hi, iv))
 
 
+def _real_experience_sections(profile: ResumeProfilePayload) -> list[tuple[str, str]]:
+    """简历里真实存在的实质经历 → [(section_anchor, 显示名)]。
+
+    顺序与 LLM section_gaps 期望的定位一致 (internships.{i} / projects.{i})。
+    只收非空段, 给逐段缺口回填 / 骨架兜底当合法锚点用。
+    """
+    out: list[tuple[str, str]] = []
+    for i, it in enumerate(getattr(profile, "internships", None) or []):
+        comp = str(getattr(it, "company", "") or "").strip()
+        role = str(getattr(it, "role", "") or "").strip()
+        if comp or role or (getattr(it, "bullets", None) or []):
+            label = "·".join([x for x in (comp, role) if x]) or f"实习 {i + 1}"
+            out.append((f"internships.{i}", label))
+    for i, pj in enumerate(getattr(profile, "projects", None) or []):
+        name = str(getattr(pj, "name", "") or "").strip()
+        if name or (getattr(pj, "bullets", None) or []):
+            out.append((f"projects.{i}", name or f"项目 {i + 1}"))
+    return out
+
+
+def _skeleton_section_gaps(
+    real: list[tuple[str, str]], target_track: str
+) -> list["SectionGap"]:
+    """LLM 没给逐段缺口时, 按真实经历铺一份诚实骨架 —— 保证编辑器「去深度优化这段」
+    逐段入口永远在。只点通用、对每段都成立的可补证据维度, **不编造**任何内容。
+    """
+    tgt = target_track or "目标赛道"
+    return [
+        SectionGap(
+            section=sec,
+            label=label,
+            gaps=["量化结果缺失", "业务/资金体量未提", "方法与工具太笼统", f"与{tgt}关联待补强"],
+            detail=(
+                "这段还没生成逐段诊断。可在深度优化里逐条补齐: 可量化的结果、"
+                f"业务或资金体量、具体方法与工具、以及与{tgt}的关联点 —— 据实补充, 不编造。"
+            ),
+        )
+        for sec, label in real
+    ]
+
+
 def score_resume(
     db: Session,
     profile: ResumeProfilePayload,
@@ -201,16 +242,30 @@ def score_resume(
     if high < low:
         high = low
 
+    # 保留有实质内容的逐段缺口: 原来要求 section 非空 → LLM 偶尔漏写 section 字段时
+    # 整条被静默丢弃 (CDC 跨赛道低分那次 section_gaps=[] 的直接原因)。改成: 有 section
+    # 或有 gaps/detail 就先收, section 缺失再用真经历锚点回填。
     section_gaps = [
         SectionGap(
-            section=str(g.get('section', '') or ''),
+            section=str(g.get('section', '') or '').strip(),
             label=str(g.get('label', '') or ''),
             gaps=[str(x) for x in (g.get('gaps') or []) if str(x).strip()],
             detail=str(g.get('detail', '') or ''),
         )
         for g in (raw.get('section_gaps') or [])
         if str(g.get('section', '') or '').strip()
+        or (g.get('gaps') or g.get('detail'))
     ]
+    real_sections = _real_experience_sections(profile)
+    for i, sg in enumerate(section_gaps):
+        if not sg.section:
+            sg.section = real_sections[i][0] if i < len(real_sections) else f'experience.{i}'
+            if not sg.label and i < len(real_sections):
+                sg.label = real_sections[i][1]
+    # 兜底: LLM 完全没给逐段缺口(非确定性偶发省略), 但简历有实质经历 → 按真经历铺骨架,
+    # 保证「去深度优化这段」逐段入口不消失 (诚实占位, 不编造)。
+    if not section_gaps and real_sections:
+        section_gaps = _skeleton_section_gaps(real_sections, target_track)
 
     return ScoreReport(
         target_track=target_track,
