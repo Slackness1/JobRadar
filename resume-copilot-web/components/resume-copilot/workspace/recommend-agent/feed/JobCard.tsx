@@ -113,7 +113,7 @@ export function JobCard({
       {deep && anchors.length > 0 && (
         <div className="recommend-feed__anchors">
           <div className="hf-overline recommend-feed__anchors-title">
-            为什么匹配 · 4 个理由
+            为什么匹配 · {anchors.length} 个理由
           </div>
           {anchors.map(([label, text], i) => (
             <div key={`${label}-${i}`} className="recommend-feed__anchor">
