@@ -119,3 +119,73 @@ def subcats_for_tracks(tracks: list[str]) -> list[str]:
                 seen.add(sc)
                 out.append(sc)
     return out
+
+
+def _real_sub_cat_vocab() -> list[str]:
+    """库内真 sub_category 全集(canonical taxonomy)。"""
+    try:
+        from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
+        return [c for c in SUBCAT_TO_STRATEGY.keys() if c]
+    except Exception:
+        # 兜底:用 track→subcat 表的并集
+        return subcats_for_tracks(list(CANONICAL_TRACK_TO_SUBCATS.keys()))
+
+
+def expand_labels_to_sub_cats(labels: list[str]) -> list[str]:
+    """学生口语赛道词(可能是伞词/粗词/别名)→ 库内真 sub_category 集合(去重保序)。
+
+    召回是按 `Job.sub_category` 精确字面匹配 60 个真赛道; 但 NL 意图器吐的是"投研/量化/
+    研究员"这类口语词, 一个都对不上 → 空 feed。这层把口语词对齐到真赛道:
+      1. 已是真 sub_cat → 原样保留;
+      2. 伞词/canonical track 名/别名 → expand_track_to_canonicals → CANONICAL_TRACK_TO_SUBCATS;
+      3. 子串兜底:label 是某真 sub_cat 的子串(如"量化研究员"→"量化研究员·中频/·高频");
+      4. 实在展不开 → 原样保留(走 exact, 匹配不到也不崩, 不污染)。
+    """
+    from app.services.taxonomy.canonical import expand_track_to_canonicals
+
+    vocab = _real_sub_cat_vocab()
+    vocab_set = set(vocab)
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def _add(sc: str) -> None:
+        if sc and sc not in seen:
+            seen.add(sc)
+            out.append(sc)
+
+    import re
+
+    def _variants(s: str) -> list[str]:
+        # 口语后缀归一:投研岗/投研方向/投研岗位/投研类 → 也试"投研"
+        v = [s]
+        stripped = re.sub(r"(岗位|岗|方向|类|的)+$", "", s).strip()
+        if stripped and stripped != s:
+            v.append(stripped)
+        return v
+
+    for raw in (labels or []):
+        lab = (raw or "").strip()
+        if not lab:
+            continue
+        if lab in vocab_set:           # 1. 已是真 sub_cat
+            _add(lab)
+            continue
+        hit = False
+        for form in _variants(lab):    # 2. 伞词/track/别名 → 真 sub_cat(含后缀归一)
+            for canon in expand_track_to_canonicals(form):
+                for sc in CANONICAL_TRACK_TO_SUBCATS.get(canon, []):
+                    _add(sc)
+                    hit = True
+            if hit:
+                break
+        if not hit:                     # 3. 子串兜底("量化研究员" → "量化研究员·中频")
+            for form in _variants(lab):
+                for sc in vocab:
+                    if form and form in sc:
+                        _add(sc)
+                        hit = True
+                if hit:
+                    break
+        if not hit:                     # 4. 展不开, 原样保留
+            _add(lab)
+    return out

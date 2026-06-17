@@ -173,7 +173,10 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
     from app.services.phase_g.recommendation_v2 import recall as _recall, scoring as _scoring
     from app.services.resume_copilot.recommendation import _v2_items_from_ranked
 
-    eff = query.effective_sub_cats()
+    # 把学生口语赛道词(投研/量化/研究员…)对齐到库内 60 个真 sub_category,
+    # 否则精确字面召回恒空(修推荐线 handoff P0-1:粗词→真赛道展开层缺失)。
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    eff = expand_labels_to_sub_cats(query.effective_sub_cats())
     jobs = _recall.recall_candidates(
         db,
         eff,
@@ -182,7 +185,7 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
     )
     profile = _scoring.StudentProfile(
         preferred_sub_cats=eff,
-        confirmed_sub_cats=list(query.seed_sub_cats),
+        confirmed_sub_cats=expand_labels_to_sub_cats(list(query.seed_sub_cats)),
     )
     ranked = _scoring.rank_jobs(profile, jobs)  # [(job, score 0-1), ...]
     # 桶内排序质量先验(support 沉底 + GT 平台浮顶), 与旧 generate 慢路共用同一函数。
