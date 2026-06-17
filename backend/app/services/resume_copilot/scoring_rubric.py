@@ -33,8 +33,11 @@ DIMENSIONS: list[dict] = [
     },
     {
         'key': 'completeness', 'name': '内容完整',
-        'high_signal': '教育/经历/技能要素齐全,关键信息不缺',
-        'low_signal': '缺联系方式、缺时间、经历只有标题没内容',
+        # 注:打分前 redact_profile_for_llm 会抹掉电话/邮箱等联系方式(隐私),
+        # 评审根本看不到联系方式 → 这里**不得**把"缺联系方式"当低分信号,
+        # 否则对每份简历恒误报(轮次9 实测 profile 实有 phone+email 仍被扣"缺联系方式")。
+        'high_signal': '教育/经历/技能要素齐全,时间线完整,关键信息不缺',
+        'low_signal': '缺时间线、经历只有标题没内容、关键段落留空',
     },
     {
         'key': 'expression', 'name': '专业表达',

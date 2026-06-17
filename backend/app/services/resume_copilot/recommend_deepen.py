@@ -38,6 +38,30 @@ def _resolve_query(db, session):
         return WorkingQuery()
 
 
+def _persisted_run_items(db, session) -> list:
+    """读已落库的推荐 run.recommendations_json, 转成 ResumeRecommendationItem(与
+    feed 同型)。深挖兜底用 —— 没有 run / 解析失败都安静返空, 绝不抛。"""
+    try:
+        from app.models import ResumeRecommendationRun
+        from app.schemas_resume_copilot import ResumeRecommendationItem
+
+        sid = getattr(session, "id", None)
+        if sid is None:
+            return []
+        run = (
+            db.query(ResumeRecommendationRun)
+            .filter(ResumeRecommendationRun.session_id == sid)
+            .first()
+        )
+        if run is None:
+            return []
+        raw = getattr(run, "recommendations_json", "[]") or "[]"
+        return [ResumeRecommendationItem.model_validate(d) for d in json.loads(raw)]
+    except Exception:  # noqa: BLE001
+        logger.warning("deepen: load persisted run items failed", exc_info=True)
+        return []
+
+
 def deepen_jobs(db, session, job_ids: list[str]) -> list[dict]:
     """对 job_ids 跑 Pro 精排 + 4-anchor 理由。永不抛出, 失败回落规则 item。"""
     if not job_ids:
@@ -49,13 +73,23 @@ def deepen_jobs(db, session, job_ids: list[str]) -> list[dict]:
         feed = search_candidates(db, q, limit=60)
     except Exception:  # noqa: BLE001
         logger.warning("deepen: search_candidates failed", exc_info=True)
-        return []
+        feed = []
 
     def jid(it: Any) -> Any:
         return it.get("job_id") if isinstance(it, dict) else getattr(it, "job_id", None)
 
     wanted = {str(x) for x in job_ids}
     targets = [it for it in feed if str(jid(it)) in wanted]
+    # 兜底: 学生要深挖的岗若不在重搜的 feed 里(被多样性限流踢掉 / 查询已漂移),
+    # 回落到已落库的推荐 run —— 凡是"曾经展示过的岗"都该能深挖, 不能恒空
+    # (轮次9: 只对话的新用户深挖恒返空)。
+    if len(targets) < len(wanted):
+        found = {str(jid(it)) for it in targets}
+        for it in _persisted_run_items(db, session):
+            j = str(jid(it))
+            if j in wanted and j not in found:
+                targets.append(it)
+                found.add(j)
     if not targets:
         return []
     try:
