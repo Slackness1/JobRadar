@@ -2566,6 +2566,7 @@ class WorkingQueryUpdateIn(_BaseModel):
 def recommend_chat(
     session_id: int,
     payload: RecommendChatIn,
+    background_tasks: BackgroundTasks,
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -2577,7 +2578,66 @@ def recommend_chat(
     _assert_not_demo(session)  # 写 working_query_json → 是写操作
     out = run_recommend_turn(db=db, session=session, message=payload.message)
     db.commit()
+    # 只对话、从没点"生成"的新用户从来没人给他跑方向分析 → /direction-analysis 永远空、
+    # 深度优化对话 409(DIRECTION_ANALYSIS_NOT_READY)。一旦本轮真出了 feed 且还没有
+    # 完成态的方向分析, 就后台补跑一次(幂等, 每会话只跑一次, 不拖慢对话响应)。
+    if out.get("feed"):
+        existing = db.query(ResumeDirectionAnalysisRun).filter(
+            ResumeDirectionAnalysisRun.session_id == session_id
+        ).first()
+        if not existing or str(getattr(existing, 'status', '')) != RunStatus.COMPLETED.value:
+            background_tasks.add_task(_dispatch_direction_analysis, session_id=session_id)
     return out
+
+
+def _dispatch_direction_analysis(*, session_id: int) -> None:
+    """BackgroundTasks 入口: 给只走对话的会话补跑方向分析。自开 SessionLocal
+    (请求 session 此时已关), 幂等(已有完成态直接返回), 错误全吞不外泄。"""
+    import logging
+    from app.database import SessionLocal
+    from app.services.resume_copilot.direction_analysis import generate_direction_analysis
+    from app.services.llm_quota import set_current_user_key, reset_current_user_key
+
+    db = SessionLocal()
+    _quota_token = None
+    try:
+        sess = db.query(ResumeCopilotSession).filter(
+            ResumeCopilotSession.id == session_id
+        ).first()
+        if sess is None:
+            return
+        _quota_token = set_current_user_key(str(getattr(sess, 'user_key', '') or ''))
+        run = db.query(ResumeDirectionAnalysisRun).filter(
+            ResumeDirectionAnalysisRun.session_id == session_id
+        ).first()
+        if run is not None and str(getattr(run, 'status', '')) == RunStatus.COMPLETED.value:
+            return  # 已有完成态, 幂等跳过
+        if run is None:
+            run = ResumeDirectionAnalysisRun(session_id=session_id)
+            db.add(run)
+        run.status = RunStatus.RUNNING.value
+        run.error_message = ''
+        run.updated_at = datetime.utcnow()
+        db.commit()
+
+        profile, preferences = _load_profile_and_prefs(db, session_id)
+        results = generate_direction_analysis(profile, preferences)
+        run.directions_json = json.dumps([r.model_dump() for r in results], ensure_ascii=False)
+        run.status = RunStatus.COMPLETED.value
+        run.updated_at = datetime.utcnow()
+        db.commit()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "lazy direction-analysis failed for session_id=%s", session_id
+        )
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    finally:
+        db.close()
+        if _quota_token is not None:
+            reset_current_user_key(_quota_token)
 
 
 @router.get('/sessions/{session_id}/working-query')

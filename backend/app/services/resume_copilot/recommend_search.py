@@ -159,12 +159,35 @@ def _apply_company_pref(feed: list, companies: list[str], only: bool) -> list:
     return preferred + rest  # 置顶, 保留其余(不藏岗)
 
 
+def _rule_why(it: Any) -> list[str]:
+    """规则版"为什么推荐"——快路不调 LLM, 但学生仍需要一句对口理由,
+    不能让推荐卡的"为什么推荐我"全空(轮次9 反馈: strengths 空 + used_ai=False
+    → 看不到推荐缘由)。只用规则已知字段拼, 诚实不编造(不碰简历内容)。"""
+    tier = str(getattr(it, "tier_label", "") or "")
+    track = str(getattr(it, "matched_track_label", "") or "")
+    kind = str(getattr(it, "track_match_kind", "") or "")
+    why: list[str] = []
+    if track and kind in ("hit", "null_hit"):
+        why.append(f"命中你关注的「{track}」赛道")
+    elif track and kind == "transferable":
+        why.append(f"可迁移到「{track}」方向")
+    elif track:
+        why.append(f"与「{track}」相关")
+    if tier:
+        why.append(f"匹配度:{tier}")
+    return why
+
+
 def _tag_rule_item(it: Any) -> Any:
     """标注本条是纯规则产出: used_ai=False, enhanced_score 不超过规则 base 分。
     base_match_score(0-100, 规则分)已由 _v2_items_from_ranked 填好, 这里只保证
-    没有任何 AI 增强痕迹遗留。"""
+    没有任何 AI 增强痕迹遗留 + 给空的"为什么推荐"补一句规则版兜底。"""
     setattr(it, "used_ai", False)
     setattr(it, "enhanced_score", getattr(it, "base_match_score", 0))
+    if not getattr(it, "why_recommended", None) and not getattr(it, "strengths", None):
+        why = _rule_why(it)
+        if why:
+            setattr(it, "why_recommended", why)
     return it
 
 
@@ -214,6 +237,31 @@ def search_candidates(db: Session, query: WorkingQuery, *, limit: int = 40) -> l
     ]
     items = _v2_items_from_ranked(ranked_dicts, eff, None)
     items = [_tag_rule_item(it) for it in items]
+    items = _dedup_same_posting(items)
     items = _apply_exclude(items, query.exclude)
     items = _apply_company_pref(items, query.companies, query.only)
     return items[:limit]
+
+
+def _dedup_same_posting(items: list) -> list:
+    """同一岗位被两个源抓到 → 两个不同 job_id、同公司同岗位名, feed 里重复出现
+    (轮次9 实测:浙商证券·系统运营专员 连出两次)。按 (公司, 归一岗位名) 去重,
+    保留先出现的那条(已按分降序, 即保高分)。job_id 单独去重一并做掉。"""
+    seen_jid: set = set()
+    seen_posting: set = set()
+    out = []
+    for it in items:
+        jid = str(getattr(it, "job_id", "") or "")
+        if jid and jid in seen_jid:
+            continue
+        company = str(getattr(it, "company", "") or "").strip().lower()
+        title = "".join(str(getattr(it, "job_title", "") or "").split()).lower()
+        key = (company, title)
+        if company and title and key in seen_posting:
+            continue
+        if jid:
+            seen_jid.add(jid)
+        if company and title:
+            seen_posting.add(key)
+        out.append(it)
+    return out

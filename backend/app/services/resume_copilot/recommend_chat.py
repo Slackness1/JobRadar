@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime
 
 from app.services.resume_copilot.working_query import WorkingQuery, apply_delta
 from app.services.resume_copilot.recommend_intent import parse_intent
@@ -143,6 +144,10 @@ def run_recommend_turn(*, db, session, message: str, client=None) -> dict:
         except Exception:
             logger.warning("recommend_chat: persist working_query failed", exc_info=True)
         feed = search_candidates(db, q)
+        # 把对话推出来的 feed 落库到 ResumeRecommendationRun —— 否则只聊天、从没点
+        # "生成"的新用户(轮次9 的 B/C persona)GET /recommendations 恒 404、深挖恒空、
+        # 方向分析永远没数据。落库后这条链就活了。详见 _persist_feed_to_run。
+        _persist_feed_to_run(db, session, feed)
 
     rem = parsed.get("remember")
     remembered = None
@@ -172,6 +177,53 @@ def run_recommend_turn(*, db, session, message: str, client=None) -> dict:
         "trace": trace,
         "remembered": remembered,
     }
+
+
+def _persist_feed_to_run(db, session, feed) -> None:
+    """把 chat feed 落到 ResumeRecommendationRun.recommendations_json。
+
+    守一条不回归的铁律: **绝不覆盖 generate 跑出的 AI 精排结果**(used_ai=1 +
+    completed)—— 那批带 4-anchor 叙事, Hub 推荐面板靠它。只在"无 run / run 不是
+    AI 完成态"时写, 正好覆盖真正的受害者(只对话、从没 generate 过的新用户)。
+    feed 形状即 ResumeRecommendationItem, model_dump 后可被 GET 端点原样 re-validate。
+    """
+    if not feed or db is None:
+        return
+    from app.models import ResumeRecommendationRun
+    from app.services.resume_copilot.state import RunStatus
+
+    sid = getattr(session, "id", None)
+    if sid is None:
+        return
+    run = (
+        db.query(ResumeRecommendationRun)
+        .filter(ResumeRecommendationRun.session_id == sid)
+        .first()
+    )
+    if run is not None and int(getattr(run, "used_ai", 0) or 0) == 1 \
+            and str(getattr(run, "status", "")) == RunStatus.COMPLETED.value:
+        return  # 保护 generate 的 AI 精排结果, 不被规则版 feed 覆盖
+    try:
+        payload = json.dumps(
+            [it if isinstance(it, dict) else it.model_dump() for it in feed],
+            ensure_ascii=False,
+        )
+    except Exception:
+        logger.warning("recommend_chat: serialize feed for run failed", exc_info=True)
+        return
+    if run is None:
+        run = ResumeRecommendationRun(session_id=sid)
+        db.add(run)
+    run.status = RunStatus.COMPLETED.value
+    run.used_ai = 0
+    run.error_message = ""
+    run.fallback_reason = ""
+    run.recommendations_json = payload
+    run.updated_at = datetime.utcnow()
+    try:
+        session.recommendation_status = RunStatus.COMPLETED.value
+    except Exception:
+        pass
 
 
 def _remember_note(rem, remembered) -> str:
