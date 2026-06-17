@@ -15,8 +15,10 @@ from app.services.resume_copilot.recommend_search import search_candidates
 
 logger = logging.getLogger(__name__)
 
-# 触发重排(检索)的 intent —— 改动了工作查询才重跑召回。
-_RERANK_INTENTS = ("refine", "company_focus")
+# 触发重排(检索)的 intent —— 起跑推荐 / 改动工作查询都重跑召回。
+# recommend = 学生直接要一批推荐(首轮/换一批),即使没新增筛选也要从种子查询召回出 feed,
+# 否则会掉进 chitchat 空屏(修 P0-1:NL 起不了推荐)。
+_RERANK_INTENTS = ("recommend", "refine", "company_focus")
 
 
 def _load_query(db, session) -> WorkingQuery:
