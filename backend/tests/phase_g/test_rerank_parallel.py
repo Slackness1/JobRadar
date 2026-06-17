@@ -52,3 +52,21 @@ def test_rerank_top_n_beyond_n_skips_llm(monkeypatch):
 
 def test_rerank_top_n_empty():
     assert R.rerank_top_n({}, [], n=10) == []
+
+
+def test_non_reranked_placeholder_is_0_6_base_and_blank_reason(monkeypatch):
+    """未进精排的占位分 = 0.6×base(原 0.3×base 太低会被 50 地板清空), reasoning 留空
+    不泄漏成卡片优势。"""
+    jobs = [(_job(f"j{i}"), 0.8) for i in range(4)]
+
+    monkeypatch.setattr(
+        R, "rerank_one",
+        lambda profile, job: {"score": 90, "reasoning": "r",
+                              "kb_available": True, "data_confidence": None},
+    )
+    out = R.rerank_top_n({}, jobs, n=2)
+    non = [o for o in out if o["llm_score"] is None]
+    assert len(non) == 2
+    for o in non:
+        assert abs(o["final_score"] - 0.6 * 0.8) < 1e-9   # 0.48, 能越过 0.5 地板的对口岗豁免后存活
+        assert o["llm_reasoning"] == ""                     # 不泄漏占位文案

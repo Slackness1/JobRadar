@@ -227,10 +227,14 @@ def rerank_top_n(
             final = 0.7 * (llm["score"] / 100) + 0.3 * base
         else:
             llm = {
-                "score": None, "reasoning": "(未进 top-n rerank)",
+                "score": None, "reasoning": "",
                 "kb_available": False, "data_confidence": None,
             }
-            final = 0.3 * base  # 未 rerank 的只给 30% base 分占位
+            # 未进精排: 给 0.6×base 占位(原 0.3×base 太低, 叠加 50 分地板会把"确认赛道的
+            # 对口岗"全军覆没 —— CDC 互联网→投研确认后只剩 4 个的根因之一)。占位分仍低于
+            # 精排区(精排另加 0.7×llm), 排在精排之后; 是否越过地板由 dispatcher 的"对口岗
+            # 豁免"决定, 不靠这里硬抬。reasoning 留空, 不让占位文案泄漏成卡片"优势"。
+            final = 0.6 * base
         out.append({
             "job": job,
             "base_score": base,

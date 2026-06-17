@@ -421,6 +421,19 @@ export function EditorScoreReportThick({
 
         {/* 逐段缺口 · 深度优化入口 */}
         <DimsLabel>逐段缺口 · 深度优化入口</DimsLabel>
+        {report.section_gaps.length === 0 && (
+          <div className="hf-card" style={{ padding: '14px 16px', boxShadow: 'var(--sh-whisper), var(--sh-ring)' }}>
+            <p style={{ margin: '0 0 12px', font: '400 13px/1.6 var(--font-sans)', color: 'var(--olive)' }}>
+              暂未识别到可逐段优化的实质经历。可直接进入深度优化对话，逐条补齐量化结果与赛道关联。
+            </p>
+            <button
+              className="hf-btn sand sm"
+              onClick={() => onOptimize({ section: '', label: '整体', gaps: [], detail: '' }, report.target_track)}
+            >
+              进入深度优化 →
+            </button>
+          </div>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {report.section_gaps.map((g, i) => (
             <div

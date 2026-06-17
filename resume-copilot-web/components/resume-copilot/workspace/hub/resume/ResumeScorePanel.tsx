@@ -208,6 +208,14 @@ export function ResumeScorePanel({
             </div>
           </div>
           <div className="hf-overline" style={{ marginBottom: 10 }}>逐段缺口 · 深度优化入口</div>
+          {report.section_gaps.length === 0 && (
+            <div style={{ borderRadius: 13, padding: '14px 13px', background: 'var(--ivory)', boxShadow: 'var(--sh-ring)' }}>
+              <div style={{ font: '400 11.5px/1.6 var(--font-sans)', color: 'var(--stone)', marginBottom: 10 }}>
+                暂未识别到可逐段优化的实质经历。可直接进入深度优化对话，逐条补齐量化结果与赛道关联。
+              </div>
+              <button className="hf-btn sand sm" style={{ height: 30 }} onClick={onExpandEditor}>进入深度优化 →</button>
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
             {report.section_gaps.map((g, i) => (
               <div key={i} style={{ borderRadius: 13, padding: '12px 13px', background: 'var(--ivory)', boxShadow: 'var(--sh-ring)' }}>

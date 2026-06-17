@@ -1323,9 +1323,11 @@ def _recommend_v2_dispatcher(
     ]
     prog.on_ranked(_v2_items_from_ranked(_prelim_src, preferred_sub_cats))
 
-    # Step 3: top-N LLM rerank (并发, n 收敛 20→10 减少 LLM 调用)
+    # Step 3: top-N LLM rerank (并发)。n=18: 原来只精排 10 个 → 只有这 10 个能拿真分、
+    # 跨赛道学生里仅 ~4 个过 50 地板 (CDC 实测 flat=4)。精排面铺到 18, 让更多对口岗拿到
+    # 真打分、合理过线, flat 列表填得起来 (并发 8 worker, ~2-3 批墙钟可控)。
     reranked = rerank_top_n(
-        profile_dict, ranked, n=min(10, len(ranked)),
+        profile_dict, ranked, n=min(18, len(ranked)),
         on_one=lambda done, total, reason: prog.on_rerank_one(done, total, reason),
     )
     selected = reranked[: max(effective_top_n, 10)]
@@ -1354,9 +1356,15 @@ def _recommend_v2_dispatcher(
 
     items = _v2_items_from_ranked(selected, preferred_sub_cats, narr_by_index)
 
-    # v1 有 min_score floor, v2 也保留同样语义 — 分 < min_score 滤掉
+    # v1 有 min_score floor, v2 也保留 —— 但「对口岗」(match_tier=="strong": 命中学生
+    # 确认/偏好的 sub_cat)豁免地板: 学生确认了赛道, 该赛道的岗就该看得见, 不能因为是
+    # 跨赛道背景导致 LLM fit 分偏低就被 50 地板清空 (修 CDC 互联网→投研确认后只剩 4 个的
+    # 根因)。transferable/explore(非对口)仍按地板筛, 防跑题噪声混进 feed。
     effective_min = RECOMMEND_MIN_SCORE if min_score is None else int(min_score)
-    items = [it for it in items if it.final_score >= effective_min]
+    items = [
+        it for it in items
+        if it.final_score >= effective_min or it.match_tier == "strong"
+    ]
     items = items[:effective_top_n]
     return items, True, ""
 

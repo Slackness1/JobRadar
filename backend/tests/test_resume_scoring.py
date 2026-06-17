@@ -166,3 +166,71 @@ def test_backend_ignores_llm_overall_and_fixes_ceiling(db_session):
     assert report.overall_potential_low == 50
     assert report.overall_potential_high == 53
     assert not hasattr(report, 'rewritten_resume')
+
+
+# ---- Task 6: section_gaps 鲁棒性 — 低分/跨赛道偶发空数组不再断逐段入口 ----
+
+def _dims_8(score=50):
+    return [
+        {'key': k, 'score': score, 'ceiling': score + 10, 'reason': ''}
+        for k in ['logic', 'star', 'readability', 'completeness',
+                  'expression', 'quantification', 'track_fit', 'defensibility']
+    ]
+
+
+class _NoSectionGapScorer:
+    """模拟 LLM 偶发省略 section_gaps(CDC 跨赛道低分那次的真实情形)。"""
+    def score(self, messages_payload):
+        return {'dimensions': _dims_8(35), 'summary': '跨赛道低分', 'section_gaps': []}
+
+
+def test_empty_section_gaps_falls_back_to_skeleton_per_experience(db_session):
+    """LLM 没给逐段缺口, 但简历有实习/项目 → 按真经历铺骨架, 入口不消失。"""
+    profile = ResumeProfilePayload(
+        internships=[{'company': '京东零售', 'role': '产品实习', 'bullets': ['做增长']}],
+        projects=[{'name': '志愿汇', 'bullets': ['用户运营']}],
+        inferred_tracks=['互联网产品'],
+    )
+    report = score_resume(
+        db_session, profile, target_track='公募权益研究员',
+        preferences=None, provider=_NoSectionGapScorer(),
+    )
+    # 两段实质经历 → 两条骨架逐段缺口, section 是合法锚点
+    secs = {sg.section for sg in report.section_gaps}
+    assert secs == {'internships.0', 'projects.0'}
+    assert all(sg.gaps for sg in report.section_gaps)        # 每段都有可补 tag
+    assert all('公募权益研究员' in sg.detail for sg in report.section_gaps)  # 对齐目标赛道
+
+
+def test_empty_section_gaps_and_no_experience_stays_empty(db_session):
+    """没有任何实质经历时不硬造骨架(诚实): 空就空。"""
+    report = score_resume(
+        db_session, ResumeProfilePayload(inferred_tracks=['量化']),
+        target_track='量化', preferences=None, provider=_NoSectionGapScorer(),
+    )
+    assert report.section_gaps == []
+
+
+class _MissingSectionFieldScorer:
+    """LLM 写了逐段缺口但漏了 section 定位字段(原来整条被丢)。"""
+    def score(self, messages_payload):
+        return {
+            'dimensions': _dims_8(40), 'summary': 's',
+            'section_gaps': [
+                {'label': '京东零售', 'gaps': ['量化结果缺失'], 'detail': '增长项目缺最终数字'},
+            ],
+        }
+
+
+def test_section_gap_missing_section_field_backfilled_not_dropped(db_session):
+    profile = ResumeProfilePayload(
+        internships=[{'company': '京东零售', 'role': '产品实习', 'bullets': ['做增长']}],
+        inferred_tracks=['互联网产品'],
+    )
+    report = score_resume(
+        db_session, profile, target_track='量化',
+        preferences=None, provider=_MissingSectionFieldScorer(),
+    )
+    assert len(report.section_gaps) == 1                       # 没被丢
+    assert report.section_gaps[0].section == 'internships.0'   # 锚点回填
+    assert report.section_gaps[0].gaps == ['量化结果缺失']
