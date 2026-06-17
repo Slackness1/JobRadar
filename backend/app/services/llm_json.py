@@ -43,7 +43,12 @@ def deepseek_json_fn(prompt: str, *, reasoning_effort: str = "medium") -> dict:
 
 
 def flash_json_fn(prompt: str) -> dict:
-    """Flash 抽取器（无 reasoning）。签名同 deepseek_json_fn，可互换注入 extract_dimensions。"""
+    """Flash 抽取器（无 reasoning）。签名同 deepseek_json_fn，可互换注入 extract_dimensions。
+
+    批处理端点(CRAWLER_LLM_* = OpenCode 中转)在「只跑服务」的生产机上常未配置 → Connection error。
+    此时静默回 {} 会让情报卡三维全空(实测 prod 现象)。故失败时回落到学生交互链路
+    (INTERACTIVE_LLM_* = DeepSeek 官方直连, 服务机必配)再抽一次, 让情报卡能自愈。
+    """
     try:
         from app.services.crawler_llm import flash_model_name
 
@@ -53,7 +58,26 @@ def flash_json_fn(prompt: str) -> dict:
             response_format={"type": "json_object"},
         )
         out = json.loads(resp.choices[0].message.content or "{}")
+        if isinstance(out, dict) and out:
+            return out
+        # 空响应 → 走交互链路兜底(防中转过载返空 content 静默污染)
+        raise ValueError("flash returned empty dict")
+    except Exception as e:
+        log.warning("flash_json_fn failed (%s); falling back to interactive client", e)
+
+    try:
+        from app.services.crawler_llm import (
+            build_interactive_client,
+            interactive_model_name,
+        )
+
+        resp = build_interactive_client(timeout=90).chat.completions.create(
+            model=interactive_model_name(),
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+        )
+        out = json.loads(resp.choices[0].message.content or "{}")
         return out if isinstance(out, dict) else {}
     except Exception as e:
-        log.warning("flash_json_fn failed: %s", e)
+        log.warning("flash_json_fn interactive fallback also failed: %s", e)
         return {}

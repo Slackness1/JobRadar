@@ -38,12 +38,13 @@ def _job(**kw) -> Job:
 def test_prompt_mentions_4_anchors_explicitly():
     for anchor_label in ["Anchor A", "Anchor B", "Anchor C", "Anchor D"]:
         assert anchor_label in NARRATIVE_SYSTEM_PROMPT
-    assert "至少引用 3 个" in NARRATIVE_SYSTEM_PROMPT
-    assert "≤200 字" in NARRATIVE_SYSTEM_PROMPT
+    # 新契约: 4 个 anchor 必须彼此不同, 严禁复制粘贴同一句话(修「三条一样」)
+    assert "至少写 3 个" in NARRATIVE_SYSTEM_PROMPT
+    assert "严禁把同一句话复制到多个 anchor" in NARRATIVE_SYSTEM_PROMPT
 
 
-def test_generate_returns_narrative_with_anchors():
-    """KB 存在 + LLM 返合理 narrative → 解析出 narrative + anchors_used。"""
+def test_generate_returns_distinct_anchor_points():
+    """KB 存在 + LLM 返结构化 anchors → 解析出彼此不同的 anchor_points + narrative。"""
     fake_kb = {
         "hard_requirements": ["海外硕士 + 1 段卖方实习", "200 亿市值标的深度报告"],
         "verbatim_quotes": [{"quote": "推票面试是核心 — 给具体价格和时点"}],
@@ -55,28 +56,60 @@ def test_generate_returns_narrative_with_anchors():
         "app.services.phase_g.recommendation_v2.narrative._gather_kb_payload",
         return_value=fake_kb,
     ), patch(
-        "app.services.phase_g.recommendation_v2.narrative.build_pro_client"
+        "app.services.phase_g.recommendation_v2.narrative.build_interactive_client"
     ) as mock_client_fn:
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = _mock_resp({
-            "narrative": "你独立做的 200 亿市值消费股深度报告对齐本岗硬门槛 (公募投研实习+大市值标的)。一线公募有'推票面试是核心'的留用差异, 你的草根调研补足这点。差距: 缺一次推票模拟, 用易方达内推补。",
-            "anchors_used": ["A", "B", "C", "D"],
+            "anchors": [
+                {"key": "A", "text": "你独立做的 200 亿市值消费股深度报告契合本岗"},
+                {"key": "B", "text": "一线公募留用差异在'推票面试是核心'"},
+                {"key": "C", "text": "本岗硬门槛是 1 段卖方实习, 你已有"},
+                {"key": "D", "text": "差距: 缺一次推票模拟, 用易方达内推补"},
+            ],
+            "narrative": "你独立做的 200 亿市值消费股深度报告对齐本岗硬门槛。",
         })
         mock_client_fn.return_value = mock_client
 
         out = generate_narrative(_student(), _job(), llm_rerank={"score": 88, "reasoning": "x"})
 
     assert "200 亿" in out["narrative"]
-    assert "A" in out["anchors_used"]
-    assert "B" in out["anchors_used"]
-    assert "C" in out["anchors_used"]
-    assert "D" in out["anchors_used"]
+    assert set(out["anchors_used"]) == {"A", "B", "C", "D"}
+    # 核心: 4 条 anchor 文本彼此不同
+    texts = [p["text"] for p in out["anchor_points"]]
+    assert len(texts) == 4
+    assert len(set(texts)) == 4
     assert out["kb_available"] is True
     assert out["data_confidence"] == "medium"
-    # 调用了 Pro client + reasoning_effort=medium + temperature 0.3
-    call = mock_client.chat.completions.create.call_args
-    assert call.kwargs["extra_body"] == {"reasoning_effort": "medium"}
-    assert call.kwargs["temperature"] == 0.3
+
+
+def test_generate_dedupes_identical_anchor_texts():
+    """LLM 偷懒把同一句话复制到多个 anchor → 去重, 不再「三条一样」。"""
+    fake_kb = {
+        "hard_requirements": [], "verbatim_quotes": [], "pitfalls": [],
+        "institution_tier_candidates": [], "_data_confidence": "low",
+    }
+    with patch(
+        "app.services.phase_g.recommendation_v2.narrative._gather_kb_payload",
+        return_value=fake_kb,
+    ), patch(
+        "app.services.phase_g.recommendation_v2.narrative.build_interactive_client"
+    ) as mock_client_fn:
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = _mock_resp({
+            "anchors": [
+                {"key": "A", "text": "你和这个岗位很匹配"},
+                {"key": "B", "text": "你和这个岗位很匹配"},  # 复制
+                {"key": "C", "text": "你和这个岗位很匹配"},  # 复制
+                {"key": "D", "text": "但你缺低延迟工程经验"},
+            ],
+            "narrative": "综合理由",
+        })
+        mock_client_fn.return_value = mock_client
+        out = generate_narrative(_student(), _job())
+    # 复制的两条被去重, 只剩 2 条不同的
+    texts = [p["text"] for p in out["anchor_points"]]
+    assert len(texts) == 2
+    assert len(set(texts)) == 2
 
 
 def test_generate_returns_placeholder_when_no_kb():
@@ -90,8 +123,8 @@ def test_generate_returns_placeholder_when_no_kb():
     assert out["kb_available"] is False
 
 
-def test_generate_filters_invalid_anchors():
-    """LLM 写了 'E' / 'X' 这种无效 anchor → 过滤掉, 只保留 A/B/C/D。"""
+def test_generate_filters_invalid_anchor_keys():
+    """LLM 写了 'E' / 'X' 这种无效 anchor key → 过滤掉, 只保留 A/B/C/D。"""
     fake_kb = {
         "hard_requirements": [], "verbatim_quotes": [], "pitfalls": [],
         "institution_tier_candidates": [], "_data_confidence": "low",
@@ -100,14 +133,19 @@ def test_generate_filters_invalid_anchors():
         "app.services.phase_g.recommendation_v2.narrative._gather_kb_payload",
         return_value=fake_kb,
     ), patch(
-        "app.services.phase_g.recommendation_v2.narrative.build_pro_client"
+        "app.services.phase_g.recommendation_v2.narrative.build_interactive_client"
     ) as mock_client_fn:
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = _mock_resp({
+            "anchors": [
+                {"key": "a", "text": "锚点甲"},   # 小写归一化
+                {"key": "B", "text": "锚点乙"},
+                {"key": "E", "text": "无效锚点 E"},  # 无效 key
+                {"key": "X", "text": "无效锚点 X"},  # 无效 key
+            ],
             "narrative": "...",
-            "anchors_used": ["A", "B", "E", "X", "junk", "c"],  # 包含无效 + 小写
         })
         mock_client_fn.return_value = mock_client
         out = generate_narrative(_student(), _job())
-    # 应该只剩 A/B/C (小写 c 归一化大写)
-    assert set(out["anchors_used"]) == {"A", "B", "C"}
+    # 只剩 A/B (小写 a 归一化大写, E/X 被过滤)
+    assert set(out["anchors_used"]) == {"A", "B"}

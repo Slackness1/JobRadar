@@ -169,32 +169,38 @@ def _shape_deepen_item(it: Any, narrative: dict | None) -> dict:
 
 
 def _narrative_to_anchors(nar) -> list[list[str]]:
-    """把 generate_narrative 的输出折成 <=4 段 [label, text]。
+    """把 generate_narrative 的输出折成 <=4 段 [label, text], 每段内容互不相同。
 
-    v2 generate_narrative 返 {narrative: str, anchors_used: [A/B/C/D], ...}。
-    narrative 是整段说理文本; anchors_used 是命中的锚点字母。这里把命中的字母映成
-    中文标签, 配 narrative 文本 —— 没命中字母就给一段「赛道契合」兜底。
+    新 schema: nar={anchor_points: [{key, text}], narrative, anchors_used}。
+    anchor_points 里每条 text 已经是**彼此不同**的一句话, 直接映中文标签即可 ——
+    这是修「三条一样」的核心: 不再把同一段 narrative 复制到多个锚点。
+    旧 schema(只有 narrative 整段文本)兜底成单段, 也绝不复制。
     """
     if nar is None:
         return []
     if isinstance(nar, dict):
-        text = str(nar.get("narrative") or "").strip()
-        used = nar.get("anchors_used") or []
         idx_map = {"A": 0, "B": 1, "C": 2, "D": 3}
-        labels = [
-            _ANCHOR_LABELS[idx_map[a]]
-            for a in used
-            if isinstance(a, str) and a.upper() in idx_map
-        ]
-        if not text:
-            return []
-        if labels:
-            # 多个锚点共享同一段说理文本; 头一个挂全文, 其余只挂标签提示。
-            out = [[labels[0], text]]
-            for lab in labels[1:4]:
-                out.append([lab, text])
-            return out[:4]
-        return [[_ANCHOR_LABELS[0], text]]
+        points = nar.get("anchor_points")
+        if isinstance(points, list) and points:
+            out: list[list[str]] = []
+            seen: set[str] = set()
+            for p in points:
+                if not isinstance(p, dict):
+                    continue
+                key = str(p.get("key") or "").strip().upper()
+                text = str(p.get("text") or "").strip()
+                if key not in idx_map or not text:
+                    continue
+                norm = text.replace(" ", "")
+                if norm in seen:  # 二次去重, 杜绝重复段
+                    continue
+                seen.add(norm)
+                out.append([_ANCHOR_LABELS[idx_map[key]], text])
+            if out:
+                return out[:4]
+        # 兜底: 没有结构化锚点 → 单段, 不复制
+        text = str(nar.get("narrative") or "").strip()
+        return [[_ANCHOR_LABELS[0], text]] if text else []
     # 防御: 其它形态 (list / str)
     if isinstance(nar, list):
         out: list[list[str]] = []
