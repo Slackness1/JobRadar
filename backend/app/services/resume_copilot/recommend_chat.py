@@ -46,7 +46,44 @@ def seed_query_for_session(db, session) -> WorkingQuery:
         rows = _active_preference_rows(db, getattr(session, "user_key", None))
     except Exception:
         logger.warning("recommend_chat seed: load preference rows failed", exc_info=True)
+    # P0-3 兜底:没确认过子赛道时(简历传了但没走完确认页 / 老会话 / 克隆账号),
+    # 从简历正文推断 1-3 个种子, 否则种子空 → 召回 0 → 学生首次就空屏。
+    if not confirmed:
+        confirmed = _infer_seed_sub_cats(db, session)
     return seed_working_query(confirmed_sub_cats=confirmed, preference_rows=rows)
+
+
+def _infer_seed_sub_cats(db, session) -> list[str]:
+    """简历 → 1-3 个最匹配子赛道(复用确认页同款 LLM 预勾器)。
+
+    仅在 confirmed 为空时调用; 失败 / 无简历 → 返 [](不硬塞全集当种子, 免召回全库噪声)。
+    """
+    summary = (
+        getattr(session, "extracted_text", None)
+        or getattr(session, "resume_text", None)
+        or ""
+    ).strip()
+    if not summary:
+        return []
+    try:
+        from app.services.phase_g.knowledge_synthesis import SUBCAT_TO_STRATEGY
+        from app.services.resume_copilot.subcat_suggest import suggest_sub_cats
+    except Exception:
+        logger.warning("recommend_chat seed: infer imports failed", exc_info=True)
+        return []
+    cands = [c for c in SUBCAT_TO_STRATEGY.keys() if c]
+    if not cands:
+        return []
+    try:
+        picked = suggest_sub_cats(summary, cands)
+    except Exception:
+        logger.warning("recommend_chat seed: suggest_sub_cats failed", exc_info=True)
+        return []
+    # suggest 失败会回落"全部候选"; 那种情况(几十个)别当种子, 取空。正常 ≤3 个直接用。
+    if picked and len(picked) <= 5:
+        logger.info("recommend_chat seed: inferred %s from resume (no confirmed)", picked)
+        return picked
+    return []
 
 
 def _active_preference_rows(db, user_key) -> list[dict]:

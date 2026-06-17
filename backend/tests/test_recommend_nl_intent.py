@@ -70,6 +70,33 @@ def test_recommend_intent_triggers_feed(monkeypatch):
     assert out["feed"] == fake_feed   # 不再是 None
 
 
+# ── P0-3: confirmed 为空时从简历推断种子 ────────────────────────────────────────
+
+def test_infer_seed_uses_resume_when_no_confirmed(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.resume_copilot.subcat_suggest.suggest_sub_cats",
+        lambda summary, cands, **kw: ["产品运营", "用户/增长产品经理"],
+    )
+    sess = types.SimpleNamespace(extracted_text="互联网产品经理, 增长/拉新/推荐排序", resume_text=None, user_key="u_9", id=9)
+    assert recommend_chat._infer_seed_sub_cats(None, sess) == ["产品运营", "用户/增长产品经理"]
+
+
+def test_infer_seed_empty_when_no_resume():
+    sess = types.SimpleNamespace(extracted_text="", resume_text=None, user_key="u_9", id=9)
+    assert recommend_chat._infer_seed_sub_cats(None, sess) == []
+
+
+def test_infer_seed_drops_all_candidates_fallback(monkeypatch):
+    # suggest 失败会回落"全部候选"(几十个) → 不能拿全集当种子, 取空
+    big = [f"sub{i}" for i in range(30)]
+    monkeypatch.setattr(
+        "app.services.resume_copilot.subcat_suggest.suggest_sub_cats",
+        lambda summary, cands, **kw: big,
+    )
+    sess = types.SimpleNamespace(extracted_text="some resume", resume_text=None, user_key="u_9", id=9)
+    assert recommend_chat._infer_seed_sub_cats(None, sess) == []
+
+
 def test_chitchat_intent_does_not_rerank(monkeypatch):
     monkeypatch.setattr(
         recommend_chat, "parse_intent",
