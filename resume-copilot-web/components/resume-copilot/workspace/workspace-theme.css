@@ -5295,6 +5295,162 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
+ * 岗位情报卡 (定位 + 三维门槛/薪酬/前景) — body 顶部块, 在 tab 内容之上
+ * 此前无任何 CSS → 元素裸渲染继承 serif 糊成一团; 这里补齐排版层级。
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.workspace-hifi__intel-job-card {
+  font-family: var(--font-sans);
+}
+
+/* 定位段 ---------------------------------------------------------------- */
+.workspace-hifi__intel-positioning {
+  margin-bottom: 14px;
+}
+
+.workspace-hifi__intel-positioning-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__intel-pos-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--terracotta-wash);
+  color: var(--terracotta-strong);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+.workspace-hifi__intel-pos-one-liner {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* 三维块 ---------------------------------------------------------------- */
+.workspace-hifi__intel-dim-block {
+  background: var(--ivory);
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--border-warm);
+  padding: 13px 14px;
+  margin-bottom: 10px;
+}
+
+.workspace-hifi__intel-dim-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.workspace-hifi__intel-dim-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.workspace-hifi__intel-dim-stars {
+  font-size: 12.5px;
+  color: var(--terracotta);
+  letter-spacing: 0.08em;
+}
+
+.workspace-hifi__intel-dim-cross {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  line-height: 1.5;
+}
+
+.workspace-hifi__intel-dim-cross--verified {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+}
+
+.workspace-hifi__intel-dim-cross--conflict {
+  background: #f6e7cf;
+  color: #9a6b1e;
+}
+
+.workspace-hifi__intel-dim-body {
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__intel-dim-threshold-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 5px;
+}
+
+.workspace-hifi__intel-dim-threshold-row:last-child {
+  margin-bottom: 0;
+}
+
+.workspace-hifi__intel-dim-threshold-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--terracotta-strong);
+}
+
+.workspace-hifi__intel-dim-summary {
+  color: var(--ink-soft);
+}
+
+.workspace-hifi__intel-dim-empty {
+  font-size: 12px;
+  color: var(--stone);
+  font-style: italic;
+}
+
+.workspace-hifi__intel-dim-quotes {
+  margin-top: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workspace-hifi__intel-dim-quote {
+  margin: 0;
+  padding: 7px 10px;
+  background: #fff;
+  border-left: 3px solid var(--terracotta-wash);
+  border-radius: 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--olive);
+  word-break: break-word;
+}
+
+/* 来源溯源 + 与下方 tab 内容的强分隔 ----------------------------------- */
+.workspace-hifi__intel-provenance {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--stone);
+  line-height: 1.5;
+}
+
+.workspace-hifi__intel-job-card-divider {
+  height: 1px;
+  background: var(--border-warm);
+  margin: 16px -18px 16px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
  * P0b — PlatformCard "为你定制" 高亮叙事盒 + rail header polish
  * ═══════════════════════════════════════════════════════════════════════════ */
 
