@@ -14,7 +14,7 @@
  * Token 全取自 `.hf`(外层 HubShell className="hf"); 左描边 + 羊皮纸底 + 全高 + 右上角关闭.
  */
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { RecommendFeedPane, type RecommendFeedPaneProps } from '../recommend-agent/RecommendFeedPane';
 import { RecommendSkeletonPane } from '../recommend-agent/RecommendSkeletonPane';
@@ -110,22 +110,27 @@ function FeedWithIntel({ feedProps }: { feedProps: RecommendFeedPaneProps }) {
         overflow: 'hidden',
       }}
     >
-      {/* 上半:岗位推荐 feed —— 拦截 onIntel,只设本地态,不进对话。 */}
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+      {/* 上半:岗位推荐 feed —— 拦截 onIntel,只设本地态,不进对话。
+          情报展开时让出空间(占 ~42%),收起时占满。 */}
+      <div style={{ flex: intelJob ? '1 1 42%' : 1, minHeight: 0, overflow: 'auto' }}>
         <RecommendFeedPane
           {...feedProps}
           onIntel={(company, jobId) => setIntelJob({ company, jobId })}
         />
       </div>
 
-      {/* 下半:就地结构化情报卡(IntelDrawer)。空时只留一条极淡提示。 */}
+      {/* 下半:就地结构化情报卡(IntelDrawer)。占满 feed 之下的全部剩余高度,
+          情报内容在抽屉内部自滚(头部固定),不再是底部一小块被截。空时留极淡提示。 */}
       {intelJob ? (
         <div
+          className="hub-feed__intel-fill"
           style={{
-            flex: '0 0 40%',
+            flex: '1 1 58%',
             minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
             borderTop: '1px solid var(--border-warm)',
-            overflow: 'auto',
+            overflow: 'hidden',
             background: 'var(--parchment)',
           }}
         >
@@ -134,6 +139,7 @@ function FeedWithIntel({ feedProps }: { feedProps: RecommendFeedPaneProps }) {
             companyName={intelJob.company}
             jobKey={intelJob.jobId}
             onClose={() => setIntelJob(null)}
+            hideFooter
           />
         </div>
       ) : (
@@ -163,7 +169,49 @@ export default function CanvasSlot({
   onOpenCoach,
   onClose,
 }: CanvasSlotProps) {
+  // 拖拽宽度: 覆盖默认 SLOT_WIDTH, 落 localStorage, 刷新后记住。active 必为非 none(下方 guard 前置)。
+  const WIDTH_KEY = 'hub.canvasSlotWidth';
+  const MIN_W = 360;
+  const [overrideW, setOverrideW] = useState<number | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const v = window.localStorage.getItem(WIDTH_KEY);
+    const n = v ? Number(v) : NaN;
+    return Number.isFinite(n) ? n : null;
+  });
+  const draggingRef = useRef(false);
+
   if (active === 'none') return null;
+
+  const width = overrideW ?? SLOT_WIDTH[active];
+
+  function startResize(e: React.PointerEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = width;
+    draggingRef.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: PointerEvent) => {
+      if (!draggingRef.current) return;
+      const maxW = Math.min(window.innerWidth * 0.72, 1100);
+      // 面板在右侧:向左拖(clientX 变小)= 变宽。
+      const next = Math.max(MIN_W, Math.min(maxW, startW + (startX - ev.clientX)));
+      setOverrideW(next);
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setOverrideW((w) => {
+        if (w != null) window.localStorage.setItem(WIDTH_KEY, String(Math.round(w)));
+        return w;
+      });
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
 
   return (
     <div
@@ -171,7 +219,7 @@ export default function CanvasSlot({
       data-session-id={sessionId}
       style={{
         position: 'relative',
-        width: SLOT_WIDTH[active],
+        width,
         flex: 'none',
         minWidth: 0,
         height: '100%',
@@ -182,6 +230,16 @@ export default function CanvasSlot({
         overflow: 'hidden',
       }}
     >
+      {/* 左缘拖拽手柄:向左拖加宽右栏 tab,松手记住宽度。 */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="拖拽调整面板宽度"
+        onPointerDown={startResize}
+        className="hub-canvas__resize-handle"
+        title="拖拽调整宽度"
+      />
+
       {/* profile / resume / myjobs 视图自带头部关闭(panel onClose → ✕), 不叠全局浮层关闭, 免双按钮. */}
       {active !== 'profile' && active !== 'resume' && active !== 'myjobs' && <CloseButton onClose={onClose} />}
 

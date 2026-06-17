@@ -5450,6 +5450,42 @@
   margin: 16px -18px 16px;
 }
 
+/* hub feed 就地嵌入: 情报抽屉撑满下半容器, 内部自滚(头部固定)。 */
+.hub-feed__intel-fill > .workspace-hifi__intel-drawer {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  border-left: 0;
+  box-shadow: none;
+}
+
+/* 右栏 tab 左缘拖拽手柄 (CanvasSlot)。 */
+.hub-canvas__resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  z-index: 4;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.hub-canvas__resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: transparent;
+  transition: background 120ms;
+}
+
+.hub-canvas__resize-handle:hover::before {
+  background: var(--terracotta);
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
  * P0b — PlatformCard "为你定制" 高亮叙事盒 + rail header polish
  * ═══════════════════════════════════════════════════════════════════════════ */

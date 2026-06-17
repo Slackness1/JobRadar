@@ -121,6 +121,8 @@ export interface IntelDrawerProps {
   onClose: () => void;
   /** 用户点 "用这些做 Coach 定制" — P1 接 Coach mode;P0b 只 placeholder 日志. */
   onMock?: () => void;
+  /** hub feed 就地嵌入时传 true:隐藏底部 Coach/导出页脚(hub 内无对话台交互). */
+  hideFooter?: boolean;
 }
 
 export function IntelDrawer({
@@ -131,6 +133,7 @@ export function IntelDrawer({
   jobKey,
   onClose,
   onMock,
+  hideFooter,
 }: IntelDrawerProps) {
   // jobKey(字符串哈希)优先于 jobId(整数主键)；统一成 getJobIntelCard 的入参。
   const jobRef: number | string | null | undefined = jobKey ?? jobId;
@@ -615,6 +618,7 @@ export function IntelDrawer({
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      {!hideFooter && (
       <div className="workspace-hifi__intel-drawer-footer">
         <button
           type="button"
@@ -642,6 +646,7 @@ export function IntelDrawer({
           <span style={{ display: 'inline-flex' }}>{I.download(14)}</span>
         </button>
       </div>
+      )}
     </aside>
   );
 }
