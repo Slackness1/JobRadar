@@ -97,6 +97,35 @@ def test_infer_seed_drops_all_candidates_fallback(monkeypatch):
     assert recommend_chat._infer_seed_sub_cats(None, sess) == []
 
 
+# ── P0-1(真根因): 口语赛道词 → 真 sub_category 展开 ─────────────────────────────
+
+def test_expand_umbrella_label_to_real_sub_cats():
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    out = expand_labels_to_sub_cats(["投研"])
+    assert "公募权益研究员" in out and len(out) >= 5   # 伞词展开成一组真赛道
+
+
+def test_expand_quant_label_adds_suffix_variants():
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    out = expand_labels_to_sub_cats(["量化研究员"])
+    assert "量化研究员·中频" in out and "量化研究员·高频" in out  # 子串补后缀
+
+
+def test_expand_strips_spoken_suffix():
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    assert "公募权益研究员" in expand_labels_to_sub_cats(["投研岗"])   # 岗后缀也展开
+
+
+def test_expand_keeps_exact_real_sub_cat():
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    assert expand_labels_to_sub_cats(["公募权益研究员"]) == ["公募权益研究员"]
+
+
+def test_expand_unknown_label_passthrough():
+    from app.services.phase_g.track_subcat_map import expand_labels_to_sub_cats
+    assert expand_labels_to_sub_cats(["不存在的赛道xyz"]) == ["不存在的赛道xyz"]
+
+
 def test_chitchat_intent_does_not_rerank(monkeypatch):
     monkeypatch.setattr(
         recommend_chat, "parse_intent",
