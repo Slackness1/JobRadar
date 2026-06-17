@@ -47,6 +47,22 @@ def test_recommend_is_valid_intent():
     assert "recommend" in _VALID_INTENT
 
 
+def test_interview_intent_valid_and_does_not_rerank(monkeypatch):
+    assert "interview" in _VALID_INTENT
+    # 面试意图到了 recommend-chat 也不能当筛选污染 working_query / 不重排 feed
+    monkeypatch.setattr(
+        recommend_chat, "parse_intent",
+        lambda message, *, current_query, client=None: {
+            "intent": "interview", "query_delta": {}, "remember": None, "reply": "去模拟面试入口",
+        },
+    )
+    monkeypatch.setattr(recommend_chat, "search_candidates", lambda db, q, **kw: ["x"])
+    monkeypatch.setattr(recommend_chat, "_load_query", lambda db, session: WorkingQuery())
+    session = types.SimpleNamespace(id=1, user_key=None, working_query_json=None)
+    out = recommend_chat.run_recommend_turn(db=None, session=session, message="按券商资管面我一场")
+    assert out["feed"] is None
+
+
 def test_recommend_intent_triggers_feed(monkeypatch):
     """学生说"帮我推荐岗位"(recommend, 无新增筛选)也要召回出 feed, 不能掉 chitchat 空屏。"""
     fake_feed = [{"job_id": "j1"}, {"job_id": "j2"}]
