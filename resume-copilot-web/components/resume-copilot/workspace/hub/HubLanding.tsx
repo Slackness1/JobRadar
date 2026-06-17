@@ -311,8 +311,8 @@ function ResumePreview() {
         }}
       >
         <div style={{ flex: 'none', textAlign: 'center' }}>
-          <div style={{ font: '600 26px/1 var(--font-serif)', color: 'var(--ink)' }}>72</div>
-          <div style={{ font: '400 9.5px var(--font-sans)', color: 'var(--stone)', marginTop: 3 }}>现状分</div>
+          <div style={{ font: '600 26px/1 var(--font-serif)', color: 'var(--stone)' }}>—</div>
+          <div style={{ font: '400 9.5px var(--font-sans)', color: 'var(--stone)', marginTop: 3 }}>打分后显示</div>
         </div>
         <span style={{ flex: 'none', display: 'inline-flex' }}>{HEX_ICON}</span>
         <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>

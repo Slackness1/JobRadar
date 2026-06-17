@@ -629,7 +629,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
           understandOverride?: object;
           nodeOverride?: Record<number, { input?: Record<string, string | string[]>; chips?: string[] }>;
         }
-      | { ok: false; failStep: number },
+      | { ok: false; failStep: number; sayOverride?: string },
   ) {
     const run = runsRef.current.get(skillrunId);
     if (!run || run.finished) return;
@@ -651,7 +651,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       if (outcome.ok) {
         push({ id: nextId(), kind: 'result', module: run.module, data: RESULT_FOR(run.module, outcome.ctx) });
       } else {
-        push({ id: nextId(), kind: 'turn', who: 'ai', html: FAIL_SAY[run.module] ?? '这次没跑成,再试一次。' });
+        push({ id: nextId(), kind: 'turn', who: 'ai', html: (!outcome.ok && outcome.sayOverride) || FAIL_SAY[run.module] || '这次没跑成,再试一次。' });
       }
       return;
     }
@@ -669,7 +669,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
       );
       const tail: HubMessage = outcome.ok
         ? { id: nextId(), kind: 'result', module: run.module, data: RESULT_FOR(run.module, outcome.ctx) }
-        : { id: nextId(), kind: 'turn', who: 'ai', html: FAIL_SAY[run.module] ?? '这次没跑成,再试一次。' };
+        : { id: nextId(), kind: 'turn', who: 'ai', html: (!outcome.ok && outcome.sayOverride) || FAIL_SAY[run.module] || '这次没跑成,再试一次。' };
       await putHubConversationDetail(run.sessionId, convId, [...patched, tail]);
       if (run.sessionId === sessionId) refreshConvs();
     } catch {
@@ -1003,7 +1003,18 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     if (key === 'resume') {
       startScoreTask(sessionId, { force: true })
         .then(() => pollScoreTask(skillrunId))
-        .catch(() => void completeRun(skillrunId, { ok: false, failStep: 0 }));
+        .catch((e: unknown) => {
+          // 区分「无简历画像」(404/409, 去上传/确认)vs 真·模型超时(可重试)。
+          const msg = String((e as Error)?.message || '');
+          const noProfile = /resume profile|CONFIRMED_PROFILE|无简历|没有.*简历|profile/i.test(msg);
+          void completeRun(skillrunId, {
+            ok: false,
+            failStep: 0,
+            ...(noProfile
+              ? { sayOverride: '还没有可评分的<b>简历画像</b>——先上传简历、走完确认页,再回来打分。(不是模型超时,重试也不会出分)' }
+              : {}),
+          });
+        });
     }
   }
 
@@ -1148,7 +1159,7 @@ export default function HubShell({ sessionId }: { sessionId: number }) {
     if (/梯队|骨架|档次|全景/.test(trimmed)) target = 'skeleton';
     else if (/档案|我的资料|画像|记得/.test(trimmed)) target = 'profile';
     else if (/简历|改写|打分|优化/.test(trimmed)) target = 'resume';
-    else if (/面试|模拟/.test(trimmed)) target = 'interview';
+    else if (/面试|模拟面|模面|面我|面一场|面一面|帮我面|面试我|练面|面这家/.test(trimmed)) target = 'interview';
     else if (/推荐|岗位|职位|机会|看看|来点|多来|有什么/.test(trimmed)) target = 'feed';
 
     if (target) {
