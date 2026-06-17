@@ -43,6 +43,14 @@ def test_prompt_mentions_4_anchors_explicitly():
     assert "严禁把同一句话复制到多个 anchor" in NARRATIVE_SYSTEM_PROMPT
 
 
+def test_prompt_has_anti_fabrication_rule():
+    # 防编造铁律: 无对口经历必须如实说, 绝不杜撰(修深挖给学生安不存在的投研资历)
+    assert "不编造" in NARRATIVE_SYSTEM_PROMPT
+    assert "暂无直接对口" in NARRATIVE_SYSTEM_PROMPT
+    # prompt 不再含可被照抄的具体伪资历示例
+    assert "你独立做的 200 亿市值消费股深度报告" not in NARRATIVE_SYSTEM_PROMPT
+
+
 def test_generate_returns_distinct_anchor_points():
     """KB 存在 + LLM 返结构化 anchors → 解析出彼此不同的 anchor_points + narrative。"""
     fake_kb = {

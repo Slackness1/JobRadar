@@ -85,15 +85,10 @@ def _deepen_targets(db, session, targets: list) -> list[tuple[Any, dict | None]]
     jobs = db.query(Job).filter(Job.job_id.in_(job_id_list)).all()
     job_by_id = {str(j.job_id): j for j in jobs}
 
-    # 用工作查询的 sub_cat 集做 student_profile 的偏好画像 (轻量, 够 Pro 说理)。
-    # 与 feed 候选集同源 (见 _resolve_query 注释), 否则 demo 会话偏好画像为空。
+    # student_profile 必须喂**真实简历经历** —— 否则叙事 LLM 没料可用就会照抄 prompt 例子
+    # (实测给互联网产品学生编出"200亿消费股深度报告"投研资历, 违"不编造"铁律)。
     wq = _resolve_query(db, session)
-    student_profile: dict[str, Any] = {
-        "name": "",
-        "background": "",
-        "hidden_highlights": [],
-        "preferred_sub_cats": wq.effective_sub_cats(),
-    }
+    student_profile = _student_profile_for_deepen(db, session, wq.effective_sub_cats())
 
     # rerank: 喂 [(job, base_score 0-1)] —— base 用规则的 final_score 归一到 0-1。
     ranked_with_score: list[tuple[Any, float]] = []
@@ -127,6 +122,49 @@ def _deepen_targets(db, session, targets: list) -> list[tuple[Any, dict | None]]
             it = _attach_enhanced(it, r.get("final_score"))
         out.append((it, narrative))
     return out
+
+
+def _student_profile_for_deepen(db, session, preferred_sub_cats: list) -> dict[str, Any]:
+    """从会话真实简历画像装 student_profile(背景 + 真实经历亮点), 供叙事 grounding。
+
+    hidden_highlights 只放**简历里真实出现的**经历(实习/项目 bullet + 奖项), 空就空 ——
+    叙事 prompt 已要求"没有对口经历就明说, 绝不编造"(配合本函数防止 LLM 凭空安资历)。
+    """
+    name = ""
+    background = ""
+    highlights: list[str] = []
+    try:
+        from app.routers.resume_copilot import _load_profile_and_prefs
+        profile, _prefs = _load_profile_and_prefs(db, getattr(session, "id", None))
+        if profile is not None:
+            bi = getattr(profile, "basic_info", None)
+            name = str(getattr(bi, "name", "") or "") if bi is not None else ""
+            background = str(getattr(profile, "candidate_summary", "") or "")
+            for it in (getattr(profile, "internships", None) or [])[:4]:
+                comp = str(getattr(it, "company", "") or "").strip()
+                role = str(getattr(it, "role", "") or "").strip()
+                for b in (getattr(it, "bullets", None) or [])[:2]:
+                    b = str(b or "").strip()
+                    if b:
+                        highlights.append(f"{comp}·{role}: {b}" if (comp or role) else b)
+            for pj in (getattr(profile, "projects", None) or [])[:3]:
+                pn = str(getattr(pj, "name", "") or "").strip()
+                for b in (getattr(pj, "bullets", None) or [])[:2]:
+                    b = str(b or "").strip()
+                    if b:
+                        highlights.append(f"项目「{pn}」: {b}" if pn else b)
+            for aw in (getattr(profile, "awards", None) or [])[:3]:
+                aw = str(aw or "").strip()
+                if aw:
+                    highlights.append(aw)
+    except Exception:  # noqa: BLE001
+        logger.warning("deepen: load profile for highlights failed", exc_info=True)
+    return {
+        "name": name,
+        "background": background[:600],
+        "hidden_highlights": highlights[:8],
+        "preferred_sub_cats": preferred_sub_cats,
+    }
 
 
 def _attach_enhanced(it: Any, final_score_0_1) -> Any:
