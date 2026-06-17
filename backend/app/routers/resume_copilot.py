@@ -2456,12 +2456,14 @@ class SubCatSuggestionsIn(_BaseModel):
 def sub_cat_suggestions(
     session_id: int,
     payload: SubCatSuggestionsIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ) -> dict:
     """确认页两级勾选: 展开 tracks → sub_cats + LLM 预勾标记。只读, 不写 DB。"""
     from app.services.resume_copilot.subcat_suggest import build_sub_cat_options
 
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
 
     # Build resume summary: confirmed profile first, fall back to parsed.
     summary = ""
@@ -2516,12 +2518,14 @@ class WorkingQueryUpdateIn(_BaseModel):
 def recommend_chat(
     session_id: int,
     payload: RecommendChatIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     """NL 推荐 agent 一轮: 自然语言 → 工作查询重排 → 流动 feed (快路, 不调 Pro)。"""
     from app.services.resume_copilot.recommend_chat import run_recommend_turn
 
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     _assert_not_demo(session)  # 写 working_query_json → 是写操作
     out = run_recommend_turn(db=db, session=session, message=payload.message)
     db.commit()
@@ -2531,12 +2535,14 @@ def recommend_chat(
 @router.get('/sessions/{session_id}/working-query')
 def get_working_query(
     session_id: int,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     """读当前工作查询; 为空则按 confirmed + L3 记忆 seed 并落库 (seed 即写, 守 demo)。"""
     from app.services.resume_copilot.recommend_chat import seed_query_for_session
 
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     raw = getattr(session, 'working_query_json', None)
     if raw:
         try:
@@ -2808,12 +2814,14 @@ def update_hub_conversation(
 def recommend_deepen(
     session_id: int,
     payload: RecommendDeepenIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     """慢路: 对指定岗位跑 Pro 精排 + 4-anchor 理由 (复用 recommendation_v2 慢路)。"""
     from app.services.resume_copilot.recommend_deepen import deepen_jobs
 
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     return {"items": deepen_jobs(db, session, payload.job_ids)}
 
 
@@ -2821,6 +2829,7 @@ def recommend_deepen(
 def update_working_query(
     session_id: int,
     payload: WorkingQueryUpdateIn,
+    x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     """结构化操作工作查询(删 add chip / 清 only / 改 sort / 切赛道 reseed) + 重排 (快路, 不调 LLM)。"""
@@ -2829,6 +2838,7 @@ def update_working_query(
     from app.services.resume_copilot.working_query import WorkingQuery
 
     session = _get_session_or_404(db, session_id)
+    _assert_session_owner(session, x_resume_user_key)
     if payload.reseed:
         # reseed = 按画像种子重查在招岗, 本质纯读; demo 只读会话也放行,
         # 但不落库 (working_query_json 不写) — 守住 demo read-only 铁律。
