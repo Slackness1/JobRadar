@@ -21,7 +21,15 @@ class WorkingQuery(BaseModel):
     note: str = ""
 
     def effective_sub_cats(self) -> list[str]:
-        """召回/打分用的合并 sub_cat 集 = seed + add, seed 在前, 去重保序。"""
+        """召回/打分用的 sub_cat 集。
+
+        默认 = seed(confirmed) + add(NL), seed 在前去重保序。
+        但当 only=True 且 NL 指定了赛道(sub_cats 非空)时 → **本轮只看这些**,
+        临时盖过 confirmed seed —— 对应学生显式说「只看量化 / 换成固收 / 别给我其他」。
+        (只是本会话工作查询的临时探索, 不改 confirmed 数据本身。)
+        """
+        if self.only and self.sub_cats:
+            return list(self.sub_cats)
         return _merge_unique(list(self.seed_sub_cats), self.sub_cats)
 
 
@@ -43,9 +51,16 @@ def apply_delta(query: WorkingQuery, delta: dict) -> WorkingQuery:
     new_sort = sort if isinstance(sort, str) and sort in _VALID_SORT else query.sort
     only = delta.get("only")
     new_only = bool(only) if isinstance(only, bool) else query.only
+    # only=True 且本轮点名了赛道 → 替换语义(「换成X / 只看X」清掉之前 NL 加的赛道);
+    # 否则追加语义(「也看看X」并入)。
+    add_subs = delta.get("add_sub_cats")
+    if new_only and add_subs:
+        new_sub_cats = _merge_unique([], add_subs)
+    else:
+        new_sub_cats = _merge_unique(query.sub_cats, add_subs)
     return WorkingQuery(
         seed_sub_cats=list(query.seed_sub_cats),
-        sub_cats=_merge_unique(query.sub_cats, delta.get("add_sub_cats")),
+        sub_cats=new_sub_cats,
         companies=_merge_unique(query.companies, delta.get("add_companies")),
         locations=_merge_unique(query.locations, delta.get("add_locations")),
         exclude=_merge_unique(query.exclude, delta.get("exclude")),
