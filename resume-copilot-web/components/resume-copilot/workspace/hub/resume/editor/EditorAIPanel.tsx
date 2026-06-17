@@ -571,8 +571,11 @@ export function EditorAIPanel({
         })}
       </div>
 
-      {/* 三能力内容(用 display 切换以保留各自状态)。 */}
-      <div style={{ flex: 1, minHeight: 0, display: tab === 'score' ? 'flex' : 'none', flexDirection: 'column' }}>
+      {/* 三能力内容(用 display 切换以保留各自状态)。
+          minWidth:0 + overflowX:hidden:打分报告内部 maxWidth 720 > 右栏 396,
+          不加 minWidth:0 时 flex 子项 min-width:auto 会被撑到 720、向左溢出串进中栏
+          (推荐线 handoff BUG-1)。 */}
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflowX: 'hidden', display: tab === 'score' ? 'flex' : 'none', flexDirection: 'column' }}>
         <EditorScoreReportThick
           sessionId={sessionId}
           onOptimize={handleOptimize}
