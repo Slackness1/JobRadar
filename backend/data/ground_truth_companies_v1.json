@@ -233,7 +233,7 @@
         ]
       }
     ],
-    "行业研究员·消费": [
+    "公募/资管行业研究员(行业限定)": [
       {
         "name": "易方达基金",
         "tier": "一线公募",
@@ -365,9 +365,7 @@
         ],
         "must_have": false,
         "notes": "XHS 消费组 2 次"
-      }
-    ],
-    "行业研究员·TMT-医药-周期": [
+      },
       {
         "name": "华夏基金",
         "tier": "一线公募",
@@ -438,23 +436,6 @@
         ],
         "must_have": true,
         "notes": "按行业共识,医药主动权益强"
-      },
-      {
-        "name": "招商基金",
-        "tier": "一线公募",
-        "primary_sub_cats": [
-          "行业研究员·TMT-医药-周期"
-        ],
-        "industry_focus": [
-          "TMT",
-          "周期"
-        ],
-        "source": [
-          "common_knowledge:头部公募",
-          "taxonomy_doc"
-        ],
-        "must_have": true,
-        "notes": "按行业共识"
       },
       {
         "name": "银华基金",
@@ -638,7 +619,7 @@
         "notes": "按行业共识"
       }
     ],
-    "公募基金中后台": [
+    "公募基金综合中后台(合规/法务/行政)": [
       {
         "name": "南方基金",
         "tier": "一线公募",
@@ -1151,7 +1132,7 @@
         "notes": "按行业共识"
       }
     ],
-    "AI 量化工程师": [
+    "AI量化工程师": [
       {
         "name": "鸣石基金",
         "tier": "头部量化私募",
@@ -1607,7 +1588,7 @@
         "notes": "按行业共识,金融市场部交易强"
       }
     ],
-    "固收+多资产": [
+    "固收·多资产": [
       {
         "name": "易方达基金",
         "tier": "一线公募",
@@ -1716,7 +1697,7 @@
         "notes": "按行业共识"
       }
     ],
-    "利率宏观策略": [
+    "利率/宏观策略": [
       {
         "name": "华泰证券",
         "tier": "头部券商研究所",
@@ -2299,103 +2280,7 @@
         "notes": "银行系券商"
       }
     ],
-    "买方 Quant": [
-      {
-        "name": "Point72",
-        "tier": "外资行",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "saif:2025",
-          "taxonomy_doc"
-        ],
-        "must_have": true,
-        "notes": "顶尖对冲基金"
-      },
-      {
-        "name": "Citadel",
-        "tier": "外资行",
-        "primary_sub_cats": [
-          "量化研究员·高频",
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "taxonomy_doc",
-          "common_knowledge:头部对冲基金"
-        ],
-        "must_have": true,
-        "notes": "按行业共识"
-      },
-      {
-        "name": "Millennium",
-        "tier": "外资行",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "common_knowledge:头部对冲基金"
-        ],
-        "must_have": true,
-        "notes": "按行业共识,多策略对冲基金"
-      },
-      {
-        "name": "中信证券",
-        "tier": "头部券商研究所",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "common_knowledge:头部券商自营"
-        ],
-        "must_have": true,
-        "notes": "按行业共识,头部券商自营 Quant"
-      },
-      {
-        "name": "中金公司",
-        "tier": "头部券商研究所",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "common_knowledge:头部券商自营"
-        ],
-        "must_have": true,
-        "notes": "按行业共识"
-      },
-      {
-        "name": "Two Sigma",
-        "tier": "外资行",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "common_knowledge:头部对冲基金"
-        ],
-        "must_have": false,
-        "notes": "按行业共识"
-      },
-      {
-        "name": "高瓴量化",
-        "tier": "头部主观私募",
-        "primary_sub_cats": [
-          "买方 Quant"
-        ],
-        "industry_focus": [],
-        "source": [
-          "common_knowledge:头部主观私募"
-        ],
-        "must_have": false,
-        "notes": "按行业共识,高瓴量化条线"
-      }
-    ],
-    "投行 IBD": [
+    "投行IBD": [
       {
         "name": "中金公司",
         "tier": "头部券商研究所",
@@ -2880,7 +2765,7 @@
         "notes": "投顾产品线"
       }
     ],
-    "结构化产品衍生品": [
+    "结构化产品/衍生品": [
       {
         "name": "中金公司",
         "tier": "头部券商研究所",
@@ -2988,7 +2873,7 @@
         "notes": "按行业共识"
       }
     ],
-    "PE投后VC行研": [
+    "PE/VC投资研究与投后": [
       {
         "name": "高瓴资本",
         "tier": "头部PE",

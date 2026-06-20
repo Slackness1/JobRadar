@@ -46,6 +46,7 @@ SUBCAT_TO_STRATEGY: dict[str, str] = {
     "自营FOF": "多资产_FOF_衍生品",
     "财富管理FOF": "多资产_FOF_衍生品",
     "结构化产品衍生品": "多资产_FOF_衍生品",
+    "权益/自营交易员": "多资产_FOF_衍生品",  # v1 2026-06-19: 权益/自营/做市 交易台(markets-side, 非量化策略研发)
     "PE投后VC行研": "相关补充",
     "LLM算法post-train": "AI 应用_PM_开发",
     "Agent工程师": "AI 应用_PM_开发",
