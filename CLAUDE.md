@@ -1,13 +1,14 @@
 # CLAUDE.md
 
-> 新会话**先读这个**。冷启动阅读顺序（2026-05-26 起调整为多会话并行模式）：
-> 1. **CLAUDE.md**（本文件）— 静态架构与规则
-> 2. **WORKTREE_STATUS.md** — 当前 5 个 Claude 会话各自在干什么 / 占了哪个 worktree
-> 3. **ACTIVITY.md** — 最近 14 条交付日志（追加式，按倒序），快速摸清最近一周做了什么
+> 新会话**先读这个**。冷启动阅读顺序：
+> 1. **CLAUDE.md**（本文件）— 静态架构与规则（长期稳定，不放 sprint/一次性状态）
+> 2. **ORCHESTRATOR_HANDOFF_CURRENT.md** — 最新一次总交接：稳定线、各模块状态、当前优先级、已拍板决定、未解决风险
+> 3. **WORKTREE_STATUS.md** — 各 Claude 会话在改什么 / 占了哪个 worktree（实时态以此为准）
+> 4. **ACTIVITY.md** — 最近交付日志（追加式，倒序），摸清最近做了什么
 >
-> 不再依赖 `HANDOFF.md`（已废弃，多会话并行场景下失效）。
+> 不再依赖 `HANDOFF.md`（已废弃）；`PROJECT_STATE.md` / `TASKS.md` / `CHANGELOG.md` 自 2026-05 末已停更，仅作历史参考，实时态看上面 2-4。
 >
-> 其它参考文档按需查：`PRODUCT.md`（谁在用 / 为什么）/ `PROJECT_STATE.md`（模块快照表）/ `TASKS.md`（active sprint）/ `CHANGELOG.md`（周度索引）/ `DECISIONS.md`（为什么是现在的样子）/ `REJECTED.md`（试过但没保留的）。
+> 其它参考按需查：`DECISIONS.md`（为什么是现在的样子）/ `REJECTED.md`（试过但没保留的）/ `docs/_private/saif-proposal-v0.1.md`（谁在用 / 商业 context，私有 repo）。
 
 ## What this project is
 
@@ -190,17 +191,8 @@ Strangler-fig 双写靠 `STUDENT_KB_ENABLED`(legacy `student_experiences`) + `UN
 
 ## Parallel Claude conversations (2026-05 起)
 
-5 个长跑 `-devvpstmux` claude 对话同时开发本仓 / 关联仓库。**新会话工作前先看根目录 `WORKTREE_STATUS.md`** 确认: 别的对话在改什么、占了哪个 worktree、你这条线该专注哪块。
-
-当前布局(2026-05-25 快照, **正在重组中** — Phase 2 起做):
-
-| 对话(customTitle) | cwd | 负责模块 |
-|---|---|---|
-| `网站设计-devvpstmux` | `/home/chuanbo/projects/JobRadar` (本仓 main) | 跨模块 orchestrator(集中写入避免并发冲突,**不是 frontend 专属**) |
-| `简历推荐-devvpstmux` | `/home/ubuntu/projects/JobRadar` (clone B, 待退役) | `backend/app/services/resume_copilot/` |
-| `模拟面试-devvpstmux` | clone B (与简历推荐同 cwd, 待拆) | `backend/app/services/interview/` |
-| `岗位爬取-devvpstmux` | `.../opencode-worktrees/jobrador-edit/.claude/worktrees/cool-gauss-591c17/` | 各 `*_crawler.py` + xhs(待迁入本仓 `.worktrees/crawler-xhs/`) |
-| `战法交易-devvpstmux` | `/home/ubuntu` | 单独仓库 `a-stock-strategy`, **不**碰本仓 |
+多个长跑 `-devvpstmux` claude 对话同时开发本仓 / 关联仓库,分业务线进各自 worktree。
+**当前会话布局、各 worktree 占用、分支与脏/未合并状态 = 以 `WORKTREE_STATUS.md` 为实时唯一真源**(本文件不再硬编码快照,避免过期)。orchestrator 角色固定由 `网站设计-devvpstmux` 承担(集中写入避免并发冲突,**不是 frontend 专属**;长期目标退化为 merge orchestrator)。
 
 **写入约定**:
 - 别在 main 主干做需要别人配合的大段修改; 按业务线进各自 worktree
@@ -235,10 +227,9 @@ DASHSCOPE_ASR_MODEL=paraformer-realtime-v2
 
 | 想看... | 去 |
 |---|---|
-| 谁在用 / 为什么做这个 / 商业 context | `PRODUCT.md` |
-| 当前模块状态 / 在做什么 / 阻塞 | `PROJECT_STATE.md` |
-| 接下来干什么（active sprint + backlog） | `TASKS.md` |
-| 上一段会话留到哪儿 | `HANDOFF.md` |
+| 谁在用 / 为什么做这个 / 商业 context | `docs/_private/saif-proposal-v0.1.md` + 本文件「Why this exists」段 |
+| 当前模块状态 / 优先级 / 风险 / 上段会话留到哪儿 | `ORCHESTRATOR_HANDOFF_CURRENT.md`（实时）+ `ACTIVITY.md`（日志） |
+| 各会话占用哪个 worktree / 分支状态 | `WORKTREE_STATUS.md` |
 | 某决策为什么这么做（架构层） | `DECISIONS.md` |
 | 试过但放弃的工作（防止重复试错） | `REJECTED.md` |
 | SAIF 试点提案 / 学院 commitment | `docs/_private/saif-proposal-v0.1.md`(私有 repo `Slackness1/JobRadar-private`) |
