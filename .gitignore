@@ -129,3 +129,11 @@ backend/data/_phase_g/empty_jd_filled_ids.json
 
 # 一次性 eval/probe 脚本(此前误入库的 3 个已一并 git rm --cached;仍在磁盘+历史)
 backend/scripts/_tmp_*.py
+
+# === 2026-06-21 整理 round3: 定稿存疑项处置(小留痕已入库,大块原料忽略)===
+# 合成原料包(~3MB,含小红书抓取内容,可由爬取+抽取流水线重做)
+backend/data/_phase_g/synthesis_bundles/
+# 互联网 taxonomy 70 类聚类中间态(已合并为已入库的 internet_taxonomy_final.json 21 类)
+backend/data/_phase_g/internet_taxonomy_clusters.json
+# 小红书原始爬取(沿用既定策略:raw 数据入仓由所有者决定 → 决定不入库)
+backend/data/xhs/raw/

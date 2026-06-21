@@ -1,0 +1,325 @@
+[
+ {
+  "bucket": "AI产品经理",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "AI PM",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 644,
+  "boundary": "负责AI功能定义、模型能力产品化、业务策略和解决方案设计；纯算法训练或纯后端开发不归入。",
+  "merged_from": [
+   "AI产品经理",
+   "AI产品与大模型应用实习生",
+   "AI产品与解决方案实习生",
+   "国际电商AI产品经理",
+   "AI产品/AI应用实习生",
+   "游戏美术策划与AI玩法实习生"
+  ]
+ },
+ {
+  "bucket": "AI应用开发工程师",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "AI应用开发工程师",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 261,
+  "boundary": "面向业务场景做AI应用、AIGC工具、AI后端或全栈落地；不含底层模型训练和通用平台研发。",
+  "merged_from": [
+   "商业化广告AI与研发实习生",
+   "AI创作产品与算法研发",
+   "国际支付金融科技",
+   "AI/数据产品与游戏算法实习"
+  ]
+ },
+ {
+  "bucket": "Agent工程师",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "Agent工程师",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 301,
+  "boundary": "以Agent、AI Coding、Computer Use、工具调用和长程任务执行为核心；普通AI应用开发不归入。",
+  "merged_from": [
+   "AI Agent算法/研发",
+   "AI云原生基础设施研发",
+   "大模型算法研究实习生",
+   "大模型安全与风控算法研究"
+  ]
+ },
+ {
+  "bucket": "LLM算法post-train",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "LLM算法post-train",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 506,
+  "boundary": "聚焦大语言模型训练、微调、RLHF、数据合成、模型对齐和垂域大模型算法；偏推荐/CV/工程优化另归类。",
+  "merged_from": [
+   "大模型算法工程师",
+   "大模型算法/应用研发实习生",
+   "大模型与推荐算法工程师",
+   "电商大模型/算法工程师",
+   "大模型算法与AI系统工程师"
+  ]
+ },
+ {
+  "bucket": "多模态推理优化",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "多模态推理优化",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 327,
+  "boundary": "聚焦视觉、语音、音频、端侧、多模态大模型和训推/算子/异构计算优化；纯业务算法不归入。",
+  "merged_from": [
+   "多模态/端侧大模型算法工程师",
+   "大模型基础架构/AI系统研发",
+   "AI算法研究/多模态大模型研究",
+   "AI算法实习生"
+  ]
+ },
+ {
+  "bucket": "AI算法业务",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": "AI算法业务",
+  "is_new": false,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 264,
+  "boundary": "业务场景中的NLP、CV、音频、内容安全、风控等算法应用；大模型底座、Agent和搜广推算法另归类。",
+  "merged_from": [
+   "AI算法实习生",
+   "算法工程师"
+  ]
+ },
+ {
+  "bucket": "搜索推荐广告算法",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 286,
+  "boundary": "搜索、推荐、广告、增长、分发和电商交易算法；通用大模型训练不归入。",
+  "merged_from": [
+   "AI算法实习生",
+   "广告大模型算法研究",
+   "数据科学/数据分析实习生"
+  ]
+ },
+ {
+  "bucket": "具身智能与自动驾驶算法",
+  "strategy_group": "AI应用_PM_开发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 120,
+  "boundary": "机器人、具身智能、自动驾驶感知/规划/控制和世界模型；普通汽车软件或硬件研发不归入。",
+  "merged_from": [
+   "自动驾驶算法工程师",
+   "具身智能/机器人算法工程师"
+  ]
+ },
+ {
+  "bucket": "互联网产品经理",
+  "strategy_group": "互联网产品运营",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 3921,
+  "boundary": "非AI产品经理、策略产品、商业产品、B端/C端产品和产品实习；纯运营、销售或研发不归入。",
+  "merged_from": [
+   "互联网产品与运营实习生",
+   "国际化商业化产品/产品运营实习生",
+   "生活服务/广告产品运营",
+   "广告商业化产品/产品运营",
+   "产品运营/策略运营",
+   "产品运营/用户增长"
+  ]
+ },
+ {
+  "bucket": "内容与社区运营",
+  "strategy_group": "互联网产品运营",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "边界",
+  "est_size": 320,
+  "boundary": "内容生态、社区、直播、公会、创作者和活动运营；偏策略分析或产品经理岗位另归类。",
+  "merged_from": [
+   "内容运营/内容创作运营",
+   "行业/内容运营实习生",
+   "互联网内容营销运营"
+  ]
+ },
+ {
+  "bucket": "电商与商业化运营",
+  "strategy_group": "互联网产品运营",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 153,
+  "boundary": "商家、达人、活动、治理、广告商业化和跨境电商运营；基础客服、审核和地推不归入。",
+  "merged_from": [
+   "跨境电商产品运营",
+   "电商策略运营/战略分析",
+   "跨境电商运营"
+  ]
+ },
+ {
+  "bucket": "销售客户成功与解决方案",
+  "strategy_group": "互联网产品运营",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "边界",
+  "est_size": 116,
+  "boundary": "客户经理、行业运营、解决方案、售前咨询和客户成功；纯产品、研发和数据分析不归入。",
+  "merged_from": [
+   "商业化运营/客户成功"
+  ]
+ },
+ {
+  "bucket": "互联网软件研发",
+  "strategy_group": "互联网研发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 846,
+  "boundary": "前端、后端、客户端、全栈、测试开发、SRE和业务系统研发；AI算法、芯片和汽车嵌入式另归类。",
+  "merged_from": [
+   "软件研发工程师",
+   "互联网研发工程师",
+   "软件研发/测试开发工程师",
+   "TikTok产品技术实习生",
+   "软件开发工程师（前后端）",
+   "协同办公产品研发",
+   "软件研发工程师",
+   "前沿基础技术研究员"
+  ]
+ },
+ {
+  "bucket": "数据平台与基础设施研发",
+  "strategy_group": "互联网研发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 211,
+  "boundary": "大数据开发、数据库、存储、网络、算力平台和数据基础设施研发；业务数据分析不归入。",
+  "merged_from": [
+   "大数据开发/数据平台研发"
+  ]
+ },
+ {
+  "bucket": "芯片硬件与汽车工程",
+  "strategy_group": "互联网研发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 388,
+  "boundary": "芯片、硬件、材料、整车、嵌入式、座舱和功能安全工程；AI芯片算法/系统软件另归AI芯片。",
+  "merged_from": [
+   "硬件芯片与材料研发",
+   "汽车整车研发工程师",
+   "汽车嵌入式软件/功能安全工程师",
+   "AI芯片研发工程师"
+  ]
+ },
+ {
+  "bucket": "安全风控与网络安全",
+  "strategy_group": "互联网研发",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": true,
+  "tier": "进池",
+  "est_size": 100,
+  "boundary": "安全攻防、反作弊、风控产品、安全研发和网络安全；普通法务合规或内容审核不归入。",
+  "merged_from": [
+   "安全风控/网络安全"
+  ]
+ },
+ {
+  "bucket": "数据分析与商业分析",
+  "strategy_group": "互联网数据分析",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 489,
+  "boundary": "数据分析、商业分析、经营分析、策略分析、数据产品和增长分析；数据平台研发和纯运营不归入。",
+  "merged_from": [
+   "数据分析与策略运营",
+   "数据分析/商业分析",
+   "数据分析/策略产品实习生",
+   "数据分析/商业分析"
+  ]
+ },
+ {
+  "bucket": "体验设计与用户研究",
+  "strategy_group": "互联网设计",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "边界",
+  "est_size": 143,
+  "boundary": "视觉设计、体验设计、用户研究、创意设计和游戏美术；AI创作产品或技术美术算法另归AI应用。",
+  "merged_from": [
+   "视觉/体验设计",
+   "游戏美术/视觉设计"
+  ]
+ },
+ {
+  "bucket": "综合管培与战略项目",
+  "strategy_group": "综合管培",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "进池",
+  "est_size": 190,
+  "boundary": "战略分析、管培、项目管理、公共事务、供应链和综合经营类岗位；基础行政执行不归入。",
+  "merged_from": [
+   "国际化业务运营",
+   "项目管理/公共事务",
+   "供应链采购与物流管理"
+  ]
+ },
+ {
+  "bucket": "游戏策划与发行运营",
+  "strategy_group": "其它",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "边界",
+  "est_size": 56,
+  "boundary": "游戏策划、发行、运营和玩法设计；游戏算法、引擎研发或AI玩法另归对应技术桶。",
+  "merged_from": [
+   "游戏运营/策划实习生"
+  ]
+ },
+ {
+  "bucket": "职能财经法务HR",
+  "strategy_group": "其它",
+  "maps_to_existing_ai": null,
+  "is_new": true,
+  "is_ai": false,
+  "tier": "不进池",
+  "est_size": 258,
+  "boundary": "招聘HR、财务、税务、法务、审计、审核和公关等职能支持；财经战略分析或投资类岗位需单独复核。",
+  "merged_from": [
+   "招聘HR实习生",
+   "财务/税务/财经专员",
+   "职能合规与公关专员",
+   "招聘/人力资源实习生"
+  ]
+ }
+]
