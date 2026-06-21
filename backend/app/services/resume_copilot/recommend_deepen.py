@@ -167,6 +167,7 @@ def _student_profile_for_deepen(db, session, preferred_sub_cats: list) -> dict[s
     name = ""
     background = ""
     highlights: list[str] = []
+    education_str = ""
     try:
         from app.routers.resume_copilot import _load_profile_and_prefs
         profile, _prefs = _load_profile_and_prefs(db, getattr(session, "id", None))
@@ -191,14 +192,27 @@ def _student_profile_for_deepen(db, session, preferred_sub_cats: list) -> dict[s
                 aw = str(aw or "").strip()
                 if aw:
                     highlights.append(aw)
+            # Bug C fix: 补喂 education 字段，供 rerank/narrative grounding
+            edu_list = getattr(profile, "education", None) or []
+            if edu_list:
+                edu = edu_list[0]
+                school = str(getattr(edu, "school", "") or "").strip()
+                degree = str(getattr(edu, "degree", "") or "").strip()
+                major = str(getattr(edu, "major", "") or "").strip()
+                edu_parts = [p for p in [school, degree, major] if p]
+                if edu_parts:
+                    education_str = "·".join(edu_parts)
     except Exception:  # noqa: BLE001
         logger.warning("deepen: load profile for highlights failed", exc_info=True)
-    return {
+    result: dict[str, Any] = {
         "name": name,
         "background": background[:600],
         "hidden_highlights": highlights[:8],
         "preferred_sub_cats": preferred_sub_cats,
     }
+    if education_str:
+        result["education"] = education_str
+    return result
 
 
 def _attach_enhanced(it: Any, final_score_0_1) -> Any:

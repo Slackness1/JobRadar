@@ -70,6 +70,8 @@ def _build_user_msg(
     parts: list[str] = []
     parts.append("## 学生")
     parts.append(f"name: {student_profile.get('name', '?')}")
+    if student_profile.get("education"):
+        parts.append(f"学历: {student_profile['education']}")
     if student_profile.get("background"):
         parts.append(f"背景: {student_profile['background']}")
     highlights = student_profile.get("hidden_highlights") or []

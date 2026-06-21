@@ -70,6 +70,8 @@ def _build_rerank_user_message(
     parts.append("## 学生 profile")
     if student_profile.get("name"):
         parts.append(f"name: {student_profile['name']}")
+    if student_profile.get("education"):
+        parts.append(f"学历: {student_profile['education']}")
     if student_profile.get("background"):
         parts.append(f"背景: {student_profile['background']}")
     if student_profile.get("hidden_highlights"):
