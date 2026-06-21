@@ -115,3 +115,17 @@ backend/data/_phase_g/*_timestamp.txt
 # 大体积可再生 embedding 矩阵
 backend/data/_phase_g/*.npy
 backend/data/_phase_g/internet_jd_emb.ids.json
+
+# eval/audit 可再生中间产物。注意:留痕敏感/定稿存疑项(subcat_fit_audit.json /
+# eval/eval_run.jsonl / scoring_packs/ / synthesis_bundles/ / internet_taxonomy_*.json)
+# 故意不在此列,保持未跟踪待人工决定入库与否。
+backend/data/_phase_g/audit_*.jsonl
+!backend/data/_phase_g/audit_2026-05-28.jsonl
+backend/data/_phase_g/cascade_validation.json
+backend/data/_phase_g/divergence_map.json
+backend/data/_phase_g/model_ab_eval.json
+backend/data/_phase_g/empty_jd_backfill_worklist.json
+backend/data/_phase_g/empty_jd_filled_ids.json
+
+# 一次性 eval/probe 脚本(此前误入库的 3 个已一并 git rm --cached;仍在磁盘+历史)
+backend/scripts/_tmp_*.py
