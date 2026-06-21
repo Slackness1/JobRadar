@@ -1,0 +1,149 @@
+[
+  {
+    "persona_id": "P1",
+    "session_id": 138,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "clarifying",
+    "has_draft": true,
+    "risk_flag_kinds": [
+      "vague_verb"
+    ],
+    "archive_confidence": 0.6,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P2",
+    "session_id": 139,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200
+    ],
+    "final_focus_status": "awaiting_review",
+    "has_draft": true,
+    "risk_flag_kinds": [],
+    "archive_confidence": 0.9,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P3",
+    "session_id": 140,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "clarifying",
+    "has_draft": true,
+    "risk_flag_kinds": [],
+    "archive_confidence": 0.9,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P4",
+    "session_id": 141,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "awaiting_review",
+    "has_draft": true,
+    "risk_flag_kinds": [
+      "leadership_unverified"
+    ],
+    "archive_confidence": 0.6,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P5",
+    "session_id": 142,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "awaiting_review",
+    "has_draft": true,
+    "risk_flag_kinds": [
+      "tech_unverified"
+    ],
+    "archive_confidence": 0.6,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P6",
+    "session_id": 143,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "awaiting_review",
+    "has_draft": true,
+    "risk_flag_kinds": [],
+    "archive_confidence": 0.9,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P7",
+    "session_id": 144,
+    "status": "PASS",
+    "blockers": [],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200,
+      200
+    ],
+    "final_focus_status": "clarifying",
+    "has_draft": false,
+    "risk_flag_kinds": [],
+    "archive_confidence": null,
+    "chat_forbidden_copy_hits": []
+  },
+  {
+    "persona_id": "P8",
+    "session_id": 145,
+    "status": "BLOCKER",
+    "blockers": [
+      "p8_redline_no_risk_flags"
+    ],
+    "majors": [],
+    "coach_turn_statuses": [
+      200,
+      200
+    ],
+    "final_focus_status": "awaiting_review",
+    "has_draft": true,
+    "risk_flag_kinds": [],
+    "archive_confidence": 0.9,
+    "chat_forbidden_copy_hits": []
+  }
+]
