@@ -222,9 +222,9 @@ def enrich(
             if ins["insight_id"] not in seen_ids:
                 insights.append(ins)
                 seen_ids.add(ins["insight_id"])
-    if len(insights) < 5:  # still thin — semantic widening
+    if len(insights) < 5:  # still thin — semantic widening (company-scoped only)
         q = f"{company} {role or ''} 待遇 面试 要求 校招".strip()
-        sem = retrieve.search(db, query=q, limit=k)
+        sem = retrieve.search(db, query=q, company=[company], limit=k)
         seen_ids = {i["insight_id"] for i in insights}
         for ins in sem:
             if ins["insight_id"] not in seen_ids:
