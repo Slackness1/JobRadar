@@ -527,19 +527,6 @@ export function IntelDrawer({
             {quotes.map((q, i) => (
               <IntelQuote key={`q-${i}`} q={q} hero={i === 0} />
             ))}
-            <div className="workspace-hifi__intel-keywords">
-              <div className="hf-overline workspace-hifi__intel-keywords-title">
-                高频关键词 · 从原话提炼
-              </div>
-              <div className="workspace-hifi__intel-keywords-row">
-                {/* P0b: hardcode 5 placeholder — TODO P1 接 LLM keyword extraction */}
-                {['投行四百问', '流水抽凭', '递延所得税', 'DCF 假设', '疯狂质疑假设'].map((t) => (
-                  <span key={t} className="hf-pill workspace-hifi__intel-keyword-pill">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 
