@@ -37,7 +37,7 @@ export interface PlatformCardProps {
   /** P0b — 小红书 badge 点击 + 卡内 CTA 转到 IntelDrawer (替换 inline 情报段). */
   onOpenIntel?: (
     company: string,
-    ctx?: { priority?: string | null; xhsCount?: number | null },
+    ctx?: { priority?: string | null; xhsCount?: number | null; role?: string | null },
   ) => void;
 }
 
@@ -61,6 +61,7 @@ export function PlatformCard({
     onOpenIntel?.(platform.company, {
       priority: priorityLetter || null,
       xhsCount,
+      role: platform.top_jobs[0]?.job_title || null,
     });
   };
 

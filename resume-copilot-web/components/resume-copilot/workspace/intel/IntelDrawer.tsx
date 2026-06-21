@@ -117,6 +117,8 @@ export interface IntelDrawerProps {
   jobId?: number | null;
   /** 岗位哈希(jobs.job_id) — hub feed 传这个；有值时优先于 jobId. */
   jobKey?: string | null;
+  /** 岗位名称 — 透传给后端 /api/intel/company-card?role=<job_title>,避免张冠李戴. */
+  role?: string | null;
   /** 用户点关闭(右上角 ✕). */
   onClose: () => void;
   /** 用户点 "用这些做 Coach 定制" — P1 接 Coach mode;P0b 只 placeholder 日志. */
@@ -131,6 +133,7 @@ export function IntelDrawer({
   xhsCount,
   jobId,
   jobKey,
+  role,
   onClose,
   onMock,
   hideFooter,
@@ -141,6 +144,7 @@ export function IntelDrawer({
   // changes, snap card/loading/failed back to initial without an effect.
   // The effect below only fires the network request.
   const [activeCompany, setActiveCompany] = useState<string>(companyName);
+  const [activeRole, setActiveRole] = useState<string | null | undefined>(role);
   const [tab, setTab] = useState<IntelTabId>('quotes');
   const [card, setCard] = useState<IntelCard | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -160,19 +164,21 @@ export function IntelDrawer({
     setJobCardLoading(Boolean(jobRef));
   }
 
-  if (companyName !== activeCompany) {
+  if (companyName !== activeCompany || role !== activeRole) {
     setActiveCompany(companyName);
+    setActiveRole(role);
     setCard(null);
     setLoading(Boolean(companyName));
     setFailed(false);
     setTab('quotes');
   }
 
-  // Fire fetch when activeCompany changes (real "external sync" — effect ok).
+  // Fire fetch when activeCompany or activeRole changes (real "external sync" — effect ok).
   useEffect(() => {
     if (!activeCompany) return;
     const controller = new AbortController();
     const params = new URLSearchParams({ company: activeCompany });
+    if (activeRole) params.set('role', activeRole);
     fetch(`/api/intel/company-card?${params.toString()}`, {
       signal: controller.signal,
     })
@@ -191,7 +197,7 @@ export function IntelDrawer({
         setLoading(false);
       });
     return () => controller.abort();
-  }, [activeCompany]);
+  }, [activeCompany, activeRole]);
 
   // Fetch job intel card when activeJobRef changes (only when a real ref is set).
   // Loading is pre-set to true in the render-time adjust block above.

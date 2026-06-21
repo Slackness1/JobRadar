@@ -228,6 +228,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
     priority?: string | null;
     xhsCount?: number | null;
     jobId?: number | null;
+    role?: string | null;
   }>({});
 
   // ── P1 Coach takeover state (2026-05-26) ──────────────────────────────
@@ -262,7 +263,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
   }, []);
 
   const handleOpenIntel = useCallback(
-    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null }) => {
+    (company: string, ctx?: { priority?: string | null; xhsCount?: number | null; jobId?: number | null; role?: string | null }) => {
       setIntelOpenCompany(company);
       setIntelOpenContext(ctx ?? {});
     },
@@ -429,6 +430,7 @@ export function WorkspaceShell(props: WorkspaceShellProps) {
                 priority={intelOpenContext.priority}
                 xhsCount={intelOpenContext.xhsCount}
                 jobId={intelOpenContext.jobId}
+                role={intelOpenContext.role}
                 onClose={handleCloseIntel}
                 onMock={handleIntelMock}
               />
