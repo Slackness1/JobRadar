@@ -125,7 +125,7 @@ backend/data/_phase_g/cascade_validation.json
 backend/data/_phase_g/divergence_map.json
 backend/data/_phase_g/model_ab_eval.json
 backend/data/_phase_g/empty_jd_backfill_worklist.json
-backend/data/_phase_g/empty_jd_filled_ids.json
+# empty_jd_filled_ids.json 改为入库留痕:它是补回 310 条的成果记录 + orchestrator enrich 重跑的输入,不该当中间态忽略
 
 # 一次性 eval/probe 脚本(此前误入库的 3 个已一并 git rm --cached;仍在磁盘+历史)
 backend/scripts/_tmp_*.py
