@@ -13,8 +13,8 @@ JobRadar = 中文校招岗位追踪 + 简历/面试 AI,**为 SAIF(上交大高�
 
 ## 2. 稳定线(Git 证据)
 
-- **trunk = `origin/hub-shell-frontend @ ac677fe`**(已推,无未推 commit)。
-- 主工作目录 checkout 在 `hub-shell-frontend`(**非 main**)。`hub-shell-frontend` 与 `origin/main` 分叉(~45↑/41↓)。
+- **trunk = `origin/hub-shell-frontend @ 49a7377`**(已推,== origin/hub-shell-frontend,无未推 commit)。`ac677fe`(金融 sub_cat v1)是其父;**本份交接 + CLAUDE/WORKTREE_STATUS 收口已提交为 `49a7377` 并推上云**(不再是未提交草稿)。
+- 主工作目录 checkout 在 `hub-shell-frontend`(**非 main**)。`hub-shell-frontend` 与 `origin/main` 分叉(**46↑/41↓**,分叉点 `c9d8b1b` 2026-06-16)。
 - **prod(jobcopilot.top)= 分支 `main @ 124fcb5`,service active**(2026-06-21 实测)。其内容 = 轮次9 修复(与 dev `d2e179b` 同一逻辑提交,cherry-pick 到 main、SHA 不同)。**本会话的 sub_cat 提交 `ac677fe` 未上 prod**(对,它依赖 dev DB 数据、尚未部署)。
 - ⚠️ dev `hub-shell-frontend` 与 `origin/main` 的 "ahead/behind" 主要来自 **cherry-pick 部署导致的 SHA 分叉**,不是丢了工作;但**整合/部署前仍按 `jobradar-vps-deploy` skill 的 cherry-pick 流程,别直接 merge 分支到 main**。
 - 救援快照:`/home/ubuntu/jobradar-rescue-20260621/`(离线 bundle + 未提交 patch + 一致性 DB 备份 + 校验)。

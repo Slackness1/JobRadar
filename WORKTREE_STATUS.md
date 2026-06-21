@@ -6,7 +6,7 @@
 
 ## 稳定线
 
-- **trunk = `origin/hub-shell-frontend @ ac677fe`**(最新前端 + 推荐/hub + 金融 sub_cat v1)。已全部推上云,无未推 commit。
+- **trunk = `origin/hub-shell-frontend @ 49a7377`**(最新前端 + 推荐/hub + 金融 sub_cat v1 + 本份交接收口)。已全部推上云,无未推 commit。`ac677fe`(金融 sub_cat)是其父。
 - 本仓主工作目录 `/home/chuanbo/projects/JobRadar` 当前 checkout 在 `hub-shell-frontend`(**不是 main**)。
 - **prod(jobcopilot.top)= `main @ 124fcb5`,active**(2026-06-21 实测)= 轮次9 修复,与 dev `d2e179b` 同内容(cherry-pick,SHA 不同)。sub_cat 提交 `ac677fe` 未上 prod。
 - `hub-shell-frontend` 与 `origin/main` 的 ahead/behind 主要是 cherry-pick 部署造成的 SHA 分叉,**非丢工作**;部署仍走 `jobradar-vps-deploy` 的 cherry-pick 流程,别直接 merge 分支到 main。

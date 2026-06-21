@@ -91,3 +91,27 @@ backend/data/xhs/_processed/notes_dropped.jsonl
 # Clone Slackness1/JobRadar-private into docs/_private/ to populate.
 docs/_private/
 backend/data/_private/
+
+# === 2026-06-21 整理(网站设计-devvpstmux): 屏蔽可再生/备份/中间态噪声 ===
+# TypeScript 增量构建缓存(tsconfig.tsbuildinfo 已 git rm --cached)
+*.tsbuildinfo
+
+# 后端运行日志(可再生)
+backend/logs/
+
+# backend/data 顶层手工备份(连字符/下划线后缀,*.bak / *.bak.* 漏网)
+backend/data/*.bak-*
+backend/data/*.bak_*
+
+# _phase_g enrich/reclass 迁移中间态 —— 只点名后缀,绝不整目录(_phase_g 有 73 个已入库正经数据)
+backend/data/_phase_g/*_rollback.json
+backend/data/_phase_g/*_rollback.round*.json
+backend/data/_phase_g/*_backup.json
+backend/data/_phase_g/*_backup_*.json
+backend/data/_phase_g/*_PRE_backup.json
+backend/data/_phase_g/*_progress.json
+backend/data/_phase_g/*_timestamp.txt
+
+# 大体积可再生 embedding 矩阵
+backend/data/_phase_g/*.npy
+backend/data/_phase_g/internet_jd_emb.ids.json
