@@ -81,6 +81,10 @@ from app.config import RECOMMENDATION_V2_ENABLED
 from app.services.llm_json import deepseek_json_fn
 
 import logging
+import re
+
+from app.routers.auth import _extract_bearer
+from app.services.auth import auth_service
 
 log = logging.getLogger(__name__)
 
@@ -89,6 +93,46 @@ router = APIRouter(prefix='/api/resume-copilot', tags=['resume-copilot'])
 
 GUEST_SESSION_TTL = timedelta(hours=24)
 USER_SESSION_TTL = timedelta(days=7)
+
+# 登录账号 user_key 形如 u_<自增id> (auth_service.user_key_for)。这个值可枚举,
+# 所以它只有在被一个 *服务端验证过的 bearer token* 背书时才可信 — 否则任何登录用户
+# 改一下 X-Resume-User-Key header 就能冒充别人。Guest 的 key 是随机 UUID, 不属此形。
+_ACCOUNT_USER_KEY_RE = re.compile(r'^u_\d+$')
+
+
+def resolve_user_key(
+    authorization: str | None = Header(default=None),
+    x_resume_user_key: str = Header(default=''),
+    x_guest: str = Header(default=''),
+    db: Session = Depends(get_db),
+) -> str:
+    """集中式身份解析: 返回一个 **可信** 的 user_key 供归属校验使用。
+
+    安全不变量 —— "登录账号身份必须由服务端验证的 token 推导, header 不得冒充":
+
+      1) 带 bearer token:
+           - token 合法 → 用 auth_service.user_key_for(user) 推出权威 u_<id>,
+             *忽略* header 里传的值 (即便它跟 token 用户不一致, 以 token 为准);
+           - token 非法/过期 → 401。不静默回退 header, 否则攻击者塞个假 token
+             就能绕回 header 冒充。
+      2) 无 token:
+           - header 给的是账号形 key (u_<id>) → 这是可枚举的登录身份, 没有 token
+             背书一律不认, 返回空 key (→ 归属校验 403)。这正是堵掉的越权口子。
+           - 否则 (guest 随机 UUID / 历史非账号 key) → 沿用 header 值, 保持 guest /
+             demo / 历史会话既有行为不变。X-Guest 只作显式 guest 信号, 不改变上面逻辑。
+    """
+    token = _extract_bearer(authorization)
+    if token:
+        user = auth_service.resolve_session(db, token)
+        if user is None:
+            raise HTTPException(status_code=401, detail='登录态已过期,请重新登录')
+        return auth_service.user_key_for(user)
+
+    header_key = (x_resume_user_key or '').strip()
+    if _ACCOUNT_USER_KEY_RE.match(header_key):
+        # 账号形 key 但无 token 背书 — 拒绝冒充, 退化成匿名 (空 key)。
+        return ''
+    return header_key
 
 
 def _load_profile_and_prefs(
@@ -251,10 +295,10 @@ def _build_session_out(session: ResumeCopilotSession) -> ResumeCopilotSessionOut
 
 @router.get('/sessions', response_model=list[ResumeCopilotSessionListItem])
 def list_resume_copilot_sessions(
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    if not x_resume_user_key:
+    if not user_key:
         return []
     rows = (
         db.query(ResumeCopilotSession)
@@ -264,7 +308,7 @@ def list_resume_copilot_sessions(
             joinedload(ResumeCopilotSession.parsed_profile),
             joinedload(ResumeCopilotSession.preference_profile),
         )
-        .filter(ResumeCopilotSession.user_key == x_resume_user_key)
+        .filter(ResumeCopilotSession.user_key == user_key)
         .order_by(ResumeCopilotSession.updated_at.desc())
         .limit(20)
         .all()
@@ -362,13 +406,13 @@ def _session_card_summary(r: ResumeCopilotSession) -> dict[str, Any]:
 async def create_resume_copilot_session(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
     # 配额闸 — 解析简历会跑 LLM,先挡一道
     from app.services.llm_quota import check_quota_or_raise
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     try:
         validate_pdf_upload(file.filename or '', file.content_type or '')
         file_bytes = await file.read()
@@ -379,7 +423,7 @@ async def create_resume_copilot_session(
     is_guest = 1 if x_guest.strip().lower() in {'1', 'true', 'yes'} else 0
     session = ResumeCopilotSession(
         file_name=file.filename or '',
-        user_key=x_resume_user_key,
+        user_key=user_key,
         status=SessionStatus.PARSING_PROFILE.value,
         extracted_text=extracted_text,
         is_guest=is_guest,
@@ -400,13 +444,13 @@ async def create_resume_copilot_session(
 @router.get('/sessions/{session_id}', response_model=ResumeCopilotSessionOut)
 def get_resume_copilot_session(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_eager(db, session_id)
     if not session:
         raise HTTPException(status_code=404, detail=f'Resume copilot session {session_id} not found')
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     return _build_session_out(session)
 
 
@@ -414,11 +458,11 @@ def get_resume_copilot_session(
 def rename_resume_copilot_session(
     session_id: int,
     payload: ResumeCopilotRenameIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     session.name = payload.name.strip()[:120]
     session.updated_at = datetime.utcnow()
@@ -433,11 +477,11 @@ def rename_resume_copilot_session(
 @router.delete('/sessions/{session_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_resume_copilot_session(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     db.delete(session)
     db.commit()
@@ -465,7 +509,7 @@ def _active_session_count(db: Session, user_key: str) -> int:
 )
 def duplicate_resume_copilot_session(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """复制一份会话: 克隆 解析简历 / 确认简历 / 偏好 / 推荐快照 到新会话(名字加 '· 副本')。
@@ -474,8 +518,8 @@ def duplicate_resume_copilot_session(
     一并搬该会话的记忆行。受 MAX_ACTIVE_SESSIONS 在用上限约束。
     """
     src = _get_session_or_404(db, session_id)
-    _assert_session_owner(src, x_resume_user_key)
-    key = (x_resume_user_key or '').strip()
+    _assert_session_owner(src, user_key)
+    key = (user_key or '').strip()
     if not key:
         raise HTTPException(status_code=400, detail='缺少用户标识, 无法复制')
     if _active_session_count(db, key) >= MAX_ACTIVE_SESSIONS:
@@ -538,11 +582,11 @@ def duplicate_resume_copilot_session(
 @router.get('/sessions/{session_id}/parsed-profile', response_model=ResumeParsedProfileOut)
 def get_resume_copilot_parsed_profile(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     profile = db.query(ResumeParsedProfile).filter(ResumeParsedProfile.session_id == session_id).first()
     if not profile:
         raise HTTPException(status_code=404, detail=f'Parsed profile for session {session_id} not found')
@@ -556,11 +600,11 @@ def get_resume_copilot_parsed_profile(
 @router.get('/sessions/{session_id}/confirmed-profile', response_model=ResumeConfirmedProfileOut)
 def get_resume_copilot_confirmed_profile(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not profile:
         raise HTTPException(status_code=404, detail=f'Confirmed profile for session {session_id} not found')
@@ -575,11 +619,11 @@ def get_resume_copilot_confirmed_profile(
 def put_resume_copilot_confirmed_profile(
     session_id: int,
     payload: ResumeConfirmedProfileIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
     profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
 
@@ -642,11 +686,11 @@ def put_resume_copilot_confirmed_profile(
 @router.get('/sessions/{session_id}/export.pdf')
 def export_resume_pdf(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     confirmed = (
         db.query(ResumeConfirmedProfile)
@@ -722,7 +766,7 @@ def _load_score_inputs(
 def score_resume_session(
     session_id: int,
     body: ScoreRequestIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """多维度诚实打分 (B1)。只读,不写库 — demo 简历也可打分。
@@ -730,7 +774,7 @@ def score_resume_session(
     同步阻塞版, 留作兼容; Hub 走 /score/start + /score/status 任务制。
     """
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     profile, preferences, target = _load_score_inputs(db, session_id, body.target_track)
 
     # 模块级 provider 钩子,测试可 monkeypatch _scoring_mod.OpenAICompatibleResumeScorer。
@@ -763,7 +807,7 @@ class ScoreStartIn(BaseModel):
 def start_score_task(
     session_id: int,
     body: ScoreStartIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """启动后台打分任务(立即返回)。
@@ -773,7 +817,7 @@ def start_score_task(
     demo 简历也可打。body.profile 给了就打这份(编辑器版本快照), 否则按库里画像。
     """
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     profile, preferences, target = _load_score_inputs(db, session_id, body.target_track)
     if body.profile is not None:
         # 编辑器「重新打分」: 打当前版本的简历快照(可能与库里 confirmed 不同)。
@@ -788,7 +832,7 @@ def start_score_task(
 @router.get('/sessions/{session_id}/score/status')
 def get_score_task_status(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """轮询打分任务真实进度。status: none|running|done|failed; stage: prepare|llm|parse|done。
@@ -797,14 +841,14 @@ def get_score_task_status(
     不再各打一遍 LLM、也不再互相对不上(修「对话出了报告, 面板还在打分中」)。
     """
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     return {"session_id": session_id, **_score_task_mod.get_task_snapshot(session_id)}
 
 
 @router.get('/sessions/{session_id}/feedback', response_model=ResumeFeedbackResultOut)
 def get_resume_feedback(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> ResumeFeedbackResultOut:
     """整体反馈读接口(诊断 + 改写示例)。
@@ -815,7 +859,7 @@ def get_resume_feedback(
     "暂无整体反馈"而不是崩。
     """
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     run = (
         db.query(ResumeFeedbackRun)
         .filter(ResumeFeedbackRun.session_id == session_id)
@@ -850,11 +894,11 @@ def get_resume_feedback(
 @router.get('/sessions/{session_id}/preferences', response_model=ResumePreferenceOut)
 def get_resume_copilot_preferences(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     preference_profile = db.query(ResumePreferenceProfile).filter(ResumePreferenceProfile.session_id == session_id).first()
     if not preference_profile:
         raise HTTPException(status_code=404, detail=f'Preferences for session {session_id} not found')
@@ -883,7 +927,7 @@ def put_resume_copilot_preferences(
     session_id: int,
     payload: ResumePreferenceIn,
     response: Response,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Save student preferences.
@@ -904,7 +948,7 @@ def put_resume_copilot_preferences(
     )
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     # Canonicalize preferred_tracks before persisting. Track strings that
@@ -960,7 +1004,7 @@ def put_resume_copilot_preferences(
 def post_deep_optimize_start(
     session_id: int,
     payload: DeepOptimizeStartIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """从打分逐段缺口进入深度优化:播种聚焦该段的单 item plan(覆盖现有 plan),
@@ -972,7 +1016,7 @@ def post_deep_optimize_start(
     )
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     # 该段简历原文入证据池(STRONG)——否则审计铁律会逼学生把简历重新口述一遍。
@@ -1008,7 +1052,7 @@ def post_deep_optimize_start(
 @router.post('/sessions/{session_id}/deep-optimize/write-back', response_model=DeepOptimizeWriteBackOut)
 def post_deep_optimize_write_back(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """深度优化写回:把当前 item 的 finalized draft 写进 confirmed profile 对应段落,
@@ -1016,7 +1060,7 @@ def post_deep_optimize_write_back(
     from app.services.resume_copilot.deep_optimize import write_back_current_draft
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     plan = _load_plan(session_obj)
@@ -1055,15 +1099,15 @@ def post_deep_optimize_write_back(
 def generate_resume_recommendations(
     session_id: int,
     background_tasks: BackgroundTasks,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     # 配额闸:超额直接 429
     from app.services.llm_quota import check_quota_or_raise
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     confirmed_profile = db.query(ResumeConfirmedProfile).filter(ResumeConfirmedProfile.session_id == session_id).first()
     if not confirmed_profile:
         raise HTTPException(status_code=409, detail='CONFIRMED_PROFILE_REQUIRED')
@@ -1109,11 +1153,11 @@ def generate_resume_recommendations(
 @router.get('/sessions/{session_id}/recommendations', response_model=ResumeRecommendationResultOut)
 def get_resume_copilot_recommendations(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     recommendation_run = db.query(ResumeRecommendationRun).filter(ResumeRecommendationRun.session_id == session_id).first()
     if not recommendation_run:
         raise HTTPException(status_code=404, detail=f'Recommendations for session {session_id} not found')
@@ -1137,7 +1181,7 @@ def get_resume_copilot_recommendations(
 )
 def get_resume_copilot_recommendation_platforms(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Phase 3 (2026-05-24) — 返回按公司聚合的"平台卡片"列表。
@@ -1155,7 +1199,7 @@ def get_resume_copilot_recommendation_platforms(
         merge_fallback_companies,
     )
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     recommendation_run = db.query(ResumeRecommendationRun).filter(
         ResumeRecommendationRun.session_id == session_id
     ).first()
@@ -1203,7 +1247,7 @@ def get_resume_copilot_recommendation_platforms(
 @router.get('/sessions/{session_id}/job-mode', response_model=ResumeJobModeOut)
 def get_resume_copilot_job_mode(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Phase G G2-D — 求职模式判定 (实习/全职/both) + 默认 tab + 解释 banner。
@@ -1212,7 +1256,7 @@ def get_resume_copilot_job_mode(
     否则从简历毕业时间推 (stage_inferred=True 提示前端这是猜的、可改)。
     """
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     from app.services.phase_g.recommendation_v2.job_mode import (
         STAGE_UNKNOWN,
@@ -1269,7 +1313,7 @@ def get_resume_copilot_job_mode(
 def get_recommend_narrative(
     session_id: int,
     job_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     refresh: int = 0,
     db: Session = Depends(get_db),
 ):
@@ -1282,7 +1326,7 @@ def get_recommend_narrative(
     """
     from app.services.resume_copilot import narrative as narrative_svc
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     # Load confirmed profile (narrative 必须基于 confirmed,不是 parsed)
     cp = db.query(ResumeConfirmedProfile).filter(
@@ -1315,7 +1359,7 @@ def get_recommend_narrative(
 
     payload = narrative_svc.generate(
         db,
-        user_key=str(getattr(session, 'user_key', '') or x_resume_user_key or ''),
+        user_key=str(getattr(session, 'user_key', '') or user_key or ''),
         job_item=job_item,
         profile=profile_dict,
         use_cache=(refresh == 0),
@@ -1339,7 +1383,7 @@ def post_reject_recommendation(
     session_id: int,
     job_id: str,
     payload: RecommendRejectIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> RecommendRejectOut:
     """BE-3 of main-workspace-redesign-2026-05-20 (D-2 / D-3): user ✗'d a job
@@ -1368,7 +1412,7 @@ def post_reject_recommendation(
     from app.services.memory.schemas import PreferencePayload
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     reason_key = (payload.reason or '').strip()
@@ -1506,7 +1550,7 @@ def _attach_posted_dates(db: Session, items: list) -> None:
              response_model=ResumeRecommendationResultOut)
 def post_recommendations_next_batch(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> ResumeRecommendationResultOut:
     """推荐 2.0「换一批」:从 pool_json 排除已看过/已屏蔽取下一页,设为当前页并标记看过。"""
@@ -1515,7 +1559,7 @@ def post_recommendations_next_batch(
     from app import config
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     run = db.query(ResumeRecommendationRun).filter(
@@ -1553,7 +1597,7 @@ def post_job_state(
     session_id: int,
     job_id: str,
     payload: JobStateIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> JobStateOut:
     """推荐 2.0:设置/清除某岗位的显式状态(收藏想投/已投递/不合适)。
@@ -1564,7 +1608,7 @@ def post_job_state(
     from app.services.resume_copilot import job_state as js
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     user_key = str(getattr(session_obj, 'user_key', '') or '')
@@ -1580,12 +1624,12 @@ def post_job_state(
 
 @router.get('/my-jobs', response_model=MyJobsOut)
 def get_my_jobs(
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> MyJobsOut:
     """推荐 2.0:按 user_key 聚合该用户标记过的岗位(收藏想投/已投递/不合适)。"""
     from app.services.resume_copilot import job_state as js
-    user_key = (x_resume_user_key or '').strip()
+    user_key = (user_key or '').strip()
     if not user_key:
         return MyJobsOut(counts=MyJobsCounts())
     grouped = js.my_jobs_grouped(db, user_key)
@@ -1595,11 +1639,11 @@ def get_my_jobs(
 @router.get('/sessions/{session_id}/direction-analysis', response_model=list[DirectionTierResult])
 def get_direction_analysis(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
     ).first()
@@ -1615,11 +1659,11 @@ def get_direction_analysis(
 @router.get('/sessions/{session_id}/chat', response_model=list[ResumeCopilotMessageOut])
 def get_chat_messages(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     msgs = (
         db.query(ResumeCopilotMessage)
         .filter(ResumeCopilotMessage.session_id == session_id)
@@ -1648,16 +1692,16 @@ def post_chat_message(
     session_id: int,
     payload: ChatMessageIn,
     background_tasks: BackgroundTasks,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.resume_copilot.chat import generate_chat_turn
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
     from app.services.llm_quota import check_quota_or_raise
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     direction_run = db.query(ResumeDirectionAnalysisRun).filter(
         ResumeDirectionAnalysisRun.session_id == session_id
     ).first()
@@ -1715,13 +1759,13 @@ def _dispatch_student_kb_extraction(
 def post_apply_rewrite(
     session_id: int,
     payload: ApplyRewriteIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.resume_copilot.chat import apply_rewrite
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
     try:
         updated_profile = apply_rewrite(
@@ -1742,7 +1786,7 @@ def post_apply_rewrite(
 def post_rewrite_v0_v2(
     session_id: int,
     payload: RewriteV0V2In,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Generate v0 (echo) + v2 (thesis-aware) rewrite for one bullet.
@@ -1754,7 +1798,7 @@ def post_rewrite_v0_v2(
     from app.services.resume_copilot.chat import propose_rewrite_v0_v2
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     return propose_rewrite_v0_v2(
@@ -1808,7 +1852,7 @@ def _parsed_counts_from_profile(session: ResumeCopilotSession) -> dict[str, int]
 def post_plan_start(
     session_id: int,
     payload: PlanStartIn = PlanStartIn(),
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Bootstrap the plan from the fixed template + parsed counts.
@@ -1827,7 +1871,7 @@ def post_plan_start(
     from app.models import AccountMemory
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     if getattr(session_obj, 'plan_json', None):
@@ -1926,11 +1970,11 @@ def post_plan_start(
 @router.get('/sessions/{session_id}/plan', response_model=PlanStateOut)
 def get_plan(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     plan = _load_plan(session_obj)
     if plan is None:
         raise HTTPException(status_code=404, detail='NO_PLAN — call POST /plan/start first')
@@ -1943,7 +1987,7 @@ def get_plan(
 )
 def delete_plan(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> Response:
     """Clear the existing plan_json so a fresh /plan/start can run.
@@ -1954,7 +1998,7 @@ def delete_plan(
     they sat there waiting. With DELETE the FE can wipe + restart with the
     right focus_id."""
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     if getattr(session_obj, 'plan_json', None) or getattr(session_obj, 'plan_status', None):
@@ -1967,7 +2011,7 @@ def delete_plan(
 @router.post('/sessions/{session_id}/plan/approve', response_model=PlanStateOut)
 def post_plan_approve(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Transition awaiting_plan_approval → clarifying. After this the agent
@@ -1975,7 +2019,7 @@ def post_plan_approve(
     from app.services.resume_copilot.plan import PlanStatus
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     plan = _load_plan(session_obj)
@@ -1999,7 +2043,7 @@ def post_plan_turn(
     session_id: int,
     payload: ChatMessageIn,
     target_item_id: str | None = None,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """One LLM-driven plan-mode turn.
@@ -2012,7 +2056,7 @@ def post_plan_turn(
     from app.services.resume_copilot.plan_turn import run_plan_turn
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     if not getattr(session_obj, 'plan_json', None):
@@ -2058,7 +2102,7 @@ class PlanDistillOut(_BaseModel):
 def post_plan_distill(
     session_id: int,
     item_id: str | None = None,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> PlanDistillOut:
     """H 2026-05-22: 学生反馈"入档时有很多重复的原话, 应该让 LLM 精炼"。
@@ -2069,7 +2113,7 @@ def post_plan_distill(
     from app.services.resume_copilot.archive_distill import distill_for_archive
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     plan = _load_plan(session_obj)
@@ -2098,7 +2142,7 @@ def post_plan_distill(
 def post_plan_action(
     session_id: int,
     payload: AgentActionIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Apply one AgentAction. Single mutation entrypoint for plan-mode.
@@ -2113,7 +2157,7 @@ def post_plan_action(
     )
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     plan = _load_plan(session_obj)
@@ -2161,7 +2205,7 @@ def post_plan_action(
 )
 def get_session_memory(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> MemoryGroupedOut:
     """Return all non-archived ``account_memory`` rows for this session's
@@ -2177,7 +2221,7 @@ def get_session_memory(
     )
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
 
     grouped = list_entries_by_category(
         db,
@@ -2204,7 +2248,7 @@ def get_session_memory(
 def post_session_memory(
     session_id: int,
     payload: MemoryEntryCreateIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> MemoryEntryOut:
     """Manually insert a row into ``account_memory`` for this session's
@@ -2214,7 +2258,7 @@ def post_session_memory(
     from app.services.memory.dispatcher import write_memory
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     user_key = str(getattr(session_obj, 'user_key', '') or '')
@@ -2294,7 +2338,7 @@ def patch_session_memory_entry(
     session_id: int,
     entry_id: int,
     body: MemoryEntryPatchIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> MemoryEntryOut:
     """Edit one memory entry. A-3 简: only ``summary`` / ``payload`` mutable.
@@ -2311,7 +2355,7 @@ def patch_session_memory_entry(
     from app.services.memory.schemas import validate_payload
 
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     if body.summary is None and body.payload is None:
@@ -2364,7 +2408,7 @@ def get_resume_copilot_tier_fit(
     session_id: int,
     sub_cat: str | None = None,
     refresh: int = 0,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> dict:
     """返回学生对指定赛道的档次定位（稳/匹配/冲刺三档 + 理由）。
@@ -2378,7 +2422,7 @@ def get_resume_copilot_tier_fit(
     from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     profile, prefs = _load_profile_and_prefs(db, session_id)
 
@@ -2423,7 +2467,7 @@ def get_platforms_by_tier(
     session_id: int,
     sub_cat: str | None = None,
     mode: str | None = None,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> dict:
     """返回指定赛道的梯队骨架：GT 重点公司按头部/次头部/腰部分档，
@@ -2437,7 +2481,7 @@ def get_platforms_by_tier(
     from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     profile, prefs = _load_profile_and_prefs(db, session_id)
 
@@ -2474,7 +2518,7 @@ def get_company_track_jobs(
     company: str,
     sub_cat: str | None = None,
     mode: str | None = None,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> dict:
     """梯队骨架:某公司在「当前赛道」的全部在招对口岗(解除骨架预览的 5 条上限)。"""
@@ -2482,7 +2526,7 @@ def get_company_track_jobs(
     from app.services.resume_copilot.recommendation import _v2_extract_preferred_sub_cats
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     if not sub_cat:
         profile, prefs = _load_profile_and_prefs(db, session_id)
@@ -2502,7 +2546,7 @@ def get_company_track_jobs(
 def delete_session_memory_entry(
     session_id: int,
     entry_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> Response:
     """Soft-delete a memory entry (``is_archived=True``).
@@ -2512,7 +2556,7 @@ def delete_session_memory_entry(
     so from the UI's perspective it disappears immediately.
     """
     session_obj = _get_session_or_404(db, session_id)
-    _assert_session_owner(session_obj, x_resume_user_key)
+    _assert_session_owner(session_obj, user_key)
     _assert_not_demo(session_obj)
 
     row = _get_memory_entry_for_session(db, session=session_obj, entry_id=entry_id)
@@ -2533,14 +2577,14 @@ class SubCatSuggestionsIn(_BaseModel):
 def sub_cat_suggestions(
     session_id: int,
     payload: SubCatSuggestionsIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ) -> dict:
     """确认页两级勾选: 展开 tracks → sub_cats + LLM 预勾标记。只读, 不写 DB。"""
     from app.services.resume_copilot.subcat_suggest import build_sub_cat_options
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
 
     # Build resume summary: confirmed profile first, fall back to parsed.
     summary = ""
@@ -2596,14 +2640,14 @@ def recommend_chat(
     session_id: int,
     payload: RecommendChatIn,
     background_tasks: BackgroundTasks,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """NL 推荐 agent 一轮: 自然语言 → 工作查询重排 → 流动 feed (快路, 不调 Pro)。"""
     from app.services.resume_copilot.recommend_chat import run_recommend_turn
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)  # 写 working_query_json → 是写操作
     out = run_recommend_turn(db=db, session=session, message=payload.message)
     db.commit()
@@ -2672,14 +2716,14 @@ def _dispatch_direction_analysis(*, session_id: int) -> None:
 @router.get('/sessions/{session_id}/working-query')
 def get_working_query(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """读当前工作查询; 为空则按 confirmed + L3 记忆 seed 并落库 (seed 即写, 守 demo)。"""
     from app.services.resume_copilot.recommend_chat import seed_query_for_session
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     raw = getattr(session, 'working_query_json', None)
     if raw:
         try:
@@ -2705,12 +2749,12 @@ class EditorDraftIn(_BaseModel):
 @router.get('/sessions/{session_id}/editor-draft')
 def get_editor_draft(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """读简历编辑器草稿(渲染模型 + 模板/布局/隐藏)。无草稿返回 null。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     raw = getattr(session, 'editor_draft_json', None)
     if raw:
         try:
@@ -2724,12 +2768,12 @@ def get_editor_draft(
 def put_editor_draft(
     session_id: int,
     payload: EditorDraftIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """落简历编辑器草稿(跨设备恢复)。owner 守卫 + demo 只读守卫。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     session.editor_draft_json = json.dumps(payload.draft, ensure_ascii=False)
     session.updated_at = datetime.utcnow()
@@ -2753,12 +2797,12 @@ class _EditorConvosIn(_BaseModel):
 @router.get('/sessions/{session_id}/resume-versions')
 def get_resume_versions(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """读简历版本存档数组(每版 = 简历快照 + 该版打分报告)。无存档返回 []。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     raw = getattr(session, 'resume_versions_json', None)
     if raw:
         try:
@@ -2774,12 +2818,12 @@ def get_resume_versions(
 def put_resume_versions(
     session_id: int,
     payload: _VersionsIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """整组落简历版本存档。owner 守卫 + demo 只读守卫。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     session.resume_versions_json = json.dumps(payload.versions, ensure_ascii=False)
     session.updated_at = datetime.utcnow()
@@ -2790,12 +2834,12 @@ def put_resume_versions(
 @router.get('/sessions/{session_id}/editor-conversations')
 def get_editor_conversations(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """读编辑器深度优化对话数组(最多 3 个 tab)。无对话返回 []。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     raw = getattr(session, 'editor_conversations_json', None)
     if raw:
         try:
@@ -2811,12 +2855,12 @@ def get_editor_conversations(
 def put_editor_conversations(
     session_id: int,
     payload: _EditorConvosIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """整组落编辑器深度优化对话。owner 守卫 + demo 只读守卫。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     session.editor_conversations_json = json.dumps(payload.conversations, ensure_ascii=False)
     session.updated_at = datetime.utcnow()
@@ -2854,12 +2898,12 @@ def _conv_or_404(db: Session, session_id: int, conv_id: int) -> HubConversation:
 @router.get('/sessions/{session_id}/hub-conversations')
 def list_hub_conversations(
     session_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """这份简历名下的对话列表(新→旧)。侧栏「历史对话」与进场取最新对话都用它。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     rows = (
         db.query(HubConversation)
         .filter(HubConversation.session_id == session_id)
@@ -2887,12 +2931,12 @@ def list_hub_conversations(
 def create_hub_conversation(
     session_id: int,
     payload: HubConversationCreateIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """在这份简历下开一个新对话(旧对话不动)。owner + demo 只读守卫。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     now = datetime.utcnow()
     conv = HubConversation(
@@ -2912,12 +2956,12 @@ def create_hub_conversation(
 def get_hub_conversation_detail(
     session_id: int,
     conv_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """读某个对话的消息流(切回来重放)。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     conv = _conv_or_404(db, session_id, conv_id)
     try:
         messages = json.loads(conv.messages_json or '[]')
@@ -2931,12 +2975,12 @@ def update_hub_conversation(
     session_id: int,
     conv_id: int,
     payload: HubConversationUpdateIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """追加式落库某个对话(每轮对话后即时调, 不再防抖丢存)。owner + demo 守卫。"""
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     _assert_not_demo(session)
     conv = _conv_or_404(db, session_id, conv_id)
     conv.messages_json = json.dumps(payload.messages, ensure_ascii=False)
@@ -2951,14 +2995,14 @@ def update_hub_conversation(
 def recommend_deepen(
     session_id: int,
     payload: RecommendDeepenIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """慢路: 对指定岗位跑 Pro 精排 + 4-anchor 理由 (复用 recommendation_v2 慢路)。"""
     from app.services.resume_copilot.recommend_deepen import deepen_jobs
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     return {"items": deepen_jobs(db, session, payload.job_ids)}
 
 
@@ -2966,7 +3010,7 @@ def recommend_deepen(
 def update_working_query(
     session_id: int,
     payload: WorkingQueryUpdateIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """结构化操作工作查询(删 add chip / 清 only / 改 sort / 切赛道 reseed) + 重排 (快路, 不调 LLM)。"""
@@ -2975,7 +3019,7 @@ def update_working_query(
     from app.services.resume_copilot.working_query import WorkingQuery
 
     session = _get_session_or_404(db, session_id)
-    _assert_session_owner(session, x_resume_user_key)
+    _assert_session_owner(session, user_key)
     if payload.reseed:
         # reseed = 按画像种子重查在招岗, 本质纯读; demo 只读会话也放行,
         # 但不落库 (working_query_json 不写) — 守住 demo read-only 铁律。
