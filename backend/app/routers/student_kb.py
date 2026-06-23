@@ -18,12 +18,16 @@ import json
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import StudentExperience
+# 集中式身份解析: 学生知识库仅登录学生可用。先用 token 背书推出可信 user_key,
+# 再交给 _require_authenticated_user_key 强制"必须是已认证账号 key" —— 堵掉
+# "改 X-Resume-User-Key header 即可冒充别人 / 伪装成已登录账号" 的越权口子。
+from app.routers._session_identity import resolve_user_key
 
 
 router = APIRouter(prefix='/api/student-kb', tags=['student-kb'])
@@ -176,13 +180,13 @@ def _to_detail(row: StudentExperience) -> ExperienceDetail:
 
 @router.get('/index', response_model=IndexResponse)
 def get_index(
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     include_archived: bool = Query(default=False),
     db: Session = Depends(get_db),
 ):
     """Always-on summary index — meant to be injected as a system-prompt block
     on every chat/interview turn. One row per experience, just the summary."""
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     q = db.query(StudentExperience).filter(StudentExperience.user_key == user_key)
     if not include_archived:
         q = q.filter(StudentExperience.is_archived.is_(False))
@@ -198,7 +202,7 @@ def get_index(
 
 @router.get('/experiences', response_model=ExperienceListResponse)
 def list_experiences(
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     category: Optional[str] = Query(default=None),
     dimension: Optional[str] = Query(default=None),
     confirmed_only: bool = Query(default=False),
@@ -207,7 +211,7 @@ def list_experiences(
     db: Session = Depends(get_db),
 ):
     """Detail retrieval — used by panel + (future) interview runtime."""
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     q = db.query(StudentExperience).filter(StudentExperience.user_key == user_key)
     if category:
         q = q.filter(StudentExperience.category == category)
@@ -240,10 +244,10 @@ def list_experiences(
 @router.post('/experiences/{exp_id}/confirm', response_model=ExperienceDetail)
 def confirm_experience(
     exp_id: int,
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     row = _load_owned_experience(db, exp_id, user_key)
     row.user_confirmed = True
     row.last_verified_at = datetime.utcnow()
@@ -256,11 +260,11 @@ def confirm_experience(
 def edit_experience(
     exp_id: int,
     payload: EditExperienceIn,
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """User-edit. raw_excerpt is deliberately immutable — it's the audit anchor."""
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     row = _load_owned_experience(db, exp_id, user_key)
 
     if payload.summary is not None:
@@ -287,12 +291,12 @@ def edit_experience(
 @router.post('/experiences/{exp_id}/archive', response_model=ExperienceDetail)
 def archive_experience(
     exp_id: int,
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Soft-delete: hide from index + interview retrieval, preserve audit trail.
     User can un-archive later with PATCH if needed."""
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     row = _load_owned_experience(db, exp_id, user_key)
     row.is_archived = True
     db.commit()
@@ -303,10 +307,10 @@ def archive_experience(
 @router.delete('/experiences/{exp_id}', status_code=204)
 def delete_experience(
     exp_id: int,
-    x_resume_user_key: str = Header(default=''),
+    resolved_user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    user_key = _require_authenticated_user_key(x_resume_user_key)
+    user_key = _require_authenticated_user_key(resolved_user_key)
     row = _load_owned_experience(db, exp_id, user_key)
     db.delete(row)
     db.commit()

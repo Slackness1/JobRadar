@@ -10,6 +10,9 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, get_db
 from app.models import InterviewIntelKeyword, InterviewIntelPost, InterviewReport, InterviewTurn
+# 集中式身份解析: 把可枚举的 X-Resume-User-Key header 换成 *服务端 token 背书* 过的
+# 可信 user_key, 堵掉"改 header 即可冒充别人账号读写面试报告/会话"的越权口子。
+from app.routers._session_identity import resolve_user_key
 from app.services.interview.llm import stream_interview_turn
 from app.services.interview.orchestrator import process_turn_synchronous
 from app.services.interview.report import generate_interview_report
@@ -79,14 +82,14 @@ class InterviewReportIn(BaseModel):
 @router.post('/turn')
 def interview_turn(
     body: InterviewTurnIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.adaptive import NextQuestion, pick_next_question
     from app.services.interview.weakness_profile import WeaknessProfile
     from app.services.llm_quota import check_quota_or_raise
 
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     chip = body.target_job  # 1:1 for now; later: derive from a chip lookup table
     chip_summary = _load_chip_summary(db, chip)
     jd_content = body.jd_content or ''
@@ -120,7 +123,7 @@ def interview_turn(
         if last_turn is None:
             db.add(InterviewTurn(
                 session_id=body.session_id,
-                user_key=x_resume_user_key,
+                user_key=user_key,
                 turn_index=0,
                 target_job=body.target_job,
                 question=next_q.question,
@@ -138,7 +141,7 @@ def interview_turn(
         try:
             next_q = process_turn_synchronous(
                 session_id=body.session_id,
-                user_key=x_resume_user_key,
+                user_key=user_key,
                 target_job=body.target_job,
                 chip=chip,
                 chip_summary=chip_summary,
@@ -191,7 +194,7 @@ def _load_chip_summary(db: Session, chip: str) -> str:
 @router.post('/report')
 def interview_report(
     body: InterviewReportIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -199,9 +202,9 @@ def interview_report(
     from app.services.interview.llm_helpers import build_interview_llm_client
     from app.services.llm_quota import check_quota_or_raise
 
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
-    profile = _load_latest_profile_for_user(db, x_resume_user_key)
+    profile = _load_latest_profile_for_user(db, user_key)
     report = generate_interview_report(
         body.target_job, messages, db=db,
         session_id=getattr(body, 'session_id', '') or None,
@@ -221,7 +224,7 @@ def interview_report(
         aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
 
     row = InterviewReport(
-        user_key=x_resume_user_key,
+        user_key=user_key,
         target_job=body.target_job,
         transcript_json=json.dumps(messages, ensure_ascii=False),
         report_json=json.dumps(report, ensure_ascii=False),
@@ -300,14 +303,14 @@ def intel_status(db: Session = Depends(get_db)):
 
 @router.get('/reports')
 def list_reports(
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    if not x_resume_user_key:
+    if not user_key:
         return []
     rows = (
         db.query(InterviewReport)
-        .filter(InterviewReport.user_key == x_resume_user_key)
+        .filter(InterviewReport.user_key == user_key)
         .order_by(InterviewReport.created_at.desc())
         .limit(20)
         .all()
@@ -401,13 +404,13 @@ async def interview_asr(ws: WebSocket):
 @router.get('/reports/{report_id}')
 def get_report(
     report_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     row = db.query(InterviewReport).filter(InterviewReport.id == report_id).first()
     if not row:
         raise HTTPException(status_code=404, detail='Report not found')
-    if row.user_key != x_resume_user_key:
+    if row.user_key != user_key:
         raise HTTPException(status_code=403, detail='Forbidden')
     return {
         'id': row.id,
@@ -441,10 +444,10 @@ def _assert_session_owner_or_403(db: Session, session_id: str, user_key: str) ->
 @router.get('/sessions/{session_id}/turns')
 def get_session_turns(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     rows = (
         db.query(InterviewTurn)
         .filter(InterviewTurn.session_id == session_id)
@@ -470,10 +473,10 @@ def get_session_turns(
 @router.get('/sessions/{session_id}/turns/latest-score')
 def get_latest_score(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     row = (
         db.query(InterviewTurn)
         .filter(
