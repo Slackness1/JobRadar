@@ -614,6 +614,10 @@ class InterviewRealtimeEvent(Base):
     event_type = Column(Text, nullable=False, index=True)
     turn_index = Column(Integer, nullable=True)
     payload_json = Column(Text, default="{}")
+    # When the event actually happened, stamped by the agent callback. created_at
+    # is the DB insert time, which includes async queueing + thread hand-off, so
+    # latency math must use occurred_at or it silently measures our own backlog.
+    occurred_at = Column(DateTime, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 

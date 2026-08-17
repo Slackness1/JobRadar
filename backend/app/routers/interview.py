@@ -27,6 +27,7 @@ from app.models import (
     InterviewIntelKeyword,
     InterviewIntelPost,
     InterviewAudioArtifact,
+    InterviewRealtimeEvent,
     InterviewRealtimeSession,
     InterviewReport,
     InterviewTurn,
@@ -842,6 +843,44 @@ def _assert_session_owner_or_403(db: Session, session_id: str, user_key: str) ->
             raise HTTPException(status_code=403, detail='SESSION_FORBIDDEN')
 
 
+def _build_turn_voice_facts(
+    turn: InterviewTurn,
+    artifact: InterviewAudioArtifact | None,
+    realtime_events_by_turn: dict[int, list] | None = None,
+) -> dict:
+    """voice-facts-v2 for one turn, in the student-facing projection.
+
+    Every metric carries its own source and definition, so a number in the report
+    can always be traced back to how it was measured. Internal-only values
+    (interaction latencies, pitch, dynamic range, shadow sources) are stripped
+    here — they exist to tune the system, not to judge the candidate.
+    """
+    from app.services.interview import voice_facts_v2
+
+    features: dict = {}
+    flags: list = []
+    if artifact is not None:
+        try:
+            features = json.loads(artifact.features_json or '{}') or {}
+            flags = json.loads(artifact.quality_flags_json or '[]') or []
+        except (TypeError, ValueError):
+            features, flags = {}, []
+    try:
+        asr_transcript = json.loads(turn.asr_transcript) if turn.asr_transcript else None
+    except (TypeError, ValueError):
+        asr_transcript = None
+
+    facts = voice_facts_v2.build_turn_facts(
+        turn=turn,
+        asr_transcript=asr_transcript if isinstance(asr_transcript, dict) else None,
+        artifact_features=features if isinstance(features, dict) else None,
+        artifact_flags=flags if isinstance(flags, list) else None,
+        realtime_events=(realtime_events_by_turn or {}).get(int(turn.turn_index), []),
+        legacy_voice_metrics=turn.voice_metrics,
+    )
+    return voice_facts_v2.user_facing(facts)
+
+
 def _build_voice_observations(db: Session, session_id: str, user_key: str) -> list[dict]:
     if not session_id:
         return []
@@ -875,6 +914,16 @@ def get_session_turns(
         InterviewAudioArtifact.deleted_at.is_(None),
     ).order_by(InterviewAudioArtifact.created_at).all()
     latest_artifact_by_turn = {int(row.turn_index): row for row in artifact_rows}
+    realtime_events_by_turn: dict[int, list] = {}
+    for event in (
+        db.query(InterviewRealtimeEvent)
+        .filter(InterviewRealtimeEvent.session_id == session_id)
+        .order_by(InterviewRealtimeEvent.id)
+        .all()
+    ):
+        if event.turn_index is None:
+            continue
+        realtime_events_by_turn.setdefault(int(event.turn_index), []).append(event)
     from app.services.interview.voice_intelligence import serialize_audio_artifact
     out = []
     for r in rows:
@@ -893,6 +942,7 @@ def get_session_turns(
             'parent_turn_index': int(r.parent_turn_index) if r.parent_turn_index is not None else None,
             'score': json.loads(r.score_json) if r.score_json else None,
             'voice_metrics': voice_metrics,
+            'voice_facts': _build_turn_voice_facts(r, artifact, realtime_events_by_turn),
             'voice_intelligence': serialize_audio_artifact(artifact) if artifact else None,
             'question_heard_text': str(r.question_heard_text or ''),
             'question_interrupted': bool(r.question_interrupted),

@@ -77,7 +77,6 @@ function formatDuration(seconds: number) {
 
 const QUALITY_LABELS: Record<string, string> = {
   insufficient_speech: '有效语音不足',
-  pitch_unavailable: '基频样本不足',
   clipping_detected: '出现削波',
   low_input_level: '输入音量偏低',
 };
@@ -150,7 +149,6 @@ function VoiceObservationRows({ initial }: { initial: VoiceIntelligenceArtifact[
           const speech = artifact.features.speech;
           const pauses = artifact.features.pauses;
           const delivery = artifact.features.delivery;
-          const pitch = artifact.features.pitch;
           const energy = artifact.features.energy;
           return (
             <div key={artifact.id} className="py-3 first:pt-1 last:pb-0">

@@ -14,8 +14,6 @@ from alembic.operations import Operations
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, inspect as sqlalchemy_inspect
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from app import config
 from app.database import Base, get_db
@@ -27,6 +25,24 @@ from app.services.interview.voice_intelligence import (
     normalized_character_error_rate,
 )
 from app.services.interview import voice_intelligence
+from tests._threadsafe_db import make_threadsafe_sessionmaker
+
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _idle_analysis_workers():
+    """Start each test with the shared analysis workers idle.
+
+    The workers and their queue are process-global daemons, and one test in this
+    file replaces analyze_audio_artifact with a deliberately blocking stub. Left
+    in flight, that stub can be picked up while a later test waits for its own
+    artifact to reach "ready", which made this file fail roughly one run in six.
+    """
+    voice_intelligence.wait_for_analysis_idle(timeout=5.0)
+    yield
+    voice_intelligence.wait_for_analysis_idle(timeout=5.0)
 
 
 def _wav_bytes(*, seconds: float = 1.2, sample_rate: int = 16000) -> bytes:
@@ -45,13 +61,9 @@ def _wav_bytes(*, seconds: float = 1.2, sample_rate: int = 16000) -> bytes:
 def _build_app():
     from app.routers import interview as interview_router
 
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    TestingSession = sessionmaker(bind=engine)
-    Base.metadata.create_all(engine)
+    # The analysis daemons write from their own threads, so every session needs
+    # its own connection (see tests/_threadsafe_db.py).
+    TestingSession = make_threadsafe_sessionmaker("jobradar-voice-test-")
 
     def override_db():
         db = TestingSession()

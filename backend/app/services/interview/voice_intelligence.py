@@ -14,6 +14,7 @@ import logging
 import math
 import os
 import re
+import time
 import uuid
 import wave
 from queue import Full, Queue
@@ -394,6 +395,24 @@ def enqueue_audio_analysis(
     return True
 
 
+def wait_for_analysis_idle(timeout: float = 5.0) -> bool:
+    """Block until the analysis queue is drained; True if it went idle in time.
+
+    The workers are process-global daemons, so anything sharing the process (a
+    test suite, a shutdown hook, a diagnostic) needs a way to know whether work
+    is still in flight rather than guessing with a sleep.
+    """
+    deadline = time.monotonic() + max(0.0, timeout)
+    while time.monotonic() < deadline:
+        with _QUEUE_LOCK:
+            in_flight = bool(_QUEUED_ARTIFACTS) or not _ANALYSIS_QUEUE.empty()
+        if not in_flight:
+            return True
+        time.sleep(0.02)
+    with _QUEUE_LOCK:
+        return not (_QUEUED_ARTIFACTS or not _ANALYSIS_QUEUE.empty())
+
+
 def _analysis_worker() -> None:
     while True:
         artifact_id, session_factory, reference_text = _ANALYSIS_QUEUE.get()
@@ -482,6 +501,13 @@ def serialize_audio_artifact(row: InterviewAudioArtifact) -> dict:
         except json.JSONDecodeError:
             return fallback
 
+    features = parse(row.features_json, {})
+    if isinstance(features, dict):
+        # F0 has no validated interpretation, so it stays an internal experiment
+        # feature: readable in features_json for research, never in an API
+        # response a report could render. See voice_facts_v2.USER_FACING_KEYS.
+        features = {key: value for key, value in features.items() if key != "pitch"}
+
     return {
         "id": row.id,
         "session_id": row.session_id,
@@ -490,7 +516,7 @@ def serialize_audio_artifact(row: InterviewAudioArtifact) -> dict:
         "duration_seconds": float(row.duration_seconds or 0),
         "sample_rate": int(row.sample_rate or 0),
         "analyzer_version": row.analyzer_version,
-        "features": parse(row.features_json, {}),
+        "features": features,
         "shadow_asr": parse(row.shadow_asr_json, {}),
         "quality_flags": parse(row.quality_flags_json, []),
         "replay_available": bool(row.storage_path and row.deleted_at is None),

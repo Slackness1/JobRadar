@@ -110,12 +110,8 @@ export interface VoiceIntelligenceArtifact {
       dynamic_range_db: number | null;
       clipping_ratio: number;
     };
-    pitch?: {
-      sample_count: number;
-      median_hz: number | null;
-      p10_hz: number | null;
-      p90_hz: number | null;
-    };
+    // NOTE: F0/pitch is deliberately absent — it is an internal experiment
+    // feature with no validated interpretation, so the backend withholds it.
   };
   shadow_asr: {
     status?: 'disabled' | 'ready' | 'error';
@@ -144,6 +140,51 @@ export interface AsrTranscript {
   segments: AsrSegment[];
 }
 
+/**
+ * voice-facts-v2 — every metric states how it was measured.
+ *
+ * `source` says which mechanism produced it (consented audio beats ASR sentence
+ * timing beats a legacy v1 row), `definition` is the exact quantity, and
+ * `quality` distinguishes a real measurement from a fallback, a missing value or
+ * a historical v1 number. System-tuning metrics (interaction latencies, EOT
+ * probabilities, pitch) are never included in this payload.
+ */
+export interface VoiceFactMetric {
+  value: number | string | boolean | null;
+  unit: 'ms' | 's' | 'cpm' | 'count' | 'dbfs' | 'db' | 'ratio' | 'hz' | 'bool' | 'text';
+  source: 'livekit_vad' | 'livekit_session' | 'audio_artifact' | 'asr_transcript' | 'interview_turn' | 'legacy_v1';
+  definition: string;
+  version: string;
+  quality: 'valid' | 'degraded' | 'unavailable' | 'legacy';
+  basis?: string;
+}
+
+export interface VoiceFactFillerPosition {
+  segment_index: number;
+  char_offset: number;
+  token: string;
+  kind: 'hesitation' | 'discourse';
+  start_s?: number | null;
+}
+
+export interface VoiceFactsPayload {
+  version: string;
+  metrics: Partial<Record<
+    | 'response_start_ms'
+    | 'speech_duration_ms'
+    | 'articulation_cpm'
+    | 'pause_count'
+    | 'pause_total_ms'
+    | 'pause_max_ms'
+    | 'filler_count'
+    | 'input_level_dbfs'
+    | 'clipping_ratio'
+    | 'answer_truncated',
+    VoiceFactMetric
+  >>;
+  filler_positions: VoiceFactFillerPosition[];
+}
+
 export interface TurnPayload {
   turn_index: number;
   question: string;
@@ -152,7 +193,10 @@ export interface TurnPayload {
   question_source: string;
   parent_turn_index: number | null;
   score: ScorePayload | null;
+  /** Legacy v1 blob, kept so historical sessions still render. */
   voice_metrics: VoiceMetricsPayload | null;
+  /** voice-facts-v2, the source of truth for new reports. */
+  voice_facts?: VoiceFactsPayload | null;
   voice_intelligence: VoiceIntelligenceArtifact | null;
   question_heard_text?: string;
   question_interrupted?: boolean;

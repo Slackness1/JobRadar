@@ -119,6 +119,7 @@ def _write_event(
     payload: dict[str, Any] | None = None,
     *,
     turn_index: int | None = None,
+    occurred_at: datetime | None = None,
 ) -> None:
     db = SessionLocal()
     try:
@@ -129,6 +130,7 @@ def _write_event(
                 event_type=event_type,
                 turn_index=turn_index,
                 payload_json=json.dumps(_json_safe(payload or {}), ensure_ascii=False),
+                occurred_at=occurred_at or datetime.utcnow(),
             )
         )
         db.commit()
@@ -145,13 +147,18 @@ async def _record_event(
     payload: dict[str, Any] | None = None,
     *,
     turn_index: int | None = None,
+    occurred_at: datetime | None = None,
 ) -> None:
+    # Stamp before the hop to the writer thread: voice-facts-v2 latencies are
+    # differences between these stamps, so they must not absorb queue delay.
+    stamped = occurred_at or datetime.utcnow()
     await asyncio.to_thread(
         _write_event,
         context,
         event_type,
         payload,
         turn_index=turn_index,
+        occurred_at=stamped,
     )
 
 
@@ -217,11 +224,26 @@ def _chat_messages(chat_ctx: llm.ChatContext) -> list[dict[str, str]]:
     return messages
 
 
+class TurnCursor:
+    """The turn every subsequent realtime event belongs to.
+
+    Interaction latencies are only meaningful per turn ("this answer took 820 ms
+    to start"), so the observability hooks stamp events with the turn index the
+    Orchestrator last confirmed instead of leaving turn_index NULL.
+    """
+
+    __slots__ = ("index",)
+
+    def __init__(self) -> None:
+        self.index: int | None = None
+
+
 class JobRadarInterviewAgent(Agent):
     def __init__(
         self,
         context: InterviewRealtimeSession,
         asr_evidence: AsrEvidenceBuffer,
+        turn_cursor: TurnCursor | None = None,
     ) -> None:
         super().__init__(
             instructions=(
@@ -231,6 +253,7 @@ class JobRadarInterviewAgent(Agent):
         )
         self.context = context
         self.asr_evidence = asr_evidence
+        self.turn_cursor = turn_cursor or TurnCursor()
 
     async def on_enter(self) -> None:
         self.session.generate_reply(
@@ -276,11 +299,13 @@ class JobRadarInterviewAgent(Agent):
                     if event.get("type") == "chunk" and event.get("delta"):
                         yield str(event["delta"])
                     elif event.get("type") == "turn_complete":
+                        turn_index = int(event.get("turn_index") or 0)
+                        self.turn_cursor.index = turn_index
                         await _record_event(
                             self.context,
                             "turn_complete",
                             {"question": event.get("question", "")},
-                            turn_index=int(event.get("turn_index") or 0),
+                            turn_index=turn_index,
                         )
                         self.asr_evidence.clear()
 
@@ -321,7 +346,9 @@ def _wire_rpc(
     ctx: JobContext,
     session: AgentSession,
     context: InterviewRealtimeSession,
+    turn_cursor: TurnCursor | None = None,
 ) -> None:
+    cursor = turn_cursor or TurnCursor()
     def assert_caller(data: rtc.RpcInvocationData) -> None:
         if data.caller_identity != context.participant_identity:
             raise rtc.RpcError(1403, "caller is not the room candidate")
@@ -333,21 +360,24 @@ def _wire_rpc(
             transcript_timeout=3.5,
             stt_flush_duration=0.8,
         )
-        await _record_event(context, "manual_turn_committed", {"characters": len(transcript)})
+        await _record_event(
+            context, "manual_turn_committed", {"characters": len(transcript)},
+            turn_index=cursor.index,
+        )
         return json.dumps({"transcript": transcript}, ensure_ascii=False)
 
     @ctx.room.local_participant.register_rpc_method("jobradar.interrupt")
     async def interrupt(data: rtc.RpcInvocationData) -> str:
         assert_caller(data)
         await session.interrupt()
-        await _record_event(context, "explicit_interruption")
+        await _record_event(context, "explicit_interruption", turn_index=cursor.index)
         return "{}"
 
     @ctx.room.local_participant.register_rpc_method("jobradar.clear_user_turn")
     async def clear_user_turn(data: rtc.RpcInvocationData) -> str:
         assert_caller(data)
         session.clear_user_turn()
-        await _record_event(context, "manual_turn_cleared")
+        await _record_event(context, "manual_turn_cleared", turn_index=cursor.index)
         return "{}"
 
     @ctx.room.local_participant.register_rpc_method("jobradar.repeat_question")
@@ -357,16 +387,29 @@ def _wire_rpc(
         if not question:
             raise rtc.RpcError(1404, "there is no question to repeat")
         session.say(question, allow_interruptions=True, add_to_chat_ctx=False)
-        await _record_event(context, "question_repeated", {"question": question})
+        await _record_event(
+            context, "question_repeated", {"question": question},
+            turn_index=cursor.index,
+        )
         return "{}"
 
 
 def _wire_observability(
     session: AgentSession,
     context: InterviewRealtimeSession,
+    turn_cursor: TurnCursor | None = None,
 ) -> None:
+    cursor = turn_cursor or TurnCursor()
+
     def schedule(event_type: str, payload: dict[str, Any] | None = None) -> None:
-        asyncio.create_task(_record_event(context, event_type, payload))
+        # The callback fires at the moment of the event; the task runs later.
+        occurred_at = datetime.utcnow()
+        asyncio.create_task(
+            _record_event(
+                context, event_type, payload,
+                turn_index=cursor.index, occurred_at=occurred_at,
+            )
+        )
 
     @session.on("agent_state_changed")
     def on_agent_state(event) -> None:
@@ -468,6 +511,7 @@ server = AgentServer(
 async def interview_voice_session(ctx: JobContext) -> None:
     context = await asyncio.to_thread(_load_context, _dispatch_context_id(ctx.job.metadata))
     asr_evidence = AsrEvidenceBuffer()
+    turn_cursor = TurnCursor()
     session = AgentSession(
         stt=DashScopeSTT(on_final=asr_evidence.add_final),
         vad=silero.VAD.load(
@@ -482,8 +526,8 @@ async def interview_voice_session(ctx: JobContext) -> None:
         transcription_timeout=4.0,
         user_away_timeout=30.0,
     )
-    _wire_rpc(ctx, session, context)
-    _wire_observability(session, context)
+    _wire_rpc(ctx, session, context, turn_cursor)
+    _wire_observability(session, context, turn_cursor)
     await _record_event(
         context,
         "session_started",
@@ -493,7 +537,7 @@ async def interview_voice_session(ctx: JobContext) -> None:
         },
     )
     await session.start(
-        agent=JobRadarInterviewAgent(context, asr_evidence),
+        agent=JobRadarInterviewAgent(context, asr_evidence, turn_cursor),
         room=ctx.room,
         record=False,
     )

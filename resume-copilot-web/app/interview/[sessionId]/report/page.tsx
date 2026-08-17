@@ -6,6 +6,9 @@ import {
   getInterviewReport,
   type InterviewReportPayload,
   type TurnPayload,
+  type VoiceFactMetric,
+  type VoiceFactsPayload,
+  type VoiceMetricsPayload,
 } from '@/components/interview/api';
 
 export default function InterviewReportPage({ params }: { params: Promise<{ sessionId: string }> }) {
@@ -125,43 +128,14 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
                 </div>
               )}
 
-              {t.voice_metrics && t.voice_metrics.wpm != null && (
-                <div style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
-                  语速 {t.voice_metrics.wpm} 字/分
-                  {t.voice_metrics.filler_rate != null && ` · 填充词 ${t.voice_metrics.filler_rate}/分钟`}
-                </div>
-              )}
-
-              {t.voice_intelligence?.status === 'ready' && (
-                <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
-                  客观声学记录
-                  {t.voice_intelligence.features.speech?.first_speech_ms != null
-                    && ` · 起答 ${t.voice_intelligence.features.speech.first_speech_ms}ms`}
-                  {t.voice_intelligence.features.pauses
-                    && ` · 长停顿 ${t.voice_intelligence.features.pauses.count} 次`}
-                  {t.voice_intelligence.features.energy?.mean_dbfs != null
-                    && ` · 平均响度 ${t.voice_intelligence.features.energy.mean_dbfs} dBFS`}
-                </div>
-              )}
+              <VoiceFactsRow facts={t.voice_facts} legacy={t.voice_metrics} />
 
             </div>
           </details>
         ))}
       </section>
 
-      {/* Voice averages (if any turn had voice metrics) */}
-      {turns.some((t) => t.voice_metrics?.wpm != null) && (
-        <section style={cardStyle}>
-          <h2 style={sectionHeaderStyle}>语音表现</h2>
-          {(() => {
-            const voiceTurns = turns.filter((t) => t.voice_metrics?.wpm != null);
-            const avgWpm = Math.round(
-              voiceTurns.reduce((s, t) => s + (t.voice_metrics!.wpm ?? 0), 0) / voiceTurns.length,
-            );
-            return <p>平均转写语速 {avgWpm} 字/分</p>;
-          })()}
-        </section>
-      )}
+      <SessionVoiceSummary turns={turns} />
 
       {report?.weekly_plan_md && (
         <section style={cardStyle}>
@@ -170,6 +144,52 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
         </section>
       )}
     </main>
+  );
+}
+
+/**
+ * Session-level delivery summary.
+ *
+ * Averages only the turns whose speaking rate came from the same source, so the
+ * number is not a blend of acoustic measurements and ASR-timing estimates.
+ */
+function SessionVoiceSummary({ turns }: { turns: TurnPayload[] }) {
+  const rates = turns
+    .map((turn) => turn.voice_facts?.metrics?.articulation_cpm)
+    .filter((metric): metric is VoiceFactMetric =>
+      Boolean(metric && metric.value != null && metric.quality !== 'unavailable'));
+  if (!rates.length) return null;
+
+  const bySource = new Map<string, VoiceFactMetric[]>();
+  for (const metric of rates) {
+    bySource.set(metric.source, [...(bySource.get(metric.source) ?? []), metric]);
+  }
+  // Prefer the most trustworthy source that actually has data.
+  const preferred = ['audio_artifact', 'asr_transcript', 'legacy_v1']
+    .find((source) => bySource.has(source)) ?? rates[0].source;
+  const group = bySource.get(preferred) ?? rates;
+  const average = Math.round(
+    group.reduce((sum, metric) => sum + Number(metric.value), 0) / group.length,
+  );
+  const labels: Record<string, string> = {
+    audio_artifact: '按授权录音的实际发声时长计算',
+    asr_transcript: '按转写句段时长估算',
+    legacy_v1: 'v1 旧口径，含静音',
+  };
+
+  return (
+    <section style={cardStyle}>
+      <h2 style={sectionHeaderStyle}>语音表现</h2>
+      <p>
+        平均语速 {average} 字/分
+        <span style={{ opacity: 0.6 }}>
+          （{group.length}/{turns.length} 题有数据 · {labels[preferred] ?? preferred}）
+        </span>
+      </p>
+      <p style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>
+        这里只呈现可复算的发音事实，不推断自信、性格或情绪。
+      </p>
+    </section>
   );
 }
 
@@ -199,6 +219,107 @@ const summaryStyle: React.CSSProperties = {
   fontWeight: 500,
 };
 
+/**
+ * voice-facts-v2 row: measurable delivery facts only.
+ *
+ * Each value keeps its provenance, so a fallback measurement (ASR sentence
+ * timing instead of the consented recording) is labelled 估算 rather than shown
+ * as a hard number, and a historical v1 row is labelled 旧口径. Nothing here
+ * interprets the candidate — no confidence, personality or emotion.
+ */
+function VoiceFactsRow({
+  facts,
+  legacy,
+}: {
+  facts?: VoiceFactsPayload | null;
+  legacy: VoiceMetricsPayload | null;
+}) {
+  const metrics = facts?.metrics;
+  const parts: string[] = [];
+  const value = (metric?: VoiceFactMetric) =>
+    metric && metric.value != null && metric.quality !== 'unavailable' ? metric : null;
+
+  const responseStart = value(metrics?.response_start_ms);
+  if (responseStart) parts.push(`起答 ${Math.round(Number(responseStart.value))} ms`);
+
+  const speech = value(metrics?.speech_duration_ms);
+  if (speech) parts.push(`发声 ${(Number(speech.value) / 1000).toFixed(1)} 秒`);
+
+  const cpm = value(metrics?.articulation_cpm);
+  if (cpm) parts.push(`语速 ${Math.round(Number(cpm.value))} 字/分`);
+
+  const pauses = value(metrics?.pause_count);
+  if (pauses) {
+    const longest = value(metrics?.pause_max_ms);
+    const total = value(metrics?.pause_total_ms);
+    let text = `长停顿 ${Number(pauses.value)} 次`;
+    if (total) text += `，共 ${(Number(total.value) / 1000).toFixed(1)} 秒`;
+    if (longest) text += `，最长 ${(Number(longest.value) / 1000).toFixed(1)} 秒`;
+    parts.push(text);
+  }
+
+  const fillers = value(metrics?.filler_count);
+  if (fillers) {
+    const tokens = (facts?.filler_positions ?? [])
+      .filter((position) => position.kind === 'hesitation')
+      .map((position) => position.token);
+    parts.push(
+      tokens.length
+        ? `语气词 ${Number(fillers.value)} 次（${[...new Set(tokens)].join('、')}）`
+        : `语气词 ${Number(fillers.value)} 次`,
+    );
+  }
+
+  const level = value(metrics?.input_level_dbfs);
+  if (level) parts.push(`平均音量 ${Number(level.value).toFixed(1)} dBFS`);
+
+  const clipping = value(metrics?.clipping_ratio);
+  if (clipping && Number(clipping.value) >= 0.01) parts.push('录音出现削波，建议降低麦克风增益');
+
+  const truncated = value(metrics?.answer_truncated);
+  if (truncated && truncated.value === true) parts.push('本题的问题被你中途打断，只听到了前半句');
+
+  if (!parts.length) {
+    // Old sessions predate v2 and only stored the v1 numbers.
+    if (legacy?.wpm != null) {
+      return (
+        <div style={voiceFactsStyle}>
+          <span style={qualityTagStyle}>旧口径</span>
+          语速 {legacy.wpm} 字/分（v1 口径：按整段录音计算，含静音）
+        </div>
+      );
+    }
+    return null;
+  }
+
+  const estimated = Object.values(metrics ?? {}).some(
+    (metric) => metric?.quality === 'degraded' || metric?.quality === 'legacy',
+  );
+  return (
+    <div style={voiceFactsStyle}>
+      {estimated && <span style={qualityTagStyle}>部分为估算</span>}
+      {parts.join(' · ')}
+    </div>
+  );
+}
+
+const voiceFactsStyle: React.CSSProperties = {
+  marginTop: 12,
+  fontSize: 12,
+  lineHeight: 1.7,
+  opacity: 0.75,
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: 6,
+};
+const qualityTagStyle: React.CSSProperties = {
+  fontSize: 11,
+  padding: '1px 7px',
+  borderRadius: 999,
+  border: '1px solid var(--border, #d8d3c8)',
+  opacity: 0.9,
+};
 // A lost analysis write is the system's fault, not the candidate's — say which
 // part is missing rather than rendering an unexplained empty card.
 const ANALYSIS_PART_LABELS: Record<string, string> = {

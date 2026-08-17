@@ -113,3 +113,82 @@ def test_latest_score_rejects_mismatched_user_key():
     )
     assert resp.status_code == 403
 
+
+def test_turns_payload_carries_voice_facts_v2_with_provenance():
+    """The report reads voice-facts-v2, so /turns must serve it per turn."""
+    client, SessionLocal = _build_test_app()
+    db = SessionLocal()
+    db.add(InterviewTurn(
+        session_id="s-facts", user_key="u1", turn_index=0,
+        question="请讲一个你主导的估值项目", user_answer="我负责 DCF 建模",
+        asr_transcript=json.dumps({
+            "audio_duration_s": 24.0,
+            "segments": [
+                {"start_s": 0.5, "end_s": 9.0, "text": "嗯，我负责估值建模"},
+                {"start_s": 12.0, "end_s": 20.0, "text": "复盘时发现假设太乐观"},
+            ],
+        }),
+    ))
+    db.commit()
+    db.close()
+
+    resp = client.get("/api/interview/sessions/s-facts/turns", headers={"X-Resume-User-Key": "u1"})
+    assert resp.status_code == 200
+    facts = resp.json()[0]["voice_facts"]
+    assert facts["version"] == "voice-facts-v2"
+
+    pause = facts["metrics"]["pause_count"]
+    assert pause["source"] == "asr_transcript"
+    assert pause["quality"] == "degraded"          # no consented audio for this turn
+    assert pause["definition"].startswith("asr_sentence_gaps_over_")
+    assert facts["metrics"]["filler_count"]["value"] == 1
+    assert facts["filler_positions"][0]["token"] == "嗯"
+
+    # System-tuning metrics and pitch must not reach the student payload.
+    body = resp.text
+    for banned in ("stt_final_latency_ms", "pitch", "confidence"):
+        assert banned not in body
+
+
+def test_turns_payload_prefers_consented_audio_over_asr_timing():
+    client, SessionLocal = _build_test_app()
+    from app.models import InterviewAudioArtifact
+    from datetime import datetime, timedelta
+
+    db = SessionLocal()
+    db.add(InterviewTurn(
+        session_id="s-audio", user_key="u1", turn_index=0, question="Q", user_answer="A",
+        asr_transcript=json.dumps({
+            "audio_duration_s": 24.0,
+            "segments": [
+                {"start_s": 0.5, "end_s": 9.0, "text": "第一段"},
+                {"start_s": 12.0, "end_s": 20.0, "text": "第二段"},
+            ],
+        }),
+    ))
+    now = datetime.utcnow()
+    db.add(InterviewAudioArtifact(
+        id="artifact-facts-1", session_id="s-audio", turn_index=0, user_key="u1",
+        consent_version="v1", consented_at=now, storage_path="", sha256="", byte_size=1,
+        sample_rate=16000, channels=1, duration_seconds=24.0, status="ready",
+        analyzer_version="voice-facts-v1",
+        features_json=json.dumps({
+            "speech": {"first_speech_ms": 640, "speech_duration_seconds": 18.0},
+            "pauses": {"count": 4, "total_seconds": 3.2, "max_seconds": 1.1},
+            "delivery": {"articulation_cpm": 271},
+            "energy": {"mean_dbfs": -21.0, "dynamic_range_db": 17.0, "clipping_ratio": 0.0},
+            "pitch": {"median_hz": 180.0},
+        }),
+        quality_flags_json="[]",
+        expires_at=now + timedelta(days=7), created_at=now, updated_at=now,
+    ))
+    db.commit()
+    db.close()
+
+    resp = client.get("/api/interview/sessions/s-audio/turns", headers={"X-Resume-User-Key": "u1"})
+    assert resp.status_code == 200
+    facts = resp.json()[0]["voice_facts"]
+    assert facts["metrics"]["pause_count"]["value"] == 4
+    assert facts["metrics"]["pause_count"]["source"] == "audio_artifact"
+    assert facts["metrics"]["articulation_cpm"]["value"] == 271
+    assert facts["metrics"]["response_start_ms"]["value"] == 640
