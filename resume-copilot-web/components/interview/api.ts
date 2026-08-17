@@ -1,6 +1,7 @@
 import type { InterviewMessage, InterviewReport, InterviewReportRow } from './types';
 
 const USER_KEY_STORAGE_KEY = 'jobradar.resumeCopilot.userKey';
+const AUTH_TOKEN_KEY = 'jobradar.auth.token';
 
 function getUserKey(): string {
   if (typeof window === 'undefined') return '';
@@ -10,6 +11,19 @@ function getUserKey(): string {
     window.localStorage.setItem(USER_KEY_STORAGE_KEY, key);
   }
   return key;
+}
+
+// The backend no longer takes an account key (`u_<id>`) on faith — it is
+// enumerable, so it must be backed by the login token. Every interview request
+// therefore carries the bearer token when the student is signed in; guests keep
+// sending just their random UUID key.
+function identityHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'X-Resume-User-Key': getUserKey() };
+  if (typeof window !== 'undefined') {
+    const token = window.localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
 }
 
 export interface InterviewRealtimeSessionPayload {
@@ -33,7 +47,7 @@ export async function createInterviewRealtimeSession(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Resume-User-Key': getUserKey(),
+      ...identityHeaders(),
     },
     body: JSON.stringify({
       session_id: sessionId,
@@ -170,7 +184,7 @@ export interface InterviewReportPayload {
 
 async function getJson<T>(url: string): Promise<T> {
   const r = await fetch(url, {
-    headers: { 'X-Resume-User-Key': getUserKey() },
+    headers: identityHeaders(),
   });
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   return r.json();
@@ -273,7 +287,7 @@ export async function streamInterviewTurn(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Resume-User-Key': getUserKey(),
+      ...identityHeaders(),
     },
     body: JSON.stringify({
       target_job: targetJob,
@@ -313,7 +327,7 @@ export async function saveInterviewReport(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Resume-User-Key': getUserKey(),
+      ...identityHeaders(),
     },
     body: JSON.stringify({
       target_job: targetJob,
@@ -343,7 +357,7 @@ export async function uploadInterviewAudioArtifact(
   form.append('audio', audio, `turn-${turnIndex + 1}.wav`);
   const response = await fetch('/api/interview/audio-artifacts', {
     method: 'POST',
-    headers: { 'X-Resume-User-Key': getUserKey() },
+    headers: identityHeaders(),
     body: form,
   });
   if (!response.ok) throw new Error(`Audio analysis upload failed: ${response.status}`);
@@ -365,7 +379,7 @@ export function getInterviewAudioArtifact(artifactId: string): Promise<VoiceInte
 export async function deleteInterviewAudioArtifact(artifactId: string): Promise<void> {
   const response = await fetch(`/api/interview/audio-artifacts/${encodeURIComponent(artifactId)}`, {
     method: 'DELETE',
-    headers: { 'X-Resume-User-Key': getUserKey() },
+    headers: identityHeaders(),
   });
   if (!response.ok && response.status !== 404) throw new Error(`Audio delete failed: ${response.status}`);
 }
@@ -375,7 +389,7 @@ export async function deleteInterviewSessionAudio(sessionId: string): Promise<vo
     `/api/interview/sessions/${encodeURIComponent(sessionId)}/audio-artifacts`,
     {
       method: 'DELETE',
-      headers: { 'X-Resume-User-Key': getUserKey() },
+      headers: identityHeaders(),
     },
   );
   if (!response.ok) throw new Error(`Session audio delete failed: ${response.status}`);
@@ -384,7 +398,7 @@ export async function deleteInterviewSessionAudio(sessionId: string): Promise<vo
 export async function getInterviewAudioBlob(artifactId: string): Promise<Blob> {
   const response = await fetch(
     `/api/interview/audio-artifacts/${encodeURIComponent(artifactId)}/audio`,
-    { headers: { 'X-Resume-User-Key': getUserKey() } },
+    { headers: identityHeaders() },
   );
   if (!response.ok) throw new Error(`Audio replay failed: ${response.status}`);
   return response.blob();
@@ -392,7 +406,7 @@ export async function getInterviewAudioBlob(artifactId: string): Promise<Blob> {
 
 export async function listInterviewReports(): Promise<InterviewReportRow[]> {
   const res = await fetch('/api/interview/reports', {
-    headers: { 'X-Resume-User-Key': getUserKey() },
+    headers: identityHeaders(),
   });
   if (!res.ok) return [];
   return res.json();
@@ -400,7 +414,7 @@ export async function listInterviewReports(): Promise<InterviewReportRow[]> {
 
 export async function getInterviewReport(id: number): Promise<InterviewReportPayload> {
   const res = await fetch(`/api/interview/reports/${id}`, {
-    headers: { 'X-Resume-User-Key': getUserKey() },
+    headers: identityHeaders(),
   });
   if (!res.ok) throw new Error(`Not found: ${id}`);
   return res.json();

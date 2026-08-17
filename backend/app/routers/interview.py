@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.database import SessionLocal, get_db
+from app.routers._session_identity import resolve_user_key
 from app.models import (
     InterviewIntelKeyword,
     InterviewIntelPost,
@@ -143,7 +144,7 @@ async def create_interview_audio_artifact(
     consent_version: str = Form(..., max_length=80),
     transcript_text: str = Form(default='', max_length=12000),
     audio: UploadFile = File(...),
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Persist one explicitly consented, turn-bound WAV for async analysis."""
@@ -161,10 +162,10 @@ async def create_interview_audio_artifact(
 
     if not config.VOICE_INTELLIGENCE_ENABLED:
         raise HTTPException(status_code=503, detail='VOICE_INTELLIGENCE_DISABLED')
-    _require_audio_user_key(x_resume_user_key)
+    _require_audio_user_key(user_key)
     if not consent_granted or consent_version != CONSENT_VERSION:
         raise HTTPException(status_code=422, detail='EXPLICIT_AUDIO_CONSENT_REQUIRED')
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     turn = db.query(InterviewTurn).filter_by(
         session_id=session_id, turn_index=turn_index
     ).one_or_none()
@@ -186,7 +187,7 @@ async def create_interview_audio_artifact(
     previous_rows = db.query(InterviewAudioArtifact).filter(
         InterviewAudioArtifact.session_id == session_id,
         InterviewAudioArtifact.turn_index == turn_index,
-        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.user_key == user_key,
         InterviewAudioArtifact.deleted_at.is_(None),
     ).all()
     for previous in previous_rows:
@@ -199,7 +200,7 @@ async def create_interview_audio_artifact(
         id=artifact_id,
         session_id=session_id,
         turn_index=turn_index,
-        user_key=x_resume_user_key,
+        user_key=user_key,
         consent_version=consent_version,
         consented_at=now,
         content_type='audio/wav',
@@ -233,16 +234,16 @@ async def create_interview_audio_artifact(
 @router.get('/sessions/{session_id}/audio-artifacts')
 def list_interview_audio_artifacts(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.voice_intelligence import serialize_audio_artifact
 
-    _require_audio_user_key(x_resume_user_key)
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _require_audio_user_key(user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     rows = db.query(InterviewAudioArtifact).filter(
         InterviewAudioArtifact.session_id == session_id,
-        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.user_key == user_key,
     ).order_by(InterviewAudioArtifact.created_at).all()
     return [serialize_audio_artifact(row) for row in rows]
 
@@ -250,16 +251,16 @@ def list_interview_audio_artifacts(
 @router.get('/audio-artifacts/{artifact_id}')
 def get_interview_audio_artifact(
     artifact_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.voice_intelligence import serialize_audio_artifact
 
-    _require_audio_user_key(x_resume_user_key)
+    _require_audio_user_key(user_key)
     row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
     if row is None:
         raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
-    if row.user_key != x_resume_user_key:
+    if row.user_key != user_key:
         raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
     return serialize_audio_artifact(row)
 
@@ -267,16 +268,16 @@ def get_interview_audio_artifact(
 @router.get('/audio-artifacts/{artifact_id}/audio')
 def replay_interview_audio_artifact(
     artifact_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.voice_intelligence import delete_audio_artifact
 
-    _require_audio_user_key(x_resume_user_key)
+    _require_audio_user_key(user_key)
     row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
     if row is None:
         raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
-    if row.user_key != x_resume_user_key:
+    if row.user_key != user_key:
         raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
     if row.deleted_at is not None or not row.storage_path:
         raise HTTPException(status_code=410, detail='AUDIO_ARTIFACT_DELETED')
@@ -298,16 +299,16 @@ def replay_interview_audio_artifact(
 @router.delete('/audio-artifacts/{artifact_id}', status_code=204)
 def delete_interview_audio_artifact(
     artifact_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.voice_intelligence import delete_audio_artifact
 
-    _require_audio_user_key(x_resume_user_key)
+    _require_audio_user_key(user_key)
     row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
     if row is None:
         raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
-    if row.user_key != x_resume_user_key:
+    if row.user_key != user_key:
         raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
     if row.deleted_at is None:
         delete_audio_artifact(row, db)
@@ -316,16 +317,16 @@ def delete_interview_audio_artifact(
 @router.delete('/sessions/{session_id}/audio-artifacts', status_code=204)
 def delete_session_audio_artifacts(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     from app.services.interview.voice_intelligence import delete_audio_artifact
 
-    _require_audio_user_key(x_resume_user_key)
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _require_audio_user_key(user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     rows = db.query(InterviewAudioArtifact).filter(
         InterviewAudioArtifact.session_id == session_id,
-        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.user_key == user_key,
         InterviewAudioArtifact.deleted_at.is_(None),
     ).all()
     for row in rows:
@@ -335,7 +336,7 @@ def delete_session_audio_artifacts(
 @router.post('/realtime/session')
 def create_interview_realtime_session(
     body: InterviewRealtimeSessionIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     """Issue a short-lived, room-scoped token and server-side agent context."""
@@ -346,14 +347,14 @@ def create_interview_realtime_session(
     )
     from app.services.llm_quota import check_quota_or_raise
 
-    check_quota_or_raise(db, x_resume_user_key)
-    _assert_session_owner_or_403(db, body.session_id, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
+    _assert_session_owner_or_403(db, body.session_id, user_key)
 
     now = datetime.utcnow()
     reusable_rows = (
         db.query(InterviewRealtimeSession)
         .filter(
-            InterviewRealtimeSession.user_key == x_resume_user_key,
+            InterviewRealtimeSession.user_key == user_key,
             InterviewRealtimeSession.session_id == body.session_id,
             InterviewRealtimeSession.status.in_(['issued', 'connected']),
             InterviewRealtimeSession.expires_at > now,
@@ -367,7 +368,7 @@ def create_interview_realtime_session(
     active_count = (
         db.query(InterviewRealtimeSession)
         .filter(
-            InterviewRealtimeSession.user_key == x_resume_user_key,
+            InterviewRealtimeSession.user_key == user_key,
             InterviewRealtimeSession.status.in_(['issued', 'connected']),
             InterviewRealtimeSession.expires_at > now,
         )
@@ -392,7 +393,7 @@ def create_interview_realtime_session(
     try:
         grant = issue_livekit_grant(
             session_id=body.session_id,
-            user_key=x_resume_user_key,
+            user_key=user_key,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -409,7 +410,7 @@ def create_interview_realtime_session(
         session_id=body.session_id,
         room_name=grant.room_name,
         participant_identity=grant.participant_identity,
-        user_key=x_resume_user_key,
+        user_key=user_key,
         target_job=body.target_job.strip(),
         jd_content=body.jd_content.strip(),
         turn_mode=turn_mode,
@@ -435,6 +436,12 @@ def create_interview_realtime_session(
 @router.post('/turn')
 def interview_turn(
     body: InterviewTurnIn,
+    # NOTE: intentionally still header-based. The LiveKit voice agent calls this
+    # endpoint server-to-server with the user_key it read from its own room
+    # context, and it holds no browser session token, so resolve_user_key() would
+    # reject every realtime turn. Closing this one needs either a service
+    # credential for the agent or a context_id-based caller contract — tracked
+    # separately from the audio/report identity fix.
     x_resume_user_key: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -549,7 +556,7 @@ def _load_chip_summary(db: Session, chip: str) -> str:
 @router.post('/report')
 def interview_report(
     body: InterviewReportIn,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     x_guest: str = Header(default=''),
     db: Session = Depends(get_db),
 ):
@@ -557,9 +564,9 @@ def interview_report(
     from app.services.interview.llm_helpers import build_interview_llm_client
     from app.services.llm_quota import check_quota_or_raise
 
-    check_quota_or_raise(db, x_resume_user_key)
+    check_quota_or_raise(db, user_key)
     messages = [{'role': m.role, 'content': m.content} for m in body.messages]
-    profile = _load_latest_profile_for_user(db, x_resume_user_key)
+    profile = _load_latest_profile_for_user(db, user_key)
     report = generate_interview_report(
         body.target_job, messages, db=db,
         session_id=getattr(body, 'session_id', '') or None,
@@ -578,14 +585,14 @@ def interview_report(
     else:
         aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
 
-    voice_observations = _build_voice_observations(db, session_id, x_resume_user_key)
+    voice_observations = _build_voice_observations(db, session_id, user_key)
     if voice_observations:
         # Keep measured voice facts separate from the LLM-generated content
         # score. Every observation points back to a turn and replay artifact.
         report['voice_observations'] = voice_observations
 
     row = InterviewReport(
-        user_key=x_resume_user_key,
+        user_key=user_key,
         target_job=body.target_job,
         transcript_json=json.dumps(messages, ensure_ascii=False),
         report_json=json.dumps(report, ensure_ascii=False),
@@ -664,14 +671,14 @@ def intel_status(db: Session = Depends(get_db)):
 
 @router.get('/reports')
 def list_reports(
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    if not x_resume_user_key:
+    if not user_key:
         return []
     rows = (
         db.query(InterviewReport)
-        .filter(InterviewReport.user_key == x_resume_user_key)
+        .filter(InterviewReport.user_key == user_key)
         .order_by(InterviewReport.created_at.desc())
         .limit(20)
         .all()
@@ -787,13 +794,13 @@ async def interview_asr(ws: WebSocket):
 @router.get('/reports/{report_id}')
 def get_report(
     report_id: int,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
     row = db.query(InterviewReport).filter(InterviewReport.id == report_id).first()
     if not row:
         raise HTTPException(status_code=404, detail='Report not found')
-    if row.user_key != x_resume_user_key:
+    if row.user_key != user_key:
         raise HTTPException(status_code=403, detail='Forbidden')
     return {
         'id': row.id,
@@ -841,10 +848,10 @@ def _build_voice_observations(db: Session, session_id: str, user_key: str) -> li
 @router.get('/sessions/{session_id}/turns')
 def get_session_turns(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     rows = (
         db.query(InterviewTurn)
         .filter(InterviewTurn.session_id == session_id)
@@ -853,7 +860,7 @@ def get_session_turns(
     )
     artifact_rows = db.query(InterviewAudioArtifact).filter(
         InterviewAudioArtifact.session_id == session_id,
-        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.user_key == user_key,
         InterviewAudioArtifact.deleted_at.is_(None),
     ).order_by(InterviewAudioArtifact.created_at).all()
     latest_artifact_by_turn = {int(row.turn_index): row for row in artifact_rows}
@@ -887,10 +894,10 @@ def get_session_turns(
 @router.get('/sessions/{session_id}/turns/latest-score')
 def get_latest_score(
     session_id: str,
-    x_resume_user_key: str = Header(default=''),
+    user_key: str = Depends(resolve_user_key),
     db: Session = Depends(get_db),
 ):
-    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, user_key)
     row = (
         db.query(InterviewTurn)
         .filter(
