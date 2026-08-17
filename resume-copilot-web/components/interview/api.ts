@@ -157,6 +157,8 @@ export interface TurnPayload {
   question_heard_text?: string;
   question_interrupted?: boolean;
   realtime_transport?: string;
+  /** Analysis parts that failed to save for this turn, e.g. ["score"]. */
+  analysis_failures?: string[];
   created_at: string;
 }
 

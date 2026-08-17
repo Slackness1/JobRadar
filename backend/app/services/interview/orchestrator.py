@@ -14,7 +14,9 @@ db session across threads).
 """
 from __future__ import annotations
 
+import json
 import logging
+import time
 from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Callable
 
@@ -53,6 +55,92 @@ _TOO_SHORT_ANSWER_CHARS = 80       # 答案少于 N 字直接 advance,没东西�
 
 logger = logging.getLogger(__name__)
 
+# The three parallel tasks below all land on the same interview_turns row from
+# three separate sessions, so a write can lose the race (StaleDataError when the
+# sessions share a connection, "database is locked" under load). That used to be
+# swallowed as a WARNING and the student just saw an analysis that never showed
+# up. Now: retry with a fresh session, and if it still fails, record the loss on
+# the turn so the report can say "本题分析缺失" instead of showing nothing.
+_WRITE_ATTEMPTS = 3
+_WRITE_BACKOFF_SECONDS = 0.05
+
+
+def _mark_analysis_degraded(
+    session_factory: Callable[[], Session],
+    session_id: str,
+    turn_index: int,
+    part: str,
+) -> None:
+    """Append `part` to the turn's analysis_failures list (best effort)."""
+    for attempt in range(_WRITE_ATTEMPTS):
+        db = session_factory()
+        try:
+            row = db.query(InterviewTurn).filter_by(
+                session_id=session_id, turn_index=turn_index,
+            ).one_or_none()
+            if row is None:
+                return
+            try:
+                existing = json.loads(row.analysis_failures) if row.analysis_failures else []
+            except (TypeError, ValueError):
+                existing = []
+            if not isinstance(existing, list):
+                existing = []
+            if part in existing:
+                return
+            existing.append(part)
+            row.analysis_failures = json.dumps(existing, ensure_ascii=False)
+            db.commit()
+            return
+        except Exception:
+            db.rollback()
+            time.sleep(_WRITE_BACKOFF_SECONDS * (attempt + 1))
+        finally:
+            db.close()
+    logger.error(
+        "could not flag degraded analysis (%s) on turn %s/%s",
+        part, session_id, turn_index,
+    )
+
+
+def _persist_turn_field(
+    session_factory: Callable[[], Session],
+    session_id: str,
+    turn_index: int,
+    part: str,
+    apply: Callable[[InterviewTurn], None],
+) -> bool:
+    """Write one analysis result onto the turn row, retrying on write conflicts."""
+    last_exc: Exception | None = None
+    for attempt in range(_WRITE_ATTEMPTS):
+        db = session_factory()
+        try:
+            row = db.query(InterviewTurn).filter_by(
+                session_id=session_id, turn_index=turn_index,
+            ).one_or_none()
+            if row is None:
+                logger.error(
+                    "turn %s/%s is gone; dropping %s", session_id, turn_index, part,
+                )
+                _mark_analysis_degraded(session_factory, session_id, turn_index, part)
+                return False
+            apply(row)
+            db.commit()
+            return True
+        except Exception as exc:
+            last_exc = exc
+            db.rollback()
+            time.sleep(_WRITE_BACKOFF_SECONDS * (attempt + 1))
+        finally:
+            db.close()
+    logger.error(
+        "%s write lost after %d attempts on turn %s/%s: %s",
+        part, _WRITE_ATTEMPTS, session_id, turn_index, last_exc,
+    )
+    _mark_analysis_degraded(session_factory, session_id, turn_index, part)
+    return False
+
+
 def _score_task(
     session_factory: Callable[[], Session],
     session_id: str,
@@ -75,19 +163,22 @@ def _score_task(
             db=db,
             user_key=user_key,
         )
-        if result.overall is None and not result.hits and not result.misses:
-            return  # leave score_json null
-        row = db.query(InterviewTurn).filter_by(
-            session_id=session_id, turn_index=turn_index,
-        ).one_or_none()
-        if row is not None:
-            row.score_json = result.to_json()
-            db.commit()
     except Exception as exc:
         logger.warning("score_task failed: %s", exc)
         db.rollback()
+        _mark_analysis_degraded(session_factory, session_id, turn_index, "score")
+        return
     finally:
         db.close()
+
+    if result.overall is None and not result.hits and not result.misses:
+        return  # model produced nothing to score — leave score_json null
+
+    payload = result.to_json()
+    _persist_turn_field(
+        session_factory, session_id, turn_index, "score",
+        lambda row: setattr(row, "score_json", payload),
+    )
 
 
 def _reference_task(
@@ -100,7 +191,6 @@ def _reference_task(
     candidate_summary: str,
     llm: InterviewLLMClient,
 ) -> None:
-    db = session_factory()
     try:
         text = generate_reference(
             target_job=target_job,
@@ -109,19 +199,18 @@ def _reference_task(
             candidate_summary=candidate_summary,
             llm=llm,
         )
-        if not text:
-            return
-        row = db.query(InterviewTurn).filter_by(
-            session_id=session_id, turn_index=turn_index,
-        ).one_or_none()
-        if row is not None:
-            row.reference_answer = text
-            db.commit()
     except Exception as exc:
         logger.warning("reference_task failed: %s", exc)
-        db.rollback()
-    finally:
-        db.close()
+        _mark_analysis_degraded(session_factory, session_id, turn_index, "reference_answer")
+        return
+
+    if not text:
+        return
+
+    _persist_turn_field(
+        session_factory, session_id, turn_index, "reference_answer",
+        lambda row: setattr(row, "reference_answer", text),
+    )
 
 
 def _recall_experiences(
@@ -170,24 +259,22 @@ def _voice_task(
     asr_transcript: dict,
     llm: InterviewLLMClient,
 ) -> None:
-    db = session_factory()
+    if not asr_transcript:
+        return
     try:
-        if not asr_transcript:
-            return
-        metrics = compute_voice_metrics(asr_transcript)
         # Do not infer confidence from transcript text or cadence. That label is
         # not calibrated and is deliberately kept null in production output.
-        row = db.query(InterviewTurn).filter_by(
-            session_id=session_id, turn_index=turn_index,
-        ).one_or_none()
-        if row is not None:
-            row.voice_metrics = metrics.to_json()
-            db.commit()
+        metrics = compute_voice_metrics(asr_transcript)
     except Exception as exc:
         logger.warning("voice_task failed: %s", exc)
-        db.rollback()
-    finally:
-        db.close()
+        _mark_analysis_degraded(session_factory, session_id, turn_index, "voice_metrics")
+        return
+
+    payload = metrics.to_json()
+    _persist_turn_field(
+        session_factory, session_id, turn_index, "voice_metrics",
+        lambda row: setattr(row, "voice_metrics", payload),
+    )
 
 
 def process_turn_synchronous(

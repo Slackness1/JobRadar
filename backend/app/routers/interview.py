@@ -43,6 +43,17 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix='/api/interview', tags=['interview'])
 
 
+def _parse_analysis_failures(raw: str | None) -> list[str]:
+    """interview_turns.analysis_failures is a JSON list; tolerate legacy junk."""
+    if not raw:
+        return []
+    try:
+        parsed = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    return [str(item) for item in parsed] if isinstance(parsed, list) else []
+
+
 def _require_audio_user_key(user_key: str) -> None:
     if not user_key.strip():
         raise HTTPException(status_code=401, detail='AUDIO_ARTIFACT_IDENTITY_REQUIRED')
@@ -886,6 +897,9 @@ def get_session_turns(
             'question_heard_text': str(r.question_heard_text or ''),
             'question_interrupted': bool(r.question_interrupted),
             'realtime_transport': str(r.realtime_transport or ''),
+            # Parts of this turn's analysis that failed to persist. Shown to the
+            # student rather than leaving an unexplained blank.
+            'analysis_failures': _parse_analysis_failures(r.analysis_failures),
             'created_at': r.created_at.isoformat() if r.created_at else '',
         })
     return out

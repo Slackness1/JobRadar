@@ -570,6 +570,10 @@ class InterviewTurn(Base):
     question_heard_text = Column(Text, default="")
     question_interrupted = Column(Boolean, default=False)
     realtime_transport = Column(Text, default="")
+    # JSON list of analysis parts that failed to persist for this turn
+    # (e.g. ["score", "voice_metrics"]). Empty/NULL means nothing was lost.
+    # Surfaced to the student instead of showing a silently empty analysis.
+    analysis_failures = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

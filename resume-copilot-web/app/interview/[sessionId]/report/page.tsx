@@ -76,6 +76,9 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
           <details key={t.turn_index} style={detailStyle}>
             <summary style={summaryStyle}>
               <span>第 {t.turn_index + 1} 题</span>
+              {(t.analysis_failures?.length ?? 0) > 0 && (
+                <span style={missingBadgeStyle}>本题分析缺失</span>
+              )}
               {t.score?.overall != null && (
                 <span style={{ marginLeft: 'auto', fontWeight: 600 }}>
                   {t.score.overall}/100
@@ -83,6 +86,12 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
               )}
             </summary>
             <div style={{ paddingTop: 16 }}>
+              {(t.analysis_failures?.length ?? 0) > 0 && (
+                <p style={missingNoticeStyle}>
+                  这一题的{(t.analysis_failures ?? []).map((part) => ANALYSIS_PART_LABELS[part] ?? part).join('、')}
+                  没有保存成功，不是你没答好。你的回答已完整保留，可以重新生成或联系我们补上。
+                </p>
+              )}
               <p><strong>题目：</strong>{t.question}</p>
               <p><strong>你的回答：</strong>{t.user_answer || <em style={{opacity:0.5}}>（未作答）</em>}</p>
 
@@ -184,11 +193,37 @@ const detailStyle: React.CSSProperties = {
 const summaryStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
+  gap: 8,
   cursor: 'pointer',
   fontSize: 16,
   fontWeight: 500,
 };
 
+// A lost analysis write is the system's fault, not the candidate's — say which
+// part is missing rather than rendering an unexplained empty card.
+const ANALYSIS_PART_LABELS: Record<string, string> = {
+  score: '评分',
+  reference_answer: '参考答案',
+  voice_metrics: '语音指标',
+};
+const missingBadgeStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 500,
+  color: '#b45309',
+  background: 'rgba(245, 158, 11, 0.14)',
+  borderRadius: 999,
+  padding: '2px 10px',
+};
+const missingNoticeStyle: React.CSSProperties = {
+  fontSize: 13,
+  lineHeight: 1.6,
+  color: '#92400e',
+  background: 'rgba(245, 158, 11, 0.10)',
+  border: '1px solid rgba(245, 158, 11, 0.35)',
+  borderRadius: 10,
+  padding: '10px 12px',
+  marginBottom: 12,
+};
 const scoreCardStyle: React.CSSProperties = {
   background: 'rgba(201, 100, 66, 0.05)',
   borderRadius: 12,

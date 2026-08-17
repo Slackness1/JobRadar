@@ -1,19 +1,13 @@
 import json
 from unittest.mock import MagicMock
 
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
-from sqlalchemy.orm import sessionmaker
-
-from app.database import Base
 from app.models import InterviewTurn
 from app.services.interview.orchestrator import process_turn_synchronous
+from tests._threadsafe_db import make_threadsafe_sessionmaker
 
 
 def _make_db():
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine)
-    return sessionmaker(bind=engine)
+    return make_threadsafe_sessionmaker("jobradar-orch-test-")
 
 
 def _stub_llm():
