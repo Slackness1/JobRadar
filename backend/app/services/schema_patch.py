@@ -336,6 +336,121 @@ def ensure_compatible_schema(engine: Engine) -> None:
         }
         if "parent_turn_index" not in existing_turn_cols:
             conn.execute(text("ALTER TABLE interview_turns ADD COLUMN parent_turn_index INTEGER"))
+        interview_turn_additions = {
+            "question_heard_text": (
+                "ALTER TABLE interview_turns ADD COLUMN question_heard_text TEXT DEFAULT ''"
+            ),
+            "question_interrupted": (
+                "ALTER TABLE interview_turns ADD COLUMN question_interrupted BOOLEAN DEFAULT 0"
+            ),
+            "realtime_transport": (
+                "ALTER TABLE interview_turns ADD COLUMN realtime_transport TEXT DEFAULT ''"
+            ),
+        }
+        for column_name, ddl in interview_turn_additions.items():
+            if column_name not in existing_turn_cols:
+                conn.execute(text(ddl))
+
+        conn.execute(text(
+            """
+            CREATE TABLE IF NOT EXISTS interview_audio_artifacts (
+                id TEXT PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                turn_index INTEGER NOT NULL,
+                user_key TEXT NOT NULL,
+                consent_version TEXT NOT NULL,
+                consented_at DATETIME NOT NULL,
+                content_type TEXT NOT NULL DEFAULT 'audio/wav',
+                storage_path TEXT NOT NULL DEFAULT '',
+                sha256 TEXT NOT NULL DEFAULT '',
+                byte_size INTEGER NOT NULL DEFAULT 0,
+                sample_rate INTEGER NOT NULL DEFAULT 16000,
+                channels INTEGER NOT NULL DEFAULT 1,
+                duration_seconds FLOAT NOT NULL DEFAULT 0,
+                status TEXT NOT NULL DEFAULT 'uploaded',
+                analyzer_version TEXT NOT NULL DEFAULT '',
+                features_json TEXT NOT NULL DEFAULT '{}',
+                shadow_asr_json TEXT NOT NULL DEFAULT '{}',
+                quality_flags_json TEXT NOT NULL DEFAULT '[]',
+                error_message TEXT NOT NULL DEFAULT '',
+                expires_at DATETIME NOT NULL,
+                deleted_at DATETIME,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL
+            )
+            """
+        ))
+        for column_name in ("session_id", "turn_index", "user_key", "status", "expires_at"):
+            conn.execute(text(
+                f"CREATE INDEX IF NOT EXISTS ix_interview_audio_artifacts_{column_name} "
+                f"ON interview_audio_artifacts({column_name})"
+            ))
+
+        conn.execute(text(
+            """
+            CREATE TABLE IF NOT EXISTS interview_realtime_sessions (
+                context_id TEXT PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                room_name TEXT NOT NULL UNIQUE,
+                participant_identity TEXT NOT NULL,
+                user_key TEXT NOT NULL,
+                target_job TEXT NOT NULL,
+                jd_content TEXT DEFAULT '',
+                turn_mode TEXT NOT NULL DEFAULT 'manual',
+                interruption_mode TEXT NOT NULL DEFAULT 'vad',
+                status TEXT NOT NULL DEFAULT 'issued',
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                connected_at DATETIME,
+                closed_at DATETIME,
+                expires_at DATETIME NOT NULL
+            )
+            """
+        ))
+        conn.execute(text(
+            """
+            CREATE TABLE IF NOT EXISTS interview_realtime_events (
+                id INTEGER PRIMARY KEY,
+                context_id TEXT NOT NULL REFERENCES interview_realtime_sessions(context_id) ON DELETE CASCADE,
+                session_id TEXT NOT NULL,
+                event_type TEXT NOT NULL,
+                turn_index INTEGER,
+                payload_json TEXT DEFAULT '{}',
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_sessions_session_id "
+            "ON interview_realtime_sessions(session_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_sessions_user_key "
+            "ON interview_realtime_sessions(user_key)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_sessions_status "
+            "ON interview_realtime_sessions(status)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_sessions_expires_at "
+            "ON interview_realtime_sessions(expires_at)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_events_context_id "
+            "ON interview_realtime_events(context_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_events_session_id "
+            "ON interview_realtime_events(session_id)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_events_event_type "
+            "ON interview_realtime_events(event_type)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_interview_realtime_events_created_at "
+            "ON interview_realtime_events(created_at)"
+        ))
 
         # interview_reports new columns — idempotent ALTER
         existing_report_cols = {

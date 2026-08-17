@@ -39,7 +39,6 @@ from app.services.interview.scoring import ScoreResult, score_answer
 from app.services.interview.voice_metrics import (
     VoiceMetrics,
     compute_voice_metrics,
-    score_confidence_from_transcript,
 )
 from app.services.interview.weakness_profile import compute_weakness
 
@@ -53,7 +52,6 @@ _FOLLOWUP_CAP = 3                  # 单 main 下最多 N 个 follow-up (旧版�
 _TOO_SHORT_ANSWER_CHARS = 80       # 答案少于 N 字直接 advance,没东西可问
 
 logger = logging.getLogger(__name__)
-
 
 def _score_task(
     session_factory: Callable[[], Session],
@@ -177,11 +175,8 @@ def _voice_task(
         if not asr_transcript:
             return
         metrics = compute_voice_metrics(asr_transcript)
-        # confidence sub-call (LLM); failure → leaves field null
-        if metrics.wpm is not None:
-            metrics.confidence_score = score_confidence_from_transcript(
-                asr_transcript, metrics, llm=llm,
-            )
+        # Do not infer confidence from transcript text or cadence. That label is
+        # not calibrated and is deliberately kept null in production output.
         row = db.query(InterviewTurn).filter_by(
             session_id=session_id, turn_index=turn_index,
         ).one_or_none()

@@ -1,25 +1,50 @@
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from fastapi.responses import FileResponse, StreamingResponse
+from pydantic import BaseModel, Field, model_validator
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.database import SessionLocal, get_db
-from app.models import InterviewIntelKeyword, InterviewIntelPost, InterviewReport, InterviewTurn
+from app.models import (
+    InterviewIntelKeyword,
+    InterviewIntelPost,
+    InterviewAudioArtifact,
+    InterviewRealtimeSession,
+    InterviewReport,
+    InterviewTurn,
+)
 from app.services.interview.llm import stream_interview_turn
 from app.services.interview.orchestrator import process_turn_synchronous
 from app.services.interview.report import generate_interview_report
 from app.services.interview.voice.asr import AsrUnavailable, run_asr_session
 from app.services.interview.voice.avatar import AvatarUnavailable, create_avatar_session
-from app.services.interview.voice.tts import TTSUnavailable, synthesize
+from app.services.interview.voice.tts import TTS_SAMPLE_RATE, TTSUnavailable, synthesize
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/api/interview', tags=['interview'])
+
+
+def _require_audio_user_key(user_key: str) -> None:
+    if not user_key.strip():
+        raise HTTPException(status_code=401, detail='AUDIO_ARTIFACT_IDENTITY_REQUIRED')
 
 
 def _load_latest_profile_for_user(db: Session, user_key: str) -> dict | None:
@@ -60,11 +85,38 @@ class InterviewMessage(BaseModel):
     content: str
 
 
+class AsrSegment(BaseModel):
+    """One final ASR segment.
+
+    Timing is optional because some provider final events do not include it.
+    When absent, downstream timing metrics intentionally stay null rather than
+    using a synthetic zero-length segment.
+    """
+
+    start_s: float | None = None
+    end_s: float | None = None
+    text: str
+
+    @model_validator(mode='after')
+    def validate_timing_pair(self):
+        if (self.start_s is None) != (self.end_s is None):
+            raise ValueError('start_s and end_s must be provided together')
+        if self.start_s is not None and self.end_s is not None:
+            if self.start_s < 0 or self.end_s < self.start_s:
+                raise ValueError('ASR segment timing must be non-negative and monotonic')
+        return self
+
+
+class AsrTranscript(BaseModel):
+    audio_duration_s: float = Field(default=0.0, ge=0)
+    segments: list[AsrSegment] = Field(default_factory=list)
+
+
 class InterviewTurnIn(BaseModel):
     target_job: str
     session_id: str = ''  # frontend UUID
     messages: list[InterviewMessage]
-    asr_transcript: dict | None = None  # for the most-recent user answer (voice mode only)
+    asr_transcript: AsrTranscript | None = None  # most-recent voice answer
     jd_content: str | None = None  # 可选 — 来自岗位 JD，用于定制考察重点
 
 
@@ -74,6 +126,310 @@ class InterviewReportIn(BaseModel):
     messages: list[InterviewMessage]
     duration_seconds: int = 0
     jd_content: str | None = None
+
+
+class InterviewRealtimeSessionIn(BaseModel):
+    session_id: str = Field(min_length=8, max_length=80)
+    target_job: str = Field(min_length=1, max_length=160)
+    jd_content: str = Field(default='', max_length=12000)
+    turn_mode: Literal['manual', 'automatic'] = 'manual'
+
+
+@router.post('/audio-artifacts', status_code=202)
+async def create_interview_audio_artifact(
+    session_id: str = Form(..., min_length=1, max_length=80),
+    turn_index: int = Form(..., ge=0),
+    consent_granted: bool = Form(False),
+    consent_version: str = Form(..., max_length=80),
+    transcript_text: str = Form(default='', max_length=12000),
+    audio: UploadFile = File(...),
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Persist one explicitly consented, turn-bound WAV for async analysis."""
+    from app import config
+    from app.services.interview.voice_intelligence import (
+        CONSENT_VERSION,
+        delete_audio_artifact,
+        enqueue_audio_analysis,
+        inspect_wav_bytes,
+        new_artifact_id,
+        persist_private_wav,
+        serialize_audio_artifact,
+        sha256_hex,
+    )
+
+    if not config.VOICE_INTELLIGENCE_ENABLED:
+        raise HTTPException(status_code=503, detail='VOICE_INTELLIGENCE_DISABLED')
+    _require_audio_user_key(x_resume_user_key)
+    if not consent_granted or consent_version != CONSENT_VERSION:
+        raise HTTPException(status_code=422, detail='EXPLICIT_AUDIO_CONSENT_REQUIRED')
+    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    turn = db.query(InterviewTurn).filter_by(
+        session_id=session_id, turn_index=turn_index
+    ).one_or_none()
+    if turn is None:
+        raise HTTPException(status_code=404, detail='INTERVIEW_TURN_NOT_FOUND')
+
+    max_bytes = max(1, config.VOICE_AUDIO_MAX_UPLOAD_MB) * 1024 * 1024
+    data = await audio.read(max_bytes + 1)
+    await audio.close()
+    if len(data) > max_bytes:
+        raise HTTPException(status_code=413, detail='AUDIO_UPLOAD_TOO_LARGE')
+    try:
+        metadata = inspect_wav_bytes(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    # One live artifact per turn minimizes retained data and makes retries
+    # deterministic. A replacement first removes the previous physical file.
+    previous_rows = db.query(InterviewAudioArtifact).filter(
+        InterviewAudioArtifact.session_id == session_id,
+        InterviewAudioArtifact.turn_index == turn_index,
+        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.deleted_at.is_(None),
+    ).all()
+    for previous in previous_rows:
+        delete_audio_artifact(previous, db, status='replaced')
+
+    now = datetime.utcnow()
+    artifact_id = new_artifact_id()
+    path = persist_private_wav(artifact_id, data)
+    row = InterviewAudioArtifact(
+        id=artifact_id,
+        session_id=session_id,
+        turn_index=turn_index,
+        user_key=x_resume_user_key,
+        consent_version=consent_version,
+        consented_at=now,
+        content_type='audio/wav',
+        storage_path=str(path),
+        sha256=sha256_hex(data),
+        byte_size=len(data),
+        sample_rate=metadata.sample_rate,
+        channels=metadata.channels,
+        duration_seconds=metadata.duration_seconds,
+        status='uploaded',
+        expires_at=now + timedelta(days=max(1, config.VOICE_AUDIO_RETENTION_DAYS)),
+        created_at=now,
+        updated_at=now,
+    )
+    try:
+        db.add(row)
+        db.commit()
+    except Exception:
+        path.unlink(missing_ok=True)
+        raise
+
+    task_session_factory = sessionmaker(bind=db.get_bind())
+    enqueue_audio_analysis(
+        artifact_id,
+        task_session_factory,
+        transcript_text.strip(),
+    )
+    return serialize_audio_artifact(row)
+
+
+@router.get('/sessions/{session_id}/audio-artifacts')
+def list_interview_audio_artifacts(
+    session_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    from app.services.interview.voice_intelligence import serialize_audio_artifact
+
+    _require_audio_user_key(x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    rows = db.query(InterviewAudioArtifact).filter(
+        InterviewAudioArtifact.session_id == session_id,
+        InterviewAudioArtifact.user_key == x_resume_user_key,
+    ).order_by(InterviewAudioArtifact.created_at).all()
+    return [serialize_audio_artifact(row) for row in rows]
+
+
+@router.get('/audio-artifacts/{artifact_id}')
+def get_interview_audio_artifact(
+    artifact_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    from app.services.interview.voice_intelligence import serialize_audio_artifact
+
+    _require_audio_user_key(x_resume_user_key)
+    row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
+    if row.user_key != x_resume_user_key:
+        raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
+    return serialize_audio_artifact(row)
+
+
+@router.get('/audio-artifacts/{artifact_id}/audio')
+def replay_interview_audio_artifact(
+    artifact_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    from app.services.interview.voice_intelligence import delete_audio_artifact
+
+    _require_audio_user_key(x_resume_user_key)
+    row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
+    if row.user_key != x_resume_user_key:
+        raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
+    if row.deleted_at is not None or not row.storage_path:
+        raise HTTPException(status_code=410, detail='AUDIO_ARTIFACT_DELETED')
+    if row.expires_at <= datetime.utcnow():
+        delete_audio_artifact(row, db, status='expired')
+        raise HTTPException(status_code=410, detail='AUDIO_ARTIFACT_EXPIRED')
+    if not Path(row.storage_path).is_file():
+        row.status = 'error'
+        row.error_message = 'AUDIO_FILE_MISSING'
+        db.commit()
+        raise HTTPException(status_code=410, detail='AUDIO_ARTIFACT_MISSING')
+    return FileResponse(
+        row.storage_path,
+        media_type='audio/wav',
+        headers={'Cache-Control': 'private, no-store'},
+    )
+
+
+@router.delete('/audio-artifacts/{artifact_id}', status_code=204)
+def delete_interview_audio_artifact(
+    artifact_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    from app.services.interview.voice_intelligence import delete_audio_artifact
+
+    _require_audio_user_key(x_resume_user_key)
+    row = db.query(InterviewAudioArtifact).filter_by(id=artifact_id).one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail='AUDIO_ARTIFACT_NOT_FOUND')
+    if row.user_key != x_resume_user_key:
+        raise HTTPException(status_code=403, detail='AUDIO_ARTIFACT_FORBIDDEN')
+    if row.deleted_at is None:
+        delete_audio_artifact(row, db)
+
+
+@router.delete('/sessions/{session_id}/audio-artifacts', status_code=204)
+def delete_session_audio_artifacts(
+    session_id: str,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    from app.services.interview.voice_intelligence import delete_audio_artifact
+
+    _require_audio_user_key(x_resume_user_key)
+    _assert_session_owner_or_403(db, session_id, x_resume_user_key)
+    rows = db.query(InterviewAudioArtifact).filter(
+        InterviewAudioArtifact.session_id == session_id,
+        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.deleted_at.is_(None),
+    ).all()
+    for row in rows:
+        delete_audio_artifact(row, db)
+
+
+@router.post('/realtime/session')
+def create_interview_realtime_session(
+    body: InterviewRealtimeSessionIn,
+    x_resume_user_key: str = Header(default=''),
+    db: Session = Depends(get_db),
+):
+    """Issue a short-lived, room-scoped token and server-side agent context."""
+    from app import config
+    from app.services.interview.voice.livekit_session import (
+        LiveKitVoiceUnavailable,
+        issue_livekit_grant,
+    )
+    from app.services.llm_quota import check_quota_or_raise
+
+    check_quota_or_raise(db, x_resume_user_key)
+    _assert_session_owner_or_403(db, body.session_id, x_resume_user_key)
+
+    now = datetime.utcnow()
+    reusable_rows = (
+        db.query(InterviewRealtimeSession)
+        .filter(
+            InterviewRealtimeSession.user_key == x_resume_user_key,
+            InterviewRealtimeSession.session_id == body.session_id,
+            InterviewRealtimeSession.status.in_(['issued', 'connected']),
+            InterviewRealtimeSession.expires_at > now,
+        )
+        .all()
+    )
+    for existing in reusable_rows:
+        existing.status = 'superseded'
+        existing.closed_at = now
+
+    active_count = (
+        db.query(InterviewRealtimeSession)
+        .filter(
+            InterviewRealtimeSession.user_key == x_resume_user_key,
+            InterviewRealtimeSession.status.in_(['issued', 'connected']),
+            InterviewRealtimeSession.expires_at > now,
+        )
+        .count()
+    )
+    if active_count >= max(1, config.VOICE_LIVEKIT_MAX_ACTIVE_SESSIONS_PER_USER):
+        db.rollback()
+        raise HTTPException(status_code=429, detail='REALTIME_SESSION_LIMIT_REACHED')
+
+    requested_automatic = body.turn_mode == 'automatic'
+    turn_mode = (
+        'automatic'
+        if requested_automatic and config.VOICE_LIVEKIT_AUTOMATIC_TURNS_ENABLED
+        else 'manual'
+    )
+    interruption_mode = (
+        'adaptive'
+        if config.VOICE_LIVEKIT_ADAPTIVE_INTERRUPTION_ENABLED
+        else 'vad'
+    )
+
+    try:
+        grant = issue_livekit_grant(
+            session_id=body.session_id,
+            user_key=x_resume_user_key,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except LiveKitVoiceUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    context_ttl = max(
+        config.VOICE_LIVEKIT_TOKEN_TTL_SECONDS,
+        config.VOICE_LIVEKIT_CONTEXT_TTL_SECONDS,
+    )
+    context_expires_at = datetime.utcnow() + timedelta(seconds=context_ttl)
+    row = InterviewRealtimeSession(
+        context_id=grant.context_id,
+        session_id=body.session_id,
+        room_name=grant.room_name,
+        participant_identity=grant.participant_identity,
+        user_key=x_resume_user_key,
+        target_job=body.target_job.strip(),
+        jd_content=body.jd_content.strip(),
+        turn_mode=turn_mode,
+        interruption_mode=interruption_mode,
+        status='issued',
+        expires_at=context_expires_at,
+    )
+    db.add(row)
+    db.commit()
+
+    return {
+        'url': config.LIVEKIT_URL,
+        'token': grant.token,
+        'room_name': grant.room_name,
+        'participant_identity': grant.participant_identity,
+        'expires_at': grant.expires_at.isoformat() + 'Z',
+        'turn_mode': turn_mode,
+        'automatic_turns_available': config.VOICE_LIVEKIT_AUTOMATIC_TURNS_ENABLED,
+        'interruption_mode': interruption_mode,
+    }
 
 
 @router.post('/turn')
@@ -144,7 +500,9 @@ def interview_turn(
                 chip_summary=chip_summary,
                 prev_turn_index=prev_turn_index,
                 prev_user_answer=prev_user_answer,
-                prev_asr_transcript=body.asr_transcript or {},
+                prev_asr_transcript=(
+                    body.asr_transcript.model_dump() if body.asr_transcript else {}
+                ),
                 next_turn_index=next_turn_index,
                 session_factory=SessionLocal,
                 jd_content=jd_content,
@@ -219,6 +577,12 @@ def interview_report(
             aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
     else:
         aggregate = {'turn_count': 0, 'weakness_profile': None, 'weekly_plan_md': ''}
+
+    voice_observations = _build_voice_observations(db, session_id, x_resume_user_key)
+    if voice_observations:
+        # Keep measured voice facts separate from the LLM-generated content
+        # score. Every observation points back to a turn and replay artifact.
+        report['voice_observations'] = voice_observations
 
     row = InterviewReport(
         user_key=x_resume_user_key,
@@ -330,14 +694,36 @@ class TTSIn(BaseModel):
 
 
 @router.post('/tts')
-def interview_tts(body: TTSIn):
+def interview_tts(
+    body: TTSIn,
+    audio_format: Literal['wav', 'pcm'] = Query(default='wav', alias='format'),
+):
     if not body.text.strip():
         raise HTTPException(status_code=400, detail='text is empty')
     try:
-        stream = synthesize(body.text, voice=body.voice)
+        stream = synthesize(
+            body.text,
+            voice=body.voice,
+            audio_format=audio_format,
+        )
     except TTSUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc))
-    return StreamingResponse(stream, media_type='audio/wav')
+    if audio_format == 'pcm':
+        return StreamingResponse(
+            stream,
+            media_type=f'audio/pcm;rate={TTS_SAMPLE_RATE};channels=1',
+            headers={
+                'Cache-Control': 'no-store',
+                'X-Audio-Sample-Rate': str(TTS_SAMPLE_RATE),
+                'X-Audio-Sample-Format': 's16le',
+                'X-Voice-Stream-Version': '1',
+            },
+        )
+    return StreamingResponse(
+        stream,
+        media_type='audio/wav',
+        headers={'Cache-Control': 'no-store'},
+    )
 
 
 @router.websocket('/asr')
@@ -438,6 +824,20 @@ def _assert_session_owner_or_403(db: Session, session_id: str, user_key: str) ->
             raise HTTPException(status_code=403, detail='SESSION_FORBIDDEN')
 
 
+def _build_voice_observations(db: Session, session_id: str, user_key: str) -> list[dict]:
+    if not session_id:
+        return []
+    from app.services.interview.voice_intelligence import serialize_audio_artifact
+
+    rows = db.query(InterviewAudioArtifact).filter(
+        InterviewAudioArtifact.session_id == session_id,
+        InterviewAudioArtifact.user_key == user_key,
+        InterviewAudioArtifact.deleted_at.is_(None),
+    ).order_by(InterviewAudioArtifact.turn_index, InterviewAudioArtifact.created_at).all()
+    latest_by_turn = {int(row.turn_index): row for row in rows}
+    return [serialize_audio_artifact(latest_by_turn[index]) for index in sorted(latest_by_turn)]
+
+
 @router.get('/sessions/{session_id}/turns')
 def get_session_turns(
     session_id: str,
@@ -451,8 +851,21 @@ def get_session_turns(
         .order_by(InterviewTurn.turn_index)
         .all()
     )
+    artifact_rows = db.query(InterviewAudioArtifact).filter(
+        InterviewAudioArtifact.session_id == session_id,
+        InterviewAudioArtifact.user_key == x_resume_user_key,
+        InterviewAudioArtifact.deleted_at.is_(None),
+    ).order_by(InterviewAudioArtifact.created_at).all()
+    latest_artifact_by_turn = {int(row.turn_index): row for row in artifact_rows}
+    from app.services.interview.voice_intelligence import serialize_audio_artifact
     out = []
     for r in rows:
+        voice_metrics = json.loads(r.voice_metrics) if r.voice_metrics else None
+        if isinstance(voice_metrics, dict):
+            # Historical rows may contain the uncalibrated LLM confidence field.
+            # Never expose it as a measured voice fact.
+            voice_metrics.pop('confidence_score', None)
+        artifact = latest_artifact_by_turn.get(int(r.turn_index))
         out.append({
             'turn_index': int(r.turn_index),
             'question': str(r.question or ''),
@@ -461,7 +874,11 @@ def get_session_turns(
             'question_source': str(r.question_source or ''),
             'parent_turn_index': int(r.parent_turn_index) if r.parent_turn_index is not None else None,
             'score': json.loads(r.score_json) if r.score_json else None,
-            'voice_metrics': json.loads(r.voice_metrics) if r.voice_metrics else None,
+            'voice_metrics': voice_metrics,
+            'voice_intelligence': serialize_audio_artifact(artifact) if artifact else None,
+            'question_heard_text': str(r.question_heard_text or ''),
+            'question_interrupted': bool(r.question_interrupted),
+            'realtime_transport': str(r.realtime_transport or ''),
             'created_at': r.created_at.isoformat() if r.created_at else '',
         })
     return out

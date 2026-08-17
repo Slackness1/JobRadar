@@ -112,3 +112,4 @@ def test_latest_score_rejects_mismatched_user_key():
         headers={"X-Resume-User-Key": "owner-B"},
     )
     assert resp.status_code == 403
+

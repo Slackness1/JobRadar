@@ -4,7 +4,9 @@ Dispatches between two backends based on `config.DASHSCOPE_TTS_MODEL`:
   - `qwen3-tts-*`  → HTTP REST (text → OSS WAV URL → stream bytes)
   - `cosyvoice-*`  → WebSocket duplex (binary audio frames stream back)
 
-Both paths return an Iterator[bytes] of WAV audio so callers don't care.
+Both paths return an Iterator[bytes]. WAV remains the compatibility default;
+CosyVoice can also return raw signed 16-bit little-endian PCM for true browser
+streaming.
 
 Docs:
   Qwen3-TTS:  https://help.aliyun.com/zh/model-studio/qwen-tts
@@ -25,6 +27,8 @@ from app import config
 
 _HTTP_GENERATION_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation'
 _WS_GATEWAY = 'wss://dashscope.aliyuncs.com/api-ws/v1/inference/'
+TTS_SAMPLE_RATE = 22050
+_SUPPORTED_AUDIO_FORMATS = {'wav', 'pcm'}
 
 
 class TTSUnavailable(RuntimeError):
@@ -72,7 +76,11 @@ def _qwen_tts_iter(text: str, voice: str) -> Iterator[bytes]:
 
 # ─── CosyVoice (WebSocket duplex) ──────────────────────────────────────────────
 
-def _cosyvoice_iter(text: str, voice: str) -> Iterator[bytes]:
+def _cosyvoice_iter(
+    text: str,
+    voice: str,
+    audio_format: str = 'wav',
+) -> Iterator[bytes]:
     """Open a WS to DashScope, send run/continue/finish, yield received audio bytes.
 
     Runs the WS pump on a background thread, yielding bytes from a queue so the
@@ -80,6 +88,16 @@ def _cosyvoice_iter(text: str, voice: str) -> Iterator[bytes]:
     """
     task_id = uuid.uuid4().hex
     audio_queue: queue.Queue[bytes | Exception | None] = queue.Queue(maxsize=64)
+    cancelled = threading.Event()
+
+    def _put(item: bytes | Exception | None) -> bool:
+        while not cancelled.is_set():
+            try:
+                audio_queue.put(item, timeout=0.1)
+                return True
+            except queue.Full:
+                continue
+        return False
 
     def _pump():
         try:
@@ -100,8 +118,8 @@ def _cosyvoice_iter(text: str, voice: str) -> Iterator[bytes]:
                         'parameters': {
                             'text_type': 'PlainText',
                             'voice': voice,
-                            'format': 'wav',
-                            'sample_rate': 22050,
+                            'format': audio_format,
+                            'sample_rate': TTS_SAMPLE_RATE,
                             'volume': 50,
                             'rate': 1,
                             'pitch': 1,
@@ -114,9 +132,15 @@ def _cosyvoice_iter(text: str, voice: str) -> Iterator[bytes]:
                 started = False
                 finished_sent = False
                 while True:
-                    msg = ws.recv()
+                    if cancelled.is_set():
+                        return
+                    try:
+                        msg = ws.recv(timeout=0.25)
+                    except TimeoutError:
+                        continue
                     if isinstance(msg, bytes):
-                        audio_queue.put(msg)
+                        if not _put(msg):
+                            return
                         continue
                     event = json.loads(msg)
                     name = (event.get('header') or {}).get('event')
@@ -139,36 +163,49 @@ def _cosyvoice_iter(text: str, voice: str) -> Iterator[bytes]:
 
                 _ = finished_sent  # silence "unused" lint
         except Exception as exc:
-            audio_queue.put(exc)
+            _put(exc)
         finally:
-            audio_queue.put(None)
+            _put(None)
 
     threading.Thread(target=_pump, daemon=True).start()
 
     def _iter():
-        while True:
-            item = audio_queue.get()
-            if item is None:
-                return
-            if isinstance(item, Exception):
-                raise item
-            yield item
+        try:
+            while True:
+                item = audio_queue.get()
+                if item is None:
+                    return
+                if isinstance(item, Exception):
+                    raise item
+                yield item
+        finally:
+            cancelled.set()
 
     return _iter()
 
 
 # ─── Public API ────────────────────────────────────────────────────────────────
 
-def synthesize(text: str, voice: str | None = None) -> Iterator[bytes]:
-    """Stream synthesized WAV bytes. Validation raises TTSUnavailable upfront."""
+def synthesize(
+    text: str,
+    voice: str | None = None,
+    audio_format: str = 'wav',
+) -> Iterator[bytes]:
+    """Stream synthesized audio bytes. Validation raises upfront."""
     if not config.DASHSCOPE_API_KEY:
         raise TTSUnavailable('DashScope key missing: set DASHSCOPE_API_KEY in backend/.env.local')
     if not text.strip():
         raise TTSUnavailable('text is empty')
+    if audio_format not in _SUPPORTED_AUDIO_FORMATS:
+        raise TTSUnavailable(f'unsupported audio format: {audio_format}')
 
     effective_voice = voice or config.DASHSCOPE_TTS_VOICE
     model = config.DASHSCOPE_TTS_MODEL.lower()
 
     if model.startswith('cosyvoice'):
-        return _cosyvoice_iter(text, effective_voice)
+        return _cosyvoice_iter(text, effective_voice, audio_format=audio_format)
+    if audio_format != 'wav':
+        raise TTSUnavailable(
+            f'{config.DASHSCOPE_TTS_MODEL} does not support raw PCM streaming'
+        )
     return _qwen_tts_iter(text, effective_voice)

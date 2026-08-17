@@ -137,6 +137,14 @@ async def lifespan(app: FastAPI):
     start_scheduler()
     print("[INFO] Scheduler started")
 
+    try:
+        from app.services.interview.voice_intelligence import recover_pending_audio_analysis
+        recovered_audio = recover_pending_audio_analysis()
+        if recovered_audio:
+            print(f"[INFO] Requeued {recovered_audio} interview audio analyses")
+    except Exception as exc:
+        print(f"[WARN] interview audio recovery failed: {exc}")
+
     # Register pluggable LLM context providers (podcast / future memory / future tencent…).
     try:
         from app.services.llm_context import bootstrap as bootstrap_llm_context, registered_names

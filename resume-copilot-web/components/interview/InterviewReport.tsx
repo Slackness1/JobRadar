@@ -1,6 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { Play, Trash2 } from 'lucide-react';
 import type { InterviewReport } from './types';
+import type { VoiceIntelligenceArtifact } from './api';
+import {
+  deleteInterviewAudioArtifact,
+  getInterviewAudioArtifact,
+  getInterviewAudioBlob,
+} from './api';
 
 interface Props {
   report: InterviewReport;
@@ -65,6 +73,134 @@ function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}分${s.toString().padStart(2, '0')}秒`;
+}
+
+const QUALITY_LABELS: Record<string, string> = {
+  insufficient_speech: '有效语音不足',
+  pitch_unavailable: '基频样本不足',
+  clipping_detected: '出现削波',
+  low_input_level: '输入音量偏低',
+};
+
+function VoiceObservationRows({ initial }: { initial: VoiceIntelligenceArtifact[] }) {
+  const [items, setItems] = useState(initial);
+  const [busyId, setBusyId] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => setItems(initial), [initial]);
+  useEffect(() => {
+    const pending = items.filter((item) => ['uploaded', 'analyzing'].includes(item.status));
+    if (!pending.length) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void Promise.all(pending.map((item) => getInterviewAudioArtifact(item.id)))
+        .then((updates) => {
+          if (cancelled) return;
+          const byId = new Map(updates.map((item) => [item.id, item]));
+          setItems((current) => current.map((item) => byId.get(item.id) ?? item));
+        })
+        .catch(() => {});
+    }, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [items]);
+
+  const replay = async (artifact: VoiceIntelligenceArtifact) => {
+    setBusyId(artifact.id);
+    setError('');
+    try {
+      const blob = await getInterviewAudioBlob(artifact.id);
+      const url = URL.createObjectURL(blob);
+      const player = new Audio(url);
+      player.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true });
+      await player.play();
+    } catch {
+      setError('音频已过期或暂时无法回放。');
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  const remove = async (artifact: VoiceIntelligenceArtifact) => {
+    setBusyId(artifact.id);
+    setError('');
+    try {
+      await deleteInterviewAudioArtifact(artifact.id);
+      setItems((current) => current.filter((item) => item.id !== artifact.id));
+    } catch {
+      setError('删除失败，请稍后重试。');
+    } finally {
+      setBusyId('');
+    }
+  };
+
+  if (!items.length) return null;
+  return (
+    <div className="rounded-[20px] bg-[var(--paper)] resume-paper-shadow px-6 py-5">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[13px] font-semibold text-[var(--muted)]">客观语音记录</p>
+          <p className="mt-1 text-[11px] text-[var(--muted)]">仅呈现可复算声学事实，不推断自信或性格</p>
+        </div>
+        <span className="text-[11px] text-[var(--muted)]">音频最长保留 7 天</span>
+      </div>
+      <div className="divide-y divide-[var(--border)]">
+        {items.map((artifact) => {
+          const speech = artifact.features.speech;
+          const pauses = artifact.features.pauses;
+          const delivery = artifact.features.delivery;
+          const pitch = artifact.features.pitch;
+          const energy = artifact.features.energy;
+          return (
+            <div key={artifact.id} className="py-3 first:pt-1 last:pb-0">
+              <div className="flex items-center gap-3">
+                <span className="min-w-[52px] text-[12px] font-semibold text-[var(--ink)]">
+                  第 {artifact.turn_index + 1} 题
+                </span>
+                <div className="flex flex-1 flex-wrap gap-x-4 gap-y-1 text-[12px] text-[var(--ink)]">
+                  {['uploaded', 'analyzing'].includes(artifact.status) && <span>分析中…</span>}
+                  {artifact.status === 'error' && <span className="text-[var(--crimson)]">分析失败</span>}
+                  {speech?.first_speech_ms != null && <span>起答 {speech.first_speech_ms} ms</span>}
+                  {delivery?.articulation_cpm != null && <span>发音语速 {delivery.articulation_cpm} 字/分</span>}
+                  {pauses && <span>长停顿 {pauses.count} 次</span>}
+                  {energy?.mean_dbfs != null && <span>平均响度 {energy.mean_dbfs} dBFS</span>}
+                </div>
+                {artifact.replay_available && (
+                  <button
+                    type="button"
+                    title="回放本题回答"
+                    aria-label={`回放第 ${artifact.turn_index + 1} 题回答`}
+                    onClick={() => void replay(artifact)}
+                    disabled={busyId === artifact.id}
+                    className="grid h-8 w-8 place-items-center rounded-[8px] border border-[var(--border)] text-[var(--olive)] hover:bg-[var(--soft)] disabled:opacity-40"
+                  >
+                    <Play size={14} />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  title="立即删除本题音频与分析"
+                  aria-label={`删除第 ${artifact.turn_index + 1} 题音频与分析`}
+                  onClick={() => void remove(artifact)}
+                  disabled={busyId === artifact.id}
+                  className="grid h-8 w-8 place-items-center rounded-[8px] border border-[var(--border)] text-[var(--crimson)] hover:bg-[#fdf4f4] disabled:opacity-40"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+              {artifact.quality_flags.length > 0 && (
+                <p className="mt-1 pl-[64px] text-[11px] text-[var(--muted)]">
+                  质量提示：{artifact.quality_flags.map((flag) => QUALITY_LABELS[flag] ?? flag).join('、')}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {error && <p className="mt-3 text-[12px] text-[var(--crimson)]">{error}</p>}
+    </div>
+  );
 }
 
 export function InterviewReport({ report, targetJob, durationSeconds, onRestart }: Props) {
@@ -135,6 +271,10 @@ export function InterviewReport({ report, targetJob, durationSeconds, onRestart 
               <DimensionBar key={d.name} {...d} />
             ))}
           </div>
+        )}
+
+        {report.voice_observations && report.voice_observations.length > 0 && (
+          <VoiceObservationRows initial={report.voice_observations} />
         )}
 
         <div className="grid grid-cols-2 gap-4">

@@ -69,6 +69,18 @@ def _get_int_env(name: str, default: int) -> int:
     except ValueError:
         return default
 
+
+def _get_float_env(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, str(default)))
+    except ValueError:
+        return default
+
+
+def _get_bool_env(name: str, default: bool = False) -> bool:
+    fallback = "1" if default else "0"
+    return os.environ.get(name, fallback).strip().lower() in {"1", "true", "yes", "on"}
+
 HAITOU_MAX_PAGES = _get_int_env("HAITOU_MAX_PAGES", 16)
 ALERT_STALE_DAYS = _get_int_env("ALERT_STALE_DAYS", 3)
 
@@ -170,6 +182,47 @@ DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY", "")
 DASHSCOPE_TTS_MODEL = os.environ.get("DASHSCOPE_TTS_MODEL", "qwen3-tts-flash")
 DASHSCOPE_TTS_VOICE = os.environ.get("DASHSCOPE_TTS_VOICE", "Chelsie")
 DASHSCOPE_ASR_MODEL = os.environ.get("DASHSCOPE_ASR_MODEL", "paraformer-realtime-v2")
+
+# Feature-flagged LiveKit transport for the mock-interview voice agent. The
+# existing WebSocket ASR + HTTP PCM path remains the fallback while this is off.
+VOICE_LIVEKIT_ENABLED = _get_bool_env("VOICE_LIVEKIT_ENABLED")
+VOICE_LIVEKIT_AUTOMATIC_TURNS_ENABLED = _get_bool_env(
+    "VOICE_LIVEKIT_AUTOMATIC_TURNS_ENABLED"
+)
+VOICE_LIVEKIT_ADAPTIVE_INTERRUPTION_ENABLED = _get_bool_env(
+    "VOICE_LIVEKIT_ADAPTIVE_INTERRUPTION_ENABLED"
+)
+VOICE_LIVEKIT_AGENT_NAME = os.environ.get(
+    "VOICE_LIVEKIT_AGENT_NAME", "jobradar-interviewer"
+)
+VOICE_LIVEKIT_TOKEN_TTL_SECONDS = _get_int_env("VOICE_LIVEKIT_TOKEN_TTL_SECONDS", 600)
+VOICE_LIVEKIT_CONTEXT_TTL_SECONDS = _get_int_env("VOICE_LIVEKIT_CONTEXT_TTL_SECONDS", 900)
+VOICE_LIVEKIT_MAX_ACTIVE_SESSIONS_PER_USER = _get_int_env(
+    "VOICE_LIVEKIT_MAX_ACTIVE_SESSIONS_PER_USER", 2
+)
+VOICE_LIVEKIT_PROMETHEUS_PORT = _get_int_env("VOICE_LIVEKIT_PROMETHEUS_PORT", 9092)
+VOICE_LIVEKIT_BACKEND_URL = os.environ.get(
+    "VOICE_LIVEKIT_BACKEND_URL", "http://127.0.0.1:8002"
+).rstrip("/")
+VOICE_LIVEKIT_MIN_INTERRUPTION_SECONDS = _get_float_env(
+    "VOICE_LIVEKIT_MIN_INTERRUPTION_SECONDS", 0.55
+)
+VOICE_LIVEKIT_FALSE_INTERRUPTION_TIMEOUT_SECONDS = _get_float_env(
+    "VOICE_LIVEKIT_FALSE_INTERRUPTION_TIMEOUT_SECONDS", 1.6
+)
+# Consented raw interview audio is private, short-lived, and never stored in
+# SQLite. Acoustic analysis is local and asynchronous; shadow ASR is separately
+# gated because it sends the recording to a second recognition pass.
+VOICE_INTELLIGENCE_ENABLED = _get_bool_env("VOICE_INTELLIGENCE_ENABLED", True)
+VOICE_AUDIO_RETENTION_DAYS = _get_int_env("VOICE_AUDIO_RETENTION_DAYS", 7)
+VOICE_AUDIO_MAX_UPLOAD_MB = _get_int_env("VOICE_AUDIO_MAX_UPLOAD_MB", 12)
+VOICE_AUDIO_STORAGE_DIR = Path(
+    os.environ.get("VOICE_AUDIO_STORAGE_DIR", str(DATA_DIR / "interview_audio"))
+)
+VOICE_SHADOW_ASR_ENABLED = _get_bool_env("VOICE_SHADOW_ASR_ENABLED", False)
+LIVEKIT_URL = os.environ.get("LIVEKIT_URL", "")
+LIVEKIT_API_KEY = os.environ.get("LIVEKIT_API_KEY", "")
+LIVEKIT_API_SECRET = os.environ.get("LIVEKIT_API_SECRET", "")
 
 ALIYUN_ACCESS_KEY_ID = os.environ.get("ALIYUN_ACCESS_KEY_ID", "")
 ALIYUN_ACCESS_KEY_SECRET = os.environ.get("ALIYUN_ACCESS_KEY_SECRET", "")

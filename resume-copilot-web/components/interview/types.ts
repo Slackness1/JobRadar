@@ -26,6 +26,7 @@ export interface InterviewReport {
   overall_comment: string;
   _meta?: ReportMeta;
   _fabrication_suppressed?: boolean;
+  voice_observations?: import('./api').VoiceIntelligenceArtifact[];
 }
 
 export interface InterviewReportRow {

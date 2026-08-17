@@ -56,6 +56,16 @@ def test_pause_count_detects_long_segment_gaps():
     assert out.pause_count == 2
 
 
+def test_missing_segment_timing_does_not_fake_zero_pause_or_latency():
+    out = compute_voice_metrics({
+        "audio_duration_s": 10.0,
+        "segments": [{"text": "这是一段没有供应商时间戳的转写"}],
+    })
+    assert out.wpm is not None
+    assert out.pause_count is None
+    assert out.response_latency_ms is None
+
+
 def test_response_latency_is_first_segment_start():
     transcript = _make_transcript(
         [(2.5, 10.0, "答案开头延迟了两秒半")],

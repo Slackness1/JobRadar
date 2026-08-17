@@ -107,6 +107,13 @@ def test_subsequent_turn_runs_orchestrator(monkeypatch):
         "app.routers.interview.process_turn_synchronous",
         stub_process,
     )
+    asr_transcript = {
+        "audio_duration_s": 28.4,
+        "segments": [
+            {"start_s": 0.2, "end_s": 15.5, "text": "嗯，我先介绍一下项目背景。"},
+            {"start_s": 16.1, "end_s": 28.4, "text": "最后结果是转化率提升。"},
+        ],
+    }
 
     response = client.post(
         "/api/interview/turn",
@@ -117,6 +124,7 @@ def test_subsequent_turn_runs_orchestrator(monkeypatch):
                 {"role": "assistant", "content": "请用 1-2 分钟做个自我介绍。"},
                 {"role": "user", "content": "我叫张三，本科上交大..."},
             ],
+            "asr_transcript": asr_transcript,
         },
         headers={"X-Resume-User-Key": "u1"},
     )
@@ -126,6 +134,27 @@ def test_subsequent_turn_runs_orchestrator(monkeypatch):
     assert len(captured_calls) == 1
     assert captured_calls[0]["session_id"] == "test-sess-2"
     assert captured_calls[0]["prev_user_answer"] == "我叫张三，本科上交大..."
+    assert captured_calls[0]["prev_asr_transcript"] == asr_transcript
+
+
+def test_turn_rejects_half_timed_asr_segment():
+    client, _ = _build_test_app()
+
+    response = client.post(
+        "/api/interview/turn",
+        json={
+            "target_job": "default",
+            "session_id": "invalid-asr",
+            "messages": [],
+            "asr_transcript": {
+                "audio_duration_s": 3,
+                "segments": [{"start_s": 0.5, "text": "缺少结束时间"}],
+            },
+        },
+        headers={"X-Resume-User-Key": "u1"},
+    )
+
+    assert response.status_code == 422
 
 
 def test_turn_endpoint_records_user_key():

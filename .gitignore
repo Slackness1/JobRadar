@@ -43,6 +43,7 @@ backend/data/intel_cache/
 backend/data/_intel_cache/
 backend/data/_score_cache/
 backend/data/narrative_cache/
+backend/data/interview_audio/
 devnull
 
 # Runtime data exports

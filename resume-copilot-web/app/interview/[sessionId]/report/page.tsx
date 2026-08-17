@@ -120,9 +120,21 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
                 <div style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
                   语速 {t.voice_metrics.wpm} 字/分
                   {t.voice_metrics.filler_rate != null && ` · 填充词 ${t.voice_metrics.filler_rate}/分钟`}
-                  {t.voice_metrics.confidence_score != null && ` · 自信度 ${t.voice_metrics.confidence_score}/100`}
                 </div>
               )}
+
+              {t.voice_intelligence?.status === 'ready' && (
+                <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
+                  客观声学记录
+                  {t.voice_intelligence.features.speech?.first_speech_ms != null
+                    && ` · 起答 ${t.voice_intelligence.features.speech.first_speech_ms}ms`}
+                  {t.voice_intelligence.features.pauses
+                    && ` · 长停顿 ${t.voice_intelligence.features.pauses.count} 次`}
+                  {t.voice_intelligence.features.energy?.mean_dbfs != null
+                    && ` · 平均响度 ${t.voice_intelligence.features.energy.mean_dbfs} dBFS`}
+                </div>
+              )}
+
             </div>
           </details>
         ))}
@@ -137,7 +149,7 @@ export default function InterviewReportPage({ params }: { params: Promise<{ sess
             const avgWpm = Math.round(
               voiceTurns.reduce((s, t) => s + (t.voice_metrics!.wpm ?? 0), 0) / voiceTurns.length,
             );
-            return <p>平均语速 {avgWpm} 字/分（理想区间 200-260 字/分）</p>;
+            return <p>平均转写语速 {avgWpm} 字/分</p>;
           })()}
         </section>
       )}
@@ -176,6 +188,7 @@ const summaryStyle: React.CSSProperties = {
   fontSize: 16,
   fontWeight: 500,
 };
+
 const scoreCardStyle: React.CSSProperties = {
   background: 'rgba(201, 100, 66, 0.05)',
   borderRadius: 12,

@@ -23,6 +23,7 @@ _current_cron = DEFAULT_CRON
 
 JOB_ID = "daily_crawl"
 GUEST_CLEANUP_JOB_ID = "guest_cleanup"
+VOICE_AUDIO_CLEANUP_JOB_ID = "voice_audio_cleanup"
 NOWCODER_INTEL_JOB_ID = "nowcoder_intel_refresh"
 NOWCODER_INTEL_CRON = "0 */3 * * *"  # every 3h, 8 runs/day, accumulate over time
 TIER_CRAWL_JOB_ID = "daily_tier_crawl"
@@ -298,6 +299,26 @@ def _guest_cleanup_job():
         print(f"[GUEST CLEANUP ERROR] {e}")
 
 
+def _voice_audio_cleanup_job():
+    db = SessionLocal()
+    try:
+        from app.services.interview.voice_intelligence import (
+            cleanup_expired_audio,
+            recover_pending_audio_analysis,
+        )
+        removed = cleanup_expired_audio(db)
+        recovered = recover_pending_audio_analysis()
+        if removed:
+            print(f"[VOICE AUDIO CLEANUP] removed {removed} expired artifacts")
+        if recovered:
+            print(f"[VOICE AUDIO CLEANUP] requeued {recovered} pending artifacts")
+    except Exception as exc:
+        db.rollback()
+        print(f"[VOICE AUDIO CLEANUP ERROR] {exc}")
+    finally:
+        db.close()
+
+
 def start_scheduler():
     if not scheduler.running:
         scheduler.add_job(
@@ -327,6 +348,14 @@ def start_scheduler():
             IntervalTrigger(hours=1),
             id=GUEST_CLEANUP_JOB_ID,
             replace_existing=True,
+        )
+        scheduler.add_job(
+            _voice_audio_cleanup_job,
+            IntervalTrigger(hours=1),
+            id=VOICE_AUDIO_CLEANUP_JOB_ID,
+            replace_existing=True,
+            coalesce=True,
+            max_instances=1,
         )
         scheduler.add_job(
             _nowcoder_intel_job,

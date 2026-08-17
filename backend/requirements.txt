@@ -24,3 +24,7 @@ pdfplumber==0.11.4
 vcrpy==6.0.1
 requests-mock==1.12.1
 jieba>=0.42
+
+# Realtime mock-interview transport and local VAD (feature-flagged).
+livekit-agents[silero]~=1.6.10
+livekit-api>=1.0.7

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { useRecorder } from './useRecorder';
 
 interface Props {
@@ -13,17 +12,16 @@ interface Props {
  * When the user stops recording and there's a final transcript, onSubmit is called.
  */
 export function VoiceControls({ disabled, onSubmit }: Props) {
-  const { isRecording, partialText, finalText, error, start, stop } = useRecorder();
-  const submittedRef = useRef(false);
+  const { isRecording, isFinalizing, partialText, finalText, error, start, stop } = useRecorder();
 
-  // When recording stops with a non-empty final transcript, submit it.
-  useEffect(() => {
-    if (!isRecording && finalText && !submittedRef.current) {
-      submittedRef.current = true;
-      onSubmit(finalText);
+  async function handleMicClick() {
+    if (isRecording) {
+      const finalized = await stop();
+      if (finalized?.text) onSubmit(finalized.text);
+      return;
     }
-    if (isRecording) submittedRef.current = false;
-  }, [isRecording, finalText, onSubmit]);
+    start();
+  }
 
   const liveText = finalText + (partialText ? ` ${partialText}` : '');
 
@@ -31,8 +29,8 @@ export function VoiceControls({ disabled, onSubmit }: Props) {
     <div className="border-t border-[var(--border)] px-4 py-3">
       <div className="flex items-start gap-3">
         <button
-          onClick={isRecording ? stop : start}
-          disabled={disabled}
+          onClick={() => { void handleMicClick(); }}
+          disabled={disabled || isFinalizing}
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border transition-all ${
             isRecording
               ? 'animate-pulse border-red-400 bg-red-500 text-white'
@@ -58,7 +56,7 @@ export function VoiceControls({ disabled, onSubmit }: Props) {
             </span>
           ) : (
             <span className="text-[var(--muted)]">
-              {isRecording ? '正在聆听，说完后点红色按钮发送…' : error || '点击麦克风开始语音作答'}
+              {isFinalizing ? '正在确认最后一句…' : isRecording ? '正在聆听，说完后点红色按钮发送…' : error || '点击麦克风开始语音作答'}
             </span>
           )}
         </div>

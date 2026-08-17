@@ -7,7 +7,8 @@ and stream transcript events back to the client.
 Events emitted to the browser:
     {"type": "started"}
     {"type": "partial", "text": "..."}       # interim hypothesis
-    {"type": "final",   "text": "..."}       # finalized sentence
+    {"type": "final", "text": "...", "start_s": 0.0, "end_s": 1.2}
+                                                # finalized sentence; timing optional
     {"type": "completed"}
     {"type": "error",   "message": "..."}
 
@@ -33,6 +34,35 @@ _GATEWAY = 'wss://dashscope.aliyuncs.com/api-ws/v1/inference/'
 
 class AsrUnavailable(RuntimeError):
     pass
+
+
+def _timestamp_seconds(value: object) -> float | None:
+    """Convert DashScope millisecond timing to seconds when it is usable.
+
+    Paraformer emits sentence timing in milliseconds. Timing is optional in
+    provider events, so callers must preserve absence instead of fabricating a
+    zero timestamp.
+    """
+    if isinstance(value, bool):
+        return None
+    try:
+        milliseconds = float(value)
+    except (TypeError, ValueError):
+        return None
+    if milliseconds < 0:
+        return None
+    return milliseconds / 1000.0
+
+
+def _final_event(text: str, sentence: dict) -> dict:
+    """Build a browser-facing final event without inventing timing data."""
+    event: dict = {'type': 'final', 'text': text}
+    start_s = _timestamp_seconds(sentence.get('begin_time'))
+    end_s = _timestamp_seconds(sentence.get('end_time'))
+    if start_s is not None and end_s is not None and end_s >= start_s:
+        event['start_s'] = start_s
+        event['end_s'] = end_s
+    return event
 
 
 def _run_task_message(task_id: str, sample_rate: int) -> str:
@@ -140,7 +170,7 @@ async def run_asr_session(
                         # Paraformer v2 flags finals via sentence_end=True or end_time set
                         is_final = bool(sentence.get('sentence_end')) or bool(sentence.get('end_time'))
                         if is_final and text:
-                            await send_event({'type': 'final', 'text': text})
+                            await send_event(_final_event(text, sentence))
                             last_emitted = ''
                         elif text and text != last_emitted:
                             await send_event({'type': 'partial', 'text': text})

@@ -1,0 +1,70 @@
+{
+  "sample_rate": 16000,
+  "channels": 1,
+  "sample_width_bytes": 2,
+  "cases": [
+    {
+      "file": "silence_pause.wav",
+      "duration_s": 1.4,
+      "sha256": "074314b53ea11a9554d2fdbf8b0f9ed8d6e0a03fdf4047185bd54541b21b0cd0",
+      "transcript": "",
+      "expected_speech": false,
+      "expected_interruption": false
+    },
+    {
+      "file": "background_noise.wav",
+      "duration_s": 1.4,
+      "sha256": "799d92bfe0d0fe711f056cff6fbb5a17784c20433b44321524cf871680fca129",
+      "transcript": "",
+      "expected_speech": false,
+      "expected_interruption": false
+    },
+    {
+      "file": "keyboard_impulses.wav",
+      "duration_s": 1.4,
+      "sha256": "01cc756b9134de938e743c25ebf059d814f3ac58203466f03ee6d50e20a7b6af",
+      "transcript": "",
+      "expected_speech": false,
+      "expected_interruption": false
+    },
+    {
+      "file": "short_filler.wav",
+      "duration_s": 0.7,
+      "sha256": "0dd69c645d2f455999710b2ca493f2c5ff57e5ac96baa839f2fd43a69e8a033c",
+      "speech_duration_s": 0.18,
+      "transcript": "嗯",
+      "expected_speech": false,
+      "expected_interruption": false
+    },
+    {
+      "file": "cough_like.wav",
+      "duration_s": 0.8,
+      "sha256": "44550ef624438f530b1a2b9426bcd512da1cb0dd18e5d8d85148f3ee786ef399",
+      "speech_duration_s": 0.19,
+      "transcript": "",
+      "expected_speech": false,
+      "expected_interruption": false
+    },
+    {
+      "file": "sustained_overlap.wav",
+      "duration_s": 1.2,
+      "sha256": "5aa6cbe53c0071baaebc866d001d74351f8b87f60c7887f9f3eeb1dba485268e",
+      "speech_duration_s": 0.9,
+      "first_speech_s": 0.1,
+      "transcript": "等一下，我想补充一点",
+      "expected_speech": true,
+      "expected_interruption": true
+    },
+    {
+      "file": "two_phrases_pause.wav",
+      "duration_s": 2.45,
+      "sha256": "7d82167e282cc51744392018a50a6c3133090ef9ecfbeaab432f1501e2682db2",
+      "speech_duration_s": 1.2,
+      "first_speech_s": 0.2,
+      "long_pause_count": 1,
+      "transcript": "我先介绍项目背景，然后说明我的具体贡献",
+      "expected_speech": true,
+      "expected_interruption": true
+    }
+  ]
+}

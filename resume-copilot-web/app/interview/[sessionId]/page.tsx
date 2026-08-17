@@ -4,15 +4,26 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Mic, MicOff, PhoneOff, Type, RotateCcw, Captions,
-  MessageCircleQuestion,
+  MessageCircleQuestion, ShieldCheck,
 } from 'lucide-react';
 import type { InterviewMessage, InterviewReport as InterviewReportType, InterviewState } from '@/components/interview/types';
-import { streamInterviewTurn, saveInterviewReport, getInterviewSkeleton } from '@/components/interview/api';
+import {
+  streamInterviewTurn,
+  saveInterviewReport,
+  getInterviewSkeleton,
+  deleteInterviewSessionAudio,
+  uploadInterviewAudioArtifact,
+  type AsrTranscript,
+} from '@/components/interview/api';
 import { LiveHintBar } from '@/components/interview/LiveHintBar';
 import { ProgressRail } from '@/components/interview/ProgressRail';
 import { InterviewReport } from '@/components/interview/InterviewReport';
 import { useTTSPlayer } from '@/components/interview/voice/useTTSPlayer';
 import { useRecorder } from '@/components/interview/voice/useRecorder';
+import {
+  useLiveKitInterview,
+  type RealtimeTranscript,
+} from '@/components/interview/voice/useLiveKitInterview';
 import { TopBar, Pill, AIOrb, ListenWave } from '@/components/interview/primitives';
 
 const INTERVIEW_END_MARKER = '[INTERVIEW_END]';
@@ -36,6 +47,10 @@ function saveSession(sessionId: string, messages: InterviewMessage[], targetJob:
 export default function InterviewSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const router = useRouter();
+  const realtimeRequested = process.env.NEXT_PUBLIC_VOICE_LIVEKIT_ENABLED === '1';
+  const realtimeTurnMode = process.env.NEXT_PUBLIC_VOICE_LIVEKIT_TURN_MODE === 'automatic'
+    ? 'automatic'
+    : 'manual';
 
   /* ───────────────────── Hydration ──────────────────────────────────────── */
   const [targetJob, setTargetJob] = useState('');
@@ -116,12 +131,16 @@ export default function InterviewSessionPage() {
   const [textDraft, setTextDraft] = useState('');
   const [toast, setToast] = useState('');
   const [micMuted, setMicMuted] = useState(false);
+  const [audioConsent, setAudioConsent] = useState(false);
+  const [showAudioConsentDialog, setShowAudioConsentDialog] = useState(false);
+  const realtimeFinalSegmentIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
 
   const tts = useTTSPlayer();
   const recorder = useRecorder({
     onFinalizedChange: (text) => { if (mode === 'voice') setTextDraft(text); },
+    captureAudio: audioConsent,
   });
 
   useEffect(() => { startTimeRef.current = Date.now(); }, []);
@@ -140,17 +159,85 @@ export default function InterviewSessionPage() {
     const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
     setFinalDuration(duration);
     try {
-      const { report: r } = await saveInterviewReport(job, msgs, duration);
+      const { report: r } = await saveInterviewReport(job, msgs, duration, sessionId);
       setReport(r);
       setState('report_ready');
     } catch {
       setReportError('报告生成失败，请重试。');
       setState('interviewing');
     }
-  }, []);
+  }, [sessionId]);
+
+  const handleRealtimeTranscript = useCallback((transcript: RealtimeTranscript) => {
+    const text = transcript.text.trim();
+    if (!text) return;
+    if (!transcript.final) {
+      if (transcript.role === 'assistant') {
+        setStreamingContent(text);
+        setIsTurning(true);
+      } else {
+        setTextDraft(text);
+      }
+      return;
+    }
+    const segmentKey = `${transcript.role}:${transcript.id}`;
+    if (realtimeFinalSegmentIdsRef.current.has(segmentKey)) return;
+    realtimeFinalSegmentIdsRef.current.add(segmentKey);
+
+    const clean = text.replace(INTERVIEW_END_MARKER, '').trim();
+    if (!clean) return;
+    setMessages((current) => {
+      const next = [...current, { role: transcript.role, content: clean } as InterviewMessage];
+      saveSession(sessionId, next, targetJob);
+      if (transcript.role === 'assistant') {
+        setRound(Math.max(0, next.filter((message) => message.role === 'assistant').length - 1));
+      }
+      if (transcript.role === 'assistant' && text.includes(INTERVIEW_END_MARKER)) {
+        void triggerReport(targetJob, next);
+      }
+      return next;
+    });
+    if (transcript.role === 'assistant') {
+      setStreamingContent('');
+      setIsTurning(false);
+      setTextDraft('');
+    } else {
+      setTextDraft('');
+      setIsTurning(true);
+    }
+  }, [sessionId, targetJob, triggerReport]);
+
+  const realtime = useLiveKitInterview({
+    enabled: realtimeRequested && mode === 'voice',
+    sessionId,
+    targetJob,
+    jdContent,
+    turnMode: realtimeTurnMode,
+    onTranscript: handleRealtimeTranscript,
+    captureAudio: audioConsent,
+    onFallback: (message) => {
+      setStreamError('');
+      setIsTurning(false);
+      setToast(`${message}，已切换到兼容语音链路。`);
+      setTimeout(() => setToast(''), 2600);
+    },
+  });
+
+  const submitAudioForAnalysis = useCallback((audioBlob: Blob | null, transcript: string, turnIndex: number) => {
+    if (!audioConsent || !audioBlob || !transcript.trim()) return;
+    void uploadInterviewAudioArtifact(sessionId, turnIndex, audioBlob, transcript)
+      .then(() => {
+        setToast(`第 ${turnIndex + 1} 题语音分析已提交`);
+        setTimeout(() => setToast(''), 1800);
+      })
+      .catch(() => {
+        setToast('语音分析上传失败，不影响本次面试');
+        setTimeout(() => setToast(''), 2200);
+      });
+  }, [audioConsent, sessionId]);
 
   /* ───────────────────── LLM streaming turn ─────────────────────────────── */
-  const startTurn = useCallback(async (job: string, msgs: InterviewMessage[], asrTranscript?: string) => {
+  const startTurn = useCallback(async (job: string, msgs: InterviewMessage[], asrTranscript?: AsrTranscript) => {
     let accumulated = '';
     try {
       await streamInterviewTurn(
@@ -205,6 +292,7 @@ export default function InterviewSessionPage() {
 
   /* ───────────────────── Kick off the first turn on first visit ─────────── */
   useEffect(() => {
+    if (realtimeRequested && realtime.status !== 'fallback') return;
     if (initializedRef.current) return;
     initializedRef.current = true;
     if (loadSession(sessionId)) return;
@@ -212,15 +300,16 @@ export default function InterviewSessionPage() {
     if (!job) { router.push('/interview'); return; }
     localStorage.removeItem(`interview.pending.${sessionId}`);
     setTimeout(() => { setIsTurning(true); startTurn(job, []); }, 0);
-  }, [sessionId, router, startTurn]);
+  }, [sessionId, router, startTurn, realtimeRequested, realtime.status]);
 
   /* ───────────────────── Voice pipeline: TTS speak + commit ─────────────── */
   useEffect(() => {
+    if (realtime.active) return;
     if (mode !== 'voice' || !pendingAssistantText || ttsTriggeredRef.current) return;
     ttsTriggeredRef.current = true;
     ttsPlayedRef.current = false; // reset for this turn
     tts.speak(pendingAssistantText);
-  }, [pendingAssistantText, mode, tts]);
+  }, [pendingAssistantText, mode, tts, realtime.active]);
 
   // Watch for TTS actually starting (so we don't mistake stale round-1 progress for "done").
   useEffect(() => {
@@ -228,6 +317,7 @@ export default function InterviewSessionPage() {
   }, [tts.isPlaying]);
 
   useEffect(() => {
+    if (realtime.active) return;
     if (!pendingAssistantText || !ttsTriggeredRef.current) return;
     // Only consider "finished" once TTS has actually played at least once for THIS turn.
     if (!ttsPlayedRef.current && !tts.error) return;
@@ -250,7 +340,7 @@ export default function InterviewSessionPage() {
     setPendingAssistantText('');
     setToast('已记录回答 · 进入下一问');
     setTimeout(() => setToast(''), 2000);
-  }, [tts.isPlaying, tts.progress, tts.error, pendingAssistantText, sessionId, triggerReport]);
+  }, [tts.isPlaying, tts.progress, tts.error, pendingAssistantText, sessionId, triggerReport, realtime.active]);
 
   /* ───────────────────── Self-view camera ───────────────────────────────── */
   const selfVideoRef = useRef<HTMLVideoElement>(null);
@@ -274,7 +364,7 @@ export default function InterviewSessionPage() {
   }, []);
 
   /* ───────────────────── Mic input bar (voice mode) ─────────────────────── */
-  const handleSend = useCallback((content: string, asrTranscript?: string) => {
+  const handleSend = useCallback((content: string, asrTranscript?: AsrTranscript) => {
     tts.stop();
     const userMsg: InterviewMessage = { role: 'user', content };
     const updated = [...messages, userMsg];
@@ -291,16 +381,33 @@ export default function InterviewSessionPage() {
   const startListening = useCallback(() => {
     if (mode !== 'voice' || micMuted) return;
     setTextDraft('');
+    if (realtime.active) {
+      void realtime.startListening().catch((error) => {
+        setStreamError(error instanceof Error ? error.message : '麦克风启动失败');
+      });
+      return;
+    }
     recorder.start();
-  }, [mode, recorder, micMuted]);
+  }, [mode, recorder, micMuted, realtime]);
 
-  const stopListeningAndSend = useCallback(() => {
-    recorder.stop();
-    const text = (recorder.finalText + recorder.partialText).trim();
-    if (!text) return;
-    // Pass the ASR transcript for backend voice-metrics analysis.
-    handleSend(text, text);
-  }, [recorder, handleSend]);
+  const stopListeningAndSend = useCallback(async () => {
+    if (realtime.active) {
+      try {
+        const committed = await realtime.stopListeningAndCommit();
+        if (committed.transcript) setTextDraft(committed.transcript);
+        submitAudioForAnalysis(committed.audioBlob, committed.transcript, round);
+      } catch (error) {
+        setStreamError(error instanceof Error ? error.message : '回答提交失败');
+      }
+      return;
+    }
+    const finalized = await recorder.stop();
+    if (!finalized?.text) return;
+    // The ASR provider may emit the final sentence after stop. Awaiting this
+    // handshake prevents truncation and forwards typed timestamp evidence.
+    handleSend(finalized.text, finalized.transcript);
+    submitAudioForAnalysis(finalized.audioBlob, finalized.text, round);
+  }, [recorder, handleSend, realtime, round, submitAudioForAnalysis]);
 
   // Tap-to-toggle space:
   //   • AI is speaking          → interrupt the AI (do not start recording)
@@ -313,39 +420,55 @@ export default function InterviewSessionPage() {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       e.preventDefault();
+      if (realtime.active) {
+        if (realtime.isMicrophoneEnabled) { void stopListeningAndSend(); return; }
+        if (!realtime.isFinalizing && !micMuted) startListening();
+        return;
+      }
       if (tts.isPlaying) { tts.stop(); return; }
-      if (recorder.isRecording) { stopListeningAndSend(); return; }
+      if (recorder.isRecording) { void stopListeningAndSend(); return; }
+      if (recorder.isFinalizing) return;
       if (micMuted) return;
       startListening();
     };
     window.addEventListener('keydown', onDown);
     return () => { window.removeEventListener('keydown', onDown); };
-  }, [mode, startListening, stopListeningAndSend, tts, recorder.isRecording, micMuted]);
+  }, [mode, startListening, stopListeningAndSend, tts, recorder.isRecording, recorder.isFinalizing, micMuted, realtime]);
 
   /* ───────────────────── Caption text (TTS-progress reveal) ─────────────── */
   const captionText = useMemo(() => {
+    if (realtime.active) return streamingContent;
     if (mode === 'voice' && pendingAssistantText) {
       const len = pendingAssistantText.length;
       return pendingAssistantText.slice(0, Math.round(len * tts.progress));
     }
     return streamingContent;
-  }, [mode, pendingAssistantText, tts.progress, streamingContent]);
+  }, [mode, pendingAssistantText, tts.progress, streamingContent, realtime.active]);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
   // While a turn is in flight (LLM streaming or TTS playing), show the live caption
   // even if it's currently an empty string. Only fall back to the last committed
   // message when there is genuinely nothing in flight — otherwise round 2+ would
   // briefly flash round 1's full text whenever progress is 0.
-  const turnInFlight = isTurning || !!pendingAssistantText || tts.isPlaying;
+  const realtimeInFlight = realtime.active && ['initializing', 'thinking', 'speaking'].includes(realtime.agentState);
+  const turnInFlight = realtime.active
+    ? realtimeInFlight
+    : isTurning || !!pendingAssistantText || tts.isPlaying;
   const captionDisplayed = turnInFlight ? captionText : (lastAssistant?.content ?? '');
-  const showCursor = isTurning || (mode === 'voice' && tts.isPlaying && captionText.length < pendingAssistantText.length);
+  const showCursor = realtime.active
+    ? realtimeInFlight
+    : isTurning || (mode === 'voice' && tts.isPlaying && captionText.length < pendingAssistantText.length);
 
   /* ───────────────────── Status (orb + caption header) ──────────────────── */
-  const isThinking = isTurning && !tts.isPlaying;
-  const isSpeaking = tts.isPlaying;
-  const isListening = recorder.isRecording;
+  const isThinking = realtime.active
+    ? ['initializing', 'thinking'].includes(realtime.agentState)
+    : isTurning && !tts.isPlaying;
+  const isSpeaking = realtime.active ? realtime.agentState === 'speaking' : tts.isPlaying;
+  const isListening = realtime.active ? realtime.isMicrophoneEnabled : recorder.isRecording;
+  const isFinalizing = realtime.active ? realtime.isFinalizing : recorder.isFinalizing;
   const orbStatus = isThinking ? '正在思考下一问…'
     : isSpeaking ? `正在讲第 ${round + 1} 问…`
+    : isFinalizing ? '正在确认最后一句…'
     : isListening ? '听你说…'
     : round === 0 ? '准备就绪'
     : '讲完了 · 等你作答';
@@ -353,14 +476,63 @@ export default function InterviewSessionPage() {
   /* ───────────────────── End interview / Skip ───────────────────────────── */
   const handleEndInterview = useCallback(() => {
     if (state !== 'interviewing') return;
+    if (realtime.active) void realtime.fallbackToLegacy();
     triggerReport(targetJob, messages);
-  }, [state, targetJob, messages, triggerReport]);
+  }, [state, targetJob, messages, triggerReport, realtime]);
 
   const handleRetry = useCallback(() => {
     setStreamError('');
     setIsTurning(true);
     startTurn(targetJob, messages);
   }, [targetJob, messages, startTurn]);
+
+  const handleModeChange = useCallback((nextMode: 'voice' | 'text') => {
+    if (nextMode === mode) return;
+    if (realtime.active) void realtime.fallbackToLegacy();
+    setMode(nextMode);
+  }, [mode, realtime]);
+
+  const toggleMicMute = useCallback(() => {
+    setMicMuted((current) => {
+      const next = !current;
+      if (next) {
+        if (realtime.active) {
+          void realtime.cancelUserTurn().catch(() => {});
+        } else if (recorder.isRecording) {
+          void recorder.stop();
+        }
+      }
+      setToast(next ? '已静音麦克风' : '已开启麦克风');
+      setTimeout(() => setToast(''), 1600);
+      return next;
+    });
+  }, [realtime, recorder]);
+
+  const confirmAudioConsent = useCallback(() => {
+    setAudioConsent(true);
+    setShowAudioConsentDialog(false);
+    setToast('已授权：本场语音用于客观分析，7 天后自动删除');
+    setTimeout(() => setToast(''), 2600);
+  }, []);
+
+  const withdrawAudioConsent = useCallback(() => {
+    setAudioConsent(false);
+    void deleteInterviewSessionAudio(sessionId)
+      .then(() => setToast('已撤回授权并删除本场已保存语音'))
+      .catch(() => setToast('授权已关闭，历史语音删除失败，请在报告页重试'));
+    setTimeout(() => setToast(''), 2600);
+  }, [sessionId]);
+
+  const repeatQuestion = useCallback(() => {
+    if (!lastAssistant || mode !== 'voice') return;
+    if (realtime.active) {
+      void realtime.repeatQuestion().catch((error) => {
+        setStreamError(error instanceof Error ? error.message : '问题重播失败');
+      });
+      return;
+    }
+    tts.speak(lastAssistant.content);
+  }, [lastAssistant, mode, realtime, tts]);
 
   /* ───────────────────── Report screen ──────────────────────────────────── */
   if (state === 'report_ready' && report) {
@@ -390,7 +562,7 @@ export default function InterviewSessionPage() {
     <main className="grid h-screen grid-rows-[auto_1fr_auto] overflow-hidden" style={{ background: 'var(--parchment)' }}>
       {/* TOP BAR */}
       <header
-        className="flex items-center gap-[14px] border-b border-[var(--border)] px-[22px] py-[12px]"
+        className="flex items-center gap-[14px] border-b border-[var(--border)] px-[22px] py-[12px] max-[700px]:gap-[10px] max-[700px]:px-[12px] max-[700px]:py-[9px]"
         style={{ background: 'rgba(245,244,237,0.92)', backdropFilter: 'blur(10px)' }}
       >
         <span
@@ -401,46 +573,114 @@ export default function InterviewSessionPage() {
           JobRadar
         </span>
         <div
-          className="ml-1 border-l border-[var(--border-strong)] pl-[14px] text-[13px] font-semibold leading-[1.35] text-[var(--ink)]"
+          className="ml-1 min-w-0 border-l border-[var(--border-strong)] pl-[14px] text-[13px] font-semibold leading-[1.35] text-[var(--ink)] max-[700px]:ml-0 max-[700px]:truncate max-[700px]:pl-[10px]"
         >
           {targetJob || '模拟面试'}
-          <span className="block text-[11px] font-normal text-[var(--stone)]">AI 面试官 · 姜老师</span>
+          <span className="block text-[11px] font-normal text-[var(--stone)] max-[700px]:hidden">AI 面试官 · 姜老师</span>
         </div>
         <span className="flex-1" />
-        <Pill>
-          <span className="inline-block h-[6px] w-[6px] rounded-full" style={{ background: 'var(--emerald)' }} />
-          已连接 · 16 kHz
-        </Pill>
-        <ModeTabs mode={mode} onChange={setMode} />
+        <div className="max-[700px]:hidden">
+          <Pill>
+            <span
+              className="inline-block h-[6px] w-[6px] rounded-full"
+              style={{
+                background: realtime.status === 'reconnecting' ? 'var(--terracotta)' : 'var(--emerald)',
+              }}
+            />
+            {realtime.active
+              ? realtime.status === 'connected'
+                ? `WebRTC · ${realtime.interruptionMode === 'adaptive' ? '智能打断' : 'VAD 打断'}`
+                : realtime.status === 'reconnecting' ? 'WebRTC 重连中' : 'WebRTC 连接中'
+              : '已连接 · 16 kHz'}
+          </Pill>
+        </div>
+        <div className="max-[700px]:hidden">
+          <ModeTabs mode={mode} onChange={handleModeChange} />
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={audioConsent}
+          onClick={() => audioConsent ? withdrawAudioConsent() : setShowAudioConsentDialog(true)}
+          title="授权保存本场回答音频用于客观语音分析；可随时撤回，最长保留 7 天"
+          className="inline-flex min-h-[36px] items-center gap-[7px] rounded-[10px] border border-[var(--border)] bg-white px-[9px] text-[11px] text-[var(--olive)]"
+        >
+          <ShieldCheck size={14} strokeWidth={1.7} />
+          <span className="max-[820px]:hidden">语音分析 · 7 天</span>
+          <span
+            className="relative h-[18px] w-[32px] rounded-full transition-colors"
+            style={{ background: audioConsent ? 'var(--emerald)' : 'var(--border-strong)' }}
+          >
+            <span
+              className="absolute top-[3px] h-[12px] w-[12px] rounded-full bg-white transition-transform"
+              style={{ transform: audioConsent ? 'translateX(17px)' : 'translateX(3px)' }}
+            />
+          </span>
+        </button>
         <button
           onClick={handleEndInterview}
-          className="inline-flex items-center gap-[8px] rounded-[10px] border bg-white px-[16px] py-[8px] text-[13px] font-semibold text-[var(--crimson)] hover:bg-[#fdf4f4]"
+          className="inline-flex items-center gap-[8px] rounded-[10px] border bg-white px-[16px] py-[8px] text-[13px] font-semibold text-[var(--crimson)] hover:bg-[#fdf4f4] max-[700px]:h-[38px] max-[700px]:w-[38px] max-[700px]:justify-center max-[700px]:p-0"
           style={{ borderColor: '#e8cdcd' }}
         >
-          <PhoneOff size={14} strokeWidth={1.7} />结束面试
+          <PhoneOff size={14} strokeWidth={1.7} /><span className="max-[700px]:hidden">结束面试</span>
         </button>
       </header>
+
+      {showAudioConsentDialog && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/35 px-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="voice-consent-title"
+            className="w-full max-w-[460px] rounded-[8px] border border-[var(--border)] bg-white p-5 shadow-xl"
+          >
+            <div className="flex items-center gap-2 text-[var(--ink)]">
+              <ShieldCheck size={19} strokeWidth={1.7} />
+              <h2 id="voice-consent-title" className="text-[16px] font-semibold">开启客观语音分析</h2>
+            </div>
+            <p className="mt-3 text-[13px] leading-6 text-[var(--olive)]">
+              开启后会保存本场每题的回答音频，用于测量起答时间、停顿、音量和基频等声学事实。
+              不用于推断性格或自信度；音频最长保留 7 天，可随时撤回并立即删除。不授权不影响面试。
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAudioConsentDialog(false)}
+                className="rounded-[8px] border border-[var(--border)] px-4 py-2 text-[13px] text-[var(--olive)]"
+              >
+                暂不开启
+              </button>
+              <button
+                type="button"
+                onClick={confirmAudioConsent}
+                className="rounded-[8px] bg-[var(--ink)] px-4 py-2 text-[13px] font-semibold text-white"
+              >
+                同意并开启
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MAIN STAGE */}
       <section className="relative overflow-hidden">
         {/* Question marker — derives topic label from backend's authoritative
             skeleton, not a hardcoded "项目深挖" string. Past the skeleton (turn
             >= labels.length) it's a generated follow-up so we just say 深挖追问. */}
-        <div className="absolute left-[28px] top-[68px] z-[2] text-[11px] tracking-[0.08em] text-[var(--stone)]">
+        <div className="absolute left-[28px] top-[68px] z-[2] text-[11px] tracking-[0.08em] text-[var(--stone)] max-[700px]:hidden">
           <b className="mr-[6px] text-[12px] font-semibold text-[var(--ink)]">第 {round + 1} 问</b>
           {round < topicLabels.length ? topicLabels[round] : '深挖追问'}
         </div>
 
         {/* CAPTIONS — Border Beam wraps the entire box during thinking */}
         <div
-          className="absolute left-1/2 top-[26px] z-[5] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2"
+          className="absolute left-1/2 top-[26px] z-[5] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2 max-[700px]:top-[12px] max-[700px]:w-[calc(100%-20px)]"
         >
           <div
-            className="relative rounded-[18px]"
+            className="relative rounded-[18px] p-[18px_26px_20px] max-[700px]:rounded-[12px] max-[700px]:p-[14px_16px]"
             style={{
               background: 'var(--deep-dark)',
               color: '#faf9f5',
-              padding: '18px 26px 20px',
               boxShadow: '0 20px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.04)',
             }}
           >
@@ -461,11 +701,10 @@ export default function InterviewSessionPage() {
             </div>
 
             <div
-              className="text-[#faf9f5]"
+              className="text-[22px] text-[#faf9f5] max-[700px]:text-[18px]"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 500,
-                fontSize: 22,
                 lineHeight: 1.55,
                 letterSpacing: '-0.005em',
                 minHeight: 68,
@@ -493,7 +732,7 @@ export default function InterviewSessionPage() {
               style={{ borderColor: 'rgba(255,255,255,0.07)' }}
             >
               <span
-                className="inline-flex items-center gap-[5px] rounded-full px-[9px] py-[4px] text-[11px] font-medium"
+                className="inline-flex items-center gap-[5px] rounded-full px-[9px] py-[4px] text-[11px] font-medium max-[700px]:hidden"
                 style={{
                   background: 'rgba(201,100,66,0.18)',
                   border: '1px solid rgba(201,100,66,0.4)',
@@ -514,7 +753,7 @@ export default function InterviewSessionPage() {
               </span>
               <span className="flex-1" />
               <button
-                className="cursor-pointer text-[var(--warm-silver)] underline"
+                className="cursor-pointer text-[var(--warm-silver)] underline max-[700px]:hidden"
                 onClick={() => setShowTranscript((v) => !v)}
               >
                 {showTranscript ? '收起逐字稿' : '查看全文逐字稿'}
@@ -533,7 +772,7 @@ export default function InterviewSessionPage() {
         {/* TRANSCRIPT (overlay, toggled) */}
         {showTranscript && (
           <div
-            className="absolute left-1/2 z-[4] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2 overflow-y-auto rounded-[18px] border border-[var(--border)] p-[16px_26px]"
+            className="absolute left-1/2 z-[4] w-[calc(100%-56px)] max-w-[960px] -translate-x-1/2 overflow-y-auto rounded-[18px] border border-[var(--border)] p-[16px_26px] max-[700px]:w-[calc(100%-20px)] max-[700px]:rounded-[12px] max-[700px]:p-[12px_14px]"
             style={{
               top: 230,
               maxHeight: 'calc(100vh - 420px)',
@@ -573,8 +812,7 @@ export default function InterviewSessionPage() {
 
         {/* CENTER — AI orb */}
         <div
-          className="pointer-events-none absolute flex flex-col items-center justify-center gap-[18px]"
-          style={{ inset: '240px 0 160px' }}
+          className="pointer-events-none absolute inset-[240px_0_160px] flex flex-col items-center justify-center gap-[18px] max-[700px]:inset-[190px_0_120px]"
         >
           <AIOrb />
           <div className="text-center">
@@ -602,7 +840,7 @@ export default function InterviewSessionPage() {
 
         {/* SELF-VIEW */}
         <div
-          className="absolute right-[28px] bottom-[110px] z-[3] w-[220px] overflow-hidden rounded-[16px]"
+          className="absolute right-[28px] bottom-[110px] z-[3] w-[220px] overflow-hidden rounded-[16px] max-[700px]:hidden"
           style={{
             background: '#1c1c1b',
             boxShadow: '0 10px 30px rgba(0,0,0,0.18), 0 0 0 1px var(--border)',
@@ -627,15 +865,7 @@ export default function InterviewSessionPage() {
           )}
           <button
             type="button"
-            onClick={() => {
-              setMicMuted((m) => {
-                const next = !m;
-                if (next && recorder.isRecording) recorder.stop();
-                setToast(next ? '已静音麦克风' : '已开启麦克风');
-                setTimeout(() => setToast(''), 1600);
-                return next;
-              });
-            }}
+            onClick={toggleMicMute}
             title={micMuted ? '点击取消静音' : '点击静音麦克风'}
             className="flex w-full items-center gap-[8px] px-[12px] py-[8px] text-[11px] text-[#faf9f5] transition-colors hover:bg-[#262624]"
             style={{ background: '#1c1c1b', borderTop: '1px solid #30302e' }}
@@ -714,12 +944,21 @@ export default function InterviewSessionPage() {
 
       {/* FOOTER — mic input bar */}
       <footer
-        className="flex items-center gap-[14px] border-t border-[var(--border)] px-[22px] py-[14px]"
+        className="flex items-center gap-[14px] border-t border-[var(--border)] px-[22px] py-[14px] max-[700px]:gap-[8px] max-[700px]:px-[10px] max-[700px]:py-[10px]"
         style={{ background: 'var(--library-rail)' }}
       >
         <button
-          onClick={() => (isListening ? stopListeningAndSend() : startListening())}
-          disabled={mode !== 'voice' || isTurning || isSpeaking || micMuted}
+          onClick={() => (isListening ? void stopListeningAndSend() : startListening())}
+          disabled={
+            mode !== 'voice'
+            || isFinalizing
+            || micMuted
+            || (!realtime.active && (isTurning || isSpeaking))
+            || (realtime.active && (
+              realtime.status !== 'connected'
+              || ['initializing', 'thinking'].includes(realtime.agentState)
+            ))
+          }
           title={micMuted ? '麦克风已静音 · 点击右下角解除' : '按住空格 / 点击切换'}
           className="grid h-[46px] w-[46px] place-items-center rounded-full border bg-white text-[var(--ink)] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           style={
@@ -742,7 +981,9 @@ export default function InterviewSessionPage() {
         >
           {mode === 'voice' ? (
             <span className={`flex-1 text-[13px] ${isListening ? 'text-[var(--ink)]' : 'text-[var(--stone)]'}`}>
-              {isListening
+              {isFinalizing
+                ? '正在确认最后一句…'
+                : isListening
                 ? `正在聆听你的回答 · ${textDraft || '…'}`
                 : isSpeaking
                   ? '面试官在说话…'
@@ -770,35 +1011,33 @@ export default function InterviewSessionPage() {
           )}
         </div>
 
-        <div className="flex items-center gap-[8px]">
-          <IconBtn title="重复问题" onClick={() => { if (lastAssistant && mode === 'voice') tts.speak(lastAssistant.content); }}>
-            <RotateCcw size={18} strokeWidth={1.6} />
-          </IconBtn>
-          <IconBtn title="切换模式" onClick={() => setMode((m) => (m === 'voice' ? 'text' : 'voice'))}>
+        <div className="flex items-center gap-[8px] max-[700px]:gap-[4px]">
+          <span className="max-[700px]:hidden">
+            <IconBtn title="重复问题" onClick={repeatQuestion}>
+              <RotateCcw size={18} strokeWidth={1.6} />
+            </IconBtn>
+          </span>
+          <IconBtn title="切换模式" onClick={() => handleModeChange(mode === 'voice' ? 'text' : 'voice')}>
             {mode === 'voice' ? <Type size={18} strokeWidth={1.6} /> : <Mic size={18} strokeWidth={1.6} />}
           </IconBtn>
-          <IconBtn title="切换字幕" onClick={() => setShowTranscript((v) => !v)}>
-            <Captions size={18} strokeWidth={1.6} />
-          </IconBtn>
-          <IconBtn
-            title={micMuted ? '点击取消静音麦克风' : '点击静音麦克风'}
-            onClick={() => {
-              setMicMuted((m) => {
-                const next = !m;
-                if (next && recorder.isRecording) recorder.stop();
-                setToast(next ? '已静音麦克风' : '已开启麦克风');
-                setTimeout(() => setToast(''), 1600);
-                return next;
-              });
-            }}
-            active={!micMuted}
-            indicatorPulse={isListening}
-          >
-            {micMuted ? <MicOff size={18} strokeWidth={1.6} /> : <Mic size={18} strokeWidth={1.6} />}
-          </IconBtn>
+          <span className="max-[700px]:hidden">
+            <IconBtn title="切换字幕" onClick={() => setShowTranscript((v) => !v)}>
+              <Captions size={18} strokeWidth={1.6} />
+            </IconBtn>
+          </span>
+          <span className="max-[700px]:hidden">
+            <IconBtn
+              title={micMuted ? '点击取消静音麦克风' : '点击静音麦克风'}
+              onClick={toggleMicMute}
+              active={!micMuted}
+              indicatorPulse={isListening}
+            >
+              {micMuted ? <MicOff size={18} strokeWidth={1.6} /> : <Mic size={18} strokeWidth={1.6} />}
+            </IconBtn>
+          </span>
         </div>
 
-        <span className="text-[11px] text-[var(--stone)]" style={{ fontFamily: 'var(--font-mono)' }}>
+        <span className="text-[11px] text-[var(--stone)] max-[900px]:hidden" style={{ fontFamily: 'var(--font-mono)' }}>
           Space 开始/结束 · Enter 提交
         </span>
       </footer>

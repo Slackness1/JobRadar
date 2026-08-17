@@ -83,16 +83,33 @@ def compute_voice_metrics(transcript: dict) -> VoiceMetrics:
         metrics.filler_rate = round(fillers * 60.0 / duration_s, 2)
         metrics.wpm = int(round(char_count * 60.0 / duration_s))
 
-    pauses = 0
-    for prev, curr in zip(segments, segments[1:]):
-        prev_end = float(prev.get("end_s") or 0.0)
-        curr_start = float(curr.get("start_s") or 0.0)
-        if curr_start - prev_end > _PAUSE_THRESHOLD_S:
-            pauses += 1
-    metrics.pause_count = pauses
+    timed_segments: list[tuple[float, float]] = []
+    for segment in segments:
+        if not isinstance(segment, dict):
+            timed_segments = []
+            break
+        try:
+            start_s = float(segment['start_s'])
+            end_s = float(segment['end_s'])
+        except (KeyError, TypeError, ValueError):
+            timed_segments = []
+            break
+        if start_s < 0 or end_s < start_s:
+            timed_segments = []
+            break
+        timed_segments.append((start_s, end_s))
 
-    first_start = float(segments[0].get("start_s") or 0.0)
-    metrics.response_latency_ms = int(round(first_start * 1000))
+    # A transcript without provider/VAD timing may still support text-derived
+    # cadence metrics, but must not masquerade as zero response latency or zero
+    # pauses. Require every segment to be timed and monotonic for timing metrics.
+    if len(timed_segments) == len(segments) and timed_segments:
+        if all(curr[0] >= prev[1] for prev, curr in zip(timed_segments, timed_segments[1:])):
+            metrics.pause_count = sum(
+                1
+                for prev, curr in zip(timed_segments, timed_segments[1:])
+                if curr[0] - prev[1] > _PAUSE_THRESHOLD_S
+            )
+            metrics.response_latency_ms = int(round(timed_segments[0][0] * 1000))
 
     return metrics
 

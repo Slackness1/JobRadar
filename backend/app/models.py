@@ -567,7 +567,80 @@ class InterviewTurn(Base):
     reference_answer = Column(Text, default="")
     question_source = Column(Text, default="skeleton")
     parent_turn_index = Column(Integer, nullable=True)
+    question_heard_text = Column(Text, default="")
+    question_interrupted = Column(Boolean, default=False)
+    realtime_transport = Column(Text, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class InterviewRealtimeSession(Base):
+    """Short-lived server-side context for one LiveKit interview room."""
+
+    __tablename__ = "interview_realtime_sessions"
+
+    context_id = Column(Text, primary_key=True)
+    session_id = Column(Text, nullable=False, index=True)
+    room_name = Column(Text, nullable=False, unique=True, index=True)
+    participant_identity = Column(Text, nullable=False)
+    user_key = Column(Text, nullable=False, index=True)
+    target_job = Column(Text, nullable=False)
+    jd_content = Column(Text, default="")
+    turn_mode = Column(Text, nullable=False, default="manual")
+    interruption_mode = Column(Text, nullable=False, default="vad")
+    status = Column(Text, nullable=False, default="issued", index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    connected_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+
+
+class InterviewRealtimeEvent(Base):
+    """Low-volume state, turn and latency audit events from the voice worker."""
+
+    __tablename__ = "interview_realtime_events"
+
+    id = Column(Integer, primary_key=True)
+    context_id = Column(
+        Text,
+        ForeignKey("interview_realtime_sessions.context_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    session_id = Column(Text, nullable=False, index=True)
+    event_type = Column(Text, nullable=False, index=True)
+    turn_index = Column(Integer, nullable=True)
+    payload_json = Column(Text, default="{}")
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
+class InterviewAudioArtifact(Base):
+    """Private, consented raw audio plus versioned objective analysis metadata."""
+
+    __tablename__ = "interview_audio_artifacts"
+
+    id = Column(Text, primary_key=True)
+    session_id = Column(Text, nullable=False, index=True)
+    turn_index = Column(Integer, nullable=False, index=True)
+    user_key = Column(Text, nullable=False, index=True)
+    consent_version = Column(Text, nullable=False)
+    consented_at = Column(DateTime, nullable=False)
+    content_type = Column(Text, nullable=False, default="audio/wav")
+    storage_path = Column(Text, nullable=False, default="")
+    sha256 = Column(Text, nullable=False, default="")
+    byte_size = Column(Integer, nullable=False, default=0)
+    sample_rate = Column(Integer, nullable=False, default=16000)
+    channels = Column(Integer, nullable=False, default=1)
+    duration_seconds = Column(Float, nullable=False, default=0)
+    status = Column(Text, nullable=False, default="uploaded", index=True)
+    analyzer_version = Column(Text, nullable=False, default="")
+    features_json = Column(Text, nullable=False, default="{}")
+    shadow_asr_json = Column(Text, nullable=False, default="{}")
+    quality_flags_json = Column(Text, nullable=False, default="[]")
+    error_message = Column(Text, nullable=False, default="")
+    expires_at = Column(DateTime, nullable=False, index=True)
+    deleted_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class StudentExperience(Base):
