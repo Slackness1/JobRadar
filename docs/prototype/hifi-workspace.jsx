@@ -49,9 +49,9 @@ const HFWorkspace = () => {
 
         <div className="hf-overline" style={{ marginTop: 6, padding: '0 4px' }}>我的简历 · 3</div>
         {[
-          { t: '周传博 · 数据分析', meta: '今天 · 分析中' },
-          { t: '周传博 · AI 工程', meta: '2 天前' },
-          { t: '周传博 · 券商研究', meta: '5 天前' },
+          { t: '林晨 · 数据分析', meta: '今天 · 分析中' },
+          { t: '林晨 · AI 工程', meta: '2 天前' },
+          { t: '林晨 · 券商研究', meta: '5 天前' },
         ].map((it, i) => (
           <div key={i} onClick={() => setActiveHistory(i)} style={{
             padding: '10px 12px', borderRadius: 10, cursor: 'pointer',
@@ -69,7 +69,7 @@ const HFWorkspace = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 26, height: 26, borderRadius: 13, background: 'var(--terracotta-wash)', color: 'var(--terracotta)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>ZC</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 500 }}>周传博</div>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>林晨</div>
               <div className="hf-cap">内测用户 · Pro</div>
             </div>
           </div>
@@ -191,7 +191,7 @@ const HFWorkspace = () => {
       {/* ========== RIGHT (Resume preview) ========== */}
       <aside style={{ width: 480, background: 'var(--parchment)', display: 'flex', flexDirection: 'column' }}>
         <header style={{ height: 56, padding: '0 18px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--border-cream)', background: 'var(--ivory)' }}>
-          <span style={{ fontSize: 13.5, fontWeight: 600 }}>预览 · 周传博 简历</span>
+          <span style={{ fontSize: 13.5, fontWeight: 600 }}>预览 · 林晨 简历</span>
           <HFPill tone="amber">{thinking ? '分析中' : '已同步'}</HFPill>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
             <HFBtn variant="ghost" size="sm">撤销</HFBtn>
@@ -203,15 +203,15 @@ const HFWorkspace = () => {
         <div style={{ flex: 1, overflow: 'auto', padding: 22, background: 'var(--parchment)' }}>
           <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 0 0 1px var(--border-warm), 0 18px 52px rgba(0,0,0,0.08)', padding: '28px 32px', minHeight: 640 }}>
             <div style={{ textAlign: 'center', paddingBottom: 14, borderBottom: '1px solid var(--border-cream)' }}>
-              <div className="hf-serif" style={{ fontSize: 28, letterSpacing: '-0.02em' }}>周传博</div>
+              <div className="hf-serif" style={{ fontSize: 28, letterSpacing: '-0.02em' }}>林晨</div>
               <div style={{ fontSize: 12.5, color: 'var(--olive)', marginTop: 4, display: 'flex', justifyContent: 'center', gap: 12 }}>
-                <span>数据分析师 · 上海</span><span>·</span><span>chuanbo@fudan.edu.cn</span><span>·</span><span>+86 138 ···· 4721</span>
+                <span>数据分析师 · 上海</span><span>·</span><span>candidate@example.com</span><span>·</span><span>+86 1** **** 0000</span>
               </div>
             </div>
 
             <HFResumeSection title="教育背景" accent>
               <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 600, fontSize: 13 }}>复旦大学</span>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>示例大学</span>
                 <span style={{ color: 'var(--olive)', fontSize: 12, marginLeft: 8 }}>统计学硕士 · GPA 3.86/4.0</span>
                 <span style={{ marginLeft: 'auto', color: 'var(--stone)', fontSize: 11.5 }} className="hf-mono">2024.09 – 2026.06</span>
               </div>
@@ -220,7 +220,7 @@ const HFWorkspace = () => {
 
             <HFResumeSection title="工作经历" accent>
               <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 600, fontSize: 13 }}>蚂蚁集团 · 风控数据</span>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>某科技公司 · 风控数据</span>
                 <span style={{ color: 'var(--olive)', fontSize: 12, marginLeft: 8 }}>数据分析实习生</span>
                 <span style={{ marginLeft: 'auto', color: 'var(--stone)', fontSize: 11.5 }} className="hf-mono">2025.07 – 至今</span>
               </div>

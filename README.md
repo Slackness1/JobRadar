@@ -1,216 +1,200 @@
 <div align="center">
 
-# 🎯 JobRadar · AI 校招岗位雷达
+# JobRadar
 
-**周传博 · Chuanbo Zhou** — 数据分析 / AI 产品方向
+**面向中国校招与职业选择的、由真实岗位数据驱动的求职决策 Agent**
 
-[在线 Demo](https://jobcopilot.top) ·
-[交互原型](https://slackness1.github.io/JobRadar/prototype/) ·
-[案例研究](https://slackness1.github.io/JobRadar/prototype/JobRadar%20Case%20Study.html) ·
-[English](./README_EN.md)
+从岗位发现、个性化推荐、简历改写，到针对目标岗位的模拟面试。
 
-</div>
-
----
-
-## 📽 产品演示
-
-<div align="center">
-
-<video src="https://github.com/Slackness1/JobRadar/raw/main/docs/assets/JobRadar.mp4" controls poster="https://github.com/Slackness1/JobRadar/raw/main/docs/assets/jobradar-hero.png" width="720"></video>
-
-<sub>▲ 完整演示约 1 分钟 · 如未自动播放：<a href="https://github.com/Slackness1/JobRadar/raw/main/docs/assets/JobRadar.mp4">点击下载</a></sub>
+[在线产品](https://jobcopilot.top) · [功能状态](#真实功能状态) · [快速开始](#快速开始) · [Voice Agent 验收](docs/voice-agent-acceptance-2026-08-16.md)
 
 </div>
 
----
+![JobRadar 产品概览](docs/screenshots/product/jobradar-home-prototype.png)
 
-## 🎨 三个可点击的入口
+<p align="center"><sub>高保真产品原型。岗位、分数与统计数字为演示数据，不代表当前线上数据。</sub></p>
 
-| 看什么 | 链接 | 说明 |
-|---|---|---|
-| 🌐 **线上 Demo** | [jobcopilot.top](https://jobcopilot.top) | 真实运行的全栈产品（前端 + 后端 + 每日 08:00 自动爬虫） |
-| 🎨 **高保真原型** | [HiFi Prototype](https://slackness1.github.io/JobRadar/prototype/JobRadar%20HiFi.html) | 落地页 + 上传流程 + 工作台三段核心交互 |
-| 📖 **案例研究** | [Case Study](https://slackness1.github.io/JobRadar/prototype/JobRadar%20Case%20Study.html) | 设计决策、信息架构、迭代过程完整复盘 |
-| 🎭 **模拟面试原型** | [Mock Interview](https://slackness1.github.io/JobRadar/prototype/Mock%20Interview%20%C2%B7%20AI%20Interviewer.html) | 设备检测 + AI 面试官 + 沉浸式面试舞台 |
+## JobRadar 在做什么
 
----
+传统岗位平台回答“现在有哪些岗位”，JobRadar 更想回答三个后续问题：
 
-## ❓ 这个产品在解决什么问题
+1. **以我的经历和目标，哪些岗位真的值得投？**
+2. **为什么推荐，依据来自哪条 JD、哪段经历和哪类公司情报？**
+3. **决定投递以后，简历和面试应该怎样针对这个岗位准备？**
 
-传统聚合平台擅长「展示岗位」，但不擅长「支持决策」。
-
-JobRadar 的出发点是：
-
-- 目标赛道用户通常关注的是**少量重点公司**，而不是全网噪声
-- 平台内投递入口不一定是最优路径，很多场景需要回到**官网 / 校招官网**
-- 真正影响投递决策的，除了 JD，还包括**时效、质量、成功率与外部信号**
-- 简历投出去之前，应该先有一次**模拟面试和针对性的 rewriting**
-
-所以 JobRadar 不追求「抓得最多」，而追求 **「投得更准」**。
-
----
-
-## ✨ 核心能力
-
-| 能力模块 | 说明 | 当前状态 |
-|---|---|---|
-| 多源岗位发现 | 30+ 公司官网 + Tata 聚合 + 海投网，每日 08:00 定时抓取 | ✅ 已支持 |
-| 字段清洗与去重 | 标准化字段 + LLM 二次分类 + 公司名归并 | ✅ 已支持 |
-| 公司级重爬队列 | 重点公司定向更新，按行业分 4 大 tier 编排 | ✅ 已支持 |
-| 简历 Copilot | 上传 → LLM 解析结构化档案 → 多维评分 → DeepSeek rerank | ✅ 已支持 |
-| 经历改写助手 | 多轮对话 + 一键应用 rewrite + 数字捏造防护 | ✅ 已支持 |
-| 模拟面试 | 基于推荐岗位定制题目 + Aliyun ASR/TTS 全语音交互 + 自动报告 | ✅ 已支持 |
-| 站点监控 | 公司爬虫日维度状态 + 失败 LLM 诊断 + 红 / 黄 / 绿告警 | ✅ 已支持 |
-| 每日报告 | 「新增 + 变化 + 建议动作」LLM 摘要 | 🟡 进行中 |
-
----
-
-## 🔄 用户流
+因此它不是一个套着聊天框的岗位爬虫，而是一条可追溯的求职决策链：
 
 ```text
-上传简历
-  → LLM 解析结构化档案（教育 / 实习 / 项目 / 技能）
-  → 选择目标赛道 + 偏好（地点、公司类型、是否接受异地）
-  → 系统从最新岗位库中预筛 → 多维评分 → 14 天内 JD 情报增强 → DeepSeek rerank
-  → 给出 Top-N 推荐 + 「为什么推荐 / 优势 / 风险」结构化解释
-  → 多轮对话改简历（针对推荐岗位定向 rewrite）
-  → 进入模拟面试 → 出报告 → 投递
+公开岗位发现 → 标准化 / 去重 / 覆盖诊断 → 简历与偏好建模
+→ 受约束的 Agent 调研与选择 → 岗位解释 → 简历改写
+→ 定制模拟面试 → 事实型反馈报告
 ```
 
-闭环：`discover → clean → score → enrich → match → rewrite → interview → apply`
+## 为什么值得 Star
 
----
+**数据基座是地基，但不是这个项目唯一、甚至不是最容易复用的价值。** JobRadar 把四类通常分散的工程放进了一个真实垂直场景：
 
-## 🖼 截图
+- **可维护的岗位数据工程**：配置驱动的抓取适配器、字段归一、去重、来源分层、可疑零结果检测和抓取证据留存。
+- **受约束的垂直 Agent**：先由规则召回候选池，再让 ReAct Agent 在工具预算内检索、查看 JD、读取公司情报，最终只能提交真实候选池中的 `job_id`。
+- **上下文与长期记忆**：XHS、播客、赛道知识和用户记忆通过 purpose-aware `ContextProvider` 注册表按场景供给，而不是把所有内容无差别塞进 prompt。
+- **评测先行的模拟面试**：自适应提问、并行评分与追问、证据化报告，以及带取消、打断、降级和隐私边界的实时语音链路。
 
-### 工作台
-![工作台](docs/screenshots/dashboard.png)
+如果你在做 **Agent 应用、RAG、实时语音、招聘产品或爬虫可靠性**，这个仓库的价值更接近一份可运行的垂直 Agent 参考实现，而不是一份会迅速过期的数据包。
 
-### 岗位详情 / 情报页
-![岗位情报](docs/screenshots/job_intel.png)
+## 产品界面
 
-### 公司爬虫监控
-![公司监控](docs/screenshots/company_expand.png)
+### 上传与结构化解析
 
-### 评分详情
-![评分详情](docs/screenshots/scoring_detail.png)
+![简历上传与解析 Agent 原型](docs/screenshots/product/resume-upload-prototype.png)
 
-### 每日报告
-![每日报告](docs/screenshots/daily_briefing.png)
+### 岗位决策与简历工作台
 
----
+![岗位决策与简历工作台原型](docs/screenshots/product/job-decision-workspace-prototype.png)
 
-## 🧱 架构设计
+工作台把岗位约束、Agent 对话、推荐证据和简历改写放在同一条决策上下文中。图中姓名与履历均为虚构演示数据。
 
-```text
-Resume Copilot Web (Next.js 16)        Admin Frontend (Vite + React 19)
-        ↓ /api/*                                ↓ /api/*
-              FastAPI Backend (port 8000)
-                       ↓
-        ┌──────────────┼──────────────┐
-        ↓              ↓              ↓
-    SQLite (WAL)   APScheduler    LLM Layer
-    + Alembic      (08/09/09:35   (DeepSeek V4 Flash/Pro
-    + 周度备份      Asia/Shanghai)  + Tavily + Firecrawl
-                                  + DashScope ASR/TTS)
-                       ↓
-              Crawler Layer (30+ company portals)
-                       ↓
-              Enrichment Layer (LLM tagging / scoring / intel)
-                       ↓
-              Reporting Layer (digest / daily briefing)
+### 实时模拟面试
+
+![实时模拟面试交互原型](docs/screenshots/product/realtime-mock-interview-prototype.png)
+
+该图是交互原型，不是线上通话实录。设备检测界面见 [mock-interview-device-check-prototype.png](docs/screenshots/product/mock-interview-device-check-prototype.png)。
+
+## 真实功能状态
+
+| 模块 | 已实现 | 当前边界 |
+| --- | --- | --- |
+| 岗位数据基座 | 公开来源抓取、ATS/站点适配、标准化、去重、评分、调度、覆盖与失败诊断 | 生产数据库和受限来源原始数据不随仓库发布 |
+| 简历与偏好 | PDF/DOCX 解析、结构化档案、目标方向与地点/行业/薪资偏好 | 高质量解析与生成需要兼容 OpenAI API 的模型凭证 |
+| 岗位推荐 Agent | 规则候选池、`search_candidates`、`inspect_jobs`、`get_company_intel`、工具预算、执行 trace、受约束 finalize 与 fallback | XHS 向量检索目前不是 ReAct 推荐主路径 |
+| 简历 Copilot | 多轮改写、差异预览、一键应用、捏造风险提示、跨会话用户记忆 | 输出仍需用户确认，不能替代事实核验 |
+| RAG / 外部情报 | XHS、播客、赛道知识与记忆 Provider；按 chat/interview/intel 等 purpose 路由 | 私有语料与派生索引不作为公共数据集分发 |
+| 模拟面试 | 岗位定制题目、自适应追问、并行编排、评分、报告与 Voice Facts V2 | 反馈只展示可测事实，不输出未经校准的性格/自信标签 |
+| Realtime Voice Agent | LiveKit WebRTC、流式 ASR/TTS、播放取消、自动轮次、barge-in、重连与 legacy fallback 均已实现并受 feature flag 控制 | Gate B 真人中文语料和 Gate C 真实 LiveKit 房间验收尚未完成 |
+
+语音链路的实现、失败复盘和验收边界见 [阶段复盘](docs/voice-agent-phase-retrospective-and-acceptance-2026-08-16.md) 与 [验收清单](docs/voice-agent-acceptance-2026-08-16.md)。
+
+## Agent 架构
+
+```mermaid
+flowchart LR
+    S[公开岗位来源] --> C[抓取适配器与覆盖校验]
+    C --> D[(标准化岗位库)]
+    R[简历与用户偏好] --> P[确定性候选池]
+    D --> P
+    P --> A[受预算约束的 ReAct Agent]
+    A --> J[真实 job_id 推荐与 trace]
+    J --> W[简历改写与决策工作台]
+
+    X[XHS / 播客 / 赛道知识] --> K[ContextProvider Registry]
+    M[统一用户记忆] --> K
+    K --> W
+    K --> I[面试编排与报告]
+    J --> I
+
+    B[浏览器音频] -. feature flag .-> L[LiveKit WebRTC]
+    L -. ASR / LLM / TTS .-> I
 ```
 
-模块说明：
-- **Resume Copilot Web** — 用户面：上传 / 解析 / 推荐 / 改写 / 模拟面试
-- **Admin Frontend** — 管理面：岗位库 / 评分规则 / 爬虫监控 / 调度器
-- **Backend** — 数据管理 + 任务编排 + 简历 / 面试 LLM 工作流
-- **Crawler** — 多来源抓取 + 公司级重爬队列 + LLM 字段补全
-- **Enrichment** — 多维评分 + JD 情报快搜 + 14 天 TTL 缓存
-- **Reporting** — 每日 LLM digest + 报告导出
+### 1. 推荐不是一次黑盒 rerank
 
----
+系统先用确定性规则形成候选池，再允许 Agent 在有限预算内调用三个只读工具。`finalize` 会校验岗位是否真的来自候选池；预算耗尽、模型格式错误或工具失败时走可解释 fallback。这样既保留模型的调研与比较能力，也给幻觉、成本和尾延迟设置边界。
 
-## 🛠 技术栈
+### 2. RAG 按任务路由
+
+`ContextProvider` 以 `purpose`、查询和用户上下文决定是否取数。XHS 更适合提供公司体验、招聘口径和候选人视角，播客更适合补充职业路径与行业方法，用户记忆则提供个人证据。Provider 失败不会拖垮主流程。
+
+### 3. 面试是一条有状态编排链
+
+每轮回答并行进入评分、追问决策和下一题准备；迟到结果通过轮次边界隔离。实时语音采用可替换的 pipeline 路线，并保留 legacy 链路作为降级，而不是把传输、ASR、LLM、TTS 和业务状态绑死在一个模型里。
+
+## 数据与合规边界
+
+- 只面向合法、公开、可访问的岗位来源；优先官方招聘站和公开 ATS。
+- 不绕过验证码、登录封禁或站点风控，并应遵守目标站点条款与速率限制。
+- 仓库发布的是抓取器、配置、数据模型、样例和评测资产；**线上生产库、学生数据、私有 XHS 语料与音频不在仓库中**。
+- 经用户明确授权的面试音频才会短期保存；衍生分析支持删除和过期清理。
+
+这也意味着：当前“持续维护的数据基座”是产品护城河，但还不是一个开箱即用、持续更新的公共数据集。如果未来把数据本身作为主要开源卖点，需要另外发布有授权、带时间戳和来源说明的快照。
+
+## 技术栈
 
 | 层 | 技术 |
-|---|---|
-| 后端 API | FastAPI · SQLAlchemy · Alembic · APScheduler · Pydantic v2 |
-| 数据库 | SQLite (WAL + busy_timeout) · 周度增量备份 |
-| 用户前端 | Next.js 16 · React 19 · Tailwind CSS 4 · Ant Design 6 |
-| 管理前端 | Vite · React 19 · React Router 7 · Ant Design 6 |
-| 爬虫 | Python · Playwright · requests · LLM 字段分类 |
-| LLM | DeepSeek V4 Flash / Pro · Tavily · Firecrawl · Jina · Brave |
-| 语音栈 | DashScope (Paraformer realtime + CosyVoice v2) |
-| 部署 | Ubuntu VPS · systemd · nginx · HTTP basic auth |
+| --- | --- |
+| 用户端 | Next.js 16、React 19、TypeScript、Tailwind CSS、Ant Design |
+| 管理端 | Vite、React 19、TypeScript、Ant Design |
+| 后端 | FastAPI、SQLAlchemy、Alembic、Pydantic、APScheduler |
+| 数据 | SQLite WAL、结构化配置、向量化知识索引 |
+| Agent / RAG | OpenAI-compatible LLM、budgeted ReAct、ContextProvider registry、统一记忆 |
+| 爬虫 | Python、Requests、Playwright、ATS / 站点专用 adapter |
+| 语音 | LiveKit Agents、Silero VAD、DashScope Paraformer、Qwen3-TTS / CosyVoice、WebRTC |
 
----
+## 快速开始
 
-## ⚡ 快速开始
+### Docker：后端与管理端
 
-### 方式 1：Docker（推荐）
+当前 `docker-compose.yml` 启动 FastAPI 和旧管理端，不包含 Next.js 用户端。
+
 ```bash
+touch .env
 docker compose up --build -d
 ```
 
-启动后访问：
-- Resume Copilot Web: http://localhost:3001
-- Admin Frontend: http://localhost:5173
-- Backend API: http://localhost:8001
-- API Docs: http://localhost:8001/docs
+- Admin Frontend: <http://localhost:5173>
+- Backend API: <http://localhost:8001>
+- API Docs: <http://localhost:8001/docs>
 
-### 方式 2：本地三端开发
+### 本地运行完整用户链路
 
 ```bash
-# 后端
-cd backend && pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+# Terminal 1: backend
+cd backend
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/playwright install chromium
+PYTHONPATH=. .venv/bin/uvicorn app.main:app --reload --port 8000
 
-# 用户前端
-cd resume-copilot-web && npm install && npm run dev    # → :3001
-
-# 管理前端
-cd frontend && npm install && npm run dev              # → :5173
+# Terminal 2: Next.js user app
+cd resume-copilot-web
+npm ci
+RESUME_COPILOT_BACKEND_URL=http://127.0.0.1:8000 npm run dev
 ```
 
-最小 `.env.local`（放在 `backend/`）：
+打开 <http://localhost:3001>。Agent 功能至少需要在仓库根目录或 `backend/` 的 `.env.local` 中配置：
 
-```
-RESUME_COPILOT_BASE_URL=https://api.deepseek.com/v1
-RESUME_COPILOT_API_KEY=sk-...
-RESUME_COPILOT_MODEL_NAME=deepseek-chat
-TAVILY_API_KEY=tvly-...
-FIRECRAWL_API_KEY=fc-...
-DASHSCOPE_API_KEY=sk-...
+```dotenv
+RESUME_COPILOT_LLM_BASE_URL=https://api.deepseek.com/v1
+RESUME_COPILOT_LLM_API_KEY=your-key
+RESUME_COPILOT_LLM_MODEL=deepseek-chat
 ```
 
-详细配置见 [CLAUDE.md](./CLAUDE.md)。
+语音功能还需要 `DASHSCOPE_API_KEY`；LiveKit 路线默认关闭，需额外配置 `LIVEKIT_URL`、`LIVEKIT_API_KEY`、`LIVEKIT_API_SECRET` 和对应 feature flags。当前 LiveKit adapter 需要原始 PCM，因此启用该路线时 `DASHSCOPE_TTS_MODEL` 必须选择支持 PCM 流式输出的 CosyVoice 模型。
 
----
+## 仓库结构
 
-## 🗺 路线图
+```text
+backend/             FastAPI、Agent、RAG、面试编排、语音与爬虫
+resume-copilot-web/  面向求职者的 Next.js 产品
+frontend/            岗位、评分、调度与爬虫管理端
+docs/                架构、评测报告、复盘与产品原型
+scripts/             数据导入、抓取、验证和运维脚本
+```
 
-- [ ] 完善官网/校招入口自动发现能力
-- [ ] 增强公司归并与岗位去重准确率
-- [ ] 扩展评分特征（技能画像、时效权重、历史反馈）
-- [ ] 强化外部情报聚合（更多平台、结构化摘要）
-- [ ] 支持更细粒度的投递状态与跟进提醒
-- [ ] 增加调度可观测性（失败告警、任务看板）
+## 评测与工程记录
 
----
+- [Realtime Voice Agent Spec](docs/realtime-voice-agent-spec-2026-08-16.md)
+- [Voice Agent 三道验收](docs/voice-agent-acceptance-2026-08-16.md)
+- [Voice Agent 阶段复盘与未完成项](docs/voice-agent-phase-retrospective-and-acceptance-2026-08-16.md)
+- [Mock Interview 独立评审](docs/eval-full-loop-reports/mock-interview-independent-review-2026-05-22/independent-summary.md)
+- [Workspace Coach 独立评审](docs/eval-full-loop-reports/workspace-coach-independent-review-2026-05-22/independent-summary.md)
 
-## 📦 我的其他作品
+## 授权状态
 
-| 项目 | 简介 |
-|---|---|
-| [daily_stock_analysis](https://github.com/Slackness1/daily_stock_analysis) | LLM 驱动的 A/H/美股每日分析器：多源行情 + 实时新闻 + Gemini 决策 + 多渠道推送 |
-| [ab-test-dashboard](https://github.com/Slackness1/ab-test-dashboard) | Streamlit 搭建的交互式 A/B 测试看板 |
-| [Health-analytics](https://github.com/Slackness1/Health-analytics) | 健康数据分析探索 |
-| [StockRadar](https://github.com/Slackness1/StockRadar) | 个股雷达 · 早期版本 |
+仓库目前尚未加入开源许可证。在 `LICENSE` 明确之前，代码可供阅读和评估，但不应默认拥有复制、修改或再分发授权。许可证选择是开放外部贡献前必须补齐的一步。
 
 ---
 
 <div align="center">
-<sub>📍 英国 · 求职中 · 欢迎沟通校招 / 实习机会 · <a href="mailto:shygod5173.1@gmail.com">shygod5173.1@gmail.com</a></sub>
+
+Maintained by [Chuanbo Zhou](https://github.com/Slackness1), focused on AI Agent, realtime voice and backend product engineering.
+
 </div>
