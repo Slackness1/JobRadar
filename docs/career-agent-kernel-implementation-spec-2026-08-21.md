@@ -5,6 +5,7 @@
 - 产品范围：岗位推荐、Resume Copilot、模拟面试、统一记忆
 - 主要读者：FDE / 技术产品经理、后端、前端、AI 工程师
 - 前置依赖：Realtime Voice Agent Draft PR #6
+- 关联 PRD：`progressive-memory-disclosure-prd-2026-08-22.md`
 - 核心决策：**统一 Runtime 基础设施，不统一业务 Loop**
 
 ## 0. 怎么阅读这份 Spec
