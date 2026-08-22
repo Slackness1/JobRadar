@@ -234,6 +234,11 @@ Domain Adapter 继续放在现有 `interview`、`resume_copilot`、`recommendati
 - `KERNEL-CTX-04`：根据 Policy 删除、脱敏或引用敏感内容。
 - `KERNEL-CTX-05`：Required Block 失败时阻止请求；Optional Block 失败时显式降级。
 - `KERNEL-CTX-06`：被截断或未选中的 Block 必须记录确定性原因。
+- `KERNEL-CTX-07`：上下文按 `stable_prefix / run_snapshot / turn_dynamic` 三层编译，变化频率更低的内容必须排在更前面。
+- `KERNEL-CTX-08`：Stable Prefix 的工具顺序、Block 顺序和序列化结果必须确定，禁止时间戳、剩余预算、无序 JSON 等请求级变量进入该前缀。
+- `KERNEL-CTX-09`：Run Snapshot 在 Run 开始时固定画像、JD、Career Pack 和 Rubric 版本；中途修改必须生成新 Revision 和 Hash，不能静默漂移。
+- `KERNEL-CTX-10`：Turn Dynamic 只携带当前业务状态、检索证据、工具结果、对话摘要和用户输入，不向模型暴露工作目录、Git、主机或数据库结构等无关基础设施环境。
+- `KERNEL-CTX-11`：仓库级 `CLAUDE.md / AGENTS.md` 只服务开发 Agent，不得直接作为面向求职用户的 Runtime Prompt 来源。
 - `KERNEL-POL-01`：安全、身份、Consent 和外部动作审批不属于 best-effort Provider。
 - `KERNEL-POL-02`：Policy 执行失败时 fail closed。
 
@@ -342,7 +347,10 @@ class ContextBlock(BaseModel):
     provider: str
     provider_version: str
     purpose: str
+    layer: Literal["stable_prefix", "run_snapshot", "turn_dynamic"]
+    cache_scope: Literal["global", "workflow", "run", "none"]
     content: str
+    content_hash: str
     priority: int
     estimated_tokens: int
     evidence_refs: list[EvidenceRef]
@@ -356,13 +364,53 @@ class ContextBlock(BaseModel):
 
 class ContextSnapshot(BaseModel):
     snapshot_id: UUID
+    run_id: UUID
+    run_revision: int
     purpose: str
     token_budget: int
-    selected_block_ids: list[UUID]
+    ordered_block_ids: list[UUID]
     omitted: list[dict]
     provider_versions: dict[str, str]
+    stable_prefix_hash: str
+    run_snapshot_hash: str
     snapshot_hash: str
 ```
+
+#### 7.3.1 Context 生命周期与缓存边界
+
+JobRadar 借鉴 Coding Agent 的“稳定前缀在前、变化后缀在后”，但不照搬代码仓库环境。Runtime Context 固定编译为：
+
+| 层 | 内容 | 典型生命周期 | 缓存策略 |
+|---|---|---|---|
+| `stable_prefix` | Kernel 行为边界、Workflow 合同、Capability Schema、输出协议 | 随发布版本变化 | 跨 Run 或同 Workflow 复用 |
+| `run_snapshot` | 用户确认画像、目标岗位、规范化 JD、Career Pack、Rubric | 一次 Run 内冻结 | 按 `run_id + revision` 复用 |
+| `turn_dynamic` | 当前输入、对话摘要、实时检索、Memory 召回、工具结果、预算和状态 | 每轮变化 | 不进入稳定前缀 |
+
+逻辑 Prompt 顺序：
+
+```text
+Stable Tool Definitions
+-> Kernel Policy / Workflow Contract / Output Schema
+--- stable cache boundary ---
+-> Profile / JD / Career Pack / Rubric Run Snapshot
+--- run cache boundary ---
+-> Conversation Summary / Retrieved Evidence / Tool Observation
+-> Current Workflow State / Current User Input
+```
+
+`run_snapshot` 从平台视角属于动态用户数据，但在单次 Run 内必须字节稳定。用户更换 JD、修改关键画像或切换目标方向时创建新 Revision；后续 Step 只能引用新 Revision，已完成 Step 保留原 Snapshot 以便复现。
+
+Prompt Asset 采用版本化、可编译的资源，不使用一个巨大的项目级 Markdown 作为运行时事实源：
+
+```text
+prompts/kernel/core.md
+prompts/workflows/<workflow>.md
+prompts/output_contracts/<contract>.yaml
+career_packs/<pack>/<version>/manifest.yaml
+career_packs/<pack>/<version>/rubric.md
+```
+
+Markdown 承载适合自然语言表达的行为说明；Manifest / Schema 承载版本、适用范围、依赖、优先级和 Hash。安全、权限、Consent、Tenant Guard 仍由代码执行，不能依赖模型遵守 Prompt。
 
 `omitted` 至少包含 `block_id + reason`，原因枚举为：
 
@@ -726,7 +774,9 @@ Purpose 接入顺序：
 Compiler 固定阶段：
 
 ```text
-Collect
+Resolve Versioned Stable Assets
+-> Freeze / Load Run Snapshot
+-> Collect Turn-dynamic Blocks
 -> Policy / Ownership Filter
 -> Purpose Filter
 -> Deduplicate
@@ -737,6 +787,10 @@ Collect
 -> Snapshot / Hash
 -> Prompt Render
 ```
+
+Compiler 输出至少包含 `stable_prefix_hash / run_snapshot_hash / snapshot_hash`。同一 Workflow Version 的 Stable Prefix 必须保持固定顺序和规范化序列化；不得因为当前时间、Provider 返回顺序、工具剩余次数或字典 Key 顺序发生无意义 Cache Miss。
+
+模型 Adapter 负责将两个逻辑缓存边界映射到具体供应商能力；不支持显式 Cache Breakpoint 的模型仍使用相同的前缀顺序，以获得供应商自动前缀缓存或降低后续迁移成本。
 
 `SensitiveTopicProvider` 的安全职责迁到 Required Policy。XHS、Podcast、Company Intel 等可选 Provider 失败时记录显式降级。
 
