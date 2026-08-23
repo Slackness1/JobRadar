@@ -31,6 +31,10 @@ Disclosure Policy
 
 每一次模型调用都会生成独立的 `MemoryDisclosureSnapshot`。同一场对话的第 5 轮和第 6 轮可以看到不同记忆，但它们读取的是同一份权威 Memory Store，而不是复制出两份“轮级记忆”。
 
+![JobRadar Memory 与 Context 逻辑关系](./images/context-memory-logical-flow-2026-08-24.png)
+
+图 1：Memory 经过治理后成为持久事实源；Context Compiler 根据当前 Purpose 和 Scope 按需读取，为每次模型调用生成可复现的 Context View。
+
 ## 1. 背景与问题
 
 JobRadar 已经有三个可工作的产品模块：
