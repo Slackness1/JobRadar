@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    JOBRADAR_HOME=/data \
+    JOBRADAR_CONFIG_HOME=/config
+
+WORKDIR /app
+
+COPY pyproject.toml README.md ./
+COPY docs/local-tui.md docs/local-tui.md
+COPY src src
+
+RUN pip install --no-cache-dir .
+
+VOLUME ["/data", "/config"]
+
+ENTRYPOINT ["jobradar"]
+CMD ["tui"]

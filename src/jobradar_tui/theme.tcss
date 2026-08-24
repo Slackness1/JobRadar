@@ -1,0 +1,216 @@
+$jr-background: #101314;
+$jr-surface: #171c1e;
+$jr-panel: #202729;
+$jr-border: #425055;
+$jr-text: #e6ece8;
+$jr-muted: #9aa6a0;
+$jr-accent: #36c58e;
+$jr-info: #43b8d5;
+$jr-warning: #e3b341;
+$jr-error: #ef6a6a;
+
+Screen {
+    background: $jr-background;
+    color: $jr-text;
+}
+
+Header {
+    background: $jr-surface;
+    color: $jr-text;
+}
+
+TabbedContent {
+    height: 1fr;
+}
+
+Tabs {
+    background: $jr-surface;
+    color: $jr-muted;
+    height: 3;
+}
+
+Tab.-active {
+    color: $jr-text;
+    background: $jr-panel;
+    text-style: bold;
+}
+
+.toolbar {
+    height: 3;
+    background: $jr-surface;
+    padding: 0 1;
+}
+
+.toolbar Input {
+    width: 1fr;
+    height: 3;
+    border: none;
+    background: $jr-panel;
+    margin-right: 1;
+}
+
+.toolbar .compact-input {
+    width: 18;
+}
+
+Button {
+    min-width: 12;
+    height: 3;
+    border: none;
+    background: $jr-panel;
+    color: $jr-text;
+}
+
+Button.-primary {
+    background: $jr-info;
+    color: #081214;
+}
+
+Button.-success {
+    background: $jr-accent;
+    color: #07120e;
+}
+
+Button.-warning {
+    background: $jr-warning;
+    color: #181205;
+}
+
+Button.-error {
+    background: $jr-error;
+    color: #190707;
+}
+
+#jobs-workspace, #resume-workspace {
+    height: 1fr;
+}
+
+#jobs-list-pane {
+    width: 58%;
+    min-width: 48;
+    border-right: solid $jr-border;
+}
+
+#job-detail-pane {
+    width: 42%;
+    padding: 1 2;
+}
+
+DataTable {
+    height: 1fr;
+    background: $jr-background;
+    color: $jr-text;
+    border: none;
+}
+
+DataTable > .datatable--header {
+    background: $jr-panel;
+    color: $jr-text;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: #25483d;
+    color: $jr-text;
+}
+
+.action-row {
+    height: 3;
+    margin-top: 1;
+}
+
+.action-row Button {
+    margin-right: 1;
+}
+
+#resume-input-pane {
+    width: 45%;
+    min-width: 42;
+    padding: 0 1;
+    border-right: solid $jr-border;
+}
+
+#resume-output-pane {
+    width: 55%;
+    padding: 0 1;
+}
+
+.section-label {
+    height: 2;
+    color: $jr-muted;
+    text-style: bold;
+}
+
+#resume-jd {
+    height: 14;
+    background: $jr-panel;
+    border: solid $jr-border;
+}
+
+#resume-source, #resume-diagnosis, #patch-detail {
+    padding: 1;
+    background: $jr-surface;
+    margin-top: 1;
+    max-height: 16;
+    overflow-y: auto;
+}
+
+#patch-table {
+    height: 12;
+    margin-top: 1;
+}
+
+#patch-editor {
+    height: 6;
+    margin-top: 1;
+    background: $jr-panel;
+    border: solid $jr-border;
+}
+
+#runs-table {
+    height: 1fr;
+    margin: 1;
+}
+
+#settings-content {
+    padding: 2 3;
+}
+
+#status-line {
+    height: 1;
+    background: $jr-panel;
+    color: $jr-muted;
+    padding: 0 1;
+}
+
+Footer {
+    background: $jr-surface;
+}
+
+Screen.narrow #jobs-workspace,
+Screen.narrow #resume-workspace {
+    layout: vertical;
+}
+
+Screen.narrow #jobs-list-pane,
+Screen.narrow #job-detail-pane,
+Screen.narrow #resume-input-pane,
+Screen.narrow #resume-output-pane {
+    width: 100%;
+    min-width: 0;
+    border: none;
+}
+
+Screen.narrow #jobs-list-pane,
+Screen.narrow #resume-input-pane {
+    height: 50%;
+}
+
+Screen.narrow #job-detail-pane,
+Screen.narrow #resume-output-pane {
+    height: 50%;
+}
+
+Screen.narrow .toolbar .compact-input {
+    width: 12;
+}

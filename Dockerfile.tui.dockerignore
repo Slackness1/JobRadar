@@ -1,0 +1,7 @@
+**
+!pyproject.toml
+!README.md
+!docs
+!docs/local-tui.md
+!src
+!src/**

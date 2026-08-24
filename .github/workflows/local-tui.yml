@@ -1,0 +1,46 @@
+name: Local TUI
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "tests/local_tui/**"
+      - "pyproject.toml"
+      - "Dockerfile.tui"
+      - "Dockerfile.tui.dockerignore"
+      - "docker-compose.tui.yml"
+      - ".github/workflows/local-tui.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/local_tui/**"
+      - "pyproject.toml"
+      - "Dockerfile.tui"
+      - "Dockerfile.tui.dockerignore"
+      - "docker-compose.tui.yml"
+      - ".github/workflows/local-tui.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e '.[dev]'
+      - run: ruff check src tests/local_tui
+      - run: pytest -q
+      - run: python -m build
+      - name: Offline smoke test
+        env:
+          JOBRADAR_HOME: ${{ runner.temp }}/jobradar-data
+          JOBRADAR_CONFIG_HOME: ${{ runner.temp }}/jobradar-config
+        run: |
+          jobradar init
+          jobradar doctor
+          jobradar jobs search "AI Agent 后端" --location 上海

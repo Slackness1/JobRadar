@@ -6,7 +6,7 @@
 
 从岗位发现、个性化推荐、简历改写，到针对目标岗位的模拟面试。
 
-[在线产品](https://jobcopilot.top) · [功能状态](#真实功能状态) · [快速开始](#快速开始) · [开源 TUI 方案](docs/open-source-tui-implementation-spec-2026-08-24.md) · [Voice Agent 验收](docs/voice-agent-acceptance-2026-08-16.md)
+[在线产品](https://jobcopilot.top) · [Local TUI](#local-tui) · [功能状态](#真实功能状态) · [完整产品部署](#完整产品部署) · [Voice Agent 验收](docs/voice-agent-acceptance-2026-08-16.md)
 
 </div>
 
@@ -38,6 +38,7 @@
 - **受约束的垂直 Agent**：先由规则召回候选池，再让 ReAct Agent 在工具预算内检索、查看 JD、读取公司情报，最终只能提交真实候选池中的 `job_id`。
 - **上下文与长期记忆**：XHS、播客、赛道知识和用户记忆通过 purpose-aware `ContextProvider` 注册表按场景供给，而不是把所有内容无差别塞进 prompt。
 - **评测先行的模拟面试**：自适应提问、并行评分与追问、证据化报告，以及带取消、打断、降级和隐私边界的实时语音链路。
+- **真正可安装的本地 Agent**：独立 TUI 不依赖 Web 服务或 Coding Agent，岗位搜索离线可用，简历修改必须引用原文证据并由用户逐条确认。
 
 如果你在做 **Agent 应用、RAG、实时语音、招聘产品或爬虫可靠性**，这个仓库的价值更接近一份可运行的垂直 Agent 参考实现，而不是一份会迅速过期的数据包。
 
@@ -70,7 +71,7 @@
 | RAG / 外部情报 | XHS、播客、赛道知识与记忆 Provider；按 chat/interview/intel 等 purpose 路由 | 私有语料与派生索引不作为公共数据集分发 |
 | 模拟面试 | 岗位定制题目、自适应追问、并行编排、评分、报告与 Voice Facts V2 | 反馈只展示可测事实，不输出未经校准的性格/自信标签 |
 | Realtime Voice Agent | LiveKit WebRTC、流式 ASR/TTS、播放取消、自动轮次、barge-in、重连与 legacy fallback 均已实现并受 feature flag 控制 | Gate B 真人中文语料和 Gate C 真实 LiveKit 房间验收尚未完成 |
-| Open-source TUI | 已完成本地优先产品边界、Career Core、Context/Memory、数据契约与分阶段实施设计 | 尚未实现；计划只开放岗位检索和证据化简历优化 |
+| Local TUI `v0.1.0-alpha` | 已实现一键初始化、SQLite/FTS 岗位检索、CSV/JSON/SQLite 导入、PDF/DOCX/Markdown/TXT 解析、OpenAI-compatible/Ollama、证据化 patch、Run trace 与 Docker | 当前只开放岗位检索和简历优化；不包含生产岗位库、私有语料、模拟面试或自动投递 |
 
 语音链路的实现、失败复盘和验收边界见 [阶段复盘](docs/voice-agent-phase-retrospective-and-acceptance-2026-08-16.md) 与 [验收清单](docs/voice-agent-acceptance-2026-08-16.md)。
 
@@ -128,21 +129,76 @@ flowchart LR
 | Agent / RAG | OpenAI-compatible LLM、budgeted ReAct、ContextProvider registry、统一记忆 |
 | 爬虫 | Python、Requests、Playwright、ATS / 站点专用 adapter |
 | 语音 | LiveKit Agents、Silero VAD、DashScope Paraformer、Qwen3-TTS / CosyVoice、WebRTC |
+| Local TUI | Python 3.11+、Textual、SQLite FTS5、Pydantic、HTTPX、PyPDF、python-docx |
 
-## Open-source TUI 计划
+## Local TUI
 
-完整仓库适合研究和部署全栈产品，但外部用户不应该为了体验核心 Agent 先启动 Web、管理端、调度器和语音服务。下一阶段会提供一个独立安装的本地 TUI，只保留两条完整工作流：
+完整仓库适合研究和部署全栈产品；Local TUI 则提供一个不依赖 Web、管理端、调度器和语音服务的本地入口，只保留两条完整工作流：
+
+![JobRadar Local TUI](docs/screenshots/local-tui.svg)
+
+<p align="center"><sub>真实 Textual 应用截图，使用仓库内明确标注的离线演示岗位生成。</sub></p>
 
 ```text
 本地岗位数据 → 检索 / 筛选 / 比较 / 收藏
 本地简历 + 目标 JD → 证据对齐 / patch 审阅 / 导出新版本
 ```
 
-设计参考 [career-ops](https://github.com/santifer/career-ops) 的 local-first 与 system/user data contract，但不依赖 Claude Code 等 Coding Agent 作为运行时。JobRadar 会使用 Python `Textual` + 可独立测试的 Career Core；岗位搜索离线可用，简历优化使用用户自己的 OpenAI-compatible 或 Ollama endpoint，默认无遥测、无自动投递、永不覆盖原始简历。
+设计参考 [career-ops](https://github.com/santifer/career-ops) 的 local-first 与 system/user data contract，但不依赖 Claude Code 等 Coding Agent 作为运行时。Python `Textual` 只负责交互，岗位召回、简历证据、Context、Memory、模型和 Run Event 都在可独立测试的 Career Core 中。
 
-当前是实施方案而非已发布功能，具体架构、命令、数据边界、Phase 和验收标准见 [Open-source TUI 实施 Spec](docs/open-source-tui-implementation-spec-2026-08-24.md)。
+### 安装并运行
 
-## 快速开始
+需要 Python 3.11+。使用 `uv` 可以直接从 GitHub 安装成隔离的命令行工具：
+
+```bash
+uv tool install git+https://github.com/Slackness1/JobRadar.git
+jobradar init
+jobradar doctor
+jobradar tui
+```
+
+也可以使用 `pipx install git+https://github.com/Slackness1/JobRadar.git`。初始化会创建本地工作区，并在空库中放入 6 条明确标记为演示的岗位，因此断网、没有模型 Key 时也能先体验岗位检索。
+
+### 岗位检索
+
+```bash
+jobradar jobs import ./jobs.csv
+jobradar jobs import ./jobradar.db
+jobradar jobs search "AI Agent 后端" --location 上海
+```
+
+支持 CSV、JSON、JSONL 和 JobRadar SQLite。结果只包含本地库中的真实 `job_id`；相关性分数附带关键词、地点、方向、时效和风险解释，不会包装成录用概率。
+
+### 简历优化
+
+默认模型是本机 Ollama 的 OpenAI-compatible endpoint：
+
+```bash
+ollama pull qwen3:8b
+jobradar config model \
+  --base-url http://127.0.0.1:11434/v1 \
+  --model qwen3:8b
+
+jobradar resume optimize ./resume.pdf --job-id demo-agent-backend-sh
+```
+
+使用远程模型时必须显式添加 `--allow-remote`，API Key 只从环境变量读取。模型输出不是直接覆盖简历，而是生成逐条 patch；`target_block_id`、原文、Evidence Ref、新增数字和 JD 缺口都会经过证据门验证，Blocked patch 不能接受。
+
+### 本地数据
+
+系统包与用户数据物理分离。原始简历只读保存，所有导出都是新版本；每次运行会写出 `manifest.json` 和 `events.jsonl`，记录 Context hash、步骤、质量和降级原因，不记录 API Key 或隐藏思维过程。默认无遥测、无自动投递、无 JobRadar 云端依赖。
+
+完整命令、Ollama/远程模型配置、Docker 和数据目录说明见 [Local TUI 文档](docs/local-tui.md)，技术取舍与验收标准见 [实施 Spec](docs/open-source-tui-implementation-spec-2026-08-24.md)。
+
+### Docker
+
+```bash
+docker compose -f docker-compose.tui.yml build
+docker compose -f docker-compose.tui.yml run --rm jobradar init
+docker compose -f docker-compose.tui.yml run --rm jobradar tui
+```
+
+## 完整产品部署
 
 ### Docker：后端与管理端
 
@@ -189,6 +245,9 @@ RESUME_COPILOT_LLM_MODEL=deepseek-chat
 backend/             FastAPI、Agent、RAG、面试编排、语音与爬虫
 resume-copilot-web/  面向求职者的 Next.js 产品
 frontend/            岗位、评分、调度与爬虫管理端
+src/jobradar_core/    Local TUI 共用的岗位、简历、Context、Memory 与 Runtime
+src/jobradar_tui/     Textual 界面与 jobradar CLI
+tests/local_tui/      本地工作区、检索、防编造、导出和 TUI 验收
 docs/                架构、评测报告、复盘与产品原型
 scripts/             数据导入、抓取、验证和运维脚本
 ```

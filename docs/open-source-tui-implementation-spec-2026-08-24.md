@@ -1,6 +1,6 @@
 # JobRadar Open-source TUI 实施 Spec
 
-- 状态：Proposed
+- 状态：Implemented Alpha（`v0.1.0-alpha`；许可证与公共数据源同步仍是 GA 前置项）
 - 日期：2026-08-24
 - 面向版本：`0.1.0-alpha`
 - 产品边界：仅开放「岗位检索」与「简历优化」
@@ -32,6 +32,25 @@ jobradar init
 jobradar doctor
 jobradar tui
 ```
+
+### 1.1 Alpha 实际交付
+
+当前仓库已经落地：
+
+- 根目录可安装 Python package 和 `jobradar` console script；
+- `init`、`doctor`、`config`、`jobs`、`resume` 和 `tui` 命令；
+- XDG / `JOBRADAR_HOME` 工作区与系统/用户数据物理隔离；
+- SQLite WAL、FTS5、岗位导入、检索、排序、收藏和排除；
+- PDF、DOCX、Markdown、TXT 简历解析与内容寻址原件存储；
+- Stable Prefix、Run Snapshot、Turn Dynamic 和 L1/L3 Memory 实际调用；
+- OpenAI-compatible/Ollama、远程模型显式授权和环境变量 Key；
+- 证据化 Resume Patch、Blocked Gate、人工接受和新版本导出；
+- Jobs、Resume、Runs、Settings 四页 Textual TUI；
+- Docker、三版本 Python CI、离线 smoke test 和桌面/窄终端 Pilot 测试。
+
+尚未落地：生产或公共 ATS 自动同步、PyPI 正式发布、L0 用户约束和 L2 经历的
+自动抽取、历史 schema 跨版本迁移，以及根仓库许可证。它们继续按后文
+Phase 0/4/5 推进，README 不把这些写成现成功能。
 
 ## 2. 为什么做这个版本
 

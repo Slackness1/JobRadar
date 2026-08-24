@@ -1,0 +1,16 @@
+services:
+  jobradar:
+    build:
+      context: .
+      dockerfile: Dockerfile.tui
+    environment:
+      JOBRADAR_HOME: /data
+      JOBRADAR_CONFIG_HOME: /config
+      JOBRADAR_LLM_API_KEY: ${JOBRADAR_LLM_API_KEY:-}
+    volumes:
+      - ./.jobradar-local:/data
+      - ./.jobradar-config:/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    stdin_open: true
+    tty: true
