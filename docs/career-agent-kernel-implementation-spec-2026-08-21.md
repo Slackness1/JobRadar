@@ -381,9 +381,9 @@ class ContextSnapshot(BaseModel):
 
 JobRadar 借鉴 Coding Agent 的“稳定前缀在前、变化后缀在后”，但不照搬代码仓库环境。Runtime Context 固定编译为：
 
-![JobRadar Memory 与 Context 逻辑关系](./images/context-memory-logical-flow-2026-08-24.png)
+![JobRadar Memory、Context 与 Action 完整闭环](./images/jobradar-memory-context-action-flow-2026-08-24.png)
 
-图 1：Memory 是持久事实源，Context 是根据 Purpose、Scope、业务状态和 Token Budget 为单次模型调用编译出的可见视图。
+图 1：Memory 是经过治理的持久事实源；Context 是根据 Purpose、Scope、业务状态和 Token Budget 为单次模型调用编译出的可见视图；模型产出只能回流为 Event 或 Candidate Claim。
 
 | 层 | 内容 | 典型生命周期 | 缓存策略 |
 |---|---|---|---|

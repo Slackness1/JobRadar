@@ -23,7 +23,7 @@ JobRadar 的记忆不能只设计成“全局记忆、模块记忆、对话记�
 
 ```text
 Memory Scope
-决定记忆属于哪个账号、目标、模块、Run 和 Turn
+决定记忆属于哪个账号、目标、模块、Session、Run 和 Turn
 
 Disclosure Policy
 根据当前 Purpose、风险和 Token Budget 决定是否加载，以及披露到哪一层
@@ -31,9 +31,25 @@ Disclosure Policy
 
 每一次模型调用都会生成独立的 `MemoryDisclosureSnapshot`。同一场对话的第 5 轮和第 6 轮可以看到不同记忆，但它们读取的是同一份权威 Memory Store，而不是复制出两份“轮级记忆”。
 
-![JobRadar Memory 与 Context 逻辑关系](./images/context-memory-logical-flow-2026-08-24.png)
+![JobRadar Memory、Context 与 Action 完整闭环](./images/jobradar-memory-context-action-flow-2026-08-24.png)
 
-图 1：Memory 经过治理后成为持久事实源；Context Compiler 根据当前 Purpose 和 Scope 按需读取，为每次模型调用生成可复现的 Context View。
+图 1：三个业务模块产生当前态和 Candidate Claim；Memory 经过证据、冲突与确认治理后成为持久事实源；Context Compiler 再按 Purpose 和 Scope 为每次调用生成可复现的 Context View。
+
+### 0.1 从 Claude Code 到 JobRadar 的设计演进
+
+JobRadar 保留 Claude Code 的四个有效原则：稳定信息在前、索引加按需详情、Scope 隔离、记忆透明可纠错。但 Coding Agent 的 Repo Scope、Markdown Memory 和 Agent 直写不能直接服务多用户求职产品。
+
+我们针对三个业务约束完成了改造：
+
+1. Repo Scope 改为 `账号 / 目标 / 模块 / 对话 / 执行 / 单轮` 六级 Scope；
+2. Markdown 文件改为结构化 Memory Record、Evidence 和版本；
+3. Agent 直接回写改为 Staged Claim、冲突检测和用户确认；
+4. 目录触发加载改为 Purpose-aware 渐进披露；
+5. 恢复项目连续性改为推荐、简历、面试之间的候选人连续性。
+
+![从 Claude Code 到 JobRadar 的 Memory 与 Context 设计演进](./images/claude-code-to-jobradar-memory-context-evolution-2026-08-24.png)
+
+图 2：这不是复制 Claude Code，而是把其上下文原则产品化、治理化和求职领域化。
 
 ## 1. 背景与问题
 
