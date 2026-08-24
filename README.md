@@ -6,7 +6,7 @@
 
 从岗位发现、个性化推荐、简历改写，到针对目标岗位的模拟面试。
 
-[在线产品](https://jobcopilot.top) · [功能状态](#真实功能状态) · [快速开始](#快速开始) · [Voice Agent 验收](docs/voice-agent-acceptance-2026-08-16.md)
+[在线产品](https://jobcopilot.top) · [功能状态](#真实功能状态) · [快速开始](#快速开始) · [开源 TUI 方案](docs/open-source-tui-implementation-spec-2026-08-24.md) · [Voice Agent 验收](docs/voice-agent-acceptance-2026-08-16.md)
 
 </div>
 
@@ -70,6 +70,7 @@
 | RAG / 外部情报 | XHS、播客、赛道知识与记忆 Provider；按 chat/interview/intel 等 purpose 路由 | 私有语料与派生索引不作为公共数据集分发 |
 | 模拟面试 | 岗位定制题目、自适应追问、并行编排、评分、报告与 Voice Facts V2 | 反馈只展示可测事实，不输出未经校准的性格/自信标签 |
 | Realtime Voice Agent | LiveKit WebRTC、流式 ASR/TTS、播放取消、自动轮次、barge-in、重连与 legacy fallback 均已实现并受 feature flag 控制 | Gate B 真人中文语料和 Gate C 真实 LiveKit 房间验收尚未完成 |
+| Open-source TUI | 已完成本地优先产品边界、Career Core、Context/Memory、数据契约与分阶段实施设计 | 尚未实现；计划只开放岗位检索和证据化简历优化 |
 
 语音链路的实现、失败复盘和验收边界见 [阶段复盘](docs/voice-agent-phase-retrospective-and-acceptance-2026-08-16.md) 与 [验收清单](docs/voice-agent-acceptance-2026-08-16.md)。
 
@@ -128,6 +129,19 @@ flowchart LR
 | 爬虫 | Python、Requests、Playwright、ATS / 站点专用 adapter |
 | 语音 | LiveKit Agents、Silero VAD、DashScope Paraformer、Qwen3-TTS / CosyVoice、WebRTC |
 
+## Open-source TUI 计划
+
+完整仓库适合研究和部署全栈产品，但外部用户不应该为了体验核心 Agent 先启动 Web、管理端、调度器和语音服务。下一阶段会提供一个独立安装的本地 TUI，只保留两条完整工作流：
+
+```text
+本地岗位数据 → 检索 / 筛选 / 比较 / 收藏
+本地简历 + 目标 JD → 证据对齐 / patch 审阅 / 导出新版本
+```
+
+设计参考 [career-ops](https://github.com/santifer/career-ops) 的 local-first 与 system/user data contract，但不依赖 Claude Code 等 Coding Agent 作为运行时。JobRadar 会使用 Python `Textual` + 可独立测试的 Career Core；岗位搜索离线可用，简历优化使用用户自己的 OpenAI-compatible 或 Ollama endpoint，默认无遥测、无自动投递、永不覆盖原始简历。
+
+当前是实施方案而非已发布功能，具体架构、命令、数据边界、Phase 和验收标准见 [Open-source TUI 实施 Spec](docs/open-source-tui-implementation-spec-2026-08-24.md)。
+
 ## 快速开始
 
 ### Docker：后端与管理端
@@ -184,6 +198,9 @@ scripts/             数据导入、抓取、验证和运维脚本
 - [Realtime Voice Agent Spec](docs/realtime-voice-agent-spec-2026-08-16.md)
 - [Voice Agent 三道验收](docs/voice-agent-acceptance-2026-08-16.md)
 - [Voice Agent 阶段复盘与未完成项](docs/voice-agent-phase-retrospective-and-acceptance-2026-08-16.md)
+- [Career Agent Kernel 实施 Spec](docs/career-agent-kernel-implementation-spec-2026-08-21.md)
+- [渐进式记忆披露 PRD](docs/progressive-memory-disclosure-prd-2026-08-22.md)
+- [Open-source TUI 实施 Spec](docs/open-source-tui-implementation-spec-2026-08-24.md)
 - [Mock Interview 独立评审](docs/eval-full-loop-reports/mock-interview-independent-review-2026-05-22/independent-summary.md)
 - [Workspace Coach 独立评审](docs/eval-full-loop-reports/workspace-coach-independent-review-2026-05-22/independent-summary.md)
 
